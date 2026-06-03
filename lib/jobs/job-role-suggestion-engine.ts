@@ -310,6 +310,156 @@ const ROLE_TEMPLATES: Record<JobRoleCategory, RoleTemplate> = {
   },
 };
 
+const BENEFITS_BY_CATEGORY: Record<JobRoleCategory, string[]> = {
+  software_frontend: [
+    'Health Insurance',
+    'Flexible Working Hours',
+    'Remote Work Options',
+    'Learning & Development Budget',
+    'Performance Bonus',
+    'Paid Time Off',
+  ],
+  software_backend: [
+    'Health Insurance',
+    'Flexible Hours',
+    'Remote/Hybrid Work',
+    'Tech Learning Budget',
+    'Performance Bonus',
+    'Provident Fund',
+  ],
+  software_fullstack: [
+    'Health Insurance',
+    'Flexible Hours',
+    'Remote Work',
+    'Upskilling Budget',
+    'Annual Bonus',
+    'Paid Leave',
+  ],
+  software_general: [
+    'Health Insurance',
+    'Flexible Hours',
+    'Remote Work',
+    'Learning Budget',
+    'Performance Bonus',
+    'Paid Time Off',
+  ],
+  accounting: [
+    'Health Insurance',
+    'Paid Leave',
+    'Festival Bonus',
+    'Professional Certification Support',
+    'Provident Fund',
+    'Flexible Hours',
+  ],
+  hr: [
+    'Paid Leave',
+    'Medical Coverage',
+    'Employee Wellness Programs',
+    'Festival Bonus',
+    'Learning Budget',
+    'Flexible Hours',
+  ],
+  sales: [
+    'Sales Incentives',
+    'Commission Structure',
+    'Travel Allowance',
+    'Mobile & Internet Reimbursement',
+    'Health Insurance',
+    'Performance Bonus',
+  ],
+  digital_marketing: [
+    'Performance Bonus',
+    'Tool/Software Budget',
+    'Flexible Hours',
+    'Remote Work Options',
+    'Health Insurance',
+    'Paid Leave',
+  ],
+  teaching: [
+    'Paid Holidays',
+    'Medical Coverage',
+    'Training Workshops',
+    'Festival Bonus',
+    'Child Education Support',
+    'Paid Leave',
+  ],
+  nurse: [
+    'Medical Coverage',
+    'Shift Allowance',
+    'Paid Leave',
+    'Uniform Allowance',
+    'Festival Bonus',
+    'Employee Wellness',
+  ],
+  medical: [
+    'Medical Coverage',
+    'Professional Development',
+    'Paid Leave',
+    'Malpractice Coverage Support',
+    'Festival Bonus',
+    'Continuing Education Allowance',
+  ],
+  driver: [
+    'Fuel Allowance',
+    'Vehicle Maintenance Support',
+    'Health Insurance',
+    'Paid Leave',
+    'Overtime Pay',
+    'Festival Bonus',
+  ],
+  factory: [
+    'Health Insurance',
+    'Overtime Pay',
+    'Safety Equipment Provided',
+    'Canteen/Meal Allowance',
+    'Festival Bonus',
+    'Paid Leave',
+  ],
+  civil_engineering: [
+    'Site Allowance',
+    'Health Insurance',
+    'Travel Reimbursement',
+    'Project Bonus',
+    'Paid Leave',
+    'Safety Gear Provided',
+  ],
+  bpo: [
+    'Cab/Transport Facility',
+    'Health Insurance',
+    'Performance Incentives',
+    'Night Shift Allowance',
+    'Paid Leave',
+    'Referral Bonus',
+  ],
+  beauty: [
+    'Product Discounts',
+    'Commission on Services',
+    'Health Insurance',
+    'Paid Leave',
+    'Training on New Techniques',
+    'Festival Bonus',
+  ],
+  general: [
+    'Health Insurance',
+    'Paid Leave',
+    'Festival Bonus',
+    'Flexible Hours',
+    'Performance Incentives',
+    'Employee Wellness',
+  ],
+};
+
+function formatBenefitLine(benefit: string): string {
+  const t = benefit.trim();
+  if (!t) return '';
+  if (/^[-•*]/.test(t)) return t;
+  return `• ${t}`;
+}
+
+function getBenefitsForCategory(category: JobRoleCategory): string[] {
+  return (BENEFITS_BY_CATEGORY[category] || BENEFITS_BY_CATEGORY.general).map(formatBenefitLine);
+}
+
 export function isEmployerJobPostingContext(
   context: Record<string, unknown>,
   field?: string
@@ -491,6 +641,8 @@ export function getJobPostingSuggestions(
     case 'title':
     case 'jobTitle':
       return titleSuggestionsFromInput(value, jobTitle, category);
+    case 'benefits':
+      return dedupeList(getBenefitsForCategory(category));
     default:
       return null;
   }

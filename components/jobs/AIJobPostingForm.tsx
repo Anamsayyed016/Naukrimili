@@ -324,6 +324,25 @@ export default function AIJobPostingForm() {
   const handleInputChange = (field: keyof JobFormData, value: string | string[] | boolean | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
+    if (field === 'benefits') {
+      if (benefitsDebounceRef.current) {
+        clearTimeout(benefitsDebounceRef.current);
+      }
+      if (typeof value === 'string' && value.trim().length >= 2) {
+        benefitsDebounceRef.current = setTimeout(() => {
+          benefitsDebounceRef.current = null;
+          getAiSuggestions('benefits');
+        }, 1500);
+      } else if (typeof value === 'string' && value.trim().length === 0 && formDataRef.current.title.trim().length >= 3) {
+        benefitsDebounceRef.current = setTimeout(() => {
+          benefitsDebounceRef.current = null;
+          getAiSuggestions('benefits');
+        }, 800);
+      } else {
+        setAiSuggestions((prev) => ({ ...prev, benefits: [] }));
+      }
+    }
+
     // Auto-trigger AI suggestions for title, description, and requirements as user types
     if (field === 'title' || field === 'description' || field === 'requirements') {
       const suggestionField = field;
@@ -444,7 +463,7 @@ export default function AIJobPostingForm() {
   };
 
   const getAiSuggestions = async (
-    field: 'title' | 'description' | 'requirements' | 'skills'
+    field: 'title' | 'description' | 'requirements' | 'skills' | 'benefits'
   ) => {
     const requestId = (aiSuggestionRequestRef.current[field] ?? 0) + 1;
     aiSuggestionRequestRef.current[field] = requestId;
@@ -476,13 +495,16 @@ export default function AIJobPostingForm() {
         description: latestFormData.description || `Job description for ${latestFormData.title || 'this position'}`,
         requirements: latestFormData.requirements || `Requirements for ${latestFormData.title || 'this position'}`,
         skills: JSON.stringify(latestFormData.skills.length ? latestFormData.skills : []),
+        benefits:
+          latestFormData.benefits.trim() ||
+          `Employee benefits for ${latestFormData.title || latestFormData.jobType} role`,
       };
 
       const value = hasUserInput
         ? String(currentFieldValue).trim()
         : field === 'skills'
           ? seedDefaults.skills
-          : seedDefaults[field];
+          : seedDefaults[field] || latestFormData.title || '';
 
       const res = await fetch('/api/ai/form-suggestions', {
         method: 'POST',
@@ -1709,43 +1731,120 @@ export default function AIJobPostingForm() {
                       Work Type Options
                     </Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-green-200 hover:border-green-300 transition-all cursor-pointer">
+                      <label
+                        htmlFor="remote"
+                        className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 min-w-0 ${
+                          formData.isRemote
+                            ? 'border-blue-500 bg-blue-50/90 shadow-md shadow-blue-100/80 ring-2 ring-blue-200/60'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
                         <Checkbox
                           id="remote"
                           checked={formData.isRemote}
                           onCheckedChange={(checked) => handleInputChange('isRemote', checked)}
-                          className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 shrink-0"
                         />
-                        <Label htmlFor="remote" className="font-medium cursor-pointer text-sm sm:text-base flex-1">
-                          🏠 Remote Work
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-green-200 hover:border-green-300 transition-all cursor-pointer">
+                        <span className="font-medium text-sm sm:text-base flex-1 text-slate-900">🏠 Remote Work</span>
+                        {formData.isRemote && (
+                          <CheckCircle className="h-5 w-5 text-blue-600 shrink-0" aria-hidden />
+                        )}
+                      </label>
+                      <label
+                        htmlFor="hybrid"
+                        className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 min-w-0 ${
+                          formData.isHybrid
+                            ? 'border-purple-500 bg-purple-50/90 shadow-md shadow-purple-100/80 ring-2 ring-purple-200/60'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
                         <Checkbox
                           id="hybrid"
                           checked={formData.isHybrid}
                           onCheckedChange={(checked) => handleInputChange('isHybrid', checked)}
-                          className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                          className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 shrink-0"
                         />
-                        <Label htmlFor="hybrid" className="font-medium cursor-pointer text-sm sm:text-base flex-1">
-                          🏢 Hybrid Work
-                        </Label>
-                      </div>
+                        <span className="font-medium text-sm sm:text-base flex-1 text-slate-900">🏢 Hybrid Work</span>
+                        {formData.isHybrid && (
+                          <CheckCircle className="h-5 w-5 text-purple-600 shrink-0" aria-hidden />
+                        )}
+                      </label>
                     </div>
                   </div>
 
                   <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-5 rounded-xl border border-amber-200">
-                    <Label className="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-amber-600" />
-                      Benefits <span className="text-xs text-slate-500 font-normal">(Optional)</span>
-                    </Label>
-                    <Textarea
-                      value={formData.benefits}
-                      onChange={(e) => handleInputChange('benefits', e.target.value)}
-                      placeholder="List the benefits you offer...\n\nExample:\n• Health insurance\n• Flexible hours\n• Professional development"
-                      rows={5}
-                      className="resize-none bg-white border-amber-200 focus:border-amber-400 focus:ring-amber-400"
-                    />
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-amber-600 shrink-0" />
+                        Benefits
+                        <span className="text-xs text-slate-500 font-normal">(Optional)</span>
+                        <Badge variant="secondary" className="bg-amber-100 text-amber-800 text-xs">
+                          AI-Powered
+                        </Badge>
+                      </Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => getAiSuggestions('benefits')}
+                        disabled={aiLoading.benefits || loadingCompany || !formData.title.trim()}
+                        className="bg-gradient-to-r from-amber-600 to-orange-600 text-white border-0 hover:from-amber-700 hover:to-orange-700 shadow-lg shrink-0"
+                      >
+                        <Sparkles className="h-3 w-3 mr-1.5" />
+                        {aiLoading.benefits ? 'Generating…' : 'AI Suggest Benefits'}
+                      </Button>
+                    </div>
+                    <div className="relative">
+                      <Textarea
+                        value={formData.benefits}
+                        onChange={(e) => handleInputChange('benefits', e.target.value)}
+                        placeholder="List the benefits you offer...\n\nExample:\n• Health insurance\n• Flexible hours\n• Professional development"
+                        rows={5}
+                        className="resize-none bg-white border-amber-200 focus:border-amber-400 focus:ring-amber-400"
+                      />
+                      {aiLoading.benefits && (
+                        <div className="absolute right-3 top-3">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600" />
+                        </div>
+                      )}
+                    </div>
+                    {formData.title.trim() && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        💡 Suggestions based on &quot;{formData.title}&quot; — click to append each benefit
+                      </p>
+                    )}
+                    <AnimatePresence initial={false}>
+                      {aiSuggestions.benefits?.length ? (
+                        <motion.div
+                          key="benefits-suggestions"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="mt-3 space-y-2"
+                        >
+                          <p className="text-xs font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                            <Sparkles className="h-3 w-3 animate-pulse" />
+                            AI Benefit Suggestions (click to append):
+                          </p>
+                          {aiSuggestions.benefits.map((suggestion, idx) => (
+                            <motion.button
+                              key={`${suggestion}-${idx}`}
+                              type="button"
+                              initial={{ opacity: 0, x: -12 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.05 }}
+                              onClick={() => applySuggestion('benefits', suggestion)}
+                              className="w-full text-left text-sm p-3 rounded-lg border-2 border-amber-200 bg-white hover:bg-amber-50 hover:border-amber-400 transition-all shadow-sm hover:shadow-md group"
+                            >
+                              <span className="flex items-start gap-2">
+                                <Sparkles className="h-4 w-4 text-amber-600 mt-0.5 group-hover:animate-pulse flex-shrink-0" />
+                                <span className="flex-1">{suggestion}</span>
+                              </span>
+                            </motion.button>
+                          ))}
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
                   </div>
 
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-5 rounded-xl border border-purple-200">
@@ -1753,34 +1852,64 @@ export default function AIJobPostingForm() {
                       Job Visibility Settings
                     </Label>
                     <div className="space-y-3">
-                      <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-all">
+                      <label
+                        htmlFor="urgent"
+                        className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 min-w-0 ${
+                          formData.isUrgent
+                            ? 'border-amber-500 bg-amber-50/90 shadow-md shadow-amber-100/80 ring-2 ring-amber-200/60'
+                            : 'border-slate-200 bg-white hover:border-slate-300 opacity-90'
+                        }`}
+                      >
                         <Checkbox
                           id="urgent"
                           checked={formData.isUrgent}
                           onCheckedChange={(checked) => handleInputChange('isUrgent', checked)}
-                          className="mt-0.5 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                          className="mt-0.5 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 shrink-0"
                         />
-                        <div className="flex-1">
-                          <Label htmlFor="urgent" className="font-medium cursor-pointer text-sm sm:text-base block">
-                            ⚡ Urgent Hiring
-                          </Label>
-                          <p className="text-xs text-slate-500 mt-1">Mark this as an urgent position needing immediate attention</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-medium text-sm sm:text-base text-slate-900">⚡ Urgent Hiring</span>
+                            {formData.isUrgent && (
+                              <Badge className="bg-amber-600 text-white text-[10px] font-bold px-2 py-0">ACTIVE</Badge>
+                            )}
+                          </div>
+                          <p className={`text-xs mt-1 ${formData.isUrgent ? 'text-amber-800/90' : 'text-slate-500'}`}>
+                            Mark this as an urgent position needing immediate attention
+                          </p>
                         </div>
-                      </div>
-                      <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-all">
+                        {formData.isUrgent && (
+                          <CheckCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" aria-hidden />
+                        )}
+                      </label>
+                      <label
+                        htmlFor="featured"
+                        className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 min-w-0 ${
+                          formData.isFeatured
+                            ? 'border-purple-500 bg-purple-50/90 shadow-md shadow-purple-100/80 ring-2 ring-purple-200/60'
+                            : 'border-slate-200 bg-white hover:border-slate-300 opacity-90'
+                        }`}
+                      >
                         <Checkbox
                           id="featured"
                           checked={formData.isFeatured}
                           onCheckedChange={(checked) => handleInputChange('isFeatured', checked)}
-                          className="mt-0.5 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                          className="mt-0.5 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 shrink-0"
                         />
-                        <div className="flex-1">
-                          <Label htmlFor="featured" className="font-medium cursor-pointer text-sm sm:text-base block">
-                            ⭐ Featured Job Posting
-                          </Label>
-                          <p className="text-xs text-slate-500 mt-1">Increase visibility with premium placement on search results</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-medium text-sm sm:text-base text-slate-900">⭐ Featured Job Posting</span>
+                            {formData.isFeatured && (
+                              <Badge className="bg-purple-600 text-white text-[10px] font-bold px-2 py-0">ACTIVE</Badge>
+                            )}
+                          </div>
+                          <p className={`text-xs mt-1 ${formData.isFeatured ? 'text-purple-800/90' : 'text-slate-500'}`}>
+                            Increase visibility with premium placement on search results
+                          </p>
                         </div>
-                      </div>
+                        {formData.isFeatured && (
+                          <CheckCircle className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" aria-hidden />
+                        )}
+                      </label>
                     </div>
                   </div>
                 </motion.div>

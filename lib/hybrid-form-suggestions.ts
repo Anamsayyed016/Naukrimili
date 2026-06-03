@@ -850,7 +850,8 @@ Return ONLY a JSON array of position strings, no other text.`;
         'Bachelor of Science (B.Sc) in Computer Science with additional certifications in modern technologies.',
         'Diploma in Software Engineering with practical project experience and industry-recognized certifications.'
       ],
-      benefits: [
+      benefits:
+        getJobPostingSuggestions('benefits', value || '', context) || [
         'Competitive salary and performance bonuses',
         'Comprehensive health insurance coverage',
         'Flexible working hours and remote work options',

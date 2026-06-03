@@ -636,6 +636,31 @@ RULES:
 
 Return JSON: {"suggestions": ["Title 1", ...]}${variationHint}${domainRule}`;
 
+      case 'benefits':
+        if (context.suggestionDomain === 'job-posting') {
+          const roleCategory = classifyJobRoleCategory(userContent, {
+            jobTitle: baseContext.jobTitle,
+            jobDescription: String(context.jobDescription || ''),
+            industry: baseContext.industry,
+            experienceLevel: baseContext.experienceLevel,
+            jobType: baseContext.jobType,
+            userInput: userContent,
+          });
+          return `Generate job posting BENEFITS & perks for employers hiring a "${baseContext.jobTitle}".
+
+ROLE CATEGORY (inferred): ${roleCategory}
+Industry: ${baseContext.industry} | Type: ${baseContext.jobType} | Level: ${baseContext.experienceLevel}
+
+RULES:
+- 6-8 bullet-style benefits (e.g. "• Health Insurance")
+- Sector-specific: Software → learning budget/remote; Sales → commission/travel; HR → wellness/leave
+- NO generic copy-paste across unrelated roles
+- Short, attractive perk lines
+
+Return JSON: {"suggestions": ["• Benefit 1", ...]}${variationHint}`;
+        }
+        return `Suggest 6-8 employee benefits for ${baseContext.industry} industry. JSON: {"suggestions": [...]}`;
+
       case 'requirements':
         if (context.suggestionDomain === 'job-posting') {
           const roleCategory = classifyJobRoleCategory(userContent, {
