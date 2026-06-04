@@ -608,6 +608,8 @@ export async function GET(request: NextRequest) {
     const requestedCountries = new Set(countries);
     const allJobs = filterValidJobs([...transformedDatabaseJobs, ...filteredJobs, ...transformedExternalJobs])
       .filter(job => {
+        const src = (job.source || '').toString().toLowerCase();
+        if (src === 'manual' || src === 'employer') return true;
         const jobCountry = (job.country || '').toString().toUpperCase();
         return requestedCountries.has(jobCountry);
       })

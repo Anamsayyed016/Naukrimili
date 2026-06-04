@@ -10,11 +10,9 @@ import {
   ChevronRightIcon,
   EyeIcon,
   FireIcon,
-  GlobeAltIcon,
-  ClockIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
-import { JobResult, JobQuickView } from '@/types/jobs';
+import { JobResult } from '@/types/jobs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSEOJobUrl } from '@/components/SEOJobLink';
@@ -25,6 +23,42 @@ import {
   saveJobNavigationSource,
   saveJobSearchContext,
 } from '@/lib/job-navigation-state';
+
+/** Shared job card surface tokens (UI only). */
+const jc = {
+  card:
+    'group bg-white rounded-xl border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_6px_16px_-6px_rgba(15,23,42,0.07)] hover:border-slate-300 hover:shadow-[0_4px_20px_-6px_rgba(15,23,42,0.1)] transition-[box-shadow,border-color] duration-200',
+  cardCompact:
+    'group bg-white rounded-lg border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_4px_12px_-4px_rgba(15,23,42,0.06)] hover:border-slate-300 hover:shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)] transition-[box-shadow,border-color] duration-200',
+  cardViewed: 'border-slate-400 ring-2 ring-slate-200/90 bg-slate-50/40',
+  header: 'p-4 sm:p-5 lg:p-6',
+  title:
+    'text-base sm:text-lg lg:text-xl font-semibold text-slate-900 tracking-tight leading-snug line-clamp-2 group-hover:text-slate-800 transition-colors',
+  titleCompact:
+    'font-semibold text-slate-900 text-sm sm:text-base tracking-tight leading-snug line-clamp-2 group-hover:text-slate-800 transition-colors mb-1',
+  company: 'text-sm text-slate-500 font-medium truncate',
+  companyCompact: 'text-xs text-slate-500 font-medium truncate',
+  meta: 'text-xs sm:text-sm text-slate-500',
+  metaIcon: 'w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0',
+  logo: 'rounded-lg overflow-hidden bg-white ring-1 ring-slate-200/90 flex-shrink-0',
+  statusChip:
+    'inline-flex items-center gap-1 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200/80 rounded-full',
+  metaChip:
+    'inline-flex items-center px-2 py-0.5 text-[10px] sm:text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200/70 rounded-md whitespace-nowrap',
+  skillChip:
+    'px-2 py-0.5 text-[10px] sm:text-xs font-medium text-slate-600 bg-slate-50/90 border border-slate-100 rounded-md whitespace-nowrap',
+  salaryWrap:
+    'inline-flex items-center gap-2 py-1.5 px-2.5 sm:py-2 sm:px-3 bg-slate-50 border border-slate-200/70 rounded-lg mb-3 sm:mb-4',
+  salaryText: 'text-sm sm:text-base font-semibold text-slate-800 tracking-tight',
+  footer: 'px-4 sm:px-5 lg:px-6 py-3 sm:py-4 border-t border-slate-100 bg-slate-50/30 flex gap-2 sm:gap-3',
+  btnPrimary:
+    'flex-1 bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-sm',
+  btnSecondary:
+    'px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-200 bg-white rounded-lg hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors duration-200 flex items-center justify-center flex-shrink-0',
+  bookmark:
+    'p-2 sm:p-2.5 rounded-lg border border-slate-200/80 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors duration-200 flex-shrink-0',
+  bookmarkActive: 'bg-amber-50/80 border-amber-200/70 text-amber-600 hover:bg-amber-50',
+} as const;
 
 function stripJobDescriptionText(html: string): string {
   return html
@@ -101,7 +135,7 @@ function JobCardDescription({
       {isTruncated && (
         <Link
           href={jobUrl}
-          className="text-xs text-blue-600 hover:text-blue-700 hover:underline mt-0.5 inline-block"
+          className="text-xs font-medium text-slate-600 hover:text-slate-900 mt-0.5 inline-block transition-colors"
         >
           … Read More
         </Link>
@@ -178,53 +212,14 @@ export default function EnhancedJobCard({
   };
 
 
-  // Get job type badge color - Enhanced with gradients
-  const getJobTypeBadgeColor = (type?: string) => {
-    switch (type?.toLowerCase()) {
-      case 'full-time':
-        return 'bg-gradient-to-br from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm';
-      case 'part-time':
-        return 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-800 border-blue-300 shadow-sm';
-      case 'contract':
-        return 'bg-gradient-to-br from-orange-100 to-amber-100 text-orange-800 border-orange-300 shadow-sm';
-      case 'internship':
-        return 'bg-gradient-to-br from-purple-100 to-pink-100 text-purple-800 border-purple-300 shadow-sm';
-      case 'freelance':
-        return 'bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-800 border-indigo-300 shadow-sm';
-      default:
-        return 'bg-gradient-to-br from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm';
-    }
-  };
-
-  // Get experience level color - Enhanced with modern colors
-  const getExperienceLevelColor = (level?: string) => {
-    switch (level?.toLowerCase()) {
-      case 'entry':
-      case 'fresher':
-        return 'bg-gradient-to-br from-green-50 to-emerald-50 text-green-700 border-green-300 shadow-sm';
-      case 'mid':
-      case 'intermediate':
-        return 'bg-gradient-to-br from-blue-50 to-sky-50 text-blue-700 border-blue-300 shadow-sm';
-      case 'senior':
-        return 'bg-gradient-to-br from-purple-50 to-fuchsia-50 text-purple-700 border-purple-300 shadow-sm';
-      case 'lead':
-      case 'executive':
-        return 'bg-gradient-to-br from-orange-50 to-red-50 text-orange-700 border-orange-300 shadow-sm';
-      default:
-        return 'bg-gradient-to-br from-gray-50 to-slate-50 text-gray-700 border-gray-300 shadow-sm';
-    }
-  };
-
   // Compact view for mobile or dense listings
   if (viewMode === 'compact') {
     return (
       <>
         <motion.div
           ref={cardRef}
-          className={`group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border p-3 sm:p-4 min-w-0 overflow-hidden ${
-            isViewedJob 
-              ? 'border-blue-500 border-2 ring-2 ring-blue-200 bg-blue-50/30' 
-              : 'border-gray-200'
+          className={`${jc.cardCompact} p-3 sm:p-4 min-w-0 overflow-hidden ${
+            isViewedJob ? jc.cardViewed : ''
           }`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -238,7 +233,7 @@ export default function EnhancedJobCard({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
                 {showCompanyLogo && normalizedJob.companyLogo && !imageError && (
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className={`w-6 h-6 sm:w-8 sm:h-8 ${jc.logo}`}>
                     <Image
                       src={normalizedJob.companyLogo}
                       alt={`${normalizedJob.company} logo`}
@@ -251,37 +246,36 @@ export default function EnhancedJobCard({
                 )}
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                   {normalizedJob.is_urgent && (
-                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                    <span className={`${jc.statusChip} text-rose-700 bg-rose-50/80 border-rose-200/70`}>
                       <FireIcon className="w-3 h-3" />
                       <span className="hidden sm:inline">Urgent</span>
                     </span>
                   )}
                   {normalizedJob.is_featured && (
-                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
-                      ⭐ <span className="hidden sm:inline">Featured</span>
+                    <span className={jc.statusChip}>
+                      <span className="hidden sm:inline">Featured</span>
+                      <span className="sm:hidden">★</span>
                     </span>
                   )}
                   {isSampleJob && (
-                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-                      <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    <span className={jc.statusChip}>
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
                       <span className="hidden sm:inline">Sample</span>
                     </span>
                   )}
                 </div>
               </div>
               
-              <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                {normalizedJob.title}
-              </h3>
+              <h3 className={jc.titleCompact}>{normalizedJob.title}</h3>
               
-              <div className="flex flex-col sm:flex-row sm:items-center text-xs text-gray-600 mb-2 gap-1 sm:gap-0">
-                <div className="flex items-center">
-                  <BuildingOffice2Icon className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{normalizedJob.company}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2 min-w-0">
+                <div className="flex items-center min-w-0 max-w-full">
+                  <BuildingOffice2Icon className="w-3 h-3 mr-1.5 text-slate-400 flex-shrink-0" />
+                  <span className={jc.companyCompact}>{normalizedJob.company}</span>
                 </div>
-                <span className="hidden sm:inline mx-2">•</span>
+                <span className="hidden sm:inline text-slate-300">·</span>
                 <div className="flex items-center min-w-0 max-w-full overflow-hidden">
-                  <MapPinIcon className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <MapPinIcon className="w-3 h-3 mr-1.5 text-slate-400 flex-shrink-0" />
                   <span
                     className="truncate max-w-full"
                     title={normalizedJob.location}
@@ -300,8 +294,8 @@ export default function EnhancedJobCard({
               )}
               
               {formatJobSalary(normalizedJob) !== 'Salary not specified' && (
-                <div className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg mb-2">
-                  <span className="font-bold text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+                <div className={`${jc.salaryWrap} mb-2`}>
+                  <span className={`${jc.salaryText} text-xs sm:text-sm`}>
                     {formatJobSalary(normalizedJob)}
                   </span>
                 </div>
@@ -311,11 +305,7 @@ export default function EnhancedJobCard({
             <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 flex-shrink-0">
               <button
                 onClick={handleBookmark}
-                className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
-                  isBookmarked
-                    ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                    : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                }`}
+                className={`${jc.bookmark} p-1.5 sm:p-2 ${isBookmarked ? jc.bookmarkActive : ''}`}
                 title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
               >
                 {isBookmarked ? (
@@ -328,7 +318,7 @@ export default function EnhancedJobCard({
               {isSampleJob ? (
                 <button
                   disabled
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-400 text-white text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-300 text-white text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
                   title="Sample job - not available for application"
                 >
                   <span className="hidden sm:inline">Sample</span>
@@ -338,7 +328,7 @@ export default function EnhancedJobCard({
               ) : (
                 <Link
                   href={`${seoJobUrl}/apply`}
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition-colors duration-200 flex items-center gap-1 shadow-sm"
                 >
                   <span className="hidden sm:inline">Apply</span>
                   <span className="sm:hidden">Apply</span>
@@ -357,13 +347,9 @@ export default function EnhancedJobCard({
     <>
       <motion.div
         ref={cardRef}
-        className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border overflow-hidden ${
-          viewMode === 'grid' ? 'h-full flex flex-col w-full min-w-0' : 'w-full'
-        } ${
-          isViewedJob 
-            ? 'border-blue-500 border-2 ring-4 ring-blue-200 bg-blue-50/30' 
-            : 'border-gray-200'
-        }`}
+        className={`${jc.card} overflow-hidden ${
+          viewMode === 'grid' ? 'h-full flex flex-col w-full min-w-0' : 'w-full min-w-0'
+        } ${isViewedJob ? jc.cardViewed : ''}`}
         style={{ 
           contain: 'layout style paint',
           contentVisibility: 'auto',
@@ -374,40 +360,40 @@ export default function EnhancedJobCard({
         transition={{ duration: 0.2 }}
       >
         {/* Card Header */}
-        <div className={`p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-white to-slate-50/50 ${viewMode === 'grid' ? 'flex-1 flex flex-col min-h-0' : ''}`}>
+        <div className={`${jc.header} ${viewMode === 'grid' ? 'flex-1 flex flex-col min-h-0' : ''}`}>
           <div className={`flex items-start justify-between mb-3 sm:mb-4 ${viewMode === 'grid' ? 'flex-shrink-0' : ''}`}>
             <div className="flex-1 min-w-0">
-              {/* Status badges - Enhanced with gradients */}
               <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
                 {job.is_urgent && (
-                  <span 
-                    className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-300 text-[10px] sm:text-xs font-semibold rounded-full shadow-sm"
-                  >
+                  <span className={`${jc.statusChip} text-rose-700 bg-rose-50/80 border-rose-200/70`}>
                     <FireIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                    <span className="hidden min-[475px]:inline">Urgent Hiring</span>
+                    <span className="hidden min-[475px]:inline">Urgent</span>
                     <span className="min-[475px]:hidden">Urgent</span>
                   </span>
                 )}
                 {job.is_featured && (
-                  <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-300 text-[10px] sm:text-xs font-semibold rounded-full shadow-sm">
-                    ⭐ <span className="hidden min-[475px]:inline">Featured</span>
+                  <span className={jc.statusChip}>
+                    <span className="hidden min-[475px]:inline">Featured</span>
+                    <span className="min-[475px]:hidden">★</span>
                   </span>
                 )}
                 {isSampleJob && (
-                  <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-300 text-[10px] sm:text-xs font-semibold rounded-full shadow-sm">
-                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-500 rounded-full animate-pulse"></span>
-                    <span className="hidden min-[475px]:inline">Sample Job</span>
+                  <span className={jc.statusChip}>
+                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-400 rounded-full" />
+                    <span className="hidden min-[475px]:inline">Sample</span>
                     <span className="min-[475px]:hidden">Sample</span>
                   </span>
                 )}
                 {job.is_remote && (
-                  <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-300 text-[10px] sm:text-xs font-semibold rounded-full shadow-sm">
-                    🏠 <span className="hidden min-[475px]:inline">Remote</span>
+                  <span className={jc.statusChip}>
+                    <span className="hidden min-[475px]:inline">Remote</span>
+                    <span className="min-[475px]:hidden">Remote</span>
                   </span>
                 )}
                 {job.is_hybrid && (
-                  <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-300 text-[10px] sm:text-xs font-semibold rounded-full shadow-sm">
-                    🏢 <span className="hidden min-[475px]:inline">Hybrid</span>
+                  <span className={jc.statusChip}>
+                    <span className="hidden min-[475px]:inline">Hybrid</span>
+                    <span className="min-[475px]:hidden">Hybrid</span>
                   </span>
                 )}
               </div>
@@ -415,7 +401,7 @@ export default function EnhancedJobCard({
               {/* Company logo and title */}
               <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
                 {showCompanyLogo && job.companyLogo && !imageError && (
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 ${jc.logo}`}>
                     <Image
                       src={job.companyLogo}
                       alt={`${job.company} logo`}
@@ -427,44 +413,33 @@ export default function EnhancedJobCard({
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1.5 sm:mb-2 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
-                    {job.title}
-                  </h3>
-                  <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
-                    <BuildingOffice2Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
-                    <span className="font-medium truncate text-sm sm:text-base">{job.company}</span>
+                  <h3 className={`${jc.title} mb-1 sm:mb-1.5`}>{job.title}</h3>
+                  <div className="flex items-center gap-1.5 min-w-0 mb-1.5 sm:mb-2">
+                    <BuildingOffice2Icon className={jc.metaIcon} />
+                    <span className={jc.company}>{job.company}</span>
                   </div>
                 </div>
               </div>
 
               {/* Location and job details */}
-              <div className="flex items-center text-gray-500 mb-2 sm:mb-3 flex-wrap gap-1.5 sm:gap-2 text-xs sm:text-sm min-w-0 max-w-full overflow-hidden">
-                <div className="flex items-center min-w-0 max-w-full overflow-hidden">
-                  <MapPinIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span
-                    className="truncate max-w-full"
-                    title={job.location}
-                  >
+              <div className={`flex items-center flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3 min-w-0 max-w-full overflow-hidden ${jc.meta}`}>
+                <div className="flex items-center min-w-0 max-w-full overflow-hidden gap-1">
+                  <MapPinIcon className={jc.metaIcon} />
+                  <span className="truncate max-w-full" title={job.location}>
                     {formatJobCardLocation(job.location)}
                   </span>
                 </div>
                 
                 {job.job_type && (
-                  <>
-                    <span className="hidden sm:inline">•</span>
-                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded-full border font-semibold whitespace-nowrap ${getJobTypeBadgeColor(job.job_type)}`}>
-                      {job.job_type.replace(/-/g, ' ').toUpperCase()}
-                    </span>
-                  </>
+                  <span className={jc.metaChip}>
+                    {job.job_type.replace(/-/g, ' ')}
+                  </span>
                 )}
                 
                 {job.experience_level && (
-                  <>
-                    <span className="hidden sm:inline">•</span>
-                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded-full border font-semibold whitespace-nowrap ${getExperienceLevelColor(job.experience_level)}`}>
-                      {job.experience_level.toUpperCase()}
-                    </span>
-                  </>
+                  <span className={jc.metaChip}>
+                    {job.experience_level}
+                  </span>
                 )}
               </div>
             </div>
@@ -472,11 +447,7 @@ export default function EnhancedJobCard({
             {/* Bookmark button */}
             <button
               onClick={handleBookmark}
-              className={`p-2 sm:p-2.5 lg:p-3 rounded-full transition-all duration-200 flex-shrink-0 ${
-                isBookmarked
-                  ? 'bg-blue-100 text-blue-600 hover:bg-blue-200 scale-110'
-                  : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-              }`}
+              className={`${jc.bookmark} ${isBookmarked ? jc.bookmarkActive : ''}`}
               title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
             >
               {isBookmarked ? (
@@ -489,14 +460,10 @@ export default function EnhancedJobCard({
 
           {/* Salary - Enhanced with gradient */}
           {formatJobSalary(job) !== 'Salary not specified' && (
-            <div className="flex items-center flex-wrap gap-2 p-2.5 sm:p-3 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 rounded-lg sm:rounded-xl border border-emerald-200 mb-3 sm:mb-4">
-              <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
-                {formatJobSalary(job)}
-              </span>
+            <div className={`${jc.salaryWrap} flex-wrap`}>
+              <span className={jc.salaryText}>{formatJobSalary(job)}</span>
               {showSalaryInsights && (
-                <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200 whitespace-nowrap">
-                  Competitive
-                </span>
+                <span className={`${jc.metaChip} normal-case`}>Competitive</span>
               )}
             </div>
           )}
@@ -515,15 +482,12 @@ export default function EnhancedJobCard({
               <div className="mb-3 sm:mb-4">
                 <div className="flex flex-wrap gap-1 sm:gap-1.5">
                   {skillsArray.slice(0, 6).map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 text-gray-700 text-[10px] sm:text-xs rounded-md whitespace-nowrap"
-                    >
+                    <span key={index} className={jc.skillChip}>
                       {skill}
                     </span>
                   ))}
                   {(skillsArray || []).length > 6 && (
-                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 text-gray-500 text-[10px] sm:text-xs rounded-md">
+                    <span className={`${jc.skillChip} text-slate-400`}>
                       +{(skillsArray || []).length - 6} more
                     </span>
                   )}
@@ -544,26 +508,23 @@ export default function EnhancedJobCard({
           )}
 
           {/* Footer info */}
-          <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 flex-wrap gap-1 sm:gap-2">
-            <div className="flex items-center min-w-0">
-              <CalendarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+          <div className={`flex items-center justify-between flex-wrap gap-1.5 sm:gap-2 pt-0.5 border-t border-slate-100/80 ${jc.meta}`}>
+            <div className="flex items-center min-w-0 gap-1">
+              <CalendarIcon className={jc.metaIcon} />
               <span className="truncate">Posted {job.time_ago}</span>
             </div>
             
             {job.sector && (
-              <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-50 rounded-md text-[10px] sm:text-xs whitespace-nowrap">
-                {job.sector}
-              </span>
+              <span className={jc.metaChip}>{job.sector}</span>
             )}
           </div>
         </div>
 
-        {/* Card Footer Actions - Enhanced with gradients */}
-        <div className={`px-4 sm:px-5 lg:px-6 py-3 sm:py-4 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 flex gap-2 sm:gap-3 ${viewMode === 'grid' ? 'flex-shrink-0' : ''}`}>
+        <div className={`${jc.footer} ${viewMode === 'grid' ? 'flex-shrink-0' : ''}`}>
           {isSampleJob ? (
             <button
               disabled
-              className="flex-1 bg-gradient-to-r from-gray-400 to-gray-500 text-white font-semibold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg sm:rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm text-xs sm:text-sm"
+              className="flex-1 bg-slate-300 text-white font-medium py-2 sm:py-2.5 rounded-lg cursor-not-allowed flex items-center justify-center gap-1.5 text-xs sm:text-sm"
               title="Sample job - not available for application"
             >
               <span className="hidden min-[475px]:inline">Sample Job</span>
@@ -592,7 +553,7 @@ export default function EnhancedJobCard({
                   );
                 }
               }}
-              className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-105 hover:shadow-lg shadow-md text-xs sm:text-sm"
+              className={jc.btnPrimary}
             >
               <span className="hidden min-[475px]:inline">View Details</span>
               <span className="min-[475px]:hidden">View</span>
@@ -600,12 +561,12 @@ export default function EnhancedJobCard({
             </Link>
           )}
           
-          <button 
+          <button
             onClick={handleQuickView}
-            className="px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border border-indigo-200 bg-white rounded-lg sm:rounded-xl hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm hover:shadow-md flex-shrink-0"
+            className={jc.btnSecondary}
             title="Quick view"
           >
-            <EyeIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" />
+            <EyeIcon className="w-4 h-4 text-slate-500" />
           </button>
           
         </div>

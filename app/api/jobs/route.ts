@@ -36,13 +36,15 @@ export async function GET(request: NextRequest) {
     // Build dynamic where clause for filtering
     // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
     const where: any = {
-      isActive: true
-      // NOTE: source field filter removed temporarily to handle database schema mismatch
-      // If source column doesn't exist in database, this will cause queries to fail
-      // TODO: Run migrations to ensure source column exists, then re-enable:
-      // source: {
-      //   notIn: ['sample', 'dynamic', 'seeded']
-      // }
+      isActive: true,
+      AND: [
+        {
+          OR: [
+            { source: null },
+            { source: { notIn: ['sample', 'dynamic', 'seeded'] } },
+          ],
+        },
+      ],
     };
 
     // Text search across multiple fields
@@ -125,9 +127,18 @@ export async function GET(request: NextRequest) {
       where.sector = { contains: sector, mode: 'insensitive' };
     }
 
-    // Country filtering
-    if (country) {
-      where.country = country.toUpperCase();
+    // Country filtering — employer/manual jobs always visible (parity with /api/jobs/unlimited)
+    const countryCode = country?.trim().toUpperCase();
+    if (countryCode && countryCode !== 'ALL') {
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { source: { in: ['manual', 'employer'] } },
+            { country: countryCode },
+          ],
+        },
+      ];
     }
 
     // Salary filtering

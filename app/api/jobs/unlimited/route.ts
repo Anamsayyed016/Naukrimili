@@ -187,6 +187,132 @@ const LIST_JOB_SELECT = {
   },
 } as const;
 
+type ListingFilterParams = {
+  query: string;
+  location: string;
+  company: string;
+  jobType: string;
+  experienceLevel: string;
+  isRemote: boolean;
+  sector: string;
+};
+
+/** Employer/manual jobs: same search filters as listing, but never country-gated. */
+function buildEmployerListingWhere(f: ListingFilterParams): Record<string, unknown> {
+  const employerListingWhere: Record<string, unknown> = {
+    isActive: true,
+    source: { in: ['manual', 'employer'] },
+  };
+  if (f.query) {
+    employerListingWhere.OR = [
+      { title: { contains: f.query, mode: 'insensitive' } },
+      { description: { contains: f.query, mode: 'insensitive' } },
+      { company: { contains: f.query, mode: 'insensitive' } },
+      { location: { contains: f.query, mode: 'insensitive' } },
+      { skills: { contains: f.query, mode: 'insensitive' } },
+    ];
+  }
+  if (f.company) {
+    employerListingWhere.company = { contains: f.company, mode: 'insensitive' };
+  }
+  if (f.jobType && f.jobType !== 'all') {
+    const jobTypeVariants = jobTypeSearchVariants(f.jobType);
+    employerListingWhere.AND = [
+      ...((employerListingWhere.AND as unknown[]) || []),
+      {
+        OR: jobTypeVariants.map((variant) => ({
+          jobType: { contains: variant, mode: 'insensitive' as const },
+        })),
+      },
+    ];
+  }
+  if (f.experienceLevel && f.experienceLevel !== 'all') {
+    const experienceVariants = experienceLevelSearchVariants(f.experienceLevel);
+    employerListingWhere.AND = [
+      ...((employerListingWhere.AND as unknown[]) || []),
+      {
+        OR: experienceVariants.map((variant) => ({
+          experienceLevel: { contains: variant, mode: 'insensitive' as const },
+        })),
+      },
+    ];
+  }
+  if (f.isRemote) {
+    employerListingWhere.isRemote = true;
+  }
+  if (f.sector) {
+    employerListingWhere.sector = { contains: f.sector, mode: 'insensitive' };
+  }
+  if (f.location) {
+    const locationParts = f.location.split(',').map((part) => part.trim()).filter(Boolean);
+    const locationConditions = locationParts.flatMap((part) => [
+      { location: { contains: part, mode: 'insensitive' } },
+      { country: { contains: part, mode: 'insensitive' } },
+    ]);
+    employerListingWhere.AND = [
+      ...((employerListingWhere.AND as unknown[]) || []),
+      { OR: locationConditions },
+    ];
+  }
+  return employerListingWhere;
+}
+
+function capListingWithEmployerFirst<T extends { source?: string | null }>(
+  rows: T[],
+  limit: number
+): T[] {
+  const employerRows = rows.filter((j) => j.source === 'manual' || j.source === 'employer');
+  const otherRows = rows.filter((j) => j.source !== 'manual' && j.source !== 'employer');
+  const otherCap = Math.max(0, limit - employerRows.length);
+  return [...employerRows, ...otherRows.slice(0, otherCap)];
+}
+
+function formatListingJob(job: Record<string, unknown>) {
+  const isExternalJob = isExternalSource(job.source as string | undefined);
+  const listingId = isExternalJob
+    ? externalListingId(job as { source?: string; sourceId?: string | number; id?: string | number })
+    : job.id;
+  let applyUrl = job.applyUrl;
+  if (isExternalJob) {
+    applyUrl = job.source_url || job.applyUrl;
+  } else {
+    applyUrl = `/jobs/${job.id}/apply`;
+  }
+  const rel = job.companyRelation as { name?: string; logo?: string } | undefined;
+  return {
+    id: listingId,
+    sourceId: job.sourceId,
+    title: job.title,
+    company: job.company || rel?.name,
+    companyLogo: job.companyLogo || rel?.logo,
+    location: job.location,
+    country: job.country,
+    description: job.description || '',
+    applyUrl,
+    source: job.source || 'database',
+    isExternal: isExternalJob,
+    postedAt: job.postedAt,
+    salary: job.salary,
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
+    salaryCurrency: job.salaryCurrency,
+    jobType: job.jobType,
+    experienceLevel: job.experienceLevel,
+    skills: job.skills,
+    isRemote: job.isRemote,
+    isHybrid: job.isHybrid,
+    isUrgent: job.isUrgent,
+    isFeatured: job.isFeatured,
+    isActive: job.isActive,
+    sector: job.sector,
+    views: job.views,
+    applicationsCount: job.applicationsCount,
+    createdAt: job.createdAt,
+    updatedAt: job.updatedAt,
+    distance: job.distance,
+  };
+}
+
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   const timings: JobApiTimings = {};
@@ -259,23 +385,67 @@ export async function GET(request: NextRequest) {
       includeExternal: includeExternalParam ?? 'true',
       refreshExternal: refreshExternal ? 1 : 0,
     });
+    const listingFilters: ListingFilterParams = {
+      query,
+      location,
+      company,
+      jobType,
+      experienceLevel,
+      isRemote,
+      sector,
+    };
+
     const cached = await jobCacheService.get<Record<string, unknown>>(cacheKey, 'api_jobs_list');
     // Page 1 sends refreshExternal=true — always refetch so new employer (manual) jobs are not hidden by a stale cache entry.
     if (cached && !refreshExternal) {
-      const cachedJobs = (cached as { jobs?: Record<string, unknown>[] }).jobs;
-      if (Array.isArray(cachedJobs) && cachedJobs.length > 0) {
-        await jobCacheService.cacheJobsForDetail(cachedJobs);
+      let responsePayload = { ...cached };
+      const cachedJobs = (responsePayload as { jobs?: Record<string, unknown>[] }).jobs;
+      try {
+        const manualRows = await prisma.job.findMany({
+          where: buildEmployerListingWhere(listingFilters),
+          take: 50,
+          orderBy: { createdAt: 'desc' },
+          select: LIST_JOB_SELECT,
+        });
+        const existingIds = new Set(
+          (Array.isArray(cachedJobs) ? cachedJobs : []).map((j) => String(j.id))
+        );
+        const freshManual = manualRows
+          .filter((row) => !existingIds.has(String(row.id)))
+          .map((row) => formatListingJob(row as Record<string, unknown>));
+        if (freshManual.length > 0) {
+          const merged = capListingWithEmployerFirst(
+            [...freshManual, ...(Array.isArray(cachedJobs) ? cachedJobs : [])] as {
+              source?: string | null;
+            }[],
+            limit
+          );
+          responsePayload = { ...responsePayload, jobs: merged };
+        }
+      } catch (employerCacheMergeError) {
+        console.warn('⚠️ Employer cache merge failed (serving cached list):', employerCacheMergeError);
+      }
+      const jobsForDetail = (responsePayload as { jobs?: Record<string, unknown>[] }).jobs;
+      if (Array.isArray(jobsForDetail) && jobsForDetail.length > 0) {
+        await jobCacheService.cacheJobsForDetail(jobsForDetail);
       }
       timings.cacheHit = true;
       timings.totalMs = Date.now() - startTime;
       logJobApiTiming('GET /api/jobs/unlimited', timings, { page, limit });
-      return NextResponse.json({
-        ...cached,
-        metadata: {
-          ...(cached.metadata as Record<string, unknown> | undefined),
-          performance: { ...(cached.metadata as { performance?: object })?.performance, cacheHit: true, responseTimeMs: timings.totalMs },
+      return NextResponse.json(
+        {
+          ...responsePayload,
+          metadata: {
+            ...(responsePayload.metadata as Record<string, unknown> | undefined),
+            performance: {
+              ...(responsePayload.metadata as { performance?: object })?.performance,
+              cacheHit: true,
+              responseTimeMs: timings.totalMs,
+            },
+          },
         },
-      });
+        { headers: { 'Cache-Control': 'private, no-store' } }
+      );
     }
 
     console.log(`🔍 Unlimited search params:`, {
@@ -372,8 +542,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Country filtering — external/API rows only; employer manual posts stay visible (Featured uses no country filter)
-    if (country) {
-      const countryCode = country.toUpperCase();
+    const countryCode = country?.trim().toUpperCase();
+    if (countryCode && countryCode !== 'ALL') {
       where.AND = [
         ...(where.AND || []),
         {
@@ -422,65 +592,8 @@ export async function GET(request: NextRequest) {
           prisma.job.count({ where })
         ]);
 
-        // Employer jobs: same filters as listing except country (parity with /api/featured-jobs & homepage recent jobs)
-        const employerListingWhere: Record<string, unknown> = {
-          isActive: true,
-          source: { in: ['manual', 'employer'] },
-        };
-        if (query) {
-          employerListingWhere.OR = [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-            { company: { contains: query, mode: 'insensitive' } },
-            { location: { contains: query, mode: 'insensitive' } },
-            { skills: { contains: query, mode: 'insensitive' } },
-          ];
-        }
-        if (company) {
-          employerListingWhere.company = { contains: company, mode: 'insensitive' };
-        }
-        if (jobType && jobType !== 'all') {
-          const jobTypeVariants = jobTypeSearchVariants(jobType);
-          employerListingWhere.AND = [
-            ...((employerListingWhere.AND as unknown[]) || []),
-            {
-              OR: jobTypeVariants.map((variant) => ({
-                jobType: { contains: variant, mode: 'insensitive' as const },
-              })),
-            },
-          ];
-        }
-        if (experienceLevel && experienceLevel !== 'all') {
-          const experienceVariants = experienceLevelSearchVariants(experienceLevel);
-          employerListingWhere.AND = [
-            ...((employerListingWhere.AND as unknown[]) || []),
-            {
-              OR: experienceVariants.map((variant) => ({
-                experienceLevel: { contains: variant, mode: 'insensitive' as const },
-              })),
-            },
-          ];
-        }
-        if (isRemote) {
-          employerListingWhere.isRemote = true;
-        }
-        if (sector) {
-          employerListingWhere.sector = { contains: sector, mode: 'insensitive' };
-        }
-        if (location) {
-          const locationParts = location.split(',').map((part) => part.trim()).filter(Boolean);
-          const locationConditions = locationParts.flatMap((part) => [
-            { location: { contains: part, mode: 'insensitive' } },
-            { country: { contains: part, mode: 'insensitive' } },
-          ]);
-          employerListingWhere.AND = [
-            ...((employerListingWhere.AND as unknown[]) || []),
-            { OR: locationConditions },
-          ];
-        }
-
         const manualEmployerRows = await prisma.job.findMany({
-          where: employerListingWhere,
+          where: buildEmployerListingWhere(listingFilters),
           take: 50,
           orderBy: { createdAt: 'desc' },
           select: LIST_JOB_SELECT,
@@ -492,15 +605,8 @@ export async function GET(request: NextRequest) {
         jobsResult = Array.from(dbRowById.values()).sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        if (page === 1 && jobsResult.length > limit) {
-          const employerRows = jobsResult.filter(
-            (j) => j.source === 'manual' || j.source === 'employer'
-          );
-          const otherRows = jobsResult.filter(
-            (j) => j.source !== 'manual' && j.source !== 'employer'
-          );
-          const otherCap = Math.max(0, limit - employerRows.length);
-          jobsResult = [...employerRows, ...otherRows.slice(0, otherCap)];
+        if (jobsResult.length > limit) {
+          jobsResult = capListingWithEmployerFirst(jobsResult, limit);
         }
 
         timings.prismaMs = Date.now() - prismaStart;
@@ -797,63 +903,18 @@ export async function GET(request: NextRequest) {
     // Format jobs with SMART apply URL handling
     let formattedJobs = [];
     try {
-      formattedJobs = jobs.map(job => {
-        // SMART APPLY URL: External jobs -> direct link, Employer jobs -> internal application
-        let applyUrl = job.applyUrl;
-        const isExternalJob = isExternalSource(job.source);
-        const listingId = isExternalJob ? externalListingId(job) : job.id;
+      formattedJobs = jobs.map((job) => formatListingJob(job as Record<string, unknown>));
+      formattedJobs = capListingWithEmployerFirst(
+        [
+          ...formattedJobs.filter((j) => j.source === 'manual' || j.source === 'employer'),
+          ...formattedJobs.filter((j) => j.source !== 'manual' && j.source !== 'employer'),
+        ],
+        limit
+      );
 
-        if (isExternalJob) {
-          // External job: Use source_url (direct application link)
-          applyUrl = job.source_url || job.applyUrl;
-        } else {
-          // Employer/Database job: Use internal application page
-          applyUrl = `/jobs/${job.id}/apply`;
-        }
-        
-        const baseJob = {
-          id: listingId,
-          sourceId: job.sourceId,
-          title: job.title,
-          company: job.company || job.companyRelation?.name,
-          companyLogo: job.companyLogo || job.companyRelation?.logo,
-          location: job.location,
-          country: job.country,
-          description: job.description || '',
-          applyUrl: applyUrl,
-          source: job.source || 'database',
-          isExternal: isExternalJob,
-          postedAt: job.postedAt,
-          salary: job.salary,
-          salaryMin: job.salaryMin,
-          salaryMax: job.salaryMax,
-          salaryCurrency: job.salaryCurrency,
-          jobType: job.jobType,
-          experienceLevel: job.experienceLevel,
-          skills: job.skills,
-          isRemote: job.isRemote,
-          isHybrid: job.isHybrid,
-          isUrgent: job.isUrgent,
-          isFeatured: job.isFeatured,
-          isActive: job.isActive,
-          sector: job.sector,
-          views: job.views,
-          applicationsCount: job.applicationsCount,
-          createdAt: job.createdAt,
-          updatedAt: job.updatedAt,
-          distance: job.distance
-        };
-
-        return baseJob;
-      });
-      
       // Debug: Check source fields after formatting
       const dbJobsAfterFormat = formattedJobs.filter(j => j.source === 'database' || j.source === 'employer').length;
       const extJobsAfterFormat = formattedJobs.filter(j => j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble').length;
-      formattedJobs = [
-        ...formattedJobs.filter((j) => j.source === 'manual' || j.source === 'employer'),
-        ...formattedJobs.filter((j) => j.source !== 'manual' && j.source !== 'employer'),
-      ];
       console.log(`🔍 After formatting: ${formattedJobs.length} jobs (${dbJobsAfterFormat} database + ${extJobsAfterFormat} external)`);
       console.log(`🔍 Sample formatted job sources:`, formattedJobs.slice(0, 3).map(j => ({ id: j.id, source: j.source, title: j.title?.substring(0, 30) })));
     } catch (formatError) {
@@ -929,7 +990,7 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Unlimited Jobs API: Successfully returned ${formattedJobs.length} jobs (${total} total)`);
     return NextResponse.json(response, {
-      headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=120' },
+      headers: { 'Cache-Control': 'private, no-store' },
     });
 
   } catch (error: any) {

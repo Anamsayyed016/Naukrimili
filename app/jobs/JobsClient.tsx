@@ -117,10 +117,11 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
       const unlimitedParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
-        country: country,
+        ...(country && country !== 'ALL' ? { country } : {}),
         includeExternal: 'true',
         includeDatabase: 'true',
         includeSample: 'false', // Prioritize real jobs only
+        refreshExternal: 'true',
         page: page.toString(),
         limit: '200' // Increased limit for unlimited search
       });
@@ -131,7 +132,9 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
       let unlimitedData;
 
       try {
-        unlimitedResponse = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
+        unlimitedResponse = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`, {
+          cache: 'no-store',
+        });
         
         console.log('📡 Unlimited API Response status:', unlimitedResponse.status);
         

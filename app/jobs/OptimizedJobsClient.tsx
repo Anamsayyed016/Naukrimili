@@ -117,13 +117,16 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       const pageSize = filters.limit || '25';
       if (page === 1) {
         enhancedParams.set('includeExternal', 'true');
-        enhancedParams.set('refreshExternal', 'true');
       } else {
         enhancedParams.set('includeExternal', 'false');
       }
       enhancedParams.set('includeDatabase', 'true');
-      
-      response = await fetch(`/api/jobs/unlimited?${enhancedParams.toString()}`);
+      // Always bypass stale listing cache so new employer (manual) jobs appear in search
+      enhancedParams.set('refreshExternal', 'true');
+
+      response = await fetch(`/api/jobs/unlimited?${enhancedParams.toString()}`, {
+        cache: 'no-store',
+      });
       if (!response.ok) {
         // Fallback to regular API if unlimited fails
         response = await fetch(`/api/jobs?${dbParams.toString()}`);
