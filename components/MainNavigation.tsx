@@ -73,7 +73,7 @@ const ctaClass = cn(
 );
 
 const NAUKRIMILI_LOGO_SRC =
-  'https://res.cloudinary.com/drot7xb9m/image/upload/q_auto/f_auto/v1780573698/nmlogo_jhkny4.jpg';
+  'https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_480/v1780573698/nmlogo_jhkny4.jpg';
 
 interface MainNavigationProps {
   brandName?: string;
@@ -251,19 +251,18 @@ export default function MainNavigation(_props: MainNavigationProps) {
   const logoBlock = (
     <Link
       href="/"
-      className="group flex min-w-0 shrink-0 items-center py-0.5 transition-opacity duration-200 hover:opacity-95"
+      className="group mr-1 flex shrink-0 items-center self-center sm:mr-2 lg:mr-3 transition-opacity duration-200 hover:opacity-95"
       aria-label="NaukriMili home"
     >
-      <div className="relative flex h-10 w-auto max-w-[132px] items-center sm:h-11 sm:max-w-[156px] md:max-w-[168px] lg:h-12 lg:max-w-[180px]">
+      <div className="relative flex h-[3.25rem] w-auto min-w-[148px] max-w-[200px] items-center sm:h-14 sm:min-w-[168px] sm:max-w-[236px] md:h-[3.75rem] md:max-w-[252px] lg:h-16 lg:min-w-[200px] lg:max-w-[288px]">
         <Image
           src={NAUKRIMILI_LOGO_SRC}
           alt="NaukriMili - Job Portal"
-          className="h-full w-auto max-h-full object-contain object-left transition-transform duration-300 group-hover:scale-[1.02]"
-          width={360}
-          height={96}
-          sizes="(max-width: 639px) 132px, (max-width: 1023px) 156px, 180px"
+          className="block h-full w-auto max-h-full object-contain object-left transition-opacity duration-200 group-hover:opacity-90"
+          width={480}
+          height={128}
+          sizes="(max-width: 639px) 200px, (max-width: 1023px) 236px, 288px"
           priority
-          style={{ maxWidth: '100%', height: 'auto' }}
         />
       </div>
     </Link>
