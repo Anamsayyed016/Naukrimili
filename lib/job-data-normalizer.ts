@@ -278,10 +278,12 @@ export function experienceLevelMatchesFilter(
 export function passesJobListingQualityCheck(job: {
   title?: string | null;
   company?: string | null;
+  companyRelation?: { name?: string | null } | null;
   description?: string | null;
   source?: string | null;
 }): boolean {
-  if (!job.title?.trim() || !job.company?.trim()) return false;
+  const companyLabel = (job.company || job.companyRelation?.name || '').trim();
+  if (!job.title?.trim() || !companyLabel) return false;
   const source = (job.source || '').toLowerCase();
   if (source === 'manual' || source === 'employer') return true;
   return !!job.description?.trim();

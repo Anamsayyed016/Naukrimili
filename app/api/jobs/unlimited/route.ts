@@ -197,20 +197,26 @@ type ListingFilterParams = {
   sector: string;
 };
 
-/** Employer/manual jobs: same search filters as listing, but never country-gated. */
+/** Shared text search OR (scalar company + linked company name). */
+function buildTextSearchOr(query: string) {
+  return [
+    { title: { contains: query, mode: 'insensitive' as const } },
+    { description: { contains: query, mode: 'insensitive' as const } },
+    { company: { contains: query, mode: 'insensitive' as const } },
+    { companyRelation: { name: { contains: query, mode: 'insensitive' as const } } },
+    { location: { contains: query, mode: 'insensitive' as const } },
+    { skills: { contains: query, mode: 'insensitive' as const } },
+  ];
+}
+
+/** Employer/manual jobs: same search filters as listing, but never country- or location-gated. */
 function buildEmployerListingWhere(f: ListingFilterParams): Record<string, unknown> {
   const employerListingWhere: Record<string, unknown> = {
     isActive: true,
     source: { in: ['manual', 'employer'] },
   };
   if (f.query) {
-    employerListingWhere.OR = [
-      { title: { contains: f.query, mode: 'insensitive' } },
-      { description: { contains: f.query, mode: 'insensitive' } },
-      { company: { contains: f.query, mode: 'insensitive' } },
-      { location: { contains: f.query, mode: 'insensitive' } },
-      { skills: { contains: f.query, mode: 'insensitive' } },
-    ];
+    employerListingWhere.OR = buildTextSearchOr(f.query);
   }
   if (f.company) {
     employerListingWhere.company = { contains: f.company, mode: 'insensitive' };
@@ -242,17 +248,6 @@ function buildEmployerListingWhere(f: ListingFilterParams): Record<string, unkno
   }
   if (f.sector) {
     employerListingWhere.sector = { contains: f.sector, mode: 'insensitive' };
-  }
-  if (f.location) {
-    const locationParts = f.location.split(',').map((part) => part.trim()).filter(Boolean);
-    const locationConditions = locationParts.flatMap((part) => [
-      { location: { contains: part, mode: 'insensitive' } },
-      { country: { contains: part, mode: 'insensitive' } },
-    ]);
-    employerListingWhere.AND = [
-      ...((employerListingWhere.AND as unknown[]) || []),
-      { OR: locationConditions },
-    ];
   }
   return employerListingWhere;
 }
@@ -469,13 +464,7 @@ export async function GET(request: NextRequest) {
 
     // Enhanced text search with multiple fields
     if (query) {
-      where.OR = [
-        { title: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
-        { company: { contains: query, mode: 'insensitive' } },
-        { location: { contains: query, mode: 'insensitive' } },
-        { skills: { contains: query, mode: 'insensitive' } }
-      ];
+      where.OR = buildTextSearchOr(query);
     }
 
     // Enhanced dynamic location filtering - works for city, state, country, or any combination
