@@ -20,7 +20,16 @@ const socialTooltipLabels: Record<SocialVariant, string> = {
 };
 
 const socialBaseStyles =
-  "group relative flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/90 bg-gradient-to-br from-white/95 via-white/75 to-slate-100/40 text-slate-500 shadow-[0_6px_20px_rgba(15,23,42,0.14)] ring-1 ring-slate-200/60 backdrop-blur-lg transition-all duration-300 ease-out sm:h-[60px] sm:w-[60px]";
+  "group relative flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/90 bg-gradient-to-br from-white/95 via-white/75 to-slate-100/40 shadow-[0_6px_20px_rgba(15,23,42,0.14)] ring-1 ring-slate-200/60 backdrop-blur-lg transition-all duration-300 ease-out sm:h-[60px] sm:w-[60px]";
+
+/** Default platform brand colors — icons recognizable before hover */
+const socialDefaultStyles: Record<SocialVariant, string> = {
+  facebook: "text-[#1877F2]",
+  twitter: "text-[#0F1419]",
+  linkedin: "text-[#0A66C2]",
+  instagram:
+    "text-transparent bg-gradient-to-tr from-[#833AB4] via-[#FD1D1D] to-[#F77737] bg-clip-text",
+};
 
 const socialHoverStyles: Record<SocialVariant, string> = {
   facebook:
@@ -36,7 +45,7 @@ const socialHoverStyles: Record<SocialVariant, string> = {
 const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label, variant }) => (
   <a
     href={href}
-    className={`${socialBaseStyles} ${socialHoverStyles[variant]}`}
+    className={`${socialBaseStyles} ${socialDefaultStyles[variant]} ${socialHoverStyles[variant]}`}
     target="_blank"
     rel="noopener noreferrer"
     aria-label={`${label} (opens in new tab)`}

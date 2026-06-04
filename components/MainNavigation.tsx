@@ -254,15 +254,15 @@ export default function MainNavigation(_props: MainNavigationProps) {
       className="group flex shrink-0 items-center self-center transition-opacity duration-200 hover:opacity-95 max-md:mr-2 max-md:min-w-0 max-md:pr-1 md:mr-2 lg:mr-3"
       aria-label="NaukriMili home"
     >
-      {/* Below md: larger brand anchor; md+ unchanged (desktop) */}
-      <div className="relative flex h-[3.25rem] w-auto min-w-[148px] max-w-[200px] items-center max-md:!h-16 max-md:!min-w-[176px] max-md:!max-w-[248px] sm:h-14 sm:min-w-[168px] sm:max-w-[236px] md:h-[3.75rem] md:!min-w-0 md:max-w-[252px] lg:h-16 lg:min-w-[200px] lg:max-w-[288px]">
+      {/* Below md: mobile brand anchor; md/lg: subtle desktop presence boost */}
+      <div className="relative flex h-[3.25rem] w-auto min-w-[148px] max-w-[200px] items-center max-md:!h-16 max-md:!min-w-[176px] max-md:!max-w-[248px] sm:h-14 sm:min-w-[168px] sm:max-w-[236px] md:h-[4.125rem] md:!min-w-0 md:max-w-[280px] lg:h-[4.5rem] lg:min-w-[216px] lg:max-w-[320px]">
         <Image
           src={NAUKRIMILI_LOGO_SRC}
           alt="NaukriMili - Job Portal"
           className="block h-full w-auto max-h-full object-contain object-left transition-opacity duration-200 group-hover:opacity-90"
           width={480}
           height={128}
-          sizes="(max-width: 767px) 248px, (max-width: 1023px) 236px, 288px"
+          sizes="(max-width: 767px) 248px, (max-width: 1023px) 236px, 320px"
           priority
         />
       </div>
