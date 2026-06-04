@@ -524,7 +524,7 @@ export default function JobSearchHero({
                   }}
                 />
                 <div className="relative p-4 sm:p-5 lg:p-6">
-              <div className="flex items-center gap-3 mb-4 sm:mb-5">
+              <div className="flex flex-col items-center text-center gap-3 mb-4 sm:mb-5">
                 <div className="group/icon relative shrink-0">
                   <div
                     aria-hidden
@@ -535,20 +535,14 @@ export default function JobSearchHero({
                     <Search className="relative w-4 h-4 sm:w-5 sm:h-5 text-white drop-shadow-sm" />
                   </div>
                 </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-[#0F172A] tracking-[-0.02em] flex items-center gap-2 antialiased">
-                    <span className="relative">
-                      Smart Job Search
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#06B6D4] opacity-90"
-                      />
-                    </span>
+                <div className="min-w-0 w-full">
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-[#0F172A] tracking-[-0.02em] flex items-center justify-center gap-2 flex-wrap antialiased">
+                    Smart Job Search
                     <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#2563EB]/8 via-[#7C3AED]/6 to-[#06B6D4]/5 backdrop-blur-sm text-[#475569] border border-[#2563EB]/18 text-[10px] font-bold uppercase tracking-[0.14em] shadow-[0_0_0_1px_rgba(124,58,237,0.06),0_2px_8px_-2px_rgba(37,99,235,0.12)] ring-1 ring-inset ring-white/60 transition-[box-shadow,color,border-color] duration-200 hover:border-[#7C3AED]/28 hover:text-[#2563EB]">
                       <Sparkles className="h-2.5 w-2.5 text-[#7C3AED]" aria-hidden /> AI
                     </span>
                   </h2>
-                  <p className="text-sm text-[#475569] mt-1 font-medium tracking-[-0.01em]">
+                  <p className="text-sm text-[#475569] mt-1 font-medium tracking-[-0.01em] text-center">
                     Every industry. Every career level. Worldwide opportunities.
                   </p>
                 </div>
