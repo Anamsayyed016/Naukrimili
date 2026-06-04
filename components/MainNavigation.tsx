@@ -251,17 +251,18 @@ export default function MainNavigation(_props: MainNavigationProps) {
   const logoBlock = (
     <Link
       href="/"
-      className="group mr-1 flex shrink-0 items-center self-center sm:mr-2 lg:mr-3 transition-opacity duration-200 hover:opacity-95"
+      className="group flex shrink-0 items-center self-center transition-opacity duration-200 hover:opacity-95 max-md:mr-2 max-md:min-w-0 max-md:pr-1 md:mr-2 lg:mr-3"
       aria-label="NaukriMili home"
     >
-      <div className="relative flex h-[3.25rem] w-auto min-w-[148px] max-w-[200px] items-center sm:h-14 sm:min-w-[168px] sm:max-w-[236px] md:h-[3.75rem] md:max-w-[252px] lg:h-16 lg:min-w-[200px] lg:max-w-[288px]">
+      {/* Below md: larger brand anchor; md+ unchanged (desktop) */}
+      <div className="relative flex h-[3.25rem] w-auto min-w-[148px] max-w-[200px] items-center max-md:!h-16 max-md:!min-w-[176px] max-md:!max-w-[248px] sm:h-14 sm:min-w-[168px] sm:max-w-[236px] md:h-[3.75rem] md:!min-w-0 md:max-w-[252px] lg:h-16 lg:min-w-[200px] lg:max-w-[288px]">
         <Image
           src={NAUKRIMILI_LOGO_SRC}
           alt="NaukriMili - Job Portal"
           className="block h-full w-auto max-h-full object-contain object-left transition-opacity duration-200 group-hover:opacity-90"
           width={480}
           height={128}
-          sizes="(max-width: 639px) 200px, (max-width: 1023px) 236px, 288px"
+          sizes="(max-width: 767px) 248px, (max-width: 1023px) 236px, 288px"
           priority
         />
       </div>
@@ -284,7 +285,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
   return (
     <nav className={cn(navFont.className, navShellClass(scrolled))} style={shellStyle}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-3 sm:h-20 lg:h-[5.25rem]">
+        <div className="flex h-16 items-center justify-between gap-3 max-md:gap-2 sm:h-20 lg:h-[5.25rem]">
           {logoBlock}
 
           {/* Desktop nav */}
@@ -353,9 +354,21 @@ export default function MainNavigation(_props: MainNavigationProps) {
             )}
           </div>
 
-          {/* Mobile chrome */}
+          {/* Mobile chrome — secondary actions scaled down below md so logo leads hierarchy */}
           {showMobileChrome && (
-            <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+            <div
+              className={cn(
+                'flex shrink-0 items-center gap-1 sm:gap-1.5',
+                'max-md:gap-0.5',
+                'max-md:[&_button]:min-h-9 max-md:[&_button]:min-w-9 max-md:[&_button]:p-1.5',
+                'max-md:[&_button_svg]:!h-4 max-md:[&_button_svg]:!w-4',
+                'max-md:[&_[data-user-profile]_button]:min-h-9 max-md:[&_[data-user-profile]_button]:min-w-9',
+                'max-md:[&_[data-user-profile]_button]:px-1',
+                'max-md:[&_[data-user-profile]_button_.rounded-full]:!h-7',
+                'max-md:[&_[data-user-profile]_button_.rounded-full]:!w-7',
+                'max-md:[&_[data-user-profile]_button_span]:!text-xs'
+              )}
+            >
               {!isAuthenticated && (
                 <Link href="/auth/signin" className={cn(ctaClass, 'px-3 py-2 text-xs sm:text-sm')}>
                   Get Started
@@ -363,13 +376,13 @@ export default function MainNavigation(_props: MainNavigationProps) {
               )}
               {isAuthenticated && user && (
                 <>
-                  <div className="mr-0.5">
+                  <div>
                     <ComprehensiveNotificationBell />
                   </div>
-                  <div className="mr-0.5">
+                  <div>
                     <MessageBell />
                   </div>
-                  <div className="mr-1">
+                  <div data-user-profile>
                     <UnifiedUserProfile variant="mobile" />
                   </div>
                 </>
@@ -379,7 +392,8 @@ export default function MainNavigation(_props: MainNavigationProps) {
                 type="button"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className={cn(
-                  'flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-slate-600 sm:h-10 sm:w-10',
+                  'flex items-center justify-center rounded-lg border border-transparent text-slate-600',
+                  'h-8 w-8 max-md:min-h-9 max-md:min-w-9 sm:h-10 sm:w-10',
                   'transition-colors duration-200 hover:border-slate-200/80 hover:bg-slate-50 hover:text-slate-900',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:ring-offset-2'
                 )}
@@ -390,7 +404,11 @@ export default function MainNavigation(_props: MainNavigationProps) {
                   animate={{ rotate: isMenuOpen ? 90 : 0 }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                 >
-                  {isMenuOpen ? <X className="h-4 w-4 sm:h-[18px] sm:w-[18px]" /> : <Menu className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />}
+                  {isMenuOpen ? (
+                    <X className="h-3.5 w-3.5 max-md:h-4 max-md:w-4 sm:h-[18px] sm:w-[18px]" />
+                  ) : (
+                    <Menu className="h-3.5 w-3.5 max-md:h-4 max-md:w-4 sm:h-[18px] sm:w-[18px]" />
+                  )}
                 </motion.div>
               </button>
             </div>
