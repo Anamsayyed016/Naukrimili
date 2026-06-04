@@ -37,6 +37,8 @@ export async function GET() {
         size: true,
         founded: true,
         logo: true,
+        email: true,
+        phone: true,
         isVerified: true,
         createdAt: true,
         updatedAt: true
@@ -378,6 +380,8 @@ export async function PUT(request: Request) {
         size: body.size,
         founded: body.founded ? parseInt(body.founded) : null,
         logo: body.logo !== undefined ? body.logo : undefined,
+        email: body.email !== undefined ? body.email : undefined,
+        phone: body.phone !== undefined ? body.phone : undefined,
         updatedAt: new Date()
       }
     });

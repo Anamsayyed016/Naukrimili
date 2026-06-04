@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,6 @@ import {
   Save,
   ArrowLeft,
   Star,
-  Target,
   TrendingUp,
   CheckCircle,
   AlertTriangle,
@@ -29,17 +28,57 @@ import {
   FileText,
   Briefcase,
   Sparkles,
-  Brain
+  Mail,
+  Phone,
+  Upload,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { getCompanyProfileCompletion } from '@/lib/companies/company-profile-completion';
+import { CompanyLogoLarge } from '@/components/companies/CompanyLogo';
+import { ef } from '@/lib/employer-form-ui';
+import { cn } from '@/lib/utils';
+
+const LOGO_MAX_BYTES = 2 * 1024 * 1024;
+
+async function fileToCompressedDataUrl(file: File, maxDim = 320, quality = 0.88): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width;
+      let h = img.height;
+      const scale = Math.min(1, maxDim / Math.max(w, h));
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        reject(new Error('Canvas unavailable'));
+        return;
+      }
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', quality));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Invalid image'));
+    };
+    img.src = url;
+  });
+}
 
 interface CompanyData {
   id: string;
   name: string;
   description: string;
+  email?: string | null;
+  phone?: string | null;
   website: string;
   location: string;
   industry: string;
@@ -75,6 +114,9 @@ export default function CompanyProfilePage() {
   const [formData, setFormData] = useState<Partial<CompanyData>>({});
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<{[key: string]: string}>({});
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const logoSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (status === 'loading') {
@@ -201,7 +243,7 @@ export default function CompanyProfilePage() {
       } else {
         throw new Error('Failed to get AI suggestions');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('AI suggestion error:', error);
       toast.error('Failed to get AI suggestions', {
         description: 'Please try again or continue with manual input.',
@@ -246,11 +288,85 @@ export default function CompanyProfilePage() {
       } else {
         throw new Error(data.error || 'Failed to update company');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error updating company:', error);
       toast.error('Failed to update company profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const persistCompanyPatch = async (patch: Partial<CompanyData>, successMessage: string) => {
+    if (!company) return false;
+    setSaving(true);
+    try {
+      const payload = {
+        name: patch.name ?? company.name,
+        description: patch.description ?? company.description,
+        location: patch.location ?? company.location,
+        industry: patch.industry ?? company.industry,
+        size: patch.size ?? company.size,
+        website: patch.website ?? company.website ?? '',
+        founded: patch.founded ?? company.founded,
+        email: patch.email !== undefined ? patch.email : company.email,
+        phone: patch.phone !== undefined ? patch.phone : company.phone,
+        logo: patch.logo !== undefined ? patch.logo : company.logo,
+      };
+      const response = await fetch('/api/employer/company-profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success(successMessage);
+        await fetchCompanyProfile();
+        return true;
+      }
+      throw new Error(data.error || 'Update failed');
+    } catch (error) {
+      console.error('Error updating company:', error);
+      toast.error('Failed to update company profile');
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLogoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !company) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please choose a PNG, JPG, or WebP image');
+      return;
+    }
+    if (file.size > LOGO_MAX_BYTES) {
+      toast.error('Logo must be under 2 MB');
+      return;
+    }
+    setLogoUploading(true);
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file);
+      setFormData((prev) => ({ ...prev, logo: dataUrl }));
+      const ok = await persistCompanyPatch({ logo: dataUrl }, 'Company logo updated');
+      if (ok) setEditing(false);
+    } catch {
+      toast.error('Could not process image. Try another file.');
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (!company) return;
+    if (!confirm('Remove your company logo?')) return;
+    setLogoUploading(true);
+    try {
+      setFormData((prev) => ({ ...prev, logo: null }));
+      await persistCompanyPatch({ logo: null }, 'Logo removed');
+    } finally {
+      setLogoUploading(false);
     }
   };
 
@@ -273,7 +389,7 @@ export default function CompanyProfilePage() {
       } else {
         throw new Error(data.error || 'Failed to delete company');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error deleting company:', error);
       toast.error('Failed to delete company profile');
     } finally {
@@ -309,24 +425,23 @@ export default function CompanyProfilePage() {
     );
   }
 
+  const display = editing ? { ...company, ...formData } : company;
+  const profileSource = display;
+  const { percent: completionPercent, missing: completionMissing } =
+    getCompanyProfileCompletion(profileSource);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8">
-        {/* Enhanced Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <Link 
-              href="/employer/options" 
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 hover:border-slate-300 hover:shadow-md"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Options
-            </Link>
-          </div>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">Company Profile</h1>
-            <p className="text-slate-600 text-lg">Manage your company information and build your brand</p>
-          </div>
+    <div className={cn('min-h-screen', ef.pageBgSoft)}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6 sm:py-8">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <Link
+            href="/employer/options"
+            className="inline-flex items-center gap-2 text-[#64748B] hover:text-[#0F172A] transition-colors bg-white/90 px-4 py-2 rounded-xl border border-[#2563EB]/12 shadow-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Options
+          </Link>
+          <span className={ef.headerBadge}>Employer Dashboard</span>
         </div>
         {/* Action Buttons */}
         <div className="flex justify-center gap-4 mb-8">
@@ -393,90 +508,198 @@ export default function CompanyProfilePage() {
           )}
         </div>
 
-        {company && (() => {
-          const profileSource = editing ? { ...company, ...formData } : company;
-          const { percent, missing } = getCompanyProfileCompletion(profileSource);
-          if (percent >= 100) return null;
-          return (
-            <Card className="mb-6 border-amber-200 bg-amber-50/80 shadow-md">
-              <CardContent className="p-5">
-                <p className="font-semibold text-amber-900 mb-2">
-                  Profile {percent}% complete
-                </p>
-                <div className="w-full bg-amber-100 rounded-full h-2 mb-2">
-                  <div
-                    className="bg-amber-500 h-2 rounded-full transition-all"
-                    style={{ width: `${percent}%` }}
-                  />
+        {completionPercent < 100 && (
+          <Card className={cn(ef.sectionCard, 'mb-6 border-[#2563EB]/15')}>
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3">
+                <div>
+                  <p className="text-sm font-semibold text-[#64748B] uppercase tracking-wider">
+                    Profile completion
+                  </p>
+                  <p className="text-2xl font-bold text-[#0F172A]">{completionPercent}% complete</p>
                 </div>
-                {missing.length > 0 && (
-                  <p className="text-sm text-amber-800">Missing: {missing.join(', ')}</p>
+                {completionMissing.includes('Logo') && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className={ef.aiButton}
+                    onClick={() => logoSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Add logo
+                  </Button>
                 )}
-              </CardContent>
-            </Card>
-          );
-        })()}
+              </div>
+              <div className="w-full bg-[#2563EB]/10 rounded-full h-2.5 mb-3 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#06B6D4] transition-all duration-300"
+                  style={{ width: `${completionPercent}%` }}
+                />
+              </div>
+              {completionMissing.length > 0 && (
+                <p className="text-sm text-[#64748B]">
+                  <span className="font-semibold text-[#0F172A]">Still needed:</span>{' '}
+                  {completionMissing.join(' · ')}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Company Overview */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-2xl border-0 bg-white/98 backdrop-blur-sm rounded-2xl overflow-hidden">
-              <CardHeader className="pb-6 bg-gradient-to-r from-slate-50 to-blue-50/50 border-b border-slate-100">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="p-4 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-600 rounded-2xl shadow-lg">
-                      <Building2 className="h-10 w-10 text-white" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <Card className={cn(ef.mainCard, 'overflow-hidden')}>
+              <CardHeader className="border-b border-[#2563EB]/10 bg-gradient-to-r from-white via-[#2563EB]/[0.03] to-[#06B6D4]/[0.03] pb-6">
+                <div
+                  ref={logoSectionRef}
+                  className="flex flex-col sm:flex-row gap-5 sm:gap-6"
+                >
+                  <div className="flex flex-col items-center sm:items-start gap-3 shrink-0">
+                    <div className="relative rounded-2xl ring-2 ring-[#2563EB]/15 shadow-[0_8px_24px_-8px_rgba(37,99,235,0.2)] overflow-hidden bg-white">
+                      <CompanyLogoLarge
+                        name={display.name}
+                        logo={display.logo}
+                        website={display.website}
+                      />
                     </div>
-                    <div>
-                      <CardTitle className="text-3xl font-bold text-slate-900 mb-2">
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      className="sr-only"
+                      onChange={handleLogoFile}
+                      aria-label="Upload company logo"
+                    />
+                    <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={logoUploading || saving}
+                        className="border-[#2563EB]/25 text-[#2563EB] hover:bg-[#2563EB]/5"
+                        onClick={() => logoInputRef.current?.click()}
+                      >
+                        {logoUploading ? (
+                          <span className="animate-spin h-4 w-4 border-2 border-[#2563EB] border-t-transparent rounded-full" />
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4 mr-1.5" />
+                            {display.logo ? 'Change' : 'Upload'} logo
+                          </>
+                        )}
+                      </Button>
+                      {display.logo ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          disabled={logoUploading || saving}
+                          className="text-[#64748B] hover:text-red-600"
+                          onClick={handleRemoveLogo}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Remove
+                        </Button>
+                      ) : null}
+                    </div>
+                    <p className="text-[11px] text-[#64748B] text-center sm:text-left max-w-[200px]">
+                      PNG, JPG or WebP · max 2 MB · shown on jobs & company cards
+                    </p>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-2xl sm:text-3xl font-bold text-[#0F172A] mb-2 tracking-tight">
+                      {editing ? (
+                        <Input
+                          value={formData.name || ''}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          className={cn('text-2xl font-bold', ef.input)}
+                          placeholder="Company Name"
+                        />
+                      ) : (
+                        display.name
+                      )}
+                    </CardTitle>
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      {display.isVerified ? (
+                        <Badge className="bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-semibold">
+                          <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                          Verified
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-amber-50 text-amber-800 border border-amber-200/80 font-semibold">
+                          <AlertTriangle className="w-3.5 h-3.5 mr-1" />
+                          Pending verification
+                        </Badge>
+                      )}
+                      {display.industry ? (
+                        <Badge variant="secondary" className={ef.aiBadge}>
+                          {display.industry}
+                        </Badge>
+                      ) : null}
+                      {display.size ? (
+                        <Badge variant="outline" className="border-[#2563EB]/15 text-[#64748B] font-medium">
+                          {display.size} employees
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2 text-[#475569] min-w-0">
+                        <Mail className="h-4 w-4 shrink-0 text-[#2563EB]" />
                         {editing ? (
                           <Input
-                            value={formData.name || ''}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            className="text-2xl font-bold border-0 p-0 h-auto bg-transparent focus:ring-0 text-slate-900"
-                            placeholder="Company Name"
+                            type="email"
+                            value={formData.email || ''}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            placeholder="contact@company.com"
+                            className={cn('h-9', ef.input)}
                           />
                         ) : (
-                          company.name
+                          <span className="truncate font-medium text-[#0F172A]">
+                            {display.email || '—'}
+                          </span>
                         )}
-                      </CardTitle>
-                      <div className="flex items-center gap-3 mt-2">
-                        {company.isVerified ? (
-                          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 px-3 py-1 rounded-full font-medium">
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Verified
-                          </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-[#475569] min-w-0">
+                        <Phone className="h-4 w-4 shrink-0 text-[#2563EB]" />
+                        {editing ? (
+                          <Input
+                            type="tel"
+                            value={formData.phone || ''}
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            placeholder="+91 …"
+                            className={cn('h-9', ef.input)}
+                          />
                         ) : (
-                          <Badge className="bg-amber-100 text-amber-800 border-amber-200 px-3 py-1 rounded-full font-medium">
-                            <AlertTriangle className="w-4 h-4 mr-1" />
-                            Pending Verification
-                          </Badge>
+                          <span className="truncate font-medium text-[#0F172A]">
+                            {display.phone || '—'}
+                          </span>
                         )}
-                        <Badge className="bg-blue-100 text-blue-800 border-blue-200 px-3 py-1 rounded-full font-medium">
-                          {company.industry}
-                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-[#475569] sm:col-span-2 min-w-0">
+                        <MapPin className="h-4 w-4 shrink-0 text-[#2563EB]" />
+                        <span className="truncate font-medium text-[#0F172A]">
+                          {display.location || '—'}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
               </CardHeader>
-              
-              <CardContent className="p-8 space-y-8">
-                {/* Description */}
-                <div className="bg-slate-50/50 rounded-xl p-6 border border-slate-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <Label className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-blue-600" />
+
+              <CardContent className="p-6 sm:p-8 space-y-6">
+                <div className={cn(ef.sectionCard, '!p-5 sm:!p-6 !shadow-none border-[#2563EB]/10')}>
+                  <div className="flex items-center justify-between mb-4 gap-3">
+                    <Label className={cn(ef.label, 'flex items-center gap-2 text-lg')}>
+                      <FileText className="h-5 w-5 text-[#2563EB]" />
                       Company Description
                     </Label>
                     {editing && (
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
                         onClick={() => generateAIContent('description')}
                         disabled={aiGenerating}
-                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                        className={ef.aiButton}
                       >
                         {aiGenerating ? (
                           <>
@@ -494,45 +717,49 @@ export default function CompanyProfilePage() {
                   </div>
                   
                   {editing && aiSuggestions.description && (
-                    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Brain className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-800">AI Suggestion:</span>
-                          </div>
-                          <p className="text-sm text-blue-700 leading-relaxed">{aiSuggestions.description}</p>
+                    <div className={cn('mb-4', ef.suggestionPanel)}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-[#0F172A] flex items-center gap-2 mb-2">
+                            <Sparkles className="h-3.5 w-3.5 text-[#7C3AED]" />
+                            AI Suggestion
+                          </p>
+                          <p className="text-sm text-[#475569] leading-relaxed">{aiSuggestions.description}</p>
                         </div>
                         <Button
                           type="button"
                           size="sm"
                           onClick={() => applyAISuggestion('description')}
-                          className="ml-3 bg-blue-600 hover:bg-blue-700 text-white"
+                          className={cn(ef.aiButton, 'shrink-0')}
                         >
                           Apply
                         </Button>
                       </div>
                     </div>
                   )}
-                  
+
                   {editing ? (
                     <Textarea
                       value={formData.description || ''}
                       onChange={(e) => handleInputChange('description', e.target.value)}
                       rows={4}
-                      className="w-full border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-lg"
+                      className={ef.textarea}
                       placeholder="Describe your company..."
                     />
                   ) : (
-                    <p className="text-slate-700 leading-relaxed text-base">{company.description}</p>
+                    <p className="text-[#475569] leading-relaxed text-base">{display.description}</p>
                   )}
                 </div>
 
-                {/* Company Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-blue-600" />
+                <div>
+                  <h3 className={cn(ef.sectionTitle, 'text-lg mb-4 flex items-center gap-2')}>
+                    <Building2 className="h-5 w-5 text-[#2563EB]" />
+                    Company Details
+                  </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={cn(ef.sectionCard, '!p-4 sm:!p-5')}>
+                    <Label className={cn(ef.label, 'mb-2 flex items-center gap-2')}>
+                      <MapPin className="h-4 w-4 text-[#2563EB]" />
                       Location
                     </Label>
                     {editing ? (
@@ -540,19 +767,16 @@ export default function CompanyProfilePage() {
                         value={formData.location || ''}
                         onChange={(e) => handleInputChange('location', e.target.value)}
                         placeholder="Company Location"
-                        className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                        className={ef.input}
                       />
                     ) : (
-                      <div className="flex items-center gap-3 text-slate-700 text-base">
-                        <MapPin className="h-5 w-5 text-slate-500" />
-                        {company.location}
-                      </div>
+                      <p className="text-[#0F172A] font-medium">{display.location}</p>
                     )}
                   </div>
 
-                  <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-blue-600" />
+                  <div className={cn(ef.sectionCard, '!p-4 sm:!p-5')}>
+                    <Label className={cn(ef.label, 'mb-2 flex items-center gap-2')}>
+                      <Building2 className="h-4 w-4 text-[#2563EB]" />
                       Industry
                     </Label>
                     {editing ? (
@@ -560,7 +784,7 @@ export default function CompanyProfilePage() {
                         value={formData.industry || ''} 
                         onValueChange={(value) => handleInputChange('industry', value)}
                       >
-                        <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
+                        <SelectTrigger className={ef.selectTrigger}>
                           <SelectValue placeholder="Select industry" />
                         </SelectTrigger>
                         <SelectContent>
@@ -572,16 +796,13 @@ export default function CompanyProfilePage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <div className="flex items-center gap-3 text-slate-700 text-base">
-                        <Building2 className="h-5 w-5 text-slate-500" />
-                        {company.industry}
-                      </div>
+                      <p className="text-[#0F172A] font-medium">{display.industry}</p>
                     )}
                   </div>
 
-                  <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                      <Users className="h-5 w-5 text-blue-600" />
+                  <div className={cn(ef.sectionCard, '!p-4 sm:!p-5')}>
+                    <Label className={cn(ef.label, 'mb-2 flex items-center gap-2')}>
+                      <Users className="h-4 w-4 text-[#2563EB]" />
                       Company Size
                     </Label>
                     {editing ? (
@@ -589,7 +810,7 @@ export default function CompanyProfilePage() {
                         value={formData.size || ''} 
                         onValueChange={(value) => handleInputChange('size', value)}
                       >
-                        <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
+                        <SelectTrigger className={ef.selectTrigger}>
                           <SelectValue placeholder="Select size" />
                         </SelectTrigger>
                         <SelectContent>
@@ -601,16 +822,13 @@ export default function CompanyProfilePage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <div className="flex items-center gap-3 text-slate-700 text-base">
-                        <Users className="h-5 w-5 text-slate-500" />
-                        {company.size} employees
-                      </div>
+                      <p className="text-[#0F172A] font-medium">{display.size} employees</p>
                     )}
                   </div>
 
-                  <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-blue-600" />
+                  <div className={cn(ef.sectionCard, '!p-4 sm:!p-5')}>
+                    <Label className={cn(ef.label, 'mb-2 flex items-center gap-2')}>
+                      <Calendar className="h-4 w-4 text-[#2563EB]" />
                       Founded Year
                     </Label>
                     {editing ? (
@@ -621,19 +839,16 @@ export default function CompanyProfilePage() {
                         placeholder="Founded Year"
                         min="1900"
                         max={new Date().getFullYear()}
-                        className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                        className={ef.input}
                       />
                     ) : (
-                      <div className="flex items-center gap-3 text-slate-700 text-base">
-                        <Calendar className="h-5 w-5 text-slate-500" />
-                        {company.founded || 'Not specified'}
-                      </div>
+                      <p className="text-[#0F172A] font-medium">{display.founded || 'Not specified'}</p>
                     )}
                   </div>
 
-                  <div className="md:col-span-2 bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                      <Globe className="h-5 w-5 text-blue-600" />
+                  <div className={cn(ef.sectionCard, '!p-4 sm:!p-5 md:col-span-2')}>
+                    <Label className={cn(ef.label, 'mb-2 flex items-center gap-2')}>
+                      <Globe className="h-4 w-4 text-[#2563EB]" />
                       Website
                     </Label>
                     {editing ? (
@@ -642,66 +857,106 @@ export default function CompanyProfilePage() {
                         value={formData.website || ''}
                         onChange={(e) => handleInputChange('website', e.target.value)}
                         placeholder="https://yourcompany.com"
-                        className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                        className={ef.input}
                       />
+                    ) : display.website ? (
+                      <a
+                        href={display.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#2563EB] hover:text-[#1d4ed8] inline-flex items-center gap-2 font-medium"
+                      >
+                        {display.website}
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
                     ) : (
-                      <div className="flex items-center gap-3 text-slate-700 text-base">
-                        <Globe className="h-5 w-5 text-slate-500" />
-                        {company.website ? (
-                          <a 
-                            href={company.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 flex items-center gap-2 font-medium transition-colors duration-200"
-                          >
-                            {company.website}
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        ) : (
-                          'No website'
-                        )}
-                      </div>
+                      <p className="text-[#64748B]">No website</p>
                     )}
                   </div>
+
+                  <div className={cn(ef.sectionCard, '!p-4 sm:!p-5')}>
+                    <Label className={cn(ef.label, 'mb-2 flex items-center gap-2')}>
+                      <Mail className="h-4 w-4 text-[#2563EB]" />
+                      Company Email
+                    </Label>
+                    {editing ? (
+                      <Input
+                        type="email"
+                        value={formData.email || ''}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className={ef.input}
+                      />
+                    ) : (
+                      <p className="text-[#0F172A] font-medium break-all">{display.email || '—'}</p>
+                    )}
+                  </div>
+
+                  <div className={cn(ef.sectionCard, '!p-4 sm:!p-5')}>
+                    <Label className={cn(ef.label, 'mb-2 flex items-center gap-2')}>
+                      <Phone className="h-4 w-4 text-[#2563EB]" />
+                      Company Phone
+                    </Label>
+                    {editing ? (
+                      <Input
+                        type="tel"
+                        value={formData.phone || ''}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className={ef.input}
+                      />
+                    ) : (
+                      <p className="text-[#0F172A] font-medium">{display.phone || '—'}</p>
+                    )}
+                  </div>
+                </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Enhanced Sidebar */}
           <div className="space-y-6">
-            {/* Profile Status */}
-            <Card className="shadow-2xl border-0 bg-white/98 backdrop-blur-sm rounded-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/50 border-b border-slate-100 pb-4">
-                <CardTitle className="text-xl font-bold text-slate-900 flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg">
-                    <Star className="h-6 w-6 text-white" />
+            <Card className={ef.mainCard}>
+              <CardHeader className="border-b border-[#2563EB]/10 pb-4">
+                <CardTitle className="text-lg font-bold text-[#0F172A] flex items-center gap-3">
+                  <div className={cn(ef.sectionIconWrap, 'w-10 h-10 p-2')}>
+                    <Star className="h-5 w-5 text-white" />
                   </div>
                   Profile Status
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+              <CardContent className="p-5 sm:p-6 space-y-4">
+                <div className={cn(ef.sectionCard, '!p-4 !shadow-none')}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-slate-700">Verification Status</span>
-                    <Badge className={company.isVerified ? "bg-emerald-100 text-emerald-800 border-emerald-200" : "bg-amber-100 text-amber-800 border-amber-200"}>
-                      {company.isVerified ? 'Verified' : 'Pending'}
+                    <span className="text-sm font-semibold text-[#0F172A]">Verification</span>
+                    <Badge
+                      className={
+                        display.isVerified
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
+                      }
+                    >
+                      {display.isVerified ? 'Verified' : 'Pending'}
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-500">
-                    {company.isVerified ? 'Your company is verified and trusted' : 'Verification is under review'}
+                  <p className="text-xs text-[#64748B]">
+                    {display.isVerified
+                      ? 'Your company is verified and trusted'
+                      : 'Verification is under review'}
                   </p>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                    <span className="text-sm font-medium text-slate-600">Created</span>
-                    <span className="text-sm font-semibold text-slate-900">
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between py-2 border-b border-[#2563EB]/10">
+                    <span className="text-[#64748B]">Completion</span>
+                    <span className="font-bold text-[#2563EB]">{completionPercent}%</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-[#2563EB]/10">
+                    <span className="text-[#64748B]">Created</span>
+                    <span className="font-semibold text-[#0F172A]">
                       {new Date(company.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm font-medium text-slate-600">Last Updated</span>
-                    <span className="text-sm font-semibold text-slate-900">
+                  <div className="flex justify-between py-2">
+                    <span className="text-[#64748B]">Updated</span>
+                    <span className="font-semibold text-[#0F172A]">
                       {new Date(company.updatedAt).toLocaleDateString()}
                     </span>
                   </div>
@@ -709,31 +964,30 @@ export default function CompanyProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Enhanced Quick Actions */}
-            <Card className="shadow-2xl border-0 bg-white/98 backdrop-blur-sm rounded-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-slate-50 to-green-50/50 border-b border-slate-100 pb-4">
-                <CardTitle className="text-xl font-bold text-slate-900 flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-white" />
+            <Card className={ef.mainCard}>
+              <CardHeader className="border-b border-[#2563EB]/10 pb-4">
+                <CardTitle className="text-lg font-bold text-[#0F172A] flex items-center gap-3">
+                  <div className={cn(ef.sectionIconWrap, 'w-10 h-10 p-2')}>
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
                   Quick Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="p-5 sm:p-6 space-y-3">
                 <Link href="/employer/jobs/create" className="block">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                  <Button className={cn('w-full', ef.aiButton, 'py-2.5')}>
                     <Briefcase className="h-5 w-5 mr-2" />
                     Post New Job
                   </Button>
                 </Link>
                 <Link href="/employer/applications" className="block">
-                  <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                  <Button className={cn('w-full', ef.aiButton, 'py-2.5 opacity-95')}>
                     <Users className="h-5 w-5 mr-2" />
                     View Applications
                   </Button>
                 </Link>
                 <Link href="/employer/jobs" className="block">
-                  <Button variant="outline" className="w-full border-slate-300 text-slate-700 hover:bg-slate-50 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200">
+                  <Button variant="outline" className="w-full border-[#2563EB]/20 text-[#0F172A] py-2.5 rounded-xl font-semibold hover:bg-[#2563EB]/5">
                     <FileText className="h-5 w-5 mr-2" />
                     Manage Jobs
                   </Button>
