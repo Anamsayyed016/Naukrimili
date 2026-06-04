@@ -72,6 +72,9 @@ const ctaClass = cn(
   'active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-2'
 );
 
+const NAUKRIMILI_LOGO_SRC =
+  'https://res.cloudinary.com/drot7xb9m/image/upload/q_auto/f_auto/v1780573698/nmlogo_jhkny4.jpg';
+
 interface MainNavigationProps {
   brandName?: string;
 }
@@ -248,20 +251,18 @@ export default function MainNavigation(_props: MainNavigationProps) {
   const logoBlock = (
     <Link
       href="/"
-      className="group flex shrink-0 items-center gap-2.5 transition-opacity duration-200 hover:opacity-95"
+      className="group flex min-w-0 shrink-0 items-center py-0.5 transition-opacity duration-200 hover:opacity-95"
+      aria-label="NaukriMili home"
     >
-      <div className="relative h-8 w-auto max-w-[100px] sm:h-10 sm:max-w-[130px] lg:h-11 lg:max-w-[150px]">
+      <div className="relative flex h-10 w-auto max-w-[132px] items-center sm:h-11 sm:max-w-[156px] md:max-w-[168px] lg:h-12 lg:max-w-[180px]">
         <Image
-          // Transparent background variant — removes the baked white box that
-          // clashed with the glass navbar. e_bgremoval:white strips white pixels,
-          // f_png keeps alpha, no b_rgb fill.
-          src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/c_pad,b_transparent/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png"
+          src={NAUKRIMILI_LOGO_SRC}
           alt="NaukriMili - Job Portal"
-          className="h-full w-auto object-contain transition-all duration-300 group-hover:scale-[1.03] [mix-blend-mode:multiply] dark:[mix-blend-mode:normal]"
-          width={160}
-          height={64}
+          className="h-full w-auto max-h-full object-contain object-left transition-transform duration-300 group-hover:scale-[1.02]"
+          width={360}
+          height={96}
+          sizes="(max-width: 639px) 132px, (max-width: 1023px) 156px, 180px"
           priority
-          unoptimized
           style={{ maxWidth: '100%', height: 'auto' }}
         />
       </div>
@@ -355,7 +356,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
 
           {/* Mobile chrome */}
           {showMobileChrome && (
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
               {!isAuthenticated && (
                 <Link href="/auth/signin" className={cn(ctaClass, 'px-3 py-2 text-xs sm:text-sm')}>
                   Get Started
@@ -379,7 +380,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
                 type="button"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-xl border border-transparent text-slate-600',
+                  'flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-slate-600 sm:h-10 sm:w-10',
                   'transition-colors duration-200 hover:border-slate-200/80 hover:bg-slate-50 hover:text-slate-900',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:ring-offset-2'
                 )}
@@ -390,7 +391,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
                   animate={{ rotate: isMenuOpen ? 90 : 0 }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                 >
-                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                  {isMenuOpen ? <X className="h-4 w-4 sm:h-[18px] sm:w-[18px]" /> : <Menu className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />}
                 </motion.div>
               </button>
             </div>
