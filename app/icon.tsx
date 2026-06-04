@@ -1,44 +1,28 @@
-import { ImageResponse } from 'next/og'
- 
-// Image metadata - Perfect for browser tab favicon (scales to 16x16)
+/** Browser tab favicon only — do not use for navbar/footer branding */
+const FAVICON_TAB_ICON_PATH = 'v1780573737/nmlogo1_eeen17.jpg';
+
+export function faviconTabIconUrl(size: number) {
+  return `https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_${size},h_${size},c_fit/${FAVICON_TAB_ICON_PATH}`;
+}
+
 export const size = {
   width: 48,
   height: 48,
-}
-export const contentType = 'image/png'
- 
-// Image generation - Ultra-sharp favicon optimized for 16x16px display
-export default function Icon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#2563eb', // Bright blue for maximum visibility
-          borderRadius: '0px', // No rounded corners at tiny size
-        }}
-      >
-        <div
-          style={{
-            fontSize: 44,
-            fontWeight: 900,
-            color: '#ffffff',
-            fontFamily: 'Arial Black, Arial, sans-serif',
-            lineHeight: '48px',
-            textAlign: 'center',
-            paddingTop: '2px',
-          }}
-        >
-          N
-        </div>
-      </div>
-    ),
-    {
-      ...size,
-    }
-  )
+};
+
+export const contentType = 'image/jpeg';
+
+export default async function Icon() {
+  const src = faviconTabIconUrl(48);
+  const res = await fetch(src, { next: { revalidate: 86400 } });
+  if (!res.ok) {
+    return new Response(null, { status: 502 });
+  }
+  const bytes = await res.arrayBuffer();
+  return new Response(bytes, {
+    headers: {
+      'Content-Type': res.headers.get('content-type') ?? 'image/jpeg',
+      'Cache-Control': 'public, max-age=86400, immutable',
+    },
+  });
 }

@@ -11,6 +11,7 @@ import Footer from '@/components/Footer';
 import { Toaster as ShadcnToaster } from '@/components/ui/toaster';
 import { Toaster as SonnerToaster } from 'sonner';
 import { ScrollOptimization } from './layout-scroll-optimization';
+import { faviconTabIconUrl } from './icon';
 // Note: getBaseUrl is imported dynamically to prevent SSR hydration issues
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,15 +31,14 @@ export const metadata: Metadata = {
   robots: 'index, follow',
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
-      { url: '/icon', sizes: '48x48', type: 'image/png' },
-      { url: '/icon', sizes: '32x32', type: 'image/png' },
-      { url: '/icon', sizes: '16x16', type: 'image/png' },
+      { url: faviconTabIconUrl(48), sizes: '48x48', type: 'image/jpeg' },
+      { url: faviconTabIconUrl(32), sizes: '32x32', type: 'image/jpeg' },
+      { url: faviconTabIconUrl(16), sizes: '16x16', type: 'image/jpeg' },
     ],
     apple: [
       { url: '/apple-icon', sizes: '256x256', type: 'image/png' },
     ],
-    shortcut: [{ url: '/favicon.svg' }],
+    shortcut: [{ url: faviconTabIconUrl(32), type: 'image/jpeg' }],
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -132,11 +132,6 @@ export default function RootLayout({
           }}
         />
 
-        {/* High-quality favicon links - optimized for maximum visibility at small sizes */}
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/icon" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/icon" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icon" />
         <link rel="apple-touch-icon" sizes="256x256" href="/apple-icon" />
         
         {/* Additional SEO Meta Tags */}
