@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { FiFacebook, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiArrowRight } from "react-icons/fi";
+import { FiFacebook, FiTwitter, FiLinkedin, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiArrowRight } from "react-icons/fi";
 
 type SocialVariant = "facebook" | "twitter" | "linkedin" | "instagram";
 
 interface SocialIconProps {
   href: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label: string;
   variant: SocialVariant;
 }
@@ -27,9 +27,37 @@ const socialDefaultStyles: Record<SocialVariant, string> = {
   facebook: "text-[#1877F2]",
   twitter: "text-[#0F1419]",
   linkedin: "text-[#0A66C2]",
-  instagram:
-    "text-transparent bg-gradient-to-tr from-[#833AB4] via-[#FD1D1D] to-[#F77737] bg-clip-text",
+  instagram: "",
 };
+
+/** Feather stroke icons ignore text gradients; gradient stroke keeps Instagram visible */
+function InstagramSocialGlyph({ size = 22 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="url(#naukrimili-footer-ig-gradient)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id="naukrimili-footer-ig-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#833AB4" />
+          <stop offset="35%" stopColor="#C13584" />
+          <stop offset="65%" stopColor="#FD1D1D" />
+          <stop offset="100%" stopColor="#F77737" />
+        </linearGradient>
+      </defs>
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
 
 const socialHoverStyles: Record<SocialVariant, string> = {
   facebook:
@@ -50,7 +78,9 @@ const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label, variant }) =
     rel="noopener noreferrer"
     aria-label={`${label} (opens in new tab)`}
   >
-    <span className="flex h-full w-full items-center justify-center">{icon}</span>
+    <span className="flex h-full w-full items-center justify-center">
+      {variant === "instagram" ? <InstagramSocialGlyph size={22} /> : icon}
+    </span>
     <span
       role="tooltip"
       className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2.5 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900/95 px-3 py-1.5 text-xs font-medium tracking-wide text-white opacity-0 shadow-lg ring-1 ring-white/10 transition-all duration-300 ease-out group-hover:opacity-100 group-focus-visible:opacity-100"
@@ -127,7 +157,7 @@ export default function Footer() {
                 <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={22} />} label="Facebook" variant="facebook" />
                 <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={22} />} label="Twitter" variant="twitter" />
                 <SocialIcon href="https://www.linkedin.com/in/mr-s-jaffrey-9057603a8/" icon={<FiLinkedin size={22} />} label="LinkedIn" variant="linkedin" />
-                <SocialIcon href="https://www.instagram.com/naukrimili.placement.agency/" icon={<FiInstagram size={22} />} label="Instagram" variant="instagram" />
+                <SocialIcon href="https://www.instagram.com/naukrimili.placement.agency/" label="Instagram" variant="instagram" />
               </div>
             </div>
 
