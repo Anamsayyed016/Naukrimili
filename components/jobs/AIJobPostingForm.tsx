@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText, Mail, Phone, Loader2, Search, Eye, EyeOff } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, Mail, Phone, Loader2, Search, Eye, EyeOff } from 'lucide-react';
 import EnhancedLocationSearch from '@/components/EnhancedLocationSearch';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -403,8 +403,8 @@ export default function AIJobPostingForm() {
                isValidEmail &&
                isValidPhone;
       case 2:
-        // FIXED: Skills are now optional, only requirements required
-        return formData.requirements.trim() !== '';
+        // Skills optional; requirements UI removed — step always passable
+        return true;
       case 3:
         return (
           (formData.multipleLocations.length > 0 ||
@@ -1150,44 +1150,6 @@ export default function AIJobPostingForm() {
                   className="space-y-6 overflow-visible"
                   style={{ overflow: 'visible' }}
                 >
-                  {/* Requirements with AI */}
-                  <div className={ef.sectionCard}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-blue-600" />
-                          Job Requirements *
-                        </Label>
-                        <Badge variant="secondary" className={ef.aiBadge}>
-                          AI-Powered
-                        </Badge>
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => getAiSuggestions('requirements')}
-                        disabled={aiLoading.requirements || loadingCompany}
-                        className={ef.aiButton}
-                      >
-                        <Sparkles className="h-3 w-3 mr-1.5" />
-                        {aiLoading.requirements ? 'Generating…' : 'AI Suggest'}
-                      </Button>
-                    </div>
-                    <Textarea
-                      value={formData.requirements}
-                      onChange={(e) => handleInputChange('requirements', e.target.value)}
-                      placeholder={`List requirements for this ${formData.title || 'position'}...\n\nExample:\n• Bachelor's degree in relevant field\n• 3+ years of experience\n• Strong communication skills`}
-                      rows={7}
-                      className={ef.textarea}
-                    />
-                    <EmployerAiSuggestionCards
-                      items={aiSuggestions.requirements || []}
-                      companyName={companyProfile?.name}
-                      subtitle="Click a card to append to requirements"
-                      onSelect={(s) => applySuggestion('requirements', s)}
-                    />
-                  </div>
-
                   {/* Skills Section - Optional but encouraged */}
                   <div className={ef.sectionCard}>
                     <div className="flex items-center justify-between mb-3">

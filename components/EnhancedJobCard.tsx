@@ -26,6 +26,90 @@ import {
   saveJobSearchContext,
 } from '@/lib/job-navigation-state';
 
+function stripJobDescriptionText(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** City-first display; avoids long locality strings overflowing cards. */
+function formatJobCardLocation(location?: string): string {
+  const raw = (location || '').trim();
+  if (!raw) return 'Location not specified';
+
+  const parts = raw
+    .split(/[,•|]/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) return raw;
+  if (parts.length === 1) {
+    return parts[0].length > 56 ? `${parts[0].slice(0, 56)}…` : parts[0];
+  }
+
+  const city = parts[0];
+  const second = parts[1];
+
+  if (second.length > 32 || parts.length > 2) {
+    const locality = second.length > 24 ? `${second.slice(0, 24)}…` : second;
+    return `${city} • ${locality}`;
+  }
+
+  return `${city}, ${second}`;
+}
+
+function JobCardDescription({
+  description,
+  maxLines,
+  jobUrl,
+}: {
+  description: string;
+  maxLines: 2 | 3;
+  jobUrl: string;
+}) {
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const text = stripJobDescriptionText(description);
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+    const check = () => setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, [text, maxLines]);
+
+  const clampClass = maxLines === 3 ? 'line-clamp-3 max-h-[4.8rem]' : 'line-clamp-2 max-h-[3.2rem]';
+
+  if (!text) return null;
+
+  return (
+    <div className="mt-1.5 min-w-0 w-full max-w-full overflow-hidden">
+      <p
+        ref={textRef}
+        className={`text-sm text-slate-600 leading-[1.6] font-normal tracking-normal break-words overflow-hidden ${clampClass}`}
+      >
+        {text}
+      </p>
+      {isTruncated && (
+        <Link
+          href={jobUrl}
+          className="text-xs text-blue-600 hover:text-blue-700 hover:underline mt-0.5 inline-block"
+        >
+          … Read More
+        </Link>
+      )}
+    </div>
+  );
+}
+
 interface EnhancedJobCardProps {
   job: JobResult;
   isBookmarked?: boolean;
@@ -137,7 +221,7 @@ export default function EnhancedJobCard({
       <>
         <motion.div
           ref={cardRef}
-          className={`group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border p-3 sm:p-4 ${
+          className={`group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border p-3 sm:p-4 min-w-0 overflow-hidden ${
             isViewedJob 
               ? 'border-blue-500 border-2 ring-2 ring-blue-200 bg-blue-50/30' 
               : 'border-gray-200'
@@ -196,11 +280,24 @@ export default function EnhancedJobCard({
                   <span className="truncate">{normalizedJob.company}</span>
                 </div>
                 <span className="hidden sm:inline mx-2">•</span>
-                <div className="flex items-center">
+                <div className="flex items-center min-w-0 max-w-full overflow-hidden">
                   <MapPinIcon className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{normalizedJob.location}</span>
+                  <span
+                    className="truncate max-w-full"
+                    title={normalizedJob.location}
+                  >
+                    {formatJobCardLocation(normalizedJob.location)}
+                  </span>
                 </div>
               </div>
+
+              {normalizedJob.description && (
+                <JobCardDescription
+                  description={normalizedJob.description}
+                  maxLines={2}
+                  jobUrl={seoJobUrl}
+                />
+              )}
               
               {formatJobSalary(normalizedJob) !== 'Salary not specified' && (
                 <div className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg mb-2">
@@ -341,10 +438,15 @@ export default function EnhancedJobCard({
               </div>
 
               {/* Location and job details */}
-              <div className="flex items-center text-gray-500 mb-2 sm:mb-3 flex-wrap gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                <div className="flex items-center min-w-0">
+              <div className="flex items-center text-gray-500 mb-2 sm:mb-3 flex-wrap gap-1.5 sm:gap-2 text-xs sm:text-sm min-w-0 max-w-full overflow-hidden">
+                <div className="flex items-center min-w-0 max-w-full overflow-hidden">
                   <MapPinIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{job.location}</span>
+                  <span
+                    className="truncate max-w-full"
+                    title={job.location}
+                  >
+                    {formatJobCardLocation(job.location)}
+                  </span>
                 </div>
                 
                 {job.job_type && (
@@ -432,17 +534,13 @@ export default function EnhancedJobCard({
 
           {/* Description */}
           {job.description && (
-            <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
-              {job.description
-                .replace(/<[^>]*>/g, '') // Strip HTML tags
-                .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
-                .replace(/&amp;/g, '&') // Replace &amp; with &
-                .replace(/&lt;/g, '<') // Replace &lt; with <
-                .replace(/&gt;/g, '>') // Replace &gt; with >
-                .replace(/&quot;/g, '"') // Replace &quot; with "
-                .trim()
-              }
-            </p>
+            <div className="mb-3 sm:mb-4 min-w-0 overflow-hidden">
+              <JobCardDescription
+                description={job.description}
+                maxLines={viewMode === 'grid' ? 3 : 2}
+                jobUrl={seoJobUrl}
+              />
+            </div>
           )}
 
           {/* Footer info */}
