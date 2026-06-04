@@ -451,9 +451,20 @@ export default function JobSearchHero({
           0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.95; }
           50% { transform: scale(1.15) rotate(8deg); opacity: 1; }
         }
+        .hero-career-word {
+          background: linear-gradient(105deg, #2563eb 0%, #7c3aed 48%, #06b6d4 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(0 0 18px rgba(37, 99, 235, 0.28))
+            drop-shadow(0 0 36px rgba(124, 58, 237, 0.14));
+        }
         @media (prefers-reduced-motion: reduce) {
           [class*="animate-[ai-pulse"] {
             animation: none !important;
+          }
+          .hero-career-word {
+            filter: none;
           }
         }
       `}</style>
@@ -467,11 +478,9 @@ export default function JobSearchHero({
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="mb-2 sm:mb-3"
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-bold text-[#0F172A] mb-0 leading-[1.08] tracking-tight antialiased">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-black text-[#0F172A] mb-0 leading-[1.08] tracking-[-0.025em] antialiased [text-rendering:optimizeLegibility]">
               Discover the{' '}
-              <span className="bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent [-webkit-text-fill-color:transparent]">
-                Career
-              </span>{' '}
+              <span className="hero-career-word">Career</span>{' '}
               You Deserve
             </h1>
           </motion.div>
@@ -483,8 +492,8 @@ export default function JobSearchHero({
             className="w-full max-w-full lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
             <div className="relative z-10 flex justify-center -mb-2 sm:-mb-2.5">
-              <div className="group/badge inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/75 backdrop-blur-md border border-[#2563EB]/15 text-[#64748B] text-[11px] sm:text-xs font-semibold tracking-wide shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_4px_14px_-4px_rgba(37,99,235,0.12)] ring-1 ring-inset ring-white/60 transition-[box-shadow,color,border-color] duration-200 hover:border-[#2563EB]/25 hover:text-[#0F172A] hover:shadow-[0_2px_16px_-4px_rgba(37,99,235,0.18)]">
-                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#2563EB]/80 transition-colors duration-200 group-hover/badge:text-[#2563EB]" aria-hidden />
+              <div className="group/badge inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 backdrop-blur-md border border-[#2563EB]/20 text-[#475569] text-[11px] sm:text-xs font-bold tracking-[0.12em] uppercase shadow-[0_0_0_1px_rgba(124,58,237,0.08),0_1px_2px_0_rgba(15,23,42,0.04),0_4px_16px_-4px_rgba(37,99,235,0.14)] ring-1 ring-inset ring-white/70 transition-[box-shadow,color,border-color] duration-200 hover:border-[#7C3AED]/30 hover:text-[#0F172A] hover:shadow-[0_0_20px_-4px_rgba(37,99,235,0.22),0_2px_16px_-4px_rgba(124,58,237,0.16)]">
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#7C3AED] transition-colors duration-200 group-hover/badge:text-[#2563EB]" aria-hidden />
                 <span>AI Job Match Engine</span>
               </div>
             </div>
@@ -493,7 +502,15 @@ export default function JobSearchHero({
               className="relative rounded-[1.75rem] sm:rounded-[2rem]"
               style={{ position: 'relative', overflow: 'visible' }}
             >
-              <div className="relative rounded-[1.75rem] sm:rounded-[2rem] bg-white border border-[#2563EB]/12 shadow-[0_0_0_1px_rgba(37,99,235,0.06),0_1px_2px_0_rgba(15,23,42,0.03),0_8px_20px_-6px_rgba(37,99,235,0.08),0_24px_56px_-16px_rgba(15,23,42,0.11)] overflow-hidden transition-shadow duration-200 hover:shadow-[0_0_0_1px_rgba(37,99,235,0.1),0_1px_2px_0_rgba(15,23,42,0.03),0_12px_28px_-8px_rgba(37,99,235,0.1),0_28px_60px_-18px_rgba(15,23,42,0.12)]">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-[1.75rem] sm:rounded-[2rem] bg-gradient-to-br from-[#2563EB]/25 via-[#7C3AED]/18 to-[#06B6D4]/14 opacity-90 blur-[1px]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-3 rounded-[2rem] bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(37,99,235,0.14)_0%,rgba(124,58,237,0.06)_45%,transparent_70%)]"
+              />
+              <div className="relative rounded-[1.75rem] sm:rounded-[2rem] bg-white/92 backdrop-blur-xl border border-transparent shadow-[0_0_0_1px_rgba(37,99,235,0.28),0_0_0_1px_rgba(124,58,237,0.12),0_1px_2px_0_rgba(15,23,42,0.04),0_10px_28px_-8px_rgba(37,99,235,0.14),0_28px_64px_-20px_rgba(15,23,42,0.12),0_0_40px_-12px_rgba(124,58,237,0.1)] overflow-hidden transition-shadow duration-200 hover:shadow-[0_0_0_1px_rgba(37,99,235,0.38),0_0_0_1px_rgba(124,58,237,0.16),0_12px_32px_-8px_rgba(37,99,235,0.18),0_32px_72px_-22px_rgba(15,23,42,0.14),0_0_48px_-10px_rgba(37,99,235,0.16)]">
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-x-6 sm:inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#2563EB]/35 to-transparent"
@@ -511,26 +528,27 @@ export default function JobSearchHero({
                 <div className="group/icon relative shrink-0">
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-[#2563EB]/20 via-[#7C3AED]/12 to-[#06B6D4]/8 blur-lg opacity-60 transition-opacity duration-200 group-hover/icon:opacity-75"
+                    className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-[#2563EB]/30 via-[#7C3AED]/22 to-[#06B6D4]/14 blur-lg opacity-70 transition-opacity duration-200 group-hover/icon:opacity-90"
                   />
-                  <div className="relative p-2.5 sm:p-3 bg-gradient-to-br from-[#2563EB] via-[#7C3AED] to-[#2563EB] rounded-2xl shadow-[0_1px_0_0_rgba(255,255,255,0.2)_inset,0_4px_14px_-3px_rgba(37,99,235,0.28)] ring-1 ring-inset ring-white/20 transition-[box-shadow] duration-200 group-hover/icon:shadow-[0_1px_0_0_rgba(255,255,255,0.22)_inset,0_6px_18px_-4px_rgba(37,99,235,0.32)]">
-                    <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <div className="relative p-2.5 sm:p-3 bg-gradient-to-br from-[#2563EB] via-[#7C3AED] to-[#06B6D4] rounded-2xl shadow-[0_1px_0_0_rgba(255,255,255,0.28)_inset,0_4px_16px_-3px_rgba(37,99,235,0.35),0_0_20px_-4px_rgba(124,58,237,0.25)] ring-1 ring-inset ring-white/25 transition-[box-shadow] duration-200 group-hover/icon:shadow-[0_1px_0_0_rgba(255,255,255,0.32)_inset,0_6px_20px_-4px_rgba(37,99,235,0.4),0_0_28px_-4px_rgba(6,182,212,0.2)]">
+                    <span aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
+                    <Search className="relative w-4 h-4 sm:w-5 sm:h-5 text-white drop-shadow-sm" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#0F172A] tracking-tight flex items-center gap-2 antialiased">
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-[#0F172A] tracking-[-0.02em] flex items-center gap-2 antialiased">
                     <span className="relative">
                       Smart Job Search
                       <span
                         aria-hidden
-                        className="pointer-events-none absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-[#2563EB]/80 via-[#7C3AED]/70 to-[#06B6D4]/60"
+                        className="pointer-events-none absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#06B6D4] opacity-90"
                       />
                     </span>
-                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/70 backdrop-blur-sm text-[#64748B] border border-[#2563EB]/12 text-[10px] font-semibold uppercase tracking-wider shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_2px_8px_-2px_rgba(37,99,235,0.1)] ring-1 ring-inset ring-white/50 transition-[box-shadow,color,border-color] duration-200 hover:border-[#2563EB]/22 hover:text-[#2563EB]">
-                      <Sparkles className="h-2.5 w-2.5 text-[#7C3AED]/80" aria-hidden /> AI
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#2563EB]/8 via-[#7C3AED]/6 to-[#06B6D4]/5 backdrop-blur-sm text-[#475569] border border-[#2563EB]/18 text-[10px] font-bold uppercase tracking-[0.14em] shadow-[0_0_0_1px_rgba(124,58,237,0.06),0_2px_8px_-2px_rgba(37,99,235,0.12)] ring-1 ring-inset ring-white/60 transition-[box-shadow,color,border-color] duration-200 hover:border-[#7C3AED]/28 hover:text-[#2563EB]">
+                      <Sparkles className="h-2.5 w-2.5 text-[#7C3AED]" aria-hidden /> AI
                     </span>
                   </h2>
-                  <p className="text-sm text-[#64748B] mt-1">
+                  <p className="text-sm text-[#475569] mt-1 font-medium tracking-[-0.01em]">
                     Every industry. Every career level. Worldwide opportunities.
                   </p>
                 </div>
@@ -543,7 +561,7 @@ export default function JobSearchHero({
                   <div className="group/input relative w-full min-w-0">
                     <div className="relative">
                       <Search
-                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#64748B] z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/input:text-[#2563EB]"
+                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#475569] z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/input:text-[#2563EB]"
                         aria-hidden
                       />
                       <Input
@@ -566,14 +584,14 @@ export default function JobSearchHero({
                         }}
                         className={cn(
                           'w-full min-w-0 pl-10 sm:pl-11 lg:pl-12 pr-10 sm:pr-12 py-3.5 sm:py-4',
-                          'text-[#0F172A] placeholder:text-[#64748B] placeholder:font-normal',
-                          'bg-white border border-slate-200/90',
+                          'text-[#0F172A] placeholder:text-[#475569]/80 placeholder:font-medium placeholder:tracking-[-0.01em]',
+                          'bg-white border border-[#2563EB]/12',
                           'focus:border-[#2563EB] focus:bg-white focus:ring-0 focus:outline-none',
-                          'focus:shadow-[0_0_0_3px_rgba(37,99,235,0.12),inset_0_1px_2px_0_rgba(15,23,42,0.03)]',
-                          'rounded-2xl text-sm sm:text-base font-medium',
+                          'focus:shadow-[0_0_0_3px_rgba(37,99,235,0.14),0_0_16px_-4px_rgba(37,99,235,0.12),inset_0_1px_3px_0_rgba(15,23,42,0.04)]',
+                          'rounded-2xl text-sm sm:text-base font-semibold tracking-[-0.01em]',
                           'transition-[background-color,border-color,box-shadow] duration-200',
-                          'shadow-[inset_0_1px_2px_0_rgba(15,23,42,0.03)]',
-                          'focus-visible:ring-2 focus-visible:ring-[#2563EB]/20 focus-visible:ring-offset-0'
+                          'shadow-[inset_0_1px_3px_0_rgba(15,23,42,0.04),0_1px_0_0_rgba(255,255,255,0.8)]',
+                          'focus-visible:ring-2 focus-visible:ring-[#2563EB]/25 focus-visible:ring-offset-0'
                         )}
                       />
                       {/* Clear button — appears when input has value */}
@@ -693,7 +711,7 @@ export default function JobSearchHero({
                   <div className="group/loc relative w-full min-w-0">
                     <div className="relative">
                       <MapPin
-                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#64748B] z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/loc:text-[#2563EB]"
+                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#475569] z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/loc:text-[#2563EB]"
                         aria-hidden
                       />
                       <Input
@@ -709,14 +727,14 @@ export default function JobSearchHero({
                         }}
                         className={cn(
                           'w-full min-w-0 pl-10 sm:pl-11 lg:pl-12 pr-24 sm:pr-28 py-3.5 sm:py-4',
-                          'text-[#0F172A] placeholder:text-[#64748B] placeholder:font-normal',
-                          'bg-white border border-slate-200/90',
+                          'text-[#0F172A] placeholder:text-[#475569]/80 placeholder:font-medium placeholder:tracking-[-0.01em]',
+                          'bg-white border border-[#2563EB]/12',
                           'focus:border-[#2563EB] focus:bg-white focus:ring-0 focus:outline-none',
-                          'focus:shadow-[0_0_0_3px_rgba(37,99,235,0.12),inset_0_1px_2px_0_rgba(15,23,42,0.03)]',
-                          'rounded-2xl text-sm sm:text-base font-medium',
+                          'focus:shadow-[0_0_0_3px_rgba(37,99,235,0.14),0_0_16px_-4px_rgba(37,99,235,0.12),inset_0_1px_3px_0_rgba(15,23,42,0.04)]',
+                          'rounded-2xl text-sm sm:text-base font-semibold tracking-[-0.01em]',
                           'transition-[background-color,border-color,box-shadow] duration-200',
-                          'shadow-[inset_0_1px_2px_0_rgba(15,23,42,0.03)]',
-                          'focus-visible:ring-2 focus-visible:ring-[#2563EB]/20 focus-visible:ring-offset-0'
+                          'shadow-[inset_0_1px_3px_0_rgba(15,23,42,0.04),0_1px_0_0_rgba(255,255,255,0.8)]',
+                          'focus-visible:ring-2 focus-visible:ring-[#2563EB]/25 focus-visible:ring-offset-0'
                         )}
                       />
                       <Button
@@ -725,14 +743,14 @@ export default function JobSearchHero({
                         disabled={isDetectingLocation}
                         className={cn(
                           'absolute right-1.5 top-1/2 -translate-y-1/2 h-8 sm:h-9 px-2.5 sm:px-3',
-                          'bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#2563EB]',
-                          'hover:from-[#1d4ed8] hover:via-[#6d28d9] hover:to-[#1d4ed8]',
-                          'text-white text-xs font-semibold rounded-xl',
-                          'shadow-[0_1px_2px_0_rgba(15,23,42,0.08),0_4px_12px_-2px_rgba(37,99,235,0.35)]',
-                          'hover:shadow-[0_2px_6px_0_rgba(15,23,42,0.06),0_10px_24px_-6px_rgba(37,99,235,0.38)]',
-                          'transition-[transform,box-shadow,background] duration-200 ease-out hover:-translate-y-px',
-                          'active:scale-[0.98]',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/35 focus-visible:ring-offset-2',
+                          'bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#06B6D4]',
+                          'hover:from-[#1d4ed8] hover:via-[#6d28d9] hover:to-[#0891b2]',
+                          'text-white text-xs font-bold rounded-xl',
+                          'shadow-[0_1px_0_0_rgba(255,255,255,0.15)_inset,0_2px_8px_-1px_rgba(37,99,235,0.4),0_0_20px_-4px_rgba(124,58,237,0.3)]',
+                          'hover:shadow-[0_1px_0_0_rgba(255,255,255,0.18)_inset,0_4px_14px_-2px_rgba(37,99,235,0.45),0_0_28px_-4px_rgba(37,99,235,0.35)]',
+                          'transition-[transform,box-shadow,background,filter] duration-200 ease-out hover:-translate-y-px hover:brightness-105',
+                          'active:scale-[0.98] active:brightness-95 active:shadow-[0_1px_4px_-1px_rgba(37,99,235,0.35)]',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 focus-visible:ring-offset-2',
                           'flex-shrink-0'
                         )}
                       >
@@ -751,8 +769,8 @@ export default function JobSearchHero({
 
                 {/* Trending searches — quick chips */}
                 <div className="group/trend flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 pt-2">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-[#64748B] uppercase tracking-wider shrink-0 transition-colors duration-200 group-hover/trend:text-[#2563EB]">
-                    <Flame className="w-3.5 h-3.5 text-[#94A3B8] transition-[color,transform] duration-200 group-hover/trend:text-[#7C3AED] group-hover/trend:scale-105" aria-hidden /> Trending
+                  <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#475569] uppercase tracking-[0.14em] shrink-0 transition-colors duration-200 group-hover/trend:text-[#2563EB]">
+                    <Flame className="w-3.5 h-3.5 text-[#7C3AED]/60 transition-[color,transform] duration-200 group-hover/trend:text-[#7C3AED] group-hover/trend:scale-105" aria-hidden /> Trending
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">
                     {TRENDING_TAGS.map((term) => (
@@ -762,11 +780,13 @@ export default function JobSearchHero({
                         onClick={() => applyTrendingSearch(term)}
                         className={cn(
                           'group/chip relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full',
-                          'bg-[#2563EB]/[0.06] border border-[#2563EB]/10 text-[#64748B] text-xs sm:text-[13px] font-medium',
-                          'hover:bg-[#2563EB]/10 hover:border-[#2563EB]/22 hover:text-[#2563EB]',
-                          'hover:shadow-[0_2px_8px_-2px_rgba(37,99,235,0.2)]',
-                          'active:scale-[0.98] transition-[background-color,border-color,color,box-shadow] duration-200',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/25 focus-visible:ring-offset-1'
+                          'bg-gradient-to-br from-[#2563EB]/10 via-[#7C3AED]/8 to-[#06B6D4]/6',
+                          'border border-[#2563EB]/18 text-[#475569] text-xs sm:text-[13px] font-semibold tracking-[-0.01em]',
+                          'hover:from-[#2563EB]/14 hover:via-[#7C3AED]/12 hover:to-[#06B6D4]/10',
+                          'hover:border-[#7C3AED]/30 hover:text-[#0F172A]',
+                          'hover:shadow-[0_2px_10px_-2px_rgba(37,99,235,0.22),0_0_16px_-6px_rgba(124,58,237,0.15)]',
+                          'active:scale-[0.98] active:brightness-[0.98] transition-[background,border-color,color,box-shadow] duration-200',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/30 focus-visible:ring-offset-1'
                         )}
                       >
                         <span>{term}</span>
@@ -786,15 +806,15 @@ export default function JobSearchHero({
                       className={cn(
                         'relative overflow-hidden inline-flex items-center justify-center w-full sm:w-auto',
                         'px-7 sm:px-10 lg:px-14 py-3 sm:py-3.5 lg:py-4',
-                        'text-white font-bold text-sm sm:text-base lg:text-lg tracking-tight',
+                        'text-white font-black text-sm sm:text-base lg:text-lg tracking-[-0.02em]',
                         'rounded-2xl min-w-0 sm:min-w-[220px] lg:min-w-[260px] max-w-full cursor-pointer',
-                        'bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#2563EB]',
-                        'hover:from-[#1d4ed8] hover:via-[#6d28d9] hover:to-[#1d4ed8]',
-                        'shadow-[0_1px_2px_0_rgba(15,23,42,0.08),0_4px_16px_-4px_rgba(37,99,235,0.35)]',
-                        'hover:shadow-[0_2px_6px_0_rgba(15,23,42,0.06),0_16px_36px_-10px_rgba(37,99,235,0.42)]',
-                        'transition-[transform,box-shadow,background] duration-200 ease-out hover:-translate-y-px',
-                        'active:scale-[0.98]',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/35 focus-visible:ring-offset-2'
+                        'bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#06B6D4]',
+                        'hover:from-[#1d4ed8] hover:via-[#6d28d9] hover:to-[#0891b2]',
+                        'shadow-[0_1px_0_0_rgba(255,255,255,0.2)_inset,0_2px_10px_-2px_rgba(37,99,235,0.45),0_0_32px_-8px_rgba(124,58,237,0.28)]',
+                        'hover:shadow-[0_1px_0_0_rgba(255,255,255,0.24)_inset,0_4px_18px_-4px_rgba(37,99,235,0.5),0_0_40px_-8px_rgba(37,99,235,0.38)]',
+                        'transition-[transform,box-shadow,background,filter] duration-200 ease-out hover:-translate-y-px hover:brightness-105',
+                        'active:scale-[0.98] active:brightness-95 active:shadow-[0_1px_6px_-2px_rgba(37,99,235,0.4)]',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 focus-visible:ring-offset-2'
                       )}
                     >
                       <Sparkles className="relative w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 transition-transform duration-200 group-hover/cta:rotate-6" aria-hidden />
