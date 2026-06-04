@@ -32,6 +32,9 @@ import {
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { ef } from '@/lib/employer-form-ui';
+import { EmployerAiSuggestionCards } from '@/components/employer/EmployerAiSuggestionCards';
+import { cn } from '@/lib/utils';
 
 interface CompanyFormData {
   name: string;
@@ -288,51 +291,16 @@ export default function CreateCompanyPage() {
 
   const renderSuggestionPanel = (
     field: string,
-    title: string,
-    onSelect: (text: string) => void,
-    tone: 'purple' | 'green' | 'pink' | 'blue' = 'purple'
-  ) => {
-    const items = aiSuggestionPanels[field];
-    if (!items?.length) return null;
-    const toneClasses = {
-      purple: 'border-purple-200 bg-purple-50/80 text-purple-800 hover:bg-purple-100 hover:border-purple-400',
-      green: 'border-green-200 bg-green-50/80 text-green-800 hover:bg-green-100 hover:border-green-400',
-      pink: 'border-pink-200 bg-pink-50/80 text-pink-800 hover:bg-pink-100 hover:border-pink-400',
-      blue: 'border-blue-200 bg-blue-50/80 text-blue-800 hover:bg-blue-100 hover:border-blue-400',
-    };
-    return (
-      <AnimatePresence initial={false}>
-        <motion.div
-          key={`${field}-suggestions`}
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          className="mt-3 space-y-2"
-        >
-          <p className="text-xs font-semibold text-gray-700 flex items-center gap-2">
-            <Sparkles className="h-3 w-3 text-purple-600 animate-pulse" />
-            {title}
-          </p>
-          {items.map((suggestion, idx) => (
-            <motion.button
-              key={`${field}-${idx}-${suggestion.slice(0, 24)}`}
-              type="button"
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.04 }}
-              onClick={() => onSelect(suggestion)}
-              className={`w-full text-left text-sm p-3 rounded-lg border-2 transition-all shadow-sm hover:shadow-md ${toneClasses[tone]}`}
-            >
-              <span className="flex items-start gap-2">
-                <Sparkles className="h-4 w-4 mt-0.5 flex-shrink-0 opacity-80" />
-                <span className="flex-1 leading-relaxed">{suggestion}</span>
-              </span>
-            </motion.button>
-          ))}
-        </motion.div>
-      </AnimatePresence>
-    );
-  };
+    subtitle: string,
+    onSelect: (text: string) => void
+  ) => (
+    <EmployerAiSuggestionCards
+      items={aiSuggestionPanels[field] || []}
+      companyName={formData.name || undefined}
+      subtitle={subtitle}
+      onSelect={onSelect}
+    />
+  );
 
   const isAiGenerating = aiGeneratingField !== null;
 
@@ -678,7 +646,7 @@ export default function CreateCompanyPage() {
 
   return (
     <EmployerOnboardingCheck requiredAction="none">
-      <div className="mobile-job-form bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
+      <div className={cn('mobile-job-form py-4 sm:py-8', ef.pageBgSoft)}>
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
@@ -690,12 +658,22 @@ export default function CreateCompanyPage() {
             <span className="hidden sm:inline">Back to Employer Options</span>
             <span className="sm:hidden">Back</span>
           </Link>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 px-2">
-            Create Your Company Profile
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg px-4">
-            Build your company's presence and start attracting top talent
-          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-2 px-2">
+            <div className={ef.headerIcon}>
+              <Building2 className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+            </div>
+            <div className="text-center sm:text-left">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0F172A] tracking-tight">
+                  Company Setup
+                </h1>
+                <span className={ef.headerBadge}>AI Powered</span>
+              </div>
+              <p className="text-[#64748B] text-sm sm:text-base font-medium">
+                Employer profile — attract top talent worldwide
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Enhanced Progress Steps */}
@@ -709,8 +687,8 @@ export default function CreateCompanyPage() {
                     <div className={`
                       w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2
                       ${currentStep >= step.id 
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl transform scale-105 sm:scale-110 border-blue-600' 
-                        : 'bg-white text-gray-600 border-gray-400 shadow-md'
+                        ? `${ef.stepActive} transform scale-105 sm:scale-110` 
+                        : ef.stepInactive
                       }
                     `}>
                       {currentStep > step.id ? (
@@ -736,7 +714,7 @@ export default function CreateCompanyPage() {
         </div>
 
         {/* Form Content */}
-        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0">
+        <Card className={cn(ef.mainCard, 'mx-2 sm:mx-0')}>
           <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
@@ -749,12 +727,15 @@ export default function CreateCompanyPage() {
                   className="space-y-6"
                   style={{ overflow: 'visible' }}
                 >
-                  <div className="text-center mb-6">
-                    <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
-                      <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+                  <div className={ef.sectionCard}>
+                  <div className="text-center sm:text-left mb-5 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className={cn(ef.sectionIconWrap, 'w-14 h-14 sm:w-16 sm:h-16 mx-auto sm:mx-0 shrink-0')}>
+                      <Building2 className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Basic Company Information</h2>
-                    <p className="text-gray-600 text-sm sm:text-base">Tell us about your company</p>
+                    <div>
+                    <h2 className={ef.sectionTitle}>Basic Company Information</h2>
+                    <p className={ef.sectionDesc}>Tell us about your company</p>
+                    </div>
                   </div>
 
                   <div className="space-y-4 sm:space-y-6">
@@ -767,7 +748,7 @@ export default function CreateCompanyPage() {
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                         placeholder="e.g., TechCorp Solutions"
-                        className="mt-1 h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                        className={cn('mt-1 h-10 sm:h-12 text-sm sm:text-lg', ef.input)}
                         required
                       />
                     </div>
@@ -783,7 +764,7 @@ export default function CreateCompanyPage() {
                           size="sm"
                           onClick={() => generateAIContent('description')}
                           disabled={isAiGenerating || !formData.name.trim()}
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
+                          className={cn(ef.aiButton, 'px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto')}
                         >
                           {aiGeneratingField === 'description' ? (
                             <>
@@ -806,17 +787,16 @@ export default function CreateCompanyPage() {
                         onChange={(e) => handleInputChange('description', e.target.value)}
                         placeholder="Describe your company, mission, and what makes you unique..."
                         rows={3}
-                        className="mt-1 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                        className={cn('mt-1 text-sm sm:text-lg', ef.textarea)}
                         required
                       />
                       {renderSuggestionPanel(
                         'description',
-                        'AI description suggestions (click to use):',
-                        (s) => handleInputChange('description', s),
-                        'blue'
+                        'Click a card to apply to your description',
+                        (s) => handleInputChange('description', s)
                       )}
-                      <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                        <p className="text-xs sm:text-sm text-blue-700 font-medium flex items-center gap-2">
+                      <div className={cn('mt-2', ef.aiHint)}>
+                        <p className="flex items-center gap-2">
                           <Brain className="h-4 w-4 animate-pulse" />
                           <span>Click AI Generate, then pick a suggestion card — your text is only updated when you choose one.</span>
                         </p>
@@ -883,6 +863,7 @@ export default function CreateCompanyPage() {
                       />
                     </div>
                   </div>
+                  </div>
                 </motion.div>
               )}
 
@@ -896,12 +877,15 @@ export default function CreateCompanyPage() {
                   className="space-y-6"
                   style={{ overflow: 'visible' }}
                 >
-                  <div className="text-center mb-6">
-                    <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
-                      <MapPin className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+                  <div className={ef.sectionCard}>
+                  <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className={cn(ef.sectionIconWrap, 'w-14 h-14 sm:w-16 sm:h-16 mx-auto sm:mx-0 shrink-0')}>
+                      <MapPin className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Company Details</h2>
-                    <p className="text-gray-600 text-sm sm:text-base">Help job seekers find you</p>
+                    <div className="text-center sm:text-left">
+                    <h2 className={ef.sectionTitle}>Company Details</h2>
+                    <p className={ef.sectionDesc}>Location, industry & address</p>
+                    </div>
                   </div>
 
                   <div className="space-y-6">
@@ -1069,6 +1053,7 @@ export default function CreateCompanyPage() {
                       </div>
                     </div>
                   </div>
+                  </div>
                 </motion.div>
               )}
 
@@ -1082,12 +1067,15 @@ export default function CreateCompanyPage() {
                   className="space-y-6"
                   style={{ overflow: 'visible' }}
                 >
-                  <div className="text-center mb-6">
-                    <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
-                      <Target className="h-8 w-8 sm:h-10 sm:w-10 text-purple-600" />
+                  <div className={ef.sectionCard}>
+                  <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className={cn(ef.sectionIconWrap, 'w-14 h-14 sm:w-16 sm:h-16 mx-auto sm:mx-0 shrink-0')}>
+                      <Target className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Company Culture & Values</h2>
-                    <p className="text-gray-600 text-sm sm:text-base">Showcase what makes your company special</p>
+                    <div className="text-center sm:text-left">
+                    <h2 className={ef.sectionTitle}>Company Culture & Values</h2>
+                    <p className={ef.sectionDesc}>Mission, vision, culture & benefits</p>
+                    </div>
                   </div>
 
                   <div className="space-y-8">
@@ -1109,7 +1097,7 @@ export default function CreateCompanyPage() {
                             size="sm"
                             onClick={() => generateAIContent('mission', true)}
                             disabled={isAiGenerating || !formData.name.trim() || !formData.industry}
-                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
+                            className={cn(ef.aiButton, 'px-4 py-2 text-sm font-medium w-full sm:w-auto')}
                           >
                             {aiGeneratingField === 'mission' ? (
                               <>
@@ -1132,13 +1120,12 @@ export default function CreateCompanyPage() {
                           onChange={(e) => handleInputChange('mission', e.target.value)}
                           placeholder="AI will automatically generate this when you select an industry..."
                           rows={4}
-                          className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
+                          className={cn('text-base', ef.textarea)}
                         />
                         {renderSuggestionPanel(
                           'mission',
                           'AI mission suggestions (click to use):',
-                          (s) => handleInputChange('mission', s),
-                          'purple'
+                          (s) => handleInputChange('mission', s)
                         )}
                       </div>
                       <div className="space-y-4">
@@ -1157,7 +1144,7 @@ export default function CreateCompanyPage() {
                             size="sm"
                             onClick={() => generateAIContent('vision', true)}
                             disabled={isAiGenerating || !formData.name.trim() || !formData.industry}
-                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
+                            className={cn(ef.aiButton, 'px-4 py-2 text-sm font-medium w-full sm:w-auto')}
                           >
                             {aiGeneratingField === 'vision' ? (
                               <>
@@ -1180,13 +1167,12 @@ export default function CreateCompanyPage() {
                           onChange={(e) => handleInputChange('vision', e.target.value)}
                           placeholder="AI will automatically generate this when you select an industry..."
                           rows={4}
-                          className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
+                          className={cn('text-base', ef.textarea)}
                         />
                         {renderSuggestionPanel(
                           'vision',
                           'AI vision suggestions (click to use):',
-                          (s) => handleInputChange('vision', s),
-                          'purple'
+                          (s) => handleInputChange('vision', s)
                         )}
                       </div>
                     </div>
@@ -1203,7 +1189,7 @@ export default function CreateCompanyPage() {
                           size="sm"
                           onClick={() => generateAIContent('culture', true)}
                           disabled={isAiGenerating || !formData.name.trim() || !formData.industry}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto"
+                          className={cn(ef.aiButton, 'px-4 py-2 text-sm font-medium w-full sm:w-auto')}
                         >
                           {aiGeneratingField === 'culture' ? (
                             <>
@@ -1229,8 +1215,7 @@ export default function CreateCompanyPage() {
                       {renderSuggestionPanel(
                         'culture',
                         'AI culture suggestions (click to append):',
-                        appendCultureSuggestion,
-                        'pink'
+                        appendCultureSuggestion
                       )}
                     </div>
 
@@ -1274,11 +1259,11 @@ export default function CreateCompanyPage() {
                             variant={formData.benefits?.includes(benefit) ? "default" : "outline"}
                             size="sm"
                             onClick={() => handleBenefitToggle(benefit)}
-                            className={`h-12 text-sm font-medium transition-all duration-200 rounded-xl ${
-                              formData.benefits?.includes(benefit)
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105 hover:scale-110'
-                                : 'hover:bg-blue-50 border-2 border-gray-300 hover:border-blue-400 hover:shadow-md'
-                            }`}
+                            className={cn(
+                              'h-12 text-sm font-medium rounded-full px-4',
+                              ef.benefitChip,
+                              formData.benefits?.includes(benefit) ? ef.benefitChipOn : ef.benefitChipOff
+                            )}
                           >
                             {formData.benefits?.includes(benefit) && <CheckCircle className="h-4 w-4 mr-2" />}
                             <span className="truncate">{benefit}</span>
@@ -1290,8 +1275,7 @@ export default function CreateCompanyPage() {
                         'AI benefit suggestions (click to add):',
                         (s) => {
                           if (!formData.benefits?.includes(s)) handleBenefitToggle(s);
-                        },
-                        'green'
+                        }
                       )}
                       <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
                         <p className="text-sm text-green-700 font-medium flex items-center gap-2">
@@ -1318,7 +1302,7 @@ export default function CreateCompanyPage() {
                           size="sm"
                           onClick={() => generateAIContent('specialties', true)}
                           disabled={isAiGenerating || !formData.industry}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
+                          className={cn(ef.aiButton, 'px-4 py-2 text-sm font-medium w-full sm:w-auto')}
                         >
                           {aiGeneratingField === 'specialties' ? (
                             <>
@@ -1404,8 +1388,7 @@ export default function CreateCompanyPage() {
                         'AI specialty suggestions (click to add):',
                         (s) => {
                           if (!formData.specialties?.includes(s)) handleSpecialtyToggle(s);
-                        },
-                        'pink'
+                        }
                       )}
                       <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
                         <p className="text-sm text-purple-700 font-medium flex items-center gap-2">
@@ -1414,6 +1397,7 @@ export default function CreateCompanyPage() {
                         </p>
                       </div>
                     </div>
+                  </div>
                   </div>
                 </motion.div>
               )}

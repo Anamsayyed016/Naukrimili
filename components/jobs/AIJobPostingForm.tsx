@@ -15,6 +15,9 @@ import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, Arrow
 import EnhancedLocationSearch from '@/components/EnhancedLocationSearch';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { ef } from '@/lib/employer-form-ui';
+import { EmployerAiSuggestionCards } from '@/components/employer/EmployerAiSuggestionCards';
+import { cn } from '@/lib/utils';
 
 interface JobFormData {
   title: string;
@@ -723,23 +726,28 @@ export default function AIJobPostingForm() {
   };
 
   return (
-    <div className="mobile-job-form min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className={cn('mobile-job-form', ef.pageBgSoft)}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl py-6 sm:py-8">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl">
-              <Sparkles className="h-8 w-8 text-white" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+            <div className={ef.headerIcon}>
+              <Briefcase className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Post a Job</h1>
-          </div>
-          <p className="text-slate-600 text-sm sm:text-base">
+            <div className="text-center sm:text-left">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">Post a Job</h1>
+                <span className={ef.headerBadge}>AI Powered</span>
+              </div>
+          <p className="text-[#64748B] text-sm sm:text-base font-medium mt-1">
             {companyProfile ? (
               <>AI-powered job posting for <span className="font-semibold text-blue-600">{companyProfile.name}</span></>
             ) : (
               'Create a job posting to find the perfect candidates'
             )}
           </p>
+            </div>
+          </div>
           {loadingCompany && (
             <p className="text-xs text-slate-500 mt-2 flex items-center justify-center gap-2">
               <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
@@ -754,10 +762,10 @@ export default function AIJobPostingForm() {
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
                 <div className="flex flex-col items-center flex-1">
-                  <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+                  <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
                     currentStep >= step.id 
-                      ? 'bg-blue-600 border-blue-600 text-white' 
-                      : 'bg-white border-slate-300 text-slate-500'
+                      ? ef.stepActive
+                      : ef.stepInactive
                   }`}>
                     {currentStep > step.id ? (
                       <CheckCircle className="h-5 w-5" />
@@ -778,7 +786,7 @@ export default function AIJobPostingForm() {
         </div>
 
         {/* Main Form */}
-        <Card className="shadow-xl bg-white/95 rounded-2xl border border-slate-200 backdrop-blur-sm overflow-visible">
+        <Card className={cn(ef.mainCard, 'overflow-visible')}>
           <CardContent className="p-6 overflow-visible">
             <AnimatePresence mode="wait">
               {/* Step 1: Job Details */}
@@ -791,11 +799,16 @@ export default function AIJobPostingForm() {
                   className="space-y-6 overflow-visible"
                   style={{ overflow: 'visible' }}
                 >
+                  <div className={ef.sectionCard}>
+                    <h3 className={cn(ef.sectionTitle, 'text-lg mb-5 flex items-center gap-2')}>
+                      <Briefcase className="h-5 w-5 text-[#2563EB]" aria-hidden />
+                      Job Basics
+                    </h3>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                      <Label className={cn(ef.label, 'flex items-center gap-2')}>
                         Job Title *
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                        <Badge variant="secondary" className={ef.aiBadge}>
                           AI-Powered
                         </Badge>
                       </Label>
@@ -806,7 +819,7 @@ export default function AIJobPostingForm() {
                           value={formData.title}
                           onChange={(e) => handleInputChange('title', e.target.value)}
                           placeholder="e.g., BPO Team Leader, Software Engineer, Marketing Manager..."
-                          className="h-12 w-full"
+                          className={cn('h-12 w-full', ef.input)}
                         />
                         {formData.title && formData.title.length >= 3 && aiLoading.title && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -818,7 +831,7 @@ export default function AIJobPostingForm() {
                         type="button"
                         onClick={() => getAiSuggestions('title')}
                         disabled={aiLoading.title || !formData.title || formData.title.length < 3}
-                        className="whitespace-nowrap bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4"
+                        className={cn(ef.aiButton, 'whitespace-nowrap px-3 sm:px-4')}
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
                         {aiLoading.title ? 'Generating…' : 'AI Suggest'}
@@ -873,7 +886,7 @@ export default function AIJobPostingForm() {
                     <div className="flex items-center justify-between mb-2">
                       <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
                         Job Description *
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                        <Badge variant="secondary" className={ef.aiBadge}>
                           AI-Powered
                         </Badge>
                       </Label>
@@ -897,7 +910,7 @@ export default function AIJobPostingForm() {
                         type="button"
                         onClick={() => getAiSuggestions('description')}
                         disabled={aiLoading.description || !formData.description || formData.description.length < 3}
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4"
+                        className={cn(ef.aiButton, 'px-3 sm:px-4')}
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
                         {aiLoading.description ? 'Generating…' : 'AI Suggest'}
@@ -910,39 +923,12 @@ export default function AIJobPostingForm() {
                         </span>
                       </p>
                     )}
-                    <AnimatePresence initial={false}>
-                      {aiSuggestions.description?.length ? (
-                        <motion.div
-                          key="description-suggestions"
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.3 }}
-                          className="mt-3 space-y-2"
-                        >
-                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
-                            <Sparkles className="h-3 w-3 animate-pulse" />
-                            AI Generated Descriptions (click to add line):
-                          </p>
-                          {aiSuggestions.description.map((s, idx) => (
-                            <motion.button
-                              key={s}
-                              type="button"
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.1 }}
-                              onClick={() => applySuggestion('description', s)}
-                              className="w-full text-left text-sm p-4 rounded-xl border-2 border-purple-200 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-blue-50 hover:border-purple-400 transition-all shadow-sm hover:shadow-md group"
-                            >
-                              <span className="flex items-start gap-2">
-                                <Sparkles className="h-4 w-4 text-purple-600 mt-0.5 group-hover:animate-pulse flex-shrink-0" />
-                                <span className="flex-1">{s}</span>
-                              </span>
-                            </motion.button>
-                          ))}
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
+                    <EmployerAiSuggestionCards
+                      items={aiSuggestions.description || []}
+                      companyName={companyProfile?.name}
+                      subtitle="Click a card to add to your description"
+                      onSelect={(s) => applySuggestion('description', s)}
+                    />
                   </div>
 
                   <div>
@@ -950,7 +936,7 @@ export default function AIJobPostingForm() {
                       Job Type
                     </Label>
                     <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
-                      <SelectTrigger className="h-12">
+                      <SelectTrigger className={cn('h-12', ef.selectTrigger)}>
                         <SelectValue placeholder="Select job type" />
                       </SelectTrigger>
                       <SelectContent
@@ -1032,11 +1018,10 @@ export default function AIJobPostingForm() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div
-                      className={`flex items-center gap-3 sm:gap-4 p-4 rounded-xl border-2 min-w-0 transition-colors ${
-                        formData.hideEmail
-                          ? 'border-red-200 bg-red-50/60'
-                          : 'border-emerald-200 bg-emerald-50/60'
-                      }`}
+                      className={cn(
+                        ef.toggleCard,
+                        formData.hideEmail ? 'border-red-200/80 bg-red-50/50' : 'border-[#2563EB]/15'
+                      )}
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -1084,20 +1069,18 @@ export default function AIJobPostingForm() {
                           checked={formData.hideEmail}
                           onCheckedChange={(checked) => handleInputChange('hideEmail', checked === true)}
                           aria-label="Hide email on job listing"
-                          className={
-                            formData.hideEmail
-                              ? 'data-[state=checked]:bg-red-600'
-                              : 'data-[state=unchecked]:bg-emerald-200'
-                          }
+                          className={cn(
+                            formData.hideEmail ? 'data-[state=checked]:bg-red-600' : ef.switchOff,
+                            !formData.hideEmail && ef.switchOn
+                          )}
                         />
                       </div>
                     </div>
                     <div
-                      className={`flex items-center gap-3 sm:gap-4 p-4 rounded-xl border-2 min-w-0 transition-colors ${
-                        formData.hidePhone
-                          ? 'border-red-200 bg-red-50/60'
-                          : 'border-emerald-200 bg-emerald-50/60'
-                      }`}
+                      className={cn(
+                        ef.toggleCard,
+                        formData.hidePhone ? 'border-red-200/80 bg-red-50/50' : 'border-[#2563EB]/15'
+                      )}
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -1145,14 +1128,14 @@ export default function AIJobPostingForm() {
                           checked={formData.hidePhone}
                           onCheckedChange={(checked) => handleInputChange('hidePhone', checked === true)}
                           aria-label="Hide contact number on job listing"
-                          className={
-                            formData.hidePhone
-                              ? 'data-[state=checked]:bg-red-600'
-                              : 'data-[state=unchecked]:bg-emerald-200'
-                          }
+                          className={cn(
+                            formData.hidePhone ? 'data-[state=checked]:bg-red-600' : ef.switchOff,
+                            !formData.hidePhone && ef.switchOn
+                          )}
                         />
                       </div>
                     </div>
+                  </div>
                   </div>
                 </motion.div>
               )}
@@ -1168,14 +1151,14 @@ export default function AIJobPostingForm() {
                   style={{ overflow: 'visible' }}
                 >
                   {/* Requirements with AI */}
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
+                  <div className={ef.sectionCard}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
                           <FileText className="h-5 w-5 text-blue-600" />
                           Job Requirements *
                         </Label>
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                        <Badge variant="secondary" className={ef.aiBadge}>
                           AI-Powered
                         </Badge>
                       </div>
@@ -1184,7 +1167,7 @@ export default function AIJobPostingForm() {
                         size="sm"
                         onClick={() => getAiSuggestions('requirements')}
                         disabled={aiLoading.requirements || loadingCompany}
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                        className={ef.aiButton}
                       >
                         <Sparkles className="h-3 w-3 mr-1.5" />
                         {aiLoading.requirements ? 'Generating…' : 'AI Suggest'}
@@ -1195,44 +1178,18 @@ export default function AIJobPostingForm() {
                       onChange={(e) => handleInputChange('requirements', e.target.value)}
                       placeholder={`List requirements for this ${formData.title || 'position'}...\n\nExample:\n• Bachelor's degree in relevant field\n• 3+ years of experience\n• Strong communication skills`}
                       rows={7}
-                      className="resize-none bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                      className={ef.textarea}
                     />
-                    <AnimatePresence>
-                      {aiSuggestions.requirements?.length > 0 && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.3 }}
-                          className="mt-3 space-y-2"
-                        >
-                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
-                            <Sparkles className="h-3 w-3 animate-pulse" />
-                            AI Suggestions (click to append) — {companyProfile?.name || 'your company'}:
-                          </p>
-                          {aiSuggestions.requirements.map((suggestion, idx) => (
-                            <motion.button
-                              key={idx}
-                              type="button"
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.1 }}
-                              onClick={() => applySuggestion('requirements', suggestion)}
-                              className="w-full text-left text-sm p-3 rounded-lg border-2 border-blue-200 bg-white hover:bg-blue-50 hover:border-blue-400 transition-all shadow-sm hover:shadow-md group"
-                            >
-                              <span className="flex items-start gap-2">
-                                <Sparkles className="h-4 w-4 text-blue-600 mt-0.5 group-hover:animate-pulse flex-shrink-0" />
-                                <span className="flex-1">{suggestion}</span>
-                              </span>
-                            </motion.button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <EmployerAiSuggestionCards
+                      items={aiSuggestions.requirements || []}
+                      companyName={companyProfile?.name}
+                      subtitle="Click a card to append to requirements"
+                      onSelect={(s) => applySuggestion('requirements', s)}
+                    />
                   </div>
 
                   {/* Skills Section - Optional but encouraged */}
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-6 rounded-xl border border-purple-100">
+                  <div className={ef.sectionCard}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
@@ -1249,7 +1206,7 @@ export default function AIJobPostingForm() {
                         size="sm"
                         onClick={() => getAiSuggestions('skills')}
                         disabled={aiLoading.skills || loadingCompany}
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg"
+                        className={ef.aiButton}
                       >
                         <Sparkles className="h-3 w-3 mr-1.5" />
                         {aiLoading.skills ? 'AI…' : 'AI Suggest Skills'}
@@ -1260,7 +1217,7 @@ export default function AIJobPostingForm() {
                     {formData.skills.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-3 p-3 bg-white rounded-lg border border-purple-200">
                         {formData.skills.map((skill) => (
-                          <Badge key={skill} variant="secondary" className="px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200">
+                          <Badge key={skill} variant="secondary" className={ef.skillChipSelected}>
                             {skill}
                             <button
                               onClick={() => removeSkill(skill)}
@@ -1283,7 +1240,7 @@ export default function AIJobPostingForm() {
                             variant="outline"
                             size="sm"
                             onClick={() => addSkill(skill)}
-                            className="h-9 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                            className={ef.skillChipAdd}
                           >
                             + {skill}
                           </Button>
@@ -1324,7 +1281,7 @@ export default function AIJobPostingForm() {
                                       toast.info(`${s} is already in your skills list`);
                                     }
                                   }}
-                                  className="h-9 border-2 border-purple-300 bg-white hover:bg-purple-100 text-purple-700 transition-all shadow-sm"
+                                  className={ef.skillChipAdd}
                                 >
                                   <Sparkles className="h-3 w-3 mr-1" />
                                   {s}
@@ -1344,7 +1301,7 @@ export default function AIJobPostingForm() {
                         Experience Level
                       </Label>
                       <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className={cn('h-12', ef.selectTrigger)}>
                           <SelectValue placeholder="Select experience level" />
                         </SelectTrigger>
                         <SelectContent
@@ -1362,7 +1319,7 @@ export default function AIJobPostingForm() {
                       </Select>
                     </div>
 
-                    <div className="p-4 rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 space-y-4">
+                    <div className={cn(ef.sectionCard, 'space-y-4')}>
                       <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-amber-600" />
                         Salary Range <span className="text-xs text-slate-500 font-normal">(Optional)</span>
@@ -1698,7 +1655,7 @@ export default function AIJobPostingForm() {
                     </div>
 
                     {/* Search Radius */}
-                    <div className="mt-4 p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 shadow-sm">
+                    <div className={cn(ef.sectionCard, 'mt-4')}>
                       <Label className="text-sm font-semibold text-slate-800 mb-3 flex items-center justify-between">
                         <span className="flex items-center gap-2">
                           <MapPin className="h-4 w-4 text-blue-600" />
@@ -1726,7 +1683,7 @@ export default function AIJobPostingForm() {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 sm:p-5 rounded-xl border border-green-200">
+                  <div className={ef.sectionCard}>
                     <Label className="text-base font-semibold text-slate-900 mb-3 block">
                       Work Type Options
                     </Label>
@@ -1772,7 +1729,7 @@ export default function AIJobPostingForm() {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-5 rounded-xl border border-amber-200">
+                  <div className={ef.sectionCard}>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                       <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
                         <DollarSign className="h-5 w-5 text-amber-600 shrink-0" />
@@ -1799,7 +1756,7 @@ export default function AIJobPostingForm() {
                         onChange={(e) => handleInputChange('benefits', e.target.value)}
                         placeholder="List the benefits you offer...\n\nExample:\n• Health insurance\n• Flexible hours\n• Professional development"
                         rows={5}
-                        className="resize-none bg-white border-amber-200 focus:border-amber-400 focus:ring-amber-400"
+                        className={ef.textarea}
                       />
                       {aiLoading.benefits && (
                         <div className="absolute right-3 top-3">
@@ -1812,42 +1769,15 @@ export default function AIJobPostingForm() {
                         💡 Suggestions based on &quot;{formData.title}&quot; — click to append each benefit
                       </p>
                     )}
-                    <AnimatePresence initial={false}>
-                      {aiSuggestions.benefits?.length ? (
-                        <motion.div
-                          key="benefits-suggestions"
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.3 }}
-                          className="mt-3 space-y-2"
-                        >
-                          <p className="text-xs font-semibold text-amber-800 mb-2 flex items-center gap-2">
-                            <Sparkles className="h-3 w-3 animate-pulse" />
-                            AI Benefit Suggestions (click to append):
-                          </p>
-                          {aiSuggestions.benefits.map((suggestion, idx) => (
-                            <motion.button
-                              key={`${suggestion}-${idx}`}
-                              type="button"
-                              initial={{ opacity: 0, x: -12 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.05 }}
-                              onClick={() => applySuggestion('benefits', suggestion)}
-                              className="w-full text-left text-sm p-3 rounded-lg border-2 border-amber-200 bg-white hover:bg-amber-50 hover:border-amber-400 transition-all shadow-sm hover:shadow-md group"
-                            >
-                              <span className="flex items-start gap-2">
-                                <Sparkles className="h-4 w-4 text-amber-600 mt-0.5 group-hover:animate-pulse flex-shrink-0" />
-                                <span className="flex-1">{suggestion}</span>
-                              </span>
-                            </motion.button>
-                          ))}
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
+                    <EmployerAiSuggestionCards
+                      items={aiSuggestions.benefits || []}
+                      companyName={companyProfile?.name}
+                      subtitle="Click a card to append to benefits"
+                      onSelect={(s) => applySuggestion('benefits', s)}
+                    />
                   </div>
 
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-5 rounded-xl border border-purple-200">
+                  <div className={ef.sectionCard}>
                     <Label className="text-base font-semibold text-slate-900 mb-3 block">
                       Job Visibility Settings
                     </Label>
