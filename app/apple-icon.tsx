@@ -1,13 +1,13 @@
-import { ImageResponse } from 'next/og'
- 
-// Image metadata - Apple touch icon (larger for iOS devices)
+import { ImageResponse } from 'next/og';
+
+/** Apple touch icon — same NM mark as tab favicon, larger for home screen */
 export const size = {
-  width: 256,
-  height: 256,
-}
-export const contentType = 'image/png'
- 
-// Image generation - High quality Apple icon
+  width: 180,
+  height: 180,
+};
+
+export const contentType = 'image/png';
+
 export default function AppleIcon() {
   return new ImageResponse(
     (
@@ -18,26 +18,26 @@ export default function AppleIcon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-          borderRadius: '28px',
+          background: '#ffffff',
+          borderRadius: 36,
         }}
       >
         <div
           style={{
-            fontSize: 160,
+            display: 'flex',
+            alignItems: 'baseline',
+            fontSize: 108,
             fontWeight: 900,
-            color: 'white',
-            fontFamily: 'Arial, sans-serif',
-            textShadow: '0 4px 8px rgba(0,0,0,0.3)',
+            fontFamily: 'Arial Black, Helvetica, sans-serif',
+            letterSpacing: '-0.08em',
+            lineHeight: 1,
           }}
         >
-          N
+          <span style={{ color: '#1d4ed8' }}>N</span>
+          <span style={{ color: '#0f172a' }}>M</span>
         </div>
       </div>
     ),
-    {
-      ...size,
-    }
-  )
+    { ...size }
+  );
 }
-

@@ -1,28 +1,45 @@
-/** Browser tab favicon only — do not use for navbar/footer branding */
-const FAVICON_TAB_ICON_PATH = 'v1780573737/nmlogo1_eeen17.jpg';
+import { ImageResponse } from 'next/og';
 
-export function faviconTabIconUrl(size: number) {
-  return `https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_${size},h_${size},c_fit/${FAVICON_TAB_ICON_PATH}`;
-}
-
+/**
+ * Browser tab favicon only — crisp "NM" mark (not full logo artwork).
+ * Authoritative source: /icon (Next.js file convention).
+ */
 export const size = {
-  width: 48,
-  height: 48,
+  width: 32,
+  height: 32,
 };
 
-export const contentType = 'image/jpeg';
+export const contentType = 'image/png';
 
-export default async function Icon() {
-  const src = faviconTabIconUrl(48);
-  const res = await fetch(src, { next: { revalidate: 86400 } });
-  if (!res.ok) {
-    return new Response(null, { status: 502 });
-  }
-  const bytes = await res.arrayBuffer();
-  return new Response(bytes, {
-    headers: {
-      'Content-Type': res.headers.get('content-type') ?? 'image/jpeg',
-      'Cache-Control': 'public, max-age=86400, immutable',
-    },
-  });
+export default function Icon() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#ffffff',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            fontSize: 22,
+            fontWeight: 900,
+            fontFamily: 'Arial Black, Helvetica, sans-serif',
+            letterSpacing: '-0.1em',
+            lineHeight: 1,
+          }}
+        >
+          <span style={{ color: '#1d4ed8' }}>N</span>
+          <span style={{ color: '#0f172a' }}>M</span>
+        </div>
+      </div>
+    ),
+    { ...size }
+  );
 }
