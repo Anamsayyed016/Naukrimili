@@ -37,7 +37,8 @@ export function middleware(request: NextRequest) {
     const isHttpPort3000 = requestPort === '3000';
     // Always redirect www to non-www on canonical origin (not request.nextUrl — behind
     // nginx that port is 3000 and protocol is http, which would yield :3000 redirects)
-    if (hostname.startsWith('www.')) {
+    // Serve Bing verification file on www without redirect (Bing may not follow 301 for XML verify)
+    if (hostname.startsWith('www.') && pathname !== '/BingSiteAuth.xml') {
       const canonical = new URL(
         `${url.pathname}${url.search}`,
         CANONICAL_BASE_URL.replace(/\/$/, '')
@@ -141,6 +142,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|BingSiteAuth\\.xml).*)',
   ],
 };

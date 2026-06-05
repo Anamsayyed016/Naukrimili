@@ -233,6 +233,23 @@ if [ -d ".next/standalone" ]; then
         else
           echo "✅ ads.txt found in standalone/public"
         fi
+
+        # CRITICAL: Verify BingSiteAuth.xml exists (required for Bing Webmaster verification)
+        if [ ! -f ".next/standalone/public/BingSiteAuth.xml" ]; then
+          echo "❌ CRITICAL: BingSiteAuth.xml not found in standalone/public"
+          if [ -f "public/BingSiteAuth.xml" ]; then
+            cp "public/BingSiteAuth.xml" ".next/standalone/public/BingSiteAuth.xml" || {
+              echo "❌ Failed to copy BingSiteAuth.xml to standalone/public"
+              exit 1
+            }
+            echo "✅ BingSiteAuth.xml copied to standalone/public"
+          else
+            echo "❌ Source BingSiteAuth.xml not found in public/ directory"
+            exit 1
+          fi
+        else
+          echo "✅ BingSiteAuth.xml found in standalone/public"
+        fi
         
         # Count public files
         PUBLIC_FILE_COUNT=$(find ".next/standalone/public" -type f 2>/dev/null | wc -l)
