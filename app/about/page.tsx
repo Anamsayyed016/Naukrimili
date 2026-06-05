@@ -8,10 +8,9 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">About NaukriMili</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">About Us</h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-            Your trusted job search and recruitment partner connecting talented professionals 
-            with leading employers across India, UAE, USA, UK, and Saudi Arabia.
+            At NaukriMili.com, we believe that the right opportunity can change a life, and the right talent can transform a business.
           </p>
         </div>
       </section>
@@ -26,10 +25,19 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-gray-700 text-base md:text-lg leading-relaxed">
                 <p>
-                  We are a professional job portal and recruitment service connecting talented job seekers with leading employers across <strong>India, the UAE, the USA, the UK, and Saudi Arabia</strong>. Our goal is simple — to make hiring and job searching <strong>faster, easier, and smarter</strong> through technology.
+                  I am <strong>Shoeb Jaffrey</strong>, Founder and Director of NaukriMili.com. My journey in recruitment began more than 20 years ago with Naukri Mili Placement, a recruitment consultancy based in Bhopal. Over the years, we have successfully connected thousands of talented professionals with leading organizations across various industries, gaining deep insight into the challenges faced by both employers and job seekers.
                 </p>
                 <p>
-                  With over <strong>18 years of experience in recruitment</strong> under our placement brand, we understand how to bridge the gap between opportunity and talent. NaukriMili.com brings that expertise online, providing a seamless platform for both employers and job seekers to connect directly.
+                  With the rapid growth of digital hiring, we recognized the need for a smarter, more accessible platform that would help candidates and employers connect directly. This vision led to the creation of NaukriMili.com.
+                </p>
+                <p>
+                  Our experience in recruitment revealed a common challenge among job seekers: many talented professionals struggle to create professional resumes that effectively showcase their skills and experience. To address this gap, we developed an easy-to-use Resume Builder within our job portal, enabling candidates to create industry-standard resumes and improve their chances of securing the right opportunities.
+                </p>
+                <p>
+                  Today, NaukriMili.com is more than just a job portal. We are a complete career and recruitment platform dedicated to simplifying the hiring process through technology, innovation, and industry expertise.
+                </p>
+                <p>
+                  We proudly connect talented job seekers with leading employers across <strong>India, the UAE, Saudi Arabia, the United Kingdom, and the United States</strong>. Whether you are a fresher starting your career journey, an experienced professional seeking new opportunities, or an employer looking for exceptional talent, NaukriMili.com is designed to support your success.
                 </p>
               </div>
             </CardContent>
@@ -51,24 +59,24 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold text-gray-900">For Job Seekers</h3>
                 </div>
                 <p className="text-gray-700 mb-6 text-lg">
-                  We help you find the right job that matches your skills, goals, and experience.
+                  Whether you are a fresher starting your career journey or an experienced professional seeking new opportunities, NaukriMili.com is designed to support your success.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">Create your profile and upload your resume</p>
+                    <p className="text-gray-700">Online Job Portal</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">Apply directly to verified jobs posted by employers</p>
+                    <p className="text-gray-700">Professional Resume Builder</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">Get updates and alerts for new openings</p>
+                    <p className="text-gray-700">Domestic and International Job Opportunities</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">AI-based system helps match you with the best opportunities — saving your time and effort</p>
+                    <p className="text-gray-700">Recruitment and Placement Services</p>
                   </div>
                 </div>
               </CardContent>
@@ -84,24 +92,24 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold text-gray-900">For Employers</h3>
                 </div>
                 <p className="text-gray-700 mb-6 text-lg">
-                  We make hiring simple.
+                  For employers looking for exceptional talent, we provide innovative hiring solutions backed by decades of recruitment expertise.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">Create a company profile</p>
+                    <p className="text-gray-700">Employer Hiring Solutions</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">Post job openings in minutes</p>
+                    <p className="text-gray-700">Candidate Screening and Talent Acquisition</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">Review applications, shortlist candidates, and schedule interviews easily</p>
+                    <p className="text-gray-700">Recruitment and Placement Services</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
-                    <p className="text-gray-700">Professional recruitment support through our expert placement team, ensuring quality candidates for every requirement</p>
+                    <p className="text-gray-700">Domestic and International Job Opportunities</p>
                   </div>
                 </div>
               </CardContent>
@@ -124,7 +132,7 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold text-gray-900">Our Mission</h3>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed">
-                  To empower job seekers and employers by providing a reliable, transparent, and user-friendly recruitment platform that connects the right people with the right opportunities.
+                  To make hiring and job searching faster, easier, and smarter by providing innovative recruitment solutions that create meaningful connections between employers and candidates.
                 </p>
               </CardContent>
             </Card>
@@ -139,7 +147,7 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold text-gray-900">Our Vision</h3>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed">
-                  To become one of the most trusted global job portals, helping millions of people find meaningful employment and helping businesses grow with the right talent.
+                  To become a trusted global platform that empowers careers, supports businesses, and creates opportunities without borders.
                 </p>
               </CardContent>
             </Card>
@@ -151,39 +159,39 @@ export default function AboutPage() {
       <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            Why Choose NaukriMili.com?
+            What We Offer
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Award className="h-8 w-8 text-orange-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">18+ Years Experience</h3>
-              <p className="text-gray-600">Proven recruitment expertise</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">20+ Years Experience</h3>
+              <p className="text-gray-600">Proven recruitment expertise since Naukri Mili Placement</p>
             </div>
             
             <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Verified Employers</h3>
-              <p className="text-gray-600">Genuine job postings only</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Professional Resume Builder</h3>
+              <p className="text-gray-600">Industry-standard resumes for better opportunities</p>
             </div>
             
             <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Zap className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">AI-Powered Matching</h3>
-              <p className="text-gray-600">Smart job recommendations</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Global Opportunities</h3>
+              <p className="text-gray-600">Domestic and international job connections</p>
             </div>
             
             <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
               <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Dedicated Support</h3>
-              <p className="text-gray-600">For job seekers & companies</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Complete Career Platform</h3>
+              <p className="text-gray-600">Technology, innovation, and industry expertise</p>
             </div>
           </div>
         </div>
@@ -198,7 +206,7 @@ export default function AboutPage() {
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Global Reach</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Connecting talent across multiple countries and industries
+              Connecting talented job seekers with leading employers across India, the UAE, Saudi Arabia, the United Kingdom, and the United States
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
@@ -224,9 +232,9 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Let&apos;s Build Careers Together</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Your Career. Your Opportunity. Your Future.</h2>
           <p className="text-xl text-blue-100 mb-8">
-            Whether you&apos;re looking for your next job or hiring your next team member — NaukriMili.com is here to help.
+            At NaukriMili.com, we are committed to helping people build successful careers and helping organizations find the talent they need to grow. Every connection we create brings us one step closer to our goal of transforming the recruitment experience for everyone. Welcome to NaukriMili.com.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <Link
