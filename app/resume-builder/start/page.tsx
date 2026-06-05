@@ -1,6 +1,14 @@
 import type { Metadata } from 'next';
 import ResumeBuilderStart from '@/components/resume-builder/ResumeBuilderStart';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const HERO_CTA_LABELS = {
+  primary: 'Start New Resume',
+  secondary: 'Import Existing',
+} as const;
+
 export const metadata: Metadata = {
   title: 'Free ATS Resume Builder | AI-Powered CV Maker | Naukrimili',
   description:
@@ -20,7 +28,10 @@ export default function ResumeBuilderStartPage() {
         aria-hidden
       />
       <main className="relative container mx-auto px-4 py-10 sm:px-6 md:py-14 lg:px-8 lg:py-16">
-        <ResumeBuilderStart />
+        <ResumeBuilderStart
+          primaryCtaLabel={HERO_CTA_LABELS.primary}
+          secondaryCtaLabel={HERO_CTA_LABELS.secondary}
+        />
       </main>
     </div>
   );

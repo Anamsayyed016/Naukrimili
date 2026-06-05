@@ -166,12 +166,14 @@ function MagneticCta({
   className,
   variant = 'primary',
   reduced,
+  shine = false,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   className?: string;
   variant?: 'primary' | 'outline' | 'ghost';
   reduced: boolean;
+  shine?: boolean;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const x = useMotionValue(0);
@@ -231,10 +233,24 @@ function MagneticCta({
 
   const buttonClass = cn(sizeClass, focusRing, variantStyles, className);
 
+  const buttonInner = (
+    <>
+      {shine && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/30 via-white/5 to-transparent"
+        />
+      )}
+      <span className="relative z-[1] inline-flex items-center justify-center gap-2.5">
+        {children}
+      </span>
+    </>
+  );
+
   if (reduced) {
     return (
       <button type="button" onClick={onClick} className={buttonClass}>
-        {children}
+        {buttonInner}
       </button>
     );
   }
@@ -249,7 +265,7 @@ function MagneticCta({
         onMouseLeave={onLeave}
         className={buttonClass}
       >
-        {children}
+        {buttonInner}
       </button>
     </motion.div>
   );
@@ -361,7 +377,13 @@ function HeroVisual({ reduced, isMobile }: { reduced: boolean; isMobile: boolean
   );
 }
 
-export default function ResumeBuilderStart() {
+export default function ResumeBuilderStart({
+  primaryCtaLabel = 'Start New Resume',
+  secondaryCtaLabel = 'Import Existing',
+}: {
+  primaryCtaLabel?: string;
+  secondaryCtaLabel?: string;
+}) {
   const router = useRouter();
   const { isMobile } = useResponsive();
   const reduced = useReducedMotion();
@@ -414,9 +436,14 @@ export default function ResumeBuilderStart() {
               variants={fadeUp}
               className={cn('flex flex-col gap-3 sm:flex-row sm:flex-wrap', isMobile && 'w-full')}
             >
-              <MagneticCta reduced={!!reduced} onClick={handleCreateNew} className={isMobile ? 'w-full' : ''}>
-                <Plus className="h-[18px] w-[18px] shrink-0 md:h-5 md:w-5" aria-hidden />
-                Start New Resume
+              <MagneticCta
+                reduced={!!reduced}
+                shine
+                onClick={handleCreateNew}
+                className={isMobile ? 'w-full' : ''}
+              >
+                <Plus className="h-[18px] w-[18px] shrink-0 stroke-[2.5] md:h-5 md:w-5" aria-hidden />
+                {primaryCtaLabel}
               </MagneticCta>
               <MagneticCta
                 reduced={!!reduced}
@@ -424,8 +451,8 @@ export default function ResumeBuilderStart() {
                 onClick={handleImport}
                 className={isMobile ? 'w-full' : ''}
               >
-                <Upload className="h-[18px] w-[18px] shrink-0 text-teal-600 md:h-5 md:w-5" aria-hidden />
-                Import Existing
+                <Upload className="h-[18px] w-[18px] shrink-0 stroke-[2.25] text-teal-600 md:h-5 md:w-5" aria-hidden />
+                {secondaryCtaLabel}
               </MagneticCta>
               <MagneticCta
                 reduced={!!reduced}
