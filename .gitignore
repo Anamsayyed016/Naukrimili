@@ -90,6 +90,8 @@ public/*
 !public/ads.txt
 # CRITICAL: Allow robots.txt for SEO (required for production)
 !public/robots.txt
+# CRITICAL: Allow Bing Webmaster verification file
+!public/BingSiteAuth.xml
 # CRITICAL: Allow favicon and manifest for PWA
 !public/favicon.svg
 !public/manifest.json
