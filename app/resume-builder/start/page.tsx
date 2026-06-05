@@ -5,8 +5,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const HERO_CTA_LABELS = {
-  primary: 'Start New Resume',
-  secondary: 'Import Existing',
+  primary: 'Create New Resume',
+  secondary: 'Improve My Resume',
 } as const;
 
 export const metadata: Metadata = {

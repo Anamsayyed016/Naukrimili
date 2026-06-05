@@ -378,8 +378,8 @@ function HeroVisual({ reduced, isMobile }: { reduced: boolean; isMobile: boolean
 }
 
 export default function ResumeBuilderStart({
-  primaryCtaLabel = 'Start New Resume',
-  secondaryCtaLabel = 'Import Existing',
+  primaryCtaLabel = 'Create New Resume',
+  secondaryCtaLabel = 'Improve My Resume',
 }: {
   primaryCtaLabel?: string;
   secondaryCtaLabel?: string;
