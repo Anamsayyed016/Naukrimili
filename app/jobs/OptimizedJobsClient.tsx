@@ -78,11 +78,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     } = {}
   ) => {
     // Smart country detection using the country detection utility
-    const countriesToFetch = getCountriesToFetch({ location, country: filters.country || null });
-    const inferredCountry = (location ? countriesToFetch[0]?.code : undefined);
     const explicitCountry = (filters.country || '').toUpperCase() || undefined;
-    const countryToUse = explicitCountry || inferredCountry; // only set when explicitly chosen or inferred from a provided location
-    console.log('🌍 Country detection:', { location, countriesToFetch, explicitCountry, inferredCountry, countryToUse });
+    const countryToUse = explicitCountry;
+    console.log('🌍 Country filter:', { location, explicitCountry: explicitCountry || '(none)' });
 
     try {
       setLoading(true);

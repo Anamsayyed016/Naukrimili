@@ -17,11 +17,13 @@ import {
   type JobApiTimings,
 } from '@/lib/jobs/api-perf';
 import {
-  jobTypeSearchVariants,
-  experienceLevelSearchVariants,
   passesJobListingQualityCheck,
   applyJobTextSearchToWhere,
   applyJobLocationToWhere,
+  applyEmployerLocationToWhere,
+  applyExplicitCountryToWhere,
+  applyJobTypeFilterToWhere,
+  applyExperienceLevelFilterToWhere,
   jobMatchesListingLocation,
 } from '@/lib/job-data-normalizer';
 import { JobRankingService } from '@/lib/services/job-ranking-service';
@@ -211,32 +213,16 @@ function buildEmployerListingWhere(f: ListingFilterParams): Record<string, unkno
     applyJobTextSearchToWhere(employerListingWhere, f.query);
   }
   if (f.location) {
-    applyJobLocationToWhere(employerListingWhere, f.location);
+    applyEmployerLocationToWhere(employerListingWhere, f.location);
   }
   if (f.company) {
     employerListingWhere.company = { contains: f.company, mode: 'insensitive' };
   }
   if (f.jobType && f.jobType !== 'all') {
-    const jobTypeVariants = jobTypeSearchVariants(f.jobType);
-    employerListingWhere.AND = [
-      ...((employerListingWhere.AND as unknown[]) || []),
-      {
-        OR: jobTypeVariants.map((variant) => ({
-          jobType: { contains: variant, mode: 'insensitive' as const },
-        })),
-      },
-    ];
+    applyJobTypeFilterToWhere(employerListingWhere, f.jobType);
   }
   if (f.experienceLevel && f.experienceLevel !== 'all') {
-    const experienceVariants = experienceLevelSearchVariants(f.experienceLevel);
-    employerListingWhere.AND = [
-      ...((employerListingWhere.AND as unknown[]) || []),
-      {
-        OR: experienceVariants.map((variant) => ({
-          experienceLevel: { contains: variant, mode: 'insensitive' as const },
-        })),
-      },
-    ];
+    applyExperienceLevelFilterToWhere(employerListingWhere, f.experienceLevel);
   }
   if (f.isRemote) {
     employerListingWhere.isRemote = true;
@@ -464,7 +450,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (location) {
-      applyJobLocationToWhere(where, location, country);
+      applyJobLocationToWhere(where, location);
     }
 
     // Company filtering
@@ -472,29 +458,12 @@ export async function GET(request: NextRequest) {
       where.company = { contains: company, mode: 'insensitive' };
     }
 
-    // Job type: full-time / Full Time / full_time → same canonical match
     if (jobType && jobType !== 'all') {
-      const jobTypeVariants = jobTypeSearchVariants(jobType);
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: jobTypeVariants.map((variant) => ({
-            jobType: { contains: variant, mode: 'insensitive' as const },
-          })),
-        },
-      ];
+      applyJobTypeFilterToWhere(where, jobType);
     }
 
     if (experienceLevel && experienceLevel !== 'all') {
-      const experienceVariants = experienceLevelSearchVariants(experienceLevel);
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: experienceVariants.map((variant) => ({
-            experienceLevel: { contains: variant, mode: 'insensitive' as const },
-          })),
-        },
-      ];
+      applyExperienceLevelFilterToWhere(where, experienceLevel);
     }
 
     // Remote work filtering
@@ -507,19 +476,23 @@ export async function GET(request: NextRequest) {
       where.sector = { contains: sector, mode: 'insensitive' };
     }
 
-    // Country filtering — external/API rows only; employer manual posts stay visible (Featured uses no country filter)
+    // Country filtering — only when client sends explicit country chip (not inferred from city)
     const countryCode = country?.trim().toUpperCase();
     if (countryCode && countryCode !== 'ALL') {
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: [
-            { source: { in: ['manual', 'employer'] } },
-            { country: countryCode },
-          ],
-        },
-      ];
+      applyExplicitCountryToWhere(where, countryCode);
     }
+
+    console.log('[jobs-pipeline] request', {
+      query: query || '(none)',
+      location: location || '(none)',
+      country: countryCode || '(none)',
+      jobType: jobType || '(none)',
+      experienceLevel: experienceLevel || '(none)',
+      isRemote,
+      sector: sector || '(none)',
+      page,
+      limit,
+    });
 
     // Salary filtering
     if (salaryMin) {
@@ -578,13 +551,14 @@ export async function GET(request: NextRequest) {
         }
 
         timings.prismaMs = Date.now() - prismaStart;
-        console.log('[jobs-debug] unlimited prisma', {
-          rows: jobsResult.length,
-          manualBoost: manualEmployerRows.length,
-          total: totalResult,
-          jobType: jobType || '(none)',
-          country: country || '(none)',
-          query: query || '(none)',
+        const prismaInternal = jobsResult.filter(
+          (j) => j.source === 'manual' || j.source === 'employer'
+        ).length;
+        console.log('[jobs-pipeline] after-prisma', {
+          dbRows: jobsResult.length,
+          internalRows: prismaInternal,
+          employerBoost: manualEmployerRows.length,
+          totalInDb: totalResult,
         });
       } catch (dbQueryError: any) {
         dbOk = false;
@@ -603,6 +577,11 @@ export async function GET(request: NextRequest) {
         apply_url: job.apply_url ?? job.applyUrl ?? job.source_url ?? null // Alias for legacy consumers
       }));
       total = totalResult; // CRITICAL FIX: Use database count, not filtered count!
+
+      console.log('[jobs-pipeline] after-db-normalize', {
+        jobs: jobs.length,
+        internal: jobs.filter((j) => j.source === 'manual' || j.source === 'employer').length,
+      });
       
       // Debug: Check source fields right after normalization
       const dbJobsWithSource = jobs.filter(j => j.source === 'database' || j.source === 'employer').length;
@@ -805,7 +784,16 @@ export async function GET(request: NextRequest) {
               const databaseJobsCountBeforeDedup = jobs.length;
               const combinedJobs = [...jobs, ...uniqueExternalJobs]; // Database jobs first, then unique external
               jobs = removeDuplicateJobs(combinedJobs);
-              
+              console.log('[jobs-pipeline] after-external-merge', {
+                jobs: jobs.length,
+                internal: jobs.filter((j) => j.source === 'manual' || j.source === 'employer').length,
+                external: jobs.filter((j) =>
+                  ['external', 'adzuna', 'jsearch', 'jooble', 'serpapi'].includes(
+                    String(j.source || '').toLowerCase()
+                  )
+                ).length,
+              });
+
               // CRITICAL FIX: Update total to include external jobs
               // When database has few/no jobs but external APIs have many, total should reflect reality
               const dbCount = jobs.filter(j => (j.source === 'database' || j.source === 'employer')).length;
@@ -833,18 +821,31 @@ export async function GET(request: NextRequest) {
         console.log('⚠️ No search query provided or external APIs disabled, using database jobs only');
       }
       
+      const beforeQuality = jobs.length;
       const professionalJobs = jobs.filter(passesJobListingQualityCheck);
       
-      if (jobs.length !== professionalJobs.length) {
-        console.log(`🔄 Quality filter: Removed ${jobs.length - professionalJobs.length} unprofessional jobs (${professionalJobs.length} professional jobs remaining)`);
+      if (beforeQuality !== professionalJobs.length) {
+        console.log(`🔄 Quality filter: Removed ${beforeQuality - professionalJobs.length} unprofessional jobs (${professionalJobs.length} professional jobs remaining)`);
       }
       
       jobs = professionalJobs;
+      console.log('[jobs-pipeline] after-quality-filter', {
+        jobs: jobs.length,
+        removed: beforeQuality - jobs.length,
+        internal: jobs.filter((j) => j.source === 'manual' || j.source === 'employer').length,
+      });
 
       if (location.trim()) {
+        const beforeLocation = jobs.length;
         jobs = jobs.filter((j) => {
-          if (j.source === 'manual' || j.source === 'employer') return true;
+          const isInternal = j.source === 'manual' || j.source === 'employer';
+          if (isInternal && !String(j.location || '').trim()) return true;
           return jobMatchesListingLocation(j, location);
+        });
+        console.log('[jobs-pipeline] after-location-filter', {
+          before: beforeLocation,
+          after: jobs.length,
+          internal: jobs.filter((j) => j.source === 'manual' || j.source === 'employer').length,
         });
       }
 
@@ -871,6 +872,10 @@ export async function GET(request: NextRequest) {
         if (page === 1 && jobs.length > limit) {
           jobs = jobs.slice(0, limit);
         }
+        console.log('[jobs-pipeline] after-ranking', {
+          jobs: jobs.length,
+          internal: jobs.filter((j) => j.source === 'manual' || j.source === 'employer').length,
+        });
       }
 
       // Employer/manual rows must stay visible after external merge + dedupe (do not touch external logic).
@@ -915,6 +920,11 @@ export async function GET(request: NextRequest) {
       // Debug: Check source fields after formatting
       const dbJobsAfterFormat = formattedJobs.filter(j => j.source === 'database' || j.source === 'employer').length;
       const extJobsAfterFormat = formattedJobs.filter(j => j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble').length;
+      console.log('[jobs-pipeline] final-response', {
+        jobs: formattedJobs.length,
+        internal: formattedJobs.filter((j) => j.source === 'manual' || j.source === 'employer').length,
+        external: extJobsAfterFormat,
+      });
       console.log(`🔍 After formatting: ${formattedJobs.length} jobs (${dbJobsAfterFormat} database + ${extJobsAfterFormat} external)`);
       console.log(`🔍 Sample formatted job sources:`, formattedJobs.slice(0, 3).map(j => ({ id: j.id, source: j.source, title: j.title?.substring(0, 30) })));
     } catch (formatError) {

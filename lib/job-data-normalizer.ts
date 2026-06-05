@@ -291,47 +291,66 @@ export function buildJobTextSearchOr(term: string) {
   ];
 }
 
-/** AND each query term; every term must match at least one searchable field. */
+/**
+ * Text search: full phrase OR all-terms AND (widens recall; ranking orders by relevance).
+ * Single-word queries use the same OR-across-fields path as before.
+ */
 export function applyJobTextSearchToWhere(
   where: Record<string, unknown>,
   query: string
 ): void {
-  const terms = query.trim().split(/\s+/).filter((t) => t.length > 0);
-  if (!terms.length) return;
+  const trimmed = query.trim();
+  if (!trimmed) return;
+  const terms = trimmed.split(/\s+/).filter((t) => t.length > 0);
   const and = (where.AND as unknown[]) || [];
-  if (terms.length === 1) {
-    and.push({ OR: buildJobTextSearchOr(terms[0]) });
+  if (terms.length <= 1) {
+    and.push({ OR: buildJobTextSearchOr(terms[0] || trimmed) });
   } else {
-    for (const term of terms) {
-      and.push({ OR: buildJobTextSearchOr(term) });
-    }
+    and.push({
+      OR: [
+        { OR: buildJobTextSearchOr(trimmed) },
+        {
+          AND: terms.map((term) => ({ OR: buildJobTextSearchOr(term) })),
+        },
+      ],
+    });
   }
   where.AND = and;
 }
 
-export function buildJobLocationConditions(location: string, country?: string) {
+export function buildJobLocationConditions(location: string) {
   const parts = location.split(',').map((p) => p.trim()).filter(Boolean);
-  const conditions = parts.flatMap((part) => [
+  return parts.flatMap((part) => [
     { location: { contains: part, mode: 'insensitive' as const } },
-    { country: { contains: part, mode: 'insensitive' as const } },
     { companyRelation: { location: { contains: part, mode: 'insensitive' as const } } },
     { companyRelation: { city: { contains: part, mode: 'insensitive' as const } } },
   ]);
-  if (country?.trim()) {
-    conditions.push({
-      country: { contains: country.trim().toUpperCase(), mode: 'insensitive' as const },
-    });
-  }
-  return conditions;
+}
+
+/** Employer boost: city match OR internal rows with unset location (still text-filtered). */
+export function applyEmployerLocationToWhere(
+  where: Record<string, unknown>,
+  location: string
+): void {
+  if (!location.trim()) return;
+  const locationConditions = buildJobLocationConditions(location);
+  const and = (where.AND as unknown[]) || [];
+  and.push({
+    OR: [
+      ...locationConditions,
+      { location: null },
+      { location: '' },
+    ],
+  });
+  where.AND = and;
 }
 
 export function applyJobLocationToWhere(
   where: Record<string, unknown>,
-  location: string,
-  country?: string
+  location: string
 ): void {
   if (!location.trim()) return;
-  const locationConditions = buildJobLocationConditions(location, country);
+  const locationConditions = buildJobLocationConditions(location);
   const and = (where.AND as unknown[]) || [];
   if (where.OR) {
     and.push({ OR: where.OR });
@@ -361,10 +380,82 @@ export function jobMatchesListingLocation(
     job.companyRelation?.city ||
     ''
   ).toLowerCase();
-  const jobCountry = (job.country || '').toLowerCase();
-  return parts.some(
-    (part) => jobLoc.includes(part) || jobCountry.includes(part)
-  );
+  return parts.some((part) => jobLoc.includes(part));
+}
+
+const COUNTRY_NAME_ALIASES: Record<string, string[]> = {
+  IN: ['IN', 'INDIA'],
+  US: ['US', 'USA', 'UNITED STATES'],
+  GB: ['GB', 'UK', 'UNITED KINGDOM'],
+  AE: ['AE', 'UAE', 'UNITED ARAB EMIRATES'],
+};
+
+/** Quick-filter country match (explicit chip only); supports code and full name. */
+export function applyExplicitCountryToWhere(
+  where: Record<string, unknown>,
+  countryCode: string
+): void {
+  const code = countryCode.trim().toUpperCase();
+  if (!code || code === 'ALL') return;
+  const aliases = COUNTRY_NAME_ALIASES[code] || [code];
+  const and = (where.AND as unknown[]) || [];
+  and.push({
+    OR: [
+      { source: { in: ['manual', 'employer'] } },
+      ...aliases.map((alias) => ({
+        country: { contains: alias, mode: 'insensitive' as const },
+      })),
+    ],
+  });
+  where.AND = and;
+}
+
+/** jobType filter with legacy/null tolerance for employer-posted jobs. */
+export function applyJobTypeFilterToWhere(
+  where: Record<string, unknown>,
+  jobType: string
+): void {
+  if (!jobType || jobType === 'all') return;
+  const variants = jobTypeSearchVariants(jobType);
+  const and = (where.AND as unknown[]) || [];
+  and.push({
+    OR: [
+      ...variants.map((variant) => ({
+        jobType: { contains: variant, mode: 'insensitive' as const },
+      })),
+      {
+        AND: [
+          { source: { in: ['manual', 'employer'] } },
+          { OR: [{ jobType: null }, { jobType: '' }] },
+        ],
+      },
+    ],
+  });
+  where.AND = and;
+}
+
+/** experienceLevel filter with legacy/null tolerance for employer-posted jobs. */
+export function applyExperienceLevelFilterToWhere(
+  where: Record<string, unknown>,
+  experienceLevel: string
+): void {
+  if (!experienceLevel || experienceLevel === 'all') return;
+  const variants = experienceLevelSearchVariants(experienceLevel);
+  const and = (where.AND as unknown[]) || [];
+  and.push({
+    OR: [
+      ...variants.map((variant) => ({
+        experienceLevel: { contains: variant, mode: 'insensitive' as const },
+      })),
+      {
+        AND: [
+          { source: { in: ['manual', 'employer'] } },
+          { OR: [{ experienceLevel: null }, { experienceLevel: '' }] },
+        ],
+      },
+    ],
+  });
+  where.AND = and;
 }
 
 /** Listing quality: required fields only; never drop employer manual jobs for AI/generic wording. */

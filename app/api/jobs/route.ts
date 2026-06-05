@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { filterValidJobs } from "@/lib/jobs/job-id-validator";
 import {
-  jobTypeSearchVariants,
-  experienceLevelSearchVariants,
   passesJobListingQualityCheck,
   applyJobTextSearchToWhere,
   applyJobLocationToWhere,
+  applyExplicitCountryToWhere,
+  applyJobTypeFilterToWhere,
+  applyExperienceLevelFilterToWhere,
 } from "@/lib/job-data-normalizer";
 
 export async function GET(request: NextRequest) {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (location) {
-      applyJobLocationToWhere(where, location, country);
+      applyJobLocationToWhere(where, location);
     }
 
     // Company filtering
@@ -63,27 +64,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (jobType && jobType !== 'all') {
-      const jobTypeVariants = jobTypeSearchVariants(jobType);
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: jobTypeVariants.map((variant) => ({
-            jobType: { contains: variant, mode: 'insensitive' as const },
-          })),
-        },
-      ];
+      applyJobTypeFilterToWhere(where, jobType);
     }
 
     if (experienceLevel && experienceLevel !== 'all') {
-      const experienceVariants = experienceLevelSearchVariants(experienceLevel);
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: experienceVariants.map((variant) => ({
-            experienceLevel: { contains: variant, mode: 'insensitive' as const },
-          })),
-        },
-      ];
+      applyExperienceLevelFilterToWhere(where, experienceLevel);
     }
 
     // Remote work filtering
@@ -99,15 +84,7 @@ export async function GET(request: NextRequest) {
     // Country filtering — employer/manual jobs always visible (parity with /api/jobs/unlimited)
     const countryCode = country?.trim().toUpperCase();
     if (countryCode && countryCode !== 'ALL') {
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: [
-            { source: { in: ['manual', 'employer'] } },
-            { country: countryCode },
-          ],
-        },
-      ];
+      applyExplicitCountryToWhere(where, countryCode);
     }
 
     // Salary filtering

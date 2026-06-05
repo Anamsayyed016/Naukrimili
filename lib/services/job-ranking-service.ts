@@ -69,14 +69,18 @@ export class JobRankingService {
       const freshnessScore = this.calculateFreshnessScore(job);
       const userHistoryScore = userHistory ? this.calculateUserHistoryScore(job, userHistory) : 0;
 
-      const totalScore = 
+      const internalBoost =
+        job.source === 'manual' || job.source === 'employer' ? 0.12 : 0;
+
+      const totalScore =
         keywordScore * weights.keywordMatch +
         locationScore * weights.locationMatch +
         freshnessScore * weights.freshness +
-        userHistoryScore * weights.userHistory;
+        userHistoryScore * weights.userHistory +
+        internalBoost;
 
       rankingResults.push({
-        jobId: job.id,
+        jobId: String(job.id ?? job.sourceId ?? ''),
         score: totalScore,
         breakdown: {
           keywordScore,
@@ -108,25 +112,17 @@ export class JobRankingService {
     let score = 0;
     const queryWords = query.split(/\s+/).filter(word => word.length > 2);
 
+    const skills = String(job.skills || '').toLowerCase();
     for (const word of queryWords) {
-      // Exact match in title gets highest score
-      if (job.title && job.title.toLowerCase().includes(word)) {
+      if (title.includes(word)) {
         score += 1.0;
-      }
-      // Exact match in company gets high score
-      else if (job.company && job.company.toLowerCase().includes(word)) {
-        score += 0.8;
-      }
-      // Match in description gets medium score
-      else if (job.description && job.description.toLowerCase().includes(word)) {
-        score += 0.6;
-      }
-      // Match in skills gets lower score
-      else if (job.skills && job.skills.toLowerCase().includes(word)) {
-        score += 0.4;
-      }
-      // Partial match gets even lower score
-      else if (this.hasPartialMatch(jobText, word)) {
+      } else if (skills.includes(word)) {
+        score += 0.75;
+      } else if (job.company && String(job.company).toLowerCase().includes(word)) {
+        score += 0.65;
+      } else if (job.description && String(job.description).toLowerCase().includes(word)) {
+        score += 0.45;
+      } else if (this.hasPartialMatch(jobText, word)) {
         score += 0.2;
       }
     }
@@ -141,19 +137,25 @@ export class JobRankingService {
   private calculateLocationScore(job: Record<string, unknown>, searchLocation: string): number {
     if (!searchLocation.trim()) return 0.5; // Neutral score for empty location
 
-    const location = searchLocation.toLowerCase();
-    const jobLocation = (job.location || '').toLowerCase();
-    
-    if (!jobLocation) return 0.3; // Lower score for jobs without location
+    const location = searchLocation.toLowerCase().trim();
+    const rel = job.companyRelation as { location?: string; city?: string } | undefined;
+    const jobLocation = [
+      job.location,
+      rel?.city,
+      rel?.location,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
 
-    // Exact match
+    if (!jobLocation) return 0.3;
+
     if (jobLocation.includes(location) || location.includes(jobLocation)) {
       return 1.0;
     }
 
-    // City/state match
-    const locationWords = location.split(/[,\s]+/);
-    const jobLocationWords = jobLocation.split(/[,\s]+/);
+    const locationWords = location.split(/[,\s]+/).filter((w) => w.length > 1);
+    const jobLocationWords = jobLocation.split(/[,\s,]+/);
     
     let matchCount = 0;
     for (const word of locationWords) {
@@ -169,7 +171,10 @@ export class JobRankingService {
    * Calculate freshness score based on posted date
    */
   private calculateFreshnessScore(job: Record<string, unknown>): number {
-    const postedDate = job.postedAt || job.createdAt || new Date();
+    const raw = job.postedAt || job.createdAt;
+    const postedDate =
+      raw instanceof Date ? raw : raw ? new Date(String(raw)) : new Date();
+    if (Number.isNaN(postedDate.getTime())) return 0.5;
     const now = new Date();
     const daysDiff = Math.floor((now.getTime() - postedDate.getTime()) / (1000 * 60 * 60 * 24));
 
