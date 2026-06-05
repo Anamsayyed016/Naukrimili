@@ -97,7 +97,12 @@ export class JobRankingService {
   private calculateKeywordScore(job: Record<string, unknown>, searchQuery: string): number {
     if (!searchQuery.trim()) return 0.5; // Neutral score for empty query
 
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
+    const title = String(job.title || '').toLowerCase().trim();
+    if (title === query) return 1.0;
+    if (title.startsWith(`${query} `) || title.startsWith(`${query}-`)) return 0.95;
+    if (query.length > 2 && title.includes(query)) return 0.9;
+
     const jobText = `${job.title || ''} ${job.description || ''} ${job.company || ''} ${job.skills || ''}`.toLowerCase();
     
     let score = 0;

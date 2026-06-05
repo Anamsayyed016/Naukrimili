@@ -5,6 +5,8 @@ import {
   jobTypeSearchVariants,
   experienceLevelSearchVariants,
   passesJobListingQualityCheck,
+  applyJobTextSearchToWhere,
+  applyJobLocationToWhere,
 } from "@/lib/job-data-normalizer";
 
 export async function GET(request: NextRequest) {
@@ -47,45 +49,12 @@ export async function GET(request: NextRequest) {
       ],
     };
 
-    // Text search across multiple fields
     if (query) {
-      where.OR = [
-        { title: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
-        { company: { contains: query, mode: 'insensitive' } },
-        { location: { contains: query, mode: 'insensitive' } },
-        { skills: { contains: query, mode: 'insensitive' } }
-      ];
+      applyJobTextSearchToWhere(where, query);
     }
 
-    // Enhanced dynamic location filtering - works for city, state, country, or any combination
     if (location) {
-      // Split by comma to support "Mumbai, India" or "New York, USA" format
-      const locationParts = location.split(',').map(part => part.trim()).filter(Boolean);
-      
-      // Create OR conditions for each part to match against location string or country
-      const locationConditions = locationParts.flatMap(part => [
-        { location: { contains: part, mode: 'insensitive' } },
-        { country: { contains: part, mode: 'insensitive' } }
-      ]);
-      
-      // Also match full location string if country is specified
-      if (country) {
-        locationConditions.push({ country: { contains: country.toUpperCase(), mode: 'insensitive' } });
-      }
-      
-      // If there's already an OR clause (from query), combine with AND
-      if (where.OR) {
-        where.AND = [
-          ...(where.AND || []),
-          { OR: where.OR },
-          { OR: locationConditions }
-        ];
-        delete where.OR;
-      } else {
-        // Otherwise, use OR directly
-        where.OR = locationConditions;
-      }
+      applyJobLocationToWhere(where, location, country);
     }
 
     // Company filtering

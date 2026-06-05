@@ -274,6 +274,99 @@ export function experienceLevelMatchesFilter(
   return normalizeExperienceLevelKey(stored) === normalizeExperienceLevelKey(filter);
 }
 
+/** Single-term OR across all searchable Job fields (shared by listing APIs). */
+export function buildJobTextSearchOr(term: string) {
+  const t = term.trim();
+  if (!t) return [];
+  return [
+    { title: { contains: t, mode: 'insensitive' as const } },
+    { description: { contains: t, mode: 'insensitive' as const } },
+    { requirements: { contains: t, mode: 'insensitive' as const } },
+    { company: { contains: t, mode: 'insensitive' as const } },
+    { companyRelation: { name: { contains: t, mode: 'insensitive' as const } } },
+    { companyRelation: { industry: { contains: t, mode: 'insensitive' as const } } },
+    { location: { contains: t, mode: 'insensitive' as const } },
+    { skills: { contains: t, mode: 'insensitive' as const } },
+    { sector: { contains: t, mode: 'insensitive' as const } },
+  ];
+}
+
+/** AND each query term; every term must match at least one searchable field. */
+export function applyJobTextSearchToWhere(
+  where: Record<string, unknown>,
+  query: string
+): void {
+  const terms = query.trim().split(/\s+/).filter((t) => t.length > 0);
+  if (!terms.length) return;
+  const and = (where.AND as unknown[]) || [];
+  if (terms.length === 1) {
+    and.push({ OR: buildJobTextSearchOr(terms[0]) });
+  } else {
+    for (const term of terms) {
+      and.push({ OR: buildJobTextSearchOr(term) });
+    }
+  }
+  where.AND = and;
+}
+
+export function buildJobLocationConditions(location: string, country?: string) {
+  const parts = location.split(',').map((p) => p.trim()).filter(Boolean);
+  const conditions = parts.flatMap((part) => [
+    { location: { contains: part, mode: 'insensitive' as const } },
+    { country: { contains: part, mode: 'insensitive' as const } },
+    { companyRelation: { location: { contains: part, mode: 'insensitive' as const } } },
+    { companyRelation: { city: { contains: part, mode: 'insensitive' as const } } },
+  ]);
+  if (country?.trim()) {
+    conditions.push({
+      country: { contains: country.trim().toUpperCase(), mode: 'insensitive' as const },
+    });
+  }
+  return conditions;
+}
+
+export function applyJobLocationToWhere(
+  where: Record<string, unknown>,
+  location: string,
+  country?: string
+): void {
+  if (!location.trim()) return;
+  const locationConditions = buildJobLocationConditions(location, country);
+  const and = (where.AND as unknown[]) || [];
+  if (where.OR) {
+    and.push({ OR: where.OR });
+    delete where.OR;
+  }
+  and.push({ OR: locationConditions });
+  where.AND = and;
+}
+
+/** Post-merge location check for external API rows (DB rows already filtered in Prisma). */
+export function jobMatchesListingLocation(
+  job: {
+    location?: string | null;
+    country?: string | null;
+    companyRelation?: { location?: string | null; city?: string | null } | null;
+  },
+  location: string
+): boolean {
+  if (!location.trim()) return true;
+  const parts = location
+    .split(',')
+    .map((p) => p.trim().toLowerCase())
+    .filter(Boolean);
+  const jobLoc = (
+    job.location ||
+    job.companyRelation?.location ||
+    job.companyRelation?.city ||
+    ''
+  ).toLowerCase();
+  const jobCountry = (job.country || '').toLowerCase();
+  return parts.some(
+    (part) => jobLoc.includes(part) || jobCountry.includes(part)
+  );
+}
+
 /** Listing quality: required fields only; never drop employer manual jobs for AI/generic wording. */
 export function passesJobListingQualityCheck(job: {
   title?: string | null;

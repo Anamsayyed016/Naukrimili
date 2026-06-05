@@ -20,7 +20,11 @@ import {
   jobTypeSearchVariants,
   experienceLevelSearchVariants,
   passesJobListingQualityCheck,
+  applyJobTextSearchToWhere,
+  applyJobLocationToWhere,
+  jobMatchesListingLocation,
 } from '@/lib/job-data-normalizer';
+import { JobRankingService } from '@/lib/services/job-ranking-service';
 
 function isExternalSource(source?: string | null): boolean {
   if (!source) return false;
@@ -197,26 +201,17 @@ type ListingFilterParams = {
   sector: string;
 };
 
-/** Shared text search OR (scalar company + linked company name). */
-function buildTextSearchOr(query: string) {
-  return [
-    { title: { contains: query, mode: 'insensitive' as const } },
-    { description: { contains: query, mode: 'insensitive' as const } },
-    { company: { contains: query, mode: 'insensitive' as const } },
-    { companyRelation: { name: { contains: query, mode: 'insensitive' as const } } },
-    { location: { contains: query, mode: 'insensitive' as const } },
-    { skills: { contains: query, mode: 'insensitive' as const } },
-  ];
-}
-
-/** Employer/manual jobs: same search filters as listing, but never country- or location-gated. */
+/** Employer/manual jobs: same text + location filters as listing; country filter still bypassed in main where. */
 function buildEmployerListingWhere(f: ListingFilterParams): Record<string, unknown> {
   const employerListingWhere: Record<string, unknown> = {
     isActive: true,
     source: { in: ['manual', 'employer'] },
   };
   if (f.query) {
-    employerListingWhere.OR = buildTextSearchOr(f.query);
+    applyJobTextSearchToWhere(employerListingWhere, f.query);
+  }
+  if (f.location) {
+    applyJobLocationToWhere(employerListingWhere, f.location);
   }
   if (f.company) {
     employerListingWhere.company = { contains: f.company, mode: 'insensitive' };
@@ -462,32 +457,14 @@ export async function GET(request: NextRequest) {
       ],
     };
 
-    // Enhanced text search with multiple fields
+    const isSearchActive = !!(query.trim() || location.trim());
+
     if (query) {
-      where.OR = buildTextSearchOr(query);
+      applyJobTextSearchToWhere(where, query);
     }
 
-    // Enhanced dynamic location filtering - works for city, state, country, or any combination
     if (location) {
-      // Split by comma to support "Mumbai, India" or "New York, USA" format
-      const locationParts = location.split(',').map(part => part.trim()).filter(Boolean);
-      
-      // Create OR conditions for each part to match against location string or country
-      const locationConditions = locationParts.flatMap(part => [
-        { location: { contains: part, mode: 'insensitive' } },
-        { country: { contains: part, mode: 'insensitive' } }
-      ]);
-      
-      if (where.OR) {
-        where.AND = [
-          ...(where.AND || []),
-          { OR: where.OR },
-          { OR: locationConditions },
-        ];
-        delete where.OR;
-      } else {
-        where.AND = [...(where.AND || []), { OR: locationConditions }];
-      }
+      applyJobLocationToWhere(where, location, country);
     }
 
     // Company filtering
@@ -552,10 +529,12 @@ export async function GET(request: NextRequest) {
       where.salaryMax = { lte: parseInt(salaryMax) };
     }
 
-    // Calculate pagination
+    // Calculate pagination — widen DB pool on active search so relevance ranking has candidates
     const skip = (page - 1) * limit;
+    const dbTake = isSearchActive ? Math.min(Math.max(limit * 4, 50), 150) : limit;
+    const dbSkip = isSearchActive && page === 1 ? 0 : skip;
 
-    console.log(`🔍 Database query built:`, { where, skip, limit });
+    console.log(`🔍 Database query built:`, { where, skip: dbSkip, take: dbTake, limit });
 
     // Fetch jobs from database with company relations
     let jobs: any[] = [];
@@ -573,8 +552,8 @@ export async function GET(request: NextRequest) {
         [jobsResult, totalResult] = await Promise.all([
           prisma.job.findMany({
             where,
-            skip,
-            take: limit,
+            skip: dbSkip,
+            take: dbTake,
             orderBy: { createdAt: 'desc' },
             select: LIST_JOB_SELECT,
           }),
@@ -663,7 +642,7 @@ export async function GET(request: NextRequest) {
       shouldFetchExternal =
         hasExternalApiKeys &&
         includeExternalParam !== 'false' &&
-        (refreshExternal || !dbHasCatalog);
+        (refreshExternal || !dbHasCatalog || (isSearchActive && page === 1));
       if (dbHasCatalog && !refreshExternal) {
         console.log(
           `[jobs-debug] DB-only listing: ${totalResult} jobs in database (page ${page}, limit ${limit})`
@@ -861,6 +840,38 @@ export async function GET(request: NextRequest) {
       }
       
       jobs = professionalJobs;
+
+      if (location.trim()) {
+        jobs = jobs.filter((j) => {
+          if (j.source === 'manual' || j.source === 'employer') return true;
+          return jobMatchesListingLocation(j, location);
+        });
+      }
+
+      if (isSearchActive) {
+        const ranker = JobRankingService.getInstance();
+        const rankings = await ranker.rankJobs(jobs, query, location);
+        const scoreById = new Map(rankings.map((r) => [String(r.jobId), r.score]));
+        jobs = [...jobs].sort((a, b) => {
+          const aInternal =
+            a.source === 'manual' || a.source === 'employer' ? 1 : 0;
+          const bInternal =
+            b.source === 'manual' || b.source === 'employer' ? 1 : 0;
+          if (aInternal !== bInternal) return bInternal - aInternal;
+          const scoreA =
+            scoreById.get(String(a.id)) ??
+            scoreById.get(String(a.sourceId)) ??
+            0;
+          const scoreB =
+            scoreById.get(String(b.id)) ??
+            scoreById.get(String(b.sourceId)) ??
+            0;
+          return scoreB - scoreA;
+        });
+        if (page === 1 && jobs.length > limit) {
+          jobs = jobs.slice(0, limit);
+        }
+      }
 
       // Employer/manual rows must stay visible after external merge + dedupe (do not touch external logic).
       const isEmployerJob = (j: { source?: string | null }) =>
