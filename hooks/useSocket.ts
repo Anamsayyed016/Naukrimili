@@ -82,7 +82,7 @@ export function useSocket(): UseSocketReturn {
       // Create desktop notification with role-specific styling
       const notification = new Notification(options.title, {
         body: options.body,
-        icon: options.icon || '/favicon.svg',
+        icon: options.icon || '/icon',
         tag: options.tag,
         requireInteraction: false,
         silent: false
@@ -374,7 +374,7 @@ export function useSocket(): UseSocketReturn {
         showMobileNotification({
           title: notification.title,
           body: notification.message,
-          icon: '/favicon.svg',
+          icon: '/icon',
           tag: notification.id
         });
       });
@@ -414,7 +414,7 @@ export function useSocket(): UseSocketReturn {
         showDesktopNotification({
           title: `${role.charAt(0).toUpperCase() + role.slice(1)}: ${notification.title}`,
           body: notification.message,
-          icon: '/favicon.svg',
+          icon: '/icon',
           tag: formattedNotification.id,
           role: role
         });
@@ -428,7 +428,7 @@ export function useSocket(): UseSocketReturn {
         showMobileNotification({
           title: 'New Job Posted! 🎉',
           body: `A new job "${data.jobTitle}" has been posted by ${data.company}`,
-          icon: '/favicon.svg',
+          icon: '/icon',
           tag: `job_created_${data.jobId}`
         });
       });
@@ -463,7 +463,7 @@ export function useSocket(): UseSocketReturn {
         showMobileNotification({
           title: notification.title,
           body: notification.message,
-          icon: '/favicon.svg',
+          icon: '/icon',
           tag: notification.id
         });
       });

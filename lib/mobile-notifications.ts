@@ -102,7 +102,7 @@ export function showBrowserNotification(options: NotificationOptions): boolean {
   try {
     const notification = new Notification(options.title, {
       body: options.body,
-      icon: options.icon || '/favicon.ico',
+      icon: options.icon || '/icon',
       tag: options.tag,
       requireInteraction: options.requireInteraction || false,
       silent: options.silent || false

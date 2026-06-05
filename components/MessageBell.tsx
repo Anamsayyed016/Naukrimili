@@ -79,7 +79,7 @@ export function MessageBell() {
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(`New message from ${message.senderName}`, {
           body: message.content,
-          icon: '/favicon.ico'
+          icon: '/icon'
         });
       }
     };

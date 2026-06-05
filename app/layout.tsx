@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     description: 'Find the latest jobs in India, USA, UK, and UAE on Naukrimili. Build your free professional resume and apply for top companies worldwide.',
     images: [
       {
-        url: 'https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png',
+        url: 'https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_1200,h_630,c_fit/v1780573698/nmlogo_jhkny4.jpg',
         width: 1200,
         height: 630,
         alt: 'Naukrimili - Job Portal with Free Resume Builder',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Jobs - Recruitment - Job Search - Employment - Free Resume Builder | Naukrimili',
     description: 'Find the latest jobs in India, USA, UK, and UAE on Naukrimili. Build your free professional resume and apply for top companies worldwide.',
-    images: ['https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png'],
+    images: ['https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_1200,h_630,c_fit/v1780573698/nmlogo_jhkny4.jpg'],
     creator: '@naukrimili',
     site: '@naukrimili',
   },
@@ -154,7 +154,7 @@ export default function RootLayout({
               "name": "Naukrimili",
               "alternateName": "Naukrimili Job Portal",
               "url": BASE_URL,
-              "logo": "https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png",
+              "logo": "https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_480/v1780573698/nmlogo_jhkny4.jpg",
               "description": "Leading job portal connecting job seekers with top employers across India, USA, UK, and UAE. Free resume builder included.",
               "foundingDate": "2024",
               "address": {
@@ -217,7 +217,7 @@ export default function RootLayout({
                 "name": "Naukrimili",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png"
+                  "url": "https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_480/v1780573698/nmlogo_jhkny4.jpg"
                 }
               }
             })
