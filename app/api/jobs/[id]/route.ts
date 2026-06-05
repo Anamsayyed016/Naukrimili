@@ -64,11 +64,24 @@ function externalJobToDetailRow(external: Record<string, unknown>) {
     isFeatured: Boolean(external.isFeatured),
     isActive: true,
     sector: (external.sector as string | null) ?? 'General',
-    views: 0,
-    applicationsCount: 0,
+    views: Number.isFinite(Number(external.views)) ? Number(external.views) : 0,
+    applicationsCount: Number.isFinite(Number(external.applicationsCount))
+      ? Number(external.applicationsCount)
+      : Number.isFinite(Number((external._count as { applications?: number } | undefined)?.applications))
+        ? Number((external._count as { applications?: number }).applications)
+        : 0,
     createdAt: new Date(),
     updatedAt: new Date(),
-    _count: { applications: 0, bookmarks: 0 },
+    _count: {
+      applications: Number.isFinite(Number(external.applicationsCount))
+        ? Number(external.applicationsCount)
+        : Number.isFinite(Number((external._count as { applications?: number } | undefined)?.applications))
+          ? Number((external._count as { applications?: number }).applications)
+          : 0,
+      bookmarks: Number.isFinite(Number((external._count as { bookmarks?: number } | undefined)?.bookmarks))
+        ? Number((external._count as { bookmarks?: number }).bookmarks)
+        : 0,
+    },
   };
 }
 
@@ -106,30 +119,8 @@ export async function GET(
 
     let job;
 
-    // Strategy -1: listing detail cache (job visible in search but not yet in DB)
-    const detailCacheKeys = [
-      routeParam,
-      jobId,
-      resolution.extComposite
-        ? `ext-${resolution.extComposite.source}-${resolution.extComposite.sourceId}`
-        : null,
-      resolution.extComposite?.sourceId,
-    ].filter(Boolean) as string[];
-    for (const cacheKey of detailCacheKeys) {
-      const cachedJob = await jobCacheService.get<Record<string, unknown>>(
-        cacheKey,
-        'job_detail'
-      );
-      if (cachedJob?.title) {
-        job = externalJobToDetailRow(cachedJob);
-        timings.cacheHit = true;
-        console.log('✅ Found job in listing detail cache:', cacheKey);
-        break;
-      }
-    }
-
-    // Strategy 0: ext-{source}-{sourceId} from listings (incl. ext-external-adzuna-* legacy URLs)
-    if (!job && resolution.extComposite) {
+    // Strategy 0: ext-{source}-{sourceId} — DB lookup FIRST for external listing URLs
+    if (resolution.extComposite) {
       for (const variant of extCompositeLookupVariants(resolution.extComposite)) {
         job = await prisma.job.findFirst({
           where: { source: variant.source, sourceId: variant.sourceId },
@@ -137,6 +128,30 @@ export async function GET(
         });
         if (job) {
           console.log('✅ Found job by source+sourceId:', variant.source, variant.sourceId, job.title);
+          break;
+        }
+      }
+    }
+
+    // Strategy -1: listing detail cache (fallback when DB record not found)
+    if (!job) {
+      const detailCacheKeys = [
+        routeParam,
+        jobId,
+        resolution.extComposite
+          ? `ext-${resolution.extComposite.source}-${resolution.extComposite.sourceId}`
+          : null,
+        resolution.extComposite?.sourceId,
+      ].filter(Boolean) as string[];
+      for (const cacheKey of detailCacheKeys) {
+        const cachedJob = await jobCacheService.get<Record<string, unknown>>(
+          cacheKey,
+          'job_detail'
+        );
+        if (cachedJob?.title) {
+          job = externalJobToDetailRow(cachedJob);
+          timings.cacheHit = true;
+          console.log('✅ Found job in listing detail cache:', cacheKey);
           break;
         }
       }
@@ -416,17 +431,42 @@ export async function GET(
     const jobWithViews = job as typeof job & { views?: number };
     let updatedViews = jobWithViews.views || 0;
     try {
-      // CRITICAL FIX: Ensure job.id is a valid integer before updating
-      const jobIdNum = typeof job.id === 'number' ? job.id : parseInt(String(job.id), 10);
-      if (!isNaN(jobIdNum) && Number.isSafeInteger(jobIdNum) && jobIdNum > 0) {
+      let viewIncrementId: number | null = null;
+      const directId = typeof job.id === 'number' ? job.id : parseInt(String(job.id), 10);
+      if (!isNaN(directId) && Number.isSafeInteger(directId) && directId > 0) {
+        viewIncrementId = directId;
+      } else if (resolution.extComposite) {
+        for (const variant of extCompositeLookupVariants(resolution.extComposite)) {
+          const dbRow = await prisma.job.findFirst({
+            where: { source: variant.source, sourceId: variant.sourceId },
+            select: { id: true },
+          });
+          if (dbRow) {
+            viewIncrementId = dbRow.id;
+            break;
+          }
+        }
+      } else {
+        const extSource = (job as { source?: string }).source;
+        const extSourceId = (job as { sourceId?: string }).sourceId;
+        if (extSource && extSourceId && extSource !== 'manual' && extSource !== 'employer') {
+          const dbRow = await prisma.job.findFirst({
+            where: { source: extSource, sourceId: String(extSourceId) },
+            select: { id: true },
+          });
+          if (dbRow) viewIncrementId = dbRow.id;
+        }
+      }
+
+      if (viewIncrementId) {
         const updated = await prisma.job.update({
-          where: { id: jobIdNum },
+          where: { id: viewIncrementId },
           data: { views: { increment: 1 } },
-          select: { views: true }
+          select: { views: true },
         });
         updatedViews = updated.views;
       } else {
-        console.warn('⚠️ Skipping views increment - invalid job.id:', job.id);
+        console.warn('⚠️ Skipping views increment - no numeric DB id for job:', job.id);
       }
     } catch (_incErr: unknown) {
       // If job.id is not numeric or column missing, skip silently
