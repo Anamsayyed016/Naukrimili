@@ -4,7 +4,6 @@ import { useRef, useCallback, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion, useMotionValue, useSpring } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -195,48 +194,63 @@ function MagneticCta({
     y.set(0);
   }, [x, y]);
 
-  const base =
-    variant === 'primary'
-      ? [
-          'border border-white/15 bg-gradient-to-r from-teal-600 via-cyan-600 to-violet-600 text-white',
-          'shadow-[0_4px_14px_-2px_rgba(13,148,136,0.42),0_10px_28px_-6px_rgba(91,33,182,0.28)]',
-          'hover:shadow-[0_6px_20px_-2px_rgba(13,148,136,0.48),0_14px_36px_-6px_rgba(91,33,182,0.34)]',
-          'hover:brightness-[1.03]',
-          'active:scale-[0.98]',
-        ].join(' ')
-      : variant === 'outline'
-        ? [
-            'border border-slate-200/90 bg-white/65 text-slate-800 backdrop-blur-md',
-            'shadow-[0_2px_10px_-3px_rgba(15,23,42,0.1)] ring-1 ring-white/70',
-            'hover:border-teal-300/90 hover:bg-white/95 hover:text-slate-900',
-            'hover:shadow-[0_4px_18px_-4px_rgba(13,148,136,0.18)]',
-            'active:scale-[0.98]',
-          ].join(' ')
-        : 'border border-slate-200/80 bg-slate-50/90 text-slate-700 hover:bg-white';
+  const focusRing =
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
 
   const sizeClass =
     'inline-flex h-12 items-center justify-center gap-2.5 rounded-xl px-6 text-[15px] font-semibold tracking-tight transition-all duration-300 ease-out md:h-14 md:px-8 md:text-base';
 
+  const variantStyles =
+    variant === 'primary'
+      ? [
+          'relative overflow-hidden border border-white/20 text-white',
+          'bg-gradient-to-r from-teal-600 via-cyan-500 to-violet-600',
+          'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.22),0_4px_18px_-2px_rgba(13,148,136,0.55),0_14px_36px_-8px_rgba(91,33,182,0.38)]',
+          'hover:-translate-y-0.5 hover:from-teal-500 hover:via-cyan-500 hover:to-violet-500',
+          'hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.28),0_8px_28px_-2px_rgba(13,148,136,0.6),0_20px_44px_-8px_rgba(91,33,182,0.42)]',
+          'active:translate-y-0 active:scale-[0.98]',
+        ]
+      : variant === 'outline'
+        ? [
+            'relative overflow-hidden border border-slate-200/90 text-slate-800',
+            'bg-gradient-to-b from-white/95 via-white/80 to-slate-50/60 backdrop-blur-xl',
+            'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.95),0_2px_14px_-4px_rgba(15,23,42,0.14)]',
+            'ring-1 ring-slate-200/60',
+            'hover:-translate-y-0.5 hover:border-teal-300/80 hover:from-white hover:via-teal-50/40 hover:to-white/90',
+            'hover:text-slate-900',
+            'hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,1),0_0_0_1px_rgba(45,212,191,0.25),0_6px_24px_-4px_rgba(13,148,136,0.22)]',
+            'active:translate-y-0 active:scale-[0.98]',
+          ]
+        : [
+            'border border-slate-200/70 bg-white/50 text-slate-600 backdrop-blur-sm',
+            'shadow-[0_1px_2px_rgba(15,23,42,0.04)]',
+            'hover:-translate-y-0.5 hover:border-slate-300/80 hover:bg-white/90 hover:text-slate-900',
+            'hover:shadow-[0_4px_14px_-4px_rgba(15,23,42,0.12)]',
+            'active:translate-y-0 active:scale-[0.98]',
+          ];
+
+  const buttonClass = cn(sizeClass, focusRing, variantStyles, className);
+
   if (reduced) {
     return (
-      <Button onClick={onClick} size="lg" className={cn(sizeClass, base, className)}>
+      <button type="button" onClick={onClick} className={buttonClass}>
         {children}
-      </Button>
+      </button>
     );
   }
 
   return (
     <motion.div style={{ x: springX, y: springY }} className="inline-flex">
-      <Button
+      <button
         ref={ref}
+        type="button"
         onClick={onClick}
         onMouseMove={onMove}
         onMouseLeave={onLeave}
-        size="lg"
-        className={cn(sizeClass, base, className)}
+        className={buttonClass}
       >
         {children}
-      </Button>
+      </button>
     </motion.div>
   );
 }
@@ -419,7 +433,7 @@ export default function ResumeBuilderStart() {
                 onClick={handlePricing}
                 className={isMobile ? 'w-full' : ''}
               >
-                <Wallet className="mr-2 h-5 w-5" aria-hidden />
+                <Wallet className="h-[18px] w-[18px] shrink-0 text-slate-500 md:h-5 md:w-5" aria-hidden />
                 View plans
               </MagneticCta>
             </motion.div>
