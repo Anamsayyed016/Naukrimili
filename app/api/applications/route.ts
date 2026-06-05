@@ -430,6 +430,17 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Application created successfully:', application.id);
 
+    // Keep Job.applicationsCount in sync for fast dashboard reads (best-effort).
+    try {
+      await prisma.job.update({
+        where: { id: application.jobId },
+        data: { applicationsCount: { increment: 1 } },
+        select: { id: true },
+      });
+    } catch (incErr) {
+      console.warn('⚠️ Failed to increment Job.applicationsCount (non-fatal):', incErr);
+    }
+
     // Send comprehensive notifications
     try {
       const jobTitle = (application.job as { title?: string } | null)?.title || 'the job';

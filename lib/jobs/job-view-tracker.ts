@@ -88,6 +88,17 @@ export async function trackJobView(viewData: JobViewData): Promise<void> {
 
     console.log(`✅ Job view tracked: ${jobView.id} (Job: ${job.title})`);
 
+    // Keep Job.views in sync for fast dashboard reads (best-effort).
+    try {
+      await prisma.job.update({
+        where: { id: jobId },
+        data: { views: { increment: 1 } },
+        select: { id: true },
+      });
+    } catch (incErr) {
+      console.warn('⚠️ Failed to increment Job.views (non-fatal):', incErr);
+    }
+
   } catch (error) {
     console.error('❌ Error tracking job view:', error);
     // Don't throw error to avoid breaking the viewing experience
