@@ -197,14 +197,29 @@ function MagneticCta({
 
   const base =
     variant === 'primary'
-      ? 'bg-gradient-to-r from-teal-600 via-teal-600 to-violet-600 text-white shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/30'
+      ? [
+          'border border-white/15 bg-gradient-to-r from-teal-600 via-cyan-600 to-violet-600 text-white',
+          'shadow-[0_4px_14px_-2px_rgba(13,148,136,0.42),0_10px_28px_-6px_rgba(91,33,182,0.28)]',
+          'hover:shadow-[0_6px_20px_-2px_rgba(13,148,136,0.48),0_14px_36px_-6px_rgba(91,33,182,0.34)]',
+          'hover:brightness-[1.03]',
+          'active:scale-[0.98]',
+        ].join(' ')
       : variant === 'outline'
-        ? 'border-2 border-slate-200/90 bg-white/80 text-slate-800 hover:border-teal-300 hover:bg-white'
+        ? [
+            'border border-slate-200/90 bg-white/65 text-slate-800 backdrop-blur-md',
+            'shadow-[0_2px_10px_-3px_rgba(15,23,42,0.1)] ring-1 ring-white/70',
+            'hover:border-teal-300/90 hover:bg-white/95 hover:text-slate-900',
+            'hover:shadow-[0_4px_18px_-4px_rgba(13,148,136,0.18)]',
+            'active:scale-[0.98]',
+          ].join(' ')
         : 'border border-slate-200/80 bg-slate-50/90 text-slate-700 hover:bg-white';
+
+  const sizeClass =
+    'inline-flex h-12 items-center justify-center gap-2.5 rounded-xl px-6 text-[15px] font-semibold tracking-tight transition-all duration-300 ease-out md:h-14 md:px-8 md:text-base';
 
   if (reduced) {
     return (
-      <Button onClick={onClick} size="lg" className={cn('h-12 rounded-xl px-6 font-semibold', base, className)}>
+      <Button onClick={onClick} size="lg" className={cn(sizeClass, base, className)}>
         {children}
       </Button>
     );
@@ -218,11 +233,7 @@ function MagneticCta({
         onMouseMove={onMove}
         onMouseLeave={onLeave}
         size="lg"
-        className={cn(
-          'h-12 rounded-xl px-6 text-base font-semibold transition-shadow md:h-14 md:px-8',
-          base,
-          className
-        )}
+        className={cn(sizeClass, base, className)}
       >
         {children}
       </Button>
@@ -390,8 +401,8 @@ export default function ResumeBuilderStart() {
               className={cn('flex flex-col gap-3 sm:flex-row sm:flex-wrap', isMobile && 'w-full')}
             >
               <MagneticCta reduced={!!reduced} onClick={handleCreateNew} className={isMobile ? 'w-full' : ''}>
-                <Plus className="mr-2 h-5 w-5" aria-hidden />
-                Start new resume
+                <Plus className="h-[18px] w-[18px] shrink-0 md:h-5 md:w-5" aria-hidden />
+                Start New Resume
               </MagneticCta>
               <MagneticCta
                 reduced={!!reduced}
@@ -399,8 +410,8 @@ export default function ResumeBuilderStart() {
                 onClick={handleImport}
                 className={isMobile ? 'w-full' : ''}
               >
-                <Upload className="mr-2 h-5 w-5" aria-hidden />
-                Import existing
+                <Upload className="h-[18px] w-[18px] shrink-0 text-teal-600 md:h-5 md:w-5" aria-hidden />
+                Import Existing
               </MagneticCta>
               <MagneticCta
                 reduced={!!reduced}
