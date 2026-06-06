@@ -175,7 +175,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-slate-luxe': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Operations Executive' },
   'emerald-executive-luxe': { firstName: 'Eliza', lastName: 'Reed', jobTitle: 'Senior Executive Leader' },
   'velvet-ribbon-executive': { firstName: 'Isabelle', lastName: 'Dupont', jobTitle: 'Senior Marketing Executive & Brand Strategist' },
-  'organic-luxe-editorial': { firstName: 'Aurora', lastName: 'Blanchet', jobTitle: 'Creative Director & Brand Strategist' },
+  'organic-luxe-editorial': { firstName: 'Nasara', lastName: 'Handson', jobTitle: 'Professional Strategist' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

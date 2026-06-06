@@ -13,6 +13,10 @@
       <stop offset="0%" stop-color="#9bb08f"/>
       <stop offset="100%" stop-color="#6f8a69"/>
     </linearGradient>
+    <linearGradient id="forest" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2f5a45"/>
+      <stop offset="100%" stop-color="#234636"/>
+    </linearGradient>
     <linearGradient id="bronze" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#e0c08a"/>
       <stop offset="60%" stop-color="#a57d45"/>
@@ -28,59 +32,65 @@
   <rect width="400" height="520" fill="url(#sand)"/>
   <rect width="400" height="520" fill="url(#topo)" opacity="0.55"/>
 
-  <!-- organic shapes -->
-  <path d="M10,150 C-20,80 40,40 120,36 C200,32 250,70 268,112 C292,168 340,176 352,220 C366,276 306,304 240,292 C168,280 40,316 10,150 Z"
-        fill="url(#terra)" opacity="0.22"/>
-  <path d="M258,444 C220,390 248,330 310,320 C370,310 412,346 396,402 C380,458 324,488 276,476 C258,472 268,458 258,444 Z"
-        fill="url(#sage)" opacity="0.22"/>
+  <!-- Layered paper-cut hero band -->
+  <path d="M0,0 L400,0 L400,88 Q288,118 200,104 Q104,88 0,118 Z" fill="#f2e7d6" opacity="0.96"/>
+  <path d="M0,0 C100,32 200,16 300,36 C350,46 400,24 400,0 Z" fill="url(#terra)" opacity="0.52"/>
+  <path d="M0,20 C90,56 200,40 310,64 C360,74 400,52 400,28 L400,0 L0,0 Z" fill="url(#sage)" opacity="0.4"/>
+  <path d="M0,44 C110,80 230,64 340,88 C370,94 400,78 400,56 L400,0 L0,0 Z" fill="url(#forest)" opacity="0.26"/>
 
-  <!-- header curve -->
-  <path d="M0,0 L400,0 L400,78 Q288,102 204,92 Q104,80 0,102 Z" fill="#f2e7d6" opacity="0.96"/>
-  <path d="M0,102 Q110,82 204,92 Q292,102 400,78" fill="none" stroke="url(#bronze)" stroke-width="1" opacity="0.4"/>
+  <!-- Centered photo -->
+  <circle cx="200" cy="88" r="34" fill="#234636" opacity="0.15"/>
+  <circle cx="200" cy="88" r="26" fill="#234636" stroke="url(#bronze)" stroke-width="3"/>
 
-  <!-- photo + name -->
-  <circle cx="70" cy="66" r="28" fill="#234636" opacity="0.18"/>
-  <circle cx="70" cy="66" r="22" fill="#234636" stroke="url(#bronze)" stroke-width="3"/>
-  <text x="118" y="58" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#234636" letter-spacing="0.8">AURORA</text>
-  <text x="118" y="80" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#234636" letter-spacing="0.8">BLANCHET</text>
-  <text x="118" y="96" font-family="Arial,sans-serif" font-size="7" fill="#234636" opacity="0.8" letter-spacing="2">CREATIVE DIRECTOR</text>
+  <!-- Centered identity -->
+  <text x="200" y="138" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="700" fill="#234636" letter-spacing="0.6">NASARA HANDSON</text>
+  <text x="200" y="156" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#7d3e2f" letter-spacing="2.5">PROFESSIONAL STRATEGIST</text>
 
-  <!-- contact strip -->
-  <rect x="260" y="22" width="124" height="28" rx="14" fill="rgba(255,255,255,0.78)" stroke="rgba(202,163,108,0.35)"/>
-  <circle cx="276" cy="36" r="3" fill="#c16a4b"/>
-  <circle cx="292" cy="36" r="3" fill="#234636"/>
-  <circle cx="308" cy="36" r="3" fill="#caa36c"/>
+  <!-- Star divider -->
+  <line x1="80" y1="168" x2="182" y2="168" stroke="url(#bronze)" stroke-width="1" opacity="0.45"/>
+  <path d="M200,162 L203,170 L212,171 L205,177 L207,186 L200,181 L193,186 L195,177 L188,171 L197,170 Z" fill="#caa36c" opacity="0.9"/>
+  <line x1="218" y1="168" x2="320" y2="168" stroke="url(#bronze)" stroke-width="1" opacity="0.45"/>
 
-  <!-- left column blocks -->
-  <rect x="22" y="132" width="150" height="156" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
-  <text x="42" y="156" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">EXPERIENCE</text>
-  <line x1="42" y1="168" x2="150" y2="168" stroke="#caa36c" stroke-width="1" opacity="0.45"/>
-  <circle cx="44" cy="192" r="6" fill="#c16a4b" opacity="0.85"/>
-  <circle cx="44" cy="222" r="6" fill="#c16a4b" opacity="0.55"/>
-  <circle cx="44" cy="252" r="6" fill="#c16a4b" opacity="0.35"/>
+  <!-- Contact dots -->
+  <circle cx="130" cy="182" r="5" fill="#c16a4b"/>
+  <circle cx="160" cy="182" r="5" fill="#c16a4b"/>
+  <circle cx="200" cy="182" r="5" fill="#234636"/>
+  <circle cx="240" cy="182" r="5" fill="#caa36c"/>
+  <circle cx="270" cy="182" r="5" fill="#c16a4b"/>
 
-  <rect x="22" y="302" width="150" height="96" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
-  <text x="42" y="326" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">CERTIFICATIONS</text>
+  <!-- Left column: Experience timeline -->
+  <text x="28" y="218" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#234636" letter-spacing="1.2">EXPERIENCE</text>
+  <line x1="28" y1="228" x2="150" y2="228" stroke="#caa36c" stroke-width="1" opacity="0.4"/>
+  <line x1="44" y1="244" x2="44" y2="340" stroke="#234636" stroke-width="1.5" opacity="0.25"/>
+  <circle cx="44" cy="252" r="7" fill="#c16a4b" stroke="#fff" stroke-width="2"/>
+  <circle cx="44" cy="292" r="7" fill="#c16a4b" stroke="#fff" stroke-width="2" opacity="0.7"/>
+  <circle cx="44" cy="332" r="7" fill="#c16a4b" stroke="#fff" stroke-width="2" opacity="0.45"/>
 
-  <!-- right column blocks -->
-  <rect x="190" y="132" width="188" height="86" rx="20" fill="rgba(255,255,255,0.9)" stroke="rgba(202,163,108,0.35)"/>
-  <text x="210" y="156" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">PROFILE</text>
-  <line x1="210" y1="168" x2="350" y2="168" stroke="#caa36c" stroke-width="1" opacity="0.45"/>
+  <text x="28" y="368" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#234636" letter-spacing="1.2">CERTIFICATIONS</text>
+  <line x1="28" y1="378" x2="150" y2="378" stroke="#caa36c" stroke-width="1" opacity="0.4"/>
 
-  <rect x="190" y="232" width="188" height="82" rx="20" fill="rgba(255,255,255,0.86)" stroke="rgba(202,163,108,0.35)"/>
-  <text x="210" y="256" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">SKILLS</text>
-  <rect x="210" y="272" width="140" height="8" rx="4" fill="#234636" opacity="0.08"/>
-  <rect x="210" y="272" width="102" height="8" rx="4" fill="url(#bronze)" opacity="0.8"/>
+  <!-- Right column -->
+  <text x="178" y="218" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#234636" letter-spacing="1.2">PROFILE STATEMENT</text>
+  <line x1="178" y1="228" x2="372" y2="228" stroke="#caa36c" stroke-width="1" opacity="0.4"/>
+  <rect x="178" y="240" width="194" height="36" rx="6" fill="rgba(255,255,255,0.5)"/>
 
-  <rect x="190" y="328" width="188" height="70" rx="20" fill="rgba(255,255,255,0.86)" stroke="rgba(202,163,108,0.35)"/>
-  <text x="210" y="352" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">PROJECTS</text>
+  <text x="178" y="296" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#234636" letter-spacing="1.2">SKILLS &amp; EXPERTISE</text>
+  <line x1="178" y1="306" x2="372" y2="306" stroke="#caa36c" stroke-width="1" opacity="0.4"/>
+  <!-- Expertise cards -->
+  <rect x="178" y="316" width="92" height="44" rx="14" fill="url(#forest)"/>
+  <rect x="278" y="316" width="94" height="44" rx="14" fill="url(#terra)"/>
+  <!-- Skill chips -->
+  <rect x="178" y="368" width="56" height="14" rx="7" fill="rgba(111,138,105,0.25)" stroke="rgba(111,138,105,0.4)"/>
+  <rect x="240" y="368" width="48" height="14" rx="7" fill="rgba(111,138,105,0.25)" stroke="rgba(111,138,105,0.4)"/>
+  <rect x="294" y="368" width="52" height="14" rx="7" fill="rgba(111,138,105,0.25)" stroke="rgba(111,138,105,0.4)"/>
 
-  <!-- bottom grid -->
-  <rect x="190" y="412" width="90" height="84" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
-  <rect x="288" y="412" width="90" height="84" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
-  <text x="200" y="438" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#234636" letter-spacing="1.2">EDU</text>
-  <text x="298" y="438" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#234636" letter-spacing="1.2">WINS</text>
+  <text x="178" y="404" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#234636" letter-spacing="1.2">PROJECTS</text>
+  <text x="178" y="444" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#234636" letter-spacing="1.2">EDUCATION</text>
+  <text x="178" y="480" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#234636" letter-spacing="1.2">ACHIEVEMENTS</text>
 
-  <text x="200" y="510" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#7d3e2f">Organic Luxe Editorial</text>
+  <!-- Bottom corner organic accent -->
+  <path d="M400,520 C340,500 360,440 300,420 C260,406 220,440 180,420 C140,400 100,440 60,420 C30,406 0,440 0,400 L400,400 L400,520 Z" fill="url(#sage)" opacity="0.2"/>
+  <path d="M400,520 C360,508 380,460 340,448 C310,438 280,460 250,448 C220,436 190,460 160,448 C130,436 100,460 70,448 C40,436 20,460 0,440 L400,440 L400,520 Z" fill="url(#terra)" opacity="0.14"/>
+
+  <text x="200" y="512" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#7d3e2f" opacity="0.7">Organic Luxe Editorial</text>
 </svg>
-

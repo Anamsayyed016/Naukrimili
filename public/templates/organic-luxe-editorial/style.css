@@ -1,24 +1,24 @@
-/* Organic Luxe Editorial — modern artistic editorial resume (scoped) */
+/* Organic Luxe Editorial — premium paper-cut editorial resume (scoped) */
 
 .ole-resume {
-  --primary-color: #c16a4b; /* terracotta */
-  --accent-color: #caa36c;  /* muted bronze */
+  --primary-color: #c16a4b;
+  --accent-color: #caa36c;
   --forest: #234636;
-  --sage: #7f9c77;
+  --sage: #6f8a69;
+  --clay: #7d3e2f;
   --sand: #f2e7d6;
   --ivory: #fbf7f1;
   --text: #1f2326;
   --muted: #4b545a;
-  --panel: rgba(255, 255, 255, 0.84);
   --border: rgba(202, 163, 108, 0.35);
-  --shadow: rgba(35, 70, 54, 0.10);
   --max-width: 210mm;
   --page-height: 297mm;
-  --left-width: 312px;
+  --left-width: 300px;
   --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+.ole-resume,
 .ole-resume * {
   margin: 0;
   padding: 0;
@@ -41,396 +41,301 @@
   box-shadow: 0 22px 64px rgba(19, 42, 32, 0.12);
 }
 
-.ole-resume .ole-svg-sprite {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
-
-/* ── Art layers (decor only, behind content) ── */
-.ole-resume .ole-art {
-  position: absolute;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.ole-resume .ole-art--tl {
-  top: 0;
-  left: 0;
-  width: 420px;
-  height: 320px;
-  opacity: 0.95;
-}
-
-.ole-resume .ole-art--br {
-  bottom: 0;
-  right: 0;
-  width: 520px;
-  height: 380px;
-  opacity: 0.95;
-}
-
-.ole-resume .ole-shell {
-  position: relative;
-  z-index: 1;
-  min-height: var(--page-height);
-}
-
-.ole-resume .ole-topo {
+/* ── Topographical background texture ── */
+.ole-resume .ole-topo-bg {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  z-index: 0;
   opacity: 0.55;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cpath d='M-10 60 Q60 30 120 60 T250 60' fill='none' stroke='%23234636' stroke-width='0.6' opacity='0.12'/%3E%3Cpath d='M-10 110 Q60 80 120 110 T250 110' fill='none' stroke='%23c16a4b' stroke-width='0.55' opacity='0.09'/%3E%3Cpath d='M-10 160 Q60 130 120 160 T250 160' fill='none' stroke='%23caa36c' stroke-width='0.55' opacity='0.10'/%3E%3C/svg%3E");
-  background-size: 220px 220px;
 }
 
-/* ── Header ── */
+/* ── Bottom corner organic accent ── */
+.ole-resume .ole-corner-accent {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ole-resume .ole-corner-accent--br {
+  bottom: 0;
+  right: 0;
+  width: 200px;
+  height: 160px;
+}
+
+/* ── Centered editorial hero header ── */
 .ole-resume .ole-header {
   position: relative;
   z-index: 2;
-  padding: 0 34px 14px;
+  text-align: center;
+  padding-bottom: 6px;
 }
 
-.ole-resume .ole-header-curve {
-  position: absolute;
-  top: 0;
-  left: 0;
+.ole-resume .ole-hero-band {
+  position: relative;
   width: 100%;
-  height: 140px;
-  pointer-events: none;
-  z-index: 0;
+  height: 168px;
+  overflow: hidden;
 }
 
-.ole-resume .ole-header-inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  padding-top: 18px;
-}
-
-.ole-resume .ole-header-left {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  min-width: 0;
-}
-
-.ole-resume .header-photo {
-  position: relative;
-  flex-shrink: 0;
-  width: 128px;
-  height: 128px;
-}
-
-.ole-resume .ole-photo-frame {
+.ole-resume .ole-hero-art {
   position: absolute;
   inset: 0;
-  width: 128px;
-  height: 128px;
-  pointer-events: none;
-  z-index: 2;
+  width: 100%;
+  height: 100%;
 }
 
-.ole-resume .ole-photo-ring {
+.ole-resume .ole-hero-identity {
   position: relative;
-  z-index: 1;
-  padding: 7px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, rgba(242, 231, 214, 0.95), rgba(202, 163, 108, 0.55));
-  box-shadow:
-    0 12px 30px rgba(19, 42, 32, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  z-index: 2;
+  margin-top: -52px;
+  padding: 0 40px;
+}
+
+.ole-resume .ole-hero-identity:not(:has(.ole-photo-wrap)) {
+  margin-top: 20px;
+}
+
+.ole-resume .ole-photo-wrap {
+  display: inline-flex;
+  justify-content: center;
+  margin-bottom: 12px;
 }
 
 .ole-resume .profile-image-wrapper {
-  width: 98px;
-  height: 98px;
+  width: 108px;
+  height: 108px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.92);
-  background: var(--forest);
-  box-shadow: inset 0 0 0 1px rgba(202, 163, 108, 0.25);
+  padding: 5px;
+  background: linear-gradient(145deg, rgba(242, 231, 214, 0.95), rgba(202, 163, 108, 0.55));
+  box-shadow:
+    0 14px 34px rgba(19, 42, 32, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .ole-resume .profile-image {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
   object-position: center center;
   display: block;
-}
-
-.ole-resume .ole-identity {
-  min-width: 0;
-  padding-top: 8px;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  background: var(--forest);
 }
 
 .ole-resume .candidate-name {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 38px;
-  line-height: 1.04;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
+  font-size: 36px;
+  line-height: 1.08;
+  letter-spacing: 0.8px;
+  text-transform: capitalize;
   color: var(--forest);
   margin-bottom: 6px;
-}
-
-.ole-resume .name-first,
-.ole-resume .name-last {
-  display: inline;
-}
-
-.ole-resume .name-first:empty,
-.ole-resume .name-last:empty,
-.ole-resume .name-space:empty {
-  display: none;
-}
-
-.ole-resume .name-fallback {
-  display: none;
-}
-
-.ole-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
-  display: inline;
 }
 
 .ole-resume .header-title {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 3px;
+  letter-spacing: 3.2px;
   text-transform: uppercase;
-  color: rgba(35, 70, 54, 0.82);
-  max-width: 340px;
+  color: rgba(125, 62, 47, 0.88);
+  margin-bottom: 14px;
 }
 
-/* Contact strip (ATS-safe text, premium styling) */
-.ole-resume .ole-contact-strip {
-  flex-shrink: 0;
-  padding: 10px 14px 10px;
-  background: rgba(255, 255, 255, 0.76);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow:
-    0 10px 26px rgba(19, 42, 32, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  max-width: 280px;
-}
-
-.ole-resume .ole-contact-strip .contact-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-}
-
-.ole-resume .ole-contact-strip .contact-item {
+/* Bronze star divider */
+.ole-resume .ole-divider-star {
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 48px;
+  margin-bottom: 12px;
+}
+
+.ole-resume .ole-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(202, 163, 108, 0.55), transparent);
+}
+
+.ole-resume .ole-star-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Contact row */
+.ole-resume .ole-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 20px;
+  padding: 0 40px 18px;
+}
+
+.ole-resume .ole-contact-item {
+  display: inline-flex;
+  align-items: center;
   gap: 7px;
-  font-size: 9.3px;
+  font-size: 9.5px;
   font-weight: 500;
   color: var(--muted);
   line-height: 1.35;
 }
 
-.ole-resume .ole-contact-strip .contact-item::before {
-  content: '';
-  width: 16px;
-  height: 16px;
+.ole-resume .ole-contact-icon {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   border-radius: 50%;
-  background-color: rgba(35, 70, 54, 0.92);
-  background-size: 9px 9px;
+  background-color: var(--primary-color);
+  background-size: 10px 10px;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow: inset 0 0 0 1px rgba(202, 163, 108, 0.45);
+  box-shadow:
+    inset 0 0 0 1px rgba(202, 163, 108, 0.45),
+    0 4px 10px rgba(19, 42, 32, 0.08);
 }
 
-.ole-resume .ole-contact-strip .contact-item:nth-child(1)::before {
-  background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2e7d6' stroke-width='2'%3E%3Cpath d='M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z'/%3E%3C/svg%3E\");
+.ole-resume .ole-contact-icon--phone {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbf7f1' stroke-width='2'%3E%3Cpath d='M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z'/%3E%3C/svg%3E");
 }
 
-.ole-resume .ole-contact-strip .contact-item:nth-child(2)::before {
-  background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2e7d6' stroke-width='2'%3E%3Cpath d='M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z'/%3E%3C/svg%3E\");
+.ole-resume .ole-contact-icon--email {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbf7f1' stroke-width='2'%3E%3Cpath d='M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z'/%3E%3C/svg%3E");
 }
 
-.ole-resume .ole-contact-strip .contact-item:nth-child(3)::before {
-  background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2e7d6' stroke-width='2'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E\");
+.ole-resume .ole-contact-icon--linkedin {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbf7f1' stroke-width='2'%3E%3Cpath d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z'/%3E%3Crect x='4' y='9' width='4' height='12'/%3E%3Ccircle cx='6' cy='4' r='2'/%3E%3C/svg%3E");
 }
 
-.ole-resume .ole-contact-strip .contact-item:nth-child(4)::before {
-  background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2e7d6' stroke-width='2'%3E%3Cpath d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z'/%3E%3Crect x='4' y='9' width='4' height='12'/%3E%3Ccircle cx='6' cy='4' r='2'/%3E%3C/svg%3E\");
+.ole-resume .ole-contact-icon--portfolio {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbf7f1' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
 }
 
-.ole-resume .ole-contact-strip .contact-item:nth-child(5)::before {
-  background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2e7d6' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E\");
+.ole-resume .ole-contact-icon--location {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbf7f1' stroke-width='2'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
 }
 
-.ole-resume .ole-contact-strip .contact-label {
+.ole-resume .ole-contact-text {
   word-break: break-word;
   overflow-wrap: anywhere;
   color: var(--text);
 }
 
-/* ── Layout ── */
+/* ── Two-column body ── */
 .ole-resume .ole-body {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: 18px;
-  padding: 18px 34px 44px;
+  padding: 8px 34px 52px;
 }
 
-.ole-resume .ole-col-left {
+.ole-resume .ole-columns {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.ole-resume .ole-col--left {
   width: var(--left-width);
   min-width: var(--left-width);
   flex-shrink: 0;
 }
 
-.ole-resume .ole-col-right {
+.ole-resume .ole-col--right {
   flex: 1;
   min-width: 0;
 }
 
-.ole-resume .ole-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.ole-resume .ole-section {
+  margin-bottom: 16px;
 }
 
-.ole-resume .ole-grid-two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+.ole-resume .ole-section:last-child {
+  margin-bottom: 0;
 }
 
-/* ── Panels ── */
-.ole-resume .ole-panel {
-  position: relative;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px 16px 12px;
-  box-shadow:
-    0 14px 34px var(--shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92);
-}
-
-.ole-resume .ole-panel::after {
-  content: '';
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 88px;
-  height: 48px;
-  pointer-events: none;
-  background: radial-gradient(circle at 100% 0%, rgba(193, 106, 75, 0.12) 0%, transparent 68%);
-  opacity: 0.9;
-}
-
-.ole-resume .ole-panel--left {
-  border-top-left-radius: 26px;
-}
-
-.ole-resume .ole-panel--hero {
-  background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(242,231,214,0.72) 100%);
-  border-radius: 24px;
-}
-
-.ole-resume .ole-panel--hero::before {
-  content: '';
-  position: absolute;
-  left: 14px;
-  top: 14px;
-  bottom: 14px;
-  width: 4px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--accent-color), rgba(35, 70, 54, 0.75));
-}
-
-.ole-resume .ole-panel--hero {
-  padding-left: 24px;
-}
-
-.ole-resume .ole-panel--cards::after {
-  width: 120px;
-  height: 60px;
-  background: radial-gradient(circle at 100% 0%, rgba(111, 138, 105, 0.16) 0%, transparent 70%);
-}
-
-.ole-resume .ole-panel--mini {
-  padding: 12px 14px 10px;
-}
-
-/* ── Typography ── */
-.ole-resume .ole-heading {
+/* Editorial section headings */
+.ole-resume .section-title {
   font-family: var(--font-serif);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
   color: rgba(35, 70, 54, 0.94);
   margin-bottom: 10px;
-  padding-bottom: 8px;
+  padding-bottom: 7px;
   border-bottom: 1px solid rgba(202, 163, 108, 0.28);
+  position: relative;
 }
 
-.ole-resume .ole-heading--mini {
-  font-size: 11px;
-  margin-bottom: 8px;
+.ole-resume .section-title::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(145deg, var(--accent-color), var(--primary-color));
+  transform: rotate(45deg);
+  opacity: 0.75;
 }
 
 .ole-resume .summary-text {
   font-size: 11px;
-  line-height: 1.7;
+  line-height: 1.72;
   color: var(--text);
 }
 
-/* ── Experience timeline (left column) ── */
+/* ── Experience & certifications timeline ── */
 .ole-resume .ole-timeline {
   position: relative;
-  padding-left: 44px;
+  padding-left: 42px;
 }
 
 .ole-resume .ole-timeline::before {
   content: '';
   position: absolute;
-  left: 14px;
+  left: 13px;
   top: 6px;
   bottom: 6px;
   width: 2px;
-  background: linear-gradient(180deg, rgba(35,70,54,0.6), rgba(193,106,75,0.25));
+  background: linear-gradient(180deg, rgba(35, 70, 54, 0.55), rgba(193, 106, 75, 0.22));
 }
 
-.ole-resume .ole-timeline .experience-item {
+.ole-resume .ole-timeline .experience-item,
+.ole-resume .ole-timeline .certification-item {
   position: relative;
   margin-bottom: 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
-.ole-resume .ole-timeline .experience-item:last-child {
+.ole-resume .ole-timeline .experience-item:last-child,
+.ole-resume .ole-timeline .certification-item:last-child {
   margin-bottom: 0;
 }
 
-.ole-resume .ole-timeline .experience-item::before {
+.ole-resume .ole-timeline .experience-item::before,
+.ole-resume .ole-timeline .certification-item::before {
   content: '';
   position: absolute;
-  left: -36px;
-  top: 6px;
+  left: -35px;
+  top: 5px;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: linear-gradient(145deg, var(--primary-color), #7d3e2f);
+  background: linear-gradient(145deg, var(--primary-color), var(--clay));
   border: 2px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 0 2px rgba(202, 163, 108, 0.55);
+  box-shadow: 0 0 0 2px rgba(202, 163, 108, 0.5);
 }
 
 .ole-resume .experience-header h3 {
@@ -445,7 +350,7 @@
   font-size: 10.5px;
   font-weight: 600;
   color: rgba(193, 106, 75, 0.9);
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   display: block;
 }
 
@@ -471,44 +376,110 @@
   padding: 0;
 }
 
-/* ── Skills: chip styling (uses default SKILLS renderer) ── */
-.ole-resume .ole-skill-chips {
-  display: flex;
-  flex-wrap: wrap;
+.ole-resume .certification-item h3 {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(35, 70, 54, 0.92);
+  margin-bottom: 2px;
+}
+
+.ole-resume .issuer,
+.ole-resume .institution {
+  font-size: 10px;
+  color: var(--muted);
+  display: block;
+}
+
+.ole-resume .date,
+.ole-resume .year {
+  font-size: 9.5px;
+  color: rgba(35, 70, 54, 0.7);
+  font-weight: 600;
+}
+
+/* ── Skills: premium expertise cards + infographic chips ── */
+.ole-resume .ole-skill-modules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
-.ole-resume .ole-skill-chips .skill-tag {
+.ole-resume .ole-skill-modules .skill-tag {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(242,231,214,0.92) 0%, rgba(255,255,255,0.85) 100%);
-  border: 1px solid rgba(202, 163, 108, 0.32);
-  color: rgba(35, 70, 54, 0.92);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.2px;
-  box-shadow: 0 8px 16px rgba(19, 42, 32, 0.05);
+  line-height: 1.35;
 }
 
-.ole-resume .ole-skill-chips .skill-tag::before {
-  content: '';
-  width: 10px;
-  height: 10px;
+.ole-resume .ole-skill-modules .skill-tag:nth-child(1),
+.ole-resume .ole-skill-modules .skill-tag:nth-child(2) {
+  padding: 14px 14px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  min-height: 56px;
+  align-items: flex-start;
+  box-shadow: 0 10px 24px rgba(19, 42, 32, 0.1);
+}
+
+.ole-resume .ole-skill-modules .skill-tag:nth-child(1) {
+  background: linear-gradient(145deg, #2f5a45, var(--forest));
+  color: var(--ivory);
+  border: 1px solid rgba(202, 163, 108, 0.35);
+}
+
+.ole-resume .ole-skill-modules .skill-tag:nth-child(2) {
+  background: linear-gradient(145deg, var(--primary-color), var(--clay));
+  color: var(--ivory);
+  border: 1px solid rgba(202, 163, 108, 0.35);
+}
+
+.ole-resume .ole-skill-modules .skill-tag:nth-child(1)::before,
+.ole-resume .ole-skill-modules .skill-tag:nth-child(2)::before {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: linear-gradient(145deg, var(--accent-color), var(--primary-color));
-  box-shadow: inset 0 0 0 1px rgba(35, 70, 54, 0.25);
+  background: var(--accent-color);
+  box-shadow: inset 0 0 0 1px rgba(35, 70, 54, 0.2);
+  flex-shrink: 0;
+  margin-top: 3px;
 }
 
-/* ── Projects / Education / Certs / Achievements basic typography ── */
-.ole-resume .projects-list,
-.ole-resume .education-list,
-.ole-resume .certifications-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.ole-resume .ole-skill-modules .skill-tag:nth-child(n+3) {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(111, 138, 105, 0.18) 0%, rgba(242, 231, 214, 0.75) 100%);
+  border: 1px solid rgba(111, 138, 105, 0.32);
+  color: rgba(35, 70, 54, 0.92);
+  box-shadow: 0 6px 14px rgba(19, 42, 32, 0.04);
+}
+
+.ole-resume .ole-skill-modules .skill-tag:nth-child(n+3)::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--sage), var(--forest));
+  flex-shrink: 0;
+}
+
+/* ── Projects, education, achievements lists ── */
+.ole-resume .ole-list > .project-item,
+.ole-resume .ole-list > .education-item,
+.ole-resume .ole-list > .achievement-item {
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ole-resume .ole-list > *:last-child {
+  margin-bottom: 0;
 }
 
 .ole-resume .project-item {
@@ -519,93 +490,76 @@
 }
 
 .ole-resume .project-item h3,
-.ole-resume .education-item h3,
-.ole-resume .certification-item h3 {
+.ole-resume .education-item h3 {
+  font-family: var(--font-serif);
   font-size: 11px;
   font-weight: 700;
   color: rgba(35, 70, 54, 0.92);
   margin-bottom: 2px;
 }
 
-.ole-resume .project-item .description {
+.ole-resume .project-item .description,
+.ole-resume .project-item .technologies {
   font-size: 10.5px;
   line-height: 1.55;
   color: var(--text);
 }
 
-.ole-resume .institution,
-.ole-resume .issuer {
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.ole-resume .year,
-.ole-resume .date {
-  font-size: 9.5px;
-  color: rgba(35, 70, 54, 0.7);
-  font-weight: 600;
-}
-
-.ole-resume .achievements-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.ole-resume .achievement-item {
+.ole-resume .ole-list--stars .achievement-item {
   position: relative;
-  padding-left: 14px;
+  padding-left: 16px;
   font-size: 10px;
   line-height: 1.55;
   color: var(--text);
 }
 
-.ole-resume .achievement-item::before {
+.ole-resume .ole-list--stars .achievement-item::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 7px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, var(--primary-color), var(--accent-color));
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(145deg, var(--accent-color), var(--primary-color));
+  transform: rotate(45deg);
+  opacity: 0.85;
 }
 
-/* Languages — dotted editorial motif (still uses shared renderer) */
-.ole-resume .ole-languages-dots .psp-language-bar-container {
-  height: 7px;
+.ole-resume .ole-list--stars .achievement-item h3 {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Languages */
+.ole-resume .ole-lang-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ole-resume .ole-lang-chips .language-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
   border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid rgba(202, 163, 108, 0.25);
-  background: rgba(35, 70, 54, 0.08);
-}
-
-.ole-resume .ole-languages-dots .psp-language-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, rgba(35, 70, 54, 0.9), rgba(193, 106, 75, 0.85));
-}
-
-.ole-resume .ole-languages-dots .psp-language-name {
+  background: rgba(242, 231, 214, 0.8);
+  border: 1px solid rgba(202, 163, 108, 0.28);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  font-weight: 600;
   color: rgba(35, 70, 54, 0.9);
 }
 
-.ole-resume .ole-languages-dots .psp-language-percentage {
-  font-size: 9px;
-  font-weight: 600;
-  color: rgba(193, 106, 75, 0.9);
+.ole-resume .ole-lang-chips .language {
+  letter-spacing: 0.2px;
 }
 
-/* Density adaptations (template-only, additive) */
-body[data-density='sparse'] .ole-resume .ole-stack { gap: 18px; }
-body[data-density='sparse'] .ole-resume .ole-body { padding-bottom: 54px; }
-body[data-density='sparse'] .ole-resume .ole-panel { padding-bottom: 16px; }
+/* Density variants */
+body[data-density='sparse'] .ole-resume .ole-section { margin-bottom: 20px; }
+body[data-density='sparse'] .ole-resume .ole-body { padding-bottom: 60px; }
+body[data-density='light'] .ole-resume .ole-section { margin-bottom: 18px; }
 
-body[data-density='light'] .ole-resume .ole-stack { gap: 15px; }
-
+/* Print / PDF export safety */
 @media print {
   @page { size: A4; margin: 0; }
 
@@ -623,14 +577,22 @@ body[data-density='light'] .ole-resume .ole-stack { gap: 15px; }
     overflow: visible !important;
   }
 
-  .ole-resume .ole-art,
-  .ole-resume .ole-topo,
-  .ole-resume .ole-header-curve,
-  .ole-resume .ole-panel,
-  .ole-resume .ole-contact-strip,
-  .ole-resume .ole-photo-frame {
+  .ole-resume .ole-topo-bg,
+  .ole-resume .ole-hero-art,
+  .ole-resume .ole-corner-accent,
+  .ole-resume .ole-contact-icon,
+  .ole-resume .ole-skill-modules .skill-tag {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-}
 
+  .ole-resume .experience-item,
+  .ole-resume .certification-item,
+  .ole-resume .project-item,
+  .ole-resume .education-item,
+  .ole-resume .achievement-item,
+  .ole-resume .ole-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
