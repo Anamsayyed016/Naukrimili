@@ -11,7 +11,7 @@ import {
   Upload, Camera, Crop, RotateCw, RotateCcw, ZoomIn, ZoomOut, 
   X, Check, Image as ImageIcon, RefreshCw, Circle, Square, Loader2,
   Sun, Contrast as ContrastIcon, Palette, Filter, 
-  ImageOff, ChevronDown, ChevronUp
+  ImageOff, ChevronDown, ChevronUp, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +35,7 @@ const FilterSection = ({
   children,
   isOpen,
   onToggle,
+  onReset,
   isMobile
 }: { 
   id: string;
@@ -43,6 +44,7 @@ const FilterSection = ({
   children: React.ReactNode;
   isOpen: boolean;
   onToggle: () => void;
+  onReset?: () => void;
   isMobile: boolean;
 }) => {
   return (
@@ -54,36 +56,54 @@ const FilterSection = ({
       }}
       transition={{ duration: 0.2 }}
     >
-      <button
-        onClick={onToggle}
-        className={cn(
-          'w-full px-4 py-3 bg-gradient-to-r transition-all duration-200 flex items-center justify-between',
-          isOpen 
-            ? 'from-blue-50 to-blue-100/50' 
-            : 'from-gray-50 to-gray-50 hover:from-gray-100 hover:to-gray-100'
-        )}
-      >
-        <div className="flex items-center gap-3">
-          <div className={cn(
-            'p-1.5 rounded-md transition-colors',
-            isOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-          )}>
-            {icon}
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={onToggle}
+          className={cn(
+            'flex-1 px-3 py-2.5 bg-gradient-to-r transition-all duration-200 flex items-center justify-between',
+            isOpen 
+              ? 'from-blue-50 to-blue-100/50' 
+              : 'from-gray-50 to-gray-50 hover:from-gray-100 hover:to-gray-100'
+          )}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className={cn(
+              'p-1.5 rounded-md transition-colors',
+              isOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
+            )}>
+              {icon}
+            </div>
+            <span className={cn(
+              'font-semibold',
+              isMobile ? 'text-xs' : 'text-sm',
+              isOpen ? 'text-blue-700' : 'text-gray-900'
+            )}>
+              {title}
+            </span>
           </div>
-          <span className={cn(
-            'font-semibold',
-            isMobile ? 'text-xs' : 'text-sm',
-            isOpen ? 'text-blue-700' : 'text-gray-900'
-          )}>
-            {title}
-          </span>
-        </div>
-        {isOpen ? (
-          <ChevronUp className={cn('text-gray-600', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
-        ) : (
-          <ChevronDown className={cn('text-gray-400', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
+          {isOpen ? (
+            <ChevronUp className={cn('text-gray-600', isMobile ? 'w-4 h-4' : 'w-4 h-4')} />
+          ) : (
+            <ChevronDown className={cn('text-gray-400', isMobile ? 'w-4 h-4' : 'w-4 h-4')} />
+          )}
+        </button>
+        {onReset && isOpen && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReset();
+            }}
+            className={cn(
+              'px-2.5 py-2.5 text-blue-600 hover:bg-blue-50 border-l border-gray-200 shrink-0',
+              isMobile ? 'text-[10px]' : 'text-xs'
+            )}
+          >
+            Reset
+          </button>
         )}
-      </button>
+      </div>
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -94,7 +114,7 @@ const FilterSection = ({
             className="overflow-hidden"
             style={{ pointerEvents: 'auto' }}
           >
-            <div className={cn('p-4 space-y-4', isMobile && 'p-3 space-y-3')} style={{ pointerEvents: 'auto' }}>
+            <div className={cn('p-3 space-y-3', isMobile && 'p-2.5 space-y-2.5')} style={{ pointerEvents: 'auto' }}>
               {children}
             </div>
           </motion.div>
@@ -122,7 +142,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     grayscale: 0,
   });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [activeFilterSection, setActiveFilterSection] = useState<string | null>('adjustments');
+  const [activeSection, setActiveSection] = useState<string | null>('transform');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -132,10 +152,10 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   const isNewImageRef = useRef(false);
 
   useEffect(() => {
-    if (value !== undefined) {
+    if (!isOpen && value !== undefined) {
       setImageSrc(value || '');
     }
-  }, [value]);
+  }, [value, isOpen]);
 
   // Reset editor state only when opening dialog with a NEW image (not when editing existing)
   useEffect(() => {
@@ -428,6 +448,15 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
             r = r * contrastFactor + intercept;
             g = g * contrastFactor + intercept;
             b = b * contrastFactor + intercept;
+
+            // Apply saturation
+            if (filters.saturate !== 100) {
+              const satFactor = filters.saturate / 100;
+              const gray = r * 0.299 + g * 0.587 + b * 0.114;
+              r = gray + (r - gray) * satFactor;
+              g = gray + (g - gray) * satFactor;
+              b = gray + (b - gray) * satFactor;
+            }
             
             // Apply grayscale if needed
             if (filters.grayscale > 0) {
@@ -446,17 +475,14 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
           
           ctx.putImageData(imageData, 0, 0);
           
-          // Apply blur and saturation using CSS filters on canvas
-          if (filters.blur > 0 || filters.saturate !== 100) {
+          // Apply blur using CSS filter on canvas (matches live preview)
+          if (filters.blur > 0) {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = canvas.width;
             tempCanvas.height = canvas.height;
             const tempCtx = tempCanvas.getContext('2d');
             if (tempCtx) {
-              const filterParts = [];
-              if (filters.blur > 0) filterParts.push(`blur(${filters.blur}px)`);
-              if (filters.saturate !== 100) filterParts.push(`saturate(${filters.saturate}%)`);
-              tempCtx.filter = filterParts.join(' ');
+              tempCtx.filter = `blur(${filters.blur}px)`;
               tempCtx.drawImage(canvas, 0, 0);
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               ctx.drawImage(tempCanvas, 0, 0);
@@ -509,6 +535,19 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     });
   }, [imageSrc, zoom, rotation, filters, cropShape]);
 
+  const handleReset = useCallback(() => {
+    setZoom(1);
+    setRotation(0);
+    setCropShape('circle');
+    setFilters({
+      brightness: 100,
+      contrast: 100,
+      saturate: 100,
+      blur: 0,
+      grayscale: 0,
+    });
+  }, []);
+
   const handleSave = useCallback(async () => {
     if (!imageSrc) {
       toast({
@@ -523,8 +562,8 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
       const finalImage = await processImage();
       if (finalImage) {
         onChange(finalImage);
-        // Update local state to show cropped image immediately
         setImageSrc(finalImage);
+        handleReset();
       }
       setIsOpen(false);
       toast({
@@ -545,26 +584,58 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     } finally {
       setIsProcessing(false);
     }
-  }, [processImage, onChange, imageSrc, toast]);
+  }, [processImage, onChange, imageSrc, toast, handleReset]);
 
-  const handleReset = useCallback(() => {
-    setZoom(1);
-    setRotation(0);
-    setFilters({
-      brightness: 100,
-      contrast: 100,
-      saturate: 100,
-      blur: 0,
-      grayscale: 0,
-    });
+  const handleDialogOpenChange = useCallback((open: boolean) => {
+    if (!open) {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+    }
   }, []);
 
-  const handleClose = useCallback(() => {
+  const handleRemovePhoto = useCallback(() => {
+    onChange('');
+    setImageSrc('');
+    handleReset();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
     setIsOpen(false);
+    toast({
+      title: 'Photo removed',
+      description: 'Profile photo has been removed.',
+    });
+  }, [onChange, handleReset, toast]);
+
+  const toggleSection = useCallback((section: string) => {
+    setActiveSection((prev) => (prev === section ? null : section));
+  }, []);
+
+  const resetCrop = useCallback(() => setCropShape('circle'), []);
+  const resetTransform = useCallback(() => {
+    setZoom(1);
+    setRotation(0);
+  }, []);
+  const resetAdjustments = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+      brightness: 100,
+      contrast: 100,
+      saturate: 100,
+    }));
+  }, []);
+  const resetEffects = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+      blur: 0,
+      grayscale: 0,
+    }));
   }, []);
 
   const updateFilter = useCallback((key: FilterType, value: number) => {
@@ -575,6 +646,8 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   }, []);
 
   const hasImage = !!value;
+  const previewSize = isMobile ? 168 : isTablet ? 200 : 220;
+  const previewFilter = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturate}%) blur(${filters.blur}px) grayscale(${filters.grayscale}%)`;
 
   return (
     <>
@@ -688,6 +761,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                       if (value) {
                         setImageSrc(value);
                       }
+                      handleReset();
                       setIsOpen(true);
                     }}
                     className={cn(
@@ -822,280 +896,177 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         data-testid="photo-upload-input"
       />
 
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className={cn(
-          'overflow-y-auto',
+          'flex flex-col gap-0 p-0 overflow-hidden',
           isMobile 
-            ? 'max-w-full w-full max-h-[95vh] m-0 rounded-none p-4 sm:p-6 left-0 top-0 translate-x-0 translate-y-0' 
-            : 'max-w-5xl max-h-[90vh] p-6'
+            ? 'max-w-full w-full max-h-[92vh] m-0 rounded-none left-0 top-0 translate-x-0 translate-y-0' 
+            : 'max-w-3xl max-h-[88vh]'
         )}>
-          <DialogHeader className={cn(isMobile && 'pb-3')}>
+          <DialogHeader className="shrink-0 px-4 py-3 border-b border-gray-100">
             <DialogTitle className={cn(
               'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
-              isMobile ? 'text-base' : 'text-xl'
+              isMobile ? 'text-base' : 'text-lg'
             )}>
               Edit Photo
             </DialogTitle>
           </DialogHeader>
 
-          <div className={cn('space-y-4', isMobile ? 'sm:space-y-5' : 'space-y-6')}>
-            {/* Preview Area */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                'flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 rounded-xl border border-gray-200/50',
-                isMobile ? 'p-4 min-h-[250px]' : 'p-6 sm:p-8 min-h-[300px] sm:min-h-[400px]'
-              )}
-            >
+          <div className={cn(
+            'flex flex-1 min-h-0 overflow-hidden',
+            isDesktop ? 'flex-row' : 'flex-col'
+          )}>
+            {/* Preview */}
+            <div className={cn(
+              'shrink-0 flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20',
+              isDesktop ? 'w-[240px] border-r border-gray-100 p-4' : 'p-3 border-b border-gray-100'
+            )}>
               {imageSrc ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative"
-                >
+                <div className="relative">
                   <div
                     className={cn(
-                      'overflow-hidden bg-white shadow-2xl transition-all duration-300 ring-4 ring-blue-100',
+                      'overflow-hidden bg-white shadow-lg ring-2 ring-blue-100/80',
                       cropShape === 'circle' ? 'rounded-full' : 'rounded-xl'
                     )}
-                    style={{
-                      width: isMobile ? '200px' : isTablet ? '250px' : '300px',
-                      height: isMobile ? '200px' : isTablet ? '250px' : '300px',
-                      filter: `
-                        brightness(${filters.brightness}%)
-                        contrast(${filters.contrast}%)
-                        saturate(${filters.saturate}%)
-                        blur(${filters.blur}px)
-                        grayscale(${filters.grayscale}%)
-                      `,
-                      transform: `rotate(${rotation}deg) scale(${zoom})`,
-                      transformOrigin: 'center',
-                    }}
+                    style={{ width: previewSize, height: previewSize }}
                   >
                     <img
                       src={imageSrc}
                       alt="Preview"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover will-change-transform"
                       draggable={false}
+                      style={{
+                        filter: previewFilter,
+                        transform: `rotate(${rotation}deg) scale(${zoom})`,
+                        transformOrigin: 'center center',
+                      }}
                     />
                   </div>
                   <canvas ref={canvasRef} className="hidden" />
-                </motion.div>
+                </div>
               ) : (
-                <div className="text-center text-gray-500 space-y-3 sm:space-y-4">
+                <div className="text-center text-gray-500 space-y-3 py-2">
                   {streamRef.current ? (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="space-y-3 sm:space-y-4"
-                    >
+                    <div className="space-y-3">
                       <video
                         ref={videoRef}
                         autoPlay
                         playsInline
                         muted
-                        className={cn(
-                          'max-w-full rounded-lg shadow-lg',
-                          isMobile ? 'max-h-[250px]' : 'max-h-[400px]'
-                        )}
+                        className="max-w-full rounded-lg shadow-md max-h-[180px]"
                       />
                       <Button 
+                        type="button"
                         onClick={captureFromCamera} 
-                        size={isMobile ? 'default' : 'lg'}
-                        className={cn(
-                          'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700',
-                          isMobile ? 'h-11 min-h-[44px] w-full' : ''
-                        )}
+                        size="sm"
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-10"
                       >
-                        <Camera className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                        <span className={isMobile ? 'text-xs' : ''}>Capture Photo</span>
+                        <Camera className="w-4 h-4 mr-1.5" />
+                        Capture Photo
                       </Button>
-                    </motion.div>
+                    </div>
                   ) : (
                     <div className="space-y-2">
-                      <ImageIcon className={cn(
-                        'mx-auto text-gray-300',
-                        isMobile ? 'w-12 h-12' : 'w-16 h-16'
-                      )} />
-                      <p className={cn(isMobile ? 'text-xs' : 'text-sm')}>No image selected</p>
-                      <Button 
-                        variant="outline" 
-                        onClick={handleUpload}
-                        size={isMobile ? 'default' : 'sm'}
-                        className={isMobile ? 'h-11 min-h-[44px] w-full' : ''}
-                      >
-                        <Upload className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                        <span className={isMobile ? 'text-xs' : ''}>Select Image</span>
+                      <ImageIcon className="w-10 h-10 mx-auto text-gray-300" />
+                      <p className="text-xs">No image selected</p>
+                      <Button type="button" variant="outline" onClick={handleUpload} size="sm" className="h-10">
+                        <Upload className="w-4 h-4 mr-1.5" />
+                        Select Image
                       </Button>
                     </div>
                   )}
                 </div>
               )}
-            </motion.div>
+            </div>
 
             {/* Controls */}
             {imageSrc && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className={cn('space-y-4', isMobile && 'space-y-3')}
-              >
-                {/* Crop Shape */}
-                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                  <label className={cn(
-                    'font-semibold mb-3 block text-gray-900',
-                    isMobile ? 'text-xs' : 'text-sm'
-                  )}>Crop Shape</label>
-                  <div className={cn(
-                    'flex gap-2',
-                    isMobile && 'w-full'
-                  )}>
+              <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2">
+                <FilterSection
+                  id="crop"
+                  title="Crop"
+                  icon={<Crop className="w-4 h-4" />}
+                  isOpen={activeSection === 'crop'}
+                  onToggle={() => toggleSection('crop')}
+                  onReset={resetCrop}
+                  isMobile={isMobile}
+                >
+                  <div className="flex gap-2">
                     <Button
                       type="button"
                       variant={cropShape === 'circle' ? 'default' : 'outline'}
-                      size={isMobile ? 'default' : 'sm'}
+                      size="sm"
                       onClick={() => setCropShape('circle')}
-                      className={cn(
-                        'flex-1 transition-all',
-                        cropShape === 'circle' && 'bg-gradient-to-r from-blue-600 to-purple-600',
-                        isMobile ? 'h-11 min-h-[44px]' : ''
-                      )}
+                      className={cn('flex-1 h-9', cropShape === 'circle' && 'bg-gradient-to-r from-blue-600 to-purple-600')}
                     >
-                      <Circle className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                      <span className={isMobile ? 'text-xs' : ''}>Circle</span>
+                      <Circle className="w-4 h-4 mr-1.5" />
+                      Circle
                     </Button>
                     <Button
                       type="button"
                       variant={cropShape === 'square' ? 'default' : 'outline'}
-                      size={isMobile ? 'default' : 'sm'}
+                      size="sm"
                       onClick={() => setCropShape('square')}
-                      className={cn(
-                        'flex-1 transition-all',
-                        cropShape === 'square' && 'bg-gradient-to-r from-blue-600 to-purple-600',
-                        isMobile ? 'h-11 min-h-[44px]' : ''
-                      )}
+                      className={cn('flex-1 h-9', cropShape === 'square' && 'bg-gradient-to-r from-blue-600 to-purple-600')}
                     >
-                      <Square className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                      <span className={isMobile ? 'text-xs' : ''}>Square</span>
+                      <Square className="w-4 h-4 mr-1.5" />
+                      Square
                     </Button>
                   </div>
-                </div>
+                </FilterSection>
 
-                {/* Transform Controls */}
-                <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
-                  <label className={cn(
-                    'font-semibold block text-gray-900',
-                    isMobile ? 'text-xs' : 'text-sm'
-                  )}>Transform</label>
-                  
-                  {/* Zoom */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
-                        Zoom
-                      </span>
-                      <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
-                        {Math.round(zoom * 100)}%
-                      </span>
+                <FilterSection
+                  id="transform"
+                  title="Transform"
+                  icon={<RotateCw className="w-4 h-4" />}
+                  isOpen={activeSection === 'transform'}
+                  onToggle={() => toggleSection('transform')}
+                  onReset={resetTransform}
+                  isMobile={isMobile}
+                >
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs text-gray-700">Zoom</span>
+                        <span className="text-xs font-semibold text-blue-600">{Math.round(zoom * 100)}%</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={() => setZoom(Math.max(0.5, zoom - 0.1))} disabled={zoom <= 0.5}>
+                          <ZoomOut className="w-3.5 h-3.5" />
+                        </Button>
+                        <Slider value={[zoom]} onValueChange={([val]) => setZoom(val)} min={0.5} max={3} step={0.1} className="flex-1" />
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={() => setZoom(Math.min(3, zoom + 0.1))} disabled={zoom >= 3}>
+                          <ZoomIn className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
-                        disabled={zoom <= 0.5}
-                        className={cn(
-                          'flex-shrink-0',
-                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                        )}
-                      >
-                        <ZoomOut className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                      </Button>
-                      <Slider
-                        value={[zoom]}
-                        onValueChange={([val]) => setZoom(val)}
-                        min={0.5}
-                        max={3}
-                        step={0.1}
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setZoom(Math.min(3, zoom + 0.1))}
-                        disabled={zoom >= 3}
-                        className={cn(
-                          'flex-shrink-0',
-                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                        )}
-                      >
-                        <ZoomIn className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                      </Button>
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs text-gray-700">Rotation</span>
+                        <span className="text-xs font-semibold text-blue-600">{rotation}°</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={() => setRotation(rotation - 15)}>
+                          <RotateCcw className="w-3.5 h-3.5" />
+                        </Button>
+                        <Slider value={[rotation]} onValueChange={([val]) => setRotation(val)} min={-180} max={180} step={15} className="flex-1" />
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={() => setRotation(rotation + 15)}>
+                          <RotateCw className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
+                </FilterSection>
 
-                  {/* Rotation */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
-                        Rotation
-                      </span>
-                      <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
-                        {rotation}°
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setRotation(rotation - 15)}
-                        className={cn(
-                          'flex-shrink-0',
-                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                        )}
-                      >
-                        <RotateCcw className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                      </Button>
-                      <Slider
-                        value={[rotation]}
-                        onValueChange={([val]) => setRotation(val)}
-                        min={-180}
-                        max={180}
-                        step={15}
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setRotation(rotation + 15)}
-                        className={cn(
-                          'flex-shrink-0',
-                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                        )}
-                      >
-                        <RotateCw className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Filters - Collapsible Sections */}
-                <div className="space-y-3">
-                  <FilterSection
-                    id="adjustments"
-                    title="Adjustments"
-                    icon={<Sun className={cn(isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />}
-                    isOpen={activeFilterSection === 'adjustments'}
-                    onToggle={() => setActiveFilterSection(activeFilterSection === 'adjustments' ? null : 'adjustments')}
-                    isMobile={isMobile}
-                  >
+                <FilterSection
+                  id="adjustments"
+                  title="Adjustments"
+                  icon={<Sun className="w-4 h-4" />}
+                  isOpen={activeSection === 'adjustments'}
+                  onToggle={() => toggleSection('adjustments')}
+                  onReset={resetAdjustments}
+                  isMobile={isMobile}
+                >
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center justify-between mb-2">
@@ -1165,126 +1136,93 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                     </div>
                   </FilterSection>
 
-                  <FilterSection
-                    id="effects"
-                    title="Effects"
-                    icon={<Filter className={cn(isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />}
-                    isOpen={activeFilterSection === 'effects'}
-                    onToggle={() => setActiveFilterSection(activeFilterSection === 'effects' ? null : 'effects')}
-                    isMobile={isMobile}
-                  >
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Filter className={cn('text-indigo-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
-                            <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
-                              Blur
-                            </span>
-                          </div>
-                          <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
-                            {filters.blur}px
-                          </span>
-                        </div>
-                        <Slider
-                          value={[filters.blur]}
-                          onValueChange={([val]) => updateFilter('blur', val)}
-                          min={0}
-                          max={10}
-                          step={0.5}
-                          className="w-full"
-                        />
+                <FilterSection
+                  id="effects"
+                  title="Effects"
+                  icon={<Filter className="w-4 h-4" />}
+                  isOpen={activeSection === 'effects'}
+                  onToggle={() => toggleSection('effects')}
+                  onReset={resetEffects}
+                  isMobile={isMobile}
+                >
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs text-gray-700">Blur</span>
+                        <span className="text-xs font-semibold text-blue-600">{filters.blur}px</span>
                       </div>
-
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <ImageOff className={cn('text-gray-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
-                            <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
-                              Grayscale
-                            </span>
-                          </div>
-                          <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
-                            {filters.grayscale}%
-                          </span>
-                        </div>
-                        <Slider
-                          value={[filters.grayscale]}
-                          onValueChange={([val]) => updateFilter('grayscale', val)}
-                          min={0}
-                          max={100}
-                          step={1}
-                          className="w-full"
-                        />
-                      </div>
+                      <Slider value={[filters.blur]} onValueChange={([val]) => updateFilter('blur', val)} min={0} max={10} step={0.5} className="w-full" />
                     </div>
-                  </FilterSection>
-                </div>
-
-                {/* Action Buttons */}
-                <div className={cn(
-                  'flex items-center pt-4 border-t border-gray-200 gap-3',
-                  isMobile ? 'flex-col' : 'justify-between'
-                )}>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleReset}
-                    disabled={isProcessing}
-                    size={isMobile ? 'default' : 'sm'}
-                    className={cn(
-                      isMobile ? 'h-11 min-h-[44px] w-full' : ''
-                    )}
-                  >
-                    <RefreshCw className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                    <span className={isMobile ? 'text-xs' : ''}>Reset All</span>
-                  </Button>
-                  <div className={cn(
-                    'flex gap-2',
-                    isMobile && 'w-full'
-                  )}>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleClose}
-                      disabled={isProcessing}
-                      size={isMobile ? 'default' : 'sm'}
-                      className={cn(
-                        isMobile ? 'h-11 min-h-[44px] flex-1' : ''
-                      )}
-                    >
-                      <span className={isMobile ? 'text-xs' : ''}>Cancel</span>
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleSave}
-                      disabled={isProcessing}
-                      size={isMobile ? 'default' : 'sm'}
-                      className={cn(
-                        'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700',
-                        isMobile ? 'h-11 min-h-[44px] flex-1' : ''
-                      )}
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className={cn(
-                            'animate-spin',
-                            isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2'
-                          )} />
-                          <span className={isMobile ? 'text-xs' : ''}>Processing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Check className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                          <span className={isMobile ? 'text-xs' : ''}>Save Photo</span>
-                        </>
-                      )}
-                    </Button>
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs text-gray-700">Grayscale</span>
+                        <span className="text-xs font-semibold text-blue-600">{filters.grayscale}%</span>
+                      </div>
+                      <Slider value={[filters.grayscale]} onValueChange={([val]) => updateFilter('grayscale', val)} min={0} max={100} step={1} className="w-full" />
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </FilterSection>
+              </div>
             )}
           </div>
+
+          {imageSrc && (
+            <div className="shrink-0 border-t border-gray-200 bg-white px-3 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleRemovePhoto}
+                disabled={isProcessing}
+                size="sm"
+                className="h-9 text-red-600 hover:text-red-700 hover:bg-red-50 order-2 sm:order-1"
+              >
+                <Trash2 className="w-4 h-4 mr-1.5" />
+                Remove Photo
+              </Button>
+              <div className="flex gap-2 order-1 sm:order-2 w-full sm:w-auto">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleDialogOpenChange(false)}
+                  disabled={isProcessing}
+                  size="sm"
+                  className="h-9 flex-1 sm:flex-none"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleReset}
+                  disabled={isProcessing}
+                  size="sm"
+                  className="h-9 flex-1 sm:flex-none"
+                >
+                  <RefreshCw className="w-4 h-4 mr-1.5" />
+                  Reset All
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isProcessing}
+                  size="sm"
+                  className="h-9 flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-1.5" />
+                      Save Photo
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
