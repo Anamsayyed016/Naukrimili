@@ -5,7 +5,7 @@
       "id": "teal-modern",
       "name": "Teal Modern",
       "slug": "teal-modern",
-      "description": "Modern two-column design with teal accents, full section support",
+      "description": "Premium modern two-column resume with deep teal palette, executive typography, skill progress bars, and full section support",
       "thumbnail": "/templates/teal-modern/thumbnail.svg",
       "preview": "/templates/teal-modern/preview.svg",
       "html": "/templates/teal-modern/index.html",
@@ -16,7 +16,7 @@
       "hasPhoto": true,
       "recommended": true,
       "colors": [
-        { "id": "teal", "name": "Teal", "primary": "#14B8A6", "accent": "#0D9488", "text": "#1F2937" },
+        { "id": "teal", "name": "Deep Teal", "primary": "#0F766E", "accent": "#134E4A", "text": "#1E293B" },
         { "id": "blue", "name": "Blue", "primary": "#3B82F6", "accent": "#2563EB", "text": "#1F2937" },
         { "id": "emerald", "name": "Emerald", "primary": "#10B981", "accent": "#059669", "text": "#1F2937" },
         { "id": "cyan", "name": "Cyan", "primary": "#06B6D4", "accent": "#0891B2", "text": "#1F2937" },

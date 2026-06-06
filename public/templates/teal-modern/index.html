@@ -4,27 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume - {{FULL_NAME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="resume-container">
+    <div class="resume-container tm-modern">
         <div class="resume-wrapper">
             <!-- Left Sidebar -->
-            <aside class="sidebar">
-                <!-- Languages Section -->
+            <aside class="sidebar tm-sidebar">
+                <svg class="tm-sidebar-accent" viewBox="0 0 4 200" preserveAspectRatio="none" aria-hidden="true">
+                    <rect width="4" height="200" fill="url(#tmAccentGrad)" rx="2"/>
+                    <defs>
+                        <linearGradient id="tmAccentGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#5eead4"/>
+                            <stop offset="50%" stop-color="#0f766e"/>
+                            <stop offset="100%" stop-color="#134e4a"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+
                 {{#if LANGUAGES}}
-                <section class="sidebar-section psp-languages-progress">
-                    <h2 class="sidebar-section-title">LANGUAGES</h2>
+                <section class="sidebar-section tm-sidebar-panel psp-languages-progress">
+                    <h2 class="sidebar-section-title">Languages</h2>
                     <div class="languages-list">
                         {{LANGUAGES}}
                     </div>
                 </section>
                 {{/if}}
 
-                <!-- Skills Section -->
                 {{#if SKILLS}}
-                <section class="sidebar-section psp-skills-progress">
-                    <h2 class="sidebar-section-title">PRO SKILLS</h2>
+                <section class="sidebar-section tm-sidebar-panel psp-skills-progress">
+                    <h2 class="sidebar-section-title">Core Skills</h2>
                     <div class="skills-list">
                         {{SKILLS}}
                     </div>
@@ -33,9 +45,8 @@
             </aside>
 
             <!-- Right Main Content -->
-            <main class="main-content">
-                <!-- Header: Profile Photo, Name, Job Title -->
-                <header class="content-header">
+            <main class="main-content tm-main">
+                <header class="content-header tm-header">
                     {{#if PROFILE_IMAGE}}
                     <div class="profile-section">
                         <div class="profile-image-wrapper">
@@ -58,70 +69,63 @@
                     </div>
                 </header>
 
-                <!-- About Me / Summary Section -->
                 {{#if SUMMARY}}
-                <section class="content-section">
-                    <h2 class="section-title">ABOUT ME</h2>
+                <section class="content-section tm-section tm-about">
+                    <h2 class="section-title">About</h2>
                     <div class="summary-content">
                         <p class="summary-text">{{SUMMARY}}</p>
                     </div>
                 </section>
                 {{/if}}
 
-                <!-- Work Experience Section -->
                 {{#if EXPERIENCE}}
-                <section class="content-section">
-                    <h2 class="section-title">EXPERIENCE</h2>
-                    <div class="experience-list">
+                <section class="content-section tm-section">
+                    <h2 class="section-title">Experience</h2>
+                    <div class="experience-list tm-timeline">
                         {{EXPERIENCE}}
                     </div>
                 </section>
                 {{/if}}
 
-                <!-- Projects Section -->
                 {{#if PROJECTS}}
-                <section class="content-section">
-                    <h2 class="section-title">PROJECTS</h2>
-                    <div class="projects-list">
+                <section class="content-section tm-section">
+                    <h2 class="section-title">Projects</h2>
+                    <div class="projects-list tm-project-grid">
                         {{PROJECTS}}
                     </div>
                 </section>
                 {{/if}}
 
-                <!-- Education Section -->
                 {{#if EDUCATION}}
-                <section class="content-section">
-                    <h2 class="section-title">EDUCATION</h2>
+                <section class="content-section tm-section">
+                    <h2 class="section-title">Education</h2>
                     <div class="education-list">
                         {{EDUCATION}}
                     </div>
                 </section>
                 {{/if}}
 
-                <!-- Certifications Section -->
                 {{#if CERTIFICATIONS}}
-                <section class="content-section">
-                    <h2 class="section-title">CERTIFICATIONS</h2>
+                <section class="content-section tm-section">
+                    <h2 class="section-title">Certifications</h2>
                     <div class="certifications-list">
                         {{CERTIFICATIONS}}
                     </div>
                 </section>
                 {{/if}}
 
-                <!-- Achievements Section -->
                 {{#if ACHIEVEMENTS}}
-                <section class="content-section">
-                    <h2 class="section-title">ACHIEVEMENTS</h2>
+                <section class="content-section tm-section">
+                    <h2 class="section-title">Achievements</h2>
                     <div class="achievements-list">
                         {{ACHIEVEMENTS}}
                     </div>
                 </section>
                 {{/if}}
 
-                <!-- Hobbies / Interests Section -->
                 {{#if HOBBIES}}
-                <section class="content-section">
-                    <h2 class="section-title">INTERESTS</h2>
+                <section class="content-section tm-section">
+                    <h2 class="section-title">Interests</h2>
                     <div class="hobbies-list">
                         {{HOBBIES}}
                     </div>
@@ -132,4 +136,3 @@
     </div>
 </body>
 </html>
-

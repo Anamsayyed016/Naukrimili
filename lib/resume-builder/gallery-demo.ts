@@ -47,10 +47,10 @@ export interface GalleryCardAccent {
 
 export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> = {
   'teal-modern': {
-    glow: 'radial-gradient(circle, rgba(20,184,166,0.35) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(13,148,136,0.2) 0%, transparent 70%)',
-    borderTint: 'hover:border-teal-300/80',
-    hoverOverlay: 'from-teal-600/15',
+    glow: 'radial-gradient(circle, rgba(15,118,110,0.38) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(94,234,212,0.22) 0%, transparent 70%)',
+    borderTint: 'hover:border-teal-400/70',
+    hoverOverlay: 'from-teal-800/16',
   },
   'charcoal-premium': {
     glow: 'radial-gradient(circle, rgba(196,165,116,0.4) 0%, transparent 70%)',

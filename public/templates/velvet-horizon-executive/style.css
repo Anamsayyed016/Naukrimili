@@ -653,22 +653,22 @@
   color: var(--accent-color);
 }
 
-/* ── Footer bar ── */
+/* ── Footer accent (minimal luxury finish) ── */
 .vhe-resume .vhe-footer {
   position: relative;
   z-index: 2;
-  margin-top: 12px;
-  padding: 8px 36px;
-  background: linear-gradient(90deg, #2a2e32, #1a1e22);
+  margin-top: 4px;
+  padding: 12px 36px 22px;
+  background: transparent;
   text-align: center;
 }
 
-.vhe-resume .vhe-footer span {
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+.vhe-resume .vhe-footer-flourish {
+  display: block;
+  width: 100%;
+  max-width: 722px;
+  height: 20px;
+  margin: 0 auto;
 }
 
 /* Density */
@@ -701,7 +701,7 @@ body[data-density='light'] .vhe-resume .vhe-section { margin-bottom: 20px; }
   .vhe-resume .vhe-project-showcase .project-item::before,
   .vhe-resume .vhe-project-showcase .project-item a,
   .vhe-resume .psp-skill-name,
-  .vhe-resume .vhe-footer {
+  .vhe-resume .vhe-footer-flourish {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

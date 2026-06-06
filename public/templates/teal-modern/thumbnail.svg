@@ -1,33 +1,38 @@
-<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
   <defs>
-    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#14B8A6;stop-opacity:0.15" />
-      <stop offset="100%" style="stop-color:#0D9488;stop-opacity:0.08" />
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fafaf9"/>
+      <stop offset="100%" stop-color="#f0fdfa"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#5eead4"/>
     </linearGradient>
   </defs>
-  <rect width="300" height="400" fill="url(#tealGrad)" stroke="#14B8A6" stroke-width="3"/>
-  <rect x="20" y="20" width="260" height="360" fill="white" opacity="0.3" rx="8"/>
-  <!-- Left sidebar indicator -->
-  <rect x="30" y="30" width="80" height="340" fill="#FFFFFF" opacity="0.5" rx="4"/>
-  <!-- Main content area -->
-  <rect x="120" y="30" width="150" height="360" fill="#FFFFFF" opacity="0.4" rx="4"/>
-  <!-- Profile circle -->
-  <circle cx="70" cy="80" r="35" fill="#14B8A6" opacity="0.6"/>
-  <!-- Header text area -->
-  <rect x="130" y="50" width="130" height="60" fill="#FFFFFF" opacity="0.7" rx="4"/>
-  <!-- Section indicators -->
-  <rect x="130" y="130" width="140" height="25" fill="#E5E7EB" rx="2"/>
-  <rect x="130" y="170" width="140" height="25" fill="#E5E7EB" rx="2"/>
-  <rect x="130" y="210" width="140" height="25" fill="#E5E7EB" rx="2"/>
-  <!-- Sidebar sections -->
-  <rect x="35" y="140" width="70" height="15" fill="#14B8A6" opacity="0.7" rx="2"/>
-  <rect x="35" y="170" width="70" height="15" fill="#14B8A6" opacity="0.7" rx="2"/>
-  <rect x="35" y="200" width="70" height="15" fill="#14B8A6" opacity="0.7" rx="2"/>
-  <text x="50%" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#14B8A6">
-    Teal Modern
-  </text>
-  <text x="50%" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">
-    Resume Template
-  </text>
+  <rect width="240" height="160" rx="10" fill="url(#bg)"/>
+  <!-- Sidebar panels -->
+  <rect x="14" y="16" width="68" height="128" rx="8" fill="#fff" stroke="rgba(15,118,110,0.12)"/>
+  <rect x="14" y="16" width="3" height="128" rx="1" fill="url(#teal)"/>
+  <rect x="22" y="28" width="52" height="36" rx="6" fill="#fff" stroke="rgba(15,118,110,0.1)"/>
+  <rect x="26" y="52" width="44" height="4" rx="2" fill="url(#teal)" opacity="0.7"/>
+  <rect x="26" y="60" width="36" height="4" rx="2" fill="rgba(15,118,110,0.15)"/>
+  <rect x="22" y="72" width="52" height="48" rx="6" fill="#fff" stroke="rgba(15,118,110,0.1)"/>
+  <rect x="26" y="96" width="44" height="4" rx="2" fill="url(#teal)" opacity="0.6"/>
+  <rect x="26" y="104" width="40" height="4" rx="2" fill="rgba(15,118,110,0.12)"/>
+  <!-- Main -->
+  <rect x="92" y="16" width="134" height="44" rx="8" fill="#fff" stroke="rgba(15,118,110,0.12)"/>
+  <rect x="92" y="16" width="4" height="44" rx="2" fill="url(#teal)"/>
+  <circle cx="112" cy="38" r="14" fill="url(#teal)" opacity="0.85"/>
+  <text x="134" y="34" font-family="Georgia,serif" font-size="9" font-weight="600" fill="#1e293b">Brian Baxter</text>
+  <text x="134" y="46" font-family="Arial,sans-serif" font-size="5" fill="#0f766e" letter-spacing="1">DESIGNER</text>
+  <!-- Timeline cards -->
+  <rect x="92" y="68" width="134" height="22" rx="5" fill="#fff" stroke="rgba(15,118,110,0.1)"/>
+  <circle cx="100" cy="79" r="3" fill="#5eead4"/>
+  <rect x="92" y="96" width="134" height="22" rx="5" fill="#fff" stroke="rgba(15,118,110,0.1)"/>
+  <circle cx="100" cy="107" r="3" fill="#5eead4" opacity="0.7"/>
+  <!-- Project cards -->
+  <rect x="92" y="124" width="62" height="20" rx="4" fill="#fff" stroke="rgba(15,118,110,0.1)"/>
+  <rect x="92" y="124" width="62" height="3" rx="1" fill="url(#teal)"/>
+  <rect x="164" y="124" width="62" height="20" rx="4" fill="#fff" stroke="rgba(15,118,110,0.1)"/>
+  <rect x="164" y="124" width="62" height="3" rx="1" fill="url(#teal)"/>
 </svg>
-

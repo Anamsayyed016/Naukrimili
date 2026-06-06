@@ -48,6 +48,8 @@
   <!-- Achievement card -->
   <rect x="148" y="128" width="76" height="18" rx="4" fill="#fff" stroke="rgba(200,120,64,0.15)"/>
   <path d="M154,137 L156,133 L158,137 L162,137 L159,140 L160,144 L156,142 L152,144 L153,140 L150,137 Z" fill="#c87840" transform="scale(0.5) translate(308,274)"/>
-  <!-- Footer -->
-  <rect y="148" width="240" height="12" rx="0" fill="#2a2e32"/>
+  <!-- Footer flourish -->
+  <line x1="40" y1="152" x2="100" y2="152" stroke="#c87840" stroke-width="0.8" opacity="0.45"/>
+  <path d="M120,152 C124,148 128,148 132,152 C128,156 124,156 120,152 Z" fill="none" stroke="#c87840" stroke-width="0.7" opacity="0.5"/>
+  <line x1="140" y1="152" x2="200" y2="152" stroke="#c87840" stroke-width="0.8" opacity="0.45"/>
 </svg>
