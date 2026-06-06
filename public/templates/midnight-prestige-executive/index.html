@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="resume-container mpe-resume">
+    <svg class="mpe-svg-sprite" aria-hidden="true" width="0" height="0" focusable="false">
+      <defs>
+        <linearGradient id="mpeGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f0e2c4"/>
+          <stop offset="22%" stop-color="#dcc99a"/>
+          <stop offset="48%" stop-color="#c9a962"/>
+          <stop offset="72%" stop-color="#b8934a"/>
+          <stop offset="100%" stop-color="#8b6f3a"/>
+        </linearGradient>
+        <linearGradient id="mpeGoldShine" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#dcc99a" stop-opacity="0.15"/>
+          <stop offset="45%" stop-color="#f5ecd4" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#b8934a" stop-opacity="0.25"/>
+        </linearGradient>
+        <linearGradient id="mpeMidnight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#1e1e22"/>
+          <stop offset="45%" stop-color="#16161a"/>
+          <stop offset="100%" stop-color="#111114"/>
+        </linearGradient>
+        <filter id="mpeGoldGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#c9a962" flood-opacity="0.35"/>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Art Deco executive frame -->
+    <svg class="mpe-artdeco-frame" viewBox="0 0 794 1122" preserveAspectRatio="none" aria-hidden="true">
+      <!-- Outer double border -->
+      <rect x="18" y="18" width="758" height="1086" fill="none" stroke="url(#mpeGold)" stroke-width="1.2" opacity="0.92"/>
+      <rect x="26" y="26" width="742" height="1070" fill="none" stroke="url(#mpeGold)" stroke-width="0.6" opacity="0.55"/>
+      <!-- Corner ornaments — top-left -->
+      <path d="M18,18 L18,52 L34,52 L34,34 L52,34 L52,18 Z" fill="none" stroke="url(#mpeGold)" stroke-width="1" opacity="0.9"/>
+      <path d="M18,18 L52,18 M18,18 L18,52 M34,34 L52,34 M34,34 L34,52" fill="none" stroke="url(#mpeGold)" stroke-width="0.7" opacity="0.65"/>
+      <!-- top-right -->
+      <path d="M776,18 L776,52 L760,52 L760,34 L742,34 L742,18 Z" fill="none" stroke="url(#mpeGold)" stroke-width="1" opacity="0.9"/>
+      <path d="M776,18 L742,18 M776,18 L776,52 M760,34 L742,34 M760,34 L760,52" fill="none" stroke="url(#mpeGold)" stroke-width="0.7" opacity="0.65"/>
+      <!-- bottom-left -->
+      <path d="M18,1104 L18,1070 L34,1070 L34,1088 L52,1088 L52,1104 Z" fill="none" stroke="url(#mpeGold)" stroke-width="1" opacity="0.9"/>
+      <path d="M18,1104 L52,1104 M18,1104 L18,1070 M34,1088 L52,1088 M34,1088 L34,1070" fill="none" stroke="url(#mpeGold)" stroke-width="0.7" opacity="0.65"/>
+      <!-- bottom-right -->
+      <path d="M776,1104 L776,1070 L760,1070 L760,1088 L742,1088 L742,1104 Z" fill="none" stroke="url(#mpeGold)" stroke-width="1" opacity="0.9"/>
+      <path d="M776,1104 L742,1104 M776,1104 L776,1070 M760,1088 L742,1088 M760,1088 L760,1070" fill="none" stroke="url(#mpeGold)" stroke-width="0.7" opacity="0.65"/>
+      <!-- Side diamond accents -->
+      <path d="M18,561 L26,553 L34,561 L26,569 Z" fill="none" stroke="url(#mpeGold)" stroke-width="0.8" opacity="0.75"/>
+      <path d="M776,561 L768,553 L760,561 L768,569 Z" fill="none" stroke="url(#mpeGold)" stroke-width="0.8" opacity="0.75"/>
+      <!-- Bottom center bracket flourish -->
+      <path d="M347,1104 L347,1094 L367,1094 L367,1104" fill="none" stroke="url(#mpeGold)" stroke-width="0.8" opacity="0.7"/>
+      <path d="M427,1104 L427,1094 L407,1094 L407,1104" fill="none" stroke="url(#mpeGold)" stroke-width="0.8" opacity="0.7"/>
+      <path d="M367,1099 L407,1099" fill="none" stroke="url(#mpeGold)" stroke-width="0.6" opacity="0.55"/>
+      <path d="M387,1094 L387,1088" fill="none" stroke="url(#mpeGold)" stroke-width="0.6" opacity="0.5"/>
+      <path d="M377,1088 L397,1088 L387,1082 Z" fill="url(#mpeGold)" opacity="0.35"/>
+    </svg>
+
+    <div class="mpe-shell">
+      <header class="mpe-header">
+        {{#if PROFILE_IMAGE}}
+        <div class="mpe-photo-block">
+          <div class="mpe-photo-diamond" aria-hidden="true"></div>
+          <div class="mpe-photo-square" aria-hidden="true"></div>
+          <div class="mpe-photo-inner" aria-hidden="true"></div>
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+
+        <div class="mpe-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+
+        <div class="mpe-contact-ribbon">
+          <div class="mpe-contact-rule mpe-contact-rule--top" aria-hidden="true"></div>
+          <div class="mpe-contact-row">
+            {{#if EMAIL}}
+            <span class="mpe-contact-item">
+              <span class="mpe-contact-icon mpe-contact-icon--email" aria-hidden="true"></span>
+              <span class="mpe-contact-text">{{EMAIL}}</span>
+            </span>
+            {{/if}}
+            {{#if PHONE}}
+            <span class="mpe-contact-item">
+              <span class="mpe-contact-icon mpe-contact-icon--phone" aria-hidden="true"></span>
+              <span class="mpe-contact-text">{{PHONE}}</span>
+            </span>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <span class="mpe-contact-item">
+              <span class="mpe-contact-icon mpe-contact-icon--linkedin" aria-hidden="true"></span>
+              <span class="mpe-contact-text">{{LINKEDIN}}</span>
+            </span>
+            {{/if}}
+            {{#if LOCATION}}
+            <span class="mpe-contact-item">
+              <span class="mpe-contact-icon mpe-contact-icon--location" aria-hidden="true"></span>
+              <span class="mpe-contact-text">{{LOCATION}}</span>
+            </span>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <span class="mpe-contact-item">
+              <span class="mpe-contact-icon mpe-contact-icon--portfolio" aria-hidden="true"></span>
+              <span class="mpe-contact-text">{{PORTFOLIO}}</span>
+            </span>
+            {{/if}}
+          </div>
+          <div class="mpe-contact-rule mpe-contact-rule--bottom" aria-hidden="true"></div>
+        </div>
+      </header>
+
+      <main class="mpe-body">
+        <div class="mpe-columns">
+          <div class="mpe-col mpe-col--left">
+            {{#if SUMMARY}}
+            <section class="mpe-section mpe-section--summary">
+              <h2 class="section-title">Executive Summary</h2>
+              <p class="summary-text">{{SUMMARY}}</p>
+            </section>
+            {{/if}}
+
+            {{#if EXPERIENCE}}
+            <section class="mpe-section mpe-section--experience">
+              <h2 class="section-title">Professional Experience</h2>
+              <div class="experience-list mpe-experience">
+                {{EXPERIENCE}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if PROJECTS}}
+            <section class="mpe-section mpe-section--projects">
+              <h2 class="section-title">Major Projects</h2>
+              <div class="projects-list mpe-projects">
+                {{PROJECTS}}
+              </div>
+            </section>
+            {{/if}}
+          </div>
+
+          <aside class="mpe-col mpe-col--right">
+            {{#if SKILLS}}
+            <section class="mpe-section mpe-section--skills">
+              <h2 class="section-title">Core Competencies</h2>
+              <div class="skills-list mpe-skills">
+                {{SKILLS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if EDUCATION}}
+            <section class="mpe-section mpe-section--education">
+              <h2 class="section-title">Education</h2>
+              <div class="education-list mpe-education">
+                {{EDUCATION}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if CERTIFICATIONS}}
+            <section class="mpe-section mpe-section--certifications">
+              <h2 class="section-title">Certifications</h2>
+              <div class="certifications-list mpe-certifications">
+                {{CERTIFICATIONS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if ACHIEVEMENTS}}
+            <section class="mpe-section mpe-section--achievements">
+              <h2 class="section-title">Achievements</h2>
+              <div class="achievements-list mpe-achievements">
+                {{ACHIEVEMENTS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if LANGUAGES}}
+            <section class="mpe-section mpe-section--languages">
+              <h2 class="section-title">Languages</h2>
+              <div class="languages-list mpe-languages">
+                {{LANGUAGES}}
+              </div>
+            </section>
+            {{/if}}
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -456,6 +456,29 @@
         { "id": "pine-rosegold", "name": "Pine & Rose Gold", "primary": "#0A4A44", "accent": "#C99585", "text": "#1A3D36" }
       ],
       "defaultColor": "emerald-copper"
+    },
+    {
+      "id": "midnight-prestige-executive",
+      "name": "Midnight Prestige Executive",
+      "slug": "midnight-prestige-executive",
+      "description": "Fortune 500 Art Deco executive resume with midnight charcoal depth, champagne gold framing, centered portrait branding, and luxury two-column hierarchy.",
+      "thumbnail": "/templates/midnight-prestige-executive/thumbnail.svg",
+      "preview": "/templates/midnight-prestige-executive/preview.svg",
+      "html": "/templates/midnight-prestige-executive/index.html",
+      "css": "/templates/midnight-prestige-executive/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "champagne-gold", "name": "Champagne Gold", "primary": "#C9A962", "accent": "#9A7B4F", "text": "#E8E4DC" },
+        { "id": "platinum", "name": "Platinum", "primary": "#C8C4BC", "accent": "#9A9690", "text": "#E8E6E2" },
+        { "id": "rose-gold", "name": "Rose Gold", "primary": "#C99585", "accent": "#A67565", "text": "#E8E0DC" },
+        { "id": "warm-bronze", "name": "Warm Bronze", "primary": "#B8934A", "accent": "#8B6F3A", "text": "#E8E4DC" },
+        { "id": "copper", "name": "Copper", "primary": "#C4876A", "accent": "#A06548", "text": "#E8E4DC" }
+      ],
+      "defaultColor": "champagne-gold"
     }
   ],
   "filters": {
