@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f5f8fc"/>
+      <stop offset="50%" stop-color="#eef4fa"/>
+      <stop offset="100%" stop-color="#e8f0f8"/>
+    </linearGradient>
+    <filter id="blur" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+  <rect width="240" height="160" rx="10" fill="url(#bg)"/>
+  <circle cx="50" cy="40" r="40" fill="#9ec5f8" opacity="0.25" filter="url(#blur)"/>
+  <circle cx="200" cy="130" r="35" fill="#6aa7e8" opacity="0.18" filter="url(#blur)"/>
+  <!-- Shell -->
+  <rect x="14" y="12" width="212" height="136" rx="14" fill="rgba(255,255,255,0.55)" stroke="rgba(255,255,255,0.9)" stroke-width="1"/>
+  <!-- Header card -->
+  <rect x="22" y="20" width="196" height="42" rx="10" fill="rgba(255,255,255,0.72)" stroke="rgba(255,255,255,0.95)" stroke-width="0.8"/>
+  <text x="30" y="34" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#0f172a" letter-spacing="0.5">JULIAN PIERCE</text>
+  <text x="30" y="44" font-family="Arial,sans-serif" font-size="4" fill="#64748b" letter-spacing="1">SENIOR PRODUCT STRATEGIST</text>
+  <circle cx="206" cy="41" r="14" fill="#d4e4f4" stroke="#fff" stroke-width="2"/>
+  <!-- Left cards -->
+  <rect x="22" y="68" width="118" height="28" rx="8" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.9)" stroke-width="0.6"/>
+  <text x="30" y="80" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#0f172a" letter-spacing="0.8">SUMMARY</text>
+  <rect x="30" y="84" width="100" height="2" rx="1" fill="#64748b" opacity="0.3"/>
+  <rect x="30" y="88" width="95" height="2" rx="1" fill="#64748b" opacity="0.25"/>
+  <rect x="22" y="100" width="118" height="40" rx="8" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.9)" stroke-width="0.6"/>
+  <text x="30" y="112" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#0f172a" letter-spacing="0.8">EXPERIENCE</text>
+  <rect x="28" y="118" width="106" height="16" rx="5" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.8)" stroke-width="0.4"/>
+  <rect x="28" y="136" width="106" height="0" rx="0" fill="none"/>
+  <!-- Right cards -->
+  <rect x="146" y="68" width="72" height="36" rx="8" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.9)" stroke-width="0.6"/>
+  <text x="154" y="80" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#0f172a" letter-spacing="0.8">SKILLS</text>
+  <rect x="154" y="86" width="28" height="8" rx="4" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.9)" stroke-width="0.4"/>
+  <rect x="186" y="86" width="24" height="8" rx="4" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.9)" stroke-width="0.4"/>
+  <rect x="154" y="98" width="32" height="8" rx="4" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.9)" stroke-width="0.4"/>
+  <rect x="146" y="108" width="72" height="32" rx="8" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.9)" stroke-width="0.6"/>
+  <text x="154" y="120" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#0f172a" letter-spacing="0.8">EDUCATION</text>
+  <rect x="154" y="126" width="52" height="2" rx="1" fill="#334155" opacity="0.35"/>
+  <rect x="154" y="131" width="48" height="2" rx="1" fill="#64748b" opacity="0.3"/>
+</svg>
