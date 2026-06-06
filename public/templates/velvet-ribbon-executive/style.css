@@ -91,8 +91,8 @@
 .vre-resume .vre-header {
   position: relative;
   z-index: 2;
-  padding: 0 32px 8px 100px;
-  min-height: 128px;
+  padding: 0 32px 6px 100px;
+  min-height: 118px;
 }
 
 .vre-resume .vre-header-curve {
@@ -112,7 +112,7 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 20px;
-  padding-top: 22px;
+  padding-top: 18px;
 }
 
 .vre-resume .header-photo {

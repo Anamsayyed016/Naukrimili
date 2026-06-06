@@ -84,8 +84,8 @@ body {
 .hero-band {
   position: relative;
   z-index: 1;
-  min-height: 168px;
-  padding: 36px 40px 28px;
+  min-height: 148px;
+  padding: 28px 36px 22px;
   background: var(--main-bg);
   border-bottom: 1px solid var(--border-color);
 }
@@ -233,7 +233,7 @@ body {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  min-height: calc(var(--page-height) - 168px);
+  min-height: calc(var(--page-height) - 148px);
 }
 
 .sidebar {
@@ -456,6 +456,27 @@ body {
   line-height: 1.65;
   color: var(--main-text);
   white-space: pre-wrap;
+}
+
+/* Certifications — sidebar */
+.certifications-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.certifications-sidebar .certification-item h3 {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  line-height: 1.35;
+}
+
+.certifications-sidebar .certification-item .issuer,
+.certifications-sidebar .certification-item .date {
+  font-size: 9.5px;
+  color: var(--muted-text);
 }
 
 /* Education & certifications — main column */

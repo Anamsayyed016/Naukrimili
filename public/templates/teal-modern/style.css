@@ -538,6 +538,31 @@
   max-width: 50%;
 }
 
+/* Sidebar education & certifications */
+.tm-modern .tm-sidebar-education,
+.tm-modern .tm-sidebar-certs {
+  gap: 8px;
+}
+
+.tm-modern .tm-sidebar-education .education-item,
+.tm-modern .tm-sidebar-certs .certification-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.tm-modern .tm-sidebar-education .education-item h3,
+.tm-modern .tm-sidebar-certs .certification-item h3 {
+  font-size: 9.5px;
+}
+
+.tm-modern .tm-sidebar-education .education-item .institution,
+.tm-modern .tm-sidebar-education .education-item .year,
+.tm-modern .tm-sidebar-education .education-item .cgpa,
+.tm-modern .tm-sidebar-certs .certification-item .issuer,
+.tm-modern .tm-sidebar-certs .certification-item .date {
+  font-size: 9px;
+}
+
 /* Education */
 .tm-modern .education-list {
   display: flex;

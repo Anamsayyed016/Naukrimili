@@ -42,6 +42,24 @@
                     </div>
                 </section>
                 {{/if}}
+
+                {{#if EDUCATION}}
+                <section class="sidebar-section tm-sidebar-panel">
+                    <h2 class="sidebar-section-title">Education</h2>
+                    <div class="education-list tm-sidebar-education">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CERTIFICATIONS}}
+                <section class="sidebar-section tm-sidebar-panel">
+                    <h2 class="sidebar-section-title">Certifications</h2>
+                    <div class="certifications-list tm-sidebar-certs">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
             </aside>
 
             <!-- Right Main Content -->
@@ -92,24 +110,6 @@
                     <h2 class="section-title">Projects</h2>
                     <div class="projects-list tm-project-grid">
                         {{PROJECTS}}
-                    </div>
-                </section>
-                {{/if}}
-
-                {{#if EDUCATION}}
-                <section class="content-section tm-section">
-                    <h2 class="section-title">Education</h2>
-                    <div class="education-list">
-                        {{EDUCATION}}
-                    </div>
-                </section>
-                {{/if}}
-
-                {{#if CERTIFICATIONS}}
-                <section class="content-section tm-section">
-                    <h2 class="section-title">Certifications</h2>
-                    <div class="certifications-list">
-                        {{CERTIFICATIONS}}
                     </div>
                 </section>
                 {{/if}}

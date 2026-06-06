@@ -113,6 +113,79 @@ body {
   width: 100%;
 }
 
+.sidebar-section + .sidebar-section {
+  margin-top: 18px;
+}
+
+.sidebar-profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-profile-list .skill-tag {
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--sidebar-text);
+  padding-left: 12px;
+}
+
+.sidebar-profile-list .skill-tag::before {
+  color: rgba(244, 239, 230, 0.75);
+}
+
+.sidebar-languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-languages-list .language-item .language,
+.sidebar-languages-list .psp-language-name {
+  font-size: 10px;
+  color: var(--sidebar-text);
+}
+
+.sidebar-education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-education-list .education-item h3 {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--sidebar-text);
+  margin-bottom: 2px;
+}
+
+.sidebar-education-list .education-item .institution,
+.sidebar-education-list .education-item .year,
+.sidebar-education-list .education-item .cgpa {
+  font-size: 9.5px;
+  color: rgba(244, 239, 230, 0.82);
+}
+
+.sidebar-certifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-certifications-list .certification-item h3 {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--sidebar-text);
+}
+
+.sidebar-certifications-list .certification-item .issuer,
+.sidebar-certifications-list .certification-item .date {
+  font-size: 9px;
+  color: rgba(244, 239, 230, 0.78);
+}
+
 .sidebar-label {
   font-size: 9px;
   font-weight: 700;

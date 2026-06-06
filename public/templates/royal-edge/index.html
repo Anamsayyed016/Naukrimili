@@ -72,15 +72,6 @@
                 </section>
                 {{/if}}
 
-                {{#if SKILLS}}
-                <section class="re-section re-panel psp-skills-progress">
-                    <h2 class="re-ribbon"><span>Skills &amp; Expertise</span></h2>
-                    <div class="skills-list skills-rings">
-                        {{SKILLS}}
-                    </div>
-                </section>
-                {{/if}}
-
                 {{#if PROJECTS}}
                 <section class="re-section re-panel">
                     <h2 class="re-ribbon"><span>Projects</span></h2>
@@ -93,6 +84,15 @@
 
             <aside class="re-sidebar">
                 <div class="re-sidebar-glass" aria-hidden="true"></div>
+
+                {{#if SKILLS}}
+                <section class="re-section re-sidebar-section psp-skills-progress">
+                    <h2 class="re-ribbon re-ribbon--sm"><span>Skills &amp; Expertise</span></h2>
+                    <div class="skills-list skills-rings">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
 
                 {{#if PROFILE_IMAGE}}
                 <div class="re-photo-block">

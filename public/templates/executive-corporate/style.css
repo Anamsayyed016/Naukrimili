@@ -16,7 +16,7 @@
   --max-width: 210mm;
   --page-height: 297mm;
   --sidebar-width: 260px;
-  --header-height: 160px;
+  --header-height: 148px;
   --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -50,7 +50,7 @@ body {
   align-items: center !important;
   gap: 28px !important;
   background: var(--header-bg) !important;
-  padding: 28px 36px !important;
+  padding: 24px 32px !important;
   min-height: var(--header-height) !important;
   height: auto !important;
   width: 100% !important;

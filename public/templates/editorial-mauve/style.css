@@ -703,9 +703,41 @@ body {
   border-radius: 50%;
 }
 
-/* Center column without photo — top padding */
+/* Center column without photo — compact accent strip */
 .col-center:not(:has(.editorial-photo)) {
-  padding-top: 36px !important;
+  width: 148px !important;
+  min-width: 148px !important;
+  padding-top: 34px !important;
+}
+
+/* Hide center column when no photo and no accent content */
+.col-center:not(:has(.editorial-photo, .accent-section)) {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+}
+
+.col-center .achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.col-center .achievement-item h3 {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--accent-panel-text);
+  line-height: 1.45;
+  padding-left: 12px;
+  position: relative;
+}
+
+.col-center .achievement-item h3::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--accent-muted);
 }
 
 @media (max-width: 768px) {

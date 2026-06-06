@@ -447,6 +447,25 @@ body {
   gap: 18px 12px;
 }
 
+.re-sidebar .psp-skills-progress .skills-list.skills-rings {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 8px;
+}
+
+.re-sidebar .psp-skills-progress .psp-skill-item {
+  grid-template-rows: 40px auto;
+}
+
+.re-sidebar .psp-skills-progress .psp-skill-item::before {
+  width: 40px;
+  height: 40px;
+}
+
+.re-sidebar .psp-skills-progress .psp-skill-name {
+  font-size: 7.5px;
+  max-width: 64px;
+}
+
 .psp-skills-progress .psp-skill-item {
   display: grid;
   grid-template-rows: 48px auto;
@@ -539,10 +558,10 @@ body {
 .re-photo-block {
   position: relative;
   z-index: 1;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
   display: flex;
   justify-content: center;
-  min-height: 252px;
+  min-height: 200px;
 }
 
 .photo-glow {
@@ -562,8 +581,8 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 212px;
-  height: 252px;
+  width: 170px;
+  height: 200px;
   transform: translate(-50%, -50%);
   z-index: 3;
   pointer-events: none;
@@ -609,8 +628,8 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 200px;
-  height: 240px;
+  max-width: 176px;
+  height: 192px;
   overflow: hidden;
   border: 2px solid rgba(209, 213, 219, 0.35);
   background: #1a1b24;

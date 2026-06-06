@@ -123,7 +123,7 @@
 .eel-resume .eel-header {
   position: relative;
   z-index: 2;
-  padding: 0 28px 14px;
+  padding: 0 28px 10px;
   background: transparent;
 }
 
@@ -145,7 +145,7 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 22px;
-  padding-top: 22px;
+  padding-top: 18px;
 }
 
 .eel-resume .header-photo {

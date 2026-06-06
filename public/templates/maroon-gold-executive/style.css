@@ -12,7 +12,7 @@
   --page-height: 297mm;
 
   --header-height: 150px;
-  --sidebar-width: 330px;
+  --sidebar-width: 280px;
 }
 
 * {
@@ -181,13 +181,13 @@ body {
 .sidebar {
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
-  padding: 22px 18px 28px;
+  padding: 20px 16px 24px;
   background: linear-gradient(180deg, var(--light-bg) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 .main-content {
   flex: 1;
-  padding: 22px 28px 28px;
+  padding: 20px 24px 24px;
   background: linear-gradient(180deg, var(--light-bg) 0%, rgba(255, 255, 255, 1) 100%);
 }
 

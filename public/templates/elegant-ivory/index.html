@@ -78,6 +78,15 @@
                 </section>
                 {{/if}}
 
+                {{#if CERTIFICATIONS}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Certifications</h2>
+                    <div class="certifications-list certifications-sidebar">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+
             </aside>
 
             <main class="main-panel">
@@ -95,15 +104,6 @@
                     <h2 class="main-heading">Education</h2>
                     <div class="education-list">
                         {{EDUCATION}}
-                    </div>
-                </section>
-                {{/if}}
-
-                {{#if CERTIFICATIONS}}
-                <section class="main-section">
-                    <h2 class="main-heading">Certifications</h2>
-                    <div class="certifications-list">
-                        {{CERTIFICATIONS}}
                     </div>
                 </section>
                 {{/if}}

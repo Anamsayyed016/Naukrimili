@@ -33,6 +33,42 @@
                     </div>
                 </section>
                 {{/if}}
+
+                {{#if SKILLS}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-label">PROFESSIONAL PROFILE</h2>
+                    <div class="skills-list profile-list sidebar-profile-list">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if LANGUAGES}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-label">LANGUAGES</h2>
+                    <div class="languages-list sidebar-languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if EDUCATION}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-label">EDUCATION</h2>
+                    <div class="education-list sidebar-education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CERTIFICATIONS}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-label">CERTIFICATIONS</h2>
+                    <div class="certifications-list sidebar-certifications-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
             </aside>
 
             <main class="main-content">
@@ -45,45 +81,12 @@
                 </section>
                 {{/if}}
 
-                {{#if SKILLS}}
-                <section class="content-section">
-                    <h2 class="section-title">PROFESSIONAL PROFILE</h2>
-                    <div class="section-body">
-                        <div class="skills-list profile-list">
-                            {{SKILLS}}
-                        </div>
-                    </div>
-                </section>
-                {{/if}}
-
                 {{#if EXPERIENCE}}
                 <section class="content-section">
                     <h2 class="section-title">EXPERIENCE</h2>
                     <div class="section-body">
                         <div class="experience-list">
                             {{EXPERIENCE}}
-                        </div>
-                    </div>
-                </section>
-                {{/if}}
-
-                {{#if EDUCATION}}
-                <section class="content-section">
-                    <h2 class="section-title">EDUCATION</h2>
-                    <div class="section-body">
-                        <div class="education-list">
-                            {{EDUCATION}}
-                        </div>
-                    </div>
-                </section>
-                {{/if}}
-
-                {{#if CERTIFICATIONS}}
-                <section class="content-section">
-                    <h2 class="section-title">CERTIFICATIONS</h2>
-                    <div class="section-body">
-                        <div class="certifications-list">
-                            {{CERTIFICATIONS}}
                         </div>
                     </div>
                 </section>
@@ -106,17 +109,6 @@
                     <div class="section-body">
                         <div class="achievements-list">
                             {{ACHIEVEMENTS}}
-                        </div>
-                    </div>
-                </section>
-                {{/if}}
-
-                {{#if LANGUAGES}}
-                <section class="content-section">
-                    <h2 class="section-title">LANGUAGES</h2>
-                    <div class="section-body">
-                        <div class="languages-list">
-                            {{LANGUAGES}}
                         </div>
                     </div>
                 </section>

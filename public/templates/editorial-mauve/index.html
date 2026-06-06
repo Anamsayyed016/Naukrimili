@@ -92,6 +92,15 @@
                     </div>
                 </section>
                 {{/if}}
+
+                {{#if ACHIEVEMENTS}}
+                <section class="accent-section">
+                    <h2 class="slash-title accent-title">ACHIEVEMENTS</h2>
+                    <div class="achievements-list">
+                        {{ACHIEVEMENTS}}
+                    </div>
+                </section>
+                {{/if}}
             </div>
 
             <!-- Right column -->
@@ -114,14 +123,6 @@
                 </section>
                 {{/if}}
 
-                {{#if ACHIEVEMENTS}}
-                <section class="flow-section">
-                    <h2 class="slash-title">ACHIEVEMENTS</h2>
-                    <div class="achievements-list">
-                        {{ACHIEVEMENTS}}
-                    </div>
-                </section>
-                {{/if}}
             </div>
         </div>
     </div>
