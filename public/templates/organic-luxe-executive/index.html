@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume - Organic Luxe Executive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="resume-container olx-resume">
+    <!-- Premium dark hero header -->
+    <header class="olx-header">
+      <svg class="olx-header-art" viewBox="0 0 794 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="olx-midnight" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0B1020"/>
+            <stop offset="100%" stop-color="#121528"/>
+          </linearGradient>
+          <linearGradient id="olx-indigo" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6B46C1"/>
+            <stop offset="50%" stop-color="#4C3B9C"/>
+            <stop offset="100%" stop-color="#3D2E8C"/>
+          </linearGradient>
+          <linearGradient id="olx-violet" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7C3AED"/>
+            <stop offset="100%" stop-color="#5B21B6"/>
+          </linearGradient>
+          <linearGradient id="olx-gold" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#E8D9A8"/>
+            <stop offset="50%" stop-color="#D4BC8E"/>
+            <stop offset="100%" stop-color="#C9A962"/>
+          </linearGradient>
+          <filter id="olx-depth" x="-15%" y="-15%" width="130%" height="130%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.28"/>
+          </filter>
+        </defs>
+        <rect width="794" height="210" fill="url(#olx-midnight)"/>
+        <path filter="url(#olx-depth)" d="M0,0 C120,80 280,40 400,70 C520,100 640,30 794,50 L794,0 Z" fill="url(#olx-indigo)" opacity="0.72"/>
+        <path filter="url(#olx-depth)" d="M580,0 C680,60 740,40 794,90 L794,0 Z" fill="url(#olx-violet)" opacity="0.55"/>
+        <path d="M0,60 C100,120 220,80 340,110 C460,140 580,90 700,120 C740,130 770,120 794,100 L794,210 L0,210 Z" fill="url(#olx-indigo)" opacity="0.18"/>
+        <path d="M0,175 Q200,155 397,168 Q594,181 794,158" fill="none" stroke="url(#olx-gold)" stroke-width="1.2" opacity="0.55"/>
+      </svg>
+
+      <div class="olx-header-inner">
+        {{#if PROFILE_IMAGE}}
+        <div class="olx-photo-block">
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+
+        <div class="olx-identity">
+          <h1 class="candidate-name">{{FIRST_NAME}} {{LAST_NAME}}</h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+
+          <div class="olx-contact-row">
+            {{#if EMAIL}}
+            <span class="olx-contact-item">
+              <span class="olx-contact-icon olx-contact-icon--email" aria-hidden="true"></span>
+              <span class="olx-contact-text">{{EMAIL}}</span>
+            </span>
+            {{/if}}
+            {{#if PHONE}}
+            <span class="olx-contact-item">
+              <span class="olx-contact-icon olx-contact-icon--phone" aria-hidden="true"></span>
+              <span class="olx-contact-text">{{PHONE}}</span>
+            </span>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <span class="olx-contact-item">
+              <span class="olx-contact-icon olx-contact-icon--portfolio" aria-hidden="true"></span>
+              <span class="olx-contact-text">{{PORTFOLIO}}</span>
+            </span>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <span class="olx-contact-item">
+              <span class="olx-contact-icon olx-contact-icon--linkedin" aria-hidden="true"></span>
+              <span class="olx-contact-text">{{LINKEDIN}}</span>
+            </span>
+            {{/if}}
+            {{#if LOCATION}}
+            <span class="olx-contact-item">
+              <span class="olx-contact-icon olx-contact-icon--location" aria-hidden="true"></span>
+              <span class="olx-contact-text">{{LOCATION}}</span>
+            </span>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="olx-body">
+      <div class="olx-columns">
+        <div class="olx-col olx-col--left">
+          {{#if EXPERIENCE}}
+          <section class="olx-section olx-section--experience">
+            <h2 class="section-title section-title--pill">Experience</h2>
+            <div class="olx-timeline">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="olx-section olx-section--projects">
+            <h2 class="section-title">Projects</h2>
+            <div class="olx-project-grid">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="olx-section olx-section--achievements">
+            <h2 class="section-title">Achievements</h2>
+            <div class="olx-achievements-list">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+
+        <aside class="olx-col olx-col--right">
+          {{#if SUMMARY}}
+          <section class="olx-section olx-section--summary">
+            <h2 class="section-title">Profile Summary</h2>
+            <p class="summary-text">{{SUMMARY}}</p>
+          </section>
+          {{/if}}
+
+          {{#if SKILLS}}
+          <section class="olx-section olx-section--skills">
+            <h2 class="section-title">Skills &amp; Expertise</h2>
+            <div class="olx-skill-zones">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="olx-section olx-section--education">
+            <h2 class="section-title">Education</h2>
+            <div class="olx-list">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="olx-section olx-section--certifications">
+            <h2 class="section-title">Certifications</h2>
+            <div class="olx-list">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="olx-section olx-section--languages">
+            <h2 class="section-title">Languages</h2>
+            <div class="olx-lang-list">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+        </aside>
+      </div>
+    </main>
+
+    <!-- Bottom-right geometric accent -->
+    <svg class="olx-corner-geo" aria-hidden="true" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <path d="M120,0 L120,120 L0,120 L60,60 Z" fill="none" stroke="#D4BC8E" stroke-width="0.6" opacity="0.35"/>
+      <path d="M120,30 L90,60 L120,90" fill="none" stroke="#D4BC8E" stroke-width="0.5" opacity="0.28"/>
+      <path d="M90,120 L60,90 L90,60" fill="none" stroke="#6B46C1" stroke-width="0.5" opacity="0.22"/>
+      <path d="M120,60 L60,60 L60,120" fill="none" stroke="#C4B5FD" stroke-width="0.4" opacity="0.2"/>
+    </svg>
+
+    <!-- Left margin organic peek -->
+    <svg class="olx-side-blob" aria-hidden="true" viewBox="0 0 80 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="olx-blob-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#6B46C1" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#4C3B9C" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <path d="M0,40 C40,20 80,60 60,100 C40,140 20,160 0,200 Z" fill="url(#olx-blob-grad)"/>
+    </svg>
+  </div>
+</body>
+</html>

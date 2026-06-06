@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520">
+  <defs>
+    <linearGradient id="midnight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#121528"/>
+    </linearGradient>
+    <linearGradient id="indigo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b46c1"/>
+      <stop offset="50%" stop-color="#4c3b9c"/>
+      <stop offset="100%" stop-color="#3d2e8c"/>
+    </linearGradient>
+    <linearGradient id="violet" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e8d9a8"/>
+      <stop offset="50%" stop-color="#d4bc8e"/>
+      <stop offset="100%" stop-color="#c9a962"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="520" fill="#faf8f5"/>
+
+  <!-- Header band -->
+  <rect width="400" height="118" fill="url(#midnight)"/>
+  <path d="M0,0 C100,60 220,30 340,52 C370,58 400,36 400,0 Z" fill="url(#indigo)" opacity="0.7"/>
+  <path d="M280,0 C340,50 380,30 400,72 L400,0 Z" fill="url(#violet)" opacity="0.5"/>
+  <path d="M0,88 Q200,72 400,82" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity="0.55"/>
+
+  <!-- Photo + identity -->
+  <circle cx="56" cy="62" r="32" fill="#121528" stroke="url(#gold)" stroke-width="3"/>
+  <text x="108" y="48" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#fff" letter-spacing="1">ISAIAH J.</text>
+  <text x="108" y="70" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#fff" letter-spacing="1">MONTGOMERY</text>
+  <text x="108" y="88" font-family="Arial,sans-serif" font-size="7" fill="#d4bc8e" letter-spacing="2.5">EXECUTIVE STRATEGIST</text>
+  <circle cx="108" cy="100" r="4" fill="#d4bc8e" opacity="0.7"/>
+  <circle cx="128" cy="100" r="4" fill="#d4bc8e" opacity="0.7"/>
+  <circle cx="148" cy="100" r="4" fill="#d4bc8e" opacity="0.7"/>
+
+  <!-- Left column -->
+  <rect x="24" y="138" width="52" height="18" rx="9" fill="url(#indigo)"/>
+  <text x="34" y="151" font-family="Georgia,serif" font-size="8" font-weight="700" fill="#fff" letter-spacing="1">EXPERIENCE</text>
+  <line x1="36" y1="172" x2="36" y2="280" stroke="#4c3b9c" stroke-width="1.5" opacity="0.3"/>
+  <circle cx="36" cy="184" r="6" fill="#d4bc8e" stroke="#faf8f5" stroke-width="2"/>
+  <circle cx="36" cy="220" r="6" fill="#d4bc8e" stroke="#faf8f5" stroke-width="2" opacity="0.7"/>
+  <circle cx="36" cy="256" r="6" fill="#d4bc8e" stroke="#faf8f5" stroke-width="2" opacity="0.45"/>
+
+  <text x="24" y="304" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#4c3b9c" letter-spacing="1.2">PROJECTS</text>
+  <rect x="24" y="314" width="108" height="72" rx="10" fill="#fff" stroke="rgba(76,59,156,0.12)"/>
+  <rect x="24" y="314" width="108" height="28" rx="10" fill="url(#indigo)" opacity="0.8"/>
+  <rect x="144" y="314" width="108" height="72" rx="10" fill="#fff" stroke="rgba(76,59,156,0.12)"/>
+  <rect x="144" y="314" width="108" height="28" rx="10" fill="url(#indigo)" opacity="0.8"/>
+
+  <text x="24" y="408" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#4c3b9c" letter-spacing="1.2">ACHIEVEMENTS</text>
+  <line x1="24" y1="424" x2="252" y2="424" stroke="#d4bc8e" stroke-width="0.8" opacity="0.4"/>
+  <line x1="24" y1="444" x2="252" y2="444" stroke="#d4bc8e" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- Right column -->
+  <text x="276" y="152" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#4c3b9c" letter-spacing="1.2">SUMMARY</text>
+  <rect x="276" y="160" width="100" height="40" rx="4" fill="rgba(255,255,255,0.6)"/>
+
+  <text x="276" y="220" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#4c3b9c" letter-spacing="1.2">SKILLS</text>
+  <circle cx="296" cy="252" r="22" fill="url(#indigo)"/>
+  <circle cx="340" cy="252" r="22" fill="#5b21b6"/>
+  <circle cx="296" cy="296" r="20" fill="#7c3aed" opacity="0.85"/>
+  <circle cx="340" cy="296" r="20" fill="url(#indigo)" opacity="0.75"/>
+  <circle cx="296" cy="330" r="3" fill="#4c3b9c"/>
+  <circle cx="310" cy="330" r="3" fill="#4c3b9c"/>
+  <circle cx="324" cy="330" r="3" fill="#d4bc8e"/>
+  <circle cx="338" cy="330" r="3" fill="#d4bc8e"/>
+  <circle cx="352" cy="330" r="3" fill="rgba(76,59,156,0.25)"/>
+
+  <text x="276" y="368" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#4c3b9c" letter-spacing="1.2">EDUCATION</text>
+  <text x="276" y="408" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#4c3b9c" letter-spacing="1.2">CERTIFICATIONS</text>
+  <text x="276" y="448" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#4c3b9c" letter-spacing="1.2">LANGUAGES</text>
+
+  <!-- Side blob + corner -->
+  <path d="M0,140 C20,120 36,160 20,200 C8,230 0,250 0,280 Z" fill="url(#indigo)" opacity="0.12"/>
+  <path d="M400,520 L400,440 L320,520 Z" fill="none" stroke="#d4bc8e" stroke-width="0.8" opacity="0.35"/>
+  <path d="M400,480 L360,520 L400,520" fill="none" stroke="#6b46c1" stroke-width="0.6" opacity="0.25"/>
+
+  <text x="200" y="512" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#4c3b9c" opacity="0.6">Organic Luxe Executive</text>
+</svg>

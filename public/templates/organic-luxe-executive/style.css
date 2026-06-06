@@ -1,0 +1,678 @@
+/* Organic Luxe Executive — premium navy/indigo editorial resume (scoped) */
+
+.olx-resume {
+  --primary-color: #4c3b9c;
+  --accent-color: #d4bc8e;
+  --text-color: #1e1b2e;
+  --midnight: #0b1020;
+  --navy-deep: #121528;
+  --violet-rich: #6b46c1;
+  --lavender-soft: #c4b5fd;
+  --ivory: #faf8f5;
+  --muted: #5c5670;
+  --border-color: rgba(212, 188, 142, 0.38);
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --left-width: 460px;
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.olx-resume,
+.olx-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.olx-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--max-width);
+  min-height: var(--page-height);
+  margin: 0 auto;
+  padding: 0 !important;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-color);
+  background: var(--ivory);
+  overflow: visible;
+  box-shadow: 0 24px 68px rgba(11, 16, 32, 0.16);
+}
+
+/* ── Decorative graphics ── */
+.olx-resume .olx-corner-geo {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.olx-resume .olx-side-blob {
+  position: absolute;
+  top: 220px;
+  left: 0;
+  width: 48px;
+  height: 200px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Dark luxury header ── */
+.olx-resume .olx-header {
+  position: relative;
+  z-index: 2;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.olx-resume .olx-header-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.olx-resume .olx-header-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 28px;
+  padding: 28px 40px 32px;
+}
+
+.olx-resume .olx-photo-block {
+  flex-shrink: 0;
+}
+
+.olx-resume .profile-image-wrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 4px;
+  background: linear-gradient(145deg, var(--accent-color), var(--lavender-soft) 55%, var(--primary-color));
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.olx-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  border: 3px solid rgba(255, 255, 255, 0.88);
+  background: var(--navy-deep);
+}
+
+.olx-resume .olx-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.olx-resume .candidate-name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1.06;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.olx-resume .header-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(212, 188, 142, 0.92);
+  margin-bottom: 14px;
+}
+
+.olx-resume .olx-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.olx-resume .olx-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.35;
+}
+
+.olx-resume .olx-contact-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: rgba(212, 188, 142, 0.22);
+  background-size: 10px 10px;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(212, 188, 142, 0.45);
+}
+
+.olx-resume .olx-contact-icon--email {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4bc8e' stroke-width='2'%3E%3Cpath d='M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z'/%3E%3C/svg%3E");
+}
+
+.olx-resume .olx-contact-icon--phone {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4bc8e' stroke-width='2'%3E%3Cpath d='M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z'/%3E%3C/svg%3E");
+}
+
+.olx-resume .olx-contact-icon--portfolio {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4bc8e' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.olx-resume .olx-contact-icon--linkedin {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4bc8e' stroke-width='2'%3E%3Cpath d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z'/%3E%3Crect x='4' y='9' width='4' height='12'/%3E%3Ccircle cx='6' cy='4' r='2'/%3E%3C/svg%3E");
+}
+
+.olx-resume .olx-contact-icon--location {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4bc8e' stroke-width='2'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+}
+
+.olx-resume .olx-contact-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.olx-resume .olx-header-inner:not(:has(.olx-photo-block)) {
+  padding-left: 48px;
+}
+
+/* ── Body layout ── */
+.olx-resume .olx-body {
+  position: relative;
+  z-index: 1;
+  padding: 22px 36px 48px;
+}
+
+.olx-resume .olx-columns {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.olx-resume .olx-col--left {
+  flex: 1;
+  min-width: 0;
+  max-width: var(--left-width);
+}
+
+.olx-resume .olx-col--right {
+  width: 268px;
+  min-width: 268px;
+  flex-shrink: 0;
+}
+
+.olx-resume .olx-section {
+  margin-bottom: 18px;
+}
+
+.olx-resume .olx-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Editorial section headings */
+.olx-resume .section-title {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.olx-resume .section-title--pill {
+  display: inline-block;
+  padding: 7px 18px 7px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary-color), var(--violet-rich));
+  color: #ffffff;
+  box-shadow: 0 8px 22px rgba(76, 59, 156, 0.22);
+  margin-bottom: 14px;
+}
+
+.olx-resume .summary-text {
+  font-size: 10.5px;
+  line-height: 1.72;
+  color: var(--text-color);
+}
+
+/* ── Experience timeline ── */
+.olx-resume .olx-timeline {
+  position: relative;
+  padding-left: 40px;
+}
+
+.olx-resume .olx-timeline::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--primary-color), rgba(212, 188, 142, 0.35));
+}
+
+.olx-resume .olx-timeline .experience-item {
+  position: relative;
+  margin-bottom: 16px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.olx-resume .olx-timeline .experience-item:last-child {
+  margin-bottom: 0;
+}
+
+.olx-resume .olx-timeline .experience-item::before {
+  content: '';
+  position: absolute;
+  left: -34px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--accent-color), #c9a962);
+  border: 2px solid var(--ivory);
+  box-shadow: 0 0 0 2px rgba(76, 59, 156, 0.35);
+}
+
+.olx-resume .experience-header h3 {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 2px;
+}
+
+.olx-resume .experience-header .company {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.olx-resume .experience-header .duration {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(196, 181, 253, 0.18);
+  border: 1px solid rgba(76, 59, 156, 0.18);
+}
+
+.olx-resume .experience-item .description {
+  font-size: 10.5px;
+  line-height: 1.62;
+  color: var(--text-color);
+}
+
+.olx-resume .experience-item .description ul {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+/* ── Project cards ── */
+.olx-resume .olx-project-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.olx-resume .olx-project-grid .project-item {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(76, 59, 156, 0.14);
+  box-shadow: 0 10px 26px rgba(11, 16, 32, 0.06);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.olx-resume .olx-project-grid .project-item::before {
+  content: '';
+  display: block;
+  height: 52px;
+  background: linear-gradient(135deg, var(--midnight) 0%, var(--primary-color) 55%, var(--violet-rich) 100%);
+  opacity: 0.88;
+}
+
+.olx-resume .olx-project-grid .project-item h3 {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-color);
+  padding: 10px 12px 4px;
+  margin: 0;
+}
+
+.olx-resume .olx-project-grid .project-item .description,
+.olx-resume .olx-project-grid .project-item .technologies {
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  padding: 0 12px;
+}
+
+.olx-resume .olx-project-grid .project-item .technologies {
+  padding-bottom: 4px;
+}
+
+.olx-resume .olx-project-grid .project-item a {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--primary-color);
+  padding: 4px 12px 10px;
+  text-decoration: none;
+}
+
+/* Single project spans full width */
+.olx-resume .olx-project-grid .project-item:only-child {
+  grid-column: 1 / -1;
+  max-width: 100%;
+}
+
+/* Odd count: last card full width when alone on row */
+.olx-resume .olx-project-grid .project-item:last-child:nth-child(odd):not(:only-child) {
+  grid-column: 1 / -1;
+}
+
+/* ── Achievements ── */
+.olx-resume .olx-achievements-list .achievement-item {
+  position: relative;
+  padding: 8px 0 8px 14px;
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--text-color);
+  border-bottom: 1px solid rgba(212, 188, 142, 0.28);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.olx-resume .olx-achievements-list .achievement-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.olx-resume .olx-achievements-list .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--accent-color), var(--primary-color));
+}
+
+.olx-resume .olx-achievements-list .achievement-item h3 {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* ── Skills: expertise clusters + dot indicators ── */
+.olx-resume .olx-skill-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.olx-resume .olx-skill-zones .skill-tag {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.15px;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(1),
+.olx-resume .olx-skill-zones .skill-tag:nth-child(2),
+.olx-resume .olx-skill-zones .skill-tag:nth-child(3),
+.olx-resume .olx-skill-zones .skill-tag:nth-child(4) {
+  padding: 12px 10px;
+  border-radius: 50%;
+  aspect-ratio: 1;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 8.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(76, 59, 156, 0.18);
+  min-height: 88px;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(1) {
+  background: linear-gradient(145deg, var(--primary-color), var(--violet-rich));
+  margin-right: -6px;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(2) {
+  background: linear-gradient(145deg, #5b21b6, var(--primary-color));
+  margin-left: -6px;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(3) {
+  background: linear-gradient(145deg, var(--violet-rich), #7c3aed);
+  margin-right: -6px;
+  margin-top: -10px;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(4) {
+  background: linear-gradient(145deg, var(--primary-color), #3d2e8c);
+  margin-left: -6px;
+  margin-top: -10px;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(1)::before,
+.olx-resume .olx-skill-zones .skill-tag:nth-child(2)::before,
+.olx-resume .olx-skill-zones .skill-tag:nth-child(3)::before,
+.olx-resume .olx-skill-zones .skill-tag:nth-child(4)::before {
+  display: none;
+}
+
+/* Secondary skills with dot indicators */
+.olx-resume .olx-skill-zones .skill-tag:nth-child(n+5) {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(212, 188, 142, 0.2);
+  border-radius: 0;
+  color: var(--text-color);
+  font-weight: 600;
+  text-transform: none;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(n+5)::after {
+  content: '';
+  flex-shrink: 0;
+  width: 56px;
+  height: 8px;
+  background:
+    radial-gradient(circle, var(--primary-color) 3px, transparent 3px) 0 50%,
+    radial-gradient(circle, var(--primary-color) 3px, transparent 3px) 14px 50%,
+    radial-gradient(circle, var(--accent-color) 3px, transparent 3px) 28px 50%,
+    radial-gradient(circle, var(--accent-color) 3px, transparent 3px) 42px 50%,
+    radial-gradient(circle, rgba(76, 59, 156, 0.25) 3px, transparent 3px) 56px 50%;
+  background-size: 14px 8px;
+  background-repeat: no-repeat;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(5)::after {
+  background:
+    radial-gradient(circle, var(--primary-color) 3px, transparent 3px) 0 50%,
+    radial-gradient(circle, var(--primary-color) 3px, transparent 3px) 14px 50%,
+    radial-gradient(circle, var(--primary-color) 3px, transparent 3px) 28px 50%,
+    radial-gradient(circle, var(--accent-color) 3px, transparent 3px) 42px 50%,
+    radial-gradient(circle, var(--accent-color) 3px, transparent 3px) 56px 50%;
+  background-size: 14px 8px;
+  background-repeat: no-repeat;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:nth-child(6)::after {
+  background:
+    radial-gradient(circle, var(--primary-color) 3px, transparent 3px) 0 50%,
+    radial-gradient(circle, var(--primary-color) 3px, transparent 3px) 14px 50%,
+    radial-gradient(circle, var(--accent-color) 3px, transparent 3px) 28px 50%,
+    radial-gradient(circle, var(--accent-color) 3px, transparent 3px) 42px 50%,
+    radial-gradient(circle, rgba(76, 59, 156, 0.2) 3px, transparent 3px) 56px 50%;
+  background-size: 14px 8px;
+  background-repeat: no-repeat;
+}
+
+.olx-resume .olx-skill-zones .skill-tag:last-child {
+  border-bottom: none;
+}
+
+/* ── Education, certifications ── */
+.olx-resume .olx-list > .education-item,
+.olx-resume .olx-list > .certification-item {
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.olx-resume .olx-list > *:last-child {
+  margin-bottom: 0;
+}
+
+.olx-resume .education-item h3,
+.olx-resume .certification-item h3 {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 2px;
+}
+
+.olx-resume .institution,
+.olx-resume .issuer {
+  font-size: 10px;
+  color: var(--muted);
+  display: block;
+}
+
+.olx-resume .year,
+.olx-resume .date {
+  font-size: 9.5px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* ── Languages ── */
+.olx-resume .olx-lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.olx-resume .olx-lang-list .language-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(212, 188, 142, 0.2);
+}
+
+.olx-resume .olx-lang-list .language-item:last-child {
+  border-bottom: none;
+}
+
+.olx-resume .olx-lang-list .language {
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.olx-resume .olx-lang-list .proficiency {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.olx-resume .olx-lang-list .proficiency::before {
+  content: '(';
+}
+
+.olx-resume .olx-lang-list .proficiency::after {
+  content: ')';
+}
+
+/* Density variants */
+body[data-density='sparse'] .olx-resume .olx-section { margin-bottom: 22px; }
+body[data-density='sparse'] .olx-resume .olx-body { padding-bottom: 56px; }
+body[data-density='light'] .olx-resume .olx-section { margin-bottom: 20px; }
+
+/* Print / PDF export */
+@media print {
+  @page { size: A4; margin: 0; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .olx-resume {
+    width: 794px !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .olx-resume .olx-header-art,
+  .olx-resume .olx-corner-geo,
+  .olx-resume .olx-side-blob,
+  .olx-resume .section-title--pill,
+  .olx-resume .olx-project-grid .project-item::before,
+  .olx-resume .olx-skill-zones .skill-tag:nth-child(-n+4) {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .olx-resume .experience-item,
+  .olx-resume .project-item,
+  .olx-resume .achievement-item,
+  .olx-resume .education-item,
+  .olx-resume .certification-item,
+  .olx-resume .olx-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

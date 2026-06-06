@@ -414,6 +414,27 @@
         { "id": "sand-terracotta", "name": "Sand & Terracotta", "primary": "#E4D1B4", "accent": "#A6543C", "text": "#1F2326" }
       ],
       "defaultColor": "terracotta-sage"
+    },
+    {
+      "id": "organic-luxe-executive",
+      "name": "Organic Luxe Executive",
+      "slug": "organic-luxe-executive",
+      "description": "Premium midnight-navy executive layout with layered indigo organic graphics, champagne gold accents, project cards, and ATS-safe editorial hierarchy.",
+      "thumbnail": "/templates/organic-luxe-executive/thumbnail.svg",
+      "preview": "/templates/organic-luxe-executive/preview.svg",
+      "html": "/templates/organic-luxe-executive/index.html",
+      "css": "/templates/organic-luxe-executive/style.css",
+      "categories": ["Premium", "Creative", "Modern", "Professional", "Two Column", "With Photo", "ATS", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "indigo-gold", "name": "Indigo & Gold", "primary": "#4C3B9C", "accent": "#D4BC8E", "text": "#1E1B2E" },
+        { "id": "violet-champagne", "name": "Violet & Champagne", "primary": "#6B46C1", "accent": "#E8D9A8", "text": "#1E1B2E" },
+        { "id": "midnight-bronze", "name": "Midnight & Bronze", "primary": "#121528", "accent": "#C9A962", "text": "#1E1B2E" }
+      ],
+      "defaultColor": "indigo-gold"
     }
   ],
   "filters": {
