@@ -435,6 +435,27 @@
         { "id": "midnight-bronze", "name": "Midnight & Bronze", "primary": "#121528", "accent": "#C9A962", "text": "#1E1B2E" }
       ],
       "defaultColor": "indigo-gold"
+    },
+    {
+      "id": "velvet-horizon-executive",
+      "name": "Velvet Horizon Executive",
+      "slug": "velvet-horizon-executive",
+      "description": "Luxury emerald-and-copper executive layout with signature metallic ribbon graphics, premium skill bars, project showcase cards, and ATS-safe hierarchy.",
+      "thumbnail": "/templates/velvet-horizon-executive/thumbnail.svg",
+      "preview": "/templates/velvet-horizon-executive/preview.svg",
+      "html": "/templates/velvet-horizon-executive/index.html",
+      "css": "/templates/velvet-horizon-executive/style.css",
+      "categories": ["Premium", "Creative", "Modern", "Professional", "Two Column", "With Photo", "ATS", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "emerald-copper", "name": "Emerald & Copper", "primary": "#146B62", "accent": "#C87840", "text": "#1A3D36" },
+        { "id": "forest-bronze", "name": "Forest & Bronze", "primary": "#1A4D42", "accent": "#B87333", "text": "#1A3D36" },
+        { "id": "pine-rosegold", "name": "Pine & Rose Gold", "primary": "#0A4A44", "accent": "#C99585", "text": "#1A3D36" }
+      ],
+      "defaultColor": "emerald-copper"
     }
   ],
   "filters": {

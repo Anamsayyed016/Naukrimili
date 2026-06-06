@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520">
+  <defs>
+    <linearGradient id="copper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8a060"/>
+      <stop offset="40%" stop-color="#c87840"/>
+      <stop offset="100%" stop-color="#8b5a2b"/>
+    </linearGradient>
+    <linearGradient id="emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a6b5c"/>
+      <stop offset="100%" stop-color="#0a4a44"/>
+    </linearGradient>
+    <linearGradient id="rose" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#c87840"/>
+      <stop offset="100%" stop-color="#c99585"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="520" fill="#faf6f0"/>
+
+  <!-- Signature ribbon -->
+  <path d="M400,0 Q360,80 385,180 T365,340 Q390,440 375,520 L400,520 L400,0 Z" fill="url(#copper)" opacity="0.85"/>
+  <path d="M400,20 Q365,100 380,200 T370,360 Q385,450 378,500" fill="none" stroke="#f0c090" stroke-width="3" opacity="0.65"/>
+  <path d="M400,35 Q370,110 382,210 T374,370" fill="none" stroke="#34d399" stroke-width="1.5" opacity="0.55"/>
+
+  <!-- Header -->
+  <rect x="18" y="22" width="72" height="72" rx="4" fill="none" stroke="#c87840" stroke-width="2" transform="rotate(-4 54 58)"/>
+  <circle cx="54" cy="62" r="30" fill="url(#emerald)" stroke="#146b62" stroke-width="2.5"/>
+  <text x="108" y="48" font-family="Georgia,serif" font-size="22" font-weight="700" fill="#1a4d42" letter-spacing="1">OLIVER</text>
+  <text x="108" y="72" font-family="Georgia,serif" font-size="22" font-weight="700" fill="url(#rose)" letter-spacing="1">HAYES</text>
+  <text x="108" y="90" font-family="Arial,sans-serif" font-size="7" fill="#1a4d42" letter-spacing="2.5">CHIEF MARKETING OFFICER</text>
+  <line x1="108" y1="98" x2="340" y2="98" stroke="#c87840" stroke-width="0.8" opacity="0.45"/>
+  <text x="108" y="110" font-family="Arial,sans-serif" font-size="6" fill="#5a6e68">email | phone | portfolio</text>
+
+  <!-- Summary strip -->
+  <rect x="24" y="122" width="340" height="36" rx="0" fill="rgba(20,107,98,0.05)"/>
+  <line x1="24" y1="122" x2="24" y2="158" stroke="#146b62" stroke-width="3"/>
+
+  <!-- Experience -->
+  <text x="24" y="182" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#1a4d42" letter-spacing="1">EXPERIENCE</text>
+  <line x1="24" y1="188" x2="120" y2="188" stroke="url(#copper)" stroke-width="1.5" opacity="0.5"/>
+  <line x1="36" y1="200" x2="36" y2="300" stroke="#146b62" stroke-width="1.5" opacity="0.3"/>
+  <circle cx="36" cy="212" r="7" fill="#c87840" stroke="#fff" stroke-width="2"/>
+  <rect x="52" y="200" width="200" height="40" rx="8" fill="#fff" stroke="rgba(20,107,98,0.1)"/>
+  <circle cx="36" cy="258" r="7" fill="#c87840" stroke="#fff" stroke-width="2" opacity="0.75"/>
+  <rect x="52" y="246" width="200" height="40" rx="8" fill="#fff" stroke="rgba(20,107,98,0.1)"/>
+
+  <!-- Projects -->
+  <text x="24" y="328" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#1a4d42" letter-spacing="1">PROJECTS</text>
+  <rect x="24" y="338" width="72" height="68" rx="6" fill="#fff" stroke="rgba(20,107,98,0.1)"/>
+  <rect x="24" y="338" width="72" height="24" rx="6" fill="url(#emerald)"/>
+  <rect x="24" y="378" width="72" height="14" fill="url(#copper)"/>
+  <rect x="104" y="338" width="72" height="68" rx="6" fill="#fff" stroke="rgba(20,107,98,0.1)"/>
+  <rect x="104" y="338" width="72" height="24" rx="6" fill="url(#emerald)"/>
+  <rect x="104" y="378" width="72" height="14" fill="url(#copper)"/>
+  <rect x="184" y="338" width="72" height="68" rx="6" fill="#fff" stroke="rgba(20,107,98,0.1)"/>
+  <rect x="184" y="338" width="72" height="24" rx="6" fill="url(#emerald)"/>
+  <rect x="184" y="378" width="72" height="14" fill="url(#copper)"/>
+
+  <!-- Education cards -->
+  <text x="24" y="428" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#1a4d42" letter-spacing="1">EDUCATION</text>
+  <rect x="24" y="438" width="110" height="48" rx="8" fill="#fff" stroke="rgba(200,120,64,0.15)"/>
+  <line x1="24" y1="482" x2="134" y2="482" stroke="#c87840" stroke-width="3"/>
+  <rect x="142" y="438" width="110" height="48" rx="8" fill="url(#emerald)"/>
+  <line x1="142" y1="482" x2="252" y2="482" stroke="#c87840" stroke-width="3"/>
+
+  <!-- Right column skills -->
+  <text x="276" y="152" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1a4d42" letter-spacing="1">SKILLS</text>
+  <rect x="276" y="162" width="100" height="14" rx="7" fill="url(#emerald)"/>
+  <rect x="276" y="180" width="100" height="6" rx="3" fill="rgba(200,120,64,0.2)"/>
+  <rect x="276" y="180" width="88" height="6" rx="3" fill="url(#copper)" opacity="0.75"/>
+  <rect x="276" y="196" width="92" height="14" rx="7" fill="url(#emerald)"/>
+  <rect x="276" y="214" width="92" height="6" rx="3" fill="rgba(200,120,64,0.2)"/>
+  <rect x="276" y="214" width="76" height="6" rx="3" fill="url(#copper)" opacity="0.75"/>
+  <rect x="276" y="230" width="96" height="14" rx="7" fill="url(#emerald)"/>
+  <rect x="276" y="248" width="96" height="6" rx="3" fill="rgba(200,120,64,0.2)"/>
+  <rect x="276" y="248" width="82" height="6" rx="3" fill="url(#copper)" opacity="0.75"/>
+
+  <!-- Achievements -->
+  <text x="276" y="280" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1a4d42" letter-spacing="1">ACHIEVEMENTS</text>
+  <rect x="276" y="288" width="104" height="28" rx="5" fill="#fff" stroke="rgba(200,120,64,0.15)"/>
+  <path d="M284,302 L286,298 L288,302 L292,302 L289,305 L290,309 L286,307 L282,309 L283,305 L280,302 Z" fill="#c87840"/>
+  <rect x="276" y="322" width="104" height="28" rx="5" fill="#fff" stroke="rgba(200,120,64,0.15)"/>
+
+  <text x="276" y="372" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1a4d42" letter-spacing="1">CERTIFICATIONS</text>
+  <text x="276" y="412" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1a4d42" letter-spacing="1">LANGUAGES</text>
+
+  <!-- Footer -->
+  <rect y="500" width="400" height="20" fill="#2a2e32"/>
+  <text x="200" y="513" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.5)" letter-spacing="2">VELVET HORIZON EXECUTIVE</text>
+</svg>

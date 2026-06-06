@@ -1,0 +1,718 @@
+/* Velvet Horizon Executive — emerald & copper luxury ribbon resume (scoped) */
+
+.vhe-resume {
+  --primary-color: #146b62;
+  --accent-color: #c87840;
+  --text-color: #1a3d36;
+  --emerald-deep: #0a4a44;
+  --forest: #1a4d42;
+  --copper: #b87333;
+  --copper-light: #d4956a;
+  --rose-gold: #c99585;
+  --ivory: #faf6f0;
+  --cream: #f5efe6;
+  --muted: #5a6e68;
+  --bar-track: rgba(184, 115, 51, 0.18);
+  --border-color: rgba(200, 120, 64, 0.32);
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --right-width: 268px;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.vhe-resume,
+.vhe-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.vhe-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--max-width);
+  min-height: var(--page-height);
+  margin: 0 auto;
+  padding: 0 !important;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-color);
+  background: var(--ivory);
+  overflow: visible;
+  box-shadow: 0 24px 68px rgba(10, 74, 68, 0.14);
+}
+
+.vhe-resume .vhe-svg-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ── Signature luxury ribbon ── */
+.vhe-resume .vhe-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  min-height: var(--page-height);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vhe-resume .vhe-shell {
+  position: relative;
+  z-index: 1;
+  min-height: var(--page-height);
+}
+
+/* ── Executive header ── */
+.vhe-resume .vhe-header {
+  position: relative;
+  z-index: 2;
+  padding: 28px 36px 20px;
+  background: linear-gradient(180deg, rgba(250, 246, 240, 0.98) 0%, var(--ivory) 100%);
+}
+
+.vhe-resume .vhe-header-inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 26px;
+}
+
+.vhe-resume .vhe-photo-block {
+  position: relative;
+  flex-shrink: 0;
+  width: 118px;
+  height: 118px;
+}
+
+.vhe-resume .vhe-photo-square {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 108px;
+  height: 108px;
+  border: 2px solid var(--accent-color);
+  border-radius: 4px;
+  transform: rotate(-4deg);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.vhe-resume .vhe-photo-ring {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.vhe-resume .profile-image-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 4px;
+  background: linear-gradient(145deg, var(--primary-color), var(--emerald-deep));
+  box-shadow: 0 14px 36px rgba(10, 74, 68, 0.22);
+}
+
+.vhe-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: var(--forest);
+}
+
+.vhe-resume .vhe-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.vhe-resume .candidate-name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 1.05;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.vhe-resume .name-first {
+  color: var(--forest);
+}
+
+.vhe-resume .name-last {
+  background: linear-gradient(135deg, var(--accent-color), var(--rose-gold), var(--copper));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.vhe-resume .header-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--forest);
+  margin-bottom: 12px;
+}
+
+.vhe-resume .vhe-contact-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.vhe-resume .vhe-contact-item:not(:last-child)::after {
+  content: '|';
+  margin: 0 12px;
+  color: var(--accent-color);
+  opacity: 0.55;
+  font-weight: 300;
+}
+
+.vhe-resume .vhe-executive-summary {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--primary-color);
+  background: linear-gradient(90deg, rgba(20, 107, 98, 0.06) 0%, transparent 100%);
+  border-radius: 0 12px 12px 0;
+}
+
+.vhe-resume .vhe-executive-summary .summary-text {
+  font-size: 10.5px;
+  line-height: 1.72;
+  color: var(--text-color);
+}
+
+.vhe-resume .vhe-header-inner:not(:has(.vhe-photo-block)) {
+  padding-left: 8px;
+}
+
+/* ── Body layout ── */
+.vhe-resume .vhe-body {
+  padding: 8px 32px 52px;
+}
+
+.vhe-resume .vhe-columns {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.vhe-resume .vhe-col--left {
+  flex: 1;
+  min-width: 0;
+}
+
+.vhe-resume .vhe-col--right {
+  width: var(--right-width);
+  min-width: var(--right-width);
+  flex-shrink: 0;
+}
+
+.vhe-resume .vhe-section {
+  margin-bottom: 18px;
+}
+
+.vhe-resume .vhe-section:last-child {
+  margin-bottom: 0;
+}
+
+.vhe-resume .section-title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--forest);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--primary-color), var(--accent-color) 60%, transparent) 1;
+}
+
+/* ── Experience luxury timeline ── */
+.vhe-resume .vhe-timeline {
+  position: relative;
+  padding-left: 42px;
+}
+
+.vhe-resume .vhe-timeline::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--primary-color), rgba(52, 211, 153, 0.4) 50%, var(--accent-color));
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.2);
+}
+
+.vhe-resume .vhe-timeline .experience-item {
+  position: relative;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 107, 98, 0.1);
+  box-shadow: 0 8px 22px rgba(10, 74, 68, 0.07);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.vhe-resume .vhe-timeline .experience-item:last-child {
+  margin-bottom: 0;
+}
+
+.vhe-resume .vhe-timeline .experience-item::before {
+  content: '';
+  position: absolute;
+  left: -35px;
+  top: 18px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--copper-light), var(--accent-color) 55%, var(--copper));
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(200, 120, 64, 0.35), 0 0 10px rgba(52, 211, 153, 0.25);
+}
+
+.vhe-resume .experience-header h3 {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 2px;
+}
+
+.vhe-resume .experience-header .company {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.vhe-resume .experience-header .duration {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--accent-color);
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(200, 120, 64, 0.1);
+  border: 1px solid rgba(200, 120, 64, 0.25);
+}
+
+.vhe-resume .experience-item .description {
+  font-size: 10.5px;
+  line-height: 1.62;
+  color: var(--text-color);
+}
+
+.vhe-resume .experience-item .description ul {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+/* ── Project showcase cards ── */
+.vhe-resume .vhe-project-showcase {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.vhe-resume .vhe-project-showcase .project-item {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(20, 107, 98, 0.1);
+  box-shadow: 0 10px 24px rgba(10, 74, 68, 0.08);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.vhe-resume .vhe-project-showcase .project-item::before {
+  content: '';
+  display: block;
+  height: 56px;
+  background: linear-gradient(135deg, var(--emerald-deep) 0%, var(--forest) 45%, #1a2e28 100%);
+}
+
+.vhe-resume .vhe-project-showcase .project-item h3 {
+  font-family: var(--font-serif);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffffff;
+  padding: 8px 10px 6px;
+  margin: -28px 0 0;
+  background: linear-gradient(180deg, transparent, rgba(10, 74, 68, 0.85));
+}
+
+.vhe-resume .vhe-project-showcase .project-item .description,
+.vhe-resume .vhe-project-showcase .project-item .technologies {
+  font-size: 9px;
+  line-height: 1.45;
+  color: var(--muted);
+  padding: 6px 10px 0;
+}
+
+.vhe-resume .vhe-project-showcase .project-item a {
+  display: block;
+  margin-top: auto;
+  padding: 8px 10px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--accent-color), var(--copper));
+}
+
+.vhe-resume .vhe-project-showcase .project-item:only-child {
+  grid-column: 1 / -1;
+}
+
+.vhe-resume .vhe-project-showcase .project-item:nth-last-child(1):nth-child(odd):not(:only-child) {
+  grid-column: 1 / -1;
+  max-width: 50%;
+}
+
+/* ── Education gradient cards ── */
+.vhe-resume .vhe-edu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.vhe-resume .vhe-edu-grid .education-item {
+  padding: 12px 14px 10px;
+  border-radius: 12px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  border-bottom: 3px solid var(--accent-color);
+}
+
+.vhe-resume .vhe-edu-grid .education-item:nth-child(odd) {
+  background: linear-gradient(180deg, #ffffff 0%, var(--cream) 100%);
+  border: 1px solid rgba(200, 120, 64, 0.15);
+  box-shadow: 0 6px 18px rgba(10, 74, 68, 0.05);
+}
+
+.vhe-resume .vhe-edu-grid .education-item:nth-child(even) {
+  background: linear-gradient(145deg, var(--primary-color), var(--emerald-deep));
+  color: #ffffff;
+  border: 1px solid rgba(20, 107, 98, 0.3);
+  box-shadow: 0 8px 22px rgba(10, 74, 68, 0.15);
+}
+
+.vhe-resume .vhe-edu-grid .education-item:nth-child(even) h3,
+.vhe-resume .vhe-edu-grid .education-item:nth-child(even) .institution,
+.vhe-resume .vhe-edu-grid .education-item:nth-child(even) .year {
+  color: #ffffff;
+}
+
+.vhe-resume .vhe-edu-grid .education-item:nth-child(even) .year {
+  opacity: 0.85;
+}
+
+.vhe-resume .vhe-edu-grid .education-item:only-child {
+  grid-column: 1 / -1;
+}
+
+.vhe-resume .education-item h3 {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 3px;
+}
+
+.vhe-resume .institution {
+  font-size: 10px;
+  color: var(--muted);
+  display: block;
+}
+
+.vhe-resume .year {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+/* ── Skills: executive bars (psp-skills-progress) ── */
+.vhe-resume .psp-skills-progress .skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vhe-resume .psp-skill-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 5px;
+}
+
+.vhe-resume .psp-skill-name {
+  grid-column: 1;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--forest), var(--emerald-deep));
+  color: #ffffff;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.vhe-resume .psp-skill-item::before {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.vhe-resume .psp-skill-item::after {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  content: '';
+  height: 7px;
+  border-radius: 4px;
+  background: var(--bar-track);
+  box-shadow: inset 0 1px 2px rgba(10, 74, 68, 0.08);
+}
+
+.vhe-resume .psp-skill-item:nth-child(1)::before { content: '94%'; }
+.vhe-resume .psp-skill-item:nth-child(2)::before { content: '90%'; }
+.vhe-resume .psp-skill-item:nth-child(3)::before { content: '87%'; }
+.vhe-resume .psp-skill-item:nth-child(4)::before { content: '85%'; }
+.vhe-resume .psp-skill-item:nth-child(5)::before { content: '92%'; }
+.vhe-resume .psp-skill-item:nth-child(6)::before { content: '80%'; }
+.vhe-resume .psp-skill-item:nth-child(7)::before { content: '88%'; }
+.vhe-resume .psp-skill-item:nth-child(8)::before { content: '83%'; }
+.vhe-resume .psp-skill-item:nth-child(n + 9)::before { content: '86%'; }
+
+.vhe-resume .psp-skill-item:nth-child(1)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 94%, var(--bar-track) 94%);
+}
+.vhe-resume .psp-skill-item:nth-child(2)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 90%, var(--bar-track) 90%);
+}
+.vhe-resume .psp-skill-item:nth-child(3)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 87%, var(--bar-track) 87%);
+}
+.vhe-resume .psp-skill-item:nth-child(4)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 85%, var(--bar-track) 85%);
+}
+.vhe-resume .psp-skill-item:nth-child(5)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 92%, var(--bar-track) 92%);
+}
+.vhe-resume .psp-skill-item:nth-child(6)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 80%, var(--bar-track) 80%);
+}
+.vhe-resume .psp-skill-item:nth-child(7)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 88%, var(--bar-track) 88%);
+}
+.vhe-resume .psp-skill-item:nth-child(8)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 83%, var(--bar-track) 83%);
+}
+.vhe-resume .psp-skill-item:nth-child(n + 9)::after {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #34d399 86%, var(--bar-track) 86%);
+}
+
+/* ── Achievement luxury cards ── */
+.vhe-resume .vhe-achievement-cards .achievement-item {
+  position: relative;
+  padding: 10px 12px 10px 36px;
+  margin-bottom: 8px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid rgba(200, 120, 64, 0.15);
+  box-shadow: 0 6px 16px rgba(10, 74, 68, 0.05);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.vhe-resume .vhe-achievement-cards .achievement-item:last-child {
+  margin-bottom: 0;
+}
+
+.vhe-resume .vhe-achievement-cards .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c87840'%3E%3Cpath d='M12 2 L14.5 9 H22 L16 13.5 L18 21 L12 17 L6 21 L8 13.5 L2 9 H9.5 Z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.vhe-resume .vhe-achievement-cards .achievement-item h3 {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+/* ── Certifications ── */
+.vhe-resume .vhe-cert-list .certification-item {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(200, 120, 64, 0.2);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.vhe-resume .vhe-cert-list .certification-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.vhe-resume .certification-item h3 {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 2px;
+}
+
+.vhe-resume .issuer {
+  font-size: 9.5px;
+  color: var(--muted);
+  display: block;
+}
+
+.vhe-resume .date {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+/* ── Languages ── */
+.vhe-resume .vhe-lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vhe-resume .vhe-lang-list .language-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(20, 107, 98, 0.06);
+  border: 1px solid rgba(20, 107, 98, 0.12);
+}
+
+.vhe-resume .vhe-lang-list .language {
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.vhe-resume .vhe-lang-list .proficiency {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--accent-color);
+}
+
+/* ── Footer bar ── */
+.vhe-resume .vhe-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 12px;
+  padding: 8px 36px;
+  background: linear-gradient(90deg, #2a2e32, #1a1e22);
+  text-align: center;
+}
+
+.vhe-resume .vhe-footer span {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Density */
+body[data-density='sparse'] .vhe-resume .vhe-section { margin-bottom: 22px; }
+body[data-density='sparse'] .vhe-resume .vhe-body { padding-bottom: 58px; }
+body[data-density='light'] .vhe-resume .vhe-section { margin-bottom: 20px; }
+
+/* Print / PDF */
+@media print {
+  @page { size: A4; margin: 0; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .vhe-resume {
+    width: 794px !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .vhe-resume .vhe-ribbon,
+  .vhe-resume .vhe-photo-square,
+  .vhe-resume .psp-skill-item::after,
+  .vhe-resume .vhe-edu-grid .education-item:nth-child(even),
+  .vhe-resume .vhe-project-showcase .project-item::before,
+  .vhe-resume .vhe-project-showcase .project-item a,
+  .vhe-resume .psp-skill-name,
+  .vhe-resume .vhe-footer {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .vhe-resume .experience-item,
+  .vhe-resume .project-item,
+  .vhe-resume .education-item,
+  .vhe-resume .achievement-item,
+  .vhe-resume .certification-item,
+  .vhe-resume .vhe-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
