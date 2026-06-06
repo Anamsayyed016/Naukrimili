@@ -57,8 +57,6 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
         isFeatured: (job as any).isFeatured || false,
         isActive: true,
         sector: (job as any).sector || 'Technology',
-        views: 0,
-        applicationsCount: 0,
         rawJson: (job as any).raw,
       },
       create: {
