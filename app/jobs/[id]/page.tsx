@@ -11,6 +11,7 @@ import JobShare from "@/components/JobShare";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
 import { JOB_NAV_KEYS, navigateJobDetailsBack } from "@/lib/job-navigation-state";
+import { JobDescriptionView } from "@/components/EnhancedJobCard";
 
 interface Job {
   id: string;
@@ -552,10 +553,8 @@ export default function JobDetailsPage() {
 
                 {/* Job Description */}
                 <div className="mb-6 w-full overflow-x-hidden">
-                  <h3 className="text-base sm:text-lg font-semibold mb-3">Job Description</h3>
-                  <div className="prose prose-sm sm:prose max-w-full overflow-x-hidden">
-                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">{job.description}</p>
-                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight mb-3 sm:mb-4">Job Description</h3>
+                  <JobDescriptionView description={job.description} />
                 </div>
 
                 {/* Action Buttons */}

@@ -23,6 +23,10 @@ import {
   saveJobNavigationSource,
   saveJobSearchContext,
 } from '@/lib/job-navigation-state';
+import {
+  getJobDescriptionPreview,
+  parseJobDescriptionBlocks,
+} from '@/lib/jobs/clean-job-description';
 
 /** Shared job card surface tokens (UI only). */
 const jc = {
@@ -59,18 +63,6 @@ const jc = {
     'p-2 sm:p-2.5 rounded-xl border border-slate-200/70 bg-white/90 text-slate-400 hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300/70 transition-all duration-200 flex-shrink-0 shadow-sm',
   bookmarkActive: 'bg-amber-50/90 border-amber-200/80 text-amber-600 hover:bg-amber-50 shadow-sm',
 } as const;
-
-function stripJobDescriptionText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 
 /** City-first display; avoids long locality strings overflowing cards. */
 function formatJobCardLocation(location?: string): string {
@@ -109,7 +101,7 @@ function JobCardDescription({
 }) {
   const textRef = useRef<HTMLParagraphElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
-  const text = stripJobDescriptionText(description);
+  const text = getJobDescriptionPreview(description, maxLines === 3 ? 280 : 220);
 
   useEffect(() => {
     const el = textRef.current;
@@ -139,6 +131,42 @@ function JobCardDescription({
         >
           … Read More
         </Link>
+      )}
+    </div>
+  );
+}
+
+/** Premium job description body for detail pages (paragraphs + bullets). */
+export function JobDescriptionView({
+  description,
+  className = '',
+}: {
+  description: string;
+  className?: string;
+}) {
+  const blocks = parseJobDescriptionBlocks(description);
+  if (!blocks.length) return null;
+
+  return (
+    <div className={`space-y-4 min-w-0 max-w-full overflow-x-hidden ${className}`}>
+      {blocks.map((block, index) =>
+        block.type === 'p' ? (
+          <p
+            key={`p-${index}`}
+            className="text-sm sm:text-base text-slate-600/95 leading-[1.75] tracking-normal break-words"
+          >
+            {block.text}
+          </p>
+        ) : (
+          <ul
+            key={`ul-${index}`}
+            className="list-disc pl-5 sm:pl-6 space-y-2 text-sm sm:text-base text-slate-600/95 leading-[1.7] break-words"
+          >
+            {block.items.map((item, itemIndex) => (
+              <li key={itemIndex}>{item}</li>
+            ))}
+          </ul>
+        )
       )}
     </div>
   );

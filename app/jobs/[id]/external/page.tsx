@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ExternalLink, ArrowLeft, Building2, MapPin, Clock, DollarSign, Briefcase, Globe } from 'lucide-react';
+import { JobDescriptionView } from '@/components/EnhancedJobCard';
 
 interface Job {
   id: string;
@@ -185,11 +186,9 @@ export default function ExternalJobApplicationPage() {
             </div>
           )}
 
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Job Description</h3>
-            <div className="prose max-w-none text-gray-700">
-              <p>{job.description}</p>
-            </div>
+          <div className="mb-6 min-w-0 overflow-x-hidden">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight mb-3 sm:mb-4">Job Description</h3>
+            <JobDescriptionView description={job.description} />
           </div>
 
           {job.postedAt && (

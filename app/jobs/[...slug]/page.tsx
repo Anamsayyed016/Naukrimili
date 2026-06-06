@@ -13,6 +13,7 @@ import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
 import { JOB_NAV_KEYS, navigateJobDetailsBack } from "@/lib/job-navigation-state";
 import { buildJobDetailContent } from "@/lib/jobs/job-detail-content";
+import { JobDescriptionView } from "@/components/EnhancedJobCard";
 
 interface Job {
   id: string;
@@ -464,13 +465,9 @@ export default function SEOJobDetailsPage() {
 
               <CardContent>
                 {/* Job Description */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Job Description</h3>
-                  <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                      {job.description}
-                    </p>
-                  </div>
+                <div className="mb-6 min-w-0 overflow-x-hidden">
+                  <h3 className="text-lg font-bold text-slate-900 tracking-tight mb-3 sm:mb-4">Job Description</h3>
+                  <JobDescriptionView description={job.description} />
                 </div>
 
                 {/* AdSense/SEO: Rich, trustworthy sections (derived from real job fields) */}
