@@ -19,6 +19,18 @@ interface OptimizedJobsClientProps {
 export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClientProps) {
   // Targeted countries for fresh, real jobs
   const TARGET_COUNTRIES = ['US', 'IN', 'GB', 'AE'];
+
+  /** Quick filter pill styles (UI only) */
+  const filterPillInactive =
+    'px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-white/75 backdrop-blur-sm text-slate-600 border border-slate-200/80 shadow-sm hover:bg-gradient-to-r hover:from-blue-50/90 hover:to-violet-50/50 hover:border-blue-200/60 hover:text-slate-800 hover:shadow-md active:scale-[0.98]';
+  const filterPillActive =
+    'px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white border border-transparent shadow-[0_4px_14px_-4px_rgba(37,99,235,0.45)]';
+  const filterPillClear =
+    'px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-rose-50/80 backdrop-blur-sm text-rose-600 border border-rose-200/70 shadow-sm hover:bg-rose-100/90 hover:border-rose-300/70 hover:shadow-md active:scale-[0.98]';
+  const viewPillInactive =
+    'px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 bg-white/75 backdrop-blur-sm text-slate-600 border border-slate-200/80 shadow-sm hover:bg-slate-50 hover:border-slate-300/70';
+  const viewPillActive =
+    'px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white border border-transparent shadow-[0_4px_12px_-4px_rgba(37,99,235,0.4)]';
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -502,7 +514,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       {/* Search Results Header with Filters - Fixed (like navbar, stays visible on scroll) */}
       <div 
         ref={filtersSectionRef} 
-        className="fixed left-0 right-0 w-full bg-white border-b border-gray-200 shadow-sm z-[9999] px-4 sm:px-6 lg:px-8" 
+        className="fixed left-0 right-0 w-full bg-white/85 backdrop-blur-md border-b border-slate-200/60 shadow-[0_4px_24px_-8px_rgba(15,23,42,0.08)] z-[9999] px-4 sm:px-6 lg:px-8" 
         style={{ 
           top: `${filtersTop}px`,
           transition: 'top 0.2s ease-in-out'
@@ -511,17 +523,17 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         <div className="w-full py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-3">
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+              <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight mb-1 antialiased">
                 {totalJobs > 0 ? `${totalJobs} Jobs Found` : 'No Jobs Found'}
               </h2>
               <div className="flex flex-wrap gap-2">
                 {searchParams.get('q') && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-50 to-violet-50/60 text-[#2563EB] border border-blue-200/50 shadow-sm">
                     {searchParams.get('q')}
                   </span>
                 )}
                 {searchParams.get('location') && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-cyan-50/80 to-emerald-50/50 text-teal-700 border border-cyan-200/50 shadow-sm">
                     {searchParams.get('location')}
                   </span>
                 )}
@@ -529,27 +541,25 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
             </div>
             <button
               onClick={() => window.history.back()}
-              className="text-gray-600 hover:text-gray-800 text-sm font-medium whitespace-nowrap"
+              className="text-slate-500 hover:text-[#2563EB] text-sm font-medium whitespace-nowrap transition-colors duration-200"
             >
               ← Back to Search
             </button>
           </div>
 
           {/* Quick Filters */}
-          <div className="border-t pt-3 mt-2">
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-xs sm:text-sm font-medium text-gray-700 mr-1 whitespace-nowrap">Quick Filters:</span>
+          <div className="border-t border-slate-100/80 pt-3 sm:pt-3.5 mt-2">
+            <div className="flex flex-wrap gap-2 sm:gap-2.5 items-center">
+              <span className="text-xs sm:text-sm font-semibold text-slate-600 mr-0.5 sm:mr-1 whitespace-nowrap tracking-tight">Quick Filters</span>
               <button
                 onClick={() => {
                   const url = new URL(window.location.href);
                   url.searchParams.set('jobType', url.searchParams.get('jobType') === 'full-time' ? '' : 'full-time');
                   router.push(url.pathname + url.search);
                 }}
-                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  searchParams.get('jobType') === 'full-time' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={
+                  searchParams.get('jobType') === 'full-time' ? filterPillActive : filterPillInactive
+                }
               >
                 Full-time
               </button>
@@ -559,11 +569,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.set('isRemote', url.searchParams.get('isRemote') === 'true' ? '' : 'true');
                   router.push(url.pathname + url.search);
                 }}
-                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  searchParams.get('isRemote') === 'true' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={
+                  searchParams.get('isRemote') === 'true' ? filterPillActive : filterPillInactive
+                }
               >
                 Remote
               </button>
@@ -573,11 +581,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.set('experienceLevel', url.searchParams.get('experienceLevel') === 'senior' ? '' : 'senior');
                   router.push(url.pathname + url.search);
                 }}
-                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  searchParams.get('experienceLevel') === 'senior' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={
+                  searchParams.get('experienceLevel') === 'senior' ? filterPillActive : filterPillInactive
+                }
               >
                 Senior Level
               </button>
@@ -589,11 +595,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.set('country', currentCountry === 'IN' ? '' : 'IN');
                   router.push(url.pathname + url.search);
                 }}
-                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  searchParams.get('country')?.toUpperCase() === 'IN' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={
+                  searchParams.get('country')?.toUpperCase() === 'IN' ? filterPillActive : filterPillInactive
+                }
               >
                 India
               </button>
@@ -604,11 +608,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.set('country', currentCountry === 'US' ? '' : 'US');
                   router.push(url.pathname + url.search);
                 }}
-                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  searchParams.get('country')?.toUpperCase() === 'US' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={
+                  searchParams.get('country')?.toUpperCase() === 'US' ? filterPillActive : filterPillInactive
+                }
               >
                 USA
               </button>
@@ -619,11 +621,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.set('country', currentCountry === 'GB' ? '' : 'GB');
                   router.push(url.pathname + url.search);
                 }}
-                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  searchParams.get('country')?.toUpperCase() === 'GB' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={
+                  searchParams.get('country')?.toUpperCase() === 'GB' ? filterPillActive : filterPillInactive
+                }
               >
                 UK
               </button>
@@ -634,11 +634,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.set('country', currentCountry === 'AE' ? '' : 'AE');
                   router.push(url.pathname + url.search);
                 }}
-                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  searchParams.get('country')?.toUpperCase() === 'AE' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={
+                  searchParams.get('country')?.toUpperCase() === 'AE' ? filterPillActive : filterPillInactive
+                }
               >
                 UAE
               </button>
@@ -657,7 +655,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   }
                   router.push(url.pathname + (url.search || ''));
                 }}
-                className="px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                className={filterPillClear}
               >
                 Clear All
               </button>
@@ -679,14 +677,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       {loading && (jobs || []).length === 0 && (
         <div className="space-y-4 mt-4">
           <div className="text-center py-8">
-            <div className="inline-flex items-center gap-2 text-blue-600">
-              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="font-medium">Loading optimized jobs...</span>
+            <div className="inline-flex items-center gap-2 text-[#2563EB]">
+              <div className="w-5 h-5 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></div>
+              <span className="font-semibold tracking-tight">Loading optimized jobs...</span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">Searching across all sectors and countries</p>
+            <p className="text-sm text-slate-500 mt-2">Searching across all sectors and countries</p>
           </div>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse">
+            <div key={i} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-[0_4px_20px_-8px_rgba(15,23,42,0.08)] border border-slate-200/60 p-6 animate-pulse">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
                 <div className="flex-1 space-y-2">
@@ -728,7 +726,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           {/* View Mode Toggle and Refresh - Fixed (below filters section, stays visible on scroll) */}
           <div 
             ref={viewBarRef} 
-            className="fixed left-0 right-0 w-full bg-white border-b border-gray-200 shadow-sm z-[9998] px-4 sm:px-6 lg:px-8" 
+            className="fixed left-0 right-0 w-full bg-white/85 backdrop-blur-md border-b border-slate-200/60 shadow-[0_2px_16px_-6px_rgba(15,23,42,0.06)] z-[9998] px-4 sm:px-6 lg:px-8" 
             id="view-sticky-bar"
             style={{ 
               top: viewBarTop > 0 ? `${viewBarTop}px` : '204px',
@@ -737,28 +735,22 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           >
             <div className="w-full py-2 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-gray-600 whitespace-nowrap">View:</span>
+              <span className="text-sm font-medium text-slate-600 whitespace-nowrap">View</span>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-colors ${
-                  viewMode === 'list' ? 'bg-blue-600 text-white font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={viewMode === 'list' ? viewPillActive : viewPillInactive}
               >
                 List
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-colors ${
-                  viewMode === 'grid' ? 'bg-blue-600 text-white font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={viewMode === 'grid' ? viewPillActive : viewPillInactive}
               >
                 Grid
               </button>
               <button
                 onClick={() => setViewMode('compact')}
-                className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-colors ${
-                  viewMode === 'compact' ? 'bg-blue-600 text-white font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={viewMode === 'compact' ? viewPillActive : viewPillInactive}
               >
                 Compact
               </button>
@@ -782,7 +774,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   });
                 }}
                 disabled={loading}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#2563EB] hover:text-[#7C3AED] hover:bg-blue-50/80 rounded-lg border border-transparent hover:border-blue-100 transition-all duration-200 disabled:opacity-50 whitespace-nowrap"
               >
                 <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -790,8 +782,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 Refresh
               </button>
               {lastRefresh && (
-                <div className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
-                  <span className="text-gray-400">
+                <div className="text-xs sm:text-sm text-slate-500 whitespace-nowrap">
+                  <span className="text-slate-400">
                     Last updated: {lastRefresh.toLocaleTimeString()}
                   </span>
                 </div>

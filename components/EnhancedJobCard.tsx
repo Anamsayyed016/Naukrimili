@@ -27,37 +27,37 @@ import {
 /** Shared job card surface tokens (UI only). */
 const jc = {
   card:
-    'group bg-white rounded-xl border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_6px_16px_-6px_rgba(15,23,42,0.07)] hover:border-slate-300 hover:shadow-[0_4px_20px_-6px_rgba(15,23,42,0.1)] transition-[box-shadow,border-color] duration-200',
+    'group bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/70 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_28px_-10px_rgba(15,23,42,0.09)] hover:border-blue-200/60 hover:shadow-[0_12px_32px_-8px_rgba(37,99,235,0.14),0_4px_16px_-6px_rgba(124,58,237,0.08)] hover:-translate-y-0.5 transition-all duration-200 ease-out',
   cardCompact:
-    'group bg-white rounded-lg border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_4px_12px_-4px_rgba(15,23,42,0.06)] hover:border-slate-300 hover:shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)] transition-[box-shadow,border-color] duration-200',
-  cardViewed: 'border-slate-400 ring-2 ring-slate-200/90 bg-slate-50/40',
+    'group bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200/70 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_6px_20px_-8px_rgba(15,23,42,0.08)] hover:border-blue-200/50 hover:shadow-[0_8px_24px_-8px_rgba(37,99,235,0.12)] hover:-translate-y-0.5 transition-all duration-200 ease-out',
+  cardViewed: 'border-blue-300/70 ring-2 ring-blue-100/90 bg-gradient-to-br from-blue-50/30 to-white',
   header: 'p-4 sm:p-5 lg:p-6',
   title:
-    'text-base sm:text-lg lg:text-xl font-semibold text-slate-900 tracking-tight leading-snug line-clamp-2 group-hover:text-slate-800 transition-colors',
+    'text-base sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors duration-200 antialiased',
   titleCompact:
-    'font-semibold text-slate-900 text-sm sm:text-base tracking-tight leading-snug line-clamp-2 group-hover:text-slate-800 transition-colors mb-1',
-  company: 'text-sm text-slate-500 font-medium truncate',
-  companyCompact: 'text-xs text-slate-500 font-medium truncate',
-  meta: 'text-xs sm:text-sm text-slate-500',
-  metaIcon: 'w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0',
-  logo: 'rounded-lg overflow-hidden bg-white ring-1 ring-slate-200/90 flex-shrink-0',
+    'font-bold text-slate-900 text-sm sm:text-base tracking-tight leading-snug line-clamp-2 group-hover:text-[#2563EB] transition-colors duration-200 antialiased mb-1',
+  company: 'text-sm text-slate-500/90 font-medium truncate tracking-tight',
+  companyCompact: 'text-xs text-slate-500/90 font-medium truncate tracking-tight',
+  meta: 'text-xs sm:text-sm text-slate-500/90',
+  metaIcon: 'w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400/90 flex-shrink-0',
+  logo: 'rounded-xl overflow-hidden bg-white ring-1 ring-slate-200/80 shadow-sm flex-shrink-0',
   statusChip:
-    'inline-flex items-center gap-1 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200/80 rounded-full',
+    'inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold text-slate-700 bg-gradient-to-r from-slate-50 to-slate-100/80 border border-slate-200/70 rounded-full shadow-sm',
   metaChip:
-    'inline-flex items-center px-2 py-0.5 text-[10px] sm:text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200/70 rounded-md whitespace-nowrap',
+    'inline-flex items-center px-2.5 py-0.5 text-[10px] sm:text-xs font-medium text-slate-600 bg-gradient-to-r from-slate-50/90 to-blue-50/40 border border-slate-200/60 rounded-full whitespace-nowrap capitalize',
   skillChip:
-    'px-2 py-0.5 text-[10px] sm:text-xs font-medium text-slate-600 bg-slate-50/90 border border-slate-100 rounded-md whitespace-nowrap',
+    'px-2.5 py-0.5 text-[10px] sm:text-xs font-medium text-slate-700 bg-gradient-to-r from-slate-50 to-violet-50/50 border border-slate-200/60 rounded-full whitespace-nowrap',
   salaryWrap:
-    'inline-flex items-center gap-2 py-1.5 px-2.5 sm:py-2 sm:px-3 bg-slate-50 border border-slate-200/70 rounded-lg mb-3 sm:mb-4',
-  salaryText: 'text-sm sm:text-base font-semibold text-slate-800 tracking-tight',
-  footer: 'px-4 sm:px-5 lg:px-6 py-3 sm:py-4 border-t border-slate-100 bg-slate-50/30 flex gap-2 sm:gap-3',
+    'inline-flex items-center gap-2 py-1.5 px-3 sm:py-2 sm:px-3.5 bg-gradient-to-r from-slate-50/90 to-cyan-50/30 border border-slate-200/60 rounded-xl mb-3 sm:mb-4 shadow-sm',
+  salaryText: 'text-sm sm:text-base font-bold text-slate-800 tracking-tight antialiased',
+  footer: 'px-4 sm:px-5 lg:px-6 py-3 sm:py-4 border-t border-slate-100/80 bg-gradient-to-b from-slate-50/50 to-white flex gap-2 sm:gap-3',
   btnPrimary:
-    'flex-1 bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-sm',
+    'flex-1 bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1d4ed8] hover:to-[#6d28d9] text-white font-semibold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-[0_4px_14px_-4px_rgba(37,99,235,0.45)] hover:shadow-[0_6px_20px_-4px_rgba(124,58,237,0.4)] hover:-translate-y-px active:translate-y-0',
   btnSecondary:
-    'px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-200 bg-white rounded-lg hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors duration-200 flex items-center justify-center flex-shrink-0',
+    'px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-200/80 bg-white/90 backdrop-blur-sm rounded-xl hover:bg-slate-50 hover:border-slate-300/80 text-slate-600 transition-all duration-200 flex items-center justify-center flex-shrink-0 shadow-sm hover:shadow',
   bookmark:
-    'p-2 sm:p-2.5 rounded-lg border border-slate-200/80 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors duration-200 flex-shrink-0',
-  bookmarkActive: 'bg-amber-50/80 border-amber-200/70 text-amber-600 hover:bg-amber-50',
+    'p-2 sm:p-2.5 rounded-xl border border-slate-200/70 bg-white/90 text-slate-400 hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300/70 transition-all duration-200 flex-shrink-0 shadow-sm',
+  bookmarkActive: 'bg-amber-50/90 border-amber-200/80 text-amber-600 hover:bg-amber-50 shadow-sm',
 } as const;
 
 function stripJobDescriptionText(html: string): string {
@@ -128,14 +128,14 @@ function JobCardDescription({
     <div className="mt-1.5 min-w-0 w-full max-w-full overflow-hidden">
       <p
         ref={textRef}
-        className={`text-sm text-slate-600 leading-[1.6] font-normal tracking-normal break-words overflow-hidden ${clampClass}`}
+        className={`text-sm text-slate-500/95 leading-[1.7] font-normal tracking-normal break-words overflow-hidden ${clampClass}`}
       >
         {text}
       </p>
       {isTruncated && (
         <Link
           href={jobUrl}
-          className="text-xs font-medium text-slate-600 hover:text-slate-900 mt-0.5 inline-block transition-colors"
+          className="text-xs font-semibold text-[#2563EB] hover:text-[#7C3AED] mt-1 inline-block transition-colors duration-200"
         >
           … Read More
         </Link>
@@ -328,7 +328,7 @@ export default function EnhancedJobCard({
               ) : (
                 <Link
                   href={`${seoJobUrl}/apply`}
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition-colors duration-200 flex items-center gap-1 shadow-sm"
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1d4ed8] hover:to-[#6d28d9] text-white text-xs font-semibold rounded-xl transition-all duration-200 flex items-center gap-1 shadow-[0_4px_12px_-4px_rgba(37,99,235,0.4)]"
                 >
                   <span className="hidden sm:inline">Apply</span>
                   <span className="sm:hidden">Apply</span>
@@ -508,14 +508,18 @@ export default function EnhancedJobCard({
           )}
 
           {/* Footer info */}
-          <div className={`flex items-center justify-between flex-wrap gap-1.5 sm:gap-2 pt-0.5 border-t border-slate-100/80 ${jc.meta}`}>
-            <div className="flex items-center min-w-0 gap-1">
-              <CalendarIcon className={jc.metaIcon} />
-              <span className="truncate">Posted {job.time_ago}</span>
+          <div className={`flex items-center justify-between flex-wrap gap-2 sm:gap-2.5 pt-2 sm:pt-2.5 border-t border-slate-100/70 ${jc.meta}`}>
+            <div className="flex items-center min-w-0 gap-1.5">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-100/80 border border-slate-200/60 flex-shrink-0">
+                <CalendarIcon className="w-3.5 h-3.5 text-slate-500" />
+              </span>
+              <span className="truncate font-medium text-slate-600">Posted {job.time_ago}</span>
             </div>
             
             {job.sector && (
-              <span className={jc.metaChip}>{job.sector}</span>
+              <span className="inline-flex items-center px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold text-violet-700 bg-gradient-to-r from-violet-50 to-blue-50/60 border border-violet-200/50 rounded-full capitalize shadow-sm">
+                {job.sector}
+              </span>
             )}
           </div>
         </div>
