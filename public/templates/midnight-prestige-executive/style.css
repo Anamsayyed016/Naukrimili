@@ -1,18 +1,21 @@
 /* Midnight Prestige Executive — Art Deco luxury dark executive resume (scoped) */
 
 .mpe-resume {
-  --primary-color: #c9a962;
-  --accent-color: #9a7b4f;
-  --text-color: #e8e4dc;
-  --gold-light: #f0e2c4;
-  --gold-mid: #dcc99a;
-  --gold-deep: #8b6f3a;
-  --midnight-top: #1e1e22;
-  --midnight-mid: #16161a;
-  --midnight-deep: #111114;
+  --primary-color: #d4bc82;
+  --accent-color: #b8934a;
+  --text-color: #f0ece4;
+  --mpe-fg: #f0ece4;
+  --mpe-fg-soft: rgba(240, 236, 228, 0.9);
+  --gold-light: #f5ecd4;
+  --gold-mid: #e8d5a8;
+  --gold-deep: #9a7b4f;
+  --midnight-top: #141418;
+  --midnight-mid: #0e0e11;
+  --midnight-deep: #08080a;
   --panel: rgba(255, 255, 255, 0.03);
-  --muted: #a8a49c;
-  --border-color: rgba(201, 169, 98, 0.38);
+  --muted: #c4beb0;
+  --mpe-border-gold: rgba(212, 188, 130, 0.52);
+  --border-color: rgba(212, 188, 130, 0.52);
   --max-width: 210mm;
   --page-height: 297mm;
   --right-width: 248px;
@@ -28,7 +31,8 @@
   box-sizing: border-box;
 }
 
-.mpe-resume {
+.mpe-resume,
+.resume-container.mpe-resume {
   position: relative;
   width: 794px;
   max-width: var(--max-width);
@@ -38,13 +42,16 @@
   font-family: var(--font-sans);
   font-size: 11px;
   line-height: 1.62;
-  color: var(--text-color);
+  color: var(--mpe-fg) !important;
   background:
-    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(201, 169, 98, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 80% 50% at 100% 100%, rgba(154, 123, 79, 0.04) 0%, transparent 50%),
-    linear-gradient(180deg, var(--midnight-top) 0%, var(--midnight-mid) 42%, var(--midnight-deep) 100%);
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(212, 188, 130, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 45% at 100% 100%, rgba(154, 123, 79, 0.08) 0%, transparent 52%),
+    radial-gradient(ellipse 50% 40% at 0% 60%, rgba(201, 169, 98, 0.05) 0%, transparent 50%),
+    linear-gradient(180deg, var(--midnight-top) 0%, var(--midnight-mid) 40%, var(--midnight-deep) 100%) !important;
   overflow: visible;
-  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.55);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .mpe-resume::before {
@@ -73,6 +80,8 @@
   min-height: var(--page-height);
   pointer-events: none;
   z-index: 2;
+  filter: drop-shadow(0 0 2px rgba(212, 188, 130, 0.25));
+  opacity: 0.96;
 }
 
 .mpe-resume .mpe-shell {
@@ -161,17 +170,17 @@
 
 .mpe-resume .candidate-name {
   font-family: var(--font-serif);
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 600;
-  letter-spacing: 5px;
+  letter-spacing: 5.5px;
   text-transform: uppercase;
   line-height: 1.15;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, var(--gold-light) 0%, var(--primary-color) 42%, var(--gold-mid) 68%, var(--accent-color) 100%);
+  background: linear-gradient(135deg, var(--gold-light) 0%, #e8d5a8 28%, var(--primary-color) 55%, var(--gold-mid) 78%, var(--accent-color) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 1px 2px rgba(201, 169, 98, 0.25));
+  filter: drop-shadow(0 2px 4px rgba(201, 169, 98, 0.38));
 }
 
 .mpe-resume .name-first,
@@ -318,15 +327,16 @@
 
 .mpe-resume .section-title {
   font-family: var(--font-serif);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 2.8px;
+  letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--primary-color);
+  color: var(--gold-mid);
   margin-bottom: 10px;
-  padding-bottom: 7px;
-  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mpe-border-gold);
   position: relative;
+  text-shadow: 0 1px 8px rgba(212, 188, 130, 0.22);
 }
 
 .mpe-resume .section-title::after {
@@ -334,19 +344,20 @@
   position: absolute;
   left: 0;
   bottom: -1px;
-  width: 48px;
-  height: 1px;
-  background: linear-gradient(90deg, var(--gold-light), var(--primary-color));
-  opacity: 0.85;
+  width: 64px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-light), var(--primary-color), var(--gold-mid));
+  opacity: 0.95;
+  box-shadow: 0 0 6px rgba(212, 188, 130, 0.35);
 }
 
 /* ── Executive summary ── */
 .mpe-resume .summary-text {
   font-size: 10.5px;
   line-height: 1.72;
-  color: var(--text-color);
+  color: var(--mpe-fg);
   text-align: justify;
-  opacity: 0.94;
+  opacity: 0.96;
 }
 
 /* ── Experience ── */
@@ -399,13 +410,13 @@
   font-weight: 600;
   letter-spacing: 0.4px;
   text-transform: none;
-  color: var(--text-color);
+  color: var(--mpe-fg);
 }
 
 .mpe-resume .mpe-experience .description {
   font-size: 10px;
   line-height: 1.68;
-  color: rgba(232, 228, 220, 0.88);
+  color: var(--mpe-fg-soft);
 }
 
 .mpe-resume .mpe-experience .description ul {
@@ -475,7 +486,7 @@
 .mpe-resume .mpe-projects .project-item .technologies {
   font-size: 9.5px;
   line-height: 1.62;
-  color: rgba(232, 228, 220, 0.86);
+  color: var(--mpe-fg-soft);
 }
 
 .mpe-resume .mpe-projects .project-item a {
@@ -676,14 +687,16 @@ body[data-density='light'] .mpe-resume .mpe-section { margin-bottom: 18px; }
     print-color-adjust: exact !important;
   }
 
-  .mpe-resume {
+  .mpe-resume,
+  .resume-container.mpe-resume {
     width: 794px !important;
     padding: 0 !important;
     box-shadow: none !important;
     overflow: visible !important;
+    color: var(--mpe-fg) !important;
     background:
-      radial-gradient(ellipse 120% 80% at 50% -10%, rgba(201, 169, 98, 0.06) 0%, transparent 55%),
-      linear-gradient(180deg, var(--midnight-top) 0%, var(--midnight-mid) 42%, var(--midnight-deep) 100%) !important;
+      radial-gradient(ellipse 90% 60% at 50% 0%, rgba(212, 188, 130, 0.14) 0%, transparent 58%),
+      linear-gradient(180deg, var(--midnight-top) 0%, var(--midnight-mid) 40%, var(--midnight-deep) 100%) !important;
   }
 
   .mpe-resume .mpe-artdeco-frame,
