@@ -458,6 +458,48 @@ export async function GET(
         }
       }
 
+      // Cache-only external jobs skip Strategy 6 (persist) — ensure DB row exists before increment
+      if (!viewIncrementId && resolution.extComposite) {
+        try {
+          const { resolveAndPersistExternalJob } = await import(
+            '@/lib/jobs/fetch-external-by-id'
+          );
+          const countryHint =
+            request.nextUrl.searchParams.get('country') || undefined;
+          const persisted = await withTimeout(
+            resolveAndPersistExternalJob(resolution.extComposite, {
+              countryHint,
+              maxPages: 1,
+            }),
+            DETAIL_EXTERNAL_FETCH_MS,
+            'detail-view-persist'
+          );
+          if (persisted) {
+            const persistedId =
+              typeof persisted.id === 'number'
+                ? persisted.id
+                : parseInt(String(persisted.id), 10);
+            if (!Number.isNaN(persistedId) && persistedId > 0) {
+              viewIncrementId = persistedId;
+            } else if (persisted.source && persisted.sourceId) {
+              const dbRow = await prisma.job.findFirst({
+                where: {
+                  source: String(persisted.source),
+                  sourceId: String(persisted.sourceId),
+                },
+                select: { id: true },
+              });
+              if (dbRow) viewIncrementId = dbRow.id;
+            }
+          }
+        } catch (persistErr) {
+          console.warn(
+            '⚠️ Persist-before-increment failed:',
+            persistErr instanceof Error ? persistErr.message : persistErr
+          );
+        }
+      }
+
       if (viewIncrementId) {
         const updated = await prisma.job.update({
           where: { id: viewIncrementId },
