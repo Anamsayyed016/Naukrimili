@@ -62,6 +62,66 @@ const HONORIFICS = new Set(['mr', 'mrs', 'ms', 'miss', 'dr', 'prof', 'sir', 'mad
 /**
  * Split full name → firstName + lastName (handles middle names, single names).
  */
+/**
+ * True when `name` is almost certainly the email local-part (e.g. kmariyam@gmail.com → "Kmariyam").
+ */
+export function isEmailDerivedName(name: string, email: string): boolean {
+  const n = String(name || '').trim().toLowerCase();
+  const e = String(email || '').trim().toLowerCase();
+  if (!n || !e.includes('@')) return false;
+
+  const local = e.split('@')[0].replace(/\d/g, '');
+  if (!local) return false;
+
+  const localNorm = local.replace(/[._-]/g, '');
+  const nameNorm = n.replace(/[\s._-]/g, '');
+  if (!nameNorm) return false;
+
+  if (nameNorm === localNorm) return true;
+
+  const firstToken = n.split(/\s+/)[0];
+  if (firstToken && firstToken === localNorm) return true;
+
+  // Single blob local part with no separators — only treat as derived when name is one token.
+  if (!/[._-]/.test(local) && !n.includes(' ') && localNorm.startsWith(nameNorm) && nameNorm.length >= 4) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Parse email local-part into first/last only when separators imply real name parts.
+ * Returns null for opaque blobs like "kmariyam" (low confidence).
+ */
+export function parseIntelligentNameFromEmail(
+  email: string
+): { firstName: string; lastName: string } | null {
+  const local = String(email.split('@')[0] || '')
+    .replace(/\d/g, '')
+    .trim();
+  if (!local || local.length < 3) return null;
+
+  if (/[._-]/.test(local)) {
+    const parts = local
+      .split(/[._-]+/)
+      .map((p) => p.trim())
+      .filter((p) => p.length >= 2);
+    if (parts.length >= 2) {
+      return {
+        firstName: formatDisplayName(parts[0]),
+        lastName: parts
+          .slice(1)
+          .map((p) => formatDisplayName(p))
+          .filter(Boolean)
+          .join(' '),
+      };
+    }
+  }
+
+  return null;
+}
+
 export function splitFullName(fullName: string): { firstName: string; lastName: string } {
   const raw = sanitizeFieldText(fullName, 120);
   if (!raw) return { firstName: '', lastName: '' };

@@ -33,6 +33,8 @@ import {
 import {
   splitFullName,
   sanitizeFieldText,
+  isEmailDerivedName,
+  parseIntelligentNameFromEmail,
   sanitizeSkillEntry,
   sanitizeExperienceEntry,
   sanitizeEducationEntry,
@@ -64,56 +66,116 @@ function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unkn
   return [];
 }
 
-/** Fill sparse parser arrays from raw resume text when sections were missed upstream. */
-function supplementImportFromRawText(importedData: Record<string, unknown>): Record<string, unknown> {
+function mergeUniqueStrings(existing: unknown[], recovered: string[]): string[] {
+  const base = existing.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+  if (!recovered.length) return base;
+  if (!base.length) return recovered;
+  const seen = new Set(base.map((s) => s.toLowerCase()));
+  const out = [...base];
+  for (const item of recovered) {
+    const key = item.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
+
+function mergeUniqueRecords<T extends Record<string, unknown>>(
+  existing: unknown[],
+  recovered: T[],
+  keyFn: (item: T) => string
+): T[] {
+  const base = existing.filter((e): e is T => !!e && typeof e === 'object');
+  if (!recovered.length) return base;
+  if (!base.length) return recovered;
+  const seen = new Set(base.map(keyFn).filter(Boolean));
+  const out = [...base];
+  for (const item of recovered) {
+    const key = keyFn(item);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
+
+/** Backfill sparse parser output from raw resume text (per-field, not all-or-nothing). */
+function supplementImportFromRawText(
+  importedData: Record<string, unknown>,
+  fromText?: ReturnType<typeof extractResumeFromText>
+): Record<string, unknown> {
   const rawText = importedData.rawText;
   if (typeof rawText !== 'string' || rawText.length < 80) {
     return importedData;
   }
 
-  const needsSections =
-    firstNonEmptyArray(importedData, ['experience', 'workExperience', 'Work Experience', 'Experience'])
-      .length === 0 ||
-    firstNonEmptyArray(importedData, ['education', 'Education']).length === 0 ||
-    firstNonEmptyArray(importedData, ['skills', 'Skills']).length === 0;
+  const textParsed = fromText ?? extractResumeFromText(rawText);
+  const email = String(importedData.email || textParsed.email || '');
 
-  if (!needsSections) {
-    return importedData;
+  let fullName = sanitizeFieldText(
+    importedData.fullName || importedData.name || '',
+    120
+  );
+  if ((!fullName || isEmailDerivedName(fullName, email)) && textParsed.fullName) {
+    fullName = sanitizeFieldText(textParsed.fullName, 120);
   }
 
-  const fromText = extractResumeFromText(rawText);
+  const parserExperience = firstNonEmptyArray(importedData, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]);
+  const parserEducation = firstNonEmptyArray(importedData, ['education', 'Education']);
+  const parserSkills = firstNonEmptyArray(importedData, ['skills', 'Skills', 'technicalSkills']);
+  const parserProjects = firstNonEmptyArray(importedData, ['projects', 'Projects']);
+  const parserCerts = firstNonEmptyArray(importedData, ['certifications', 'Certifications']);
+  const parserLanguages = firstNonEmptyArray(importedData, ['languages', 'Languages']);
+
   return {
     ...importedData,
-    summary: importedData.summary || fromText.summary || '',
-    skills: firstNonEmptyArray(importedData, ['skills', 'Skills']).length
-      ? importedData.skills
-      : fromText.skills,
-    experience: firstNonEmptyArray(importedData, [
-      'experience',
-      'workExperience',
-      'Work Experience',
-      'Experience',
-    ]).length
-      ? firstNonEmptyArray(importedData, [
-          'experience',
-          'workExperience',
-          'Work Experience',
-          'Experience',
-        ])
-      : fromText.experience,
-    education: firstNonEmptyArray(importedData, ['education', 'Education']).length
-      ? importedData.education
-      : fromText.education,
-    projects: firstNonEmptyArray(importedData, ['projects', 'Projects']).length
-      ? importedData.projects
-      : fromText.projects,
-    certifications: firstNonEmptyArray(importedData, ['certifications', 'Certifications'])
-      .length
-      ? importedData.certifications
-      : fromText.certifications,
-    languages: firstNonEmptyArray(importedData, ['languages', 'Languages']).length
-      ? importedData.languages
-      : fromText.languages,
+    fullName: fullName || textParsed.fullName || '',
+    name: fullName || textParsed.fullName || importedData.name || '',
+    email: importedData.email || textParsed.email || '',
+    phone: importedData.phone || textParsed.phone || '',
+    location: importedData.location || importedData.address || textParsed.location || '',
+    linkedin: importedData.linkedin || importedData.linkedinUrl || textParsed.linkedin || '',
+    portfolio:
+      importedData.portfolio ||
+      importedData.website ||
+      importedData.github ||
+      textParsed.portfolio ||
+      '',
+    summary: importedData.summary || importedData.bio || importedData.objective || textParsed.summary || '',
+    skills: mergeUniqueStrings(parserSkills as string[], textParsed.skills || []),
+    experience: mergeUniqueRecords(
+      parserExperience,
+      (textParsed.experience || []) as Array<Record<string, unknown>>,
+      (e) =>
+        `${String(e.company || '').trim()}|${String(e.position || e.title || '').trim()}`.toLowerCase()
+    ),
+    education: mergeUniqueRecords(
+      parserEducation,
+      (textParsed.education || []) as Array<Record<string, unknown>>,
+      (e) =>
+        `${String(e.institution || e.school || '').trim()}|${String(e.degree || '').trim()}`.toLowerCase()
+    ),
+    projects: mergeUniqueRecords(
+      parserProjects,
+      (textParsed.projects || []) as Array<Record<string, unknown>>,
+      (p) => String(p.name || p.title || '').trim().toLowerCase()
+    ),
+    certifications: mergeUniqueRecords(
+      parserCerts,
+      (textParsed.certifications || []) as Array<Record<string, unknown>>,
+      (c) => String(c.name || c.title || '').trim().toLowerCase()
+    ),
+    languages: mergeUniqueRecords(
+      parserLanguages,
+      (textParsed.languages || []) as Array<Record<string, unknown>>,
+      (l) => String((l as { name?: string }).name || l || '').trim().toLowerCase()
+    ),
   };
 }
 
@@ -125,11 +187,14 @@ export function transformImportDataToBuilder(
     return {};
   }
 
-  // 1. Identity recovery + section backfill from rawText when parser arrays are empty
+  // 1. Identity recovery + section backfill from rawText when parser arrays are sparse
   const recovered = recoverFromRawText(importedData.rawText);
-  const mergedImport = supplementImportFromRawText(
-    mergeRecovery(importedData, recovered) as Record<string, unknown>
-  );
+  const mergedBase = mergeRecovery(importedData, recovered) as Record<string, unknown>;
+  const textParsed =
+    typeof mergedBase.rawText === 'string' && mergedBase.rawText.length >= 80
+      ? extractResumeFromText(mergedBase.rawText)
+      : undefined;
+  const mergedImport = supplementImportFromRawText(mergedBase, textParsed);
 
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};
@@ -159,8 +224,12 @@ export function transformImportDataToBuilder(
   const summaryRaw = mergedImport.summary || mergedImport.bio || mergedImport.objective;
   const summary = cleanMultiline(summaryRaw || recovered.summary || '').slice(0, 4000);
 
-  // Names — try explicit fields, then split fullName, then derive from email
-  const { firstName, lastName, displayName } = resolveName(mergedImport, email);
+  // Names — resume header first, then split fullName, then intelligent email parse only
+  const { firstName, lastName, displayName } = resolveName(
+    mergedImport,
+    email,
+    textParsed?.fullName || ''
+  );
 
   const experience = transformExperienceArray(
     firstNonEmptyArray(mergedImport, [
@@ -331,21 +400,44 @@ export function previewTransformation(importedData: any): {
 
 function resolveName(
   importedData: any,
-  email: string
+  email: string,
+  headerNameFromText = ''
 ): { firstName: string; lastName: string; displayName: string } {
   const personal = importedData.personalInformation || {};
 
   let firstName = sanitizeFieldText(importedData.firstName || personal.firstName || '', 80);
   let lastName = sanitizeFieldText(importedData.lastName || personal.lastName || '', 80);
 
-  const rawFullName = sanitizeFieldText(
-    importedData.fullName ||
-      importedData.name ||
-      personal.fullName ||
-      `${firstName} ${lastName}`.trim(),
+  let rawFullName = sanitizeFieldText(
+    importedData.fullName || importedData.name || personal.fullName || '',
     120
   );
 
+  const textHeaderName = sanitizeFieldText(headerNameFromText, 120);
+
+  const garbage =
+    isGarbageResumeText(rawFullName) ||
+    rawFullName.toLowerCase().includes('uploaded') ||
+    rawFullName === 'User';
+
+  if (garbage) rawFullName = '';
+
+  // Drop email-slug names from parser when resume header has a real name
+  if (rawFullName && email && isEmailDerivedName(rawFullName, email)) {
+    if (textHeaderName && !isEmailDerivedName(textHeaderName, email)) {
+      rawFullName = textHeaderName;
+      firstName = '';
+      lastName = '';
+    } else {
+      rawFullName = '';
+    }
+  }
+
+  if (firstName && email && isEmailDerivedName(firstName, email) && !lastName) {
+    firstName = '';
+  }
+
+  // Priority 1–2: explicit full name from parser / profile header
   if (!firstName && !lastName && rawFullName) {
     const split = splitFullName(rawFullName);
     firstName = split.firstName;
@@ -355,41 +447,36 @@ function resolveName(
     if (!lastName) lastName = split.lastName;
   }
 
-  // Only fall back to email-derived name if NOTHING usable came from the parser.
-  // A real single-word first name (e.g. "Anam") from the resume is preferred over
-  // an email-derived guess.
-  const garbage =
-    isGarbageResumeText(rawFullName) ||
-    rawFullName.toLowerCase().includes('uploaded') ||
-    rawFullName === 'User';
-
-  const hasAnyParsedName = !!(firstName || lastName);
-
-  if (!hasAnyParsedName && garbage && email) {
-    const slug = email.split('@')[0].replace(/\d+/g, '').replace(/[._-]/g, ' ');
-    const { firstName: ef, lastName: el } = splitFullName(slug);
-    if (ef) firstName = titleCase(ef);
-    if (el) lastName = el.split(' ').map(titleCase).join(' ');
-  } else if (!hasAnyParsedName && email) {
-    // Parser returned absolutely nothing — derive from email as last resort.
-    const slug = email.split('@')[0].replace(/\d+/g, '').replace(/[._-]/g, ' ');
-    const { firstName: ef, lastName: el } = splitFullName(slug);
-    if (ef) firstName = titleCase(ef);
-    if (el) lastName = el.split(' ').map(titleCase).join(' ');
+  // Priority 2b: name read from resume text header (when parser missed or used email)
+  if ((!firstName || !lastName) && textHeaderName && !isEmailDerivedName(textHeaderName, email)) {
+    const split = splitFullName(textHeaderName);
+    if (!firstName) firstName = split.firstName;
+    if (!lastName) lastName = split.lastName;
+    if (!rawFullName) rawFullName = textHeaderName;
   }
+
+  const hasUsableName = !!(firstName || lastName || rawFullName);
+
+  // Priority 3: intelligent email parse only when separators imply real parts (maryam.khan@…)
+  if (!hasUsableName && email) {
+    const fromEmail = parseIntelligentNameFromEmail(email);
+    if (fromEmail) {
+      firstName = fromEmail.firstName;
+      lastName = fromEmail.lastName;
+    }
+  }
+
+  // Priority 4: low confidence — leave blank (no blind email slug split)
 
   firstName = formatDisplayName(firstName);
   lastName = formatDisplayName(lastName);
 
   const combined = [firstName, lastName].filter(Boolean).join(' ').trim();
   const fromRaw = formatDisplayName(rawFullName);
-  const displayName =
-    fromRaw && (!lastName || fromRaw.replace(/\s+/g, '').length >= combined.replace(/\s+/g, '').length)
-      ? fromRaw
-      : combined || fromRaw;
+  const displayName = combined || fromRaw || formatDisplayName(textHeaderName);
 
   return {
-    firstName: firstName || (displayName ? displayName.split(/\s+/)[0] : ''),
+    firstName: firstName || (displayName && !lastName ? displayName.split(/\s+/)[0] : ''),
     lastName,
     displayName,
   };
@@ -706,10 +793,6 @@ function compareByRecent(a: { startDate?: string; current?: boolean }, b: { star
   const sa = String(a.startDate || '');
   const sb = String(b.startDate || '');
   return sb.localeCompare(sa);
-}
-
-function titleCase(s: string): string {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '';
 }
 
 function logSummary(t: Record<string, any>): void {
