@@ -343,11 +343,13 @@ export default function ResumeEditorPage() {
   };
 
   // Update form data — single source of truth; sync derived contact fields for preview
-  const updateFormData = useCallback((updates: Record<string, any>) => {
+  const updateFormData = useCallback(
+    (updates: Record<string, any> | ((prev: Record<string, any>) => Record<string, any>)) => {
     setFormData((prev) => {
-      const next = { ...prev, ...updates };
+      const patch = typeof updates === 'function' ? updates(prev) : updates;
+      const next = { ...prev, ...patch };
 
-      if ('firstName' in updates || 'lastName' in updates) {
+      if ('firstName' in patch || 'lastName' in patch) {
         const fn = String(next.firstName ?? '').trim();
         const ln = String(next.lastName ?? '').trim();
         const combined = [fn, ln].filter(Boolean).join(' ');
@@ -355,13 +357,26 @@ export default function ResumeEditorPage() {
         next['Full Name'] = combined;
       }
 
-      if ('summary' in updates) {
-        next.bio = updates.summary ?? '';
+      if ('summary' in patch) {
+        next.bio = patch.summary ?? '';
+      }
+
+      if ('hobbies' in patch) {
+        const list = Array.isArray(patch.hobbies) ? patch.hobbies : [];
+        next.hobbies = list;
+        next.Hobbies = list;
+        next['Hobbies & Interests'] = list;
+      }
+
+      if ('projects' in patch) {
+        const list = Array.isArray(patch.projects) ? patch.projects : [];
+        next.projects = list;
+        next.Projects = list;
       }
 
       const clearKeys = ['linkedin', 'phone', 'email', 'location', 'portfolio', 'summary', 'jobTitle'] as const;
       for (const key of clearKeys) {
-        if (key in updates && (updates[key] === '' || updates[key] == null)) {
+        if (key in patch && (patch[key] === '' || patch[key] == null)) {
           next[key] = '';
         }
       }

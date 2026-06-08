@@ -16,7 +16,25 @@ import {
 
 interface ProjectsStepProps {
   formData: Record<string, unknown>;
-  updateFormData: (updates: Record<string, unknown>) => void;
+  updateFormData: (
+    updates:
+      | Record<string, unknown>
+      | ((prev: Record<string, unknown>) => Record<string, unknown>)
+  ) => void;
+}
+
+function mergeTechnologySuggestion(existing: string, suggestion: string): string {
+  const parts = existing
+    .split(/[,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const add = suggestion.trim();
+  if (!add) return existing;
+  const seen = new Set(parts.map((p) => p.toLowerCase()));
+  if (!seen.has(add.toLowerCase())) {
+    parts.push(add);
+  }
+  return parts.join(', ');
 }
 
 interface Project {
@@ -84,20 +102,26 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       technologies: '',
       link: '',
     };
-    updateFormData({
-      projects: [...projects, newProject],
+    updateFormData((prev) => {
+      const current = Array.isArray(prev.projects) ? prev.projects : [];
+      return { projects: [...current, newProject] };
     });
   };
 
   const updateProject = (index: number, field: keyof Project, value: string) => {
-    const updated = [...projects];
-    updated[index] = { ...updated[index], [field]: value };
-    updateFormData({ projects: updated });
+    updateFormData((prev) => {
+      const current = Array.isArray(prev.projects) ? [...prev.projects] : [];
+      const existing = { ...((current[index] as Project) || {}) };
+      current[index] = { ...existing, [field]: value };
+      return { projects: current };
+    });
   };
 
   const removeProject = (index: number) => {
-    const updated = projects.filter((_, i) => i !== index);
-    updateFormData({ projects: updated });
+    updateFormData((prev) => {
+      const current = Array.isArray(prev.projects) ? prev.projects : [];
+      return { projects: current.filter((_, i) => i !== index) };
+    });
     // Clear suggestions for removed project
     setAiSuggestions(prev => {
       const newSuggestions = { ...prev };
@@ -388,7 +412,11 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                                 const key = `${index}-technologies`;
                                 skipProjectFetchRef.current[key] = true;
                                 applyProjectLockUntilRef.current[key] = Date.now() + 3000;
-                                updateProject(index, 'technologies', suggestion);
+                                updateProject(
+                                  index,
+                                  'technologies',
+                                  mergeTechnologySuggestion(technologies, suggestion)
+                                );
                               }}
                               className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
                             >

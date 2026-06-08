@@ -7,7 +7,11 @@ import { Plus, X, Sparkles, Loader2 } from 'lucide-react';
 
 interface HobbiesStepProps {
   formData: Record<string, unknown>;
-  updateFormData: (updates: Record<string, unknown>) => void;
+  updateFormData: (
+    updates:
+      | Record<string, unknown>
+      | ((prev: Record<string, unknown>) => Record<string, unknown>)
+  ) => void;
 }
 
 export default function HobbiesStep({ formData, updateFormData }: HobbiesStepProps) {
@@ -20,17 +24,25 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const addHobby = () => {
-    if (newHobby.trim() && !hobbies.includes(newHobby.trim())) {
-      updateFormData({
-        hobbies: [...hobbies, newHobby.trim()],
-      });
-      setNewHobby('');
-    }
+    const value = newHobby.trim();
+    if (!value) return;
+    updateFormData((prev) => {
+      const current = Array.isArray(prev.hobbies)
+        ? prev.hobbies.filter((h): h is string => typeof h === 'string')
+        : [];
+      if (current.includes(value)) return {};
+      return { hobbies: [...current, value] };
+    });
+    setNewHobby('');
   };
 
   const removeHobby = (index: number) => {
-    const updated = hobbies.filter((_, i) => i !== index);
-    updateFormData({ hobbies: updated });
+    updateFormData((prev) => {
+      const current = Array.isArray(prev.hobbies)
+        ? prev.hobbies.filter((h): h is string => typeof h === 'string')
+        : [];
+      return { hobbies: current.filter((_, i) => i !== index) };
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -138,7 +150,14 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
                     key={idx}
                     type="button"
                     onClick={() => {
-                      setNewHobby(suggestion);
+                      updateFormData((prev) => {
+                        const current = Array.isArray(prev.hobbies)
+                          ? prev.hobbies.filter((h): h is string => typeof h === 'string')
+                          : [];
+                        if (current.includes(suggestion)) return {};
+                        return { hobbies: [...current, suggestion] };
+                      });
+                      setNewHobby('');
                       setAiSuggestions([]);
                     }}
                     className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"

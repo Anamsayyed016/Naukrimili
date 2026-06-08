@@ -259,6 +259,7 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
     projects: [],
     certifications: [],
     languages: [],
+    hobbies: [],
     confidence: 0,
     rawText: text,
   };
@@ -295,6 +296,11 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
   const projBlock = extractSection(text, SECTION_ALIASES.projects);
   if (projBlock) {
     result.projects = parseProjects(projBlock.body);
+  }
+
+  const interestsBlock = extractSection(text, SECTION_ALIASES.interests);
+  if (interestsBlock) {
+    result.hobbies = parseHobbiesList(interestsBlock.body);
   }
 
   // Certifications + Languages — supports combined heading
@@ -947,6 +953,32 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
     gpa: e.gpa,
     description: '',
   }));
+}
+
+function parseHobbiesList(block: string): string[] {
+  if (!block) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const rawLine of block.split('\n')) {
+    const lineText = rawLine.trim().replace(/^[•\-\*\u2022]\s+/, '');
+    if (!lineText || lineText.length < 2) continue;
+    if (/^[A-Z][A-Za-z\s]+:?\s*$/.test(lineText) && lineText.length < 30) continue;
+
+    const parts = lineText
+      .split(/[,•|·\u2022\-–—]/)
+      .map((h) => h.trim())
+      .filter((h) => h.length >= 2 && h.length < 50);
+
+    for (const hobby of parts) {
+      const key = hobby.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(hobby);
+    }
+  }
+
+  return out;
 }
 
 function parseProjects(block: string): NonNullable<ExtractedResumeData['projects']> {

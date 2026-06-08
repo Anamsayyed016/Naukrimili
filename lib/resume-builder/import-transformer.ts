@@ -137,6 +137,13 @@ function supplementImportFromRawText(
   const parserProjects = firstNonEmptyArray(importedData, ['projects', 'Projects']);
   const parserCerts = firstNonEmptyArray(importedData, ['certifications', 'Certifications']);
   const parserLanguages = firstNonEmptyArray(importedData, ['languages', 'Languages']);
+  const parserHobbies = firstNonEmptyArray(importedData, [
+    'hobbies',
+    'Hobbies',
+    'Hobbies & Interests',
+    'interests',
+    'Interests',
+  ]);
 
   return {
     ...importedData,
@@ -180,6 +187,14 @@ function supplementImportFromRawText(
       parserLanguages,
       (textParsed.languages || []) as Array<Record<string, unknown>>,
       (l) => String((l as { name?: string }).name || l || '').trim().toLowerCase()
+    ),
+    hobbies: mergeUniqueStrings(
+      parserHobbies
+        .map((h) =>
+          typeof h === 'string' ? h : String((h as { name?: string }).name || '')
+        )
+        .filter((h) => h.trim().length > 0),
+      (textParsed.hobbies || []).filter((h): h is string => typeof h === 'string')
     ),
   };
 }

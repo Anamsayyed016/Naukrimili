@@ -703,9 +703,86 @@ export async function POST(request: NextRequest) {
           }
           parsedData.languages = merged;
         }
-        if ((parsedData.projects?.length || 0) === 0 && (recovered.projects?.length || 0) > 0) {
-          parsedData.projects = recovered.projects;
+        const recoveredProjects = recovered.projects || [];
+        if (recoveredProjects.length > 0) {
+          const existingProjects = (parsedData.projects || []) as Array<Record<string, unknown>>;
+          const slug = (s: unknown): string =>
+            String(s || '')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, ' ')
+              .trim();
+          const matchProject = (a: Record<string, unknown>, b: Record<string, unknown>): boolean => {
+            const an = slug(a.name || a.title);
+            const bn = slug(b.name || b.title);
+            return !!(an && bn && (an === bn || an.includes(bn) || bn.includes(an)));
+          };
+          const normTech = (t: unknown): string => {
+            if (Array.isArray(t)) {
+              return t.map((x) => String(x ?? '').trim()).filter(Boolean).join(', ');
+            }
+            return String(t || '').trim();
+          };
+          const enrichProject = (
+            base: Record<string, unknown>,
+            from: Record<string, unknown>
+          ): Record<string, unknown> => {
+            const name = String(base.name || base.title || from.name || '').trim();
+            const description = String(
+              base.description || base.summary || from.description || ''
+            ).trim();
+            const technologies =
+              normTech(base.technologies || base.tech_stack) ||
+              normTech(from.technologies);
+            const url = String(base.url || base.link || from.url || '').trim();
+            return {
+              ...base,
+              name,
+              title: String(base.title || base.name || from.name || name).trim(),
+              description,
+              summary: description,
+              technologies,
+              tech_stack: technologies,
+              url,
+              link: url,
+            };
+          };
+
+          if (existingProjects.length === 0) {
+            parsedData.projects = recoveredProjects.map((p) => enrichProject({}, p as Record<string, unknown>));
+          } else {
+            const usedRec = new Set<number>();
+            const enriched = existingProjects.map((proj) => {
+              const matchIdx = recoveredProjects.findIndex(
+                (r, i) => !usedRec.has(i) && matchProject(proj, r as Record<string, unknown>)
+              );
+              const match = matchIdx >= 0 ? (recoveredProjects[matchIdx] as Record<string, unknown>) : null;
+              if (matchIdx >= 0) usedRec.add(matchIdx);
+              return enrichProject(proj, match || {});
+            });
+            for (let i = 0; i < recoveredProjects.length; i++) {
+              if (usedRec.has(i)) continue;
+              enriched.push(enrichProject({}, recoveredProjects[i] as Record<string, unknown>));
+            }
+            parsedData.projects = enriched;
+          }
         }
+
+        if (Array.isArray(recovered.hobbies) && recovered.hobbies.length > 0) {
+          const existing = new Set(
+            (parsedData.hobbies || [])
+              .map((h: unknown) => String(typeof h === 'string' ? h : (h as { name?: string })?.name || '').toLowerCase())
+              .filter(Boolean)
+          );
+          const mergedHobbies = [...(parsedData.hobbies || [])];
+          for (const h of recovered.hobbies) {
+            const key = String(h || '').trim().toLowerCase();
+            if (!key || existing.has(key)) continue;
+            existing.add(key);
+            mergedHobbies.push(h);
+          }
+          parsedData.hobbies = mergedHobbies;
+        }
+
         if (!parsedData.summary && recovered.summary) {
           parsedData.summary = recovered.summary;
         }
@@ -1070,7 +1147,7 @@ export async function POST(request: NextRequest) {
           : { name: lang.name || lang.language || '', proficiency: lang.proficiency || lang.level || 'Fluent' }
       ),
       achievements: enhancedData.achievements || [],
-      hobbies: enhancedData.hobbies || [],
+      hobbies: parsedData.hobbies || enhancedData.hobbies || [],
       expectedSalary: parsedData.expected_salary || parsedData.salary_expectation || '',
       preferredJobType: parsedData.preferred_job_type || 'Full-time',
       confidence: parsedData.confidence || 85,
@@ -1530,6 +1607,7 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
       })),
       certifications: r.certifications || [],
       languages: r.languages || [],
+      hobbies: r.hobbies || [],
       confidence: r.confidence,
     };
   } catch (basicError: any) {
