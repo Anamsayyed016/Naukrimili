@@ -640,16 +640,36 @@ ${resumeText}`;
           })
         : [],
       projects: Array.isArray(data.projects) && data.projects.length > 0
-        ? data.projects.map((p: any) => ({
-            name: (p.name || p.title || '').toString().trim(),
-            description: (p.description || p.summary || '').toString(),
-            technologies: Array.isArray(p.technologies)
-              ? p.technologies.filter((t: any) => typeof t === 'string' && t.trim().length > 0)
-              : typeof p.technologies === 'string'
-                ? p.technologies.split(/[,;|]/).map((t: string) => t.trim()).filter(Boolean)
-                : [],
-            url: (p.url || p.link || '').toString().trim(),
-          })).filter((p: any) => p.name)
+        ? data.projects
+            .map((p: any, index: number) => {
+              const description = (p.description || p.summary || '').toString().trim();
+              const technologies = Array.isArray(p.technologies)
+                ? p.technologies.filter((t: any) => typeof t === 'string' && t.trim().length > 0)
+                : typeof p.technologies === 'string'
+                  ? p.technologies.split(/[,;|]/).map((t: string) => t.trim()).filter(Boolean)
+                  : [];
+              let name = (
+                p.name ||
+                p.title ||
+                p.projectName ||
+                p.project_title ||
+                p.ProjectName ||
+                p.ProjectTitle ||
+                ''
+              )
+                .toString()
+                .trim();
+              if (!name && (description || technologies.length > 0)) {
+                name = index === 0 ? 'Software Project' : `Project ${index + 1}`;
+              }
+              return {
+                name,
+                description,
+                technologies,
+                url: (p.url || p.link || '').toString().trim(),
+              };
+            })
+            .filter((p: any) => p.name)
         : [],
       education: Array.isArray(data.education) && data.education.length > 0
         ? data.education.map((edu: any) => ({

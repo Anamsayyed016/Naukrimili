@@ -421,14 +421,23 @@ export async function POST(request: NextRequest) {
           })),
           // Projects come straight from the prompt now.
           projects: Array.isArray(hybridResult.projects)
-            ? hybridResult.projects.map((p: any) => ({
-                name: p.name || '',
-                title: p.name || '',
-                description: p.description || '',
-                technologies: Array.isArray(p.technologies) ? p.technologies.join(', ') : (p.technologies || ''),
-                url: p.url || '',
-                link: p.url || '',
-              }))
+            ? hybridResult.projects
+                .map((p: any, index: number) => {
+                  const name = resolveProjectTitle(p, index);
+                  if (!name) return null;
+                  const technologies = Array.isArray(p.technologies)
+                    ? p.technologies.join(', ')
+                    : (p.technologies || '');
+                  return {
+                    name,
+                    title: name,
+                    description: p.description || p.summary || '',
+                    technologies,
+                    url: p.url || p.link || '',
+                    link: p.url || p.link || '',
+                  };
+                })
+                .filter(Boolean)
             : [],
           certifications: Array.isArray(hybridResult.certifications)
             ? hybridResult.certifications.map((cert: any) =>
@@ -1126,14 +1135,22 @@ export async function POST(request: NextRequest) {
           Location: location // Capitalized for template compatibility
         };
       }),
-      projects: (parsedData.projects || enhancedData.projects || []).map((proj: any) => ({
-        name: typeof proj === 'string' ? proj : (proj.name || proj.title || 'Project'),
-        description: typeof proj === 'string' ? proj : (proj.description || proj.summary || ''),
-        technologies: proj.technologies || proj.tech_stack || [],
-        url: proj.url || proj.link || '',
-        startDate: proj.start_date || proj.startDate || '',
-        endDate: proj.end_date || proj.endDate || ''
-      })),
+      projects: (parsedData.projects || enhancedData.projects || [])
+        .map((proj: any, index: number) => {
+          const name = resolveProjectTitle(proj, index);
+          if (!name) return null;
+          const rec = typeof proj === 'object' && proj ? proj : {};
+          return {
+            name,
+            description:
+              typeof proj === 'string' ? '' : String(rec.description || rec.summary || ''),
+            technologies: rec.technologies || rec.tech_stack || [],
+            url: rec.url || rec.link || '',
+            startDate: rec.start_date || rec.startDate || '',
+            endDate: rec.end_date || rec.endDate || '',
+          };
+        })
+        .filter(Boolean),
       certifications: (parsedData.certifications || []).map((cert: any) => ({
         name: typeof cert === 'string' ? cert : (cert.name || cert.title || ''),
         issuer: cert.issuer || cert.organization || '',
@@ -1159,6 +1176,9 @@ export async function POST(request: NextRequest) {
       ],
       jobSuggestions: generateJobSuggestions(parsedData)
     };
+
+    console.log('FINAL PROJECTS COUNT', profile.projects?.length);
+    console.log('FINAL PROJECT SAMPLE', profile.projects?.[0]);
 
     log('FINAL PROFILE shape', {
       aiProvider,
@@ -1640,6 +1660,38 @@ function computeDuration(startDate: string, endDate: string): string {
     return `${startDate} - Present`;
   }
   return `${startDate} - ${endDate}`;
+}
+
+function resolveProjectTitle(proj: unknown, index: number): string {
+  if (typeof proj === 'string') {
+    const name = proj.trim();
+    return name || (index === 0 ? 'Software Project' : `Project ${index + 1}`);
+  }
+  if (!proj || typeof proj !== 'object') return '';
+
+  const rec = proj as Record<string, unknown>;
+  const name = String(
+    rec.name ||
+      rec.title ||
+      rec.projectName ||
+      rec.project_title ||
+      rec.ProjectName ||
+      rec.ProjectTitle ||
+      ''
+  ).trim();
+  if (name) return name;
+
+  const description = String(rec.description || rec.summary || '').trim();
+  const techRaw = rec.technologies ?? rec.tech_stack ?? rec.techStack;
+  const hasTech = Array.isArray(techRaw)
+    ? techRaw.length > 0
+    : String(techRaw || '').trim().length > 0;
+
+  if (description || hasTech) {
+    return index === 0 ? 'Software Project' : `Project ${index + 1}`;
+  }
+
+  return '';
 }
 
 /**

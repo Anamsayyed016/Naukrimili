@@ -135,9 +135,11 @@ const SECTION_ALIASES = {
     'soft skills', 'hard skills', 'professional skills',
   ],
   projects: [
-    'projects', 'personal projects', 'key projects', 'notable projects',
-    'portfolio projects', 'portfolio', 'work samples', 'samples of work',
-    'case studies', 'case study', 'select projects', 'featured projects',
+    'projects', 'project', 'personal projects', 'key projects', 'major projects',
+    'academic projects', 'notable projects', 'portfolio projects', 'portfolio',
+    'featured projects', 'software projects', 'applications developed',
+    'selected work', 'work samples', 'samples of work',
+    'case studies', 'case study', 'select projects',
     'side projects', 'open source projects', 'open source contributions',
   ],
   certifications: [
@@ -988,7 +990,16 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
   let current: { name: string; description: string; technologies: string[]; url?: string } | null = null;
 
   const flush = () => {
-    if (current && current.name) out.push(current);
+    if (!current) return;
+    if (!current.name.trim()) {
+      if (current.description.trim() || current.technologies.length > 0) {
+        current.name = out.length === 0 ? 'Software Project' : `Project ${out.length + 1}`;
+      } else {
+        current = null;
+        return;
+      }
+    }
+    out.push(current);
     current = null;
   };
 
@@ -996,7 +1007,9 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
     // A project header is typically a short, title-cased line, possibly with a colon.
     const isHeader =
       line.length < 100 &&
-      (/^[A-Z][A-Za-z0-9 &/\-_'.]{2,}(?::|$)/.test(line) || /^[•\-\*]\s+[A-Z]/.test(line));
+      (/^[A-Z][A-Za-z0-9 &/\-_'.]{2,}(?::|$)/.test(line) ||
+        /^[A-Z][A-Z0-9 &/\-_'.]{2,}$/.test(line) ||
+        /^[•\-\*]\s+[A-Z]/.test(line));
 
     if (isHeader && (!current || current.description.length > 30)) {
       flush();
