@@ -983,6 +983,26 @@ function parseHobbiesList(block: string): string[] {
   return out;
 }
 
+function looksLikeProjectTitle(line: string): boolean {
+  const cleaned = line
+    .replace(/^[•\-\*\u2022]\s+/, '')
+    .split('|')[0]
+    .replace(/:.*$/, '')
+    .trim();
+  if (!cleaned || cleaned.length > 80 || cleaned.length < 2) return false;
+  if (
+    /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated)\b/i.test(
+      cleaned
+    )
+  ) {
+    return false;
+  }
+  if (/^[^|]{2,60}\s*\|\s*\S/.test(line)) return true;
+  if (/^[A-Z][A-Za-z0-9 &/\-_'".]{2,}$/.test(cleaned)) return true;
+  if (/^[A-Z][A-Z0-9 &/\-_'.]{2,}$/.test(cleaned)) return true;
+  return false;
+}
+
 function parseProjects(block: string): NonNullable<ExtractedResumeData['projects']> {
   if (!block) return [];
   const lines = block.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -1004,15 +1024,7 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
   };
 
   for (const line of lines) {
-    // A project header is typically a short, title-cased line, possibly with a colon.
-    const isHeader =
-      line.length < 100 &&
-      (/^[A-Z][A-Za-z0-9 &/\-_'.]{2,}(?::|$)/.test(line) ||
-        /^[A-Z][A-Z0-9 &/\-_'.]{2,}$/.test(line) ||
-        /^[•\-\*\u2022]\s+\S/.test(line) ||
-        /^[^|]{2,60}\s*\|\s*\S/.test(line));
-
-    if (isHeader && (!current || current.description.length > 30)) {
+    if (looksLikeProjectTitle(line)) {
       flush();
       let name = line
         .replace(/^[•\-\*\u2022]\s+/, '')

@@ -10,6 +10,7 @@ import {
   enhanceContextForRequest,
   dedupeSuggestions,
   getExperienceBulletSuggestions,
+  getHobbySuggestions,
   finalizeSuggestionResponse,
   rankSuggestionsByQuality,
   SUGGESTION_LIMIT_DEFAULT,
@@ -175,6 +176,10 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
         : undefined,
       isDescription: true,
     });
+  }
+
+  if (field === 'hobbies' || field === 'hobby') {
+    return getHobbySuggestions(_value || '');
   }
   
   // DYNAMIC JOB TITLE SUGGESTIONS based on keywords

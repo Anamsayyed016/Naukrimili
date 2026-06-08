@@ -11,6 +11,7 @@ import {
 import {
   getExperienceBulletSuggestions,
   getSummarySuggestions,
+  getHobbySuggestions,
   isJobPostingText,
   dedupeSuggestions,
 } from '@/lib/resume-builder/suggestion-orchestrator';
@@ -971,7 +972,9 @@ Return ONLY a JSON array of position strings, no other text.`;
         'https://yourname.github.io',
         'https://yourname.vercel.app',
         'https://yourname.netlify.app'
-      ]
+      ],
+      hobbies: getHobbySuggestions(value || ''),
+      hobby: getHobbySuggestions(value || ''),
     };
 
     const resolvedField =

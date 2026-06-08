@@ -4,6 +4,8 @@ import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, X, Sparkles, Loader2 } from 'lucide-react';
+import { getHobbySuggestions } from '@/lib/resume-builder/suggestion-orchestrator';
+import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 
 interface HobbiesStepProps {
   formData: Record<string, unknown>;
@@ -53,10 +55,15 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
   };
 
   const fetchAISuggestions = async (value: string) => {
-    // Reduced minimum length to 1 character for faster suggestions
-    if (!value || value.trim().length < 1) {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.length < 2) {
       setAiSuggestions([]);
       return;
+    }
+
+    const instant = getHobbySuggestions(trimmed);
+    if (instant.length > 0) {
+      setAiSuggestions(instant);
     }
 
     if (debounceTimer.current) {
@@ -72,14 +79,14 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             field: 'hobbies',
-            value,
-            context: {
-              jobTitle: formData.jobTitle || formData.title || '',
-              skills: Array.isArray(formData.skills) ? formData.skills : [],
-              experienceLevel: formData.experienceLevel || 'mid-level',
-              industry: formData.industry || '',
-              userInput: value
-            }
+            value: trimmed,
+            formData,
+            context: buildSmartSuggestionContext({
+              formData,
+              currentSection: 'hobbies',
+              currentField: 'hobbies',
+              userInput: trimmed,
+            }),
           })
         });
 
@@ -87,7 +94,10 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
           const data = await response.json();
           console.log('✅ Hobbies suggestions received:', { count: data.suggestions?.length, provider: data.aiProvider });
           if (data.success && data.suggestions && Array.isArray(data.suggestions)) {
-            setAiSuggestions(data.suggestions);
+            const merged = [
+              ...new Set([...getHobbySuggestions(trimmed), ...data.suggestions]),
+            ].slice(0, 8);
+            setAiSuggestions(merged);
           } else {
             console.warn('⚠️ No suggestions in response:', data);
             setAiSuggestions([]);
@@ -102,7 +112,7 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
       } finally {
         setLoadingSuggestions(false);
       }
-    }, 600);
+    }, 300);
   };
 
   return (

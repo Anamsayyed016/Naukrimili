@@ -424,17 +424,47 @@ export function resolveDeterministicSuggestions(
     });
   }
 
-  if (field === 'skills' && value.trim().length >= 1) {
+  if (field === 'skills' && (context.currentSection === 'projects' || context.isProjectDescription)) {
     const themed = getProjectTechnologySuggestions({
-      userInput: projectName || value,
+      userInput: value,
       jobTitle,
       skills,
-      projectName,
+      projectName: String(context.projectName || context.currentProjectName || ''),
+      projectDescription: String(context.projectDescription || ''),
+      technologies: tech,
     });
     if (themed.length) return themed;
   }
 
+  if (field === 'hobbies' || field === 'hobby') {
+    return getHobbySuggestions(value);
+  }
+
   return null;
+}
+
+const HOBBY_SUGGESTION_POOL = [
+  'Badminton', 'Badminton Coaching', 'Sports', 'Fitness', 'Photography', 'Photo Editing',
+  'Travel Photography', 'Reading', 'Book Reviews', 'Technical Reading', 'Traveling',
+  'Cultural Exploration', 'Cooking', 'Music', 'Guitar', 'Volunteering', 'Cycling', 'Hiking',
+  'Yoga', 'Meditation', 'Chess', 'Blogging', 'Gardening', 'Painting', 'Swimming',
+  'Cricket', 'Football', 'Basketball', 'Running', 'Writing', 'Podcasting', 'Drawing',
+];
+
+export function getHobbySuggestions(userInput: string): string[] {
+  const q = userInput.trim().toLowerCase();
+  if (q.length < 2) return [];
+  const scored = HOBBY_SUGGESTION_POOL.map((hobby) => {
+    const hl = hobby.toLowerCase();
+    let score = 0;
+    if (hl.startsWith(q)) score += 3;
+    else if (hl.includes(q)) score += 2;
+    else if (hl.split(/\s+/).some((word) => word.startsWith(q))) score += 1;
+    return { hobby, score };
+  })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored.map((entry) => entry.hobby).slice(0, 8);
 }
 
 export function filterSuggestionsForResumeField(

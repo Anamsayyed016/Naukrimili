@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
+import { getProjectTechnologySuggestions } from '@/lib/resume-builder/project-aware-suggestions';
 import {
   mergeStringSuggestions,
   pickMergeMode,
@@ -61,6 +62,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     options?: { regenerate?: boolean }
   ) => {
     const projectName = projects[index]?.name || '';
+    const projectDescription = projects[index]?.description || '';
     const techList =
       typeof projects[index]?.technologies === 'string'
         ? projects[index]!.technologies!.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
@@ -80,7 +82,8 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
           formData,
           currentSection: 'projects',
           currentField: field,
-          projectName: field === 'description' ? projectName : value,
+          projectName,
+          projectDescription,
           technologies: techList,
           userInput: value,
           isProjectDescription: field === 'description',
@@ -133,13 +136,28 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
 
   // Fetch AI suggestions dynamically
   const fetchAISuggestions = async (index: number, field: 'name' | 'description' | 'technologies', value: string) => {
-    // Reduced minimum length to 1 character for faster, more dynamic suggestions
     if (!value || value.trim().length < 1) {
       setAiSuggestions(prev => ({
         ...prev,
         [index]: { ...prev[index], [field]: [] }
       }));
       return;
+    }
+
+    if (field === 'technologies') {
+      const instant = getProjectTechnologySuggestions({
+        userInput: value,
+        projectName: projects[index]?.name || '',
+        projectDescription: projects[index]?.description || '',
+        technologies: value.split(/[,;]/).map((s) => s.trim()).filter(Boolean),
+        skills: Array.isArray(formData.skills) ? (formData.skills as string[]) : [],
+      });
+      if (instant.length > 0) {
+        setAiSuggestions((prev) => ({
+          ...prev,
+          [index]: { ...prev[index], technologies: instant },
+        }));
+      }
     }
 
     const timerKey = `${index}-${field}`;

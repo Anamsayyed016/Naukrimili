@@ -142,6 +142,9 @@ export function buildSmartSuggestionContext(
     currentSection: String(input.currentSection || base.currentSection || ''),
     currentField: String(input.currentField || base.currentField || ''),
     projectName: String(input.projectName || base.currentProjectName || ''),
+    projectDescription: String(
+      input.projectDescription || base.projectDescription || ''
+    ),
     technologies,
     skills,
     jobDescription: jdText,

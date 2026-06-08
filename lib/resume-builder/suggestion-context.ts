@@ -7,6 +7,7 @@ export interface ResumeSuggestionContextInput {
   currentSection?: string;
   currentField?: string;
   projectName?: string;
+  projectDescription?: string;
   technologies?: string[];
   userInput?: string;
   isProjectDescription?: boolean;
@@ -60,6 +61,7 @@ export function buildResumeSuggestionContext(
       ? input.technologies
       : techFromProjects.slice(0, 8),
     currentProjectName: input.projectName || '',
+    projectDescription: input.projectDescription || '',
     currentSection: input.currentSection || '',
     currentField: input.currentField || '',
     userInput: input.userInput || '',

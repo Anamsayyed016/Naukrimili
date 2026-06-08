@@ -7,9 +7,46 @@ export interface ProjectAwareInput {
   jobTitle?: string;
   skills?: string[];
   projectName?: string;
+  projectDescription?: string;
   technologies?: string[];
   isDescription?: boolean;
   regenerateIndex?: number;
+}
+
+const KNOWN_TECHNOLOGIES = [
+  'React', 'React.js', 'Next.js', 'Node.js', 'Express', 'PostgreSQL', 'MongoDB', 'MySQL',
+  'JWT', 'REST API', 'GraphQL', 'TypeScript', 'JavaScript', 'Python', 'Django', 'FastAPI',
+  'Redis', 'AWS', 'Docker', 'Kubernetes', 'Prisma', 'Tailwind CSS', 'Tailwind', 'Vue.js',
+  'Angular', 'Java', 'Spring Boot', 'Firebase', 'Supabase', 'OpenAI API', 'TensorFlow',
+  'Git', 'CI/CD', 'HTML', 'CSS', 'SASS', 'Webpack', 'Vite', 'Flask', 'Ruby on Rails',
+  'Go', 'Golang', 'C#', '.NET', 'PHP', 'Laravel', 'Elasticsearch', 'Kafka', 'RabbitMQ',
+];
+
+function extractTechnologiesFromText(text: string): string[] {
+  if (!text.trim()) return [];
+  const lower = text.toLowerCase();
+  const found: string[] = [];
+  for (const tech of KNOWN_TECHNOLOGIES) {
+    if (lower.includes(tech.toLowerCase())) {
+      found.push(tech);
+    }
+  }
+  const builtWith = text.match(
+    /(?:built\s+with|using|stack|technologies?|tech)\s*:?\s*([^.;\n]+)/i
+  );
+  if (builtWith?.[1]) {
+    for (const part of builtWith[1].split(/[,;|/&]+/)) {
+      const token = part.trim();
+      if (token.length >= 2 && token.length <= 40) found.push(token);
+    }
+  }
+  const seen = new Set<string>();
+  return found.filter((t) => {
+    const key = t.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function normalizeToken(s: string): string {
@@ -173,9 +210,29 @@ export function getProjectDescriptionSuggestions(input: ProjectAwareInput): stri
 }
 
 export function getProjectTechnologySuggestions(input: ProjectAwareInput): string[] {
-  const name = input.projectName || input.userInput || '';
-  const theme = matchTheme(name);
-  const base = theme?.tech || defaultTech(input.skills || []);
-  const existing = new Set((input.skills || []).map((s) => s.toLowerCase()));
-  return base.filter((t) => !existing.has(t.toLowerCase())).slice(0, 8);
+  const name = input.projectName || '';
+  const description = input.projectDescription || '';
+  const combined = `${name} ${description}`.trim();
+  const theme = matchTheme(combined || input.userInput || '');
+  const fromText = extractTechnologiesFromText(combined);
+  const fromInput = extractTechnologiesFromText(input.userInput || '');
+  const base = [...fromText, ...fromInput, ...(theme?.tech || []), ...defaultTech(input.skills || [])];
+  const alreadyUsed = new Set(
+    [
+      ...(input.technologies || []),
+      ...(input.userInput || '').split(/[,;]/).map((s) => s.trim()),
+    ]
+      .map((s) => s.toLowerCase())
+      .filter(Boolean)
+  );
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const tech of base) {
+    const key = tech.toLowerCase();
+    if (!key || seen.has(key) || alreadyUsed.has(key)) continue;
+    seen.add(key);
+    out.push(tech);
+    if (out.length >= 8) break;
+  }
+  return out;
 }
