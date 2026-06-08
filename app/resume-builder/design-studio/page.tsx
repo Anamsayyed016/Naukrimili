@@ -311,6 +311,9 @@ export default function DesignStudioPage() {
           <TemplateGalleryPanel
             templates={templates}
             selectedTemplateId={selectedTemplate.id}
+            formData={formData}
+            selectedColorId={selectedColorId}
+            typographyCss={typographyCss}
             onSelect={(id) => {
               handleTemplateSelect(id);
               if (mobileSheetOpen) setMobileSheetOpen(false);

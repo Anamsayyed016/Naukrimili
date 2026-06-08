@@ -3,21 +3,23 @@
 /**
  * Design Studio — Templates panel
  *
- * Renders a searchable, filterable list of templates using each template's
- * static thumbnail SVG (already shipped under `public/templates/<id>/`).
- * No iframes here — the heavy live render is reserved for the right-side
- * preview only, so the sidebar stays smooth even with 12+ templates.
+ * Sidebar template cards are mini live previews of the user's resume data
+ * (same template-loader + GalleryResumePreview pipeline as the public gallery,
+ * but always uses real formData — never demo fallbacks).
  */
 
 import { useMemo, useState } from 'react';
-import Image from 'next/image';
-import { Check, Search, Star } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Template } from '@/lib/resume-builder/types';
+import DesignStudioTemplateCard from '@/components/resume-builder/design-studio/DesignStudioTemplateCard';
 
 interface TemplateGalleryPanelProps {
   templates: Template[];
   selectedTemplateId: string;
+  formData: Record<string, unknown>;
+  selectedColorId?: string;
+  typographyCss?: string;
   onSelect: (templateId: string) => void;
 }
 
@@ -28,6 +30,9 @@ function unique<T>(arr: T[]): T[] {
 export default function TemplateGalleryPanel({
   templates,
   selectedTemplateId,
+  formData,
+  selectedColorId,
+  typographyCss,
   onSelect,
 }: TemplateGalleryPanelProps) {
   const [query, setQuery] = useState('');
@@ -94,61 +99,17 @@ export default function TemplateGalleryPanel({
       </div>
 
       <div className="design-studio-template-grid">
-        {filtered.map((template) => {
-          const isSelected = template.id === selectedTemplateId;
-          const thumb = template.thumbnail || template.preview;
-          return (
-            <button
-              key={template.id}
-              type="button"
-              onClick={() => onSelect(template.id)}
-              aria-pressed={isSelected}
-              className={cn(
-                'design-studio-template-card',
-                isSelected && 'design-studio-template-card--selected'
-              )}
-            >
-              <div className="design-studio-template-card__thumb">
-                {thumb ? (
-                  <Image
-                    src={thumb}
-                    alt={template.name}
-                    fill
-                    sizes="(max-width: 1024px) 50vw, 240px"
-                    className="design-studio-template-card__thumb-img"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="design-studio-template-card__thumb-fallback">
-                    {template.name}
-                  </div>
-                )}
-
-                {isSelected && (
-                  <div className="design-studio-template-card__check">
-                    <Check className="h-4 w-4" aria-hidden />
-                  </div>
-                )}
-                {template.recommended && !isSelected && (
-                  <div className="design-studio-template-card__badge">
-                    <Star className="h-3 w-3" aria-hidden />
-                    <span>Recommended</span>
-                  </div>
-                )}
-              </div>
-              <div className="design-studio-template-card__meta">
-                <p className="design-studio-template-card__name">
-                  {template.name}
-                </p>
-                {template.layout && (
-                  <p className="design-studio-template-card__layout">
-                    {template.layout}
-                  </p>
-                )}
-              </div>
-            </button>
-          );
-        })}
+        {filtered.map((template) => (
+          <DesignStudioTemplateCard
+            key={template.id}
+            template={template}
+            formData={formData}
+            isSelected={template.id === selectedTemplateId}
+            selectedColorId={selectedColorId}
+            typographyCss={typographyCss}
+            onSelect={() => onSelect(template.id)}
+          />
+        ))}
 
         {filtered.length === 0 && (
           <p className="design-studio-template-grid__empty">

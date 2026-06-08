@@ -309,6 +309,7 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -324,6 +325,7 @@
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
