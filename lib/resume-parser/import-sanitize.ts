@@ -122,6 +122,43 @@ export function parseIntelligentNameFromEmail(
   return null;
 }
 
+function nameWordCount(name: string): number {
+  return String(name || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+/**
+ * Choose the more complete personal name when parser and text recovery disagree.
+ * Prefers non-email-derived names and names with more tokens (e.g. "Maryam Khan" over "Maryam").
+ */
+export function pickRicherFullName(primary: string, secondary: string, email = ''): string {
+  const a = sanitizeFieldText(primary, 120);
+  const b = sanitizeFieldText(secondary, 120);
+
+  if (!a && !b) return '';
+  if (!a) return isEmailDerivedName(b, email) ? '' : b;
+  if (!b) return isEmailDerivedName(a, email) ? '' : a;
+
+  const aDerived = isEmailDerivedName(a, email);
+  const bDerived = isEmailDerivedName(b, email);
+  if (aDerived && !bDerived) return b;
+  if (!aDerived && bDerived) return a;
+
+  const aWords = nameWordCount(a);
+  const bWords = nameWordCount(b);
+  if (bWords > aWords) return b;
+  if (aWords > bWords) return a;
+
+  const al = a.toLowerCase();
+  const bl = b.toLowerCase();
+  if (bl.startsWith(al) && b.length > a.length) return b;
+  if (al.startsWith(bl) && a.length > b.length) return a;
+
+  return a;
+}
+
 export function splitFullName(fullName: string): { firstName: string; lastName: string } {
   const raw = sanitizeFieldText(fullName, 120);
   if (!raw) return { firstName: '', lastName: '' };

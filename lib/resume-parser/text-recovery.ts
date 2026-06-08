@@ -480,6 +480,21 @@ function isAnyHeadingLine(line: string): boolean {
 
 function extractName(text: string): string {
   const lines = text.split('\n').map((l) => l.trim());
+
+  const SECTION_WORD_RE =
+    /\b(?:contact|info|information|personal|details|profile|professional|technical|career|objective|summary|education|experience|skills|projects|certifications|languages|references|hobbies|interests|achievements|awards|honors|recognition|portfolio|expertise|competencies|background|qualifications|introduction|overview|biography|bio|about|me|page|of|continued|section|sections)\b/i;
+
+  const titleCaseWords = (value: string): string =>
+    value
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+
+  const isNameToken = (token: string): boolean =>
+    /^[A-Za-z'-]{2,20}$/.test(token) && !SECTION_WORD_RE.test(token);
+
   const trySegment = (raw: string): string | null => {
     const seg = raw.trim();
     if (!seg) return null;
@@ -488,12 +503,6 @@ function extractName(text: string): string {
     if (/^https?:|\bwww\./i.test(seg)) return null;
     if (/\d/.test(seg)) return null;
     if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(seg)) return null;
-
-    // Defensive: a small set of words that LOOK like names but are actually
-    // generic resume section headings. Anchored case-insensitively so
-    // "CONTACT INFO", "Personal Details", "Professional Profile" never get
-    // captured as the candidate's name.
-    const SECTION_WORD_RE = /\b(?:contact|info|information|personal|details|profile|professional|technical|career|objective|summary|education|experience|skills|projects|certifications|languages|references|hobbies|interests|achievements|awards|honors|recognition|portfolio|expertise|competencies|background|qualifications|introduction|overview|biography|bio|about|me|page|of|continued|section|sections)\b/i;
     if (SECTION_WORD_RE.test(seg)) return null;
 
     // "First Last" / "First Middle Last" — Title case
@@ -501,21 +510,25 @@ function extractName(text: string): string {
 
     // ALL CAPS short multi-word name
     if (/^[A-Z][A-Z\s'-]{2,}$/.test(seg) && seg.split(/\s+/).length >= 2 && seg.length < 50) {
-      return seg
-        .toLowerCase()
-        .split(/\s+/)
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
+      return titleCaseWords(seg);
+    }
+
+    // Mixed / lowercase multi-word: "maryam khan", "MOHAMMAD arif"
+    const words = seg.split(/\s+/).filter(Boolean);
+    if (words.length >= 2 && words.length <= 4 && words.every(isNameToken)) {
+      return titleCaseWords(seg);
     }
 
     // CamelCase un-glue: PDF extractors sometimes drop the space between
-    // first and last name ("AnamSayyed"). Recover this when it looks like
-    // exactly two capitalized chunks, neither of which is a section word.
+    // first and last name ("AnamSayyed").
     const camelMatch = seg.match(/^([A-Z][a-z'-]{1,15})([A-Z][a-z'-]{1,20})$/);
     if (camelMatch) {
       const reconstructed = `${camelMatch[1]} ${camelMatch[2]}`;
       if (!SECTION_WORD_RE.test(reconstructed)) return reconstructed;
     }
+
+    // ALL CAPS single token (common when PDF splits names across lines)
+    if (/^[A-Z]{3,15}$/.test(seg)) return titleCaseWords(seg);
 
     // Single-word names — accept only if it's clearly a personal name token
     if (/^[A-Z][a-z'-]{2,}$/.test(seg)) return seg;
@@ -523,14 +536,44 @@ function extractName(text: string): string {
     return null;
   };
 
+  const tryMergeHeaderLines = (start: number): string | null => {
+    let merged = '';
+    for (let i = start; i < Math.min(lines.length, start + 4, 10); i++) {
+      const line = lines[i];
+      if (!line || isAnyHeadingLine(line)) break;
+      if (/[|·•\u2022@+]/.test(line)) break;
+
+      const tokens = line.split(/\s+/).filter(Boolean);
+      if (!tokens.length || tokens.length > 3 || !tokens.every(isNameToken)) break;
+
+      merged = merged ? `${merged} ${line}` : line;
+      const candidate = trySegment(merged);
+      if (candidate && candidate.split(/\s+/).length >= 2) return candidate;
+      if (merged.split(/\s+/).length >= 4) break;
+    }
+    return merged ? trySegment(merged) : null;
+  };
+
+  // Multi-line headers: "Maryam" on line 1 + "Khan" on line 2, or "MOHAMMAD" + "ARIF KHAN"
+  for (let i = 0; i < Math.min(lines.length, 8); i++) {
+    const merged = tryMergeHeaderLines(i);
+    if (merged && merged.split(/\s+/).length >= 2) return merged;
+  }
+
   for (let i = 0; i < Math.min(lines.length, 10); i++) {
     const line = lines[i];
     if (!line) continue;
     if (isAnyHeadingLine(line)) continue;
 
-    // Direct line match
     const direct = trySegment(line);
-    if (direct) return direct;
+    if (direct) {
+      // Single-token hit: peek at following lines before accepting a partial name
+      if (direct.split(/\s+/).length === 1) {
+        const merged = tryMergeHeaderLines(i);
+        if (merged && merged.split(/\s+/).length >= 2) return merged;
+      }
+      return direct;
+    }
 
     // Header with separators: "Anam Sayyed | Software Engineer | New York"
     if (/[|·•\u2022]|\s-\s|\s\u2013\s|\s\u2014\s/.test(line)) {

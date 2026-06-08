@@ -32,6 +32,7 @@ import {
 } from '@/lib/resume-parser/normalize-extracted';
 import {
   splitFullName,
+  pickRicherFullName,
   sanitizeFieldText,
   isEmailDerivedName,
   parseIntelligentNameFromEmail,
@@ -112,14 +113,18 @@ function supplementImportFromRawText(
 
   const textParsed = fromText ?? extractResumeFromText(rawText);
   const email = String(importedData.email || textParsed.email || '');
+  const personal = (importedData.personalInformation || {}) as Record<string, unknown>;
 
-  let fullName = sanitizeFieldText(
-    importedData.fullName || importedData.name || '',
-    120
+  let fullName = pickRicherFullName(
+    sanitizeFieldText(importedData.fullName || importedData.name || '', 120),
+    sanitizeFieldText(textParsed.fullName || '', 120),
+    email
   );
-  if ((!fullName || isEmailDerivedName(fullName, email)) && textParsed.fullName) {
-    fullName = sanitizeFieldText(textParsed.fullName, 120);
-  }
+  fullName = pickRicherFullName(
+    fullName,
+    sanitizeFieldText(personal.fullName || '', 120),
+    email
+  );
 
   const parserExperience = firstNonEmptyArray(importedData, [
     'experience',
@@ -443,16 +448,25 @@ function resolveName(
   headerNameFromText = ''
 ): { firstName: string; lastName: string; displayName: string } {
   const personal = importedData.personalInformation || {};
-
-  let firstName = sanitizeFieldText(importedData.firstName || personal.firstName || '', 80);
-  let lastName = sanitizeFieldText(importedData.lastName || personal.lastName || '', 80);
-
-  let rawFullName = sanitizeFieldText(
-    importedData.fullName || importedData.name || personal.fullName || '',
-    120
-  );
-
   const textHeaderName = sanitizeFieldText(headerNameFromText, 120);
+
+  const explicitCombined = [
+    sanitizeFieldText(importedData.firstName || personal.firstName || '', 80),
+    sanitizeFieldText(importedData.lastName || personal.lastName || '', 80),
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  let rawFullName = '';
+  for (const candidate of [
+    explicitCombined,
+    importedData.fullName,
+    importedData.name,
+    personal.fullName,
+    textHeaderName,
+  ]) {
+    rawFullName = pickRicherFullName(rawFullName, sanitizeFieldText(candidate, 120), email);
+  }
 
   const garbage =
     isGarbageResumeText(rawFullName) ||
@@ -461,37 +475,21 @@ function resolveName(
 
   if (garbage) rawFullName = '';
 
-  // Drop email-slug names from parser when resume header has a real name
+  // Drop email-slug names when resume text has a fuller real name
   if (rawFullName && email && isEmailDerivedName(rawFullName, email)) {
-    if (textHeaderName && !isEmailDerivedName(textHeaderName, email)) {
-      rawFullName = textHeaderName;
-      firstName = '';
-      lastName = '';
-    } else {
-      rawFullName = '';
-    }
+    const richerHeader = textHeaderName && !isEmailDerivedName(textHeaderName, email)
+      ? textHeaderName
+      : '';
+    rawFullName = pickRicherFullName('', richerHeader, email);
   }
 
-  if (firstName && email && isEmailDerivedName(firstName, email) && !lastName) {
-    firstName = '';
-  }
+  let firstName = '';
+  let lastName = '';
 
-  // Priority 1–2: explicit full name from parser / profile header
-  if (!firstName && !lastName && rawFullName) {
+  if (rawFullName) {
     const split = splitFullName(rawFullName);
     firstName = split.firstName;
     lastName = split.lastName;
-  } else if (firstName && !lastName && rawFullName.includes(' ')) {
-    const split = splitFullName(rawFullName);
-    if (!lastName) lastName = split.lastName;
-  }
-
-  // Priority 2b: name read from resume text header (when parser missed or used email)
-  if ((!firstName || !lastName) && textHeaderName && !isEmailDerivedName(textHeaderName, email)) {
-    const split = splitFullName(textHeaderName);
-    if (!firstName) firstName = split.firstName;
-    if (!lastName) lastName = split.lastName;
-    if (!rawFullName) rawFullName = textHeaderName;
   }
 
   const hasUsableName = !!(firstName || lastName || rawFullName);
