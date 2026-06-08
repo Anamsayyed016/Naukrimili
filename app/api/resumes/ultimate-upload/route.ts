@@ -588,11 +588,15 @@ export async function POST(request: NextRequest) {
     // grouped technical skills, projects with bullet points, etc., when the
     // primary parser returns flat or empty data for those sections.
     let recoveredFullName = '';
+    let lastRecovered: Awaited<
+      ReturnType<(typeof import('@/lib/resume-parser/text-recovery'))['extractResumeFromText']>
+    > | null = null;
     try {
       const { extractResumeFromText } = await import('@/lib/resume-parser/text-recovery');
       const text = (extractedText || '').trim();
       if (text.length > 100) {
         const recovered = extractResumeFromText(text);
+        lastRecovered = recovered;
         const emailForName = String(parsedData.email || session.user.email || '');
         recoveredFullName = String(recovered.fullName || '').trim();
 
@@ -1025,6 +1029,10 @@ export async function POST(request: NextRequest) {
 
     // Enhanced field extraction with fallback parsing for missing fields
     const enhancedData = enhanceExtractedData(parsedData, extractedText);
+
+    console.log('PARSED PROJECTS', parsedData.projects);
+    console.log('RECOVERED PROJECTS', lastRecovered?.projects);
+    console.log('ENHANCED PROJECTS', enhancedData.projects);
     
     // Convert to the format expected by the frontend with ALL fields
     const profile = {

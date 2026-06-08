@@ -47,6 +47,7 @@ interface Project {
 
 export default function ProjectsStep({ formData, updateFormData }: ProjectsStepProps) {
   const projects: Project[] = Array.isArray(formData.projects) ? formData.projects : [];
+  console.log('[ProjectsStep] projects.length', projects.length, 'projects[0]', projects[0]);
   const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: { name?: string[]; description?: string[]; technologies?: string[] } }>({});
   const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { name?: boolean; description?: boolean; technologies?: boolean } }>({});
   const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});

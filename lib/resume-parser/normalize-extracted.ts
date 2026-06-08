@@ -530,7 +530,24 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     skills,
     experience: Array.from(experienceMap.values()),
     education: Array.from(educationMap.values()),
-    projects: (data.projects || []).filter((p) => cleanString(p.name)),
+    projects: (data.projects || [])
+      .map((p: ExtractedResumeData['projects'][0], index: number) => {
+        const name =
+          cleanString(p.name) ||
+          cleanString((p as { title?: string }).title) ||
+          cleanString((p as { projectName?: string }).projectName);
+        if (name) return { ...p, name };
+        const description = cleanString(p.description || (p as { summary?: string }).summary);
+        const tech = (p as { technologies?: unknown[] }).technologies;
+        const hasTech = Array.isArray(tech) ? tech.length > 0 : false;
+        if (description || hasTech) {
+          const fallback = index === 0 ? 'Software Project' : `Project ${index + 1}`;
+          return { ...p, name: fallback };
+        }
+        console.log('REMOVED PROJECT', p, 'reason', 'normalizeExtractedResumeData: no name and no content');
+        return null;
+      })
+      .filter((p): p is NonNullable<typeof p> => p != null),
     certifications: uniqueCerts,
     languages,
     confidence: data.confidence ?? 0,

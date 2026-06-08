@@ -313,17 +313,28 @@ export class AffindaResumeParser {
       experience,
       education,
       projects: (data.projects || [])
-        .map((p) => ({
-          name: cleanString(p.name),
-          description: cleanString(p.description),
-          technologies: Array.isArray((p as { technologies?: unknown[] }).technologies)
-            ? ((p as { technologies: unknown[] }).technologies as unknown[])
+        .map((p, index) => {
+          const rec = p as Record<string, unknown>;
+          let name =
+            cleanString(p.name) ||
+            cleanString((rec.title as string) || '') ||
+            cleanString((rec.projectName as string) || '');
+          const description = cleanString(p.description || String(rec.summary || ''));
+          const technologies = Array.isArray(rec.technologies)
+            ? (rec.technologies as unknown[])
                 .map((t) => cleanString(String(t ?? '')))
                 .filter(Boolean)
-            : [],
-          url: cleanString(p.url),
-        }))
-        .filter((p) => p.name),
+            : [];
+          if (!name && (description || technologies.length > 0)) {
+            name = index === 0 ? 'Software Project' : `Project ${index + 1}`;
+          }
+          if (!name) {
+            console.log('REMOVED PROJECT', p, 'reason', 'transformAffindaToStandard: no name and no content');
+            return null;
+          }
+          return { name, description, technologies, url: cleanString(p.url) };
+        })
+        .filter((p): p is NonNullable<typeof p> => p != null),
       certifications,
       languages,
       expectedSalary: '',

@@ -319,11 +319,50 @@ export function sanitizeLanguageEntry(
   };
 }
 
+/** Resolve a display name from any common project field alias; infer when content exists. */
+export function resolveProjectName(
+  rec: Record<string, unknown>,
+  index: number
+): string {
+  const name = sanitizeFieldText(
+    String(
+      rec.name ??
+        rec.title ??
+        rec.projectName ??
+        rec.project_title ??
+        rec.ProjectName ??
+        rec.ProjectTitle ??
+        rec.Title ??
+        ''
+    ),
+    120
+  );
+  if (name) return name;
+
+  const description = sanitizeFieldText(
+    String(rec.description ?? rec.summary ?? rec.Description ?? ''),
+    1500
+  );
+  const techRaw = rec.technologies ?? rec.tech_stack ?? rec.techStack ?? rec.tech ?? rec.Technologies;
+  const hasTech = Array.isArray(techRaw)
+    ? techRaw.length > 0
+    : sanitizeFieldText(String(techRaw ?? ''), 300).length > 0;
+
+  if (description || hasTech) {
+    return index === 0 ? 'Software Project' : `Project ${index + 1}`;
+  }
+
+  return '';
+}
+
 /**
  * Project — normalizes technologies to a comma-separated string (matches form input).
  * Emits both `url` and `link` for back-compat with ProjectsStep (writes `link`).
  */
-export function sanitizeProjectEntry(value: unknown): Record<string, unknown> | null {
+export function sanitizeProjectEntry(
+  value: unknown,
+  index = 0
+): Record<string, unknown> | null {
   if (value == null) return null;
 
   if (typeof value === 'string') {
@@ -334,11 +373,11 @@ export function sanitizeProjectEntry(value: unknown): Record<string, unknown> | 
   if (typeof value !== 'object') return null;
 
   const rec = value as Record<string, unknown>;
-  const name = sanitizeFieldText(
-    (rec.name ?? rec.title ?? rec.projectName ?? rec.Title ?? '') as string,
-    120
-  );
-  if (!name) return null;
+  const name = resolveProjectName(rec, index);
+  if (!name) {
+    console.log('REMOVED PROJECT', value, 'reason', 'no name/title and no description or technologies');
+    return null;
+  }
 
   const description = sanitizeFieldText(
     (rec.description ?? rec.summary ?? rec.Description ?? '') as string,

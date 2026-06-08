@@ -69,6 +69,9 @@ export default function ResumeUploadPage() {
   const handleUploadComplete = (data?: any) => {
     if (data?.extractedData) {
       const parsed = data.extractedData;
+      console.log('UPLOAD RESPONSE PROJECT KEYS', Object.keys(data.extractedData || {}));
+      console.log('UPLOAD RESPONSE PROJECTS', data.extractedData.projects);
+      console.log('UPLOAD RESPONSE FULL', data.extractedData);
       const incomingResumeId = (data.resumeId || null) as string | null;
       const isNewResume = !!incomingResumeId && incomingResumeId !== resumeId;
 

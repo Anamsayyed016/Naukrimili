@@ -207,6 +207,7 @@ export default function ResumeEditorPage() {
           if (importData) {
             try {
               const parsed = JSON.parse(importData);
+              console.log('SESSION STORAGE PROJECTS', parsed.projects);
               console.log('📥 Loaded imported resume data from sessionStorage');
               console.log('   - Has fullName?', !!parsed.fullName);
               console.log('   - Has name?', !!parsed.name);
@@ -235,6 +236,7 @@ export default function ResumeEditorPage() {
 
               if (hasImportableContent(transformed)) {
                 setFormData(transformed);
+                console.log('formData.projects after import', transformed.projects);
                 formLoaded = true;
                 sessionStorage.removeItem('resume-import-data');
 

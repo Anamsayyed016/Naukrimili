@@ -311,7 +311,14 @@ export function transformImportDataToBuilder(
 
     // ===== ProjectsStep =====
     projects: transformProjectsArray(
-      firstNonEmptyArray(mergedImport, ['projects', 'Projects'])
+      (() => {
+        const raw = firstNonEmptyArray(mergedImport, ['projects', 'Projects']);
+        console.log('[import-transformer] mergedImport project keys', {
+          projects: Array.isArray(mergedImport.projects) ? mergedImport.projects.length : 0,
+          Projects: Array.isArray(mergedImport.Projects) ? mergedImport.Projects.length : 0,
+        });
+        return raw;
+      })()
     ),
 
     // ===== CertificationsStep =====
@@ -754,9 +761,13 @@ function transformEducationArray(education: unknown): any[] {
 
 function transformProjectsArray(projects: unknown): any[] {
   if (!Array.isArray(projects)) return [];
-  return projects
-    .map((p) => sanitizeProjectEntry(p))
+  console.log('[import-transformer] incoming projects', projects.length, projects);
+  const transformed = projects
+    .map((p, index) => sanitizeProjectEntry(p, index))
     .filter((p): p is Record<string, unknown> => p != null);
+  console.log('[import-transformer] transformed projects', transformed.length, transformed);
+  console.log('[import-transformer] final projects', transformed.length, transformed);
+  return transformed;
 }
 
 function transformCertificationsArray(certifications: unknown): any[] {

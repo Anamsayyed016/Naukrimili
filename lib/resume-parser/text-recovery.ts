@@ -1009,21 +1009,45 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
       line.length < 100 &&
       (/^[A-Z][A-Za-z0-9 &/\-_'.]{2,}(?::|$)/.test(line) ||
         /^[A-Z][A-Z0-9 &/\-_'.]{2,}$/.test(line) ||
-        /^[•\-\*]\s+[A-Z]/.test(line));
+        /^[•\-\*\u2022]\s+\S/.test(line) ||
+        /^[^|]{2,60}\s*\|\s*\S/.test(line));
 
     if (isHeader && (!current || current.description.length > 30)) {
       flush();
-      const name = line
+      let name = line
         .replace(/^[•\-\*\u2022]\s+/, '')
         .replace(/:.*$/, '')
         .trim();
-      current = { name, description: '', technologies: [] };
+      current = { name: '', description: '', technologies: [] };
+      if (name.includes('|')) {
+        const [titlePart, techPart] = name.split('|').map((s) => s.trim());
+        current.name = titlePart;
+        if (techPart) {
+          current.technologies = techPart.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
+        }
+      } else {
+        current.name = name;
+      }
       const inlineDesc = line.includes(':') ? line.split(':').slice(1).join(':').trim() : '';
       if (inlineDesc) current.description = inlineDesc;
       continue;
     }
 
-    if (!current) continue;
+    if (!current) {
+      const bulletText = line.replace(/^[•\-\*\u2022]\s+/, '').trim();
+      if (bulletText.length >= 8 && bulletText.length < 200) {
+        flush();
+        const dashSplit = bulletText.split(/\s+[-–—]\s+/);
+        const titleGuess = (dashSplit[0] || bulletText).trim();
+        current = {
+          name: titleGuess.length <= 80 ? titleGuess : `Project ${out.length + 1}`,
+          description: dashSplit.length > 1 ? dashSplit.slice(1).join(' - ').trim() : '',
+          technologies: [],
+        };
+        continue;
+      }
+      continue;
+    }
     const techMatch = line.match(/^(?:tech(?:nologies)?|stack|built\s+with|tools)\s*:\s*(.+)$/i);
     if (techMatch) {
       current.technologies = techMatch[1].split(/[,;|/]/).map((t) => t.trim()).filter(Boolean);
