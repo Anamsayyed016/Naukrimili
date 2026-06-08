@@ -66,6 +66,63 @@ const editorFormFont = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
+/** Import writes canonical + capitalized aliases per entry; edits must keep both in sync. */
+function syncExperienceEntryAliases(entry: Record<string, unknown>): Record<string, unknown> {
+  const title =
+    'title' in entry
+      ? String(entry.title ?? '')
+      : String(entry.position ?? entry.Position ?? '');
+  const company =
+    'company' in entry
+      ? String(entry.company ?? '')
+      : String(entry.Company ?? '');
+  const location =
+    'location' in entry
+      ? String(entry.location ?? '')
+      : String(entry.Location ?? '');
+  const description =
+    'description' in entry
+      ? String(entry.description ?? '')
+      : String(entry.Description ?? '');
+  return {
+    ...entry,
+    title,
+    position: title,
+    Position: title,
+    company,
+    Company: company,
+    location,
+    Location: location,
+    description,
+    Description: description,
+  };
+}
+
+function syncEducationEntryAliases(entry: Record<string, unknown>): Record<string, unknown> {
+  const degree =
+    'degree' in entry
+      ? String(entry.degree ?? '')
+      : String(entry.Degree ?? '');
+  const school =
+    'school' in entry
+      ? String(entry.school ?? '')
+      : String(entry.institution ?? entry.Institution ?? '');
+  const field =
+    'field' in entry
+      ? String(entry.field ?? '')
+      : String(entry.Field ?? '');
+  return {
+    ...entry,
+    degree,
+    Degree: degree,
+    school,
+    institution: school,
+    Institution: school,
+    field,
+    Field: field,
+  };
+}
+
 const STEPS: Step[] = [
   { id: 'contacts', label: 'Contacts' },
   { id: 'experience', label: 'Experience' },
@@ -386,14 +443,24 @@ export default function ResumeEditorPage() {
       }
 
       if ('experience' in patch) {
-        const list = Array.isArray(patch.experience) ? patch.experience : [];
+        const list = (Array.isArray(patch.experience) ? patch.experience : []).map(
+          (item) =>
+            syncExperienceEntryAliases(
+              item && typeof item === 'object' ? (item as Record<string, unknown>) : {}
+            )
+        );
         next.experience = list;
         next['Work Experience'] = list;
         next.Experience = list;
       }
 
       if ('education' in patch) {
-        const list = Array.isArray(patch.education) ? patch.education : [];
+        const list = (Array.isArray(patch.education) ? patch.education : []).map(
+          (item) =>
+            syncEducationEntryAliases(
+              item && typeof item === 'object' ? (item as Record<string, unknown>) : {}
+            )
+        );
         next.education = list;
         next.Education = list;
       }
