@@ -50,15 +50,20 @@ export default function ResumeUploadPage() {
   const didPrefillRef = useRef(false);
   const isDirtyRef = useRef(false);
 
-  // Redirect if not authenticated
+  const uploadReturnPath =
+    intent === 'builder' ? '/resumes/upload?intent=builder' : '/resumes/upload';
+
+  // Redirect if not authenticated — must run before protected content mounts
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
-      router.push('/auth/signin?redirect=/resumes/upload');
+      router.replace(
+        `/auth/signin?redirect=${encodeURIComponent(uploadReturnPath)}`
+      );
     } else if (session && session.user.role !== 'jobseeker') {
-      router.push('/auth/role-selection');
+      router.replace('/auth/role-selection');
     }
-  }, [status, session, router]);
+  }, [status, session, router, uploadReturnPath]);
 
   // Step 1: Resume Upload Complete
   const handleUploadComplete = (data?: any) => {
@@ -303,12 +308,19 @@ export default function ResumeUploadPage() {
     }
   };
 
-  if (status === 'loading') {
+  const isAuthPending =
+    status === 'loading' ||
+    status === 'unauthenticated' ||
+    (session && session.user.role !== 'jobseeker');
+
+  if (isAuthPending) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">
+            {status === 'loading' ? 'Loading...' : 'Redirecting to sign in...'}
+          </p>
         </div>
       </div>
     );
