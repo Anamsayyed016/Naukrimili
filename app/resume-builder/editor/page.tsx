@@ -11,7 +11,7 @@ import './editor-layout.css';
 import './form-panel.css';
 import './optimization-panel.css';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -98,6 +98,8 @@ export default function ResumeEditorPage() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  /** Prevents import/localStorage from overwriting in-memory edits on colorParam / URL changes. */
+  const formHydratedForTemplateRef = useRef<string | null>(null);
 
   // Load template on mount
   useEffect(() => {
@@ -147,13 +149,16 @@ export default function ResumeEditorPage() {
             : loaded.template.defaultColor || loaded.template.colors?.[0]?.id || ''
         );
         
+        const skipFormHydration = formHydratedForTemplateRef.current === templateId;
+
         // Priority 0: Check for saved payment flow data (user returned after payment)
         // This takes highest priority to restore user's work
-        const paymentFlowData = typeof window !== 'undefined' 
-          ? sessionStorage.getItem('resume-builder-payment-flow') 
-          : null;
-        let formLoaded = false;
-        
+        const paymentFlowData =
+          !skipFormHydration && typeof window !== 'undefined'
+            ? sessionStorage.getItem('resume-builder-payment-flow')
+            : null;
+        let formLoaded = skipFormHydration;
+
         if (paymentFlowData) {
           try {
             const saved = JSON.parse(paymentFlowData);
@@ -201,8 +206,8 @@ export default function ResumeEditorPage() {
           }
         }
         
-        // Priority 1: Load imported resume data (prefill=true OR pending session import)
-        if (!formLoaded && !paymentFlowData) {
+        // Priority 1: Load imported resume data (prefill=true OR pending session import) — once per template
+        if (!skipFormHydration && !formLoaded && !paymentFlowData) {
           const importData = sessionStorage.getItem('resume-import-data');
           if (importData) {
             try {
@@ -272,8 +277,8 @@ export default function ResumeEditorPage() {
           }
         }
 
-        // Priority 2: Load saved draft (from localStorage)
-        if (!formLoaded && !paymentFlowData) {
+        // Priority 2: Load saved draft (from localStorage) — once per template
+        if (!skipFormHydration && !formLoaded && !paymentFlowData) {
           const savedData = localStorage.getItem(`resume-${templateId}`);
           if (savedData) {
             try {
@@ -285,6 +290,10 @@ export default function ResumeEditorPage() {
               console.error('Error parsing saved data:', e);
             }
           }
+        }
+
+        if (!skipFormHydration && formLoaded) {
+          formHydratedForTemplateRef.current = templateId;
         }
       } catch (error) {
         console.error('Error loading template:', error);
@@ -374,6 +383,19 @@ export default function ResumeEditorPage() {
         const list = Array.isArray(patch.projects) ? patch.projects : [];
         next.projects = list;
         next.Projects = list;
+      }
+
+      if ('experience' in patch) {
+        const list = Array.isArray(patch.experience) ? patch.experience : [];
+        next.experience = list;
+        next['Work Experience'] = list;
+        next.Experience = list;
+      }
+
+      if ('education' in patch) {
+        const list = Array.isArray(patch.education) ? patch.education : [];
+        next.education = list;
+        next.Education = list;
       }
 
       const clearKeys = ['linkedin', 'phone', 'email', 'location', 'portfolio', 'summary', 'jobTitle'] as const;

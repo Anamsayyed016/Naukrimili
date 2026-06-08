@@ -30,11 +30,14 @@ interface Experience {
 }
 
 export default function ExperienceStep({ formData, updateFormData }: ExperienceStepProps) {
-  const experiences: Experience[] = Array.isArray(formData.experience) 
-    ? formData.experience 
-    : Array.isArray(formData['Work Experience']) 
-    ? formData['Work Experience'] 
-    : [];
+  const experiences: Experience[] =
+    'experience' in formData
+      ? Array.isArray(formData.experience)
+        ? formData.experience
+        : []
+      : Array.isArray(formData['Work Experience'])
+        ? formData['Work Experience']
+        : [];
 
   const addExperience = () => {
     const newExp: Experience = {

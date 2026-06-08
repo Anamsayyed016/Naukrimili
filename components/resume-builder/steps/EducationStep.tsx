@@ -27,11 +27,14 @@ interface Education {
 }
 
 export default function EducationStep({ formData, updateFormData }: EducationStepProps) {
-  const education: Education[] = Array.isArray(formData.education)
-    ? formData.education
-    : Array.isArray(formData.Education)
-    ? formData.Education
-    : [];
+  const education: Education[] =
+    'education' in formData
+      ? Array.isArray(formData.education)
+        ? formData.education
+        : []
+      : Array.isArray(formData.Education)
+        ? formData.Education
+        : [];
   const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: { degree?: string[]; field?: string[] } }>({});
   const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { degree?: boolean; field?: boolean } }>({});
   const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});

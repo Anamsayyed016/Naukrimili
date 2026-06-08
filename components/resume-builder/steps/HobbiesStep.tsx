@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, X, Sparkles, Loader2 } from 'lucide-react';
-import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface HobbiesStepProps {
   formData: Record<string, unknown>;
@@ -22,7 +22,13 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
     : [];
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debouncedHobby = useDebounce(newHobby, 300);
+  const formDataRef = useRef(formData);
+  const fetchGenerationRef = useRef(0);
+
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
 
   const addHobby = () => {
     const value = newHobby.trim();
@@ -53,55 +59,65 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
     }
   };
 
-  const fetchAISuggestions = async (value: string) => {
-    const trimmed = value.trim();
+  useEffect(() => {
+    const trimmed = debouncedHobby.trim();
     if (!trimmed || trimmed.length < 2) {
-      setAiSuggestions([]);
+      setLoadingSuggestions(false);
       return;
     }
 
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
+    const generation = ++fetchGenerationRef.current;
+    setLoadingSuggestions(true);
 
-    debounceTimer.current = setTimeout(async () => {
-      setLoadingSuggestions(true);
-
+    (async () => {
       try {
+        const latestFormData = formDataRef.current;
         const response = await fetch('/api/ai/form-suggestions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             field: 'hobbies',
             value: trimmed,
-            formData,
-            context: buildSmartSuggestionContext({
-              formData,
+            formData: latestFormData,
+            context: {
               currentSection: 'hobbies',
               currentField: 'hobbies',
               userInput: trimmed,
-            }),
-          })
+            },
+          }),
         });
+
+        if (generation !== fetchGenerationRef.current) return;
 
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ Hobbies suggestions received:', { count: data.suggestions?.length, provider: data.aiProvider });
+          console.log('✅ Hobbies suggestions received:', {
+            count: data.suggestions?.length,
+            provider: data.aiProvider,
+          });
           if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
             setAiSuggestions(data.suggestions.slice(0, 8));
           } else {
             console.warn('⚠️ No suggestions in response:', data);
           }
         } else {
-          console.error('❌ Failed to fetch hobbies suggestions:', response.status, response.statusText);
+          console.error(
+            '❌ Failed to fetch hobbies suggestions:',
+            response.status,
+            response.statusText
+          );
         }
       } catch (error) {
-        console.error('❌ Error fetching AI suggestions:', error);
+        if (generation === fetchGenerationRef.current) {
+          console.error('❌ Error fetching AI suggestions:', error);
+        }
       } finally {
-        setLoadingSuggestions(false);
+        if (generation === fetchGenerationRef.current) {
+          setLoadingSuggestions(false);
+        }
       }
-    }, 300);
-  };
+    })();
+  }, [debouncedHobby]);
 
   return (
     <div className="space-y-6">
@@ -118,10 +134,7 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
             <Input
               placeholder="e.g., Photography, Reading, Traveling"
               value={newHobby}
-              onChange={(e) => {
-                setNewHobby(e.target.value);
-                fetchAISuggestions(e.target.value);
-              }}
+              onChange={(e) => setNewHobby(e.target.value)}
               onKeyPress={handleKeyPress}
               className="flex-1"
             />
