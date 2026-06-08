@@ -998,6 +998,13 @@ function looksLikeProjectTitle(line: string): boolean {
     return false;
   }
   if (/^[^|]{2,60}\s*\|\s*\S/.test(line)) return true;
+  if (
+    /\b(Website|Web\s*Site|Portal|System|Systems|Application|Applications|App|Platform|Dashboard|API|Tool|Suite|Software)\b/i.test(
+      cleaned
+    )
+  ) {
+    return true;
+  }
   if (/^[A-Z][A-Za-z0-9 &/\-_'".]{2,}$/.test(cleaned)) return true;
   if (/^[A-Z][A-Z0-9 &/\-_'.]{2,}$/.test(cleaned)) return true;
   return false;
@@ -1067,6 +1074,27 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
     }
     const urlMatch = line.match(/(https?:\/\/[^\s)]+)/);
     if (urlMatch) current.url = urlMatch[1];
+
+    if (looksLikeProjectTitle(line)) {
+      flush();
+      let name = line
+        .replace(/^[•\-\*\u2022]\s+/, '')
+        .replace(/:.*$/, '')
+        .trim();
+      current = { name: '', description: '', technologies: [] };
+      if (name.includes('|')) {
+        const [titlePart, techPart] = name.split('|').map((s) => s.trim());
+        current.name = titlePart;
+        if (techPart) {
+          current.technologies = techPart.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
+        }
+      } else {
+        current.name = name;
+      }
+      const inlineDesc = line.includes(':') ? line.split(':').slice(1).join(':').trim() : '';
+      if (inlineDesc) current.description = inlineDesc;
+      continue;
+    }
 
     current.description = current.description
       ? `${current.description}\n${line}`

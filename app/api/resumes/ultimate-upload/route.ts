@@ -17,7 +17,11 @@ import {
   normalizeUploadProfile,
   cleanMultiline,
 } from '@/lib/resume-parser/normalize-extracted';
-import { pickRicherFullName } from '@/lib/resume-parser/import-sanitize';
+import {
+  pickRicherFullName,
+  splitMergedProjectEntries,
+  logRawProjects,
+} from '@/lib/resume-parser/import-sanitize';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -1033,7 +1037,19 @@ export async function POST(request: NextRequest) {
     console.log('PARSED PROJECTS', parsedData.projects);
     console.log('RECOVERED PROJECTS', lastRecovered?.projects);
     console.log('ENHANCED PROJECTS', enhancedData.projects);
-    
+    logRawProjects(parsedData.projects || [], 'RAW PROJECTS parsedData');
+    const splitProjects = splitMergedProjectEntries(
+      (parsedData.projects || enhancedData.projects || []) as unknown[]
+    );
+    if (splitProjects.length !== (parsedData.projects || []).length) {
+      console.log('PROJECT SPLIT', {
+        before: (parsedData.projects || []).length,
+        after: splitProjects.length,
+      });
+    }
+    parsedData.projects = splitProjects;
+    logRawProjects(splitProjects, 'RAW PROJECTS AFTER SPLIT');
+
     // Convert to the format expected by the frontend with ALL fields
     const profile = {
       fullName: finalName,
@@ -1143,7 +1159,7 @@ export async function POST(request: NextRequest) {
           Location: location // Capitalized for template compatibility
         };
       }),
-      projects: (parsedData.projects || enhancedData.projects || [])
+      projects: splitProjects
         .map((proj: any, index: number) => {
           const name = resolveProjectTitle(proj, index);
           if (!name) return null;

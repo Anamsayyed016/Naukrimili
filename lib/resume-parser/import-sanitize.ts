@@ -319,6 +319,199 @@ export function sanitizeLanguageEntry(
   };
 }
 
+const PROJECT_TITLE_SUFFIX_RE =
+  /\b(Website|Web\s*Site|Portal|System|Systems|Application|Applications|App|Platform|Dashboard|API|Tool|Suite|Software)\b/i;
+const PROJECT_VERB_PREFIX_RE =
+  /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated)\b/i;
+
+/** Detect a standalone project title line (not a sentence/bullet). */
+export function isEmbeddedProjectTitleLine(line: string): boolean {
+  const raw = line.replace(/^[•\-\*\u2022]\s+/, '').trim();
+  if (!raw || raw.length < 4 || raw.length > 100) return false;
+  if (PROJECT_VERB_PREFIX_RE.test(raw)) return false;
+
+  const titlePart = raw.split(/\s+[-–—:]\s+/)[0]?.trim() || raw;
+  if (titlePart.length < 4 || titlePart.length > 100) return false;
+  if (PROJECT_TITLE_SUFFIX_RE.test(titlePart)) return true;
+  if (/^[A-Z][A-Za-z0-9 &/'".-]{2,}$/.test(titlePart) && titlePart.split(/\s+/).length <= 8) {
+    return !/[.!?]/.test(titlePart);
+  }
+  return false;
+}
+
+function mergeTechnologyStrings(existing: string, extra: string): string {
+  const parts = `${existing || ''},${extra || ''}`
+    .split(/[,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of parts) {
+    const key = part.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(part);
+  }
+  return out.join(', ');
+}
+
+/** Move leading comma-separated technology lists out of description. */
+export function peelTechnologiesFromProjectDescription(description: string): {
+  description: string;
+  technologies: string;
+} {
+  const trimmed = description.trim();
+  if (!trimmed) return { description: '', technologies: '' };
+
+  const lines = trimmed.split('\n');
+  const first = lines[0].replace(/^[•\-\*\u2022]\s+/, '').trim();
+  const commaParts = first.split(',').map((s) => s.trim()).filter(Boolean);
+
+  if (commaParts.length >= 2 && first.length < 180 && !/\b(the|with|and|for|using|built|developed)\b/i.test(first)) {
+    const techLike = commaParts.every(
+      (p) => p.length <= 45 && /^[A-Za-z0-9.#+\s/()-]+$/.test(p)
+    );
+    if (techLike) {
+      return {
+        description: lines.slice(1).join('\n').trim(),
+        technologies: commaParts.join(', '),
+      };
+    }
+  }
+
+  return { description: trimmed, technologies: '' };
+}
+
+function splitDescriptionIntoProjects(
+  primaryName: string,
+  description: string,
+  baseTechnologies: string
+): Array<{ name: string; description: string; technologies: string }> {
+  const peeled = peelTechnologiesFromProjectDescription(description);
+  let body = peeled.description;
+  let sharedTech = mergeTechnologyStrings(baseTechnologies, peeled.technologies);
+
+  const lines = body.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  const titleIndices = lines
+    .map((line, index) => (isEmbeddedProjectTitleLine(line) ? index : -1))
+    .filter((index) => index >= 0);
+
+  if (titleIndices.length === 0) {
+    return [{ name: primaryName, description: body, technologies: sharedTech }];
+  }
+
+  const segments: Array<{ name: string; description: string; technologies: string }> = [];
+  let currentName = primaryName;
+  let currentDesc: string[] = [];
+
+  const flushSegment = () => {
+    const desc = currentDesc.join('\n').trim();
+    const segPeel = peelTechnologiesFromProjectDescription(desc);
+    segments.push({
+      name: currentName,
+      description: segPeel.description,
+      technologies: mergeTechnologyStrings(
+        segments.length === 0 ? sharedTech : '',
+        segPeel.technologies
+      ),
+    });
+    currentDesc = [];
+  };
+
+  for (const line of lines) {
+    if (isEmbeddedProjectTitleLine(line)) {
+      const dashSplit = line.replace(/^[•\-\*\u2022]\s+/, '').split(/\s+[-–—:]\s+/);
+      const nextName = (dashSplit[0] || line).trim();
+      if (currentDesc.length > 0 || segments.length > 0) {
+        flushSegment();
+      } else if (
+        segments.length === 0 &&
+        currentName &&
+        nextName.toLowerCase() !== currentName.toLowerCase()
+      ) {
+        segments.push({
+          name: currentName,
+          description: '',
+          technologies: sharedTech,
+        });
+        sharedTech = '';
+      }
+      currentName = nextName;
+      const inlineDesc = dashSplit.slice(1).join(' - ').trim();
+      currentDesc = inlineDesc ? [inlineDesc] : [];
+      continue;
+    }
+    currentDesc.push(line);
+  }
+  flushSegment();
+
+  if (segments.length <= 1) {
+    return [{ name: primaryName, description: body, technologies: sharedTech }];
+  }
+
+  return segments.filter((seg) => seg.name || seg.description.trim());
+}
+
+/**
+ * When parsers return one project blob, split embedded title lines into separate projects.
+ */
+export function splitMergedProjectEntries(
+  projects: unknown[]
+): Array<Record<string, unknown>> {
+  if (!Array.isArray(projects)) return [];
+
+  const expanded: Array<Record<string, unknown>> = [];
+  for (const raw of projects) {
+    if (!raw || typeof raw !== 'object') continue;
+    const rec = raw as Record<string, unknown>;
+    const name = String(rec.name ?? rec.title ?? rec.projectName ?? '').trim();
+    const description = String(rec.description ?? rec.summary ?? rec.Description ?? '').trim();
+    const techRaw = rec.technologies ?? rec.tech_stack ?? rec.techStack ?? rec.Technologies;
+    const baseTech = Array.isArray(techRaw)
+      ? techRaw.map((t) => String(t ?? '').trim()).filter(Boolean).join(', ')
+      : String(techRaw || '').trim();
+
+    const parts = splitDescriptionIntoProjects(name, description, baseTech);
+    for (const part of parts) {
+      expanded.push({
+        ...rec,
+        name: part.name,
+        title: part.name,
+        description: part.description,
+        summary: part.description,
+        technologies: part.technologies,
+        tech_stack: part.technologies,
+      });
+    }
+  }
+  return expanded;
+}
+
+export function logRawProjects(projects: unknown[], label = 'RAW PROJECTS'): void {
+  console.log(label, JSON.stringify(projects, null, 2));
+  console.log('projects.length', Array.isArray(projects) ? projects.length : 0);
+  if (!Array.isArray(projects)) return;
+  projects.forEach((p, index) => {
+    const rec = p && typeof p === 'object' ? (p as Record<string, unknown>) : {};
+    const desc = String(rec.description ?? rec.summary ?? '');
+    console.log(`project[${index}]`, {
+      name: rec.name ?? rec.title ?? '',
+      descriptionPreview: desc.slice(0, 300),
+      technologies: rec.technologies ?? rec.tech_stack ?? '',
+    });
+  });
+  if (projects.length === 1) {
+    const rec = projects[0] as Record<string, unknown>;
+    const desc = String(rec.description ?? rec.summary ?? '');
+    const titleHits = (desc.match(/\b(Project|Website|Portal|System|Application)\b/gi) || []).length;
+    if (titleHits >= 2) {
+      console.warn(
+        'PROJECT SPLIT VALIDATION: single project description contains multiple project-like titles — boundaries likely lost upstream'
+      );
+    }
+  }
+}
+
 /** Resolve a display name from any common project field alias; infer when content exists. */
 export function resolveProjectName(
   rec: Record<string, unknown>,
@@ -379,7 +572,7 @@ export function sanitizeProjectEntry(
     return null;
   }
 
-  const description = sanitizeFieldText(
+  let description = sanitizeFieldText(
     (rec.description ?? rec.summary ?? rec.Description ?? '') as string,
     1500
   );
@@ -394,6 +587,10 @@ export function sanitizeProjectEntry(
   } else if (typeof techRaw === 'string') {
     technologies = sanitizeFieldText(techRaw, 300);
   }
+
+  const peeled = peelTechnologiesFromProjectDescription(description);
+  description = sanitizeFieldText(peeled.description, 1500);
+  technologies = mergeTechnologyStrings(technologies, peeled.technologies);
 
   const url = sanitizeFieldText(
     (rec.url ?? rec.link ?? rec.projectUrl ?? rec.Link ?? '') as string,

@@ -43,6 +43,8 @@ import {
   sanitizeLanguageEntry,
   sanitizeProjectEntry,
   sanitizeCertificationEntry,
+  splitMergedProjectEntries,
+  logRawProjects,
   isGarbageResumeText,
   formatDisplayName,
 } from '@/lib/resume-parser/import-sanitize';
@@ -761,12 +763,19 @@ function transformEducationArray(education: unknown): any[] {
 
 function transformProjectsArray(projects: unknown): any[] {
   if (!Array.isArray(projects)) return [];
-  console.log('[import-transformer] incoming projects', projects.length, projects);
-  const transformed = projects
+  logRawProjects(projects);
+  const split = splitMergedProjectEntries(projects);
+  if (split.length !== projects.length) {
+    console.log('[import-transformer] split merged projects', {
+      before: projects.length,
+      after: split.length,
+    });
+    logRawProjects(split, 'RAW PROJECTS AFTER SPLIT');
+  }
+  const transformed = split
     .map((p, index) => sanitizeProjectEntry(p, index))
     .filter((p): p is Record<string, unknown> => p != null);
-  console.log('[import-transformer] transformed projects', transformed.length, transformed);
-  console.log('[import-transformer] final projects', transformed.length, transformed);
+  console.log('[import-transformer] final projects.length', transformed.length);
   return transformed;
 }
 
