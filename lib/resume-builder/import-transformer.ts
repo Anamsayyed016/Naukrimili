@@ -475,8 +475,9 @@ function resolveName(
 
   if (garbage) rawFullName = '';
 
-  // Drop email-slug names when resume text has a fuller real name
-  if (rawFullName && email && isEmailDerivedName(rawFullName, email)) {
+  // Drop single-token email slugs when resume text has a fuller real name
+  const rawNameWordCount = rawFullName.split(/\s+/).filter(Boolean).length;
+  if (rawFullName && email && rawNameWordCount < 2 && isEmailDerivedName(rawFullName, email)) {
     const richerHeader = textHeaderName && !isEmailDerivedName(textHeaderName, email)
       ? textHeaderName
       : '';

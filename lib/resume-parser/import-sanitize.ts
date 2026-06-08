@@ -70,6 +70,10 @@ export function isEmailDerivedName(name: string, email: string): boolean {
   const e = String(email || '').trim().toLowerCase();
   if (!n || !e.includes('@')) return false;
 
+  const wordCount = n.split(/\s+/).filter(Boolean).length;
+  // Multi-word names (e.g. "Maryam Khan") are never email slugs.
+  if (wordCount >= 2) return false;
+
   const local = e.split('@')[0].replace(/\d/g, '');
   if (!local) return false;
 
@@ -79,11 +83,8 @@ export function isEmailDerivedName(name: string, email: string): boolean {
 
   if (nameNorm === localNorm) return true;
 
-  const firstToken = n.split(/\s+/)[0];
-  if (firstToken && firstToken === localNorm) return true;
-
-  // Single blob local part with no separators — only treat as derived when name is one token.
-  if (!/[._-]/.test(local) && !n.includes(' ') && localNorm.startsWith(nameNorm) && nameNorm.length >= 4) {
+  // Single-token blob local part with no separators (e.g. kmariyam@… → "Kmariyam").
+  if (!/[._-]/.test(local) && wordCount === 1 && localNorm.startsWith(nameNorm) && nameNorm.length >= 4) {
     return true;
   }
 

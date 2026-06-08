@@ -17,6 +17,7 @@ import {
   normalizeUploadProfile,
   cleanMultiline,
 } from '@/lib/resume-parser/normalize-extracted';
+import { pickRicherFullName } from '@/lib/resume-parser/import-sanitize';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -577,12 +578,27 @@ export async function POST(request: NextRequest) {
     // This is what catches "CERTIFICATIONS & LANGUAGES" combined sections,
     // grouped technical skills, projects with bullet points, etc., when the
     // primary parser returns flat or empty data for those sections.
+    let recoveredFullName = '';
     try {
       const { extractResumeFromText } = await import('@/lib/resume-parser/text-recovery');
       const text = (extractedText || '').trim();
       if (text.length > 100) {
         const recovered = extractResumeFromText(text);
+        const emailForName = String(parsedData.email || session.user.email || '');
+        recoveredFullName = String(recovered.fullName || '').trim();
+
+        const mergedFullName = pickRicherFullName(
+          parsedData.fullName || parsedData.name || '',
+          recoveredFullName,
+          emailForName
+        );
+        if (mergedFullName) {
+          parsedData.fullName = mergedFullName;
+          parsedData.name = mergedFullName;
+        }
+
         const before = {
+          fullName: parsedData.fullName || '(empty)',
           skills: parsedData.skills?.length || 0,
           experience: parsedData.experience?.length || 0,
           education: parsedData.education?.length || 0,
@@ -877,6 +893,7 @@ export async function POST(request: NextRequest) {
         parsedData = normalizeUploadProfile(parsedData);
 
         const after = {
+          fullName: parsedData.fullName || '(empty)',
           skills: parsedData.skills?.length || 0,
           experience: parsedData.experience?.length || 0,
           education: parsedData.education?.length || 0,
@@ -890,31 +907,34 @@ export async function POST(request: NextRequest) {
       warn('text-recovery augmentation failed', augmentError instanceof Error ? augmentError.message : augmentError);
     }
 
-    // Derive name from email if AI didn't extract it
+    const emailForName = String(parsedData.email || session.user.email || '');
+    const parserName = String(parsedData.fullName || parsedData.name || '').trim();
+
+    // Priority: recovered text header → parser name → email slug → session profile
     let derivedName = '';
-    if (!parsedData.name && !parsedData.fullName) {
-      // Extract name from email (e.g., anamsayyed180@gmail.com → Anam Sayyed)
-      const emailName = (parsedData.email || session.user.email || '').split('@')[0];
+    if (!recoveredFullName && !parserName) {
+      const emailName = emailForName.split('@')[0];
       const namePart = emailName.replace(/[0-9]/g, '').replace(/[._-]/g, ' ');
       if (namePart.length > 2) {
-        // Capitalize first letter of each word
-        derivedName = namePart.split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        derivedName = namePart
+          .split(' ')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
           .join(' ');
         console.log('📧 Derived name from email:', derivedName);
       }
     }
-    
-    // CRITICAL FIX: Only use session.user.name if parsedData has nothing AND email derivation failed
-    // This prevents using database display name like "Resume Uploaded"
-    const extractedOrDerivedName = parsedData.name || parsedData.fullName || derivedName;
-    const finalName = extractedOrDerivedName || (session.user.name && session.user.name.length < 30 ? session.user.name : 'User');
-    
+
+    const finalName =
+      pickRicherFullName(recoveredFullName, parserName, emailForName) ||
+      derivedName ||
+      (session.user.name && session.user.name.length < 30 ? session.user.name : 'User');
+
     console.log('👤 Name resolution:', {
-      parsedName: parsedData.name || parsedData.fullName || 'none',
+      recoveredName: recoveredFullName || 'none',
+      parsedName: parserName || 'none',
       derivedFromEmail: derivedName || 'none',
       sessionName: session.user.name || 'none',
-      finalName: finalName
+      finalName,
     });
 
     // Enhanced field extraction with fallback parsing for missing fields
