@@ -4,7 +4,6 @@ import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, X, Sparkles, Loader2 } from 'lucide-react';
-import { getHobbySuggestions } from '@/lib/resume-builder/suggestion-orchestrator';
 import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 
 interface HobbiesStepProps {
@@ -61,11 +60,6 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
       return;
     }
 
-    const instant = getHobbySuggestions(trimmed);
-    if (instant.length > 0) {
-      setAiSuggestions(instant);
-    }
-
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
@@ -93,22 +87,16 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
         if (response.ok) {
           const data = await response.json();
           console.log('✅ Hobbies suggestions received:', { count: data.suggestions?.length, provider: data.aiProvider });
-          if (data.success && data.suggestions && Array.isArray(data.suggestions)) {
-            const merged = [
-              ...new Set([...getHobbySuggestions(trimmed), ...data.suggestions]),
-            ].slice(0, 8);
-            setAiSuggestions(merged);
+          if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+            setAiSuggestions(data.suggestions.slice(0, 8));
           } else {
             console.warn('⚠️ No suggestions in response:', data);
-            setAiSuggestions([]);
           }
         } else {
           console.error('❌ Failed to fetch hobbies suggestions:', response.status, response.statusText);
-          setAiSuggestions([]);
         }
       } catch (error) {
         console.error('❌ Error fetching AI suggestions:', error);
-        setAiSuggestions([]);
       } finally {
         setLoadingSuggestions(false);
       }

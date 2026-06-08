@@ -744,6 +744,29 @@ USER INPUT: "${userContent}"
 Return 6 ATS-friendly achievement-style bullets as JSON: {"suggestions": [...]}`;
       }
 
+      case 'hobbies':
+      case 'hobby':
+        return `Generate resume HOBBIES & INTERESTS suggestions (short labels for a candidate's resume).
+
+STRUCTURED CONTEXT:
+${contextBlock}
+
+STEP 1: ANALYZE USER INPUT
+- User is typing: "${userContent}"
+- Job Title: ${baseContext.jobTitle || 'Professional'}
+- Skills on resume: ${(context.skills || baseContext.skills || []).slice(0, 8).join(', ') || 'None'}
+
+STEP 2: INFER RELATED INTERESTS
+- Expand "${userContent}" into related professional hobbies (e.g. dance → Dance, Choreography, Music, Fitness)
+- Stay relevant to what the user typed — do NOT suggest unrelated generic filler
+
+STEP 3: GENERATE
+- 6-8 DISTINCT hobby/interest labels
+- Each suggestion: 1-4 words (short chip labels, NOT sentences)
+- Professional and resume-appropriate
+
+Return JSON: {"suggestions": ["Hobby 1", "Hobby 2", ...]}${variationHint}`;
+
       case 'experience':
         return `Generate resume EXPERIENCE bullet suggestions (achievement bullets for candidate's own resume — NOT a job posting).
 

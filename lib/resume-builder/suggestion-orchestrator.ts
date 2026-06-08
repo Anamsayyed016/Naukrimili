@@ -107,7 +107,22 @@ export function scoreSuggestionQuality(
   context: Record<string, unknown>
 ): number {
   const t = text.trim();
-  if (!t || t.length < 8) return 0;
+  if (!t || t.length < 2) return 0;
+
+  const isHobbyField = field === 'hobbies' || field === 'hobby';
+  if (isHobbyField) {
+    let score = 55;
+    const userInput = String(context.userInput || '').toLowerCase();
+    const tl = t.toLowerCase();
+    if (userInput) {
+      if (tl.startsWith(userInput) || tl.includes(userInput)) score += 25;
+      if (userInput.length >= 3 && tl.includes(userInput)) score += 10;
+    }
+    if (t.length >= 3 && t.length <= 48) score += 8;
+    return Math.min(100, score);
+  }
+
+  if (t.length < 8) return 0;
   let score = 50;
 
   if (isJobPostingText(t) && context.suggestionDomain !== 'job-posting') return 0;
@@ -207,6 +222,7 @@ function fieldToDomain(field: string): string {
   if (f === 'summary' || f === 'bio') return 'resume-summary';
   if (f === 'experience' || f === 'bullet' || f === 'description') return 'resume-experience';
   if (f === 'skills') return 'resume-skills';
+  if (f === 'hobbies' || f === 'hobby') return 'resume-hobbies';
   if (f === 'jobtitle' || f === 'title') return 'resume-job-title';
   return 'resume-general';
 }
