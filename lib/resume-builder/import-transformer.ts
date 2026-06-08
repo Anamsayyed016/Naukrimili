@@ -344,6 +344,39 @@ export function transformImportDataToBuilder(
 /*  Validation / preview helpers (unchanged public surface)           */
 /* ------------------------------------------------------------------ */
 
+/** True when at least one section has data worth applying to the editor. */
+export function hasImportableContent(data: Record<string, any>): boolean {
+  if (!data || typeof data !== 'object') return false;
+
+  if (
+    sanitizeFieldText(data.firstName) ||
+    sanitizeFieldText(data.lastName) ||
+    sanitizeFieldText(data.name) ||
+    sanitizeFieldText(data.fullName) ||
+    sanitizeFieldText(data.email) ||
+    sanitizeFieldText(data.phone)
+  ) {
+    return true;
+  }
+
+  if (sanitizeFieldText(data.summary)) return true;
+
+  for (const key of [
+    'skills',
+    'experience',
+    'education',
+    'projects',
+    'certifications',
+    'languages',
+    'achievements',
+    'hobbies',
+  ] as const) {
+    if (Array.isArray(data[key]) && data[key].length > 0) return true;
+  }
+
+  return false;
+}
+
 export function validateTransformedData(data: Record<string, any>): {
   valid: boolean;
   issues: string[];
@@ -352,7 +385,9 @@ export function validateTransformedData(data: Record<string, any>): {
   const issues: string[] = [];
   const warnings: string[] = [];
 
-  if (!data.firstName && !data.name) issues.push('Missing first name');
+  if (!data.firstName && !data.name && !data.fullName) {
+    warnings.push('Missing name');
+  }
   if (!data.email) warnings.push('Missing email address');
 
   for (const key of ['skills', 'experience', 'education'] as const) {
@@ -362,6 +397,10 @@ export function validateTransformedData(data: Record<string, any>): {
     if (Array.isArray(data[key]) && data[key].length === 0) {
       warnings.push(`No ${key} extracted`);
     }
+  }
+
+  if (!hasImportableContent(data)) {
+    issues.push('No importable resume content');
   }
 
   return { valid: issues.length === 0, issues, warnings };

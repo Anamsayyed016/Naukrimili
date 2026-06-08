@@ -152,6 +152,7 @@ export default function ResumeEditorPage() {
         const paymentFlowData = typeof window !== 'undefined' 
           ? sessionStorage.getItem('resume-builder-payment-flow') 
           : null;
+        let formLoaded = false;
         
         if (paymentFlowData) {
           try {
@@ -169,6 +170,7 @@ export default function ResumeEditorPage() {
             // Restore form data
             if (saved.formData && Object.keys(saved.formData).length > 0) {
               setFormData(saved.formData);
+              formLoaded = true;
               console.log('✅ [Resume Editor] Restored form data from payment flow');
             }
             
@@ -199,9 +201,8 @@ export default function ResumeEditorPage() {
           }
         }
         
-        // Priority 1: Load imported resume data (if prefill=true)
-        // Only load if we didn't restore from payment flow
-        if (shouldPrefill && !paymentFlowData) {
+        // Priority 1: Load imported resume data (prefill=true OR pending session import)
+        if (!formLoaded && !paymentFlowData) {
           const importData = sessionStorage.getItem('resume-import-data');
           if (importData) {
             try {
@@ -210,64 +211,49 @@ export default function ResumeEditorPage() {
               console.log('   - Has fullName?', !!parsed.fullName);
               console.log('   - Has name?', !!parsed.name);
               console.log('   - Has email?', !!parsed.email);
-              console.log('   - Has skills?', Array.isArray(parsed.skills));
+              console.log('   - Has rawText?', typeof parsed.rawText === 'string' && parsed.rawText.length > 0);
               console.log('   - Skills count:', parsed.skills?.length || 0);
               console.log('   - Experience count:', parsed.experience?.length || 0);
               console.log('   - Education count:', parsed.education?.length || 0);
-              console.log('🔍 CRITICAL DEBUG - RAW DATA FROM API:');
-              console.log('   - Full name value:', parsed.fullName || parsed.name || 'MISSING');
-              console.log('   - Skills array:', parsed.skills);
-              console.log('   - Experience array:', parsed.experience);
-              console.log('   - Education array:', parsed.education);
-              console.log('   - First experience:', parsed.experience?.[0]);
-              console.log('   - First education:', parsed.education?.[0]);
-              console.log('   - Full data:', parsed);
-              
-              // Transform AI data to builder format
-              const { transformImportDataToBuilder, validateTransformedData } = await import('@/lib/resume-builder/import-transformer');
+
+              const {
+                transformImportDataToBuilder,
+                validateTransformedData,
+                hasImportableContent,
+              } = await import('@/lib/resume-builder/import-transformer');
               const transformed = transformImportDataToBuilder(parsed);
-              
-              console.log('🔄 After transformation:');
-              console.log('   - firstName:', transformed.firstName || 'MISSING');
-              console.log('   - lastName:', transformed.lastName || 'MISSING');
-              console.log('   - email:', transformed.email || 'MISSING');
-              console.log('   - skills COUNT:', transformed.skills?.length || 0);
-              console.log('   - skills:', transformed.skills);
-              console.log('   - experience COUNT:', transformed.experience?.length || 0);
-              console.log('   - experience:', transformed.experience);
-              console.log('   - education COUNT:', transformed.education?.length || 0);
-              console.log('   - education:', transformed.education);
-              console.log('   - languages COUNT:', transformed.languages?.length || 0);
-              console.log('   - achievements COUNT:', transformed.achievements?.length || 0);
-              console.log('   - hobbies COUNT:', transformed.hobbies?.length || 0);
-              
-              // Validate transformation
               const validation = validateTransformedData(transformed);
-              console.log('✅ Transformation validation:', validation);
-              
-              if (validation.valid) {
+
+              console.log('🔄 After transformation:', {
+                firstName: transformed.firstName || '(empty)',
+                lastName: transformed.lastName || '(empty)',
+                skills: transformed.skills?.length || 0,
+                experience: transformed.experience?.length || 0,
+                education: transformed.education?.length || 0,
+                validation,
+              });
+
+              if (hasImportableContent(transformed)) {
                 setFormData(transformed);
-                
-                // Clear import data after loading
+                formLoaded = true;
                 sessionStorage.removeItem('resume-import-data');
-                
+
+                const notes = [...validation.issues, ...validation.warnings].filter(Boolean);
                 toast({
-                  title: '✨ Resume Imported Successfully!',
-                  description: `All fields pre-filled with your data. ${validation.warnings.length > 0 ? validation.warnings.length + ' minor warnings.' : 'Ready to review and export!'}`,
+                  title: '✨ Resume Imported',
+                  description:
+                    notes.length > 0
+                      ? `Your resume data was loaded. ${notes.join('; ')}`
+                      : 'Your resume data was loaded. Review each section before exporting.',
                   duration: 5000,
                 });
-                
-                console.log('✅ Auto-fill complete:', {
-                  contacts: !!transformed.firstName,
-                  skills: transformed.skills?.length || 0,
-                  experience: transformed.experience?.length || 0,
-                  education: transformed.education?.length || 0,
-                });
               } else {
-                console.error('❌ Validation failed:', validation.issues);
+                console.error('❌ Import produced no usable content:', validation);
                 toast({
                   title: 'Import Warning',
-                  description: `Some fields couldn't be imported: ${validation.issues.join(', ')}`,
+                  description:
+                    validation.issues.join('; ') ||
+                    'Parsed resume had no fields we could map. You can fill the form manually.',
                   variant: 'destructive',
                 });
               }
@@ -279,18 +265,19 @@ export default function ResumeEditorPage() {
                 variant: 'destructive',
               });
             }
-          } else {
+          } else if (shouldPrefill) {
             console.warn('⚠️ Prefill=true but no import data found in sessionStorage');
           }
         }
+
         // Priority 2: Load saved draft (from localStorage)
-        // Only load if we didn't restore from payment flow or import
-        else if (!paymentFlowData) {
+        if (!formLoaded && !paymentFlowData) {
           const savedData = localStorage.getItem(`resume-${templateId}`);
           if (savedData) {
             try {
               const parsed = JSON.parse(savedData);
               setFormData(parsed);
+              formLoaded = true;
               console.log('📋 Loaded saved draft from localStorage');
             } catch (e) {
               console.error('Error parsing saved data:', e);
@@ -314,7 +301,7 @@ export default function ResumeEditorPage() {
     // colorParam is intentionally read here as well so returning from the
     // Design Studio with ?color= restores the chosen palette.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templateId, router, toast, colorParam]);
+  }, [templateId, router, toast, colorParam, shouldPrefill]);
 
   // Auto-save to localStorage
   useEffect(() => {
