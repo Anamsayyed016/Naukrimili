@@ -487,8 +487,7 @@ export function isFresherProfile(formData: Record<string, unknown>): boolean {
   const level = getStringValue(formData.experienceLevel).toLowerCase();
   if (level === 'fresher' || level === 'student') return true;
 
-  const experience = firstNonEmptyArray(formData, [
-    'experience',
+  const experience = resolveCanonicalArray(formData, 'experience', [
     'workExperience',
     'Work Experience',
     'Experience',
@@ -546,10 +545,18 @@ function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {
   });
 }
 
-function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unknown[] {
-  for (const key of keys) {
+/** Canonical array wins when present (including []). Aliases used only when canonical is undefined. */
+function resolveCanonicalArray(
+  data: Record<string, unknown>,
+  canonicalKey: string,
+  aliasKeys: string[]
+): unknown[] {
+  if (canonicalKey in data && Array.isArray(data[canonicalKey])) {
+    return data[canonicalKey];
+  }
+  for (const key of aliasKeys) {
     const value = data[key];
-    if (Array.isArray(value) && value.length > 0) {
+    if (Array.isArray(value)) {
       return value;
     }
   }
@@ -563,31 +570,28 @@ function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unkn
 export function coalesceFormDataForTemplateRender(
   formData: Record<string, unknown>
 ): Record<string, unknown> {
-  const experience = firstNonEmptyArray(formData, [
-    'experience',
+  const experience = resolveCanonicalArray(formData, 'experience', [
     'workExperience',
     'Work Experience',
     'Experience',
   ]);
-  const education = firstNonEmptyArray(formData, ['education', 'Education']);
+  const education = resolveCanonicalArray(formData, 'education', ['Education']);
   const rawSkills = normalizeSkillsForRender(formData);
   const { skills, languageHints } = partitionSkillsForRender(rawSkills);
-  const languagesRaw = firstNonEmptyArray(formData, ['languages', 'Languages']);
+  const languagesRaw = resolveCanonicalArray(formData, 'languages', ['Languages']);
   const languages = mergeLanguageHints(languagesRaw, languageHints);
-  const projects = firstNonEmptyArray(formData, [
-    'projects',
+  const projects = resolveCanonicalArray(formData, 'projects', [
     'Projects',
     'Projects(optional)',
     'Academic Projects',
   ]);
-  const certifications = firstNonEmptyArray(formData, ['certifications', 'Certifications']);
-  const achievements = firstNonEmptyArray(formData, [
-    'achievements',
+  const certifications = resolveCanonicalArray(formData, 'certifications', ['Certifications']);
+  const achievements = resolveCanonicalArray(formData, 'achievements', [
     'Achievements',
     'Key Achievements',
   ]);
   const hobbies = filterHobbiesExcludingPersonal(
-    firstNonEmptyArray(formData, ['hobbies', 'Hobbies', 'Hobbies & Interests'])
+    resolveCanonicalArray(formData, 'hobbies', ['Hobbies', 'Hobbies & Interests'])
   );
 
   return {

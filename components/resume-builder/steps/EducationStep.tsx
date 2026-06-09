@@ -134,11 +134,21 @@ export default function EducationStep({ formData, updateFormData }: EducationSte
 
       <div className="space-y-6">
         {education.map((edu, index) => {
-          const degree = edu.degree || edu.Degree || '';
-          const school = edu.school || edu.institution || edu.Institution || '';
-          const field = edu.field || edu.Field || '';
-          const year = edu.year || edu.Year || edu.graduationDate || '';
-          const cgpa = edu.cgpa || edu.CGPA || '';
+          const degree = 'degree' in edu ? (edu.degree ?? '') : (edu.Degree ?? '');
+          const school =
+            'school' in edu
+              ? (edu.school ?? '')
+              : 'institution' in edu
+                ? (edu.institution ?? '')
+                : (edu.Institution ?? '');
+          const field = 'field' in edu ? (edu.field ?? '') : (edu.Field ?? '');
+          const year =
+            'year' in edu
+              ? (edu.year ?? '')
+              : 'graduationDate' in edu
+                ? (edu.graduationDate ?? '')
+                : (edu.Year ?? '');
+          const cgpa = 'cgpa' in edu ? (edu.cgpa ?? '') : (edu.CGPA ?? '');
 
           return (
             <div

@@ -117,12 +117,13 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
       <div className="space-y-6">
         <AnimatePresence>
           {experiences.map((exp, index) => {
-            const title = exp.title || exp.Position || '';
-            const company = exp.company || exp.Company || '';
-            const location = exp.location || exp.Location || '';
-            const startDate = exp.startDate || '';
-            const endDate = exp.endDate || '';
-            const description = exp.description || exp.Description || '';
+            const title = 'title' in exp ? (exp.title ?? '') : (exp.Position ?? '');
+            const company = 'company' in exp ? (exp.company ?? '') : (exp.Company ?? '');
+            const location = 'location' in exp ? (exp.location ?? '') : (exp.Location ?? '');
+            const startDate = 'startDate' in exp ? (exp.startDate ?? '') : '';
+            const endDate = 'endDate' in exp ? (exp.endDate ?? '') : '';
+            const description =
+              'description' in exp ? (exp.description ?? '') : (exp.Description ?? '');
             const isCurrent = exp.current || false;
 
             return (

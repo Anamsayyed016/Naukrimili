@@ -560,6 +560,23 @@ export function injectResumeData(
   return result;
 }
 
+/** Canonical field wins when present (including ''). Aliases used only when canonical is undefined. */
+function readCanonicalString(
+  record: Record<string, unknown>,
+  canonical: string,
+  aliases: string[] = []
+): string {
+  if (canonical in record) {
+    const value = record[canonical];
+    return typeof value === 'string' ? value : '';
+  }
+  for (const key of aliases) {
+    const value = record[key];
+    if (typeof value === 'string') return value;
+  }
+  return '';
+}
+
 /**
  * Render experience section
  */
@@ -585,29 +602,19 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
 
   return meaningful
     .map((exp) => {
-      // Helper to safely get string values
-      const getExpString = (keys: string[]): string => {
-        for (const key of keys) {
-          const value = exp[key];
-          if (typeof value === 'string' && value) return value;
-        }
-        return '';
-      };
-
-      // Support multiple field name formats
-      const company = getExpString(['Company', 'company']);
-      const position = getExpString(['Position', 'position', 'title', 'Title']);
-      const duration = getExpString(['Duration', 'duration']);
-      const description = getExpString(['Description', 'description']);
+      const company = readCanonicalString(exp, 'company', ['Company']);
+      const position = readCanonicalString(exp, 'title', ['position', 'Position', 'Title']);
+      const duration = readCanonicalString(exp, 'duration', ['Duration']);
+      const description = readCanonicalString(exp, 'description', ['Description']);
       
       // Build duration from start/end dates if not provided directly
       let finalDuration = duration;
       if (!finalDuration) {
-        const startDate = getExpString(['startDate', 'StartDate', 'Start Date']);
+        const startDate = readCanonicalString(exp, 'startDate', ['StartDate', 'Start Date']);
         // Check current flag first, then endDate
         const isCurrent = exp.current === true || exp.Current === true;
-        const endDateValue = getExpString(['endDate', 'EndDate', 'End Date']);
-        const endDate = isCurrent ? 'Present' : (endDateValue || '');
+        const endDateValue = readCanonicalString(exp, 'endDate', ['EndDate', 'End Date']);
+        const endDate = isCurrent ? 'Present' : endDateValue;
         if (startDate && endDate) {
           finalDuration = `${startDate} - ${endDate}`;
         } else if (startDate) {
@@ -617,8 +624,7 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
         }
       }
       
-      // Include location if available
-      const location = exp.location || exp.Location || '';
+      const location = readCanonicalString(exp, 'location', ['Location']);
       const companyWithLocation = location ? `${company}${company ? ' / ' : ''}${location}` : company;
 
       // Render bullets when achievements/bullets array is present. Falls back to
@@ -699,30 +705,19 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
 
   return meaningful
     .map((edu) => {
-      // Helper to safely get string values
-      const getEduString = (keys: string[]): string => {
-        for (const key of keys) {
-          const value = edu[key];
-          if (typeof value === 'string' && value) return value;
-        }
-        return '';
-      };
-
-      // Support multiple field name formats
-      const institution = getEduString([
-        'Institution',
+      const institution = readCanonicalString(edu, 'school', [
         'institution',
-        'school',
+        'Institution',
         'School',
-        'university',
         'University',
-        'college',
+        'university',
         'College',
+        'college',
       ]);
-      const degree = getEduString(['Degree', 'degree']);
-      const year = getEduString(['Year', 'year', 'graduationDate', 'GraduationDate']);
-      const field = getEduString(['Field', 'field']);
-      const cgpa = getEduString(['CGPA', 'cgpa']);
+      const degree = readCanonicalString(edu, 'degree', ['Degree']);
+      const year = readCanonicalString(edu, 'year', ['graduationDate', 'GraduationDate', 'Year']);
+      const field = readCanonicalString(edu, 'field', ['Field']);
+      const cgpa = readCanonicalString(edu, 'cgpa', ['CGPA']);
 
       // Build degree with field if available
       const degreeWithField = field ? `${degree}${degree ? ' - ' : ''}${field}` : degree;
@@ -802,9 +797,9 @@ function renderProjects(projects: Array<Record<string, string>>): string {
     return '';
   }
 
-  // Filter out empty entries (entries with no Name)
-  const validProjects = projects.filter(project => {
-    const name = project.Name || project.name || '';
+  const validProjects = projects.filter((project) => {
+    const rec = project as Record<string, unknown>;
+    const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title']);
     return name.trim().length > 0;
   });
 
@@ -814,10 +809,11 @@ function renderProjects(projects: Array<Record<string, string>>): string {
 
   return validProjects
     .map((project) => {
-      const name = project.Name || project.name || '';
-      const description = project.Description || project.description || '';
-      const technologies = project.Technologies || project.technologies || '';
-      const link = project.Link || project.link || '';
+      const rec = project as Record<string, unknown>;
+      const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title']);
+      const description = readCanonicalString(rec, 'description', ['Description']);
+      const technologies = readCanonicalString(rec, 'technologies', ['Technologies', 'tech_stack']);
+      const link = readCanonicalString(rec, 'link', ['Link', 'url']);
 
       return `
         <div class="project-item">
@@ -839,9 +835,9 @@ function renderCertifications(certifications: Array<Record<string, string>>): st
     return '';
   }
 
-  // Filter out empty entries (entries with no Name)
-  const validCerts = certifications.filter(cert => {
-    const name = cert.Name || cert.name || '';
+  const validCerts = certifications.filter((cert) => {
+    const rec = cert as Record<string, unknown>;
+    const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title']);
     return name.trim().length > 0;
   });
 
@@ -851,10 +847,11 @@ function renderCertifications(certifications: Array<Record<string, string>>): st
 
   return validCerts
     .map((cert) => {
-      const name = cert.Name || cert.name || '';
-      const issuer = cert.Issuer || cert.issuer || '';
-      const date = cert.Date || cert.date || '';
-      const link = cert.Link || cert.link || '';
+      const rec = cert as Record<string, unknown>;
+      const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title']);
+      const issuer = readCanonicalString(rec, 'issuer', ['Issuer']);
+      const date = readCanonicalString(rec, 'date', ['Date']);
+      const link = readCanonicalString(rec, 'link', ['Link', 'url']);
 
       return `
         <div class="certification-item">
