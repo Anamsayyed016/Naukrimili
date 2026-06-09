@@ -58,6 +58,7 @@ export function mapExtractedToUploadProfile(
       return { name: l.name || '', proficiency: l.proficiency || '' };
     }),
     summary: extracted.summary || '',
+    hobbies: extracted.hobbies || [],
     confidence: extracted.confidence ?? 75,
     _aiProvider: options?.aiProvider || 'extracted',
   };

@@ -13,6 +13,7 @@ import {
   mapExtractedToUploadProfile,
   isUsableExtraction,
 } from '@/lib/resume-parser/map-to-upload-profile';
+import { enrichAffindaWithEden } from '@/lib/resume-parser/merge-resume-data';
 import {
   normalizeUploadProfile,
   cleanMultiline,
@@ -298,11 +299,18 @@ export async function POST(request: NextRequest) {
           }
 
           if (isUsableExtraction(affindaResult)) {
-            parsedData = mapExtractedToUploadProfile(affindaResult, { aiProvider: 'affinda' });
+            const enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
+            parsedData = mapExtractedToUploadProfile(enriched.data, {
+              aiProvider: enriched.provider,
+            });
             aiSuccess = true;
-            aiProvider = 'affinda';
+            aiProvider = enriched.provider;
             usedAffindaPrimary = true;
-            console.log('✅ Affinda primary extraction accepted (confidence:', affindaResult.confidence, ')');
+            console.log(
+              '✅ Affinda primary extraction accepted (confidence:',
+              affindaResult.confidence,
+              enriched.provider === 'affinda+eden' ? '+ Eden enrichment' : ''
+            );
           } else {
             console.warn('⚠️ Affinda result too sparse — continuing with AI fallback chain');
           }
@@ -557,10 +565,12 @@ export async function POST(request: NextRequest) {
                 educationCount: (affindaResult.education || []).length,
               });
               
-              // Transform Affinda format (already matches our standard format)
-              parsedData = mapExtractedToUploadProfile(affindaResult, { aiProvider: 'affinda' });
+              const enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
+              parsedData = mapExtractedToUploadProfile(enriched.data, {
+                aiProvider: enriched.provider,
+              });
               aiSuccess = true;
-              aiProvider = 'affinda';
+              aiProvider = enriched.provider;
               console.log('✅ Affinda parsing successful');
               console.log('   - Confidence:', parsedData.confidence, '%');
               console.log('   - Skills:', parsedData.skills.length);

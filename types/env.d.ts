@@ -34,6 +34,12 @@ declare namespace NodeJS {
     // Affinda Resume Parser
     AFFINDA_API_KEY?: string;
     AFFINDA_WORKSPACE_ID?: string;
+
+    // Eden AI Resume Parser (secondary enrichment)
+    EDEN_AI_API_KEY?: string;
+    EDEN_AI_RESUME_PARSER_URL?: string;
+    EDEN_AI_RESUME_PROVIDERS?: string;
+    EDEN_AI_TIMEOUT_MS?: string;
     
     // Google Cloud APIs
     GOOGLE_CLOUD_API_KEY?: string;
