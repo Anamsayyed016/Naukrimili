@@ -202,8 +202,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Apply pagination after filtering
-    const paginatedUsers = finalUsers.slice(skip, skip + limit);
+     // DB query already applied skip/take; do not re-slice with skip offset
+    const paginatedUsers = finalUsers;
     
     return NextResponse.json({
       success: true,

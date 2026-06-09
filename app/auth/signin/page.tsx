@@ -71,10 +71,16 @@ export default function SignInPage() {
         const redirectQuery = finalRedirect ? `?redirect=${encodeURIComponent(finalRedirect)}` : '';
         router.replace(`/auth/role-selection${redirectQuery}`);
       } else if (needsPayment && finalRedirect && finalRedirect.startsWith('/resume-builder/')) {
-        // User needs payment - redirect to pricing page with return URL
-        console.log('💳 [SignIn] Already authenticated user needs payment, redirecting to pricing');
-        const pricingUrl = `/pricing?return=${encodeURIComponent(finalRedirect)}&auto-download=true`;
-        router.replace(pricingUrl);
+        if (session.user.role === 'admin') {
+          sessionStorage.removeItem('resume-builder-needs-payment');
+          console.log('🔑 [SignIn] Admin resume-builder return — skipping payment redirect');
+          router.replace(finalRedirect);
+        } else {
+          // User needs payment - redirect to pricing page with return URL
+          console.log('💳 [SignIn] Already authenticated user needs payment, redirecting to pricing');
+          const pricingUrl = `/pricing?return=${encodeURIComponent(finalRedirect)}&auto-download=true`;
+          router.replace(pricingUrl);
+        }
       } else {
         // Use redirect parameter if available, otherwise use default dashboard
         if (finalRedirect && (finalRedirect.startsWith('/') || finalRedirect.startsWith('http'))) {
@@ -202,10 +208,16 @@ export default function SignInPage() {
           const redirectQuery = finalRedirect ? `?redirect=${encodeURIComponent(finalRedirect)}` : '';
           router.push(`/auth/role-selection${redirectQuery}`);
         } else if (needsPayment && finalRedirect && finalRedirect.startsWith('/resume-builder/')) {
-          // User needs payment - redirect to pricing page with return URL
-          console.log('💳 [SignIn] User needs payment, redirecting to pricing page');
-          const pricingUrl = `/pricing?return=${encodeURIComponent(finalRedirect)}&auto-download=true`;
-          router.push(pricingUrl);
+          if (sessionData.user.role === 'admin') {
+            sessionStorage.removeItem('resume-builder-needs-payment');
+            console.log('🔑 [SignIn] Admin resume-builder return — skipping payment redirect');
+            router.push(finalRedirect);
+          } else {
+            // User needs payment - redirect to pricing page with return URL
+            console.log('💳 [SignIn] User needs payment, redirecting to pricing page');
+            const pricingUrl = `/pricing?return=${encodeURIComponent(finalRedirect)}&auto-download=true`;
+            router.push(pricingUrl);
+          }
         } else if (finalRedirect && (finalRedirect.startsWith('/') || finalRedirect.startsWith('http'))) {
           // Use redirect parameter if available and valid
           try {

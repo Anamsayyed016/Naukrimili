@@ -60,7 +60,11 @@ export default function ResumeUploadPage() {
       router.replace(
         `/auth/signin?redirect=${encodeURIComponent(uploadReturnPath)}`
       );
-    } else if (session && session.user.role !== 'jobseeker') {
+xsdvcvd     } else if (
+      session &&
+      session.user.role !== 'jobseeker' &&
+      session.user.role !== 'admin'
+    ) {
       router.replace('/auth/role-selection');
     }
   }, [status, session, router, uploadReturnPath]);
@@ -314,7 +318,9 @@ export default function ResumeUploadPage() {
   const isAuthPending =
     status === 'loading' ||
     status === 'unauthenticated' ||
-    (session && session.user.role !== 'jobseeker');
+    (session &&
+      session.user.role !== 'jobseeker' &&
+      session.user.role !== 'admin');
 
   if (isAuthPending) {
     return (
