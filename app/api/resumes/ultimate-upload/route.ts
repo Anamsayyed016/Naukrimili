@@ -20,6 +20,8 @@ import {
 } from '@/lib/resume-parser/normalize-extracted';
 import {
   pickRicherFullName,
+  deriveDisplayNameFromEmail,
+  isPlausiblePersonName,
   splitMergedProjectEntries,
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
@@ -625,12 +627,15 @@ export async function POST(request: NextRequest) {
         const recovered = extractResumeFromText(text);
         lastRecovered = recovered;
         const emailForName = String(parsedData.email || session.user.email || '');
-        recoveredFullName = String(recovered.fullName || '').trim();
+        const recoveredCandidate = String(recovered.fullName || '').trim();
+        recoveredFullName = isPlausiblePersonName(recoveredCandidate) ? recoveredCandidate : '';
 
         const mergedFullName = pickRicherFullName(
-          parsedData.fullName || parsedData.name || '',
+          isPlausiblePersonName(parsedData.fullName || parsedData.name || '')
+            ? String(parsedData.fullName || parsedData.name || '').trim()
+            : '',
           recoveredFullName,
-          emailForName
+          String(parsedData.email || session.user.email || '')
         );
         if (mergedFullName) {
           parsedData.fullName = mergedFullName;
@@ -1025,31 +1030,28 @@ export async function POST(request: NextRequest) {
     }
 
     const emailForName = String(parsedData.email || session.user.email || '');
-    const parserName = String(parsedData.fullName || parsedData.name || '').trim();
-
-    // Priority: recovered text header → parser name → email slug → session profile
-    let derivedName = '';
-    if (!recoveredFullName && !parserName) {
-      const emailName = emailForName.split('@')[0];
-      const namePart = emailName.replace(/[0-9]/g, '').replace(/[._-]/g, ' ');
-      if (namePart.length > 2) {
-        derivedName = namePart
-          .split(' ')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ');
-        console.log('📧 Derived name from email:', derivedName);
-      }
+    const parserNameRaw = String(parsedData.fullName || parsedData.name || '').trim();
+    const parserName = isPlausiblePersonName(parserNameRaw) ? parserNameRaw : '';
+    const recoveredName = isPlausiblePersonName(recoveredFullName) ? recoveredFullName : '';
+    const emailDerivedName = deriveDisplayNameFromEmail(emailForName);
+    if (parserNameRaw && !parserName) {
+      warn('Rejected implausible parser name', { parserNameRaw });
     }
 
     const finalName =
-      pickRicherFullName(recoveredFullName, parserName, emailForName) ||
-      derivedName ||
-      (session.user.name && session.user.name.length < 30 ? session.user.name : 'User');
+      pickRicherFullName(recoveredName, parserName, emailForName) ||
+      emailDerivedName ||
+      (session.user.name &&
+      session.user.name.length < 30 &&
+      isPlausiblePersonName(session.user.name)
+        ? session.user.name
+        : 'User');
 
     console.log('👤 Name resolution:', {
-      recoveredName: recoveredFullName || 'none',
+      recoveredName: recoveredName || 'none',
       parsedName: parserName || 'none',
-      derivedFromEmail: derivedName || 'none',
+      rejectedParserName: parserNameRaw && !parserName ? parserNameRaw : 'none',
+      derivedFromEmail: emailDerivedName || 'none',
       sessionName: session.user.name || 'none',
       finalName,
     });

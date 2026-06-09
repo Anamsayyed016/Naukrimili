@@ -33,6 +33,8 @@ import {
 import {
   splitFullName,
   pickRicherFullName,
+  sanitizePersonName,
+  deriveDisplayNameFromEmail,
   sanitizeFieldText,
   isEmailDerivedName,
   parseIntelligentNameFromEmail,
@@ -118,13 +120,13 @@ function supplementImportFromRawText(
   const personal = (importedData.personalInformation || {}) as Record<string, unknown>;
 
   let fullName = pickRicherFullName(
-    sanitizeFieldText(importedData.fullName || importedData.name || '', 120),
-    sanitizeFieldText(textParsed.fullName || '', 120),
+    sanitizePersonName(importedData.fullName || importedData.name || '', 120),
+    sanitizePersonName(textParsed?.fullName || '', 120),
     email
   );
   fullName = pickRicherFullName(
     fullName,
-    sanitizeFieldText(personal.fullName || '', 120),
+    sanitizePersonName(personal.fullName || '', 120),
     email
   );
 
@@ -472,11 +474,11 @@ function resolveName(
   headerNameFromText = ''
 ): { firstName: string; lastName: string; displayName: string } {
   const personal = importedData.personalInformation || {};
-  const textHeaderName = sanitizeFieldText(headerNameFromText, 120);
+  const textHeaderName = sanitizePersonName(headerNameFromText, 120);
 
   const explicitCombined = [
-    sanitizeFieldText(importedData.firstName || personal.firstName || '', 80),
-    sanitizeFieldText(importedData.lastName || personal.lastName || '', 80),
+    sanitizePersonName(importedData.firstName || personal.firstName || '', 80),
+    sanitizePersonName(importedData.lastName || personal.lastName || '', 80),
   ]
     .filter(Boolean)
     .join(' ');
@@ -489,7 +491,7 @@ function resolveName(
     personal.fullName,
     textHeaderName,
   ]) {
-    rawFullName = pickRicherFullName(rawFullName, sanitizeFieldText(candidate, 120), email);
+    rawFullName = pickRicherFullName(rawFullName, sanitizePersonName(candidate, 120), email);
   }
 
   const garbage =
@@ -519,12 +521,20 @@ function resolveName(
 
   const hasUsableName = !!(firstName || lastName || rawFullName);
 
-  // Priority 3: intelligent email parse only when separators imply real parts (maryam.khan@…)
+  // Priority 3: email-derived name when parsers returned garbage or nothing
   if (!hasUsableName && email) {
     const fromEmail = parseIntelligentNameFromEmail(email);
     if (fromEmail) {
       firstName = fromEmail.firstName;
       lastName = fromEmail.lastName;
+    } else {
+      const derived = deriveDisplayNameFromEmail(email);
+      if (derived) {
+        const split = splitFullName(derived);
+        firstName = split.firstName;
+        lastName = split.lastName;
+        rawFullName = derived;
+      }
     }
   }
 

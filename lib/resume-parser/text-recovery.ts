@@ -11,6 +11,7 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { isPlausiblePersonName } from '@/lib/resume-parser/import-sanitize';
 
 /* ------------------------------------------------------------------ */
 /*  Recovery layer — only fills missing identity/links                */
@@ -276,7 +277,8 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
   result.phone = id.phone;
   result.linkedin = id.linkedin;
   result.portfolio = id.github || id.portfolio;
-  result.fullName = extractName(text);
+  const headerName = extractName(text);
+  result.fullName = isPlausiblePersonName(headerName) ? headerName : '';
   result.location = extractLocation(text);
 
   // 2. Section-driven extraction
@@ -622,9 +624,12 @@ function extractName(text: string): string {
     return merged ? trySegment(merged) : null;
   };
 
+  const acceptName = (candidate: string | null): string | null =>
+    candidate && isPlausiblePersonName(candidate) ? candidate : null;
+
   // Multi-line headers: "Maryam" on line 1 + "Khan" on line 2, or "MOHAMMAD" + "ARIF KHAN"
   for (let i = 0; i < Math.min(lines.length, 8); i++) {
-    const merged = tryMergeHeaderLines(i);
+    const merged = acceptName(tryMergeHeaderLines(i));
     if (merged && merged.split(/\s+/).length >= 2) return merged;
   }
 
@@ -633,11 +638,11 @@ function extractName(text: string): string {
     if (!line) continue;
     if (isAnyHeadingLine(line)) continue;
 
-    const direct = trySegment(line);
+    const direct = acceptName(trySegment(line));
     if (direct) {
       // Single-token hit: peek at following lines before accepting a partial name
       if (direct.split(/\s+/).length === 1) {
-        const merged = tryMergeHeaderLines(i);
+        const merged = acceptName(tryMergeHeaderLines(i));
         if (merged && merged.split(/\s+/).length >= 2) return merged;
       }
       return direct;
@@ -647,7 +652,7 @@ function extractName(text: string): string {
     if (/[|·•\u2022]|\s-\s|\s\u2013\s|\s\u2014\s/.test(line)) {
       const segments = line.split(/\s*[|·•\u2022]\s*|\s+-\s+|\s+[\u2013\u2014]\s+/);
       for (const seg of segments) {
-        const found = trySegment(seg);
+        const found = acceptName(trySegment(seg));
         if (found) return found;
       }
     }

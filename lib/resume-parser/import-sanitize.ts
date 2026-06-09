@@ -123,6 +123,96 @@ export function parseIntelligentNameFromEmail(
   return null;
 }
 
+const NAME_STOPWORDS = new Set([
+  'of',
+  'the',
+  'and',
+  'or',
+  'around',
+  'with',
+  'for',
+  'to',
+  'in',
+  'at',
+  'from',
+  'by',
+  'a',
+  'an',
+  'as',
+  'on',
+  'per',
+  'via',
+  'into',
+  'over',
+  'under',
+  'between',
+  'within',
+  'across',
+]);
+
+/** Resume / business vocabulary — never valid in a personal name. */
+const NON_NAME_VOCAB =
+  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh)\b/i;
+
+/**
+ * True when a string looks like a real person name (not a bullet, sentence, or metric).
+ */
+export function isPlausiblePersonName(value: unknown): boolean {
+  const s = String(value || '').replace(/\s+/g, ' ').trim();
+  if (s.length < 2 || s.length > 60) return false;
+  if (isGarbageResumeText(s)) return false;
+  if (/[@+#]/.test(s) || /https?:|\bwww\./i.test(s)) return false;
+  if (/\d/.test(s)) return false;
+  if (/[)\]}]/.test(s) && !/[(\[{]/.test(s)) return false;
+  if (NON_NAME_VOCAB.test(s)) return false;
+  if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(s)) return false;
+
+  const words = s.split(/\s+/).filter(Boolean);
+  if (words.length === 0 || words.length > 5) return false;
+
+  const stopCount = words.filter((w) => NAME_STOPWORDS.has(w.toLowerCase())).length;
+  if (stopCount >= 2) return false;
+  if (words.length >= 2 && stopCount / words.length >= 0.34) return false;
+
+  if (!words.every((w) => /^[A-Za-z][A-Za-z'.-]*$/.test(w) && w.length >= 2)) return false;
+
+  // Multi-word all-lowercase lines are usually sentence fragments from experience text.
+  if (words.length >= 3 && words.every((w) => w === w.toLowerCase())) return false;
+
+  return true;
+}
+
+/** Sanitize and keep only plausible personal names. */
+export function sanitizePersonName(value: unknown, maxLen = 120): string {
+  const s = sanitizeFieldText(value, maxLen);
+  return isPlausiblePersonName(s) ? s : '';
+}
+
+/**
+ * Fallback display name from email when parsers return garbage (e.g. anamkhan@gmail.com).
+ */
+export function deriveDisplayNameFromEmail(email: string): string {
+  const local = String(email.split('@')[0] || '')
+    .replace(/\d/g, '')
+    .trim();
+  if (!local || local.length < 3) return '';
+
+  const fromIntel = parseIntelligentNameFromEmail(email);
+  if (fromIntel) {
+    const combined = [fromIntel.firstName, fromIntel.lastName].filter(Boolean).join(' ');
+    if (isPlausiblePersonName(combined)) return combined;
+  }
+
+  if (/^[a-zA-Z]{3,24}$/.test(local)) {
+    const formatted = formatDisplayName(local);
+    if (formatted && !isEmailDerivedName(formatted, email)) return formatted;
+    // Single-token local part (anamkhan) — better than an experience sentence.
+    if (formatted) return formatted;
+  }
+
+  return '';
+}
+
 function nameWordCount(name: string): number {
   return String(name || '')
     .trim()
@@ -132,15 +222,15 @@ function nameWordCount(name: string): number {
 
 /**
  * Choose the more complete personal name when parser and text recovery disagree.
- * Prefers non-email-derived names and names with more tokens (e.g. "Maryam Khan" over "Maryam").
+ * Never prefers longer experience/description fragments over a valid short name.
  */
 export function pickRicherFullName(primary: string, secondary: string, email = ''): string {
-  const a = sanitizeFieldText(primary, 120);
-  const b = sanitizeFieldText(secondary, 120);
+  const a = sanitizePersonName(primary);
+  const b = sanitizePersonName(secondary);
 
   if (!a && !b) return '';
-  if (!a) return isEmailDerivedName(b, email) ? '' : b;
-  if (!b) return isEmailDerivedName(a, email) ? '' : a;
+  if (!a) return b;
+  if (!b) return a;
 
   const aDerived = isEmailDerivedName(a, email);
   const bDerived = isEmailDerivedName(b, email);
@@ -161,7 +251,7 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
 }
 
 export function splitFullName(fullName: string): { firstName: string; lastName: string } {
-  const raw = sanitizeFieldText(fullName, 120);
+  const raw = sanitizePersonName(fullName, 120);
   if (!raw) return { firstName: '', lastName: '' };
 
   let parts = raw.split(/\s+/).filter(Boolean);

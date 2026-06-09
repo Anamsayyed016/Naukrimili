@@ -1,4 +1,10 @@
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { transformImportDataToBuilder } from '@/lib/resume-builder/import-transformer';
+import {
+  deriveDisplayNameFromEmail,
+  isPlausiblePersonName,
+  pickRicherFullName,
+} from '@/lib/resume-parser/import-sanitize';
 import { isUsableExtraction } from '@/lib/resume-parser/map-to-upload-profile';
 import {
   extractResumeFromText,
@@ -19,6 +25,52 @@ function base(): ExtractedResumeData {
     rawText: '',
   };
 }
+
+describe('isPlausiblePersonName', () => {
+  it('rejects experience sentence fragments', () => {
+    expect(isPlausiblePersonName('turnover of around 1000 Crores)')).toBe(false);
+    expect(isPlausiblePersonName('Managed team of 12 engineers')).toBe(false);
+  });
+
+  it('accepts real names', () => {
+    expect(isPlausiblePersonName('Anam Khan')).toBe(true);
+    expect(isPlausiblePersonName('CS Mujahid Ali')).toBe(true);
+  });
+});
+
+describe('pickRicherFullName', () => {
+  it('prefers plausible short name over long experience garbage', () => {
+    const merged = pickRicherFullName(
+      'Anam Khan',
+      'turnover of around 1000 Crores)',
+      'anamkhan@gmail.com'
+    );
+    expect(merged).toBe('Anam Khan');
+  });
+
+  it('falls back to email-derived name when parser returns garbage', () => {
+    const merged = pickRicherFullName(
+      '',
+      'turnover of around 1000 Crores)',
+      'anamkhan@gmail.com'
+    );
+    expect(merged).toBe('');
+    expect(deriveDisplayNameFromEmail('anamkhan@gmail.com')).toBe('Anamkhan');
+  });
+});
+
+describe('transformImportDataToBuilder name safety', () => {
+  it('does not use experience text as display name', () => {
+    const transformed = transformImportDataToBuilder({
+      fullName: 'turnover of around 1000 Crores)',
+      email: 'anamkhan@gmail.com',
+      experience: [{ company: 'Acme', position: 'Manager', description: 'Led ops' }],
+      skills: ['Leadership'],
+    });
+    expect(transformed.fullName).not.toMatch(/turnover/i);
+    expect(transformed.name).not.toMatch(/turnover/i);
+  });
+});
 
 describe('isUsableExtraction', () => {
   it('rejects summary-only Affinda parse (cover letter page)', () => {

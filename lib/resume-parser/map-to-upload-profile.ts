@@ -4,14 +4,16 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { sanitizePersonName } from '@/lib/resume-parser/import-sanitize';
 
 export function mapExtractedToUploadProfile(
   extracted: ExtractedResumeData,
   options?: { aiProvider?: string }
 ): Record<string, any> {
+  const fullName = sanitizePersonName(extracted.fullName) || '';
   return {
-    name: extracted.fullName || '',
-    fullName: extracted.fullName || '',
+    name: fullName,
+    fullName,
     email: extracted.email || '',
     phone: extracted.phone || '',
     address: extracted.location || '',
