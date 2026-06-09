@@ -118,6 +118,7 @@ const SECTION_ALIASES = {
   experience: [
     'experience', 'work experience', 'professional experience', 'work history',
     'employment', 'employment history', 'career history', 'professional background',
+    'professional journey',
     'job experience', 'career experience', 'relevant experience', 'industry experience',
     'positions held', 'work', 'employment record',
   ],
@@ -140,6 +141,7 @@ const SECTION_ALIASES = {
     'featured projects', 'software projects', 'applications developed',
     'selected work', 'work samples', 'samples of work',
     'case studies', 'case study', 'select projects',
+    'assignments', 'key engagements', 'major work', 'handled projects',
     'side projects', 'open source projects', 'open source contributions',
   ],
   certifications: [
@@ -245,7 +247,7 @@ export function cleanResumeTextPreservingLines(input: string): string {
  * Designed to be permissive — emits empty arrays when uncertain, never fabricates.
  */
 export function extractResumeFromText(rawText: string): ExtractedResumeData {
-  const text = cleanResumeTextPreservingLines(rawText || '');
+  const text = stripLeadingNonResumeContent(cleanResumeTextPreservingLines(rawText || ''));
 
   const result: ExtractedResumeData = {
     fullName: '',
@@ -480,6 +482,64 @@ function isHeadingLineFor(line: string, aliases: readonly string[]): boolean {
 
 function isAnyHeadingLine(line: string): boolean {
   return isHeadingLineFor(line, ALL_HEADINGS);
+}
+
+const COVER_LETTER_MARKERS = [
+  /\bdear\s+(sir|madam|hiring\s+manager|hr\s+manager|recruiter|team)\b/i,
+  /\bto\s+whom\s+it\s+may\s+concern\b/i,
+  /\bsubject\s*:/i,
+  /\bre\s*:\s*(application|position|role|job)\b/i,
+  /\bapplication\s+for\b/i,
+  /\bi\s+am\s+writing\s+to\s+(apply|express|inquire)\b/i,
+  /\bwith\s+reference\s+to\s+your\b/i,
+];
+
+const RESUME_ANCHOR_RE =
+  /\b((work\s+)?experience|professional\s+(experience|journey|background)|employment(\s+history)?|education|skills|technical\s+skills|core\s+competencies|curriculum\s+vitae|resume|cv)\b/i;
+
+/**
+ * When page 1 is a cover letter, parsers often extract the letter body as
+ * summary and miss experience on page 2+. Trim leading non-resume pages when
+ * cover-letter markers are present and a resume section anchor appears later.
+ */
+export function stripLeadingNonResumeContent(rawText: string): string {
+  if (!rawText || rawText.length < 80) return rawText;
+
+  const lines = rawText.split('\n');
+  const opener = lines.slice(0, 30).join('\n');
+  const looksLikeCoverLetter = COVER_LETTER_MARKERS.some((re) => re.test(opener));
+  if (!looksLikeCoverLetter) return rawText;
+
+  for (let i = 4; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    if (isAnyHeadingLine(line)) {
+      const start = Math.max(0, i - 3);
+      return lines.slice(start).join('\n').trim();
+    }
+
+    if (line.length <= 80 && RESUME_ANCHOR_RE.test(line)) {
+      const start = Math.max(0, i - 3);
+      return lines.slice(start).join('\n').trim();
+    }
+
+    // Name line followed soon by a resume section (common after a page break)
+    if (/^[A-Z][A-Za-z'-]+(?:\s+[A-Z][A-Za-z'-]+){1,3}$/.test(line)) {
+      const aheadLines = lines.slice(i + 1, Math.min(lines.length, i + 18));
+      const hasResumeSection = aheadLines.some(
+        (l) => {
+          const t = l.trim();
+          return t && (isAnyHeadingLine(t) || (t.length <= 80 && RESUME_ANCHOR_RE.test(t)));
+        }
+      );
+      if (hasResumeSection) {
+        return lines.slice(i).join('\n').trim();
+      }
+    }
+  }
+
+  return rawText;
 }
 
 /* ------------------------------------------------------------------ */

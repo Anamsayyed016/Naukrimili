@@ -71,17 +71,18 @@ export function isUsableExtraction(extracted: ExtractedResumeData): boolean {
   const rawLen = (extracted.rawText || '').replace(/\s+/g, ' ').trim().length;
 
   const hasIdentity = !!(extracted.fullName || extracted.email || extracted.phone);
-  const hasStructured =
-    skills >= 2 ||
-    experience >= 1 ||
-    education >= 1 ||
-    !!(extracted.summary && extracted.summary.length > 40);
+  const hasCoreSections = experience >= 1 || education >= 1 || skills >= 2;
   const hasRichText = rawLen >= 200;
-  const highConfidence = (extracted.confidence ?? 0) >= 35;
 
-  if (hasRichText && (experience >= 1 || education >= 1 || skills >= 2)) {
+  // Rich document with at least one substantive resume section.
+  if (hasRichText && hasCoreSections) {
     return true;
   }
 
-  return hasIdentity && (hasStructured || highConfidence);
+  // Identity + core sections — accept even when rawText is short (DOCX edge cases).
+  if (hasIdentity && hasCoreSections) {
+    return true;
+  }
+
+  return false;
 }

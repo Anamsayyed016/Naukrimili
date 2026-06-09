@@ -23,6 +23,7 @@ import {
   splitMergedProjectEntries,
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
+import { stripLeadingNonResumeContent } from '@/lib/resume-parser/text-recovery';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -254,6 +255,18 @@ export async function POST(request: NextRequest) {
       extractedText = `Resume: ${file.name}\n\n[Automatic text extraction was not possible. Please complete your profile manually.]`;
       
       console.log('✅ Continuing with fallback text to allow upload');
+    }
+
+    // Skip cover-letter pages so parsers target the resume body (page 2+ PDFs).
+    if (extractedText.length > 80) {
+      const trimmed = stripLeadingNonResumeContent(extractedText);
+      if (trimmed.length >= 50 && trimmed.length < extractedText.length) {
+        log('Trimmed leading cover-letter content', {
+          before: extractedText.length,
+          after: trimmed.length,
+        });
+        extractedText = trimmed;
+      }
     }
 
     // Parse resume data using REAL AI (Hybrid approach for best accuracy)

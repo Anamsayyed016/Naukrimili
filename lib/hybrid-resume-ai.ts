@@ -314,11 +314,13 @@ Return ONLY valid JSON in this EXACT shape (no markdown, no commentary):
 
 SECTION-DETECTION HINTS (treat as the same section regardless of heading text):
 - Summary aliases:     Summary | Profile | About Me | Professional Summary | Career Objective | Objective | Introduction | Bio
-- Experience aliases:  Experience | Work History | Employment | Professional Experience | Career History | Positions Held
+- Experience aliases:  Experience | Work History | Employment | Professional Experience | Career History | Professional Journey | Employment Record | Positions Held
 - Skills aliases:      Skills | Technical Skills | Expertise | Core Competencies | Technologies | Tools | Proficiencies
 - Languages aliases:   Languages | Spoken Languages | Language Proficiency | Languages Known
-- Projects aliases:    Projects | Portfolio | Case Studies | Work Samples | Featured Projects | Open Source
+- Projects aliases:    Projects | Portfolio | Case Studies | Assignments | Key Engagements | Work Samples | Featured Projects | Open Source
 - Certifications:      Certifications | Certificates | Licenses | Training | Courses | Professional Development
+
+COVER LETTER RULE: If the document starts with "Dear Hiring Manager", a subject line, or an application letter, IGNORE that page and extract ONLY from the resume/CV section (Experience, Education, Skills, etc.).
 
 SEPARATION RULES:
 - "Languages" means spoken/written languages (English, Hindi, Spanish, ASL, ...). NEVER put React, Python, SQL there.
