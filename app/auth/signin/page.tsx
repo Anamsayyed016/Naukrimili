@@ -13,7 +13,7 @@ import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import { ensureWorkspacePreferenceOwnedBy } from '@/lib/preferences/workspace-preference';
 import '../auth-signin.css';
-// Google OAuth removed - using manual registration only
+import ConditionalOAuthButton from '@/components/auth/ConditionalOAuthButton';
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
@@ -512,7 +512,7 @@ export default function SignInPage() {
                       </Alert>
                     )}
 
-                    {/* Google OAuth removed - using manual registration only */}
+                    <ConditionalOAuthButton loading={loading} />
 
                     <form onSubmit={handleSignIn} className="space-y-3">
                       <div className="relative">

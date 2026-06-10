@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { getServerSession } from "next-auth/next"
@@ -114,7 +115,23 @@ const authOptions = {
     },
   },
   providers: [
-    // Google OAuth removed - using manual registration only
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            authorization: {
+              params: {
+                scope: "openid email profile",
+                access_type: "offline",
+                prompt: "select_account",
+                include_granted_scopes: "true",
+                response_type: "code",
+              },
+            },
+          }),
+        ]
+      : []),
     ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET
       ? [
           GitHubProvider({
@@ -320,8 +337,8 @@ const authOptions = {
         return false;
       }
       
-      // Handle OAuth providers (GitHub) - Google OAuth removed
-      if (account?.provider === 'github') {
+      // Handle OAuth providers (GitHub, Google)
+      if (account?.provider === 'github' || account?.provider === 'google') {
         try {
           console.log(`🔍 Processing ${account.provider} OAuth sign-in`);
           console.log(`   User email:`, user.email);
