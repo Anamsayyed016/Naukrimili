@@ -6,6 +6,7 @@
 import { cleanString } from './normalize-extracted';
 import {
   isClassifiedPersonName,
+  isEmailOrDomainFragment,
   isFirmOrLocationNamePhrase,
   splitClassifiedFullName,
   type ClassifiedText,
@@ -196,6 +197,7 @@ export function stripCredentialPrefix(value: string): string {
 export function isPlausiblePersonName(value: unknown): boolean {
   const s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
   if (!s || isGarbageResumeText(s)) return false;
+  if (isEmailOrDomainFragment(s)) return false;
   if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(s)) return false;
   return isClassifiedPersonName(s);
 }
@@ -246,20 +248,53 @@ function nameWordCount(name: string): number {
     .filter(Boolean).length;
 }
 
-/**
- * Choose the more complete personal name when parser and text recovery disagree.
- * Never prefers longer experience/description fragments over a valid short name.
- */
+/** Contact-first: email local-part beats near-contact lines and domain fragments. */
+function scoreNameCandidate(candidate: NameCandidate, email: string): number {
+  const value = sanitizePersonName(candidate.value);
+  if (!value || isEmailOrDomainFragment(value)) return 0;
+
+  let confidence = candidate.confidence;
+  const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
+
+  if (candidate.source === 'email_derived' && emailDerived) {
+    confidence = Math.max(confidence, 92);
+  } else if (emailDerived && isEmailDerivedName(value, email)) {
+    confidence = Math.max(confidence, 92);
+  }
+
+  if (candidate.source === 'near_contact' && emailDerived) {
+    confidence = Math.min(confidence, 70);
+  }
+  if (candidate.source === 'first_line' && emailDerived) {
+    confidence = Math.min(confidence, 65);
+  }
+
+  return confidence;
+}
+
 /**
  * Choose the highest-confidence personal name from ranked parser candidates.
  * Affinda/Eden scores apply only when the value passes plausibility checks.
  */
 export function pickBestNameFromCandidates(candidates: NameCandidate[], email = ''): string {
-  const scored = candidates
+  const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
+  const withEmailDerived =
+    emailDerived && !candidates.some((c) => c.source === 'email_derived')
+      ? [
+          ...candidates,
+          {
+            value: emailDerived,
+            confidence: 92,
+            source: 'email_derived' as const,
+          },
+        ]
+      : candidates;
+
+  const scored = withEmailDerived
     .map((c) => ({
       ...c,
       value: sanitizePersonName(c.value),
-      confidence: sanitizePersonName(c.value) ? c.confidence : 0,
+      confidence: scoreNameCandidate(c, email),
     }))
     .filter((c) => c.value && c.confidence > 0);
 
@@ -289,17 +324,26 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
   if (aFirm && !bFirm) return b;
   if (bFirm && !aFirm) return a;
 
+  const aValid = isValidatedContactName(a);
+  const bValid = isValidatedContactName(b);
+  if (aValid && !bValid) return a;
+  if (bValid && !aValid) return b;
+
   const aDerived = isEmailDerivedName(a, email);
   const bDerived = isEmailDerivedName(b, email);
-  if (aDerived && !bDerived) return b;
-  if (!aDerived && bDerived) return a;
+  if (aDerived && !bValid) return a;
+  if (bDerived && !aValid) return b;
+  if (aDerived && bValid && !bDerived) return b;
+  if (bDerived && aValid && !aDerived) return a;
   if (aDerived && bFirm) return a;
   if (bDerived && aFirm) return b;
 
   const aWords = nameWordCount(a);
   const bWords = nameWordCount(b);
-  if (bWords > aWords) return b;
-  if (aWords > bWords) return a;
+  if (aValid && bValid && bWords > aWords) return b;
+  if (aValid && bValid && aWords > bWords) return a;
+  if (!aValid && !bValid && bWords > aWords) return b;
+  if (!aValid && !bValid && aWords > bWords) return a;
 
   const al = a.toLowerCase();
   const bl = b.toLowerCase();

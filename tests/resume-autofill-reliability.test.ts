@@ -4,6 +4,7 @@ import {
   deriveDisplayNameFromEmail,
   isPlausiblePersonName,
   isPlausibleProjectName,
+  pickBestNameFromCandidates,
   pickRicherFullName,
   sanitizeProjectEntry,
 } from '@/lib/resume-parser/import-sanitize';
@@ -38,9 +39,42 @@ describe('isPlausiblePersonName', () => {
     expect(isPlausiblePersonName('Managed team of 12 engineers')).toBe(false);
   });
 
+  it('rejects email domain fragments', () => {
+    expect(isPlausiblePersonName('ail.com')).toBe(false);
+    expect(isPlausiblePersonName('gmail.com')).toBe(false);
+    expect(isPlausiblePersonName('Ail.com')).toBe(false);
+  });
+
   it('accepts real names', () => {
     expect(isPlausiblePersonName('Anam Khan')).toBe(true);
     expect(isPlausiblePersonName('CS Mujahid Ali')).toBe(true);
+    expect(isPlausiblePersonName('Arshil Alam')).toBe(true);
+    expect(isPlausiblePersonName('Anam Sayyed')).toBe(true);
+  });
+});
+
+describe('pickBestNameFromCandidates contact-first', () => {
+  it('prefers email local-part over broken domain fragment near contact', () => {
+    const winner = pickBestNameFromCandidates(
+      [
+        { value: 'ail.com', confidence: 88, source: 'near_contact' },
+        { value: 'Professional Qualification', confidence: 85, source: 'first_line' },
+      ],
+      'anamkhan@gmail.com'
+    );
+    expect(winner).toBe('Anamkhan');
+    expect(winner).not.toMatch(/ail\.com|qualification/i);
+  });
+
+  it('prefers real header name over email-derived when both valid', () => {
+    const winner = pickBestNameFromCandidates(
+      [
+        { value: 'Anam Sayyed', confidence: 88, source: 'near_contact' },
+        { value: 'Anamkhan', confidence: 92, source: 'email_derived' },
+      ],
+      'anamkhan@gmail.com'
+    );
+    expect(winner).toBe('Anam Sayyed');
   });
 });
 
@@ -140,6 +174,45 @@ describe('transformImportDataToBuilder name safety', () => {
       expect(transformed.firstName).not.toBe(bad.split(' ')[0]);
       expect(transformed.fullName).not.toBe(bad);
     }
+  });
+
+  it('splits Arshil Alam and Anam Sayyed correctly', () => {
+    for (const [full, first, last] of [
+      ['Arshil Alam', 'Arshil', 'Alam'],
+      ['Anam Sayyed', 'Anam', 'Sayyed'],
+    ] as const) {
+      const transformed = transformImportDataToBuilder({
+        fullName: full,
+        email: 'test@example.com',
+        experience: [{ company: 'Acme', position: 'Engineer', description: 'Built APIs' }],
+        skills: ['TypeScript'],
+      });
+      expect(transformed.firstName).toBe(first);
+      expect(transformed.lastName).toBe(last);
+    }
+  });
+
+  it('does not let client text recovery override validated API fullName', () => {
+    const rawText = [
+      'ail.com',
+      'anamkhan@gmail.com',
+      'Professional Qualification',
+      '',
+      'Experience',
+      'Acme Corp',
+      'Engineer',
+      '2020 - Present',
+    ].join('\n');
+    const transformed = transformImportDataToBuilder({
+      fullName: 'Anam Khan',
+      email: 'anamkhan@gmail.com',
+      rawText,
+      experience: [{ company: 'Acme', position: 'Engineer', description: 'Led team' }],
+      skills: ['Leadership'],
+    });
+    expect(transformed.firstName).toBe('Anam');
+    expect(transformed.lastName).toBe('Khan');
+    expect(transformed.fullName).toBe('Anam Khan');
   });
 
   it('rejects CS Articleship as contact name', () => {

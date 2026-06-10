@@ -124,6 +124,7 @@ export function mergeRecovery<T extends Record<string, unknown>>(
 const SECTION_ALIASES = {
   summary: [
     'summary', 'professional summary', 'executive summary', 'career summary',
+    'career synopsis', 'executive synopsis',
     'objective', 'career objective', 'professional objective',
     'profile', 'professional profile', 'career profile',
     'about', 'about me', 'introduction', 'overview', 'bio', 'biography',
@@ -131,13 +132,15 @@ const SECTION_ALIASES = {
   experience: [
     'experience', 'work experience', 'professional experience', 'work history',
     'employment', 'employment history', 'career history', 'professional background',
-    'professional journey',
+    'professional journey', 'board experience', 'legal experience',
     'job experience', 'career experience', 'relevant experience', 'industry experience',
     'positions held', 'work', 'employment record',
   ],
   education: [
     'education', 'educations', 'academic background', 'academic history', 'academic record',
     'qualifications', 'academic qualifications', 'educational qualifications',
+    'professional qualification', 'professional qualifications',
+    'cs articleship', 'articleship',
     'educational background', 'degrees', 'schooling', 'studies', 'academics',
   ],
   skills: [

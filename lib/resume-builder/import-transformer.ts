@@ -52,6 +52,7 @@ import {
   formatDisplayName,
   isExperienceBlurbFragment,
   isPlausiblePersonName,
+  isValidatedContactName,
 } from '@/lib/resume-parser/import-sanitize';
 import {
   classifyResumeTextFragment,
@@ -172,17 +173,23 @@ function supplementImportFromRawText(
   const textParsed = fromText ?? extractResumeFromText(rawText);
   const email = String(importedData.email || textParsed.email || '');
   const personal = (importedData.personalInformation || {}) as Record<string, unknown>;
+  const locationHint = String(importedData.location || importedData.address || textParsed?.location || '');
 
-  let fullName = pickRicherFullName(
-    sanitizePersonName(importedData.fullName || importedData.name || '', 120),
-    sanitizePersonName(textParsed?.fullName || '', 120),
-    email
-  );
-  fullName = pickRicherFullName(
-    fullName,
-    sanitizePersonName(personal.fullName || '', 120),
-    email
-  );
+  const apiName = sanitizePersonName(importedData.fullName || importedData.name || '', 120);
+  let fullName = apiName;
+
+  if (!isValidatedContactName(apiName, locationHint)) {
+    fullName = pickRicherFullName(
+      apiName,
+      sanitizePersonName(textParsed?.fullName || '', 120),
+      email
+    );
+    fullName = pickRicherFullName(
+      fullName,
+      sanitizePersonName(personal.fullName || '', 120),
+      email
+    );
+  }
 
   const parserExperience = firstNonEmptyArray(importedData, [
     'experience',
@@ -205,8 +212,8 @@ function supplementImportFromRawText(
 
   return {
     ...importedData,
-    fullName: fullName || textParsed.fullName || '',
-    name: fullName || textParsed.fullName || importedData.name || '',
+    fullName: fullName || apiName || '',
+    name: fullName || apiName || importedData.name || '',
     email: importedData.email || textParsed.email || '',
     phone: importedData.phone || textParsed.phone || '',
     location: importedData.location || importedData.address || textParsed.location || '',

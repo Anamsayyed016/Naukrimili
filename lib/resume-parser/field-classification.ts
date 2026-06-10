@@ -134,10 +134,22 @@ export const SECTION_HEADER_WORDS = new Set([
   'portfolio',
   'case',
   'studies',
+  'synopsis',
+  'legal',
+  'board',
 ]);
 
 const SECTION_HEADER_PHRASES: RegExp[] = [
+  /^career\s+objective$/i,
+  /^career\s+synopsis$/i,
+  /^executive\s+summary$/i,
+  /^board\s+experience$/i,
+  /^legal\s+experience$/i,
+  /^full\s+stack\s+developer$/i,
+  /^software\s+developer$/i,
+  /^chief\s+executive\s+officer$/i,
   /^professional\s+qualifications?$/i,
+  /^professional\s+qualification$/i,
   /^professional\s+profile$/i,
   /^professional\s+summary$/i,
   /^professional\s+journey$/i,
@@ -145,8 +157,10 @@ const SECTION_HEADER_PHRASES: RegExp[] = [
   /^professional\s+experience$/i,
   /^professional\s+achievements?$/i,
   /^cs\s+articleship$/i,
+  /^articleship$/i,
   /^articleship\s+training$/i,
   /^articleship\s+programme?$/i,
+  /^(?:summary|profile|experience|education|skills?|projects?)$/i,
   /^work\s+history$/i,
   /^employment\s+history$/i,
   /^key\s+achievements?$/i,
@@ -290,11 +304,29 @@ export function isFirmOrLocationNamePhrase(value: string, locationHint = ''): bo
   return false;
 }
 
+/** Email addresses, domain fragments, and TLD tokens — never personal names. */
+export function isEmailOrDomainFragment(value: string): boolean {
+  const s = normalizeFragment(value);
+  if (!s) return false;
+  if (/@/.test(s)) return true;
+  if (/\.(?:com|net|org|in|co|edu|gov|io|uk|au|me)\b/i.test(s)) return true;
+  if (
+    /^(?:gmail|yahoo|hotmail|outlook|rediffmail|protonmail|icloud|live|msn)(?:\.[a-z]{2,})?$/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  if (/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/i.test(s) && !/\s/.test(s)) return true;
+  return false;
+}
+
 function passesPersonNameShape(value: string): boolean {
   const s = value
     .replace(/^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba)\.?\s+/i, '')
     .trim();
   if (s.length < 2 || s.length > 60) return false;
+  if (isEmailOrDomainFragment(s)) return false;
   if (/[@+#]/.test(s) || /https?:|\bwww\./i.test(s)) return false;
   if (/\d/.test(s)) return false;
   if (NON_NAME_VOCAB.test(s)) return false;
@@ -321,6 +353,10 @@ export function classifyResumeTextFragment(value: unknown): ClassifiedText {
   if (!valueNorm) return { kind: 'UNKNOWN', confidence: 0, value: '' };
 
   const lower = valueNorm.toLowerCase();
+
+  if (isEmailOrDomainFragment(valueNorm)) {
+    return { kind: 'UNKNOWN', confidence: 0, value: valueNorm };
+  }
 
   if (SECTION_HEADER_PHRASES.some((re) => re.test(lower))) {
     return { kind: 'SECTION_HEADER', confidence: 0, value: valueNorm };

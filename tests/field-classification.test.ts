@@ -1,6 +1,7 @@
 import {
   classifyResumeTextFragment,
   isClassifiedPersonName,
+  isEmailOrDomainFragment,
   splitClassifiedFullName,
 } from '@/lib/resume-parser/field-classification';
 
@@ -28,6 +29,22 @@ describe('field classification', () => {
   it('rejects academia fragments and metric blurbs as person names', () => {
     expect(isClassifiedPersonName('Academia Th')).toBe(false);
     expect(isClassifiedPersonName('turnover of around 1000 Crores)')).toBe(false);
+  });
+
+  it('rejects email domain fragments as person names', () => {
+    expect(isEmailOrDomainFragment('ail.com')).toBe(true);
+    expect(isEmailOrDomainFragment('gmail.com')).toBe(true);
+    expect(isEmailOrDomainFragment('anamkhan@gmail.com')).toBe(true);
+    expect(isClassifiedPersonName('ail.com')).toBe(false);
+    expect(isClassifiedPersonName('gmail.com')).toBe(false);
+  });
+
+  it('rejects job titles and standalone section headings as person names', () => {
+    expect(isClassifiedPersonName('Software Developer')).toBe(false);
+    expect(isClassifiedPersonName('Full Stack Developer')).toBe(false);
+    expect(isClassifiedPersonName('Chief Executive Officer')).toBe(false);
+    expect(isClassifiedPersonName('Summary')).toBe(false);
+    expect(isClassifiedPersonName('Career Objective')).toBe(false);
   });
 
   it('rejects CS self-practise firm lines as person names', () => {

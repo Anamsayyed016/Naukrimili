@@ -17,6 +17,7 @@ import {
   splitBullets,
 } from './resume-parser/normalize-extracted';
 import { normalizeExtractedResumeData } from './resume-parser/normalize-extracted';
+import { sanitizePersonName } from './resume-parser/import-sanitize';
 import {
   extractAffindaResumePayload,
   normalizeAffindaResumeFields,
@@ -150,9 +151,10 @@ export class AffindaResumeParser {
   private transformAffindaToStandard(affindaData: AffindaResponse): ExtractedResumeData {
     const data = affindaData.data || {};
 
-    const fullName =
+    const fullName = sanitizePersonName(
       cleanString(data.name?.raw) ||
-      cleanString(`${data.name?.first || ''} ${data.name?.last || ''}`.trim());
+        cleanString(`${data.name?.first || ''} ${data.name?.last || ''}`.trim())
+    );
 
     const emails = (data.emails || [])
       .map((e) => (typeof e === 'string' ? e : e?.email || ''))

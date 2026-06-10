@@ -8,6 +8,7 @@ import { EdenResumeParser } from '@/lib/eden-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
 import { isSuspectSummary } from '@/lib/resume-parser/map-to-upload-profile';
 import {
+  deriveDisplayNameFromEmail,
   isLikelyJobTitle,
   isPlausiblePersonName,
   pickBestNameFromCandidates,
@@ -43,7 +44,34 @@ function mergeScalarPreferValid(
   const p = String(primary || '').trim();
   const s = String(secondary || '').trim();
   if (p && isInvalid(p) && s && !isInvalid(s)) return s;
+  if (!p && s) return s;
+  if (p && s && isInvalid(p) && isInvalid(s)) return p;
+  if (p && s && !isInvalid(p) && !isInvalid(s)) return p;
   return mergeScalar(primary, secondary);
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value.trim());
+}
+
+function isInvalidEmail(value: string): boolean {
+  return !isValidEmail(value);
+}
+
+function isValidPhone(value: string): boolean {
+  const digits = value.replace(/\D/g, '');
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+function isInvalidPhone(value: string): boolean {
+  return !isValidPhone(value);
+}
+
+function isInvalidLocation(value: string): boolean {
+  const s = value.trim();
+  if (!s || s.length < 2) return true;
+  if (/@|https?:|\bwww\./i.test(s)) return true;
+  return false;
 }
 
 /** Prefer plausible names; Eden can correct Affinda garbage that is non-blank but invalid. */
@@ -71,6 +99,15 @@ function mergeFullName(
       value: eden,
       confidence: edenPlausible ? (affinda && !isPlausiblePersonName(affinda) ? 78 : 68) : 0,
       source: 'eden',
+    });
+  }
+
+  const emailDerived = deriveDisplayNameFromEmail(emailStr);
+  if (emailDerived) {
+    candidates.push({
+      value: emailDerived,
+      confidence: 92,
+      source: 'email_derived',
     });
   }
 
@@ -405,9 +442,9 @@ export function mergeResumeData(
       edenData.fullName,
       affindaData.email || edenData.email
     ),
-    email: mergeScalar(affindaData.email, edenData.email),
-    phone: mergeScalar(affindaData.phone, edenData.phone),
-    location: mergeScalar(affindaData.location, edenData.location),
+    email: mergeScalarPreferValid(affindaData.email, edenData.email, isInvalidEmail),
+    phone: mergeScalarPreferValid(affindaData.phone, edenData.phone, isInvalidPhone),
+    location: mergeScalarPreferValid(affindaData.location, edenData.location, isInvalidLocation),
     linkedin: mergeScalar(affindaData.linkedin, edenData.linkedin),
     portfolio: mergeScalar(affindaData.portfolio, edenData.portfolio),
     summary: mergeScalarPreferValid(affindaData.summary, edenData.summary, isSuspectSummary),

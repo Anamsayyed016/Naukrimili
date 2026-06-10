@@ -33,6 +33,34 @@ describe('mergeResumeData', () => {
     expect(merged.skills).toEqual(['Python', 'React', 'Django']);
   });
 
+  it('uses email-derived name when Affinda and Eden both return garbage', () => {
+    const affinda = {
+      ...base(),
+      fullName: 'ail.com',
+      email: 'anamkhan@gmail.com',
+    };
+    const eden = {
+      ...base(),
+      fullName: 'Professional Qualification',
+      email: 'anamkhan@gmail.com',
+    };
+    const merged = mergeResumeData(affinda, eden);
+    expect(merged.fullName).toBe('Anamkhan');
+  });
+
+  it('uses Eden email when Affinda email is malformed', () => {
+    const affinda = {
+      ...base(),
+      email: 'not-an-email',
+    };
+    const eden = {
+      ...base(),
+      email: 'anamkhan@gmail.com',
+    };
+    const merged = mergeResumeData(affinda, eden);
+    expect(merged.email).toBe('anamkhan@gmail.com');
+  });
+
   it('uses Eden name when Affinda returns experience garbage as fullName', () => {
     const affinda = {
       ...base(),
