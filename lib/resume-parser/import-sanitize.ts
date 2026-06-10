@@ -784,6 +784,17 @@ export function sanitizeCertificationEntry(value: unknown): Record<string, unkno
   };
 }
 
+/** Company-description / metric fragments misparsed as employment (e.g. parenthetical turnover blurbs). */
+export function isExperienceBlurbFragment(text: string): boolean {
+  const s = sanitizeFieldText(text, 120);
+  if (!s) return false;
+  if (/\b(?:turnover|crores?|lakhs?|millions?|billions?|revenue)\b/i.test(s)) return true;
+  if (/^\([^)]*$/.test(s)) return true;
+  if (/^[^()]*\)\s*$/.test(s) && !s.includes('(')) return true;
+  if (/^\(.*\bwith\s*$/i.test(s)) return true;
+  return false;
+}
+
 /** Reject random text blocks that lack employment structure. */
 export function isValidExperienceEntry(exp: {
   company?: string;
@@ -797,6 +808,8 @@ export function isValidExperienceEntry(exp: {
   const startDate = sanitizeFieldText(exp.startDate, 40);
   const endDate = sanitizeFieldText(exp.endDate, 40);
   const hasDates = !!(startDate || endDate);
+
+  if (isExperienceBlurbFragment(company) || isExperienceBlurbFragment(position)) return false;
 
   if (company && position) return true;
   if (hasDates && (company || position)) return true;

@@ -50,6 +50,8 @@ import {
   logRawProjects,
   isGarbageResumeText,
   formatDisplayName,
+  isExperienceBlurbFragment,
+  isPlausiblePersonName,
 } from '@/lib/resume-parser/import-sanitize';
 import {
   classifyResumeTextFragment,
@@ -632,7 +634,8 @@ function resolveClassifiedName(
     }
   }
 
-  const hasUsableName = !!(firstName || lastName || rawFullName);
+  const splitCombined = [firstName, lastName].filter(Boolean).join(' ').trim();
+  const hasUsableName = !!(splitCombined && isPlausiblePersonName(splitCombined));
 
   if (!hasUsableName && email) {
     const fromEmail = parseIntelligentNameFromEmail(email);
@@ -667,6 +670,11 @@ function resolveClassifiedName(
   };
 }
 
+function isUsableJobHeadline(value: string): boolean {
+  if (!value || isGarbageResumeText(value) || isExperienceBlurbFragment(value)) return false;
+  return true;
+}
+
 function extractJobTitleFromImport(
   mergedImport: Record<string, unknown>,
   professional: Record<string, unknown>,
@@ -692,7 +700,7 @@ function extractJobTitleFromImport(
       '',
     120
   );
-  if (direct) return direct;
+  if (direct && isUsableJobHeadline(direct)) return direct;
 
   const firstExp = experience[0];
   if (firstExp) {
@@ -707,7 +715,7 @@ function extractJobTitleFromImport(
       ),
       120
     );
-    if (fromExp) return fromExp;
+    if (fromExp && isUsableJobHeadline(fromExp)) return fromExp;
   }
 
   return '';

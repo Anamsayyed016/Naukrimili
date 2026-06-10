@@ -181,6 +181,30 @@ const NAME_STOPWORDS = new Set([
   'of', 'the', 'and', 'or', 'around', 'with', 'for', 'to', 'in', 'at', 'from', 'by', 'a', 'an', 'as', 'on',
 ]);
 
+/** Dictionary / resume vocabulary — never a personal name token. */
+const NON_PERSON_NAME_WORDS = new Set([
+  'academia',
+  'academic',
+  'academics',
+  'professional',
+  'qualification',
+  'qualifications',
+  'turnover',
+  'crores',
+  'crore',
+  'lakhs',
+  'lakh',
+  'group',
+  'company',
+  'ruchi',
+  'heading',
+  'secretarial',
+  'department',
+]);
+
+/** Allowlisted 2-letter surnames (East Asian / short legal names). */
+const SHORT_VALID_SURNAMES = new Set(['li', 'wu', 'ng', 'yu', 'oh', 'ho', 'lu', 'ma', 'xu', 'ko', 'an']);
+
 function normalizeFragment(value: unknown): string {
   return cleanString(value).replace(/\s+/g, ' ').trim();
 }
@@ -229,6 +253,11 @@ function passesPersonNameShape(value: string): boolean {
   if (stopCount >= 2) return false;
   if (words.length >= 2 && stopCount / words.length >= 0.34) return false;
   if (!words.every((w) => /^[A-Za-z][A-Za-z'.-]*$/.test(w) && w.length >= 2)) return false;
+  if (words.some((w) => NON_PERSON_NAME_WORDS.has(w.toLowerCase()))) return false;
+  if (words.length >= 2) {
+    const last = words[words.length - 1].toLowerCase();
+    if (last.length === 2 && !SHORT_VALID_SURNAMES.has(last)) return false;
+  }
   if (words.length >= 3 && words.every((w) => w === w.toLowerCase())) return false;
 
   return true;

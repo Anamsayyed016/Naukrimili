@@ -25,6 +25,11 @@ describe('field classification', () => {
     expect(isClassifiedPersonName('Rajesh Sharma')).toBe(true);
   });
 
+  it('rejects academia fragments and metric blurbs as person names', () => {
+    expect(isClassifiedPersonName('Academia Th')).toBe(false);
+    expect(isClassifiedPersonName('turnover of around 1000 Crores)')).toBe(false);
+  });
+
   it('does not split section headers into first and last name', () => {
     const split = splitClassifiedFullName('Professional Qualification');
     expect(split.firstName).toBe('');

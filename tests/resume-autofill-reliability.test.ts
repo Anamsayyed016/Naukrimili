@@ -89,6 +89,28 @@ describe('transformImportDataToBuilder name safety', () => {
     );
   });
 
+  it('rejects Academia Th and uses email-derived name for anamsayyed58@gmail.com', () => {
+    const transformed = transformImportDataToBuilder({
+      fullName: 'Academia Th',
+      email: 'anamsayyed58@gmail.com',
+      location: 'Subhash Nagar, Indore',
+      experience: [
+        {
+          company: '(A Ruchi Group Company with',
+          position: 'turnover of around 1000 Crores)',
+          startDate: '2019-01',
+          endDate: 'Present',
+          description: 'Heading Secretarial Department',
+        },
+      ],
+      skills: ['Compliance'],
+    });
+    expect(transformed.firstName).not.toBe('Academia');
+    expect(transformed.fullName).not.toBe('Academia Th');
+    expect(transformed.experience?.length ?? 0).toBe(0);
+    expect(transformed.jobTitle || '').not.toMatch(/turnover|crores/i);
+  });
+
   it('rejects compliance officer and board member as contact name', () => {
     for (const bad of ['Compliance Officer', 'Legal Head', 'Board Member', 'Company Secretary']) {
       const transformed = transformImportDataToBuilder({
