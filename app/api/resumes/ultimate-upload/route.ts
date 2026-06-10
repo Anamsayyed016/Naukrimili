@@ -26,7 +26,12 @@ import {
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
 import { prepareResumeTextForParsing } from '@/lib/resume-parser/resume-document-analysis';
-import { collectNameCandidatesFromText } from '@/lib/resume-parser/text-recovery';
+import {
+  buildFieldProvenanceReport,
+  logFieldProvenanceReport,
+} from '@/lib/resume-parser/field-provenance';
+import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/resume-parser/text-recovery';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -165,7 +170,15 @@ export async function POST(request: NextRequest) {
       // 2. Very low text density (< 0.001) OR almost no readable words (< 15)
       const hasVeryLowDensity = textDensity < 0.001;
       const hasAlmostNoWords = readableWords.length < 15;
+      const layoutSignals = classifyResumeTextSignals(extractedText);
       const isPDFBinary = startsWithPDFHeader && hasPDFStructureOnly && hasVeryLowDensity && hasAlmostNoWords;
+      const shouldAttemptOcr =
+        isPDFBinary ||
+        (layoutSignals.scannedLikely && (hasVeryLowDensity || readableWords.length < 40)) ||
+        (startsWithPDFHeader &&
+          hasPDFStructureOnly &&
+          readableWords.length < 50 &&
+          textDensity < 0.0025);
       
       console.log('📊 PDF Analysis:', {
         startsWithHeader: startsWithPDFHeader,
@@ -175,12 +188,13 @@ export async function POST(request: NextRequest) {
         textDensity: textDensity.toFixed(4),
         hasVeryLowDensity: hasVeryLowDensity,
         hasAlmostNoWords: hasAlmostNoWords,
-        isProbablyBinary: isPDFBinary
+        isProbablyBinary: isPDFBinary,
+        scannedLikely: layoutSignals.scannedLikely,
+        shouldAttemptOcr,
       });
       
-      // ONLY attempt OCR if we're ABSOLUTELY SURE it's a scanned PDF
-      if (isPDFBinary) {
-        console.warn('⚠️ PDF may be binary/image-based - attempting OCR...');
+      if (shouldAttemptOcr) {
+        console.warn('⚠️ Low-quality PDF text — attempting OCR recovery...');
         console.log('   - Text starts with:', extractedText.substring(0, 100));
         
         // Try OCR extraction for image-based PDFs
@@ -292,6 +306,8 @@ export async function POST(request: NextRequest) {
     let parsedData: any;
     let aiSuccess = false;
     let aiProvider = 'fallback';
+    let provenanceAffinda: ExtractedResumeData | null = null;
+    let provenanceEden: ExtractedResumeData | null = null;
     
     // CRITICAL: Skip AI ONLY if extracted text is truly minimal
     const isPdfParseFailure =
@@ -323,6 +339,8 @@ export async function POST(request: NextRequest) {
 
           if (isUsableExtraction(affindaResult)) {
             const enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
+            provenanceAffinda = enriched.affindaData;
+            provenanceEden = enriched.edenData || null;
             parsedData = mapExtractedToUploadProfile(enriched.data, {
               aiProvider: enriched.provider,
             });
@@ -1008,13 +1026,29 @@ export async function POST(request: NextRequest) {
             }
           }
         }
-        if ((parsedData.education?.length || 0) === 0 && (recovered.education?.length || 0) > 0) {
-          parsedData.education = recovered.education.map((edu) => {
-            const institution = edu.institution || '';
-            return {
-              institution,
-              school: institution,
-              Institution: institution,
+        const recoveredEdu = recovered.education || [];
+        if (recoveredEdu.length > 0) {
+          const eduSlug = (s: unknown): string =>
+            String(s || '')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, ' ')
+              .trim();
+          const matchEdu = (a: Record<string, unknown>, b: { institution?: string; degree?: string }): boolean => {
+            const ai = eduSlug(a.institution || a.school || a.Institution);
+            const bi = eduSlug(b.institution);
+            const ad = eduSlug(a.degree || a.Degree);
+            const bd = eduSlug(b.degree);
+            const sharesInst = ai.length >= 4 && bi.length >= 4 && (ai.includes(bi) || bi.includes(ai));
+            const sharesDegree = ad.length >= 3 && bd.length >= 3 && (ad.includes(bd) || bd.includes(ad));
+            return sharesInst || sharesDegree;
+          };
+
+          const existingEdu = (parsedData.education || []) as Array<Record<string, unknown>>;
+          if (existingEdu.length === 0) {
+            parsedData.education = recoveredEdu.map((edu) => ({
+              institution: edu.institution || '',
+              school: edu.institution || '',
+              Institution: edu.institution || '',
               degree: edu.degree || '',
               Degree: edu.degree || '',
               field: edu.field || '',
@@ -1024,8 +1058,67 @@ export async function POST(request: NextRequest) {
               endDate: edu.endDate || '',
               gpa: edu.gpa || '',
               description: edu.description || '',
-            };
-          });
+            }));
+          } else {
+            const usedRec = new Set<number>();
+            const enrichedEdu = existingEdu.map((edu) => {
+              const matchIdx = recoveredEdu.findIndex((r, i) => !usedRec.has(i) && matchEdu(edu, r));
+              const m = matchIdx >= 0 ? recoveredEdu[matchIdx] : null;
+              if (matchIdx >= 0) usedRec.add(matchIdx);
+              const institution =
+                String(edu.institution || edu.school || edu.Institution || m?.institution || '').trim();
+              return {
+                ...edu,
+                institution,
+                school: institution,
+                Institution: institution,
+                degree: String(edu.degree || edu.Degree || m?.degree || '').trim(),
+                Degree: String(edu.degree || edu.Degree || m?.degree || '').trim(),
+                field: String(edu.field || edu.Field || m?.field || '').trim(),
+                Field: String(edu.field || edu.Field || m?.field || '').trim(),
+                year: String(edu.year || edu.endDate || m?.endDate || '').trim(),
+                startDate: String(edu.startDate || m?.startDate || '').trim(),
+                endDate: String(edu.endDate || edu.year || m?.endDate || '').trim(),
+                gpa: String(edu.gpa || edu.GPA || m?.gpa || '').trim(),
+                description: String(edu.description || m?.description || '').trim(),
+              };
+            });
+            for (let i = 0; i < recoveredEdu.length; i++) {
+              if (usedRec.has(i)) continue;
+              const edu = recoveredEdu[i];
+              enrichedEdu.push({
+                institution: edu.institution || '',
+                school: edu.institution || '',
+                Institution: edu.institution || '',
+                degree: edu.degree || '',
+                Degree: edu.degree || '',
+                field: edu.field || '',
+                Field: edu.field || '',
+                year: edu.endDate || '',
+                startDate: edu.startDate || '',
+                endDate: edu.endDate || '',
+                gpa: edu.gpa || '',
+                description: edu.description || '',
+              });
+            }
+            parsedData.education = enrichedEdu;
+          }
+        }
+
+        if (Array.isArray(recovered.achievements) && recovered.achievements.length > 0) {
+          const existingAch = new Set(
+            (parsedData.achievements || [])
+              .map((a: unknown) => String(typeof a === 'string' ? a : (a as { title?: string })?.title || '').toLowerCase())
+              .filter(Boolean)
+          );
+          const mergedAch = [...(parsedData.achievements || [])];
+          for (const a of recovered.achievements) {
+            const key = String(a || '').trim().toLowerCase();
+            if (!key || existingAch.has(key)) continue;
+            existingAch.add(key);
+            mergedAch.push(a);
+          }
+          parsedData.achievements = mergedAch;
         }
 
         // Re-normalize after augmentation (handles language object → string flattening, etc.)
@@ -1055,13 +1148,26 @@ export async function POST(request: NextRequest) {
       warn('Rejected implausible parser name', { parserNameRaw });
     }
 
+    const edenName =
+      provenanceEden && isPlausiblePersonName(provenanceEden.fullName)
+        ? String(provenanceEden.fullName).trim()
+        : '';
+    const affindaName =
+      provenanceAffinda && isPlausiblePersonName(provenanceAffinda.fullName)
+        ? String(provenanceAffinda.fullName).trim()
+        : '';
+
     const finalName =
       pickBestNameFromCandidates(
         [
           ...collectNameCandidatesFromText(extractedText || ''),
-          ...(parserName ? [{ value: parserName, confidence: 72, source: 'affinda' as const }] : []),
+          ...(affindaName ? [{ value: affindaName, confidence: 72, source: 'affinda' as const }] : []),
+          ...(edenName ? [{ value: edenName, confidence: 78, source: 'eden' as const }] : []),
+          ...(parserName && parserName !== affindaName
+            ? [{ value: parserName, confidence: 70, source: 'affinda' as const }]
+            : []),
           ...(recoveredName
-            ? [{ value: recoveredName, confidence: 60, source: 'text_recovery' as const }]
+            ? [{ value: recoveredName, confidence: 65, source: 'text_recovery' as const }]
             : []),
           ...(emailDerivedName
             ? [{ value: emailDerivedName, confidence: 42, source: 'email_derived' as const }]
@@ -1242,7 +1348,21 @@ export async function POST(request: NextRequest) {
           ? { name: lang, proficiency: 'Fluent' } 
           : { name: lang.name || lang.language || '', proficiency: lang.proficiency || lang.level || 'Fluent' }
       ),
-      achievements: enhancedData.achievements || [],
+      achievements: (() => {
+        const fromParsed = Array.isArray(parsedData.achievements) ? parsedData.achievements : [];
+        const fromEnhanced = Array.isArray(enhancedData.achievements) ? enhancedData.achievements : [];
+        const seen = new Set<string>();
+        const out: string[] = [];
+        for (const raw of [...fromParsed, ...fromEnhanced]) {
+          const value =
+            typeof raw === 'string' ? raw : String((raw as { title?: string })?.title || '');
+          const key = value.trim().toLowerCase();
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          out.push(value.trim());
+        }
+        return out;
+      })(),
       hobbies: parsedData.hobbies || enhancedData.hobbies || [],
       expectedSalary: parsedData.expected_salary || parsedData.salary_expectation || '',
       preferredJobType: parsedData.preferred_job_type || 'Full-time',
@@ -1258,6 +1378,15 @@ export async function POST(request: NextRequest) {
 
     console.log('FINAL PROJECTS COUNT', profile.projects?.length);
     console.log('FINAL PROJECT SAMPLE', profile.projects?.[0]);
+
+    logFieldProvenanceReport(
+      buildFieldProvenanceReport({
+        affinda: provenanceAffinda,
+        eden: provenanceEden,
+        recovery: lastRecovered,
+        final: profile,
+      })
+    );
 
     log('FINAL PROFILE shape', {
       aiProvider,

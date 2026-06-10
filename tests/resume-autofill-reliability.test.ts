@@ -89,6 +89,19 @@ describe('transformImportDataToBuilder name safety', () => {
     );
   });
 
+  it('rejects compliance officer and board member as contact name', () => {
+    for (const bad of ['Compliance Officer', 'Legal Head', 'Board Member', 'Company Secretary']) {
+      const transformed = transformImportDataToBuilder({
+        fullName: bad,
+        email: 'test.user@example.com',
+        experience: [{ company: 'Acme', position: 'Manager', description: 'Led team' }],
+        skills: ['Leadership'],
+      });
+      expect(transformed.firstName).not.toBe(bad.split(' ')[0]);
+      expect(transformed.fullName).not.toBe(bad);
+    }
+  });
+
   it('rejects CS Articleship as contact name', () => {
     const transformed = transformImportDataToBuilder({
       fullName: 'CS Articleship',
@@ -175,6 +188,46 @@ describe('stripLeadingNonResumeContent', () => {
       '2019 - 2023',
     ].join('\n');
     expect(stripLeadingNonResumeContent(input)).toBe(input);
+  });
+});
+
+describe('extractAdditionalResumeDataFromText', () => {
+  it('captures professional memberships into achievements pipeline', () => {
+    const { extractAdditionalResumeDataFromText } = require('@/lib/resume-parser/text-recovery');
+    const text = [
+      'Rajesh Kumar',
+      'rajesh@example.com',
+      '',
+      'Professional Memberships',
+      'Member, Institute of Company Secretaries of India',
+      'Associate Member, ICSI',
+    ].join('\n');
+
+    const extra = extractAdditionalResumeDataFromText(text);
+    expect(extra.memberships.length).toBeGreaterThanOrEqual(1);
+    expect(extra.achievements.some((a) => /icsi|company secretaries/i.test(a))).toBe(true);
+  });
+});
+
+describe('extractResumeFromText achievements', () => {
+  it('parses professional achievements section', () => {
+    const text = [
+      'Anam Khan',
+      'anam@example.com',
+      '',
+      'Professional Achievements',
+      'Led statutory audit for Fortune 500 client',
+      'Reduced compliance risk by 30% through process redesign',
+      '',
+      'Experience',
+      'Deloitte',
+      'Audit Manager',
+      '2018 - 2024',
+    ].join('\n');
+
+    const parsed = extractResumeFromText(text);
+    expect(parsed.achievements?.length).toBeGreaterThanOrEqual(2);
+    expect(parsed.achievements?.[0]).toMatch(/audit|compliance/i);
   });
 });
 

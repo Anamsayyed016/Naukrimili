@@ -7,6 +7,7 @@ import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { EdenResumeParser } from '@/lib/eden-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
 import {
+  isLikelyJobTitle,
   isPlausiblePersonName,
   pickBestNameFromCandidates,
   type NameCandidate,
@@ -52,14 +53,35 @@ function mergeFullName(
 
   const eden = String(edenName || '').trim();
   if (eden) {
+    const edenPlausible = isPlausiblePersonName(eden);
     candidates.push({
       value: eden,
-      confidence: isPlausiblePersonName(eden) ? 68 : 0,
+      confidence: edenPlausible ? (affinda && !isPlausiblePersonName(affinda) ? 78 : 68) : 0,
       source: 'eden',
     });
   }
 
   return pickBestNameFromCandidates(candidates, emailStr);
+}
+
+function isExperienceStub(entry: ExperienceEntry): boolean {
+  const company = String(entry.company || '').trim();
+  const position = String(entry.position || '').trim();
+  const startDate = String(entry.startDate || '').trim();
+  const endDate = String(entry.endDate || '').trim();
+  const description = String(entry.description || '').trim();
+  const achievements = entry.achievements?.length ?? 0;
+  return !!position && !company && !startDate && !endDate && !description && achievements === 0;
+}
+
+function experienceRichness(entry: ExperienceEntry): number {
+  let score = 0;
+  if (entry.company) score += 3;
+  if (entry.position) score += 2;
+  if (entry.startDate || entry.endDate) score += 2;
+  if (entry.description && entry.description.length > 20) score += 4;
+  if ((entry.achievements?.length ?? 0) > 0) score += 2;
+  return score;
 }
 
 /** When Affinda maps organization into position, Eden's job title should win. */
@@ -76,6 +98,22 @@ function mergeExperiencePosition(
     primaryCompany &&
     primaryPosition.toLowerCase() === primaryCompany.toLowerCase() &&
     secondaryPosition
+  ) {
+    return secondaryPosition;
+  }
+  if (
+    isExperienceStub(primary) &&
+    secondaryPosition &&
+    experienceRichness(secondary) > experienceRichness(primary)
+  ) {
+    return secondaryPosition;
+  }
+  if (
+    primaryPosition &&
+    isLikelyJobTitle(primaryPosition) &&
+    !primaryCompany &&
+    secondaryPosition &&
+    secondary.company
   ) {
     return secondaryPosition;
   }
@@ -185,6 +223,23 @@ function mergeEducation(primary: EducationEntry[] = [], secondary: EducationEntr
   return result;
 }
 
+function isProjectStub(entry: ProjectEntry): boolean {
+  const name = String(entry.name || '').trim();
+  const description = String(entry.description || '').trim();
+  const technologies = entry.technologies?.length ?? 0;
+  return !!name && !description && technologies === 0 && !entry.url;
+}
+
+function projectRichness(entry: ProjectEntry): number {
+  let score = 0;
+  if (entry.name) score += 2;
+  if (entry.description && entry.description.length > 20) score += 4;
+  if ((entry.technologies?.length ?? 0) > 0) score += 2;
+  if (entry.url) score += 1;
+  if (entry.startDate || entry.endDate) score += 1;
+  return score;
+}
+
 function mergeProjects(
   primary: ProjectEntry[] = [],
   secondary: ProjectEntry[] = []
@@ -204,9 +259,13 @@ function mergeProjects(
 
     if (matchIdx >= 0) {
       const current = result[matchIdx];
+      const preferSecondary =
+        isProjectStub(current) && projectRichness(secondaryEntry) > projectRichness(current);
       result[matchIdx] = {
         ...current,
-        description: mergeScalar(current.description, secondaryEntry.description),
+        description: preferSecondary
+          ? String(secondaryEntry.description || current.description || '').trim()
+          : mergeScalar(current.description, secondaryEntry.description),
         technologies:
           (current.technologies || []).length > 0
             ? current.technologies
@@ -352,6 +411,7 @@ export function mergeResumeData(
       (affindaData.hobbies || []).length > 0
         ? mergeStringLists(affindaData.hobbies || [], edenData.hobbies || [])
         : [...(edenData.hobbies || [])],
+    achievements: mergeStringLists(affindaData.achievements || [], edenData.achievements || []),
     confidence: affindaData.confidence,
     rawText: secondaryRaw.length > primaryRaw.length ? secondaryRaw : primaryRaw,
   };
@@ -364,9 +424,14 @@ export async function enrichAffindaWithEden(
   affindaData: ExtractedResumeData,
   fileBuffer: Buffer,
   fileName: string
-): Promise<{ data: ExtractedResumeData; provider: string }> {
+): Promise<{
+  data: ExtractedResumeData;
+  provider: string;
+  affindaData: ExtractedResumeData;
+  edenData?: ExtractedResumeData;
+}> {
   if (!isEdenEnabled()) {
-    return { data: affindaData, provider: 'affinda' };
+    return { data: affindaData, provider: 'affinda', affindaData };
   }
 
   try {
@@ -374,12 +439,12 @@ export async function enrichAffindaWithEden(
     const edenData = await edenParser.parseResume(fileBuffer, fileName);
     const merged = mergeResumeData(affindaData, edenData);
     logResumeMergeStats(affindaData, edenData, merged);
-    return { data: merged, provider: 'affinda+eden' };
+    return { data: merged, provider: 'affinda+eden', affindaData, edenData };
   } catch (error) {
     console.warn(
       '[resume-merge] Eden enrichment skipped:',
       error instanceof Error ? error.message : error
     );
-    return { data: affindaData, provider: 'affinda' };
+    return { data: affindaData, provider: 'affinda', affindaData };
   }
 }

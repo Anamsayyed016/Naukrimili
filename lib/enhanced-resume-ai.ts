@@ -44,6 +44,8 @@ export interface ExtractedResumeData {
     url?: string;
   }>;
   languages?: Array<string | { name: string; proficiency?: string }>;
+  /** Top-level awards / accomplishments section (not per-job bullets). */
+  achievements?: string[];
   hobbies?: string[];
   expectedSalary?: string;
   preferredJobType?: string;

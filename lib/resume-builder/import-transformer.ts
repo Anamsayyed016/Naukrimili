@@ -62,6 +62,7 @@ import {
   recoverFromRawText,
   mergeRecovery,
   extractResumeFromText,
+  extractAdditionalResumeDataFromText,
 } from '@/lib/resume-parser/text-recovery';
 
 /* ------------------------------------------------------------------ */
@@ -91,6 +92,48 @@ function mergeUniqueStrings(existing: unknown[], recovered: string[]): string[] 
     out.push(item);
   }
   return out;
+}
+
+function mergeAdditionalResumeData(
+  base: AdditionalResumeData,
+  extra: AdditionalResumeData
+): AdditionalResumeData {
+  const uniq = (items: string[]) => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const item of items) {
+      const key = item.toLowerCase();
+      if (!item.trim() || seen.has(key)) continue;
+      seen.add(key);
+      out.push(item);
+    }
+    return out;
+  };
+
+  return {
+    sectionHeaders: uniq([...base.sectionHeaders, ...extra.sectionHeaders]),
+    unclassifiedFragments: [
+      ...base.unclassifiedFragments,
+      ...extra.unclassifiedFragments.filter(
+        (f) =>
+          !base.unclassifiedFragments.some(
+            (b) => b.value.toLowerCase() === f.value.toLowerCase()
+          )
+      ),
+    ],
+    achievements: uniq([...base.achievements, ...extra.achievements]),
+    awards: uniq([...base.awards, ...extra.awards]),
+    memberships: uniq([...base.memberships, ...extra.memberships]),
+    publications: uniq([...base.publications, ...extra.publications]),
+    patents: uniq([...base.patents, ...extra.patents]),
+    volunteerWork: uniq([...base.volunteerWork, ...extra.volunteerWork]),
+    extraSections: [
+      ...base.extraSections,
+      ...extra.extraSections.filter(
+        (s) => !base.extraSections.some((b) => b.heading.toLowerCase() === s.heading.toLowerCase())
+      ),
+    ],
+  };
 }
 
 function mergeUniqueRecords<T extends Record<string, unknown>>(
@@ -207,6 +250,12 @@ function supplementImportFromRawText(
         .filter((h) => h.trim().length > 0),
       (textParsed.hobbies || []).filter((h): h is string => typeof h === 'string')
     ),
+    achievements: mergeUniqueStrings(
+      firstNonEmptyArray(importedData, ['achievements', 'Achievements']).map((a) =>
+        typeof a === 'string' ? a : String((a as { title?: string }).title || '')
+      ),
+      (textParsed.achievements || []).filter((a): a is string => typeof a === 'string')
+    ),
   };
 }
 
@@ -261,6 +310,11 @@ export function transformImportDataToBuilder(
     email,
     textParsed?.fullName || ''
   );
+  const textAdditional =
+    typeof mergedBase.rawText === 'string' && mergedBase.rawText.length >= 80
+      ? extractAdditionalResumeDataFromText(mergedBase.rawText)
+      : emptyAdditionalResumeData();
+  const mergedAdditional = mergeAdditionalResumeData(additionalResumeData, textAdditional);
 
   const experience = transformExperienceArray(
     firstNonEmptyArray(mergedImport, [
@@ -343,16 +397,39 @@ export function transformImportDataToBuilder(
     ),
 
     // ===== AchievementsStep =====
-    achievements: transformAchievementsArray(
-      firstNonEmptyArray(mergedImport, ['achievements', 'Achievements'])
-    ),
+    achievements: (() => {
+      const base = transformAchievementsArray(
+        firstNonEmptyArray(mergedImport, ['achievements', 'Achievements'])
+      );
+      const extra = [
+        ...(mergedAdditional.achievements || []),
+        ...(mergedAdditional.memberships || []),
+        ...(mergedAdditional.publications || []),
+        ...(mergedAdditional.volunteerWork || []),
+        ...mergedAdditional.unclassifiedFragments
+          .filter((f) => f.kind === 'ACHIEVEMENT')
+          .map((f) => f.value),
+        ...(textParsed?.achievements || []),
+      ];
+      const seen = new Set(base.map((a) => a.toLowerCase()));
+      const out = [...base];
+      for (const item of extra) {
+        const value = sanitizeFieldText(item, 500);
+        if (!value) continue;
+        const key = value.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(value);
+      }
+      return out;
+    })(),
 
     // ===== HobbiesStep =====
     hobbies: cleanHobbies(
       firstNonEmptyArray(mergedImport, ['hobbies', 'Hobbies', 'Hobbies & Interests'])
     ),
 
-    additionalResumeData,
+    additionalResumeData: mergedAdditional,
 
     rawText: mergedImport.rawText || importedData.rawText,
 

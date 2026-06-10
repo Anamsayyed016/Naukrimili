@@ -143,18 +143,27 @@ const SECTION_HEADER_PHRASES: RegExp[] = [
   /^professional\s+journey$/i,
   /^professional\s+background$/i,
   /^professional\s+experience$/i,
+  /^professional\s+achievements?$/i,
   /^cs\s+articleship$/i,
   /^articleship\s+training$/i,
   /^articleship\s+programme?$/i,
   /^work\s+history$/i,
   /^employment\s+history$/i,
   /^key\s+achievements?$/i,
+  /^key\s+accomplishments?$/i,
   /^core\s+competenc(?:y|ies)$/i,
   /^technical\s+skills?$/i,
   /^academic\s+qualifications?$/i,
   /^educational\s+qualifications?$/i,
   /^certifications?\s+(?:&|and)\s+/i,
   /^languages?\s+(?:&|and)\s+/i,
+  /^company\s+secretary$/i,
+  /^compliance\s+officer$/i,
+  /^legal\s+head$/i,
+  /^board\s+member$/i,
+  /^independent\s+director$/i,
+  /^managing\s+director$/i,
+  /^chartered\s+accountant$/i,
 ];
 
 const CREDENTIAL_ONLY_TOKENS = new Set(['cs', 'ca', 'cma', 'cfa', 'cpa', 'mba', 'phd', 'md']);
@@ -187,9 +196,14 @@ function containsSectionHeaderWord(value: string): boolean {
 export function isLikelyJobTitleFragment(value: string): boolean {
   const s = normalizeFragment(value);
   if (!s) return false;
-  if (/\b(?:chief\s+\w+\s+officer|managing\s+director|vice\s+president|company\s+secretary|chartered\s+accountant)\b/i.test(s)) {
+  if (
+    /\b(?:chief\s+\w+\s+officer|managing\s+director|vice\s+president|company\s+secretary|chartered\s+accountant|compliance\s+officer|legal\s+head|board\s+member|independent\s+director)\b/i.test(
+      s
+    )
+  ) {
     return true;
   }
+  if (/^(head|officer|secretary|member|director)$/i.test(s)) return true;
   return JOB_TITLE_MARKERS.test(s) && s.split(/\s+/).length <= 6;
 }
 

@@ -12,6 +12,10 @@
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import {
+  emptyAdditionalResumeData,
+  type AdditionalResumeData,
+} from '@/lib/resume-parser/field-classification';
+import {
   isPlausiblePersonName,
   isLikelyJobTitle,
   isLikelyCompanyName,
@@ -165,10 +169,21 @@ const SECTION_ALIASES = {
     'language proficiency', 'language proficiencies', 'languages known',
   ],
   achievements: [
-    'achievements', 'key achievements', 'notable achievements',
+    'achievements', 'key achievements', 'notable achievements', 'professional achievements',
+    'key accomplishments', 'notable accomplishments', 'major accomplishments',
     'accomplishments', 'awards', 'awards and honors', 'awards & honors',
     'honors', 'honours', 'honors and awards', 'honours and awards',
     'recognition', 'recognitions', 'awards and recognition',
+  ],
+  memberships: [
+    'memberships', 'professional memberships', 'professional bodies',
+    'membership', 'affiliations', 'professional affiliations',
+  ],
+  publications: [
+    'publications', 'research publications', 'papers', 'patents',
+  ],
+  volunteer: [
+    'volunteer', 'volunteer work', 'volunteer experience', 'community service',
   ],
   interests: [
     'interests', 'personal interests', 'hobbies', 'hobbies and interests',
@@ -272,6 +287,7 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
     certifications: [],
     languages: [],
     hobbies: [],
+    achievements: [],
     confidence: 0,
     rawText: text,
   };
@@ -313,6 +329,22 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
   const interestsBlock = extractSection(text, SECTION_ALIASES.interests);
   if (interestsBlock) {
     result.hobbies = parseHobbiesList(interestsBlock.body);
+  }
+
+  const achievementsBlock = extractSection(text, SECTION_ALIASES.achievements);
+  if (achievementsBlock) {
+    result.achievements = parseAchievementsList(achievementsBlock.body);
+  }
+
+  const unmapped = extractAdditionalResumeDataFromText(text);
+  if (unmapped.achievements.length > 0) {
+    const seen = new Set((result.achievements || []).map((a) => a.toLowerCase()));
+    for (const item of unmapped.achievements) {
+      const key = item.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.achievements = [...(result.achievements || []), item];
+    }
   }
 
   // Certifications + Languages — supports combined heading
@@ -501,10 +533,16 @@ const COVER_LETTER_MARKERS = [
   /\bre\s*:\s*(application|position|role|job)\b/i,
   /\bapplication\s+for\b/i,
   /\bcover\s+letter\b/i,
+  /\bapplication\s+letter\b/i,
+  /\brecommendation\s+letter\b/i,
+  /\bletter\s+of\s+recommendation\b/i,
+  /\breference\s+letter\b/i,
+  /\bintroductory\s+(letter|page)\b/i,
   /\byours\s+(faithfully|sincerely|truly|regards)\b/i,
-  /\bi\s+am\s+writing\s+to\s+(apply|express|inquire)\b/i,
+  /\bi\s+am\s+writing\s+to\s+(apply|express|inquire|recommend)\b/i,
   /\bwith\s+reference\s+to\s+your\b/i,
   /\bkindly\s+find\s+(attached|enclosed)\b/i,
+  /\bplease\s+find\s+(attached|enclosed)\b/i,
 ];
 
 export interface ResumeTextSignals {
@@ -579,13 +617,22 @@ export function reconstructColumnLayout(text: string): string {
     const isContactish =
       /@|linkedin\.com|github\.com|phone|mobile|tel\b/i.test(trimmed) ||
       /\+?\d[\d\s().-]{7,}\d/.test(trimmed);
+    const isSkillish =
+      !hitMajorSection &&
+      trimmed.length <= 90 &&
+      /,/.test(trimmed) &&
+      trimmed.split(',').filter((p) => p.trim().length >= 2).length >= 2 &&
+      !DATE_RANGE_REGEX.test(trimmed);
     const isShortIdentity =
       trimmed.length <= 55 &&
       !isLikelyJobTitle(trimmed) &&
       !isLikelyCompanyName(trimmed) &&
       (isPlausiblePersonName(trimmed) || isContactish);
 
-    if (!hitMajorSection && (isContactish || (isShortIdentity && trimmed.length <= 40))) {
+    if (
+      !hitMajorSection &&
+      (isContactish || isSkillish || (isShortIdentity && trimmed.length <= 40))
+    ) {
       sidebar.push(trimmed);
       continue;
     }
@@ -603,12 +650,12 @@ export function prepareResumeTextForParsing(rawText: string): { text: string; si
   let text = cleanResumeTextPreservingLines(rawText || '');
   const signals = classifyResumeTextSignals(text);
 
-  if (signals.coverLetterDetected) {
+  if (signals.coverLetterDetected || signals.executiveLayout) {
     const trimmed = stripLeadingNonResumeContent(text);
-    if (trimmed.length >= 50) text = trimmed;
+    if (trimmed.length >= 50 && trimmed.length < text.length) text = trimmed;
   }
 
-  if (signals.multiColumnLikely || signals.sidebarLikely) {
+  if (signals.multiColumnLikely || signals.sidebarLikely || signals.executiveLayout) {
     text = reconstructColumnLayout(text);
   }
 
@@ -1194,6 +1241,69 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
     gpa: e.gpa,
     description: '',
   }));
+}
+
+/**
+ * Sections without a dedicated form step (memberships, publications, volunteer, etc.)
+ * are stored in additionalResumeData and folded into the achievements pipeline.
+ */
+export function extractAdditionalResumeDataFromText(rawText: string): AdditionalResumeData {
+  const { text } = prepareResumeTextInline(rawText || '');
+  const store = emptyAdditionalResumeData();
+  if (text.length < 30) return store;
+
+  const absorb = (
+    aliases: readonly string[],
+    bucket: 'memberships' | 'publications' | 'volunteerWork' | 'awards'
+  ) => {
+    const block = extractSection(text, aliases);
+    if (!block) return;
+    const items = parseAchievementsList(block.body);
+    if (items.length > 0) {
+      for (const item of items) {
+        if (!store[bucket].includes(item)) store[bucket].push(item);
+        if (!store.achievements.includes(item)) store.achievements.push(item);
+      }
+      return;
+    }
+    const body = block.body.trim();
+    if (body.length >= 12) {
+      store.extraSections.push({ heading: block.heading, body: body.slice(0, 2000) });
+      for (const line of parseAchievementsList(body)) {
+        if (!store.achievements.includes(line)) store.achievements.push(line);
+      }
+    }
+  };
+
+  absorb(SECTION_ALIASES.memberships, 'memberships');
+  absorb(SECTION_ALIASES.publications, 'publications');
+  absorb(SECTION_ALIASES.volunteer, 'volunteerWork');
+
+  return store;
+}
+
+function parseAchievementsList(block: string): string[] {
+  if (!block) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const rawLine of block.split('\n')) {
+    let lineText = rawLine.trim().replace(/^[•\-\*\u2022\u2023]\s+/, '');
+    if (!lineText || lineText.length < 4) continue;
+    if (/^[A-Z][A-Za-z\s/&]+:?\s*$/.test(lineText) && lineText.length < 40) continue;
+
+    if ((lineText.startsWith('•') || lineText.startsWith('-')) && lineText.length > 10) {
+      lineText = lineText.replace(/^[•\-]\s+/, '').trim();
+    }
+
+    if (lineText.length < 6 || lineText.length > 500) continue;
+    const key = lineText.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(lineText);
+  }
+
+  return out;
 }
 
 function parseHobbiesList(block: string): string[] {
