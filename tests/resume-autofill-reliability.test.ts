@@ -72,6 +72,36 @@ describe('transformImportDataToBuilder name safety', () => {
     expect(transformed.fullName).not.toMatch(/turnover/i);
     expect(transformed.name).not.toMatch(/turnover/i);
   });
+
+  it('rejects section header mapped as first and last name', () => {
+    const transformed = transformImportDataToBuilder({
+      fullName: 'Professional Qualification',
+      firstName: 'Professional',
+      lastName: 'Qualification',
+      email: 'anam.khan@example.com',
+      experience: [{ company: 'Deloitte', position: 'Audit Manager', description: 'Led audits' }],
+      skills: ['Taxation'],
+    });
+    expect(transformed.firstName).not.toBe('Professional');
+    expect(transformed.lastName).not.toBe('Qualification');
+    expect(transformed.additionalResumeData?.sectionHeaders || []).toEqual(
+      expect.arrayContaining([expect.stringMatching(/professional qualification/i)])
+    );
+  });
+
+  it('rejects CS Articleship as contact name', () => {
+    const transformed = transformImportDataToBuilder({
+      fullName: 'CS Articleship',
+      firstName: 'CS',
+      lastName: 'Articleship',
+      email: 'mujahid.ali@example.com',
+      experience: [{ company: 'ABC Corp', position: 'Company Secretary', description: 'Compliance' }],
+      skills: ['Corporate Law'],
+    });
+    expect(transformed.firstName).not.toBe('CS');
+    expect(transformed.lastName).not.toBe('Articleship');
+    expect(transformed.firstName || transformed.lastName).toMatch(/mujahid|ali/i);
+  });
 });
 
 describe('isUsableExtraction', () => {

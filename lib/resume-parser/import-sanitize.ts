@@ -4,6 +4,11 @@
  */
 
 import { cleanString } from './normalize-extracted';
+import {
+  isClassifiedPersonName,
+  splitClassifiedFullName,
+  type ClassifiedText,
+} from './field-classification';
 
 const GARBAGE_PATTERNS = [
   /pdf parsing failed/i,
@@ -154,15 +159,6 @@ const NAME_STOPWORDS = new Set([
 const NON_NAME_VOCAB =
   /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh|achievement|achievements|accomplishment|board|director|chairman|chairperson|secretary|president|executive|officer)\b/i;
 
-const COMPANY_NAME_MARKERS =
-  /\b(?:inc\.?|ltd\.?|llc|llp|corp(?:oration)?|gmbh|co\.?|company|technologies|solutions|systems|labs|studios|consulting|consultancy|industries|group|enterprises|services|associates|partners|holdings|bank|motors|limited|pvt\.?)\b/i;
-
-const JOB_TITLE_MARKERS =
-  /\b(?:engineer|developer|architect|manager|director|lead|head|consultant|analyst|designer|administrator|specialist|coordinator|associate|executive|officer|programmer|intern|trainee|founder|owner|ceo|cto|cfo|coo|vp|president|principal|scientist|researcher|accountant|auditor|secretary|artist|teacher|nurse|lawyer|attorney|partner|advisor|adviser)\b/i;
-
-const EXECUTIVE_TITLE_PHRASES =
-  /\b(?:chief\s+\w+\s+officer|managing\s+director|vice\s+president|general\s+manager|company\s+secretary|chartered\s+accountant|cost\s+accountant|financial\s+controller|board\s+member)\b/i;
-
 const CREDENTIAL_PREFIX_RE = /^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba)\.?\s+/i;
 
 export type NameCandidateSource =
@@ -182,27 +178,10 @@ export interface NameCandidate {
 }
 
 /** True when value looks like a job title / designation, not a person name. */
-export function isLikelyJobTitle(value: unknown): boolean {
-  const s = String(value || '').replace(/\s+/g, ' ').trim();
-  if (!s || s.length > 90) return false;
-  if (EXECUTIVE_TITLE_PHRASES.test(s)) return true;
-  if (JOB_TITLE_MARKERS.test(s) && s.split(/\s+/).length <= 6) return true;
-  if (/\b(senior|junior|lead|head|chief|assistant|associate|principal|staff)\s+\w+/i.test(s)) {
-    return true;
-  }
-  return false;
-}
+export { isLikelyJobTitleFragment as isLikelyJobTitle } from './field-classification';
 
 /** True when value looks like an organization name. */
-export function isLikelyCompanyName(value: unknown): boolean {
-  const s = String(value || '').replace(/\s+/g, ' ').trim();
-  if (!s || s.length > 100) return false;
-  if (COMPANY_NAME_MARKERS.test(s)) return true;
-  if (/\b(?:pvt|ltd|limited|inc|corp|llp|group|holdings|bank|motors|industries|foundation|university|college|institute)\b/i.test(s)) {
-    return true;
-  }
-  return false;
-}
+export { isLikelyCompanyNameFragment as isLikelyCompanyName } from './field-classification';
 
 export function stripCredentialPrefix(value: string): string {
   return String(value || '')
@@ -215,29 +194,9 @@ export function stripCredentialPrefix(value: string): string {
  */
 export function isPlausiblePersonName(value: unknown): boolean {
   const s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
-  if (s.length < 2 || s.length > 60) return false;
-  if (isGarbageResumeText(s)) return false;
-  if (/[@+#]/.test(s) || /https?:|\bwww\./i.test(s)) return false;
-  if (/\d/.test(s)) return false;
-  if (/[)\]}]/.test(s) && !/[(\[{]/.test(s)) return false;
-  if (NON_NAME_VOCAB.test(s)) return false;
-  if (isLikelyJobTitle(s)) return false;
-  if (isLikelyCompanyName(s)) return false;
+  if (!s || isGarbageResumeText(s)) return false;
   if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(s)) return false;
-
-  const words = s.split(/\s+/).filter(Boolean);
-  if (words.length === 0 || words.length > 5) return false;
-
-  const stopCount = words.filter((w) => NAME_STOPWORDS.has(w.toLowerCase())).length;
-  if (stopCount >= 2) return false;
-  if (words.length >= 2 && stopCount / words.length >= 0.34) return false;
-
-  if (!words.every((w) => /^[A-Za-z][A-Za-z'.-]*$/.test(w) && w.length >= 2)) return false;
-
-  // Multi-word all-lowercase lines are usually sentence fragments from experience text.
-  if (words.length >= 3 && words.every((w) => w === w.toLowerCase())) return false;
-
-  return true;
+  return isClassifiedPersonName(s);
 }
 
 /** Sanitize and keep only plausible personal names. */
@@ -335,42 +294,16 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
 }
 
 export function splitFullName(fullName: string): { firstName: string; lastName: string } {
-  const raw = sanitizePersonName(fullName, 120);
-  if (!raw) return { firstName: '', lastName: '' };
+  const { firstName, lastName } = splitClassifiedFullName(fullName);
+  return { firstName, lastName };
+}
 
-  let parts = raw.split(/\s+/).filter(Boolean);
-
-  // CamelCase un-glue: PDF text-layer extraction sometimes drops the space
-  // between first and last name (e.g. "AnamSayyed" or "JaneDoeSmith"). When we
-  // receive a single token that has internal capitals, split on the boundaries.
-  // Only applied to single-token input to avoid breaking real surnames like
-  // "McDonald" or "DeLaCruz".
-  if (parts.length === 1) {
-    const camelSplit = parts[0].match(/[A-Z][a-z'-]+/g);
-    if (camelSplit && camelSplit.length >= 2 && camelSplit.join('') === parts[0]) {
-      parts = camelSplit;
-    }
-  }
-
-  if (parts.length === 0) return { firstName: '', lastName: '' };
-  if (parts.length === 1) return { firstName: parts[0], lastName: '' };
-
-  let start = 0;
-  if (HONORIFICS.has(parts[0].replace(/\./g, '').toLowerCase())) {
-    start = 1;
-  }
-  const nameParts = parts.slice(start);
-  if (nameParts.length === 0) {
-    return { firstName: parts[0] || '', lastName: '' };
-  }
-  if (nameParts.length === 1) {
-    return { firstName: nameParts[0], lastName: '' };
-  }
-
-  return {
-    firstName: nameParts[0],
-    lastName: nameParts.slice(1).join(' '),
-  };
+export function splitFullNameWithRejected(fullName: string): {
+  firstName: string;
+  lastName: string;
+  rejected: ClassifiedText[];
+} {
+  return splitClassifiedFullName(fullName);
 }
 
 const SKILL_NOISE_TOKENS = new Set([

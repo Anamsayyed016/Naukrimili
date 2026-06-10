@@ -32,6 +32,7 @@ import {
 } from '@/lib/resume-parser/normalize-extracted';
 import {
   splitFullName,
+  splitFullNameWithRejected,
   pickRicherFullName,
   sanitizePersonName,
   deriveDisplayNameFromEmail,
@@ -50,6 +51,12 @@ import {
   isGarbageResumeText,
   formatDisplayName,
 } from '@/lib/resume-parser/import-sanitize';
+import {
+  classifyResumeTextFragment,
+  emptyAdditionalResumeData,
+  stashUnclassifiedFragment,
+  type AdditionalResumeData,
+} from '@/lib/resume-parser/field-classification';
 import { inferProfessionFromResume } from '@/lib/resume-builder/infer-profession';
 import {
   recoverFromRawText,
@@ -248,8 +255,8 @@ export function transformImportDataToBuilder(
   const summaryRaw = mergedImport.summary || mergedImport.bio || mergedImport.objective;
   const summary = cleanMultiline(summaryRaw || recovered.summary || '').slice(0, 4000);
 
-  // Names — resume header first, then split fullName, then intelligent email parse only
-  const { firstName, lastName, displayName } = resolveName(
+  // Names — classification layer before any contact field mapping
+  const { firstName, lastName, displayName, additionalResumeData } = resolveClassifiedName(
     mergedImport,
     email,
     textParsed?.fullName || ''
@@ -344,6 +351,8 @@ export function transformImportDataToBuilder(
     hobbies: cleanHobbies(
       firstNonEmptyArray(mergedImport, ['hobbies', 'Hobbies', 'Hobbies & Interests'])
     ),
+
+    additionalResumeData,
 
     rawText: mergedImport.rawText || importedData.rawText,
 
@@ -468,17 +477,34 @@ export function previewTransformation(importedData: any): {
 /*  Section transformers                                              */
 /* ------------------------------------------------------------------ */
 
-function resolveName(
+function resolveClassifiedName(
   importedData: any,
   email: string,
   headerNameFromText = ''
-): { firstName: string; lastName: string; displayName: string } {
+): {
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  additionalResumeData: AdditionalResumeData;
+} {
+  const additionalResumeData = emptyAdditionalResumeData();
   const personal = importedData.personalInformation || {};
   const textHeaderName = sanitizePersonName(headerNameFromText, 120);
 
+  const parserFirst = String(importedData.firstName || personal.firstName || '').trim();
+  const parserLast = String(importedData.lastName || personal.lastName || '').trim();
+
+  for (const fragment of [parserFirst, parserLast]) {
+    if (!fragment) continue;
+    const classified = classifyResumeTextFragment(fragment);
+    if (classified.kind !== 'PERSON_NAME') {
+      stashUnclassifiedFragment(additionalResumeData, fragment, classified.kind);
+    }
+  }
+
   const explicitCombined = [
-    sanitizePersonName(importedData.firstName || personal.firstName || '', 80),
-    sanitizePersonName(importedData.lastName || personal.lastName || '', 80),
+    sanitizePersonName(parserFirst, 80),
+    sanitizePersonName(parserLast, 80),
   ]
     .filter(Boolean)
     .join(' ');
@@ -491,7 +517,15 @@ function resolveName(
     personal.fullName,
     textHeaderName,
   ]) {
-    rawFullName = pickRicherFullName(rawFullName, sanitizePersonName(candidate, 120), email);
+    const cleaned = sanitizePersonName(candidate, 120);
+    if (!cleaned) {
+      const classified = classifyResumeTextFragment(candidate);
+      if (classified.value) {
+        stashUnclassifiedFragment(additionalResumeData, classified.value, classified.kind);
+      }
+      continue;
+    }
+    rawFullName = pickRicherFullName(rawFullName, cleaned, email);
   }
 
   const garbage =
@@ -501,7 +535,6 @@ function resolveName(
 
   if (garbage) rawFullName = '';
 
-  // Drop single-token email slugs when resume text has a fuller real name
   const rawNameWordCount = rawFullName.split(/\s+/).filter(Boolean).length;
   if (rawFullName && email && rawNameWordCount < 2 && isEmailDerivedName(rawFullName, email)) {
     const richerHeader = textHeaderName && !isEmailDerivedName(textHeaderName, email)
@@ -514,14 +547,16 @@ function resolveName(
   let lastName = '';
 
   if (rawFullName) {
-    const split = splitFullName(rawFullName);
+    const split = splitFullNameWithRejected(rawFullName);
     firstName = split.firstName;
     lastName = split.lastName;
+    for (const rejected of split.rejected) {
+      stashUnclassifiedFragment(additionalResumeData, rejected.value, rejected.kind);
+    }
   }
 
   const hasUsableName = !!(firstName || lastName || rawFullName);
 
-  // Priority 3: email-derived name when parsers returned garbage or nothing
   if (!hasUsableName && email) {
     const fromEmail = parseIntelligentNameFromEmail(email);
     if (fromEmail) {
@@ -530,7 +565,7 @@ function resolveName(
     } else {
       const derived = deriveDisplayNameFromEmail(email);
       if (derived) {
-        const split = splitFullName(derived);
+        const split = splitFullNameWithRejected(derived);
         firstName = split.firstName;
         lastName = split.lastName;
         rawFullName = derived;
@@ -538,19 +573,20 @@ function resolveName(
     }
   }
 
-  // Priority 4: low confidence — leave blank (no blind email slug split)
-
   firstName = formatDisplayName(firstName);
   lastName = formatDisplayName(lastName);
 
   const combined = [firstName, lastName].filter(Boolean).join(' ').trim();
-  const fromRaw = formatDisplayName(rawFullName);
-  const displayName = combined || fromRaw || formatDisplayName(textHeaderName);
+  const displayName = combined || formatDisplayName(textHeaderName);
+
+  const safeFirst = sanitizePersonName(firstName, 80);
+  const safeLast = sanitizePersonName(lastName, 80);
 
   return {
-    firstName: firstName || (displayName && !lastName ? displayName.split(/\s+/)[0] : ''),
-    lastName,
-    displayName,
+    firstName: safeFirst,
+    lastName: safeLast,
+    displayName: [safeFirst, safeLast].filter(Boolean).join(' ') || displayName,
+    additionalResumeData,
   };
 }
 

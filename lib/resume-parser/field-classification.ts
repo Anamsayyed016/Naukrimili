@@ -1,0 +1,338 @@
+/**
+ * Classification layer between parser output and form mapping.
+ * Only PERSON_NAME may populate contact name fields.
+ */
+
+import { cleanString } from '@/lib/resume-parser/normalize-extracted';
+
+export type TextClassificationKind =
+  | 'PERSON_NAME'
+  | 'DESIGNATION'
+  | 'SECTION_HEADER'
+  | 'COMPANY_NAME'
+  | 'PROJECT_NAME'
+  | 'SKILL'
+  | 'CERTIFICATION'
+  | 'ACHIEVEMENT'
+  | 'EDUCATION'
+  | 'EXPERIENCE'
+  | 'UNKNOWN';
+
+export interface ClassifiedText {
+  kind: TextClassificationKind;
+  confidence: number;
+  value: string;
+}
+
+export interface AdditionalResumeData {
+  sectionHeaders: string[];
+  unclassifiedFragments: Array<{ value: string; kind: TextClassificationKind }>;
+  achievements: string[];
+  awards: string[];
+  memberships: string[];
+  publications: string[];
+  patents: string[];
+  volunteerWork: string[];
+  extraSections: Array<{ heading: string; body: string }>;
+}
+
+export function emptyAdditionalResumeData(): AdditionalResumeData {
+  return {
+    sectionHeaders: [],
+    unclassifiedFragments: [],
+    achievements: [],
+    awards: [],
+    memberships: [],
+    publications: [],
+    patents: [],
+    volunteerWork: [],
+    extraSections: [],
+  };
+}
+
+/** Words that must never appear in a personal name field. */
+export const SECTION_HEADER_WORDS = new Set([
+  'professional',
+  'qualification',
+  'qualifications',
+  'profile',
+  'summary',
+  'experience',
+  'education',
+  'articleship',
+  'achievements',
+  'achievement',
+  'competencies',
+  'competency',
+  'skills',
+  'skill',
+  'projects',
+  'project',
+  'certifications',
+  'certification',
+  'training',
+  'history',
+  'employment',
+  'journey',
+  'background',
+  'overview',
+  'biography',
+  'bio',
+  'objective',
+  'contact',
+  'details',
+  'information',
+  'membership',
+  'memberships',
+  'publications',
+  'patents',
+  'volunteer',
+  'awards',
+  'honors',
+  'honours',
+  'recognition',
+  'languages',
+  'language',
+  'hobbies',
+  'interests',
+  'references',
+  'curriculum',
+  'vitae',
+  'resume',
+  'cv',
+  'about',
+  'introduction',
+  'expertise',
+  'strengths',
+  'capabilities',
+  'academics',
+  'academic',
+  'credentials',
+  'licenses',
+  'licences',
+  'courses',
+  'workshop',
+  'workshops',
+  'continuing',
+  'development',
+  'personal',
+  'technical',
+  'core',
+  'key',
+  'notable',
+  'selected',
+  'major',
+  'minor',
+  'executive',
+  'career',
+  'employment',
+  'positions',
+  'held',
+  'record',
+  'engagements',
+  'assignments',
+  'portfolio',
+  'case',
+  'studies',
+]);
+
+const SECTION_HEADER_PHRASES: RegExp[] = [
+  /^professional\s+qualifications?$/i,
+  /^professional\s+profile$/i,
+  /^professional\s+summary$/i,
+  /^professional\s+journey$/i,
+  /^professional\s+background$/i,
+  /^professional\s+experience$/i,
+  /^cs\s+articleship$/i,
+  /^articleship\s+training$/i,
+  /^articleship\s+programme?$/i,
+  /^work\s+history$/i,
+  /^employment\s+history$/i,
+  /^key\s+achievements?$/i,
+  /^core\s+competenc(?:y|ies)$/i,
+  /^technical\s+skills?$/i,
+  /^academic\s+qualifications?$/i,
+  /^educational\s+qualifications?$/i,
+  /^certifications?\s+(?:&|and)\s+/i,
+  /^languages?\s+(?:&|and)\s+/i,
+];
+
+const CREDENTIAL_ONLY_TOKENS = new Set(['cs', 'ca', 'cma', 'cfa', 'cpa', 'mba', 'phd', 'md']);
+
+const COMPANY_NAME_MARKERS =
+  /\b(?:inc\.?|ltd\.?|llc|llp|corp(?:oration)?|gmbh|co\.?|company|technologies|solutions|systems|labs|studios|consulting|consultancy|industries|group|enterprises|services|associates|partners|holdings|bank|motors|limited|pvt\.?|university|college|institute)\b/i;
+
+const JOB_TITLE_MARKERS =
+  /\b(?:engineer|developer|architect|manager|director|lead|head|consultant|analyst|designer|administrator|specialist|coordinator|associate|executive|officer|programmer|intern|trainee|founder|owner|ceo|cto|cfo|coo|vp|president|principal|scientist|researcher|accountant|auditor|secretary|artist|teacher|nurse|lawyer|attorney|partner|advisor|adviser)\b/i;
+
+const NON_NAME_VOCAB =
+  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division)\b/i;
+
+const NAME_STOPWORDS = new Set([
+  'of', 'the', 'and', 'or', 'around', 'with', 'for', 'to', 'in', 'at', 'from', 'by', 'a', 'an', 'as', 'on',
+]);
+
+function normalizeFragment(value: unknown): string {
+  return cleanString(value).replace(/\s+/g, ' ').trim();
+}
+
+function containsSectionHeaderWord(value: string): boolean {
+  const words = value.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return false;
+  if (words.every((w) => SECTION_HEADER_WORDS.has(w))) return true;
+  const hits = words.filter((w) => SECTION_HEADER_WORDS.has(w)).length;
+  return hits >= 1 && hits / words.length >= 0.5;
+}
+
+export function isLikelyJobTitleFragment(value: string): boolean {
+  const s = normalizeFragment(value);
+  if (!s) return false;
+  if (/\b(?:chief\s+\w+\s+officer|managing\s+director|vice\s+president|company\s+secretary|chartered\s+accountant)\b/i.test(s)) {
+    return true;
+  }
+  return JOB_TITLE_MARKERS.test(s) && s.split(/\s+/).length <= 6;
+}
+
+export function isLikelyCompanyNameFragment(value: string): boolean {
+  const s = normalizeFragment(value);
+  if (!s) return false;
+  return COMPANY_NAME_MARKERS.test(s);
+}
+
+function passesPersonNameShape(value: string): boolean {
+  const s = value
+    .replace(/^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba)\.?\s+/i, '')
+    .trim();
+  if (s.length < 2 || s.length > 60) return false;
+  if (/[@+#]/.test(s) || /https?:|\bwww\./i.test(s)) return false;
+  if (/\d/.test(s)) return false;
+  if (NON_NAME_VOCAB.test(s)) return false;
+
+  const words = s.split(/\s+/).filter(Boolean);
+  if (!words.length || words.length > 5) return false;
+
+  const stopCount = words.filter((w) => NAME_STOPWORDS.has(w.toLowerCase())).length;
+  if (stopCount >= 2) return false;
+  if (words.length >= 2 && stopCount / words.length >= 0.34) return false;
+  if (!words.every((w) => /^[A-Za-z][A-Za-z'.-]*$/.test(w) && w.length >= 2)) return false;
+  if (words.length >= 3 && words.every((w) => w === w.toLowerCase())) return false;
+
+  return true;
+}
+
+export function classifyResumeTextFragment(value: unknown): ClassifiedText {
+  const valueNorm = normalizeFragment(value);
+  if (!valueNorm) return { kind: 'UNKNOWN', confidence: 0, value: '' };
+
+  const lower = valueNorm.toLowerCase();
+
+  if (SECTION_HEADER_PHRASES.some((re) => re.test(lower))) {
+    return { kind: 'SECTION_HEADER', confidence: 0, value: valueNorm };
+  }
+
+  if (containsSectionHeaderWord(valueNorm)) {
+    return { kind: 'SECTION_HEADER', confidence: 0, value: valueNorm };
+  }
+
+  if (/\barticleship\b/i.test(valueNorm)) {
+    return { kind: 'EDUCATION', confidence: 0, value: valueNorm };
+  }
+
+  if (isLikelyJobTitleFragment(valueNorm)) {
+    return { kind: 'DESIGNATION', confidence: 0, value: valueNorm };
+  }
+
+  if (isLikelyCompanyNameFragment(valueNorm)) {
+    return { kind: 'COMPANY_NAME', confidence: 0, value: valueNorm };
+  }
+
+  const words = lower.split(/\s+/).filter(Boolean);
+  if (words.length === 1 && CREDENTIAL_ONLY_TOKENS.has(words[0])) {
+    return { kind: 'CERTIFICATION', confidence: 0, value: valueNorm };
+  }
+
+  if (passesPersonNameShape(valueNorm)) {
+    return { kind: 'PERSON_NAME', confidence: 75, value: valueNorm };
+  }
+
+  return { kind: 'UNKNOWN', confidence: 0, value: valueNorm };
+}
+
+export function isClassifiedPersonName(value: unknown, minConfidence = 50): boolean {
+  const result = classifyResumeTextFragment(value);
+  return result.kind === 'PERSON_NAME' && result.confidence >= minConfidence;
+}
+
+export function classifyNamePart(value: unknown): ClassifiedText {
+  return classifyResumeTextFragment(value);
+}
+
+export function splitClassifiedFullName(fullName: string): {
+  firstName: string;
+  lastName: string;
+  rejected: ClassifiedText[];
+} {
+  const classified = classifyResumeTextFragment(fullName);
+  const rejected: ClassifiedText[] = [];
+
+  if (classified.kind !== 'PERSON_NAME') {
+    if (classified.value) rejected.push(classified);
+    return { firstName: '', lastName: '', rejected };
+  }
+
+  const raw = classified.value;
+  let parts = raw.split(/\s+/).filter(Boolean);
+
+  if (parts.length === 1) {
+    const camelSplit = parts[0].match(/[A-Z][a-z'-]+/g);
+    if (camelSplit && camelSplit.length >= 2 && camelSplit.join('') === parts[0]) {
+      parts = camelSplit;
+    }
+  }
+
+  if (parts.length <= 1) {
+    const partClass = classifyNamePart(parts[0] || '');
+    if (partClass.kind !== 'PERSON_NAME') {
+      if (partClass.value) rejected.push(partClass);
+      return { firstName: '', lastName: '', rejected };
+    }
+    return { firstName: parts[0] || '', lastName: '', rejected };
+  }
+
+  const firstClass = classifyNamePart(parts[0]);
+  const lastParts = parts.slice(1);
+  const lastClass = classifyNamePart(lastParts.join(' '));
+
+  const firstName = firstClass.kind === 'PERSON_NAME' ? parts[0] : '';
+  const lastName = lastClass.kind === 'PERSON_NAME' ? lastParts.join(' ') : '';
+
+  if (!firstName && firstClass.value) rejected.push(firstClass);
+  if (!lastName && lastClass.value) rejected.push(lastClass);
+
+  return { firstName, lastName, rejected };
+}
+
+export function stashUnclassifiedFragment(
+  store: AdditionalResumeData,
+  value: string,
+  kind: TextClassificationKind
+): void {
+  const trimmed = normalizeFragment(value);
+  if (!trimmed) return;
+
+  const entry = { value: trimmed, kind };
+  if (store.unclassifiedFragments.some((f) => f.value.toLowerCase() === trimmed.toLowerCase())) {
+    return;
+  }
+  store.unclassifiedFragments.push(entry);
+
+  if (kind === 'SECTION_HEADER' && !store.sectionHeaders.includes(trimmed)) {
+    store.sectionHeaders.push(trimmed);
+  }
+  if (kind === 'ACHIEVEMENT' && !store.achievements.includes(trimmed)) {
+    store.achievements.push(trimmed);
+  }
+  if (kind === 'EDUCATION' && !store.extraSections.some((s) => s.heading === trimmed)) {
+    store.extraSections.push({ heading: trimmed, body: '' });
+  }
+}
