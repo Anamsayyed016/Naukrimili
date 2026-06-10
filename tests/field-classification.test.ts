@@ -30,6 +30,13 @@ describe('field classification', () => {
     expect(isClassifiedPersonName('turnover of around 1000 Crores)')).toBe(false);
   });
 
+  it('rejects CS self-practise firm lines as person names', () => {
+    const { isFirmOrLocationNamePhrase } = require('@/lib/resume-parser/field-classification');
+    expect(isClassifiedPersonName('Self Practise Bhopal')).toBe(false);
+    expect(isFirmOrLocationNamePhrase('Self Practise Bhopal')).toBe(true);
+    expect(isFirmOrLocationNamePhrase('Practise Bhopal')).toBe(true);
+  });
+
   it('does not split section headers into first and last name', () => {
     const split = splitClassifiedFullName('Professional Qualification');
     expect(split.firstName).toBe('');

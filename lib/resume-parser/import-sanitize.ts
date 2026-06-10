@@ -6,6 +6,7 @@
 import { cleanString } from './normalize-extracted';
 import {
   isClassifiedPersonName,
+  isFirmOrLocationNamePhrase,
   splitClassifiedFullName,
   type ClassifiedText,
 } from './field-classification';
@@ -275,10 +276,17 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
   if (!a) return b;
   if (!b) return a;
 
+  const aFirm = isFirmOrLocationNamePhrase(a);
+  const bFirm = isFirmOrLocationNamePhrase(b);
+  if (aFirm && !bFirm) return b;
+  if (bFirm && !aFirm) return a;
+
   const aDerived = isEmailDerivedName(a, email);
   const bDerived = isEmailDerivedName(b, email);
   if (aDerived && !bDerived) return b;
   if (!aDerived && bDerived) return a;
+  if (aDerived && bFirm) return a;
+  if (bDerived && aFirm) return b;
 
   const aWords = nameWordCount(a);
   const bWords = nameWordCount(b);

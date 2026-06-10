@@ -56,6 +56,8 @@ import {
 import {
   classifyResumeTextFragment,
   emptyAdditionalResumeData,
+  isFirmOrLocationNamePhrase,
+  nameOverlapsLocation,
   stashUnclassifiedFragment,
   type AdditionalResumeData,
 } from '@/lib/resume-parser/field-classification';
@@ -307,10 +309,14 @@ export function transformImportDataToBuilder(
   const summary = cleanMultiline(summaryRaw || recovered.summary || '').slice(0, 4000);
 
   // Names — classification layer before any contact field mapping
+  const locationHint = String(
+    mergedImport.location || mergedImport.address || textParsed?.location || ''
+  );
   const { firstName, lastName, displayName, additionalResumeData } = resolveClassifiedName(
     mergedImport,
     email,
-    textParsed?.fullName || ''
+    textParsed?.fullName || '',
+    locationHint
   );
   const textAdditional =
     typeof mergedBase.rawText === 'string' && mergedBase.rawText.length >= 80
@@ -559,7 +565,8 @@ export function previewTransformation(importedData: any): {
 function resolveClassifiedName(
   importedData: any,
   email: string,
-  headerNameFromText = ''
+  headerNameFromText = '',
+  locationHint = ''
 ): {
   firstName: string;
   lastName: string;
@@ -635,7 +642,12 @@ function resolveClassifiedName(
   }
 
   const splitCombined = [firstName, lastName].filter(Boolean).join(' ').trim();
-  const hasUsableName = !!(splitCombined && isPlausiblePersonName(splitCombined));
+  const hasUsableName = !!(
+    splitCombined &&
+    isPlausiblePersonName(splitCombined) &&
+    !isFirmOrLocationNamePhrase(splitCombined, locationHint) &&
+    !nameOverlapsLocation(splitCombined, locationHint)
+  );
 
   if (!hasUsableName && email) {
     const fromEmail = parseIntelligentNameFromEmail(email);

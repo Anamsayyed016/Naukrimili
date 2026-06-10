@@ -1170,7 +1170,13 @@ export async function POST(request: NextRequest) {
             ? [{ value: recoveredName, confidence: 65, source: 'text_recovery' as const }]
             : []),
           ...(emailDerivedName
-            ? [{ value: emailDerivedName, confidence: 42, source: 'email_derived' as const }]
+            ? [
+                {
+                  value: emailDerivedName,
+                  confidence: isPlausiblePersonName(emailDerivedName) ? 82 : 42,
+                  source: 'email_derived' as const,
+                },
+              ]
             : []),
         ],
         emailForName

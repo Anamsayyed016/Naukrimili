@@ -13,6 +13,7 @@
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import {
   emptyAdditionalResumeData,
+  isFirmOrLocationNamePhrase,
   type AdditionalResumeData,
 } from '@/lib/resume-parser/field-classification';
 import {
@@ -731,14 +732,14 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
       for (let offset = 1; offset <= 5; offset++) {
         const above = lines[emailIdx - offset];
         if (!above || isAnyHeadingLine(above)) break;
-        if (isPlausiblePersonName(above)) {
+        if (isPlausiblePersonName(above) && !isFirmOrLocationNamePhrase(above)) {
           candidates.push({ value: above, confidence: 88 - offset * 2, source: 'near_contact' });
         }
       }
       for (let offset = 1; offset <= 2; offset++) {
         const below = lines[emailIdx + offset];
         if (!below || isAnyHeadingLine(below)) break;
-        if (isPlausiblePersonName(below)) {
+        if (isPlausiblePersonName(below) && !isFirmOrLocationNamePhrase(below)) {
           candidates.push({ value: below, confidence: 82 - offset * 3, source: 'near_contact' });
         }
       }
@@ -758,7 +759,7 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
     candidates.push({ value: headerName, confidence: 55, source: 'text_recovery' });
   }
 
-  if (lines[0] && isPlausiblePersonName(lines[0])) {
+  if (lines[0] && isPlausiblePersonName(lines[0]) && !isFirmOrLocationNamePhrase(lines[0])) {
     candidates.push({ value: lines[0], confidence: 30, source: 'first_line' });
   }
 

@@ -200,6 +200,25 @@ const NON_PERSON_NAME_WORDS = new Set([
   'heading',
   'secretarial',
   'department',
+  'self',
+  'practise',
+  'practice',
+  'practicing',
+  'practising',
+  'portal',
+  'chambers',
+  'chamber',
+]);
+
+/** Common Indian city tokens often appended to firm lines (e.g. "Self Practise Bhopal"). */
+const INDIAN_CITY_TOKENS = new Set([
+  'bhopal', 'indore', 'delhi', 'mumbai', 'pune', 'noida', 'gurugram', 'gurgaon',
+  'hyderabad', 'chennai', 'kolkata', 'bangalore', 'bengaluru', 'jaipur', 'lucknow',
+  'ahmedabad', 'surat', 'vadodara', 'nagpur', 'raipur', 'patna', 'kochi', 'cochin',
+  'chandigarh', 'ludhiana', 'amritsar', 'bhubaneswar', 'dehradun', 'coimbatore',
+  'guwahati', 'ranchi', 'jodhpur', 'kota', 'udaipur', 'agra', 'nashik', 'kanpur',
+  'varanasi', 'prayagraj', 'faridabad', 'ghaziabad', 'visakhapatnam', 'thiruvananthapuram',
+  'mysore', 'mysuru', 'meerut', 'srinagar', 'shimla', 'panaji', 'goa',
 ]);
 
 /** Allowlisted 2-letter surnames (East Asian / short legal names). */
@@ -235,6 +254,40 @@ export function isLikelyCompanyNameFragment(value: string): boolean {
   const s = normalizeFragment(value);
   if (!s) return false;
   return COMPANY_NAME_MARKERS.test(s);
+}
+
+/** CS/CA firm lines and city suffixes — not personal names. */
+export function nameOverlapsLocation(name: string, location: string): boolean {
+  const nameWords = name
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length >= 4);
+  const locTokens = location
+    .toLowerCase()
+    .split(/[,\s/]+/)
+    .map((t) => t.replace(/[^a-z]/g, ''))
+    .filter((w) => w.length >= 4);
+  if (!nameWords.length || !locTokens.length) return false;
+  return nameWords.some((nw) =>
+    locTokens.some((lt) => nw === lt || nw.startsWith(lt) || lt.startsWith(nw))
+  );
+}
+
+export function isFirmOrLocationNamePhrase(value: string, locationHint = ''): boolean {
+  const s = normalizeFragment(value);
+  if (!s) return false;
+  if (/\bself\s+practi[cs]e\b/i.test(s)) return true;
+  if (/\bself\s+employment\b/i.test(s)) return true;
+  if (/\bpracti[cs]e\b/i.test(s) && s.split(/\s+/).length <= 4) return true;
+  if (/\bself\b/i.test(s) && s.split(/\s+/).length >= 2) return true;
+  if (locationHint && nameOverlapsLocation(s, locationHint)) return true;
+
+  const words = s.toLowerCase().split(/\s+/).filter(Boolean);
+  const hasCity = words.some((w) => INDIAN_CITY_TOKENS.has(w));
+  if (hasCity && words.length >= 3) return true;
+  if (hasCity && words.some((w) => /practi[cs]e|self|chamber/i.test(w))) return true;
+
+  return false;
 }
 
 function passesPersonNameShape(value: string): boolean {
@@ -287,6 +340,10 @@ export function classifyResumeTextFragment(value: unknown): ClassifiedText {
 
   if (isLikelyCompanyNameFragment(valueNorm)) {
     return { kind: 'COMPANY_NAME', confidence: 0, value: valueNorm };
+  }
+
+  if (isFirmOrLocationNamePhrase(valueNorm)) {
+    return { kind: 'DESIGNATION', confidence: 0, value: valueNorm };
   }
 
   const words = lower.split(/\s+/).filter(Boolean);

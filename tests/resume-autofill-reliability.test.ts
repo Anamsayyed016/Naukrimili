@@ -89,6 +89,20 @@ describe('transformImportDataToBuilder name safety', () => {
     );
   });
 
+  it('rejects Self Practise Bhopal and uses email-derived name for anamsayyed58@gmail.com', () => {
+    const transformed = transformImportDataToBuilder({
+      fullName: 'Self Practise Bhopal',
+      email: 'anamsayyed58@gmail.com',
+      phone: '7415566841',
+      location: 'Bhopal',
+      achievements: ['Managed end-to-end SME', 'DRHP coordination', 'NSE filings'],
+      skills: ['Compliance', 'MCA21'],
+    });
+    expect(transformed.firstName).not.toBe('Self');
+    expect(transformed.fullName).not.toBe('Self Practise Bhopal');
+    expect(transformed.email).toBe('anamsayyed58@gmail.com');
+  });
+
   it('rejects Academia Th and uses email-derived name for anamsayyed58@gmail.com', () => {
     const transformed = transformImportDataToBuilder({
       fullName: 'Academia Th',
