@@ -538,7 +538,7 @@ function isAnyHeadingLine(line: string): boolean {
 export function truncateSummaryAtSectionBoundary(body: string): string {
   const lines = body.split('\n');
   const STOP_HEADING =
-    /^(?:(?:work|professional)\s+)?experience|employment(?:\s+history)?|education|academic(?:\s+background|\s+history)?|skills?|technical\s+skills|key\s+skills|core\s+competenc(?:y|ies)|projects?|certifications?|achievements?|languages?|employment\s+record|professional\s+journey)\s*:?\s*$/i;
+    /^(?:(?:(?:work|professional)\s+)?experience|employment(?:\s+history)?|education|academic(?:\s+background|\s+history)?|skills?|technical\s+skills|key\s+skills|core\s+competenc(?:y|ies)|projects?|certifications?|achievements?|languages?|employment\s+record|professional\s+journey)\s*:?\s*$/i;
   const out: string[] = [];
   for (const line of lines) {
     const norm = line
