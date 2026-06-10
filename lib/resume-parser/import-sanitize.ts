@@ -152,19 +152,77 @@ const NAME_STOPWORDS = new Set([
 
 /** Resume / business vocabulary — never valid in a personal name. */
 const NON_NAME_VOCAB =
-  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh)\b/i;
+  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh|achievement|achievements|accomplishment|board|director|chairman|chairperson|secretary|president|executive|officer)\b/i;
+
+const COMPANY_NAME_MARKERS =
+  /\b(?:inc\.?|ltd\.?|llc|llp|corp(?:oration)?|gmbh|co\.?|company|technologies|solutions|systems|labs|studios|consulting|consultancy|industries|group|enterprises|services|associates|partners|holdings|bank|motors|limited|pvt\.?)\b/i;
+
+const JOB_TITLE_MARKERS =
+  /\b(?:engineer|developer|architect|manager|director|lead|head|consultant|analyst|designer|administrator|specialist|coordinator|associate|executive|officer|programmer|intern|trainee|founder|owner|ceo|cto|cfo|coo|vp|president|principal|scientist|researcher|accountant|auditor|secretary|artist|teacher|nurse|lawyer|attorney|partner|advisor|adviser)\b/i;
+
+const EXECUTIVE_TITLE_PHRASES =
+  /\b(?:chief\s+\w+\s+officer|managing\s+director|vice\s+president|general\s+manager|company\s+secretary|chartered\s+accountant|cost\s+accountant|financial\s+controller|board\s+member)\b/i;
+
+const CREDENTIAL_PREFIX_RE = /^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba)\.?\s+/i;
+
+export type NameCandidateSource =
+  | 'explicit'
+  | 'header_centered'
+  | 'near_contact'
+  | 'affinda'
+  | 'eden'
+  | 'text_recovery'
+  | 'first_line'
+  | 'email_derived';
+
+export interface NameCandidate {
+  value: string;
+  confidence: number;
+  source: NameCandidateSource;
+}
+
+/** True when value looks like a job title / designation, not a person name. */
+export function isLikelyJobTitle(value: unknown): boolean {
+  const s = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!s || s.length > 90) return false;
+  if (EXECUTIVE_TITLE_PHRASES.test(s)) return true;
+  if (JOB_TITLE_MARKERS.test(s) && s.split(/\s+/).length <= 6) return true;
+  if (/\b(senior|junior|lead|head|chief|assistant|associate|principal|staff)\s+\w+/i.test(s)) {
+    return true;
+  }
+  return false;
+}
+
+/** True when value looks like an organization name. */
+export function isLikelyCompanyName(value: unknown): boolean {
+  const s = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!s || s.length > 100) return false;
+  if (COMPANY_NAME_MARKERS.test(s)) return true;
+  if (/\b(?:pvt|ltd|limited|inc|corp|llp|group|holdings|bank|motors|industries|foundation|university|college|institute)\b/i.test(s)) {
+    return true;
+  }
+  return false;
+}
+
+export function stripCredentialPrefix(value: string): string {
+  return String(value || '')
+    .replace(CREDENTIAL_PREFIX_RE, '')
+    .trim();
+}
 
 /**
  * True when a string looks like a real person name (not a bullet, sentence, or metric).
  */
 export function isPlausiblePersonName(value: unknown): boolean {
-  const s = String(value || '').replace(/\s+/g, ' ').trim();
+  const s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
   if (s.length < 2 || s.length > 60) return false;
   if (isGarbageResumeText(s)) return false;
   if (/[@+#]/.test(s) || /https?:|\bwww\./i.test(s)) return false;
   if (/\d/.test(s)) return false;
   if (/[)\]}]/.test(s) && !/[(\[{]/.test(s)) return false;
   if (NON_NAME_VOCAB.test(s)) return false;
+  if (isLikelyJobTitle(s)) return false;
+  if (isLikelyCompanyName(s)) return false;
   if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(s)) return false;
 
   const words = s.split(/\s+/).filter(Boolean);
@@ -224,6 +282,32 @@ function nameWordCount(name: string): number {
  * Choose the more complete personal name when parser and text recovery disagree.
  * Never prefers longer experience/description fragments over a valid short name.
  */
+/**
+ * Choose the highest-confidence personal name from ranked parser candidates.
+ * Affinda/Eden scores apply only when the value passes plausibility checks.
+ */
+export function pickBestNameFromCandidates(candidates: NameCandidate[], email = ''): string {
+  const scored = candidates
+    .map((c) => ({
+      ...c,
+      value: sanitizePersonName(c.value),
+      confidence: sanitizePersonName(c.value) ? c.confidence : 0,
+    }))
+    .filter((c) => c.value && c.confidence > 0);
+
+  if (!scored.length) return '';
+
+  scored.sort((a, b) => b.confidence - a.confidence);
+  const topConfidence = scored[0].confidence;
+  const tier = scored.filter((c) => c.confidence >= topConfidence - 8);
+
+  let best = '';
+  for (const candidate of tier) {
+    best = pickRicherFullName(best, candidate.value, email);
+  }
+  return best;
+}
+
 export function pickRicherFullName(primary: string, secondary: string, email = ''): string {
   const a = sanitizePersonName(primary);
   const b = sanitizePersonName(secondary);
@@ -767,6 +851,31 @@ export function sanitizeCertificationEntry(value: unknown): Record<string, unkno
   };
 }
 
+/** Reject random text blocks that lack employment structure. */
+export function isValidExperienceEntry(exp: {
+  company?: string;
+  position?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+}): boolean {
+  const company = sanitizeFieldText(exp.company, 120);
+  const position = sanitizeFieldText(exp.position, 120);
+  const startDate = sanitizeFieldText(exp.startDate, 40);
+  const endDate = sanitizeFieldText(exp.endDate, 40);
+  const hasDates = !!(startDate || endDate);
+
+  if (company && position) return true;
+  if (hasDates && (company || position)) return true;
+
+  if (!company && !position) return false;
+
+  if (position && isLikelyJobTitle(position) && !company) return hasDates;
+  if (company && isLikelyCompanyName(company) && !position) return hasDates;
+
+  return false;
+}
+
 export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<string, unknown> | null {
   const company = sanitizeFieldText(
     exp.company || exp.Company || exp.organization || exp.Organization || exp.employer,
@@ -792,6 +901,9 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
   const description = sanitizeFieldText(exp.description || exp.Description, 2000);
   if (!company && !position && !description) return null;
   if (isGarbageResumeText(company) && isGarbageResumeText(position)) return null;
+  if (!isValidExperienceEntry({ company, position, startDate: String(exp.startDate || ''), endDate: String(exp.endDate || ''), description })) {
+    return null;
+  }
 
   return {
     ...exp,

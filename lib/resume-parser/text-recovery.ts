@@ -11,7 +11,14 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
-import { isPlausiblePersonName } from '@/lib/resume-parser/import-sanitize';
+import {
+  isPlausiblePersonName,
+  isLikelyJobTitle,
+  isLikelyCompanyName,
+  isValidExperienceEntry,
+  pickBestNameFromCandidates,
+  type NameCandidate,
+} from '@/lib/resume-parser/import-sanitize';
 
 /* ------------------------------------------------------------------ */
 /*  Recovery layer — only fills missing identity/links                */
@@ -248,7 +255,7 @@ export function cleanResumeTextPreservingLines(input: string): string {
  * Designed to be permissive — emits empty arrays when uncertain, never fabricates.
  */
 export function extractResumeFromText(rawText: string): ExtractedResumeData {
-  const text = stripLeadingNonResumeContent(cleanResumeTextPreservingLines(rawText || ''));
+  const { text } = prepareResumeTextInline(rawText || '');
 
   const result: ExtractedResumeData = {
     fullName: '',
@@ -277,8 +284,7 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
   result.phone = id.phone;
   result.linkedin = id.linkedin;
   result.portfolio = id.github || id.portfolio;
-  const headerName = extractName(text);
-  result.fullName = isPlausiblePersonName(headerName) ? headerName : '';
+  result.fullName = extractNameWithConfidence(text);
   result.location = extractLocation(text);
 
   // 2. Section-driven extraction
@@ -488,13 +494,130 @@ function isAnyHeadingLine(line: string): boolean {
 
 const COVER_LETTER_MARKERS = [
   /\bdear\s+(sir|madam|hiring\s+manager|hr\s+manager|recruiter|team)\b/i,
+  /\bdear\s+sir\b/i,
   /\bto\s+whom\s+it\s+may\s+concern\b/i,
+  /\bto\s*,\s*$/im,
   /\bsubject\s*:/i,
   /\bre\s*:\s*(application|position|role|job)\b/i,
   /\bapplication\s+for\b/i,
+  /\bcover\s+letter\b/i,
+  /\byours\s+(faithfully|sincerely|truly|regards)\b/i,
   /\bi\s+am\s+writing\s+to\s+(apply|express|inquire)\b/i,
   /\bwith\s+reference\s+to\s+your\b/i,
+  /\bkindly\s+find\s+(attached|enclosed)\b/i,
 ];
+
+export interface ResumeTextSignals {
+  coverLetterDetected: boolean;
+  executiveLayout: boolean;
+  multiColumnLikely: boolean;
+  sidebarLikely: boolean;
+  imageHeavyLikely: boolean;
+  scannedLikely: boolean;
+}
+
+export function classifyResumeTextSignals(rawText: string): ResumeTextSignals {
+  const text = rawText || '';
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const opener = lines.slice(0, 35).join('\n');
+  const words = text.match(/[a-zA-Z]{3,}/g) || [];
+  const textDensity = words.length / Math.max(text.length, 1);
+
+  const shortLines = lines.filter((l) => l.length > 0 && l.length <= 48);
+  const longLines = lines.filter((l) => l.length >= 72);
+  const shortRatio = shortLines.length / Math.max(lines.length, 1);
+
+  const alternatingPairs = lines.slice(0, 80).filter((l, i) => {
+    if (i === 0) return false;
+    const prev = lines[i - 1];
+    return (prev.length <= 45 && l.length >= 70) || (prev.length >= 70 && l.length <= 45);
+  }).length;
+
+  const sidebarBlock = lines.slice(0, 22);
+  const sidebarShort = sidebarBlock.filter((l) => l.length <= 52).length;
+  const sidebarContact = sidebarBlock.filter((l) => /@|linkedin|github|\+?\d{7,}/i.test(l)).length;
+
+  return {
+    coverLetterDetected: COVER_LETTER_MARKERS.some((re) => re.test(opener)),
+    executiveLayout: /\b(board|chairman|chairperson|cfo|ceo|coo|cto|managing director|executive summary|board member|independent director)\b/i.test(
+      text.slice(0, 2500)
+    ),
+    multiColumnLikely: alternatingPairs >= 6 || (shortRatio > 0.42 && longLines.length >= 8),
+    sidebarLikely: sidebarContact >= 2 && sidebarShort >= 6 && sidebarShort / Math.max(sidebarBlock.length, 1) >= 0.55,
+    imageHeavyLikely:
+      text.length < 400 && words.length < 25 && /\[image|figure|photo|graphic/i.test(text),
+    scannedLikely: text.startsWith('%PDF') && textDensity < 0.0015 && words.length < 20,
+  };
+}
+
+/**
+ * Sidebar / two-column PDFs often interleave contact lines with body paragraphs.
+ * Pull contact/identity lines to the top so header + section parsers see a linear resume.
+ */
+export function reconstructColumnLayout(text: string): string {
+  if (!text || text.length < 120) return text;
+
+  const lines = text.split('\n');
+  const sidebar: string[] = [];
+  const main: string[] = [];
+  let hitMajorSection = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (!trimmed) {
+      if (hitMajorSection) main.push(line);
+      continue;
+    }
+
+    if (isAnyHeadingLine(trimmed) && i > 4) {
+      hitMajorSection = true;
+      main.push(line);
+      continue;
+    }
+
+    const isContactish =
+      /@|linkedin\.com|github\.com|phone|mobile|tel\b/i.test(trimmed) ||
+      /\+?\d[\d\s().-]{7,}\d/.test(trimmed);
+    const isShortIdentity =
+      trimmed.length <= 55 &&
+      !isLikelyJobTitle(trimmed) &&
+      !isLikelyCompanyName(trimmed) &&
+      (isPlausiblePersonName(trimmed) || isContactish);
+
+    if (!hitMajorSection && (isContactish || (isShortIdentity && trimmed.length <= 40))) {
+      sidebar.push(trimmed);
+      continue;
+    }
+
+    main.push(line);
+  }
+
+  if (sidebar.length >= 2 && main.length >= sidebar.length) {
+    return [...sidebar, '', ...main].join('\n').trim();
+  }
+  return text;
+}
+
+export function prepareResumeTextForParsing(rawText: string): { text: string; signals: ResumeTextSignals } {
+  let text = cleanResumeTextPreservingLines(rawText || '');
+  const signals = classifyResumeTextSignals(text);
+
+  if (signals.coverLetterDetected) {
+    const trimmed = stripLeadingNonResumeContent(text);
+    if (trimmed.length >= 50) text = trimmed;
+  }
+
+  if (signals.multiColumnLikely || signals.sidebarLikely) {
+    text = reconstructColumnLayout(text);
+  }
+
+  return { text, signals };
+}
+
+function prepareResumeTextInline(rawText: string): { text: string } {
+  return { text: prepareResumeTextForParsing(rawText).text };
+}
 
 const RESUME_ANCHOR_RE =
   /\b((work\s+)?experience|professional\s+(experience|journey|background)|employment(\s+history)?|education|skills|technical\s+skills|core\s+competencies|curriculum\s+vitae|resume|cv)\b/i;
@@ -548,7 +671,58 @@ export function stripLeadingNonResumeContent(rawText: string): string {
 /*  Field extractors                                                   */
 /* ------------------------------------------------------------------ */
 
-function extractName(text: string): string {
+export function collectNameCandidatesFromText(text: string): NameCandidate[] {
+  const candidates: NameCandidate[] = [];
+  const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const email = emailMatch?.[0] || '';
+
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+
+  if (email) {
+    const emailIdx = lines.findIndex((l) => l.includes(email));
+    if (emailIdx >= 0) {
+      for (let offset = 1; offset <= 5; offset++) {
+        const above = lines[emailIdx - offset];
+        if (!above || isAnyHeadingLine(above)) break;
+        if (isPlausiblePersonName(above)) {
+          candidates.push({ value: above, confidence: 88 - offset * 2, source: 'near_contact' });
+        }
+      }
+      for (let offset = 1; offset <= 2; offset++) {
+        const below = lines[emailIdx + offset];
+        if (!below || isAnyHeadingLine(below)) break;
+        if (isPlausiblePersonName(below)) {
+          candidates.push({ value: below, confidence: 82 - offset * 3, source: 'near_contact' });
+        }
+      }
+    }
+  }
+
+  for (let i = 0; i < Math.min(lines.length, 12); i++) {
+    const line = lines[i];
+    if (!line || isAnyHeadingLine(line)) continue;
+    if (/^[A-Z][A-Z\s'-]{3,}$/.test(line) && line.split(/\s+/).length >= 2 && line.length < 50) {
+      candidates.push({ value: line, confidence: 90 - i * 2, source: 'header_centered' });
+    }
+  }
+
+  const headerName = extractNameHeuristic(text);
+  if (headerName) {
+    candidates.push({ value: headerName, confidence: 55, source: 'text_recovery' });
+  }
+
+  if (lines[0] && isPlausiblePersonName(lines[0])) {
+    candidates.push({ value: lines[0], confidence: 30, source: 'first_line' });
+  }
+
+  return candidates;
+}
+
+export function extractNameWithConfidence(text: string): string {
+  return pickBestNameFromCandidates(collectNameCandidatesFromText(text));
+}
+
+function extractNameHeuristic(text: string): string {
   const lines = text.split('\n').map((l) => l.trim());
 
   const SECTION_WORD_RE =
@@ -834,7 +1008,7 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
     if (chunk.length === 0) continue;
 
     const exp = parseExperienceChunk(chunk);
-    if (exp.position || exp.company) out.push(exp);
+    if ((exp.position || exp.company) && isValidExperienceEntry(exp)) out.push(exp);
   }
   return out;
 }

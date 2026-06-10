@@ -1,4 +1,4 @@
-import nextJest from 'next/jest'
+import nextJest from 'next/jest.js'
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
@@ -13,9 +13,10 @@ const customJestConfig = {
     '**/__tests__/**/*.(js|jsx|ts|tsx)',
     '**/*.(test|spec).(js|jsx|ts|tsx)'
   ],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/backups/'],
   collectCoverageFrom: [
     'app/**/*.{js,jsx,ts,tsx}',
     'components/**/*.{js,jsx,ts,tsx}',
@@ -31,9 +32,12 @@ const customJestConfig = {
     {
       displayName: 'unit',
       testMatch: ['<rootDir>/tests/**/*.test.{js,ts,tsx}'],
-      testPathIgnorePatterns: ['<rootDir>/tests/**/*-integration.test.{js,ts}'],
-      setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-      testEnvironment: 'jsdom',
+      testPathIgnorePatterns: ['/node_modules/', '<rootDir>/backups/', 'integration\\.test\\.(js|ts|tsx)$'],
+      setupFilesAfterEnv: [],
+      testEnvironment: 'node',
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/$1',
+      },
     },
     {
       displayName: 'integration',

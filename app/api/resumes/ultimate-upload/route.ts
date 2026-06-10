@@ -19,13 +19,14 @@ import {
   cleanMultiline,
 } from '@/lib/resume-parser/normalize-extracted';
 import {
-  pickRicherFullName,
   deriveDisplayNameFromEmail,
   isPlausiblePersonName,
+  pickBestNameFromCandidates,
   splitMergedProjectEntries,
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
-import { stripLeadingNonResumeContent } from '@/lib/resume-parser/text-recovery';
+import { prepareResumeTextForParsing } from '@/lib/resume-parser/resume-document-analysis';
+import { collectNameCandidatesFromText } from '@/lib/resume-parser/text-recovery';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -259,15 +260,22 @@ export async function POST(request: NextRequest) {
       console.log('✅ Continuing with fallback text to allow upload');
     }
 
-    // Skip cover-letter pages so parsers target the resume body (page 2+ PDFs).
+    // Classify layout (ATS / executive / sidebar / cover letter) and normalize text
+    // before Affinda / Eden / Hybrid parsers run.
+    let resumeDocumentProfile: ReturnType<typeof prepareResumeTextForParsing>['profile'] | null =
+      null;
     if (extractedText.length > 80) {
-      const trimmed = stripLeadingNonResumeContent(extractedText);
-      if (trimmed.length >= 50 && trimmed.length < extractedText.length) {
-        log('Trimmed leading cover-letter content', {
+      const prepared = prepareResumeTextForParsing(extractedText);
+      resumeDocumentProfile = prepared.profile;
+      if (prepared.text.length >= 50) {
+        log('Resume document prepared for parsing', {
+          types: prepared.profile.types,
+          primaryType: prepared.profile.primaryType,
+          signals: prepared.profile.signals,
           before: extractedText.length,
-          after: trimmed.length,
+          after: prepared.text.length,
         });
-        extractedText = trimmed;
+        extractedText = prepared.text;
       }
     }
 
@@ -630,12 +638,21 @@ export async function POST(request: NextRequest) {
         const recoveredCandidate = String(recovered.fullName || '').trim();
         recoveredFullName = isPlausiblePersonName(recoveredCandidate) ? recoveredCandidate : '';
 
-        const mergedFullName = pickRicherFullName(
-          isPlausiblePersonName(parsedData.fullName || parsedData.name || '')
-            ? String(parsedData.fullName || parsedData.name || '').trim()
-            : '',
-          recoveredFullName,
-          String(parsedData.email || session.user.email || '')
+        const emailForMerge = String(parsedData.email || session.user.email || '');
+        const parserCandidate = isPlausiblePersonName(parsedData.fullName || parsedData.name || '')
+          ? String(parsedData.fullName || parsedData.name || '').trim()
+          : '';
+        const mergedFullName = pickBestNameFromCandidates(
+          [
+            ...collectNameCandidatesFromText(text),
+            ...(parserCandidate
+              ? [{ value: parserCandidate, confidence: 72, source: 'affinda' as const }]
+              : []),
+            ...(recoveredFullName
+              ? [{ value: recoveredFullName, confidence: 60, source: 'text_recovery' as const }]
+              : []),
+          ],
+          emailForMerge
         );
         if (mergedFullName) {
           parsedData.fullName = mergedFullName;
@@ -1039,8 +1056,19 @@ export async function POST(request: NextRequest) {
     }
 
     const finalName =
-      pickRicherFullName(recoveredName, parserName, emailForName) ||
-      emailDerivedName ||
+      pickBestNameFromCandidates(
+        [
+          ...collectNameCandidatesFromText(extractedText || ''),
+          ...(parserName ? [{ value: parserName, confidence: 72, source: 'affinda' as const }] : []),
+          ...(recoveredName
+            ? [{ value: recoveredName, confidence: 60, source: 'text_recovery' as const }]
+            : []),
+          ...(emailDerivedName
+            ? [{ value: emailDerivedName, confidence: 42, source: 'email_derived' as const }]
+            : []),
+        ],
+        emailForName
+      ) ||
       (session.user.name &&
       session.user.name.length < 30 &&
       isPlausiblePersonName(session.user.name)
@@ -1048,6 +1076,8 @@ export async function POST(request: NextRequest) {
         : 'User');
 
     console.log('👤 Name resolution:', {
+      documentTypes: resumeDocumentProfile?.types || ['unknown'],
+      primaryDocumentType: resumeDocumentProfile?.primaryType || 'unknown',
       recoveredName: recoveredName || 'none',
       parsedName: parserName || 'none',
       rejectedParserName: parserNameRaw && !parserName ? parserNameRaw : 'none',

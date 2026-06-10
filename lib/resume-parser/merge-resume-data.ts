@@ -6,7 +6,11 @@
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { EdenResumeParser } from '@/lib/eden-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
-import { pickRicherFullName } from '@/lib/resume-parser/import-sanitize';
+import {
+  isPlausiblePersonName,
+  pickBestNameFromCandidates,
+  type NameCandidate,
+} from '@/lib/resume-parser/import-sanitize';
 
 type ExperienceEntry = ExtractedResumeData['experience'][number];
 type EducationEntry = ExtractedResumeData['education'][number];
@@ -34,11 +38,28 @@ function mergeFullName(
   edenName: string | undefined,
   email: string | undefined
 ): string {
-  return pickRicherFullName(
-    String(affindaName || '').trim(),
-    String(edenName || '').trim(),
-    String(email || '').trim()
-  );
+  const emailStr = String(email || '').trim();
+  const candidates: NameCandidate[] = [];
+
+  const affinda = String(affindaName || '').trim();
+  if (affinda) {
+    candidates.push({
+      value: affinda,
+      confidence: isPlausiblePersonName(affinda) ? 72 : 0,
+      source: 'affinda',
+    });
+  }
+
+  const eden = String(edenName || '').trim();
+  if (eden) {
+    candidates.push({
+      value: eden,
+      confidence: isPlausiblePersonName(eden) ? 68 : 0,
+      source: 'eden',
+    });
+  }
+
+  return pickBestNameFromCandidates(candidates, emailStr);
 }
 
 /** When Affinda maps organization into position, Eden's job title should win. */
