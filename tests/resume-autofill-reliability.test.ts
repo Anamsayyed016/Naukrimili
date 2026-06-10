@@ -3,7 +3,9 @@ import { transformImportDataToBuilder } from '@/lib/resume-builder/import-transf
 import {
   deriveDisplayNameFromEmail,
   isPlausiblePersonName,
+  isPlausibleProjectName,
   pickRicherFullName,
+  sanitizeProjectEntry,
 } from '@/lib/resume-parser/import-sanitize';
 import { isUsableExtraction } from '@/lib/resume-parser/map-to-upload-profile';
 import {
@@ -177,5 +179,35 @@ describe('extractResumeFromText aliases', () => {
 
     const parsed = extractResumeFromText(text);
     expect(parsed.projects?.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('isPlausibleProjectName', () => {
+  it('rejects description sentences used as project names', () => {
+    expect(
+      isPlausibleProjectName(
+        'Developed a full-stack web application using React and Node for internal teams'
+      )
+    ).toBe(false);
+  });
+
+  it('accepts short project titles', () => {
+    expect(isPlausibleProjectName('E-Commerce Portal')).toBe(true);
+    expect(isPlausibleProjectName('HR Dashboard')).toBe(true);
+  });
+});
+
+describe('sanitizeProjectEntry', () => {
+  it('does not use description sentence as project name', () => {
+    const entry = sanitizeProjectEntry(
+      {
+        name: 'Developed a scalable API gateway for microservices using Django',
+        description: 'Handled auth and rate limiting',
+        technologies: ['Django', 'Redis'],
+      },
+      0
+    );
+    expect(entry?.name).toBe('Software Project');
+    expect(entry?.description).toMatch(/API gateway|auth/i);
   });
 });

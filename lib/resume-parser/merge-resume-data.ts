@@ -6,6 +6,7 @@
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { EdenResumeParser } from '@/lib/eden-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
+import { pickRicherFullName } from '@/lib/resume-parser/import-sanitize';
 
 type ExperienceEntry = ExtractedResumeData['experience'][number];
 type EducationEntry = ExtractedResumeData['education'][number];
@@ -25,6 +26,39 @@ function normKey(...parts: (string | undefined)[]): string {
 
 function mergeScalar(primary: string | undefined, secondary: string | undefined): string {
   return isBlank(primary) ? String(secondary || '').trim() : String(primary || '').trim();
+}
+
+/** Prefer plausible names; Eden can correct Affinda garbage that is non-blank but invalid. */
+function mergeFullName(
+  affindaName: string | undefined,
+  edenName: string | undefined,
+  email: string | undefined
+): string {
+  return pickRicherFullName(
+    String(affindaName || '').trim(),
+    String(edenName || '').trim(),
+    String(email || '').trim()
+  );
+}
+
+/** When Affinda maps organization into position, Eden's job title should win. */
+function mergeExperiencePosition(
+  primary: ExperienceEntry,
+  secondary: ExperienceEntry
+): string {
+  const primaryPosition = String(primary.position || '').trim();
+  const primaryCompany = String(primary.company || '').trim();
+  const secondaryPosition = String(secondary.position || '').trim();
+
+  if (isBlank(primaryPosition)) return secondaryPosition;
+  if (
+    primaryCompany &&
+    primaryPosition.toLowerCase() === primaryCompany.toLowerCase() &&
+    secondaryPosition
+  ) {
+    return secondaryPosition;
+  }
+  return primaryPosition;
 }
 
 function mergeStringLists(primary: string[] = [], secondary: string[] = []): string[] {
@@ -49,7 +83,7 @@ function fillExperience(primary: ExperienceEntry, secondary: ExperienceEntry): E
   return {
     ...primary,
     company: mergeScalar(primary.company, secondary.company),
-    position: mergeScalar(primary.position, secondary.position),
+    position: mergeExperiencePosition(primary, secondary),
     location: mergeScalar(primary.location, secondary.location),
     startDate: mergeScalar(primary.startDate, secondary.startDate),
     endDate: primary.current ? primary.endDate || '' : mergeScalar(primary.endDate, secondary.endDate),
@@ -273,7 +307,11 @@ export function mergeResumeData(
 
   return {
     ...affindaData,
-    fullName: mergeScalar(affindaData.fullName, edenData.fullName),
+    fullName: mergeFullName(
+      affindaData.fullName,
+      edenData.fullName,
+      affindaData.email || edenData.email
+    ),
     email: mergeScalar(affindaData.email, edenData.email),
     phone: mergeScalar(affindaData.phone, edenData.phone),
     location: mergeScalar(affindaData.location, edenData.location),

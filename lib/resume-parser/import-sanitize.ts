@@ -414,6 +414,26 @@ const PROJECT_TITLE_SUFFIX_RE =
 const PROJECT_VERB_PREFIX_RE =
   /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated)\b/i;
 
+/** True when a string looks like a project title, not a description sentence. */
+export function isPlausibleProjectName(value: unknown): boolean {
+  const s = sanitizeFieldText(value, 120);
+  if (!s || s.length < 2) return false;
+  if (isGarbageResumeText(s)) return false;
+  if (s.length > 90) return false;
+
+  const words = s.split(/\s+/).filter(Boolean);
+  if (words.length > 12) return false;
+  if (PROJECT_VERB_PREFIX_RE.test(s)) return false;
+
+  const stopCount = words.filter((w) => NAME_STOPWORDS.has(w.toLowerCase())).length;
+  if (words.length >= 4 && stopCount >= 2) return false;
+  if (words.length >= 5 && /\b(the|with|and|for|using|built|developed|implemented|designed|responsible)\b/i.test(s)) {
+    return false;
+  }
+
+  return true;
+}
+
 /** Detect a standalone project title line (not a sentence/bullet). */
 export function isEmbeddedProjectTitleLine(line: string): boolean {
   const raw = line.replace(/^[•\-\*\u2022]\s+/, '').trim();
@@ -607,7 +627,7 @@ export function resolveProjectName(
   rec: Record<string, unknown>,
   index: number
 ): string {
-  const name = sanitizeFieldText(
+  const rawName = sanitizeFieldText(
     String(
       rec.name ??
         rec.title ??
@@ -620,7 +640,7 @@ export function resolveProjectName(
     ),
     120
   );
-  if (name) return name;
+  if (rawName && isPlausibleProjectName(rawName)) return rawName;
 
   const description = sanitizeFieldText(
     String(rec.description ?? rec.summary ?? rec.Description ?? ''),
@@ -752,7 +772,7 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
     exp.company || exp.Company || exp.organization || exp.Organization || exp.employer,
     120
   );
-  const position = sanitizeFieldText(
+  let position = sanitizeFieldText(
     exp.position ||
       exp.Position ||
       exp.jobTitle ||
@@ -762,6 +782,13 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
       exp.role,
     120
   );
+  if (
+    company &&
+    position &&
+    position.toLowerCase() === company.toLowerCase()
+  ) {
+    position = '';
+  }
   const description = sanitizeFieldText(exp.description || exp.Description, 2000);
   if (!company && !position && !description) return null;
   if (isGarbageResumeText(company) && isGarbageResumeText(position)) return null;

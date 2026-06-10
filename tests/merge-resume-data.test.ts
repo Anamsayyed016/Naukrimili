@@ -33,6 +33,57 @@ describe('mergeResumeData', () => {
     expect(merged.skills).toEqual(['Python', 'React', 'Django']);
   });
 
+  it('uses Eden name when Affinda returns experience garbage as fullName', () => {
+    const affinda = {
+      ...base(),
+      fullName: 'turnover of around 1000 Crores)',
+      email: 'anamkhan@gmail.com',
+    };
+    const eden = {
+      ...base(),
+      fullName: 'Anam Khan',
+      email: 'anamkhan@gmail.com',
+    };
+    const merged = mergeResumeData(affinda, eden);
+    expect(merged.fullName).toBe('Anam Khan');
+  });
+
+  it('uses Eden job title when Affinda maps company into position', () => {
+    const affinda = {
+      ...base(),
+      experience: [
+        {
+          company: 'Infosys',
+          position: 'Infosys',
+          location: '',
+          startDate: '2020',
+          endDate: '',
+          current: true,
+          description: '',
+          achievements: [],
+        },
+      ],
+    };
+    const eden = {
+      ...base(),
+      experience: [
+        {
+          company: 'Infosys',
+          position: 'Senior Software Engineer',
+          location: '',
+          startDate: '2020',
+          endDate: '',
+          current: true,
+          description: 'Built APIs',
+          achievements: [],
+        },
+      ],
+    };
+    const merged = mergeResumeData(affinda, eden);
+    expect(merged.experience[0].position).toBe('Senior Software Engineer');
+    expect(merged.experience[0].company).toBe('Infosys');
+  });
+
   it('fills missing summary from Eden without overwriting Affinda', () => {
     const affinda = { ...base(), summary: 'Affinda summary' };
     const eden = { ...base(), summary: 'Eden summary' };
