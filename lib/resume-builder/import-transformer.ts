@@ -278,14 +278,26 @@ export function transformImportDataToBuilder(
     return {};
   }
 
+  if (importedData.builderFormData && typeof importedData.builderFormData === 'object') {
+    return { ...importedData.builderFormData };
+  }
+
+  const apiFinalized = importedData._apiFinalized === true;
+
   // 1. Identity recovery + section backfill from rawText when parser arrays are sparse
-  const recovered = recoverFromRawText(importedData.rawText);
-  const mergedBase = mergeRecovery(importedData, recovered) as Record<string, unknown>;
+  const recovered = apiFinalized ? ({} as ReturnType<typeof recoverFromRawText>) : recoverFromRawText(importedData.rawText);
+  const mergedBase = apiFinalized
+    ? (importedData as Record<string, unknown>)
+    : (mergeRecovery(importedData, recovered) as Record<string, unknown>);
   const textParsed =
-    typeof mergedBase.rawText === 'string' && mergedBase.rawText.length >= 80
+    !apiFinalized &&
+    typeof mergedBase.rawText === 'string' &&
+    mergedBase.rawText.length >= 80
       ? extractResumeFromText(mergedBase.rawText)
       : undefined;
-  const mergedImport = supplementImportFromRawText(mergedBase, textParsed);
+  const mergedImport = apiFinalized
+    ? mergedBase
+    : supplementImportFromRawText(mergedBase, textParsed);
 
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};
@@ -326,9 +338,11 @@ export function transformImportDataToBuilder(
     locationHint
   );
   const textAdditional =
-    typeof mergedBase.rawText === 'string' && mergedBase.rawText.length >= 80
-      ? extractAdditionalResumeDataFromText(mergedBase.rawText)
-      : emptyAdditionalResumeData();
+    apiFinalized
+      ? emptyAdditionalResumeData()
+      : typeof mergedBase.rawText === 'string' && mergedBase.rawText.length >= 80
+        ? extractAdditionalResumeDataFromText(mergedBase.rawText)
+        : emptyAdditionalResumeData();
   const mergedAdditional = mergeAdditionalResumeData(additionalResumeData, textAdditional);
 
   const experience = transformExperienceArray(

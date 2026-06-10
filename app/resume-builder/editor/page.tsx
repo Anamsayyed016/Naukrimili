@@ -284,7 +284,10 @@ export default function ResumeEditorPage() {
                 validateTransformedData,
                 hasImportableContent,
               } = await import('@/lib/resume-builder/import-transformer');
-              const transformed = transformImportDataToBuilder(parsed);
+              const transformed =
+                parsed.builderFormData && typeof parsed.builderFormData === 'object'
+                  ? parsed.builderFormData
+                  : transformImportDataToBuilder(parsed);
               const validation = validateTransformedData(transformed);
 
               console.log('🔄 After transformation:', {

@@ -90,6 +90,16 @@ export function isSuspectSummary(summary: string | undefined): boolean {
   if (/\b(turnover|crores?|lakhs?|listed\s+on\s+(?:nse|bse))\b/i.test(s) && s.length > 100) {
     return true;
   }
+  // Section boundary lost on long/multi-column PDFs — education/experience/skills embedded in summary.
+  if (s.length > 1800) return true;
+  if (
+    /\b(work\s+experience|professional\s+experience|employment\s+history|education|academic\s+background|technical\s+skills|key\s+skills|core\s+competenc)/i.test(
+      s
+    ) &&
+    s.length > 350
+  ) {
+    return true;
+  }
   return false;
 }
 

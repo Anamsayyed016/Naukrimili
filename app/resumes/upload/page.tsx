@@ -159,7 +159,7 @@ export default function ResumeUploadPage() {
       if (!didPrefillRef.current || isNewResume) {
         setProfileForm({
           fullName: (parsed.fullName || parsed.name || '').toString(),
-          email: (parsed.email || session?.user?.email || '').toString(),
+          email: (parsed.email || '').toString(),
           phone: (parsed.phone || '').toString(),
           location: (parsed.location || '').toString(),
           expectedSalary: (parsed.expectedSalary || '').toString(),

@@ -86,7 +86,10 @@ export function recoverFromRawText(rawText: unknown): RecoveredText {
     if (portfolio) out.portfolio = portfolio.trim();
   }
 
-  out.summary = extractSection(text, ['summary', 'professional summary', 'objective', 'career objective', 'profile', 'about me', 'about'])?.body.trim() || '';
+  const summaryBlock = extractSection(text, SECTION_ALIASES.summary);
+  out.summary = summaryBlock
+    ? truncateSummaryAtSectionBoundary(summaryBlock.body).trim()
+    : '';
   // Match the downstream import-transformer cap so we don't truncate twice.
   if (out.summary.length > 4000) out.summary = out.summary.slice(0, 4000);
 
@@ -308,7 +311,10 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
   result.location = extractLocation(text);
 
   // 2. Section-driven extraction
-  result.summary = extractSection(text, SECTION_ALIASES.summary)?.body?.trim().slice(0, 4000) || '';
+  const summaryBlock = extractSection(text, SECTION_ALIASES.summary);
+  result.summary = summaryBlock
+    ? truncateSummaryAtSectionBoundary(summaryBlock.body).trim().slice(0, 4000)
+    : '';
 
   const skillsBlock = extractSection(text, SECTION_ALIASES.skills);
   if (skillsBlock) {
@@ -526,6 +532,24 @@ function isHeadingLineFor(line: string, aliases: readonly string[]): boolean {
 
 function isAnyHeadingLine(line: string): boolean {
   return isHeadingLineFor(line, ALL_HEADINGS);
+}
+
+/** Cut summary when another major section heading appears inside the body (multi-column PDFs). */
+export function truncateSummaryAtSectionBoundary(body: string): string {
+  const lines = body.split('\n');
+  const STOP_HEADING =
+    /^(?:(?:work|professional)\s+)?experience|employment(?:\s+history)?|education|academic(?:\s+background|\s+history)?|skills?|technical\s+skills|key\s+skills|core\s+competenc(?:y|ies)|projects?|certifications?|achievements?|languages?|employment\s+record|professional\s+journey)\s*:?\s*$/i;
+  const out: string[] = [];
+  for (const line of lines) {
+    const norm = line
+      .trim()
+      .replace(/[:|\-_=]+$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (norm.length > 0 && norm.length <= 72 && STOP_HEADING.test(norm)) break;
+    out.push(line);
+  }
+  return out.join('\n').trim();
 }
 
 /** Executive / corporate intro pages (not cover letters) that pollute summary and name. */

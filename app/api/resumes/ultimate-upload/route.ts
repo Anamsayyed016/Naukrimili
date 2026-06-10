@@ -672,11 +672,15 @@ export async function POST(request: NextRequest) {
       if (text.length > 100) {
         const recovered = extractResumeFromText(text);
         lastRecovered = recovered;
-        const emailForName = String(parsedData.email || session.user.email || '');
+        if (!parsedData.email && recovered.email) {
+          parsedData.email = recovered.email;
+        }
+
+        const emailForName = String(parsedData.email || recovered.email || '');
         const recoveredCandidate = String(recovered.fullName || '').trim();
         recoveredFullName = isPlausiblePersonName(recoveredCandidate) ? recoveredCandidate : '';
 
-        const emailForMerge = String(parsedData.email || session.user.email || '');
+        const emailForMerge = String(parsedData.email || recovered.email || '');
         const locationHint = String(parsedData.location || parsedData.address || '');
         const existingContactName = String(parsedData.fullName || parsedData.name || '').trim();
         if (!isValidatedContactName(existingContactName, locationHint)) {
@@ -1204,7 +1208,8 @@ export async function POST(request: NextRequest) {
       warn('text-recovery augmentation failed', augmentError instanceof Error ? augmentError.message : augmentError);
     }
 
-    const emailForName = String(parsedData.email || session.user.email || '');
+    const resumeEmail = String(parsedData.email || lastRecovered?.email || '');
+    const emailForName = resumeEmail;
     const parserNameRaw = String(parsedData.fullName || parsedData.name || '').trim();
     const parserName = isPlausiblePersonName(parserNameRaw) ? parserNameRaw : '';
     const recoveredName = isPlausiblePersonName(recoveredFullName) ? recoveredFullName : '';
@@ -1248,12 +1253,7 @@ export async function POST(request: NextRequest) {
               : []),
           ],
           emailForName
-        ) ||
-        (session.user.name &&
-        session.user.name.length < 30 &&
-        isPlausiblePersonName(session.user.name)
-          ? session.user.name
-          : 'User');
+        ) || '';
 
     console.log('👤 Name resolution:', {
       documentTypes: resumeDocumentProfile?.types || ['unknown'],
@@ -1289,7 +1289,7 @@ export async function POST(request: NextRequest) {
     const profile = {
       fullName: finalName,
       name: finalName, // Add alias
-      email: parsedData.email || session.user.email || '',
+      email: resumeEmail,
       phone: parsedData.phone || '',
       location: parsedData.address || parsedData.location || '',
       linkedin: enhancedData.linkedin || parsedData.linkedin || '',
@@ -1472,10 +1472,12 @@ export async function POST(request: NextRequest) {
       recovery: lastRecovered,
       final: profile,
     });
+    let builderFormData: Record<string, unknown> | undefined;
     try {
       const { transformImportDataToBuilder } = await import('@/lib/resume-builder/import-transformer');
-      const formData = transformImportDataToBuilder(profile);
-      logProfileFormDataAudit(REQ, profile, formData);
+      builderFormData = transformImportDataToBuilder({ ...profile, _apiFinalized: true });
+      logProfileFormDataAudit(REQ, profile, builderFormData);
+      (profile as Record<string, unknown>).builderFormData = builderFormData;
     } catch (auditErr) {
       warn('formData audit skipped', auditErr instanceof Error ? auditErr.message : auditErr);
     }
