@@ -14,8 +14,8 @@
   --max-width: 210mm;
   --page-height: 297mm;
   --left-width: 460px;
-  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --font-sans: 'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .olx-resume,
@@ -149,7 +149,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.82);
   line-height: 1.35;
@@ -201,6 +201,9 @@
   position: relative;
   z-index: 1;
   padding: 22px 36px 48px;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .olx-resume .olx-columns {
@@ -317,7 +320,7 @@
 }
 
 .olx-resume .experience-header .duration {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--muted);
   display: inline-block;
@@ -375,7 +378,7 @@
 
 .olx-resume .olx-project-grid .project-item .description,
 .olx-resume .olx-project-grid .project-item .technologies {
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 1.5;
   color: var(--muted);
   padding: 0 12px;
@@ -387,7 +390,7 @@
 
 .olx-resume .olx-project-grid .project-item a {
   display: inline-block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--primary-color);
   padding: 4px 12px 10px;
@@ -450,7 +453,7 @@
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: 0.15px;
@@ -466,7 +469,7 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  font-size: 8.5px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -589,7 +592,7 @@
 
 .olx-resume .year,
 .olx-resume .date {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--primary-color);
   font-weight: 600;
 }
@@ -620,7 +623,7 @@
 }
 
 .olx-resume .olx-lang-list .proficiency {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--muted);
 }
@@ -635,7 +638,10 @@
 
 /* Density variants */
 body[data-density='sparse'] .olx-resume .olx-section { margin-bottom: 22px; }
-body[data-density='sparse'] .olx-resume .olx-body { padding-bottom: 56px; }
+body[data-density='sparse'] .olx-resume .olx-body { padding-bottom: 56px; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 body[data-density='light'] .olx-resume .olx-section { margin-bottom: 20px; }
 
 /* Print / PDF export */
@@ -647,7 +653,10 @@ body[data-density='light'] .olx-resume .olx-section { margin-bottom: 20px; }
     padding: 0;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
   .olx-resume {
     width: 794px !important;

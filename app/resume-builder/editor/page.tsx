@@ -653,7 +653,7 @@ export default function ResumeEditorPage() {
                 className="hidden min-[1200px]:flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
               >
                 <Wand2 className="w-4 h-4" />
-                Design Studio
+                Change Template
               </Button>
               <div className="hidden min-[1200px]:block">
                 <Progress value={progress} className="w-64 h-2" />
@@ -812,10 +812,10 @@ export default function ResumeEditorPage() {
                   size="sm"
                   onClick={openDesignStudio}
                   className="h-8 gap-1.5 text-xs font-medium shrink-0 hover:bg-blue-50 hover:border-blue-300"
-                  aria-label="Open Design Studio"
+                  aria-label="Change Template"
                 >
                   <Wand2 className="w-3.5 h-3.5 text-blue-600" />
-                  Customize design
+                  Change Template
                 </Button>
               </div>
             </div>

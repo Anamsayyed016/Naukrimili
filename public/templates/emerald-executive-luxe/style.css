@@ -296,7 +296,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--muted-text);
   line-height: 1.35;
@@ -352,6 +352,9 @@
   align-items: stretch;
   min-height: calc(var(--page-height) - 220px);
   padding: 12px 24px 40px 12px;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .eel-resume .eel-body-rail {
@@ -510,7 +513,7 @@
   left: -56px;
   top: 10px;
   width: 44px;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
@@ -613,7 +616,7 @@
   left: 13px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
   color: var(--primary-color);
   z-index: 1;
@@ -622,7 +625,7 @@
 .eel-resume .psp-skill-name {
   grid-column: 2;
   grid-row: 1;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -738,7 +741,7 @@
 
 .eel-resume .year,
 .eel-resume .date {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
 }
 
@@ -785,7 +788,7 @@
 }
 
 .eel-resume .psp-language-name {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -809,7 +812,7 @@
 }
 
 .eel-resume .psp-language-percentage {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--primary-color);
 }
@@ -822,6 +825,9 @@ body[data-density='sparse'] .eel-resume .eel-column-inner {
 body[data-density='sparse'] .eel-resume .eel-body {
   padding-bottom: 52px;
   min-height: calc(var(--page-height) - 180px);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body[data-density='sparse'] .eel-resume .eel-glass-panel,
@@ -845,7 +851,10 @@ body[data-density='light'] .eel-resume .eel-column-inner {
     padding: 0;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
   .eel-resume {
     width: 794px !important;

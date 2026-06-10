@@ -17,7 +17,8 @@
   --page-height: 297mm;
   --sidebar-width: 260px;
   --header-height: 148px;
-  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * {
@@ -29,10 +30,11 @@
 body {
   font-family: var(--font-sans);
   font-size: 11px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--main-text);
   background: var(--main-bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .resume-container {
@@ -97,7 +99,8 @@ body {
 .name-first,
 .name-last {
   display: block;
-  font-size: 36px;
+  font-family: var(--font-serif);
+  font-size: 38px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.5px;
@@ -122,9 +125,9 @@ body {
 }
 
 .header-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 3px;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.92);
 }
@@ -467,8 +470,8 @@ body {
 
 .experience-header .company {
   display: inline;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--primary-color);
 }
 
@@ -480,7 +483,7 @@ body {
 
 .experience-header h3 {
   display: inline;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--primary-color);
   line-height: 1.35;
@@ -493,6 +496,8 @@ body {
   color: var(--muted-text);
   margin-top: 3px;
 }
+
+.experience-item .description {
   font-size: 11px;
   line-height: 1.6;
   color: var(--main-text);

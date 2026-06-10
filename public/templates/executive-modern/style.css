@@ -15,7 +15,8 @@
   --max-width: 210mm;
   --page-height: 297mm;
   --sidebar-width: 268px;
-  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * {
@@ -27,10 +28,11 @@
 body {
   font-family: var(--font-sans);
   font-size: 11px;
-  line-height: 1.55;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   color: var(--main-text);
   background: var(--main-bg);
-  -webkit-font-smoothing: antialiased;
 }
 
 .resume-container {
@@ -222,7 +224,7 @@ body {
 .sidebar .certification-item .issuer,
 .sidebar .certification-item .date,
 .sidebar .certification-item a {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: rgba(255, 255, 255, 0.8);
   display: block;
   padding-left: 14px;
@@ -232,7 +234,7 @@ body {
 .sidebar .education-item .institution,
 .sidebar .education-item .year,
 .sidebar .education-item .cgpa {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: rgba(255, 255, 255, 0.85);
   display: block;
   padding-left: 14px;
@@ -268,9 +270,10 @@ body {
 }
 
 .banner-name {
-  font-size: 32px;
+  font-family: var(--font-serif);
+  font-size: 36px;
   font-weight: 700;
-  letter-spacing: 3px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
   color: #ffffff;
   line-height: 1.15;
@@ -279,9 +282,9 @@ body {
 }
 
 .banner-title {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 3px;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.88);
 }
@@ -390,7 +393,7 @@ body {
 
 .experience-header h3 {
   display: inline;
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--main-text);
 }
@@ -402,8 +405,8 @@ body {
 
 .experience-header .company {
   display: inline;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--main-text);
 }
 

@@ -16,8 +16,8 @@
   --sidebar-width: 272px;
   --max-width: 210mm;
   --page-height: 297mm;
-  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --font-sans: 'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .vre-resume * {
@@ -200,7 +200,7 @@
 
 .vre-resume .header-title {
   font-family: var(--font-sans);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 2.8px;
   text-transform: uppercase;
@@ -244,7 +244,7 @@
   flex-direction: row-reverse;
   align-items: center;
   gap: 8px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.92);
   line-height: 1.3;
@@ -299,6 +299,9 @@
   padding: 16px 28px 48px 96px;
   gap: 20px;
   min-height: calc(var(--page-height) - 140px);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Left sidebar with tab cards ── */
@@ -337,7 +340,7 @@
 
 .vre-resume .vre-tab-spine span {
   font-family: var(--font-serif);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -412,19 +415,19 @@
 
 .vre-resume .institution,
 .vre-resume .issuer {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
 }
 
 .vre-resume .year,
 .vre-resume .date {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--primary-color);
   font-weight: 600;
 }
 
 .vre-resume .project-item .description {
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 1.5;
   color: var(--muted-text);
 }
@@ -436,7 +439,7 @@
 }
 
 .vre-resume .achievement-item {
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 1.5;
   padding-left: 12px;
   position: relative;
@@ -468,7 +471,7 @@
 }
 
 .vre-resume .psp-language-name {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -490,7 +493,7 @@
 }
 
 .vre-resume .psp-language-percentage {
-  font-size: 8.5px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--primary-color);
 }
@@ -607,7 +610,7 @@
 }
 
 .vre-resume .vre-experience .experience-header .duration {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--muted-text);
   letter-spacing: 0.3px;
@@ -671,7 +674,7 @@
 .vre-resume .psp-skill-item::after {
   grid-column: 3;
   grid-row: 1;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   color: var(--primary-color);
 }
@@ -734,6 +737,9 @@ body[data-density='sparse'] .vre-resume .vre-main-inner {
 body[data-density='sparse'] .vre-resume .vre-body {
   padding-bottom: 56px;
   min-height: calc(var(--page-height) - 120px);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body[data-density='sparse'] .vre-resume .vre-tab-content,
@@ -758,7 +764,10 @@ body[data-density='light'] .vre-resume .vre-main-inner {
     padding: 0;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
   .vre-resume {
     width: 794px !important;

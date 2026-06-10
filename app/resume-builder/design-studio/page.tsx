@@ -251,7 +251,7 @@ export default function DesignStudioPage() {
               Back
             </Button>
             <div className="design-studio-topbar__title">
-              <strong>Design Studio</strong>
+              <strong>Change Template</strong>
               <span>Loading…</span>
             </div>
           </div>
@@ -359,7 +359,7 @@ export default function DesignStudioPage() {
           </Button>
           <div className="design-studio-topbar__title">
             <strong>{selectedTemplate.name}</strong>
-            <span>Design Studio</span>
+            <span>Change Template</span>
           </div>
         </div>
         <div className="design-studio-topbar__right">

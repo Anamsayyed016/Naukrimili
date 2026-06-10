@@ -180,7 +180,7 @@
 }
 
 .fge-resume .header-title {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 2.4px;
   text-transform: uppercase;
@@ -201,7 +201,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-muted);
   line-height: 1.4;
@@ -273,6 +273,9 @@
 .fge-resume .fge-body {
   position: relative;
   z-index: 1;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .fge-resume .fge-columns {
@@ -378,7 +381,7 @@
 .fge-resume .fge-experience-stack .experience-header .duration {
   grid-column: 2;
   grid-row: 2;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--text-muted);
   text-align: right;
@@ -445,13 +448,13 @@
 
 .fge-resume .fge-projects .project-item .description,
 .fge-resume .fge-projects .project-item .technologies {
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 1.62;
   color: var(--text-secondary);
 }
 
 .fge-resume .fge-projects .project-item a {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--primary-color);
   text-decoration: none;
 }
@@ -467,7 +470,7 @@
 
 .fge-resume .fge-skill-chips .skill-tag {
   display: inline-block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--text-secondary);
   padding: 7px 14px;
@@ -507,7 +510,7 @@
 }
 
 .fge-resume .fge-education .institution {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-secondary);
   display: block;
@@ -515,7 +518,7 @@
 
 .fge-resume .fge-education .year,
 .fge-resume .fge-education .cgpa {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text-muted);
   display: block;
   margin-top: 1px;
@@ -540,7 +543,7 @@
 }
 
 .fge-resume .fge-certs .certification-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--text-color);
   line-height: 1.4;
@@ -548,7 +551,7 @@
 
 .fge-resume .fge-certs .issuer,
 .fge-resume .fge-certs .date {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text-muted);
   display: block;
 }
@@ -563,7 +566,7 @@
 }
 
 .fge-resume .fge-achievements .achievement-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-secondary);
   padding-left: 14px;
@@ -598,7 +601,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   padding: 7px 10px;
   background: rgba(255, 255, 255, 0.42);
   border: 1px solid rgba(255, 255, 255, 0.72);
@@ -613,7 +616,7 @@
 
 .fge-resume .fge-languages .proficiency,
 .fge-resume .fge-languages .psp-language-level {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--text-muted);
 }
@@ -662,7 +665,10 @@ body[data-density='sparse'] .fge-resume .fge-col--right { gap: 16px; }
     padding: 0;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
   .fge-resume,
   .resume-container.fge-resume {

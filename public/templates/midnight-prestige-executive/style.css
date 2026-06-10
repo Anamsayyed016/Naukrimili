@@ -20,7 +20,7 @@
   --page-height: 297mm;
   --right-width: 248px;
   --frame-inset: 38px;
-  --font-serif: 'Cinzel', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -208,7 +208,7 @@
 
 .mpe-resume .header-title {
   font-family: var(--font-sans);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 3.2px;
   text-transform: uppercase;
@@ -250,7 +250,7 @@
   align-items: center;
   gap: 6px;
   padding: 0 14px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--muted);
   border-right: 1px solid rgba(201, 169, 98, 0.32);
@@ -298,6 +298,9 @@
 /* ── Two-column body ── */
 .mpe-resume .mpe-body {
   padding: 4px 4px 12px;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .mpe-resume .mpe-columns {
@@ -394,7 +397,7 @@
 .mpe-resume .mpe-experience .experience-header .duration {
   grid-column: 2;
   grid-row: 1;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.6px;
   color: var(--muted);
@@ -484,13 +487,13 @@
 
 .mpe-resume .mpe-projects .project-item .description,
 .mpe-resume .mpe-projects .project-item .technologies {
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 1.62;
   color: var(--mpe-fg-soft);
 }
 
 .mpe-resume .mpe-projects .project-item a {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--gold-mid);
   text-decoration: none;
 }
@@ -504,7 +507,7 @@
 
 .mpe-resume .mpe-skills .skill-tag {
   display: block;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-color);
   padding-left: 12px;
@@ -540,7 +543,7 @@
 
 .mpe-resume .mpe-education .education-item h3 {
   font-family: var(--font-serif);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -549,7 +552,7 @@
 }
 
 .mpe-resume .mpe-education .institution {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--text-color);
   display: block;
@@ -557,7 +560,7 @@
 
 .mpe-resume .mpe-education .year,
 .mpe-resume .mpe-education .cgpa {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   display: block;
   margin-top: 1px;
@@ -576,7 +579,7 @@
 }
 
 .mpe-resume .mpe-certifications .certification-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--text-color);
   line-height: 1.4;
@@ -585,7 +588,7 @@
 
 .mpe-resume .mpe-certifications .issuer,
 .mpe-resume .mpe-certifications .date {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   display: block;
 }
@@ -598,7 +601,7 @@
 }
 
 .mpe-resume .mpe-achievements .achievement-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-color);
   padding-left: 12px;
@@ -630,7 +633,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   padding: 0;
   border: none;
   background: none;
@@ -644,7 +647,7 @@
 
 .mpe-resume .mpe-languages .proficiency,
 .mpe-resume .mpe-languages .psp-language-level {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--muted);
 }
@@ -685,7 +688,10 @@ body[data-density='light'] .mpe-resume .mpe-section { margin-bottom: 18px; }
     padding: 0;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
   .mpe-resume,
   .resume-container.mpe-resume {

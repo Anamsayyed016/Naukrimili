@@ -35,11 +35,13 @@
   margin: 0 auto;
   font-family: var(--font-body);
   font-size: 11px;
-  line-height: 1.6;
+  line-height: 1.62;
   color: var(--text-color);
   background: var(--ivory);
   position: relative;
   box-shadow: 0 20px 60px rgba(15, 118, 110, 0.08);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .tm-modern .resume-wrapper {
@@ -133,7 +135,7 @@
 }
 
 .tm-modern .psp-language-percentage {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--primary-color);
 }
@@ -156,7 +158,7 @@
 .tm-modern .psp-skill-name {
   grid-column: 1;
   grid-row: 1;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--slate-navy);
   letter-spacing: 0.2px;
@@ -166,7 +168,7 @@
 .tm-modern .psp-skill-item::before {
   grid-column: 2;
   grid-row: 1;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--primary-color);
 }
@@ -269,8 +271,8 @@
 
 .tm-modern .name {
   font-family: var(--font-display);
-  font-size: 32px !important;
-  font-weight: 600 !important;
+  font-size: 36px !important;
+  font-weight: 700 !important;
   font-style: normal;
   color: var(--slate-navy) !important;
   text-transform: none !important;
@@ -280,11 +282,11 @@
 }
 
 .tm-modern .profession {
-  font-size: 11px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
   color: var(--primary-color) !important;
   text-transform: uppercase !important;
-  letter-spacing: 2px !important;
+  letter-spacing: 1.6px !important;
   border-bottom: none !important;
   padding-bottom: 0 !important;
   margin-bottom: 12px !important;
@@ -426,7 +428,7 @@
 }
 
 .tm-modern .experience-item h3 {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--slate-navy);
   text-transform: none;
@@ -443,7 +445,7 @@
 
 .tm-modern .experience-item .duration {
   display: inline-block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--muted-text);
   padding: 2px 8px;
@@ -501,7 +503,7 @@
 
 .tm-modern .project-item .technologies {
   display: inline-block;
-  font-size: 8.5px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--primary-color);
   background: var(--mint);
@@ -521,7 +523,7 @@
 .tm-modern .project-item a {
   display: block;
   padding: 8px 12px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--primary-color);
   text-decoration: none;
@@ -552,7 +554,7 @@
 
 .tm-modern .tm-sidebar-education .education-item h3,
 .tm-modern .tm-sidebar-certs .certification-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
 }
 
 .tm-modern .tm-sidebar-education .education-item .institution,
@@ -560,7 +562,7 @@
 .tm-modern .tm-sidebar-education .education-item .cgpa,
 .tm-modern .tm-sidebar-certs .certification-item .issuer,
 .tm-modern .tm-sidebar-certs .certification-item .date {
-  font-size: 9px;
+  font-size: 10px;
 }
 
 /* Education */
@@ -599,13 +601,13 @@
 }
 
 .tm-modern .education-item .year {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--muted-text);
 }
 
 .tm-modern .education-item .cgpa {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
   margin-top: 4px;
 }
@@ -636,12 +638,12 @@
 }
 
 .tm-modern .certification-item .issuer {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
 }
 
 .tm-modern .certification-item .date {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--primary-color);
 }
@@ -708,7 +710,7 @@
 
 .tm-modern .hobby,
 .tm-modern .hobby-text {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--slate-navy);
   text-align: left;

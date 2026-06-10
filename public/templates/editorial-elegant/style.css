@@ -16,8 +16,8 @@
   --max-width: 210mm;
   --page-height: 297mm;
   --sidebar-width: 252px;
-  --font-serif: Georgia, 'Times New Roman', 'Palatino Linotype', 'Book Antiqua', serif;
-  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * {
@@ -28,11 +28,12 @@
 
 body {
   font-family: var(--font-sans);
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 11.5px;
+  line-height: 1.62;
   color: var(--main-text);
   background: var(--main-bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .resume-container {
@@ -90,8 +91,8 @@ body {
 
 .sidebar .name {
   font-family: var(--font-serif);
-  font-size: 26px;
-  font-weight: 400;
+  font-size: 34px;
+  font-weight: 600;
   color: var(--sidebar-text);
   line-height: 1.2;
   letter-spacing: 0.02em;
@@ -101,9 +102,9 @@ body {
 
 .sidebar .profession {
   font-family: var(--font-sans);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 2.2px;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   color: rgba(244, 239, 230, 0.88);
   line-height: 1.5;
@@ -153,7 +154,7 @@ body {
 }
 
 .sidebar-education-list .education-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -164,7 +165,7 @@ body {
 .sidebar-education-list .education-item .institution,
 .sidebar-education-list .education-item .year,
 .sidebar-education-list .education-item .cgpa {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: rgba(244, 239, 230, 0.82);
 }
 
@@ -175,19 +176,19 @@ body {
 }
 
 .sidebar-certifications-list .certification-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--sidebar-text);
 }
 
 .sidebar-certifications-list .certification-item .issuer,
 .sidebar-certifications-list .certification-item .date {
-  font-size: 9px;
+  font-size: 10px;
   color: rgba(244, 239, 230, 0.78);
 }
 
 .sidebar-label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;

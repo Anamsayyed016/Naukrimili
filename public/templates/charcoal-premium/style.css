@@ -13,7 +13,9 @@
   --border-color: rgba(255, 255, 255, 0.14);
   --max-width: 210mm;
   --page-height: 297mm;
-  --font-primary: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-primary: var(--font-sans);
   --sidebar-width: 248px;
 }
 
@@ -25,10 +27,12 @@
 
 body {
   font-family: var(--font-primary);
-  line-height: 1.55;
+  font-size: 11px;
+  line-height: 1.6;
   color: var(--main-text);
   background: var(--main-bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .resume-container {
@@ -304,10 +308,11 @@ body {
 }
 
 .name {
-  font-size: 34px !important;
+  font-family: var(--font-serif);
+  font-size: 36px !important;
   font-weight: 700 !important;
   color: var(--primary-color) !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.3px !important;
   line-height: 1.15 !important;
   margin-bottom: 6px !important;
   text-transform: none !important;
@@ -315,7 +320,7 @@ body {
 
 .profession {
   font-size: 14px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   color: var(--muted-text) !important;
   letter-spacing: 0.3px !important;
 }
@@ -424,7 +429,7 @@ body {
 }
 
 .experience-header h3 {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--main-text);
   line-height: 1.35;

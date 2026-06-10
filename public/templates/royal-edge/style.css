@@ -14,8 +14,8 @@
   --max-width: 210mm;
   --page-height: 297mm;
   --sidebar-width: 248px;
-  --font-display: 'Cinzel', Georgia, serif;
-  --font-sans: 'Rajdhani', 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * {
@@ -215,7 +215,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-color);
   letter-spacing: 0.3px;
@@ -327,7 +327,7 @@ body {
 }
 
 .re-ribbon--sm span {
-  font-size: 9px;
+  font-size: 10px;
   padding: 5px 14px 5px 12px;
   letter-spacing: 1.5px;
 }
@@ -422,7 +422,7 @@ body {
 }
 
 .edge-timeline .experience-header .duration {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--muted-text);
   display: block;
@@ -476,7 +476,7 @@ body {
 
 .psp-skills-progress .psp-skill-name {
   grid-row: 2;
-  font-size: 8.5px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -501,7 +501,7 @@ body {
   grid-row: 1;
   align-self: center;
   justify-self: center;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--primary-color);
   text-shadow: 0 0 8px var(--primary-glow);
@@ -665,14 +665,14 @@ body {
 }
 
 .re-sidebar .education-item .institution {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
   display: block;
 }
 
 .re-sidebar .education-item .year,
 .re-sidebar .education-item .field {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted-text);
   opacity: 0.85;
 }
@@ -691,14 +691,14 @@ body {
 }
 
 .certification-item h3 {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--silver);
 }
 
 .certification-item .issuer,
 .certification-item .date {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted-text);
 }
 
@@ -737,7 +737,7 @@ body {
 }
 
 .achievement-item {
-  font-size: 9.5px;
+  font-size: 10.5px;
   padding-left: 14px;
   position: relative;
   color: var(--muted-text);
@@ -773,7 +773,7 @@ body {
 }
 
 .project-item .technologies {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--silver);
   margin-top: 4px;
 }

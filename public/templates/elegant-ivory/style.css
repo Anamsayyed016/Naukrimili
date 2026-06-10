@@ -290,7 +290,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--accent-color);
   line-height: 1.35;
@@ -365,7 +365,7 @@ body {
   flex-direction: row;
   align-items: flex-start;
   gap: 10px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 1.45;
   color: var(--main-text);
 }
@@ -444,7 +444,7 @@ body {
 }
 
 .ivory-experience .experience-header .duration {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--primary-color);
   display: block;
@@ -475,7 +475,7 @@ body {
 
 .certifications-sidebar .certification-item .issuer,
 .certifications-sidebar .certification-item .date {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
 }
 
@@ -504,7 +504,7 @@ body {
 
 .main-panel .education-item .year,
 .main-panel .education-item .field {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
 }
 
@@ -517,7 +517,7 @@ body {
 
 .main-panel .certification-item .issuer,
 .main-panel .certification-item .date {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted-text);
 }
 
