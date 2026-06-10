@@ -525,6 +525,19 @@ function isAnyHeadingLine(line: string): boolean {
   return isHeadingLineFor(line, ALL_HEADINGS);
 }
 
+/** Executive / corporate intro pages (not cover letters) that pollute summary and name. */
+const EXECUTIVE_INTRO_MARKERS = [
+  /\bboard\s+of\s+directors\b/i,
+  /\bcorporate\s+profile\b/i,
+  /\bcompany\s+profile\b/i,
+  /\babout\s+(?:the\s+)?company\b/i,
+  /\bgroup\s+overview\b/i,
+  /\bexecutive\s+biography\b/i,
+  /\borganisation\s+profile\b/i,
+  /\borganization\s+profile\b/i,
+  /\bprofile\s+of\s+the\s+company\b/i,
+];
+
 const COVER_LETTER_MARKERS = [
   /\bdear\s+(sir|madam|hiring\s+manager|hr\s+manager|recruiter|team)\b/i,
   /\bdear\s+sir\b/i,
@@ -680,8 +693,10 @@ export function stripLeadingNonResumeContent(rawText: string): string {
 
   const lines = rawText.split('\n');
   const opener = lines.slice(0, 30).join('\n');
-  const looksLikeCoverLetter = COVER_LETTER_MARKERS.some((re) => re.test(opener));
-  if (!looksLikeCoverLetter) return rawText;
+  const looksLikeNonResumeLead =
+    COVER_LETTER_MARKERS.some((re) => re.test(opener)) ||
+    EXECUTIVE_INTRO_MARKERS.some((re) => re.test(opener));
+  if (!looksLikeNonResumeLead) return rawText;
 
   for (let i = 4; i < lines.length; i++) {
     const line = lines[i].trim();

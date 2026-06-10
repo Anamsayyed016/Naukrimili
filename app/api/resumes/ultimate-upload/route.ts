@@ -11,7 +11,10 @@ import { GoogleCloudOCRService } from '@/lib/services/google-cloud-ocr';
 import { isAffindaEnabled } from '@/lib/resume-parser/affinda-config';
 import {
   mapExtractedToUploadProfile,
+  isAffindaPrimaryAcceptable,
+  isSuspectSummary,
   isUsableExtraction,
+  shouldPreferHybridOverAffinda,
 } from '@/lib/resume-parser/map-to-upload-profile';
 import { enrichAffindaWithEden } from '@/lib/resume-parser/merge-resume-data';
 import {
@@ -21,15 +24,18 @@ import {
 import {
   deriveDisplayNameFromEmail,
   isPlausiblePersonName,
+  isValidatedContactName,
+  isExperienceBlurbFragment,
   pickBestNameFromCandidates,
   splitMergedProjectEntries,
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
 import { prepareResumeTextForParsing } from '@/lib/resume-parser/resume-document-analysis';
 import {
-  buildFieldProvenanceReport,
-  logFieldProvenanceReport,
-} from '@/lib/resume-parser/field-provenance';
+  logFullUploadProvenance,
+  logProfileFormDataAudit,
+  logUploadPipelineTrace,
+} from '@/lib/resume-parser/upload-pipeline-trace';
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/resume-parser/text-recovery';
 
@@ -152,6 +158,7 @@ export async function POST(request: NextRequest) {
     console.log('   - File name:', file.name);
     
     let extractedText: string;
+    let ocrApplied = false;
     try {
       extractedText = await extractTextFromFile(file, bytes);
       
@@ -218,6 +225,7 @@ export async function POST(request: NextRequest) {
               console.log('   - Text preview:', ocrResult.text.substring(0, 300));
               
               extractedText = ocrResult.text;
+              ocrApplied = true;
             } else {
               console.warn('⚠️ OCR returned insufficient text - proceeding with basic extraction');
               // DON'T throw - just log and continue with whatever we have
@@ -274,10 +282,13 @@ export async function POST(request: NextRequest) {
       console.log('✅ Continuing with fallback text to allow upload');
     }
 
+    const rawPdfText = extractedText;
+
     // Classify layout (ATS / executive / sidebar / cover letter) and normalize text
     // before Affinda / Eden / Hybrid parsers run.
     let resumeDocumentProfile: ReturnType<typeof prepareResumeTextForParsing>['profile'] | null =
       null;
+    let hybridSkippedReason = '';
     if (extractedText.length > 80) {
       const prepared = prepareResumeTextForParsing(extractedText);
       resumeDocumentProfile = prepared.profile;
@@ -333,11 +344,18 @@ export async function POST(request: NextRequest) {
           const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
 
           if (affindaResult.rawText && affindaResult.rawText.length > extractedText.length) {
-            extractedText = affindaResult.rawText;
-            console.log('📄 Using Affinda rawText for downstream parsing, length:', extractedText.length);
+            const reprepared = prepareResumeTextForParsing(affindaResult.rawText);
+            resumeDocumentProfile = reprepared.profile;
+            extractedText =
+              reprepared.text.length >= 50 ? reprepared.text : affindaResult.rawText;
+            log('Re-prepared Affinda rawText (cover strip + column layout preserved)', {
+              affindaRawLen: affindaResult.rawText.length,
+              preparedLen: extractedText.length,
+              types: reprepared.profile.types,
+            });
           }
 
-          if (isUsableExtraction(affindaResult)) {
+          if (isAffindaPrimaryAcceptable(affindaResult, resumeDocumentProfile)) {
             const enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
             provenanceAffinda = enriched.affindaData;
             provenanceEden = enriched.edenData || null;
@@ -353,7 +371,9 @@ export async function POST(request: NextRequest) {
               enriched.provider === 'affinda+eden' ? '+ Eden enrichment' : ''
             );
           } else {
-            console.warn('⚠️ Affinda result too sparse — continuing with AI fallback chain');
+            const quality = shouldPreferHybridOverAffinda(affindaResult, resumeDocumentProfile);
+            hybridSkippedReason = quality.reasons.join(', ') || 'not_usable';
+            console.warn('⚠️ Affinda not primary-acceptable — Hybrid fallback', quality);
           }
         } catch (affindaPrimaryError) {
           console.warn(
@@ -657,24 +677,38 @@ export async function POST(request: NextRequest) {
         recoveredFullName = isPlausiblePersonName(recoveredCandidate) ? recoveredCandidate : '';
 
         const emailForMerge = String(parsedData.email || session.user.email || '');
-        const parserCandidate = isPlausiblePersonName(parsedData.fullName || parsedData.name || '')
-          ? String(parsedData.fullName || parsedData.name || '').trim()
-          : '';
-        const mergedFullName = pickBestNameFromCandidates(
-          [
-            ...collectNameCandidatesFromText(text),
-            ...(parserCandidate
-              ? [{ value: parserCandidate, confidence: 72, source: 'affinda' as const }]
-              : []),
-            ...(recoveredFullName
-              ? [{ value: recoveredFullName, confidence: 60, source: 'text_recovery' as const }]
-              : []),
-          ],
-          emailForMerge
-        );
-        if (mergedFullName) {
-          parsedData.fullName = mergedFullName;
-          parsedData.name = mergedFullName;
+        const locationHint = String(parsedData.location || parsedData.address || '');
+        const existingContactName = String(parsedData.fullName || parsedData.name || '').trim();
+        if (!isValidatedContactName(existingContactName, locationHint)) {
+          const parserCandidate = isPlausiblePersonName(parsedData.fullName || parsedData.name || '')
+            ? String(parsedData.fullName || parsedData.name || '').trim()
+            : '';
+          const emailDerived = deriveDisplayNameFromEmail(emailForMerge);
+          const mergedFullName = pickBestNameFromCandidates(
+            [
+              ...collectNameCandidatesFromText(text),
+              ...(parserCandidate
+                ? [{ value: parserCandidate, confidence: 72, source: 'affinda' as const }]
+                : []),
+              ...(recoveredFullName
+                ? [{ value: recoveredFullName, confidence: 60, source: 'text_recovery' as const }]
+                : []),
+              ...(emailDerived
+                ? [
+                    {
+                      value: emailDerived,
+                      confidence: isPlausiblePersonName(emailDerived) ? 82 : 42,
+                      source: 'email_derived' as const,
+                    },
+                  ]
+                : []),
+            ],
+            emailForMerge
+          );
+          if (mergedFullName) {
+            parsedData.fullName = mergedFullName;
+            parsedData.name = mergedFullName;
+          }
         }
 
         const before = {
@@ -863,7 +897,10 @@ export async function POST(request: NextRequest) {
           parsedData.hobbies = mergedHobbies;
         }
 
-        if (!parsedData.summary && recovered.summary) {
+        if (
+          (!parsedData.summary || isSuspectSummary(String(parsedData.summary || ''))) &&
+          recovered.summary
+        ) {
           parsedData.summary = recovered.summary;
         }
         // Experience field-level enrichment.
@@ -973,10 +1010,37 @@ export async function POST(request: NextRequest) {
           } else {
             // Enrich existing entries with text-recovery data where fields are empty.
             const usedRecoveryIdx = new Set<number>();
-            parsedData.experience = existingExp.map((exp: any) => {
+            parsedData.experience = existingExp
+              .map((exp: any) => {
               const matchIdx = recoveredExp.findIndex((r, i) => !usedRecoveryIdx.has(i) && matchExp(exp, r));
               const match = matchIdx >= 0 ? recoveredExp[matchIdx] : null;
               if (match) usedRecoveryIdx.add(matchIdx);
+
+              const positionRaw = String(
+                exp.position || exp.title || exp.role || exp.job_title || ''
+              ).trim();
+              const companyRaw = String(exp.company || exp.organization || '').trim();
+              if (
+                (isExperienceBlurbFragment(positionRaw) || isExperienceBlurbFragment(companyRaw)) &&
+                match
+              ) {
+                return {
+                  company: match.company || '',
+                  position: match.position || '',
+                  job_title: match.position || '',
+                  startDate: match.startDate || '',
+                  endDate: match.endDate || '',
+                  start_date: match.startDate || '',
+                  end_date: match.endDate || '',
+                  description: match.description || '',
+                  achievements: match.achievements || [],
+                  current: match.current || false,
+                  location: match.location || '',
+                };
+              }
+              if (isExperienceBlurbFragment(positionRaw) || isExperienceBlurbFragment(companyRaw)) {
+                return null;
+              }
 
               const hasDesc = !!(exp.description && String(exp.description).trim());
               const hasAchievements = Array.isArray(exp.achievements) && exp.achievements.length > 0;
@@ -1003,7 +1067,8 @@ export async function POST(request: NextRequest) {
                   /^(present|current|now|ongoing)$/i.test(String(exp.end_date || exp.endDate || match?.endDate || '')),
                 location: exp.location || match?.location || '',
               };
-            });
+            })
+              .filter((exp: unknown) => exp != null);
 
             // Append any text-recovery entries that didn't match an existing one
             // (e.g. a 2nd job Affinda missed entirely).
@@ -1157,35 +1222,38 @@ export async function POST(request: NextRequest) {
         ? String(provenanceAffinda.fullName).trim()
         : '';
 
-    const finalName =
-      pickBestNameFromCandidates(
-        [
-          ...collectNameCandidatesFromText(extractedText || ''),
-          ...(affindaName ? [{ value: affindaName, confidence: 72, source: 'affinda' as const }] : []),
-          ...(edenName ? [{ value: edenName, confidence: 78, source: 'eden' as const }] : []),
-          ...(parserName && parserName !== affindaName
-            ? [{ value: parserName, confidence: 70, source: 'affinda' as const }]
-            : []),
-          ...(recoveredName
-            ? [{ value: recoveredName, confidence: 65, source: 'text_recovery' as const }]
-            : []),
-          ...(emailDerivedName
-            ? [
-                {
-                  value: emailDerivedName,
-                  confidence: isPlausiblePersonName(emailDerivedName) ? 82 : 42,
-                  source: 'email_derived' as const,
-                },
-              ]
-            : []),
-        ],
-        emailForName
-      ) ||
-      (session.user.name &&
-      session.user.name.length < 30 &&
-      isPlausiblePersonName(session.user.name)
-        ? session.user.name
-        : 'User');
+    const locationForName = String(parsedData.location || parsedData.address || '');
+    const mergedContactName = String(parsedData.fullName || parsedData.name || '').trim();
+    const finalName = isValidatedContactName(mergedContactName, locationForName)
+      ? mergedContactName
+      : pickBestNameFromCandidates(
+          [
+            ...collectNameCandidatesFromText(extractedText || ''),
+            ...(affindaName ? [{ value: affindaName, confidence: 72, source: 'affinda' as const }] : []),
+            ...(edenName ? [{ value: edenName, confidence: 78, source: 'eden' as const }] : []),
+            ...(parserName && parserName !== affindaName
+              ? [{ value: parserName, confidence: 70, source: 'affinda' as const }]
+              : []),
+            ...(recoveredName
+              ? [{ value: recoveredName, confidence: 65, source: 'text_recovery' as const }]
+              : []),
+            ...(emailDerivedName
+              ? [
+                  {
+                    value: emailDerivedName,
+                    confidence: isPlausiblePersonName(emailDerivedName) ? 82 : 42,
+                    source: 'email_derived' as const,
+                  },
+                ]
+              : []),
+          ],
+          emailForName
+        ) ||
+        (session.user.name &&
+        session.user.name.length < 30 &&
+        isPlausiblePersonName(session.user.name)
+          ? session.user.name
+          : 'User');
 
     console.log('👤 Name resolution:', {
       documentTypes: resumeDocumentProfile?.types || ['unknown'],
@@ -1385,14 +1453,32 @@ export async function POST(request: NextRequest) {
     console.log('FINAL PROJECTS COUNT', profile.projects?.length);
     console.log('FINAL PROJECT SAMPLE', profile.projects?.[0]);
 
-    logFieldProvenanceReport(
-      buildFieldProvenanceReport({
-        affinda: provenanceAffinda,
-        eden: provenanceEden,
-        recovery: lastRecovered,
-        final: profile,
-      })
-    );
+    logUploadPipelineTrace({
+      reqId: REQ,
+      rawPdfText,
+      ocrApplied,
+      preparedText: extractedText,
+      layout: resumeDocumentProfile,
+      affinda: provenanceAffinda,
+      eden: provenanceEden,
+      recovery: lastRecovered,
+      aiProvider,
+      hybridSkippedReason,
+    });
+    logFullUploadProvenance({
+      reqId: REQ,
+      affinda: provenanceAffinda,
+      eden: provenanceEden,
+      recovery: lastRecovered,
+      final: profile,
+    });
+    try {
+      const { transformImportDataToBuilder } = await import('@/lib/resume-builder/import-transformer');
+      const formData = transformImportDataToBuilder(profile);
+      logProfileFormDataAudit(REQ, profile, formData);
+    } catch (auditErr) {
+      warn('formData audit skipped', auditErr instanceof Error ? auditErr.message : auditErr);
+    }
 
     log('FINAL PROFILE shape', {
       aiProvider,

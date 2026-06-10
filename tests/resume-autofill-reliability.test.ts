@@ -7,7 +7,11 @@ import {
   pickRicherFullName,
   sanitizeProjectEntry,
 } from '@/lib/resume-parser/import-sanitize';
-import { isUsableExtraction } from '@/lib/resume-parser/map-to-upload-profile';
+import {
+  isAffindaPrimaryAcceptable,
+  isUsableExtraction,
+  shouldPreferHybridOverAffinda,
+} from '@/lib/resume-parser/map-to-upload-profile';
 import {
   extractResumeFromText,
   stripLeadingNonResumeContent,
@@ -150,6 +154,44 @@ describe('transformImportDataToBuilder name safety', () => {
     expect(transformed.firstName).not.toBe('CS');
     expect(transformed.lastName).not.toBe('Articleship');
     expect(transformed.firstName || transformed.lastName).toMatch(/mujahid|ali/i);
+  });
+});
+
+describe('isAffindaPrimaryAcceptable', () => {
+  it('rejects executive layout with stub experience for Affinda primary', () => {
+    const extracted = {
+      ...base(),
+      fullName: 'Jane Doe',
+      email: 'jane@example.com',
+      experience: [
+        {
+          company: '',
+          position: 'Managing Director',
+          location: '',
+          startDate: '',
+          endDate: '',
+          current: false,
+          description: '',
+          achievements: [],
+        },
+      ],
+      rawText: 'x'.repeat(400),
+    };
+    const layout = {
+      primaryType: 'TYPE_B_EXECUTIVE' as const,
+      types: ['TYPE_B_EXECUTIVE' as const],
+      signals: {
+        coverLetterDetected: false,
+        executiveLayout: true,
+        multiColumnLikely: false,
+        sidebarLikely: false,
+        imageHeavyLikely: false,
+        scannedLikely: false,
+      },
+    };
+    expect(isUsableExtraction(extracted)).toBe(true);
+    expect(shouldPreferHybridOverAffinda(extracted, layout).prefer).toBe(true);
+    expect(isAffindaPrimaryAcceptable(extracted, layout)).toBe(false);
   });
 });
 

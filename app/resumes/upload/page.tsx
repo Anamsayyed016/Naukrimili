@@ -60,7 +60,7 @@ export default function ResumeUploadPage() {
       router.replace(
         `/auth/signin?redirect=${encodeURIComponent(uploadReturnPath)}`
       );
-xsdvcvd     } else if (
+    } else if (
       session &&
       session.user.role !== 'jobseeker' &&
       session.user.role !== 'admin'

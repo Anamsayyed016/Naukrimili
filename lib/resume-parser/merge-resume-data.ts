@@ -6,6 +6,7 @@
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { EdenResumeParser } from '@/lib/eden-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
+import { isSuspectSummary } from '@/lib/resume-parser/map-to-upload-profile';
 import {
   isLikelyJobTitle,
   isPlausiblePersonName,
@@ -31,6 +32,18 @@ function normKey(...parts: (string | undefined)[]): string {
 
 function mergeScalar(primary: string | undefined, secondary: string | undefined): string {
   return isBlank(primary) ? String(secondary || '').trim() : String(primary || '').trim();
+}
+
+/** Eden wins when Affinda scalar is populated but classified invalid (summary, etc.). */
+function mergeScalarPreferValid(
+  primary: string | undefined,
+  secondary: string | undefined,
+  isInvalid: (value: string) => boolean
+): string {
+  const p = String(primary || '').trim();
+  const s = String(secondary || '').trim();
+  if (p && isInvalid(p) && s && !isInvalid(s)) return s;
+  return mergeScalar(primary, secondary);
 }
 
 /** Prefer plausible names; Eden can correct Affinda garbage that is non-blank but invalid. */
@@ -397,7 +410,7 @@ export function mergeResumeData(
     location: mergeScalar(affindaData.location, edenData.location),
     linkedin: mergeScalar(affindaData.linkedin, edenData.linkedin),
     portfolio: mergeScalar(affindaData.portfolio, edenData.portfolio),
-    summary: mergeScalar(affindaData.summary, edenData.summary),
+    summary: mergeScalarPreferValid(affindaData.summary, edenData.summary, isSuspectSummary),
     skills: mergeStringLists(affindaData.skills || [], edenData.skills || []),
     experience: mergeExperience(affindaData.experience || [], edenData.experience || []),
     education: mergeEducation(affindaData.education || [], edenData.education || []),

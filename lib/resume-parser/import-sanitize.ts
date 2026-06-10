@@ -200,6 +200,14 @@ export function isPlausiblePersonName(value: unknown): boolean {
   return isClassifiedPersonName(s);
 }
 
+/** Contact name passed all classification gates — safe to keep without second-pass override. */
+export function isValidatedContactName(name: string, locationHint = ''): boolean {
+  const n = String(name || '').trim();
+  if (!n || !isPlausiblePersonName(n)) return false;
+  if (isFirmOrLocationNamePhrase(n, locationHint)) return false;
+  return true;
+}
+
 /** Sanitize and keep only plausible personal names. */
 export function sanitizePersonName(value: unknown, maxLen = 120): string {
   const s = sanitizeFieldText(value, maxLen);

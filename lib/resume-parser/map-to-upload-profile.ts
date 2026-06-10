@@ -4,7 +4,13 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
-import { sanitizePersonName } from '@/lib/resume-parser/import-sanitize';
+import type { ResumeDocumentProfile } from '@/lib/resume-parser/resume-document-analysis';
+import { isFirmOrLocationNamePhrase } from '@/lib/resume-parser/field-classification';
+import {
+  isExperienceBlurbFragment,
+  isPlausiblePersonName,
+  sanitizePersonName,
+} from '@/lib/resume-parser/import-sanitize';
 
 export function mapExtractedToUploadProfile(
   extracted: ExtractedResumeData,
@@ -65,6 +71,88 @@ export function mapExtractedToUploadProfile(
     confidence: extracted.confidence ?? 75,
     _aiProvider: options?.aiProvider || 'extracted',
   };
+}
+
+/** Board profile / cover-letter / corporate intro text mis-mapped as summary. */
+export function isSuspectSummary(summary: string | undefined): boolean {
+  const s = String(summary || '').replace(/\s+/g, ' ').trim();
+  if (!s || s.length < 50) return false;
+  if (/\b(dear\s+(sir|madam|hiring)|i am writing to apply|to whom it may concern)\b/i.test(s)) {
+    return true;
+  }
+  if (
+    /\b(board\s+of\s+directors|corporate\s+profile|company\s+profile|about\s+(?:the\s+)?company|executive\s+biography|group\s+overview)\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  if (/\b(turnover|crores?|lakhs?|listed\s+on\s+(?:nse|bse))\b/i.test(s) && s.length > 100) {
+    return true;
+  }
+  return false;
+}
+
+function isAffindaExperienceStub(
+  exp: ExtractedResumeData['experience'][number] | undefined
+): boolean {
+  if (!exp) return true;
+  const company = String(exp.company || '').trim();
+  const position = String(exp.position || '').trim();
+  const startDate = String(exp.startDate || '').trim();
+  const endDate = String(exp.endDate || '').trim();
+  const description = String(exp.description || '').trim();
+  const achievements = exp.achievements?.length ?? 0;
+  if (isExperienceBlurbFragment(position) || isExperienceBlurbFragment(company)) return true;
+  return !!position && !company && !startDate && !endDate && !description && achievements === 0;
+}
+
+function isPartialEducationEntry(
+  edu: ExtractedResumeData['education'][number] | undefined
+): boolean {
+  if (!edu) return true;
+  const degree = String(edu.degree || '').trim();
+  const institution = String(edu.institution || '').trim();
+  return !!(degree || institution) && (!degree || !institution);
+}
+
+/**
+ * Low-quality Affinda parses should fall through to Hybrid even when structurally "usable".
+ * Root cause: isUsableExtraction() only checks presence, not correctness.
+ */
+export function shouldPreferHybridOverAffinda(
+  extracted: ExtractedResumeData,
+  layout: ResumeDocumentProfile | null | undefined
+): { prefer: boolean; reasons: string[] } {
+  const reasons: string[] = [];
+  const signals = layout?.signals;
+
+  if (signals?.executiveLayout) reasons.push('executive_layout');
+  if (signals?.multiColumnLikely) reasons.push('multi_column');
+  if (signals?.sidebarLikely) reasons.push('sidebar');
+  if (signals?.coverLetterDetected) reasons.push('cover_letter');
+
+  const name = String(extracted.fullName || '').trim();
+  if (name && !isPlausiblePersonName(name)) reasons.push('invalid_name');
+  if (name && isFirmOrLocationNamePhrase(name)) reasons.push('firm_or_location_name');
+
+  if (isSuspectSummary(extracted.summary)) reasons.push('suspect_summary');
+
+  const exps = extracted.experience || [];
+  if (exps.length > 0 && exps.every(isAffindaExperienceStub)) reasons.push('all_stub_experience');
+
+  const edus = extracted.education || [];
+  if (edus.length > 0 && edus.every(isPartialEducationEntry)) reasons.push('partial_education');
+
+  return { prefer: reasons.length > 0, reasons };
+}
+
+export function isAffindaPrimaryAcceptable(
+  extracted: ExtractedResumeData,
+  layout: ResumeDocumentProfile | null | undefined
+): boolean {
+  if (!isUsableExtraction(extracted)) return false;
+  return !shouldPreferHybridOverAffinda(extracted, layout).prefer;
 }
 
 export function isUsableExtraction(extracted: ExtractedResumeData): boolean {
