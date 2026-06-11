@@ -13,28 +13,27 @@ import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import { ensureWorkspacePreferenceOwnedBy } from '@/lib/preferences/workspace-preference';
 
+const SESSION_RETRY_DELAYS_MS = [0, 400, 1200, 2500, 4000];
+
 export default function RoleSelectionPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [hasRedirectedToSignin, setHasRedirectedToSignin] = useState(false);
   const [hasRedirectedAway, setHasRedirectedAway] = useState(false);
+  const hasRedirectedToSigninRef = useRef(false);
   const [bootstrappedSession, setBootstrappedSession] = useState<Session | null | undefined>(undefined);
   const [bootstrappedStatus, setBootstrappedStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
-  const bootstrapAttempted = useRef(false);
+  const bootstrapCompleteRef = useRef(false);
 
-  // useSession can remain stuck on "loading" after OAuth; resolve session directly.
+  // Resolve session directly — useSession often resolves unauthenticated before the
+  // OAuth cookie is readable, which caused premature signin redirects and loops.
   useEffect(() => {
-    if (bootstrapAttempted.current) {
-      return;
-    }
-    bootstrapAttempted.current = true;
-
     let cancelled = false;
 
     const applySession = (nextSession: Session | null) => {
       if (cancelled) {
         return;
       }
+      bootstrapCompleteRef.current = true;
       setBootstrappedSession(nextSession);
       setBootstrappedStatus(nextSession?.user ? 'authenticated' : 'unauthenticated');
     };
@@ -42,33 +41,53 @@ export default function RoleSelectionPage() {
     const loadSession = async () => {
       try {
         const nextSession = await getSession();
-        applySession(nextSession);
-      } catch {
-        if (!cancelled) {
-          setBootstrappedStatus('unauthenticated');
+        if (nextSession?.user) {
+          applySession(nextSession);
+          return true;
         }
+        return false;
+      } catch {
+        return false;
       }
     };
 
-    void loadSession();
+    const timers: number[] = [];
 
-    const retryTimer = window.setTimeout(() => {
-      if (cancelled || status !== 'loading') {
-        return;
+    const runRetries = async () => {
+      for (const delay of SESSION_RETRY_DELAYS_MS) {
+        if (cancelled || bootstrapCompleteRef.current) {
+          return;
+        }
+        if (delay > 0) {
+          await new Promise<void>((resolve) => {
+            timers.push(window.setTimeout(resolve, delay));
+          });
+        }
+        if (cancelled || bootstrapCompleteRef.current) {
+          return;
+        }
+        const found = await loadSession();
+        if (found) {
+          return;
+        }
       }
-      void loadSession();
-    }, 2500);
+      if (!cancelled && !bootstrapCompleteRef.current) {
+        applySession(null);
+      }
+    };
+
+    void runRetries();
 
     return () => {
       cancelled = true;
-      window.clearTimeout(retryTimer);
+      timers.forEach((timer) => window.clearTimeout(timer));
     };
-  }, [status]);
+  }, []);
 
-  // Only upgrade bootstrap from useSession — never downgrade a valid bootstrap
-  // session to unauthenticated (update() flicker was causing signin ↔ role-selection loops).
+  // Upgrade bootstrap when useSession eventually catches up.
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
+      bootstrapCompleteRef.current = true;
       setBootstrappedSession(session);
       setBootstrappedStatus('authenticated');
     }
@@ -81,11 +100,16 @@ export default function RoleSelectionPage() {
     if (bootstrappedSession?.user) {
       return 'authenticated' as const;
     }
-    if (status === 'unauthenticated' && !bootstrappedSession?.user) {
+    // Never trust useSession "unauthenticated" until bootstrap finishes — otherwise
+    // we redirect to signin before getSession() reads the OAuth cookie.
+    if (bootstrappedStatus === 'loading') {
+      return 'loading' as const;
+    }
+    if (bootstrappedStatus === 'unauthenticated') {
       return 'unauthenticated' as const;
     }
     if (status === 'loading') {
-      return bootstrappedStatus;
+      return 'loading' as const;
     }
     return status;
   })();
@@ -100,64 +124,44 @@ export default function RoleSelectionPage() {
     return status !== 'loading' ? session : bootstrappedSession;
   })();
 
-  console.log('RoleSelectionPage - effectiveStatus:', effectiveStatus);
-  console.log('RoleSelectionPage - effectiveSession:', effectiveSession);
-  console.log('RoleSelectionPage - User data:', effectiveSession?.user);
-
   useEffect(() => {
     if (effectiveStatus === 'loading') {
       return;
     }
 
+    // OAuth lands here on purpose — only send to signin after bootstrap confirms no session.
     if (effectiveStatus === 'unauthenticated') {
-      if (hasRedirectedToSignin) {
+      if (hasRedirectedToSigninRef.current) {
         return;
       }
-      console.log('User is not authenticated, redirecting to signin');
-      setHasRedirectedToSignin(true);
-      router.push('/auth/signin');
+      hasRedirectedToSigninRef.current = true;
+      router.replace('/auth/signin?callbackUrl=/auth/role-selection');
       return;
     }
 
     if (effectiveStatus === 'authenticated' && effectiveSession?.user) {
-      console.log('User is authenticated:', effectiveSession.user);
-      console.log('User role:', effectiveSession.user.role);
-
-      // If user is admin but session.role is missing, force sign out and reload session
       if (!effectiveSession.user.role && effectiveSession.user.email === 'naukrimili@naukrimili.com') {
         if (hasRedirectedAway) {
           return;
         }
-        console.log('Admin user detected but role missing in session, forcing sign out to refresh session.');
         setHasRedirectedAway(true);
         signOut({ callbackUrl: '/auth/signin' });
         return;
       }
 
-      // If user already has a role, redirect them to the appropriate page
       if (effectiveSession.user.role) {
         if (hasRedirectedAway) {
           return;
         }
-        console.log('User already has role:', effectiveSession.user.role, '- redirecting from role selection page');
         setHasRedirectedAway(true);
 
-        // Owner-scoped cache cleanup so a previous account's preference
-        // cannot bypass the workspace selector for this user.
         const sessionUser = effectiveSession.user as { id?: string; email?: string };
         const ownerKey = sessionUser.id || sessionUser.email || null;
-        const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
-        if (wiped) {
-          console.log('🧹 [RoleSelection] Wiped cross-account workspace cache for', ownerKey);
-        }
+        ensureWorkspacePreferenceOwnedBy(ownerKey);
 
         let targetUrl = '/dashboard';
-
         switch (effectiveSession.user.role) {
           case 'jobseeker':
-            // Workspace-aware redirect: one-shot resume-builder intents win,
-            // then the saved (owner-scoped) workspace preference, otherwise
-            // the workspace selector screen.
             targetUrl = getJobseekerPostLoginRedirect(ownerKey);
             break;
           case 'employer':
@@ -166,16 +170,12 @@ export default function RoleSelectionPage() {
           case 'admin':
             targetUrl = '/dashboard/admin';
             break;
-          default:
-            targetUrl = '/dashboard';
         }
 
-        console.log('🎯 [RoleSelection] Redirecting to:', targetUrl);
         router.push(targetUrl);
-        return;
       }
     }
-  }, [effectiveSession, effectiveStatus, router, hasRedirectedToSignin, hasRedirectedAway]);
+  }, [effectiveSession, effectiveStatus, router, hasRedirectedAway]);
 
   if (effectiveStatus === 'loading') {
     return (
@@ -205,8 +205,8 @@ export default function RoleSelectionPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <PostAuthRoleSelection 
-        user={effectiveSession.user} 
+      <PostAuthRoleSelection
+        user={effectiveSession.user}
         onComplete={(user) => {
           console.log('Role selection completed for user:', user);
         }}

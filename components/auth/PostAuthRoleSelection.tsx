@@ -48,11 +48,9 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       'anamsayyed58@gmail.com', // Add more admin emails as needed
     ];
     if (!user?.role && user?.email && adminEmails.includes(user.email as string)) {
-      console.log('⚡ Forcing session reload for admin user with missing role');
+      console.log('⚡ Refreshing session for admin user with missing role');
       if (typeof window !== 'undefined' && updateSession) {
-        updateSession().then(() => {
-          window.location.reload();
-        });
+        void updateSession();
       }
       return;
     }
