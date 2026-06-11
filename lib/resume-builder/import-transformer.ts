@@ -68,11 +68,66 @@ import {
   mergeRecovery,
   extractResumeFromText,
   extractAdditionalResumeDataFromText,
+  truncateSummaryAtSectionBoundary,
 } from '@/lib/resume-parser/text-recovery';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
 /* ------------------------------------------------------------------ */
+
+/** Strip section bleed from summary when structured arrays are populated (builder mapping only). */
+function trimSummaryForStructuredSections(
+  summary: string,
+  sections: {
+    experience: unknown[];
+    education: unknown[];
+    skills: unknown[];
+  }
+): string {
+  const text = cleanMultiline(summary || '');
+  if (!text) return '';
+
+  const hasStructured =
+    sections.experience.length > 0 ||
+    sections.education.length > 0 ||
+    sections.skills.length > 0;
+  if (!hasStructured) return text.slice(0, 4000);
+
+  return truncateSummaryAtSectionBoundary(text).slice(0, 4000);
+}
+
+function applySummaryHygieneToBuilderForm(formData: Record<string, any>): Record<string, any> {
+  const experience = Array.isArray(formData.experience)
+    ? formData.experience
+    : Array.isArray(formData['Work Experience'])
+      ? formData['Work Experience']
+      : Array.isArray(formData.Experience)
+        ? formData.Experience
+        : [];
+  const education = Array.isArray(formData.education)
+    ? formData.education
+    : Array.isArray(formData.Education)
+      ? formData.Education
+      : [];
+  const skills = Array.isArray(formData.skills)
+    ? formData.skills
+    : Array.isArray(formData.Skills)
+      ? formData.Skills
+      : [];
+
+  const trimmed = trimSummaryForStructuredSections(String(formData.summary || formData.bio || ''), {
+    experience,
+    education,
+    skills,
+  });
+
+  return {
+    ...formData,
+    summary: trimmed,
+    bio: trimmed,
+    objective: trimmed,
+  };
+}
 
 function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unknown[] {
   for (const key of keys) {
@@ -279,7 +334,7 @@ export function transformImportDataToBuilder(
   }
 
   if (importedData.builderFormData && typeof importedData.builderFormData === 'object') {
-    return { ...importedData.builderFormData };
+    return applySummaryHygieneToBuilderForm({ ...importedData.builderFormData });
   }
 
   const apiFinalized = importedData._apiFinalized === true;
@@ -481,6 +536,15 @@ export function transformImportDataToBuilder(
   transformed.Achievements = transformed.achievements;
   transformed.Languages = transformed.languages;
   transformed.Hobbies = transformed.hobbies;
+
+  const trimmedSummary = trimSummaryForStructuredSections(transformed.summary, {
+    experience: transformed.experience,
+    education: transformed.education,
+    skills: transformed.skills,
+  });
+  transformed.summary = trimmedSummary;
+  transformed.bio = trimmedSummary;
+  transformed.objective = trimmedSummary;
 
   logSummary(transformed);
   return transformed;

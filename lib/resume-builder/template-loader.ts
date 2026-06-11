@@ -465,24 +465,26 @@ export function injectResumeData(
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
 
-  // Render all sections first
+  // Render all sections from coalesced canonical keys (alias fallback already applied)
   const experienceData = filterMeaningfulExperiences(
-    getArray<Record<string, unknown>>(['Work Experience', 'Experience', 'experience'], [])
+    (Array.isArray(data.experience) ? data.experience : []) as Array<Record<string, unknown>>
   );
   const educationData = filterMeaningfulEducation(
-    getArray<Record<string, unknown>>(['Education', 'education'], [])
+    (Array.isArray(data.education) ? data.education : []) as Array<Record<string, unknown>>
   );
-  const skillsData = normalizeSkillsForRender(data);
+  const skillsData = Array.isArray(data.skills)
+    ? (data.skills as string[])
+    : normalizeSkillsForRender(data);
   const projectsData = filterMeaningfulProjects(
-    getArray<Record<string, unknown>>(['Projects', 'Projects(optional)', 'Academic Projects', 'projects'], [])
+    (Array.isArray(data.projects) ? data.projects : []) as Array<Record<string, unknown>>
   ) as Array<Record<string, string>>;
   const certificationsData = filterMeaningfulCertifications(
-    getArray<Record<string, unknown>>(['Certifications', 'certifications'], [])
+    (Array.isArray(data.certifications) ? data.certifications : []) as Array<Record<string, unknown>>
   ) as Array<Record<string, string>>;
   const achievementsData = filterMeaningfulAchievements(
-    getArray<unknown>(['Achievements', 'Key Achievements', 'achievements'], [])
+    Array.isArray(data.achievements) ? data.achievements : []
   ) as Array<string | Record<string, string>>;
-  const languagesDataRaw = getArray<unknown>(['Languages', 'languages'], []);
+  const languagesDataRaw = Array.isArray(data.languages) ? data.languages : [];
   const languagesData = languagesDataRaw as Array<string | Record<string, unknown>>;
   const hobbiesDataRaw = getArray<unknown>(['Hobbies', 'Hobbies & Interests', 'hobbies'], []);
   const hobbiesData = hobbiesDataRaw as Array<string | Record<string, unknown>>;

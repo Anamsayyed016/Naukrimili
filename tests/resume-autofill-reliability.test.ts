@@ -445,3 +445,55 @@ describe('sanitizeProjectEntry', () => {
     expect(entry?.description).toMatch(/API gateway|auth/i);
   });
 });
+
+describe('resume preview data binding', () => {
+  it('coalesceFormDataForTemplateRender falls back when canonical array is empty', async () => {
+    const { coalesceFormDataForTemplateRender } = await import(
+      '@/lib/resume-builder/section-visibility'
+    );
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Anam',
+      lastName: 'Sayyed',
+      experience: [],
+      'Work Experience': [{ title: 'Engineer', company: 'Acme Corp', description: 'Built APIs' }],
+      education: [],
+      Education: [{ degree: 'B.Tech', school: 'MIT', year: '2020' }],
+      skills: [],
+      Skills: ['Python', 'React'],
+    });
+    expect(coalesced.experience).toHaveLength(1);
+    expect(coalesced.education).toHaveLength(1);
+    expect(coalesced.skills).toEqual(expect.arrayContaining(['Python', 'React']));
+  });
+
+  it('injectResumeData renders experience when only Work Experience alias is populated', async () => {
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const html = '{{#if EXPERIENCE}}<section>{{EXPERIENCE}}</section>{{/if}}';
+    const result = injectResumeData(html, {
+      firstName: 'Anam',
+      lastName: 'Sayyed',
+      experience: [],
+      'Work Experience': [
+        { title: 'Senior Engineer', company: 'Acme', description: 'Shipped features' },
+      ],
+    });
+    expect(result).toContain('Senior Engineer');
+    expect(result).toContain('Acme');
+    expect(result).toContain('<section>');
+  });
+
+  it('transformImportDataToBuilder trims summary bleed when structured sections exist', () => {
+    const transformed = transformImportDataToBuilder({
+      firstName: 'Anam',
+      lastName: 'Sayyed',
+      email: 'anam@example.com',
+      summary: 'Experienced developer.\n\nExperience\nAcme Corp — Engineer',
+      experience: [{ company: 'Acme Corp', position: 'Engineer', description: 'Built APIs' }],
+      education: [],
+      skills: ['Python'],
+      _apiFinalized: true,
+    });
+    expect(transformed.summary).toBe('Experienced developer.');
+    expect(transformed.experience).toHaveLength(1);
+  });
+});

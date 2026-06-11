@@ -370,9 +370,24 @@ export function splitSkillToken(token: string): string[] {
   return [trimmed];
 }
 
+function resolveSkillsRawForRender(formData: Record<string, unknown>): unknown {
+  const keys = ['skills', 'Skills', 'technicalSkills'];
+  for (const key of keys) {
+    const value = formData[key];
+    if (Array.isArray(value) && value.length > 0) return value;
+    if (typeof value === 'string' && value.trim()) return value;
+  }
+  for (const key of keys) {
+    const value = formData[key];
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value;
+  }
+  return undefined;
+}
+
 /** Normalize skills from array, comma-separated string, or legacy object rows. */
 export function normalizeSkillsForRender(formData: Record<string, unknown>): string[] {
-  const raw = formData.skills ?? formData.Skills ?? formData.technicalSkills;
+  const raw = resolveSkillsRawForRender(formData);
   const collected: string[] = [];
 
   const pushToken = (token: string) => {
@@ -545,14 +560,26 @@ function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {
   });
 }
 
-/** Canonical array wins when present (including []). Aliases used only when canonical is undefined. */
+/** Prefer non-empty canonical array; when canonical is missing or [], fall back to first non-empty alias. */
 function resolveCanonicalArray(
   data: Record<string, unknown>,
   canonicalKey: string,
   aliasKeys: string[]
 ): unknown[] {
-  if (canonicalKey in data && Array.isArray(data[canonicalKey])) {
-    return data[canonicalKey];
+  const canonical = data[canonicalKey];
+  if (Array.isArray(canonical) && canonical.length > 0) {
+    return canonical;
+  }
+
+  for (const key of aliasKeys) {
+    const value = data[key];
+    if (Array.isArray(value) && value.length > 0) {
+      return value;
+    }
+  }
+
+  if (Array.isArray(canonical)) {
+    return canonical;
   }
   for (const key of aliasKeys) {
     const value = data[key];
