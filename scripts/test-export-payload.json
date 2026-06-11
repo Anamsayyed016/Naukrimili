@@ -1,0 +1,28 @@
+{
+  "templateId": "teal-modern",
+  "selectedColorId": "teal",
+  "formData": {
+    "firstName": "Anam",
+    "lastName": "Sayyed",
+    "email": "test@example.com",
+    "jobTitle": "Chartered Accountant",
+    "summary": "Professional summary only.",
+    "experience": [],
+    "Work Experience": [
+      {
+        "title": "Senior Auditor",
+        "company": "Infosys",
+        "description": "Led statutory audits"
+      }
+    ],
+    "education": [],
+    "Education": [
+      {
+        "degree": "MBA Finance",
+        "school": "Delhi University",
+        "year": "2018"
+      }
+    ],
+    "skills": ["Tally", "GST", "Excel"]
+  }
+}

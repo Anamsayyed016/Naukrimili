@@ -1,0 +1,16 @@
+{
+  "templateId": "teal-modern",
+  "selectedColorId": "teal",
+  "formData": {
+    "firstName": "Anam",
+    "lastName": "Sayyed",
+    "email": "anamsayyed58@gmail.com",
+    "phone": "7415566841",
+    "jobTitle": "Chartered Accountant",
+    "summary": "CA with audit experience.",
+    "experience": [],
+    "education": [],
+    "skills": [],
+    "rawText": "Anam Sayyed\nanamsayyed58@gmail.com\n7415566841\n\nProfessional Summary\nCA with audit experience.\n\nWork Experience\nInfosys\nSenior Auditor\n2019 - Present\nLed statutory audits for listed companies\n\nEducation\nDelhi University\nMBA Finance\n2018\n\nSkills\nTally, GST, Excel, Audit"
+  }
+}

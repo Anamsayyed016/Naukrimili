@@ -96,6 +96,44 @@ function trimSummaryForStructuredSections(
   return truncateSummaryAtSectionBoundary(text).slice(0, 4000);
 }
 
+/** When API nests builderFormData, parent profile arrays may still hold parser output. */
+function mergeBuilderFormWithParent(
+  parent: Record<string, unknown>,
+  builderFormData: Record<string, any>
+): Record<string, any> {
+  const out: Record<string, any> = { ...builderFormData };
+
+  const pick = (canonical: string, aliases: string[]): unknown[] => {
+    const fromBuilder = out[canonical];
+    if (Array.isArray(fromBuilder) && fromBuilder.length > 0) {
+      return fromBuilder;
+    }
+    return firstNonEmptyArray(parent, [canonical, ...aliases]);
+  };
+
+  out.experience = pick('experience', ['Work Experience', 'Experience', 'workExperience']);
+  out.education = pick('education', ['Education']);
+  out.skills = firstNonEmptyArray({ ...parent, ...out }, ['skills', 'Skills', 'technicalSkills']);
+  out.projects = pick('projects', ['Projects', 'Projects(optional)', 'Academic Projects']);
+  out.certifications = pick('certifications', ['Certifications']);
+  out.languages = pick('languages', ['Languages']);
+  out.achievements = pick('achievements', ['Achievements', 'Key Achievements']);
+  out.hobbies = pick('hobbies', ['Hobbies', 'Hobbies & Interests']);
+
+  out['Work Experience'] = out.experience;
+  out.Experience = out.experience;
+  out.Education = out.education;
+  out.Skills = out.skills;
+  out.Projects = out.projects;
+  out.Certifications = out.certifications;
+  out.Achievements = out.achievements;
+  out.Languages = out.languages;
+  out.Hobbies = out.hobbies;
+  out['Hobbies & Interests'] = out.hobbies;
+
+  return out;
+}
+
 function applySummaryHygieneToBuilderForm(formData: Record<string, any>): Record<string, any> {
   const experience = Array.isArray(formData.experience)
     ? formData.experience
@@ -334,7 +372,11 @@ export function transformImportDataToBuilder(
   }
 
   if (importedData.builderFormData && typeof importedData.builderFormData === 'object') {
-    return applySummaryHygieneToBuilderForm({ ...importedData.builderFormData });
+    const merged = mergeBuilderFormWithParent(
+      importedData as Record<string, unknown>,
+      importedData.builderFormData as Record<string, any>
+    );
+    return applySummaryHygieneToBuilderForm(merged);
   }
 
   const apiFinalized = importedData._apiFinalized === true;

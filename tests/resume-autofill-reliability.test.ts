@@ -482,6 +482,28 @@ describe('resume preview data binding', () => {
     expect(result).toContain('<section>');
   });
 
+  it('mergeBuilderFormWithParent uses profile arrays when builderFormData sections are empty', () => {
+    const transformed = transformImportDataToBuilder({
+      firstName: 'Anam',
+      lastName: 'Sayyed',
+      email: 'anam@example.com',
+      experience: [{ company: 'Infosys', position: 'Auditor', description: 'Audits' }],
+      education: [{ institution: 'DU', degree: 'MBA', year: '2018' }],
+      skills: ['Tally', 'GST'],
+      builderFormData: {
+        firstName: 'Anam',
+        lastName: 'Sayyed',
+        email: 'anam@example.com',
+        experience: [],
+        education: [],
+        skills: [],
+      },
+    });
+    expect(transformed.experience.length).toBeGreaterThan(0);
+    expect(transformed.education.length).toBeGreaterThan(0);
+    expect(transformed.skills.length).toBeGreaterThan(0);
+  });
+
   it('transformImportDataToBuilder trims summary bleed when structured sections exist', () => {
     const transformed = transformImportDataToBuilder({
       firstName: 'Anam',

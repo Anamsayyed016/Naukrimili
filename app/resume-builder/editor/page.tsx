@@ -284,10 +284,10 @@ export default function ResumeEditorPage() {
                 validateTransformedData,
                 hasImportableContent,
               } = await import('@/lib/resume-builder/import-transformer');
-              const transformed =
-                parsed.builderFormData && typeof parsed.builderFormData === 'object'
-                  ? parsed.builderFormData
-                  : transformImportDataToBuilder(parsed);
+              // Never use builderFormData alone — parent profile may have section arrays
+              // that builderFormData dropped during sanitize. Allow rawText recovery too.
+              const { builderFormData: _nestedBuilder, ...profileForTransform } = parsed;
+              const transformed = transformImportDataToBuilder(profileForTransform);
               const validation = validateTransformedData(transformed);
 
               console.log('🔄 After transformation:', {
@@ -343,7 +343,24 @@ export default function ResumeEditorPage() {
           if (savedData) {
             try {
               const parsed = JSON.parse(savedData);
-              setFormData(parsed);
+              const sparseSections =
+                (!Array.isArray(parsed.experience) || parsed.experience.length === 0) &&
+                (!Array.isArray(parsed.skills) || parsed.skills.length === 0) &&
+                (!Array.isArray(parsed.education) || parsed.education.length === 0);
+              const shouldRehydrate =
+                parsed._imported === true ||
+                (typeof parsed.rawText === 'string' &&
+                  parsed.rawText.length >= 80 &&
+                  sparseSections);
+              if (shouldRehydrate) {
+                const { transformImportDataToBuilder } = await import(
+                  '@/lib/resume-builder/import-transformer'
+                );
+                const { builderFormData: _nestedBuilder, ...profileForTransform } = parsed;
+                setFormData(transformImportDataToBuilder(profileForTransform));
+              } else {
+                setFormData(parsed);
+              }
               formLoaded = true;
               console.log('📋 Loaded saved draft from localStorage');
             } catch (e) {

@@ -1,0 +1,38 @@
+{
+  "templateId": "teal-modern",
+  "selectedColorId": "teal",
+  "formData": {
+    "firstName": "Anam",
+    "lastName": "Sayyed",
+    "email": "anamsayyed58@gmail.com",
+    "phone": "7415566841",
+    "summary": "CA with 8 years exp.\n\nExperience\nInfosys — Auditor\n\nEducation\nMBA",
+    "experience": [
+      {
+        "company": "Infosys",
+        "position": "Senior Auditor",
+        "description": "Led audits"
+      }
+    ],
+    "education": [
+      {
+        "institution": "Delhi University",
+        "degree": "MBA Finance",
+        "year": "2018"
+      }
+    ],
+    "skills": ["Tally", "GST"],
+    "builderFormData": {
+      "firstName": "Anam",
+      "lastName": "Sayyed",
+      "email": "anamsayyed58@gmail.com",
+      "summary": "CA with 8 years exp.\n\nExperience\nInfosys — Auditor\n\nEducation\nMBA",
+      "experience": [],
+      "education": [],
+      "skills": [],
+      "projects": [],
+      "certifications": [],
+      "languages": []
+    }
+  }
+}

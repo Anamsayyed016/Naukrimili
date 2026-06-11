@@ -1,0 +1,1128 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        /* Teal Modern — premium 2026 professional resume (scoped) */
+
+.tm-modern {
+  --primary-color: #0F766E;
+  --accent-color: #134E4A;
+  --text-color: #1E293B;
+  --text-light: #64748b;
+  --muted-text: #64748b;
+  --slate-navy: #1e293b;
+  --aqua: #5eead4;
+  --mint: #ccfbf1;
+  --ivory: #fafaf9;
+  --light-bg: #ecf4f3;
+  --border-color: #abcfcc;
+  --bar-track: rgba(15, 118, 110, 0.1);
+  --background: #ffffff;
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --sidebar-width: 252px;
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-body: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.tm-modern,
+.tm-modern * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.tm-modern {
+  width: 794px;
+  max-width: var(--max-width);
+  min-height: var(--page-height);
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.62;
+  color: var(--text-color);
+  background: var(--ivory);
+  position: relative;
+  box-shadow: 0 20px 60px rgba(15, 118, 110, 0.08);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.tm-modern .resume-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-height: var(--page-height) !important;
+}
+
+/* ── Sidebar ── */
+.tm-modern .sidebar {
+  width: var(--sidebar-width) !important;
+  min-width: var(--sidebar-width) !important;
+  max-width: var(--sidebar-width) !important;
+  flex-shrink: 0 !important;
+  padding: 32px 22px 36px 28px !important;
+  background: linear-gradient(180deg, #ffffff 0%, var(--light-bg) 100%) !important;
+  border-right: 1px solid var(--border-color) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  position: relative !important;
+}
+
+.tm-modern .tm-sidebar-accent {
+  position: absolute;
+  top: 32px;
+  left: 12px;
+  width: 4px;
+  height: calc(100% - 64px);
+  min-height: 200px;
+  pointer-events: none;
+}
+
+.tm-modern .tm-sidebar-panel {
+  padding: 16px 14px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 6px 20px rgba(15, 118, 110, 0.05);
+}
+
+.tm-modern .sidebar-section-title {
+  font-family: var(--font-display);
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  font-style: italic;
+  color: var(--slate-navy) !important;
+  text-transform: none !important;
+  letter-spacing: 0.3px !important;
+  margin-bottom: 14px !important;
+  padding: 0 0 8px 0 !important;
+  border-left: none !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* Languages */
+.tm-modern .psp-languages-progress .languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tm-modern .psp-language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tm-modern .psp-language-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--slate-navy);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.tm-modern .psp-language-bar-container {
+  width: 100%;
+  height: 6px;
+  background: var(--bar-track);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tm-modern .psp-language-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--aqua));
+  border-radius: 999px;
+}
+
+.tm-modern .psp-language-percentage {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Skills progress bars (CSS-driven — renderer outputs name only) */
+.tm-modern .psp-skills-progress .skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tm-modern .psp-skill-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 6px;
+  row-gap: 5px;
+}
+
+.tm-modern .psp-skill-name {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--slate-navy);
+  letter-spacing: 0.2px;
+  text-transform: none;
+}
+
+.tm-modern .psp-skill-item::before {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.tm-modern .psp-skill-item::after {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  content: '';
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bar-track);
+}
+
+.tm-modern .psp-skill-item:nth-child(1)::before { content: '92%'; }
+.tm-modern .psp-skill-item:nth-child(2)::before { content: '88%'; }
+.tm-modern .psp-skill-item:nth-child(3)::before { content: '85%'; }
+.tm-modern .psp-skill-item:nth-child(4)::before { content: '90%'; }
+.tm-modern .psp-skill-item:nth-child(5)::before { content: '82%'; }
+.tm-modern .psp-skill-item:nth-child(6)::before { content: '87%'; }
+.tm-modern .psp-skill-item:nth-child(7)::before { content: '80%'; }
+.tm-modern .psp-skill-item:nth-child(8)::before { content: '84%'; }
+.tm-modern .psp-skill-item:nth-child(n + 9)::before { content: '86%'; }
+
+.tm-modern .psp-skill-item:nth-child(1)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 92%, var(--bar-track) 92%); }
+.tm-modern .psp-skill-item:nth-child(2)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 88%, var(--bar-track) 88%); }
+.tm-modern .psp-skill-item:nth-child(3)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 85%, var(--bar-track) 85%); }
+.tm-modern .psp-skill-item:nth-child(4)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 90%, var(--bar-track) 90%); }
+.tm-modern .psp-skill-item:nth-child(5)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 82%, var(--bar-track) 82%); }
+.tm-modern .psp-skill-item:nth-child(6)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 87%, var(--bar-track) 87%); }
+.tm-modern .psp-skill-item:nth-child(7)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 80%, var(--bar-track) 80%); }
+.tm-modern .psp-skill-item:nth-child(8)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 84%, var(--bar-track) 84%); }
+.tm-modern .psp-skill-item:nth-child(n + 9)::after { background: linear-gradient(90deg, var(--primary-color), var(--aqua) 86%, var(--bar-track) 86%); }
+
+/* ── Main content ── */
+.tm-modern .main-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding: 32px 36px 40px !important;
+  background: var(--background) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Header */
+.tm-modern .content-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+  margin-bottom: 28px !important;
+  padding: 24px 28px !important;
+  background: linear-gradient(135deg, #ffffff 0%, var(--light-bg) 100%) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  border-bottom: none !important;
+  box-shadow: 0 8px 28px rgba(15, 118, 110, 0.06) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.tm-modern .content-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--aqua), var(--primary-color), var(--accent-color));
+  border-radius: 16px 0 0 16px;
+}
+
+.tm-modern .content-header:not(:has(.profile-section)) {
+  padding-left: 32px !important;
+}
+
+.tm-modern .profile-image-wrapper {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 3px;
+  background: linear-gradient(145deg, var(--aqua), var(--primary-color));
+  box-shadow: 0 10px 28px rgba(15, 118, 110, 0.18);
+  border: none;
+  flex-shrink: 0;
+}
+
+.tm-modern .profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 3px solid #ffffff;
+}
+
+.tm-modern .header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.tm-modern .name {
+  font-family: var(--font-display);
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  font-style: normal;
+  color: var(--slate-navy) !important;
+  text-transform: none !important;
+  letter-spacing: -0.3px !important;
+  line-height: 1.15 !important;
+  margin-bottom: 6px !important;
+}
+
+.tm-modern .profession {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--primary-color) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.6px !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+.tm-modern .content-header .header-contact .contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.tm-modern .content-header .header-contact .contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-text);
+}
+
+.tm-modern .content-header .header-contact .contact-item::before {
+  width: 14px;
+  height: 14px;
+  background-size: 14px 14px;
+}
+
+.tm-modern .content-header .header-contact .contact-item:nth-child(1)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2'%3E%3Cpath d='M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z'/%3E%3C/svg%3E");
+}
+
+.tm-modern .content-header .header-contact .contact-item:nth-child(2)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2'%3E%3Cpath d='M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z'/%3E%3C/svg%3E");
+}
+
+.tm-modern .content-header .header-contact .contact-item:nth-child(3)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+}
+
+.tm-modern .content-header .header-contact .contact-item:nth-child(4)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2'%3E%3Cpath d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z'/%3E%3Crect x='4' y='9' width='4' height='12'/%3E%3Ccircle cx='6' cy='4' r='2'/%3E%3C/svg%3E");
+}
+
+.tm-modern .content-header .header-contact .contact-item:nth-child(5)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.tm-modern .contact-label {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Section titles */
+.tm-modern .content-section {
+  margin-bottom: 24px;
+}
+
+.tm-modern .section-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--slate-navy);
+  text-transform: none;
+  letter-spacing: 0.2px;
+  margin-bottom: 14px;
+  padding-bottom: 0;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tm-modern .section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border-color), transparent);
+}
+
+/* About */
+.tm-modern .tm-about .summary-content {
+  padding: 16px 18px;
+  background: var(--ivory);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.tm-modern .summary-text {
+  font-size: 11px;
+  line-height: 1.75;
+  color: var(--text-color);
+  text-align: left;
+}
+
+/* Experience timeline */
+.tm-modern .tm-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.tm-modern .tm-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--primary-color), var(--aqua) 60%, rgba(15, 118, 110, 0.15));
+}
+
+.tm-modern .experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tm-modern .experience-item {
+  position: relative;
+  padding: 14px 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(15, 118, 110, 0.04);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.tm-modern .experience-item::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--aqua), var(--primary-color));
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.25);
+}
+
+.tm-modern .experience-item h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--slate-navy);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-bottom: 3px;
+}
+
+.tm-modern .experience-item .company {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.tm-modern .experience-item .duration {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted-text);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mint);
+  margin-bottom: 6px;
+}
+
+.tm-modern .experience-item .description {
+  font-size: 10.5px;
+  line-height: 1.65;
+  color: var(--text-color);
+}
+
+.tm-modern .experience-item .description ul {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+/* Project cards */
+.tm-modern .tm-project-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tm-modern .project-item {
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(15, 118, 110, 0.05);
+  page-break-inside: avoid;
+  break-inside: avoid;
+  border-left: none;
+  margin-left: 0;
+}
+
+.tm-modern .project-item::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--aqua));
+}
+
+.tm-modern .project-item h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--slate-navy);
+  text-transform: none;
+  padding: 10px 12px 4px;
+  margin: 0;
+}
+
+.tm-modern .project-item .technologies {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: var(--mint);
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin: 0 12px 6px;
+}
+
+.tm-modern .project-item .description {
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--muted-text);
+  padding: 0 12px 10px;
+  margin: 0;
+}
+
+.tm-modern .project-item a {
+  display: block;
+  padding: 8px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-decoration: none;
+  border-top: 1px solid var(--border-color);
+  letter-spacing: 0.3px;
+}
+
+.tm-modern .project-item:only-child {
+  grid-column: 1 / -1;
+}
+
+.tm-modern .project-item:last-child:nth-child(odd):not(:only-child) {
+  grid-column: 1 / -1;
+  max-width: 50%;
+}
+
+/* Sidebar education & certifications */
+.tm-modern .tm-sidebar-education,
+.tm-modern .tm-sidebar-certs {
+  gap: 8px;
+}
+
+.tm-modern .tm-sidebar-education .education-item,
+.tm-modern .tm-sidebar-certs .certification-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.tm-modern .tm-sidebar-education .education-item h3,
+.tm-modern .tm-sidebar-certs .certification-item h3 {
+  font-size: 10.5px;
+}
+
+.tm-modern .tm-sidebar-education .education-item .institution,
+.tm-modern .tm-sidebar-education .education-item .year,
+.tm-modern .tm-sidebar-education .education-item .cgpa,
+.tm-modern .tm-sidebar-certs .certification-item .issuer,
+.tm-modern .tm-sidebar-certs .certification-item .date {
+  font-size: 10px;
+}
+
+/* Education */
+.tm-modern .education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tm-modern .education-item {
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--primary-color);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.tm-modern .education-item::before {
+  display: none;
+}
+
+.tm-modern .education-item h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--slate-navy);
+  text-transform: none;
+  margin-bottom: 3px;
+}
+
+.tm-modern .education-item .institution {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.tm-modern .education-item .year {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted-text);
+}
+
+.tm-modern .education-item .cgpa {
+  font-size: 10.5px;
+  color: var(--muted-text);
+  margin-top: 4px;
+}
+
+/* Certifications */
+.tm-modern .certifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tm-modern .certification-item {
+  padding: 10px 12px;
+  background: var(--ivory);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--aqua);
+  margin-left: 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.tm-modern .certification-item h3 {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--slate-navy);
+  text-transform: none;
+}
+
+.tm-modern .certification-item .issuer {
+  font-size: 10.5px;
+  color: var(--muted-text);
+}
+
+.tm-modern .certification-item .date {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Achievements */
+.tm-modern .achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tm-modern .achievement-item {
+  padding: 10px 12px 10px 32px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.tm-modern .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(145deg, var(--aqua), var(--primary-color));
+  border-radius: 50%;
+}
+
+.tm-modern .achievement-item h3,
+.tm-modern .achievement-text {
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--text-color);
+}
+
+/* Hobbies */
+.tm-modern .hobbies-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tm-modern .hobby-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--mint);
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  min-width: auto;
+}
+
+.tm-modern .hobby-item::before {
+  width: 12px;
+  height: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3C/svg%3E");
+}
+
+.tm-modern .hobby,
+.tm-modern .hobby-text {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--slate-navy);
+  text-align: left;
+}
+
+/* Density */
+body[data-density='sparse'] .tm-modern .content-section { margin-bottom: 28px; }
+body[data-density='light'] .tm-modern .content-section { margin-bottom: 26px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tm-modern .resume-wrapper {
+    flex-direction: column !important;
+  }
+
+  .tm-modern .sidebar {
+    width: 100% !important;
+    min-width: auto !important;
+    max-width: none !important;
+    padding: 24px 20px !important;
+  }
+
+  .tm-modern .main-content {
+    padding: 24px 20px !important;
+  }
+
+  .tm-modern .content-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    padding: 20px !important;
+  }
+
+  .tm-modern .tm-project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print / PDF */
+@media print {
+  @page { size: A4; margin: 0; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .tm-modern {
+    width: 794px !important;
+    max-width: 794px !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .tm-modern .resume-wrapper {
+    display: flex !important;
+    min-height: 1123px !important;
+    overflow: visible !important;
+  }
+
+  .tm-modern .sidebar {
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .tm-modern .content-header,
+  .tm-modern .tm-sidebar-panel,
+  .tm-modern .experience-item,
+  .tm-modern .project-item,
+  .tm-modern .psp-skill-item::after,
+  .tm-modern .psp-language-bar-fill {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .tm-modern .experience-item,
+  .tm-modern .project-item,
+  .tm-modern .education-item,
+  .tm-modern .certification-item,
+  .tm-modern .achievement-item,
+  .tm-modern .content-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+        
+        /* ========================================
+           PDF EXPORT CSS - SMART MODERATE COMPRESSION
+           Fits on 1 A4 page while maintaining professional appearance
+           ======================================== */
+        
+        /* Page margin reset – let .resume-container control spacing */
+        @page {
+          margin: 0;
+        }
+        
+        /* Universal Reset */
+        *, *::before, *::after {
+          box-sizing: border-box !important;
+        }
+        
+        html {
+          background-color: #ffffff !important;
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+        }
+        
+        body {
+          background-color: #ffffff !important;
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          color: #000000;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          hyphens: auto;
+          line-height: 1.5 !important; /* Moderate line height for readability */
+        }
+        
+        /* Resume Container - A4 Size with Moderate Compression */
+        .resume-container {
+          width: 794px !important;
+          max-width: 794px !important;
+          min-width: 794px !important;
+          margin: 0 auto !important;
+          padding: 28px 36px !important; /* Slightly more padding; still one-page-friendly */
+          background: white !important;
+          box-sizing: border-box !important;
+          position: relative;
+        }
+        
+        /* Override CSS Variables with Moderate Values */
+        :root {
+          --spacing-xl: 22px !important;
+          --spacing-lg: 18px !important;
+          --spacing-md: 14px !important;
+          --spacing-sm: 10px !important;
+          --spacing-xs: 6px !important;
+          --section-gap: 18px !important;
+        }
+        
+        /* Moderate Section Spacing */
+        section, .section, .content-section, .sidebar-section {
+          margin-bottom: 16px !important;
+          padding-bottom: 0 !important;
+        }
+        
+        section:last-child, .section:last-child {
+          margin-bottom: 0 !important;
+        }
+        
+        /* Moderate Heading Compression */
+        h1, .name, .header-name {
+          font-size: 30px !important; /* Readable, not too small */
+          margin-bottom: 8px !important;
+          margin-top: 0 !important;
+          line-height: 1.2 !important;
+        }
+        
+        h2, .section-title, .sidebar-section-title {
+          font-size: 17px !important;
+          margin-bottom: 12px !important;
+          margin-top: 0 !important;
+          padding-bottom: 6px !important;
+        }
+        
+        h3, .experience-header h3, .education-item h3 {
+          font-size: 15px !important;
+          margin-bottom: 6px !important;
+          margin-top: 0 !important;
+        }
+        
+        /* Moderate Text Compression */
+        p, .description, .profile-text, .about-text {
+          margin-top: 8px !important;
+          margin-bottom: 8px !important;
+          line-height: 1.5 !important;
+          font-size: 13px !important;
+        }
+        
+        /* Moderate List Spacing */
+        ul, ol {
+          margin-top: 8px !important;
+          margin-bottom: 8px !important;
+          padding-left: 20px !important;
+        }
+        
+        li {
+          margin-bottom: 6px !important;
+          line-height: 1.5 !important;
+        }
+        
+        /* Moderate Header Compression */
+        .content-header, header {
+          padding: 20px 24px !important;
+          margin-bottom: 0 !important;
+          margin-top: 0 !important;
+          gap: 16px !important;
+        }
+        
+        /* Moderate Sidebar & Main Content Spacing */
+        .sidebar {
+          padding: 24px 20px !important;
+          gap: 14px !important;
+        }
+        
+        .main-content {
+          padding: 24px 28px !important;
+          gap: 14px !important;
+        }
+        
+        /* Moderate List Gaps */
+        .experience-list, .education-list, .projects-list,
+        .certifications-list, .achievements-list {
+          gap: 14px !important;
+        }
+        
+        .skills-list, .languages-list, .references-list,
+        .hobbies-list, .interests-list {
+          gap: 10px !important;
+        }
+        
+        .experience-item, .education-item, .project-item,
+        .certification-item, .achievement-item,
+        .reference-item, .language-item, .skill-item {
+          margin-bottom: 0 !important;
+          padding-bottom: 0 !important;
+          gap: 6px !important;
+        }
+        
+        /* Moderate Contact/Info Lists */
+        .contact-list, .social-list {
+          gap: 10px !important;
+        }
+        
+        /* Moderate Profile Image - Medium size for better visibility */
+        .profile-image-wrapper, .profile-placeholder {
+          width: 120px !important;
+          height: 120px !important;
+        }
+        
+        .profile-initials {
+          font-size: 32px !important;
+        }
+        
+        /* Moderate Experience/Education Headers */
+        .company, .institution, .issuer, .technologies {
+          font-size: 13px !important;
+          margin-bottom: 4px !important;
+        }
+        
+        .duration, .year, .date {
+          font-size: 11px !important;
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          padding: 3px 8px !important;
+        }
+        
+        /* Moderate Skills/Languages */
+        .skill-name, .language-name,
+        .psp-skill-name, .psp-language-name {
+          font-size: 12px !important;
+        }
+        
+        .cgpa, .proficiency,
+        .psp-skill-percentage, .psp-language-percentage {
+          font-size: 11px !important;
+          margin-top: 3px !important;
+          margin-bottom: 3px !important;
+        }
+        
+        /* Moderate Progress Bar */
+        .psp-skill-bar-container, .psp-language-bar-container {
+          height: 7px !important;
+          margin-top: 3px !important;
+          margin-bottom: 3px !important;
+        }
+        
+        .psp-skill-item, .psp-language-item {
+          gap: 5px !important;
+        }
+        
+        /* Print color preservation */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        
+        /* Prevent page breaks inside important elements */
+        .experience-item, .education-item, .project-item,
+        .certification-item {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        /* Ensure visibility */
+        img, svg, .icon, .contact-icon {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* ── Resume typography overrides (Design Studio) — no-op when default ── */
+        
+      </style>
+    </head>
+    <body>
+      <div class="resume-container tm-modern">
+        <div class="resume-wrapper">
+            <!-- Left Sidebar -->
+            <aside class="sidebar tm-sidebar">
+                <svg class="tm-sidebar-accent" viewBox="0 0 4 200" preserveAspectRatio="none" aria-hidden="true">
+                    <rect width="4" height="200" fill="url(#tmAccentGrad)" rx="2"/>
+                    <defs>
+                        <linearGradient id="tmAccentGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#5eead4"/>
+                            <stop offset="50%" stop-color="#0f766e"/>
+                            <stop offset="100%" stop-color="#134e4a"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                
+
+                
+
+                
+
+                
+            </aside>
+
+            <!-- Right Main Content -->
+            <main class="main-content tm-main">
+                <header class="content-header tm-header">
+                    
+                    <div class="header-text">
+                        <h1 class="name">Anam Sayyed</h1>
+                        
+                        <p class="profession">Chartered Accountant</p>
+                        
+                        
+                        <div class="header-contact">
+                            <div class="contact-list">
+                                <div class="contact-item"><span class="contact-label">7415566841</span></div><div class="contact-item"><span class="contact-label">anamsayyed58@gmail.com</span></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </header>
+
+                
+                <section class="content-section tm-section tm-about">
+                    <h2 class="section-title">About</h2>
+                    <div class="summary-content">
+                        <p class="summary-text">CA with 8 years experience in audit.
+
+Experience
+Infosys — Senior Auditor
+Led statutory audits
+
+Education
+MBA Finance — Delhi University
+
+Skills
+Tally, GST, Excel</p>
+                    </div>
+                </section>
+                
+
+                
+
+                
+
+                
+
+                
+            </main>
+        </div>
+    </div>
+<style data-injected="render-fixes">
+.skills-list,
+.skills-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: flex-start;
+}
+.skills-list > .skill-tag,
+.skills-chips-wrap > .skill-tag {
+  display: inline-block;
+  white-space: normal;
+  word-break: break-word;
+}
+</style>
+
+    </body>
+    </html>
+  
