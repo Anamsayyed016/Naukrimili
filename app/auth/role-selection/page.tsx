@@ -5,30 +5,99 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession, signOut, getSession } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import { ensureWorkspacePreferenceOwnedBy } from '@/lib/preferences/workspace-preference';
 
 export default function RoleSelectionPage() {
-  const { data: session, status } = useSession();
-  console.log('RoleSelectionPage - Session data:', session);
-  console.log('RoleSelectionPage - User data:', session?.user);
-  console.log('RoleSelectionPage - User ID:', session?.user?.id);
-  console.log('RoleSelectionPage - User email:', session?.user?.email);
-  console.log('RoleSelectionPage - User name:', session?.user?.name);
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [hasRedirectedToSignin, setHasRedirectedToSignin] = useState(false);
   const [hasRedirectedAway, setHasRedirectedAway] = useState(false);
+  const [bootstrappedSession, setBootstrappedSession] = useState<Session | null | undefined>(undefined);
+  const [bootstrappedStatus, setBootstrappedStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
+  const bootstrapAttempted = useRef(false);
+
+  // useSession can remain stuck on "loading" after OAuth; resolve session directly.
+  useEffect(() => {
+    if (bootstrapAttempted.current) {
+      return;
+    }
+    bootstrapAttempted.current = true;
+
+    let cancelled = false;
+
+    const applySession = (nextSession: Session | null) => {
+      if (cancelled) {
+        return;
+      }
+      setBootstrappedSession(nextSession);
+      setBootstrappedStatus(nextSession?.user ? 'authenticated' : 'unauthenticated');
+    };
+
+    const loadSession = async () => {
+      try {
+        const nextSession = await getSession();
+        applySession(nextSession);
+        if (nextSession?.user) {
+          void update();
+        }
+      } catch {
+        if (!cancelled) {
+          setBootstrappedStatus('unauthenticated');
+        }
+      }
+    };
+
+    void loadSession();
+
+    const retryTimer = window.setTimeout(() => {
+      if (cancelled || status !== 'loading') {
+        return;
+      }
+      void loadSession();
+    }, 2500);
+
+    const escapeTimer = window.setTimeout(() => {
+      if (cancelled) {
+        return;
+      }
+      setBootstrappedStatus((prev) => (prev === 'loading' ? 'unauthenticated' : prev));
+    }, 8000);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(retryTimer);
+      window.clearTimeout(escapeTimer);
+    };
+  }, [status, update]);
 
   useEffect(() => {
-    if (status === 'loading') {
+    if (status !== 'loading') {
+      setBootstrappedSession(session ?? null);
+      setBootstrappedStatus(status);
+    }
+  }, [session, status]);
+
+  const effectiveStatus =
+    status !== 'loading' ? status : bootstrappedStatus;
+  const effectiveSession =
+    status !== 'loading' ? session : bootstrappedSession;
+
+  console.log('RoleSelectionPage - effectiveStatus:', effectiveStatus);
+  console.log('RoleSelectionPage - effectiveSession:', effectiveSession);
+  console.log('RoleSelectionPage - User data:', effectiveSession?.user);
+
+  useEffect(() => {
+    if (effectiveStatus === 'loading') {
       return;
     }
 
-    if (status === 'unauthenticated') {
+    if (effectiveStatus === 'unauthenticated') {
       if (hasRedirectedToSignin) {
         return;
       }
@@ -38,12 +107,12 @@ export default function RoleSelectionPage() {
       return;
     }
 
-    if (status === 'authenticated' && session?.user) {
-      console.log('User is authenticated:', session.user);
-      console.log('User role:', session.user.role);
+    if (effectiveStatus === 'authenticated' && effectiveSession?.user) {
+      console.log('User is authenticated:', effectiveSession.user);
+      console.log('User role:', effectiveSession.user.role);
 
       // If user is admin but session.role is missing, force sign out and reload session
-      if (!session.user.role && session.user.email === 'naukrimili@naukrimili.com') {
+      if (!effectiveSession.user.role && effectiveSession.user.email === 'naukrimili@naukrimili.com') {
         if (hasRedirectedAway) {
           return;
         }
@@ -54,16 +123,16 @@ export default function RoleSelectionPage() {
       }
 
       // If user already has a role, redirect them to the appropriate page
-      if (session.user.role) {
+      if (effectiveSession.user.role) {
         if (hasRedirectedAway) {
           return;
         }
-        console.log('User already has role:', session.user.role, '- redirecting from role selection page');
+        console.log('User already has role:', effectiveSession.user.role, '- redirecting from role selection page');
         setHasRedirectedAway(true);
 
         // Owner-scoped cache cleanup so a previous account's preference
         // cannot bypass the workspace selector for this user.
-        const sessionUser = session.user as { id?: string; email?: string };
+        const sessionUser = effectiveSession.user as { id?: string; email?: string };
         const ownerKey = sessionUser.id || sessionUser.email || null;
         const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
         if (wiped) {
@@ -72,7 +141,7 @@ export default function RoleSelectionPage() {
 
         let targetUrl = '/dashboard';
 
-        switch (session.user.role) {
+        switch (effectiveSession.user.role) {
           case 'jobseeker':
             // Workspace-aware redirect: one-shot resume-builder intents win,
             // then the saved (owner-scoped) workspace preference, otherwise
@@ -94,9 +163,9 @@ export default function RoleSelectionPage() {
         return;
       }
     }
-  }, [session, status, router, hasRedirectedToSignin, hasRedirectedAway]);
+  }, [effectiveSession, effectiveStatus, router, hasRedirectedToSignin, hasRedirectedAway]);
 
-  if (status === 'loading') {
+  if (effectiveStatus === 'loading') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
@@ -107,7 +176,7 @@ export default function RoleSelectionPage() {
     );
   }
 
-  if (status === 'unauthenticated') {
+  if (effectiveStatus === 'unauthenticated') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
@@ -118,14 +187,14 @@ export default function RoleSelectionPage() {
     );
   }
 
-  if (!session?.user) {
+  if (!effectiveSession?.user) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-white">
       <PostAuthRoleSelection 
-        user={session.user} 
+        user={effectiveSession.user} 
         onComplete={(user) => {
           console.log('Role selection completed for user:', user);
         }}
