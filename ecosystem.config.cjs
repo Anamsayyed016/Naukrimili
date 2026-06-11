@@ -123,19 +123,18 @@ module.exports = {
         // Google OAuth removed - using manual registration only
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
-        // AI API Keys - Load from dotenv (with fallback to hardcoded for production)
-        OPENAI_API_KEY: process.env.OPENAI_API_KEY || "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",
-        GEMINI_API_KEY: process.env.GEMINI_API_KEY || "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
-        GROQ_API_KEY: process.env.GROQ_API_KEY || "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",
-        AFFINDA_API_KEY: process.env.AFFINDA_API_KEY || "aff_1b7dcbd1cee9731c46739fad896f5c02038d69e5",
-        AFFINDA_WORKSPACE_ID: process.env.AFFINDA_WORKSPACE_ID || "cNmlyhQG",
-        GOOGLE_CLOUD_OCR_API_KEY: process.env.GOOGLE_CLOUD_OCR_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
-        GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY || "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
-        ABLY_API_KEY: process.env.ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
-        NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
-        // Razorpay Payment Gateway
-        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_RmJIe9drDBjHeC",
-        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "m4cVgW16U4Plei3gFa1YP2hR"
+        // AI / third-party keys — from .env only (never hardcode fallbacks)
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        GROQ_API_KEY: process.env.GROQ_API_KEY,
+        AFFINDA_API_KEY: process.env.AFFINDA_API_KEY,
+        AFFINDA_WORKSPACE_ID: process.env.AFFINDA_WORKSPACE_ID,
+        GOOGLE_CLOUD_OCR_API_KEY: process.env.GOOGLE_CLOUD_OCR_API_KEY || process.env.GOOGLE_CLOUD_API_KEY,
+        GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY,
+        ABLY_API_KEY: process.env.ABLY_API_KEY,
+        NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY,
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET
       },
       env_production: {
         NODE_ENV: "production",
@@ -162,19 +161,18 @@ module.exports = {
         // Google OAuth removed - using manual registration only
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
-        // AI API Keys - Load from environment with fallback to hardcoded values
-        OPENAI_API_KEY: process.env.OPENAI_API_KEY || "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",
-        GEMINI_API_KEY: process.env.GEMINI_API_KEY || "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
-        GROQ_API_KEY: process.env.GROQ_API_KEY || "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",
-        AFFINDA_API_KEY: process.env.AFFINDA_API_KEY || "aff_1b7dcbd1cee9731c46739fad896f5c02038d69e5",
-        AFFINDA_WORKSPACE_ID: process.env.AFFINDA_WORKSPACE_ID || "cNmlyhQG",
-        GOOGLE_CLOUD_OCR_API_KEY: process.env.GOOGLE_CLOUD_OCR_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
-        GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY || "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
-        ABLY_API_KEY: process.env.ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
-        NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
-        // Razorpay Payment Gateway - LIVE KEYS FOR PRODUCTION
-        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_live_Ry9rxyDZr0mXAw",
-        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "EdrRIkemS9Nd5ybDXsU1Q8c3"
+        // AI / third-party keys — from .env only (never hardcode fallbacks)
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        GROQ_API_KEY: process.env.GROQ_API_KEY,
+        AFFINDA_API_KEY: process.env.AFFINDA_API_KEY,
+        AFFINDA_WORKSPACE_ID: process.env.AFFINDA_WORKSPACE_ID,
+        GOOGLE_CLOUD_OCR_API_KEY: process.env.GOOGLE_CLOUD_OCR_API_KEY || process.env.GOOGLE_CLOUD_API_KEY,
+        GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY,
+        ABLY_API_KEY: process.env.ABLY_API_KEY,
+        NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY,
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET
       },
       log_file: path.join(__dirname, "logs", "combined.log"),
       out_file: path.join(__dirname, "logs", "out.log"),
