@@ -6,7 +6,12 @@
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { EdenResumeParser } from '@/lib/eden-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
-import { isSuspectSummary } from '@/lib/resume-parser/map-to-upload-profile';
+import {
+  hasAutofillPayload,
+  isDocumentParserAcceptable,
+  isSuspectSummary,
+} from '@/lib/resume-parser/map-to-upload-profile';
+import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
 import {
   deriveDisplayNameFromEmail,
   isLikelyJobTitle,
@@ -465,6 +470,107 @@ export function mergeResumeData(
     confidence: affindaData.confidence,
     rawText: secondaryRaw.length > primaryRaw.length ? secondaryRaw : primaryRaw,
   };
+}
+
+function emptyExtractedResumeData(): ExtractedResumeData {
+  return {
+    fullName: '',
+    email: '',
+    phone: '',
+    location: '',
+    summary: '',
+    skills: [],
+    experience: [],
+    education: [],
+    confidence: 0,
+    rawText: '',
+  };
+}
+
+/** Fill parser gaps from section-aware text extraction (never overwrites populated fields). */
+export function mergeTextRecoveryIntoExtracted(
+  base: ExtractedResumeData,
+  rawText: string
+): ExtractedResumeData {
+  const text = (rawText || '').trim();
+  if (text.length < 30) return base;
+  const recovered = extractResumeFromText(text);
+  return mergeResumeData(base, recovered);
+}
+
+export type DocumentParserResult = {
+  data: ExtractedResumeData;
+  provider: string;
+  affindaData: ExtractedResumeData | null;
+  edenData?: ExtractedResumeData;
+};
+
+/**
+ * Eden standalone or Affinda+Eden merge — used when Affinda primary is rejected or AI is unavailable.
+ */
+export async function tryEdenAffindaDocumentParse(
+  affindaData: ExtractedResumeData | null,
+  fileBuffer: Buffer,
+  fileName: string
+): Promise<DocumentParserResult | null> {
+  const affindaBase = affindaData || emptyExtractedResumeData();
+
+  if (!isEdenEnabled()) {
+    if (affindaData && isDocumentParserAcceptable(affindaData)) {
+      return { data: affindaData, provider: 'affinda', affindaData };
+    }
+    return null;
+  }
+
+  try {
+    const edenParser = new EdenResumeParser();
+    const edenData = await edenParser.parseResume(fileBuffer, fileName);
+    const merged = mergeResumeData(affindaBase, edenData);
+    logResumeMergeStats(affindaBase, edenData, merged);
+    const provider = affindaData ? 'affinda+eden' : 'eden';
+    return {
+      data: merged,
+      provider,
+      affindaData,
+      edenData,
+    };
+  } catch (error) {
+    console.warn(
+      '[resume-merge] Eden document parse failed:',
+      error instanceof Error ? error.message : error
+    );
+    if (affindaData && isDocumentParserAcceptable(affindaData)) {
+      return { data: affindaData, provider: 'affinda', affindaData };
+    }
+    return null;
+  }
+}
+
+/** Document parsers + text recovery — independent of OpenAI/Gemini quota. */
+export async function resolveDocumentParserAutofill(
+  affindaData: ExtractedResumeData | null,
+  fileBuffer: Buffer,
+  fileName: string,
+  extractedText: string
+): Promise<(DocumentParserResult & { data: ExtractedResumeData }) | null> {
+  const doc = await tryEdenAffindaDocumentParse(affindaData, fileBuffer, fileName);
+  if (doc) {
+    const withText = mergeTextRecoveryIntoExtracted(doc.data, extractedText);
+    if (hasAutofillPayload(withText)) {
+      return { ...doc, data: withText };
+    }
+  }
+
+  const textOnly = extractResumeFromText(extractedText);
+  if (hasAutofillPayload(textOnly)) {
+    return {
+      data: textOnly,
+      provider: 'text-recovery',
+      affindaData,
+    };
+  }
+
+  return null;
 }
 
 /**

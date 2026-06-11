@@ -11,12 +11,16 @@ import { GoogleCloudOCRService } from '@/lib/services/google-cloud-ocr';
 import { isAffindaEnabled } from '@/lib/resume-parser/affinda-config';
 import {
   mapExtractedToUploadProfile,
+  hasAutofillPayload,
   isAffindaPrimaryAcceptable,
   isSuspectSummary,
   isUsableExtraction,
   shouldPreferHybridOverAffinda,
 } from '@/lib/resume-parser/map-to-upload-profile';
-import { enrichAffindaWithEden } from '@/lib/resume-parser/merge-resume-data';
+import {
+  enrichAffindaWithEden,
+  resolveDocumentParserAutofill,
+} from '@/lib/resume-parser/merge-resume-data';
 import {
   normalizeUploadProfile,
   cleanMultiline,
@@ -336,12 +340,15 @@ export async function POST(request: NextRequest) {
       aiProvider = 'basic-fallback';
     } else {
       let usedAffindaPrimary = false;
+      let usedDocumentParser = false;
+      let lastAffindaResult: ExtractedResumeData | null = null;
 
       if (isAffindaEnabled()) {
         try {
           console.log('🚀 Affinda enabled — trying document parse first...');
           const affindaParser = new AffindaResumeParser();
           const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
+          lastAffindaResult = affindaResult;
 
           if (affindaResult.rawText && affindaResult.rawText.length > extractedText.length) {
             const reprepared = prepareResumeTextForParsing(affindaResult.rawText);
@@ -384,8 +391,40 @@ export async function POST(request: NextRequest) {
       }
 
       if (!usedAffindaPrimary) {
+        try {
+          console.log('🌿 Trying Eden/Affinda document parsers (no OpenAI required)...');
+          const docAutofill = await resolveDocumentParserAutofill(
+            lastAffindaResult,
+            fileBuffer,
+            file.name,
+            extractedText
+          );
+          if (docAutofill) {
+            provenanceAffinda = docAutofill.affindaData;
+            provenanceEden = docAutofill.edenData || null;
+            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
+              aiProvider: docAutofill.provider,
+            });
+            aiSuccess = true;
+            aiProvider = docAutofill.provider;
+            usedDocumentParser = true;
+            console.log('✅ Document parser autofill accepted:', docAutofill.provider);
+            console.log('   - Name:', parsedData.fullName || 'MISSING');
+            console.log('   - Experience:', parsedData.experience?.length ?? 0);
+            console.log('   - Education:', parsedData.education?.length ?? 0);
+            console.log('   - Skills:', parsedData.skills?.length ?? 0);
+          }
+        } catch (docParserError) {
+          console.warn(
+            '⚠️ Document parser autofill failed:',
+            docParserError instanceof Error ? docParserError.message : docParserError
+          );
+        }
+      }
+
+      if (!usedAffindaPrimary && !usedDocumentParser) {
       try {
-        // Try HybridResumeAI first (best accuracy)
+        // Try HybridResumeAI when document parsers did not produce enough data
         console.log('🚀 Attempting HybridResumeAI extraction with REAL AI...');
         console.log('📄 Text preview being sent to AI (first 500 chars):');
         console.log(extractedText.substring(0, 500));
@@ -425,13 +464,33 @@ export async function POST(request: NextRequest) {
         }
         
         // CRITICAL: Check if this is fallback data and reject it
-        const isFallbackData = hybridResult.experience?.[0]?.role?.includes('not extracted') ||
-                               hybridResult.education?.[0]?.degree?.includes('not extracted');
+        const isFallbackData =
+          hybridResult.aiProvider === 'fallback' ||
+          hybridResult.experience?.[0]?.role?.includes('not extracted') ||
+          hybridResult.education?.[0]?.degree?.includes('not extracted');
         
         if (isFallbackData) {
-          console.error('❌ Detected fallback data with error messages - rejecting and using basic extraction');
-          throw new Error('AI returned fallback data - will use basic extraction instead');
-        }
+          console.warn('⚠️ Hybrid returned placeholder data — trying document + text parsers');
+          const docAutofill = await resolveDocumentParserAutofill(
+            lastAffindaResult,
+            fileBuffer,
+            file.name,
+            extractedText
+          );
+          if (docAutofill && hasAutofillPayload(docAutofill.data)) {
+            provenanceAffinda = docAutofill.affindaData;
+            provenanceEden = docAutofill.edenData || null;
+            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
+              aiProvider: docAutofill.provider,
+            });
+            aiSuccess = true;
+            aiProvider = docAutofill.provider;
+            usedDocumentParser = true;
+            console.log('✅ Recovered autofill via document parsers after Hybrid placeholder');
+          } else {
+            throw new Error('AI returned fallback data - will use document/text extraction instead');
+          }
+        } else {
         
         // Transform HybridResumeAI format to our format. We now preserve EVERY
         // field the validator returned — `summary`, `professionalInformation.jobTitle`,
@@ -538,6 +597,7 @@ export async function POST(request: NextRequest) {
         console.log('   - Skills extracted:', parsedData.skills.length);
         console.log('   - Experience entries:', parsedData.experience.length);
         console.log('   - Education entries:', parsedData.education.length);
+        }
       } else {
         throw new Error('HybridResumeAI returned incomplete data');
       }
@@ -560,6 +620,35 @@ export async function POST(request: NextRequest) {
       console.error('  - Text length being sent:', extractedText.length);
       console.error('  - Text word count:', (extractedText.match(/[a-zA-Z]{3,}/g) || []).length);
       console.error('═══════════════════════════════════════════════════════');
+      if (!usedDocumentParser) {
+        try {
+          console.log('🌿 Hybrid failed — retrying Eden/Affinda + text recovery...');
+          const docAutofill = await resolveDocumentParserAutofill(
+            lastAffindaResult,
+            fileBuffer,
+            file.name,
+            extractedText
+          );
+          if (docAutofill) {
+            provenanceAffinda = docAutofill.affindaData;
+            provenanceEden = docAutofill.edenData || null;
+            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
+              aiProvider: docAutofill.provider,
+            });
+            aiSuccess = true;
+            aiProvider = docAutofill.provider;
+            usedDocumentParser = true;
+            console.log('✅ Document parser autofill recovered after Hybrid failure');
+          }
+        } catch (docRetryError) {
+          console.warn(
+            '⚠️ Document parser retry failed:',
+            docRetryError instanceof Error ? docRetryError.message : docRetryError
+          );
+        }
+      }
+
+      if (!usedDocumentParser) {
       console.warn('⚠️ Falling back to EnhancedResumeAI...');
       
       try {
@@ -646,11 +735,26 @@ export async function POST(request: NextRequest) {
           }
         } catch (affindaError) {
           console.error('❌ Affinda also failed, using basic extraction:', affindaError);
-          // Use basic extraction as last resort
-          parsedData = await parseResumeBasic(extractedText, session);
-          aiProvider = 'basic';
+          const docAutofill = await resolveDocumentParserAutofill(
+            lastAffindaResult,
+            fileBuffer,
+            file.name,
+            extractedText
+          );
+          if (docAutofill) {
+            provenanceAffinda = docAutofill.affindaData;
+            provenanceEden = docAutofill.edenData || null;
+            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
+              aiProvider: docAutofill.provider,
+            });
+            aiProvider = docAutofill.provider;
+          } else {
+            parsedData = await parseResumeBasic(extractedText, session);
+            aiProvider = 'basic';
+          }
         }
       }
+    }
     }
     }
     }

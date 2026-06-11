@@ -768,6 +768,28 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
 
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
+  const labeledNameRe =
+    /(?:^|\n)\s*(?:name|candidate\s*name|full\s*name|applicant\s*name)\s*[:：]\s*([A-Za-z][A-Za-z\s'.-]{2,50})/gi;
+  let labeledMatch: RegExpExecArray | null;
+  while ((labeledMatch = labeledNameRe.exec(text)) !== null) {
+    const labeled = labeledMatch[1].trim();
+    if (isPlausiblePersonName(labeled) && !isFirmOrLocationNamePhrase(labeled)) {
+      candidates.push({ value: labeled, confidence: 87, source: 'labeled_name' });
+    }
+  }
+
+  for (let i = Math.max(0, lines.length - 45); i < lines.length; i++) {
+    const line = lines[i];
+    const inline = line.match(
+      /^(?:name|candidate\s*name|full\s*name|applicant\s*name)\s*[:：]\s*(.+)$/i
+    );
+    if (!inline) continue;
+    const labeled = inline[1].trim();
+    if (isPlausiblePersonName(labeled) && !isFirmOrLocationNamePhrase(labeled)) {
+      candidates.push({ value: labeled, confidence: 86, source: 'labeled_name' });
+    }
+  }
+
   if (email) {
     const emailIdx = lines.findIndex((l) => l.includes(email));
     if (emailIdx >= 0) {

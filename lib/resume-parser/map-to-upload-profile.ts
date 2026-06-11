@@ -157,6 +157,41 @@ export function shouldPreferHybridOverAffinda(
   return { prefer: reasons.length > 0, reasons };
 }
 
+const LAYOUT_ONLY_HYBRID_REASONS = new Set([
+  'executive_layout',
+  'multi_column',
+  'sidebar',
+  'cover_letter',
+]);
+
+/**
+ * Document parsers (Affinda/Eden) may return good data on executive layouts where
+ * OpenAI would be preferred — accept when sections are populated without content defects.
+ */
+export function isDocumentParserAcceptable(extracted: ExtractedResumeData): boolean {
+  if (!isUsableExtraction(extracted)) return false;
+  const quality = shouldPreferHybridOverAffinda(extracted, undefined);
+  const contentReasons = quality.reasons.filter((r) => !LAYOUT_ONLY_HYBRID_REASONS.has(r));
+  return contentReasons.length === 0;
+}
+
+/** True when autofill has enough data to populate the builder meaningfully. */
+export function hasAutofillPayload(extracted: ExtractedResumeData): boolean {
+  if (isUsableExtraction(extracted)) return true;
+
+  const hasIdentity = !!(extracted.fullName || extracted.email || extracted.phone);
+  const exp = extracted.experience?.length ?? 0;
+  const edu = extracted.education?.length ?? 0;
+  const skills = extracted.skills?.length ?? 0;
+
+  if (hasIdentity && (exp > 0 || edu > 0 || skills > 0)) return true;
+  if (hasIdentity) return true;
+  if (exp > 0 && edu > 0) return true;
+  if (exp >= 2 || edu >= 2 || skills >= 3) return true;
+
+  return false;
+}
+
 export function isAffindaPrimaryAcceptable(
   extracted: ExtractedResumeData,
   layout: ResumeDocumentProfile | null | undefined

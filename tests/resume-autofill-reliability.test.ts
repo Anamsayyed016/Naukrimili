@@ -10,10 +10,12 @@ import {
 } from '@/lib/resume-parser/import-sanitize';
 import {
   isAffindaPrimaryAcceptable,
+  isDocumentParserAcceptable,
   isUsableExtraction,
   shouldPreferHybridOverAffinda,
 } from '@/lib/resume-parser/map-to-upload-profile';
 import {
+  collectNameCandidatesFromText,
   extractResumeFromText,
   stripLeadingNonResumeContent,
 } from '@/lib/resume-parser/text-recovery';
@@ -265,6 +267,23 @@ describe('isAffindaPrimaryAcceptable', () => {
     expect(isUsableExtraction(extracted)).toBe(true);
     expect(shouldPreferHybridOverAffinda(extracted, layout).prefer).toBe(true);
     expect(isAffindaPrimaryAcceptable(extracted, layout)).toBe(false);
+    expect(isDocumentParserAcceptable(extracted)).toBe(true);
+  });
+});
+
+describe('collectNameCandidatesFromText labeled names', () => {
+  it('finds Name : label near footer contact block', () => {
+    const text = [
+      'Professional Experience',
+      'Acme Corp — Engineer',
+      '2020 - Present',
+      '',
+      'Contact',
+      'Email: neha@example.com',
+      'Name : Neha Singh',
+    ].join('\n');
+    const winner = pickBestNameFromCandidates(collectNameCandidatesFromText(text), 'neha@example.com');
+    expect(winner).toBe('Neha Singh');
   });
 });
 
