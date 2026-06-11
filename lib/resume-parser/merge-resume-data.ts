@@ -8,6 +8,7 @@ import { EdenResumeParser } from '@/lib/eden-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
 import {
   hasAutofillPayload,
+  hasMinimalAutofillPayload,
   isDocumentParserAcceptable,
   isSuspectSummary,
 } from '@/lib/resume-parser/map-to-upload-profile';
@@ -556,13 +557,24 @@ export async function resolveDocumentParserAutofill(
   const doc = await tryEdenAffindaDocumentParse(affindaData, fileBuffer, fileName);
   if (doc) {
     const withText = mergeTextRecoveryIntoExtracted(doc.data, extractedText);
-    if (hasAutofillPayload(withText)) {
+    if (hasMinimalAutofillPayload(withText)) {
       return { ...doc, data: withText };
     }
   }
 
+  const affindaTextBase = affindaData
+    ? mergeTextRecoveryIntoExtracted(affindaData, extractedText)
+    : null;
+  if (affindaTextBase && hasMinimalAutofillPayload(affindaTextBase)) {
+    return {
+      data: affindaTextBase,
+      provider: 'affinda+text-recovery',
+      affindaData,
+    };
+  }
+
   const textOnly = extractResumeFromText(extractedText);
-  if (hasAutofillPayload(textOnly)) {
+  if (hasMinimalAutofillPayload(textOnly)) {
     return {
       data: textOnly,
       provider: 'text-recovery',

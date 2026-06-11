@@ -11,7 +11,7 @@ import { GoogleCloudOCRService } from '@/lib/services/google-cloud-ocr';
 import { isAffindaEnabled } from '@/lib/resume-parser/affinda-config';
 import {
   mapExtractedToUploadProfile,
-  hasAutofillPayload,
+  hasMinimalAutofillPayload,
   isAffindaPrimaryAcceptable,
   isSuspectSummary,
   isUsableExtraction,
@@ -477,7 +477,7 @@ export async function POST(request: NextRequest) {
             file.name,
             extractedText
           );
-          if (docAutofill && hasAutofillPayload(docAutofill.data)) {
+          if (docAutofill && hasMinimalAutofillPayload(docAutofill.data)) {
             provenanceAffinda = docAutofill.affindaData;
             provenanceEden = docAutofill.edenData || null;
             parsedData = mapExtractedToUploadProfile(docAutofill.data, {

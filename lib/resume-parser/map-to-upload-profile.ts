@@ -192,6 +192,17 @@ export function hasAutofillPayload(extracted: ExtractedResumeData): boolean {
   return false;
 }
 
+/** Looser gate for text-recovery / partial parser merges — any real field is worth keeping. */
+export function hasMinimalAutofillPayload(extracted: ExtractedResumeData): boolean {
+  if (hasAutofillPayload(extracted)) return true;
+  if (extracted.fullName || extracted.email || extracted.phone) return true;
+  if ((extracted.experience?.length ?? 0) > 0) return true;
+  if ((extracted.education?.length ?? 0) > 0) return true;
+  if ((extracted.skills?.length ?? 0) > 0) return true;
+  if ((extracted.summary || '').trim().length > 40) return true;
+  return false;
+}
+
 export function isAffindaPrimaryAcceptable(
   extracted: ExtractedResumeData,
   layout: ResumeDocumentProfile | null | undefined

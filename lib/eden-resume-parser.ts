@@ -18,6 +18,8 @@ import {
 type EdenProviderBlock = {
   status?: string;
   extracted_data?: Record<string, unknown>;
+  error?: unknown;
+  message?: string;
 };
 
 export class EdenResumeParser {
@@ -38,31 +40,34 @@ export class EdenResumeParser {
     console.log('   - Providers:', config.providers.join(', '));
     console.log('   - File:', fileName, '| MIME:', mime);
 
-    const blob = new Blob([fileBuffer], { type: mime });
-    const formData = new FormData();
-    formData.append('file', blob, fileName);
-    formData.append('providers', JSON.stringify(config.providers));
+    const providerPlans =
+      config.providers.length > 1
+        ? [config.providers, ...config.providers.map((p) => [p])]
+        : [config.providers];
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+    let payload: Record<string, unknown> | null = null;
+    let lastEdenResult: Record<string, EdenProviderBlock> | null = null;
+
+    for (const providers of providerPlans) {
+      const edenResult = await this.requestEdenParse(
+        fileBuffer,
+        fileName,
+        mime,
+        providers,
+        config.apiUrl,
+        config.apiKey,
+        config.timeoutMs
+      );
+      lastEdenResult = edenResult;
+      payload = extractEdenPayload(edenResult);
+      if (payload) {
+        console.log('✅ Eden provider succeeded:', providers.join(', '));
+        break;
+      }
+      logEdenProviderStatuses(edenResult, providers);
+    }
 
     try {
-      const response = await fetch(config.apiUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${config.apiKey}`,
-        },
-        body: formData,
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Eden AI API error: ${response.status} - ${errorText}`);
-      }
-
-      const edenResult = (await response.json()) as Record<string, EdenProviderBlock>;
-      const payload = extractEdenPayload(edenResult);
       if (!payload) {
         throw new Error('Eden AI returned no extracted_data from configured providers');
       }
@@ -83,8 +88,47 @@ export class EdenResumeParser {
       return normalized;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
+      if (lastEdenResult) {
+        logEdenProviderStatuses(lastEdenResult, config.providers);
+      }
       console.error('❌ Eden AI parsing failed:', message);
       throw error;
+    }
+  }
+
+  private async requestEdenParse(
+    fileBuffer: Buffer,
+    fileName: string,
+    mime: string,
+    providers: string[],
+    apiUrl: string,
+    apiKey: string,
+    timeoutMs: number
+  ): Promise<Record<string, EdenProviderBlock>> {
+    const blob = new Blob([fileBuffer], { type: mime });
+    const formData = new FormData();
+    formData.append('file', blob, fileName);
+    formData.append('providers', JSON.stringify(providers));
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: formData,
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Eden AI API error: ${response.status} - ${errorText}`);
+      }
+
+      return (await response.json()) as Record<string, EdenProviderBlock>;
     } finally {
       clearTimeout(timeout);
     }
@@ -292,6 +336,28 @@ export class EdenResumeParser {
   }
 }
 
+function logEdenProviderStatuses(
+  response: Record<string, EdenProviderBlock>,
+  attempted: string[]
+): void {
+  console.warn('[eden] No extracted_data yet. Provider statuses:', attempted.join(', '));
+  for (const key of Object.keys(response)) {
+    const block = response[key];
+    if (!block || typeof block !== 'object') continue;
+    const err =
+      block.error != null
+        ? typeof block.error === 'string'
+          ? block.error
+          : JSON.stringify(block.error).slice(0, 300)
+        : block.message || '';
+    console.warn(
+      `[eden] ${key}: status=${block.status || 'unknown'} hasData=${!!block.extracted_data}${
+        err ? ` error=${err}` : ''
+      }`
+    );
+  }
+}
+
 function extractEdenPayload(response: Record<string, EdenProviderBlock>): Record<string, unknown> | null {
   for (const key of Object.keys(response)) {
     const block = response[key];
@@ -302,7 +368,7 @@ function extractEdenPayload(response: Record<string, EdenProviderBlock>): Record
   }
   for (const key of Object.keys(response)) {
     const block = response[key];
-    if (block?.extracted_data) {
+    if (block?.extracted_data && Object.keys(block.extracted_data).length > 0) {
       return block.extracted_data;
     }
   }
