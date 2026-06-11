@@ -1475,7 +1475,7 @@ export async function POST(request: NextRequest) {
     let builderFormData: Record<string, unknown> | undefined;
     try {
       const { transformImportDataToBuilder } = await import('@/lib/resume-builder/import-transformer');
-      builderFormData = transformImportDataToBuilder({ ...profile, _apiFinalized: true });
+      builderFormData = transformImportDataToBuilder(profile);
       logProfileFormDataAudit(REQ, profile, builderFormData);
       (profile as Record<string, unknown>).builderFormData = builderFormData;
     } catch (auditErr) {

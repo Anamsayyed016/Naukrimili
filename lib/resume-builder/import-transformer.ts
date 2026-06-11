@@ -177,6 +177,176 @@ function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unkn
   return [];
 }
 
+/** Section headers / degrees / firm lines that must not land in achievements. */
+const ACHIEVEMENT_SECTION_HEADER_RE =
+  /^(?:\d+[\.\):\-]\s*)?(?:education|experience|employment|work history|skills|certifications|projects|languages|achievements|professional profile|contact|summary|objective|messenger)\b/i;
+const ACHIEVEMENT_DEGREE_LINE_RE =
+  /\b(b\.?\s*a\.?|b\.?\s*com|b\.?\s*tech|m\.?\s*a\.?|m\.?\s*com|mba|mca|company secretary|\bcs\b|llb|llm|ph\.?\s*d|bachelor|master|doctorate|intermediate|graduation)\b/i;
+const ACHIEVEMENT_FIRM_LINE_RE =
+  /\b(m\/s\.?|pcs\s+firm|associates|chartered|consultancy|pvt\.?\s*ltd|limited)\b/i;
+
+function isMisplacedAchievementLine(line: string): boolean {
+  const t = line.trim();
+  if (!t || t.length > 280) return true;
+  if (ACHIEVEMENT_SECTION_HEADER_RE.test(t)) return true;
+  if (/^\d+[\.\):\-]\s+\S/.test(t) && t.length < 100) return true;
+  if (ACHIEVEMENT_DEGREE_LINE_RE.test(t) && !/\b(achieved|award|won|recognized|completed project)\b/i.test(t)) {
+    return true;
+  }
+  if (ACHIEVEMENT_FIRM_LINE_RE.test(t) && t.length < 160) return true;
+  return false;
+}
+
+function spilloverEducationFromLine(line: string): Record<string, unknown> | null {
+  const t = line.trim();
+  if (!t || !ACHIEVEMENT_DEGREE_LINE_RE.test(t)) return null;
+  return { degree: t, school: '', institution: '', field: '', year: '' };
+}
+
+function spilloverExperienceFromLine(line: string): Record<string, unknown> | null {
+  const t = line.trim();
+  if (!t || !ACHIEVEMENT_FIRM_LINE_RE.test(t)) return null;
+  return { company: t, title: '', position: '' };
+}
+
+function spilloverSkillFromLine(line: string): string | null {
+  const t = line.trim();
+  if (!t || t.length > 60 || t.length < 2) return null;
+  if (isMisplacedAchievementLine(t)) return null;
+  if (/^[A-Z0-9][A-Za-z0-9/.\-\s]{1,58}$/.test(t) && !/\s{3,}/.test(t)) return t;
+  return null;
+}
+
+function partitionSpilloverLines(lines: string[]): {
+  achievements: string[];
+  education: Array<Record<string, unknown>>;
+  experience: Array<Record<string, unknown>>;
+  skills: string[];
+} {
+  const achievements: string[] = [];
+  const education: Array<Record<string, unknown>> = [];
+  const experience: Array<Record<string, unknown>> = [];
+  const skills: string[] = [];
+  const seen = new Set<string>();
+
+  for (const raw of lines) {
+    const value = sanitizeFieldText(raw, 500);
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+
+    if (isMisplacedAchievementLine(value)) {
+      seen.add(key);
+      const edu = spilloverEducationFromLine(value);
+      if (edu) {
+        education.push(edu);
+        continue;
+      }
+      const exp = spilloverExperienceFromLine(value);
+      if (exp) {
+        experience.push(exp);
+        continue;
+      }
+      const skill = spilloverSkillFromLine(value);
+      if (skill) {
+        skills.push(skill);
+      }
+      continue;
+    }
+
+    seen.add(key);
+    achievements.push(value);
+  }
+
+  return { achievements, education, experience, skills };
+}
+
+function enrichIdentityFromText(
+  data: Record<string, unknown>,
+  textParsed?: ReturnType<typeof extractResumeFromText>,
+  recovered?: Partial<ReturnType<typeof recoverFromRawText>>
+): Record<string, unknown> {
+  const personal = (data.personalInformation || {}) as Record<string, unknown>;
+  return {
+    ...data,
+    fullName: String(data.fullName || data.name || textParsed?.fullName || personal.fullName || '').trim(),
+    name: String(data.name || data.fullName || textParsed?.fullName || personal.fullName || '').trim(),
+    email: String(data.email || personal.email || textParsed?.email || recovered?.email || '').trim(),
+    phone: String(data.phone || personal.phone || textParsed?.phone || recovered?.phone || '').trim(),
+    location: String(data.location || data.address || textParsed?.location || '').trim(),
+    linkedin: String(
+      data.linkedin || data.linkedinUrl || textParsed?.linkedin || recovered?.linkedin || ''
+    ).trim(),
+    portfolio: String(
+      data.portfolio || data.website || data.github || textParsed?.portfolio || recovered?.portfolio || ''
+    ).trim(),
+  };
+}
+
+function relocateMisplacedEducationEntries(data: Record<string, unknown>): Record<string, unknown> {
+  const education = firstNonEmptyArray(data, ['education', 'Education']);
+  const experience = firstNonEmptyArray(data, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]);
+  const keptEdu: unknown[] = [];
+  const extraExp: Array<Record<string, unknown>> = [];
+
+  for (const item of education) {
+    if (!item || typeof item !== 'object') {
+      keptEdu.push(item);
+      continue;
+    }
+    const rec = item as Record<string, unknown>;
+    const inst = String(rec.institution || rec.school || '');
+    const degree = String(rec.degree || '');
+    if (ACHIEVEMENT_FIRM_LINE_RE.test(inst) && !ACHIEVEMENT_DEGREE_LINE_RE.test(degree)) {
+      extraExp.push({ company: inst, title: degree || '', position: degree || '' });
+      continue;
+    }
+    keptEdu.push(item);
+  }
+
+  if (!extraExp.length) return data;
+
+  return {
+    ...data,
+    education: keptEdu,
+    experience: mergeUniqueRecords(
+      experience,
+      extraExp,
+      (e) => `${String(e.company || '').trim()}|${String(e.position || e.title || '').trim()}`.toLowerCase()
+    ),
+  };
+}
+
+function applySpilloverToImport(
+  data: Record<string, unknown>,
+  spillover: ReturnType<typeof partitionSpilloverLines>
+): Record<string, unknown> {
+  return {
+    ...data,
+    education: mergeUniqueRecords(
+      firstNonEmptyArray(data, ['education', 'Education']),
+      spillover.education,
+      (e) =>
+        `${String(e.institution || e.school || '').trim()}|${String(e.degree || '').trim()}`.toLowerCase()
+    ),
+    experience: mergeUniqueRecords(
+      firstNonEmptyArray(data, ['experience', 'workExperience', 'Work Experience', 'Experience']),
+      spillover.experience,
+      (e) =>
+        `${String(e.company || '').trim()}|${String(e.position || e.title || '').trim()}`.toLowerCase()
+    ),
+    skills: mergeUniqueStrings(
+      firstNonEmptyArray(data, ['skills', 'Skills', 'technicalSkills']) as string[],
+      spillover.skills
+    ),
+  };
+}
+
 /** True when any major structured section is missing (parser dumped prose into summary). */
 function isSparseSectionImport(data: Record<string, unknown>): boolean {
   const experience = firstNonEmptyArray(data, [
@@ -400,7 +570,9 @@ function supplementImportFromRawText(
       firstNonEmptyArray(importedData, ['achievements', 'Achievements']).map((a) =>
         typeof a === 'string' ? a : String((a as { title?: string }).title || '')
       ),
-      (textParsed.achievements || []).filter((a): a is string => typeof a === 'string')
+      (textParsed.achievements || []).filter(
+        (a): a is string => typeof a === 'string' && !isMisplacedAchievementLine(a)
+      )
     ),
   };
 }
@@ -423,26 +595,21 @@ export function transformImportDataToBuilder(
     return transformImportDataToBuilder({ ...parent, ...merged, builderFormData: undefined });
   }
 
-  const apiFinalized = importedData._apiFinalized === true;
   const effectiveRawText = resolveEffectiveRawText(importedData as Record<string, unknown>);
 
   // 1. Identity recovery + section backfill from rawText when parser arrays are sparse
-  const recovered = apiFinalized
-    ? ({} as ReturnType<typeof recoverFromRawText>)
-    : recoverFromRawText(effectiveRawText || importedData.rawText);
-  const mergedBase = apiFinalized
-    ? (importedData as Record<string, unknown>)
-    : (mergeRecovery(importedData, recovered) as Record<string, unknown>);
+  const recovered = recoverFromRawText(effectiveRawText || importedData.rawText);
+  const mergedBase = mergeRecovery(importedData, recovered) as Record<string, unknown>;
   const textParsed =
     effectiveRawText.length >= 80 ? extractResumeFromText(effectiveRawText) : undefined;
-  let mergedImport =
-    apiFinalized && !isSparseSectionImport(mergedBase)
-      ? mergedBase
-      : supplementImportFromRawText(
-          { ...mergedBase, rawText: effectiveRawText || mergedBase.rawText },
-          textParsed
-        );
+  let mergedImport = isSparseSectionImport(mergedBase)
+    ? supplementImportFromRawText(
+        { ...mergedBase, rawText: effectiveRawText || mergedBase.rawText },
+        textParsed
+      )
+    : enrichIdentityFromText(mergedBase, textParsed, recovered);
   mergedImport = applyTextRecoveryWhenSparse(mergedImport);
+  mergedImport = relocateMisplacedEducationEntries(mergedImport);
 
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};
@@ -483,12 +650,26 @@ export function transformImportDataToBuilder(
     locationHint
   );
   const textAdditional =
-    apiFinalized
-      ? emptyAdditionalResumeData()
-      : typeof mergedBase.rawText === 'string' && mergedBase.rawText.length >= 80
-        ? extractAdditionalResumeDataFromText(mergedBase.rawText)
-        : emptyAdditionalResumeData();
+    effectiveRawText.length >= 80
+      ? extractAdditionalResumeDataFromText(effectiveRawText)
+      : emptyAdditionalResumeData();
   const mergedAdditional = mergeAdditionalResumeData(additionalResumeData, textAdditional);
+
+  const achievementCandidateLines = [
+    ...firstNonEmptyArray(mergedImport, ['achievements', 'Achievements']).map((a) =>
+      typeof a === 'string' ? a : String((a as { title?: string }).title || '')
+    ),
+    ...(mergedAdditional.achievements || []),
+    ...(mergedAdditional.memberships || []),
+    ...(mergedAdditional.publications || []),
+    ...(mergedAdditional.volunteerWork || []),
+    ...mergedAdditional.unclassifiedFragments
+      .filter((f) => f.kind === 'ACHIEVEMENT')
+      .map((f) => f.value),
+    ...(textParsed?.achievements || []),
+  ];
+  const partitionedAchievements = partitionSpilloverLines(achievementCandidateLines);
+  mergedImport = applySpilloverToImport(mergedImport, partitionedAchievements);
 
   const experience = transformExperienceArray(
     firstNonEmptyArray(mergedImport, [
@@ -571,32 +752,7 @@ export function transformImportDataToBuilder(
     ),
 
     // ===== AchievementsStep =====
-    achievements: (() => {
-      const base = transformAchievementsArray(
-        firstNonEmptyArray(mergedImport, ['achievements', 'Achievements'])
-      );
-      const extra = [
-        ...(mergedAdditional.achievements || []),
-        ...(mergedAdditional.memberships || []),
-        ...(mergedAdditional.publications || []),
-        ...(mergedAdditional.volunteerWork || []),
-        ...mergedAdditional.unclassifiedFragments
-          .filter((f) => f.kind === 'ACHIEVEMENT')
-          .map((f) => f.value),
-        ...(textParsed?.achievements || []),
-      ];
-      const seen = new Set(base.map((a) => a.toLowerCase()));
-      const out = [...base];
-      for (const item of extra) {
-        const value = sanitizeFieldText(item, 500);
-        if (!value) continue;
-        const key = value.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push(value);
-      }
-      return out;
-    })(),
+    achievements: transformAchievementsArray(partitionedAchievements.achievements),
 
     // ===== HobbiesStep =====
     hobbies: cleanHobbies(
@@ -1129,7 +1285,7 @@ function transformAchievementsArray(achievements: unknown): string[] {
   const out: string[] = [];
   for (const a of achievements) {
     const value = sanitizeAchievementEntry(a);
-    if (!value) continue;
+    if (!value || isMisplacedAchievementLine(value)) continue;
     const key = value.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);

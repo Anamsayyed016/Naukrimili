@@ -549,4 +549,44 @@ describe('resume preview data binding', () => {
     expect(transformed.summary).toBe('Experienced developer.');
     expect(transformed.experience).toHaveLength(1);
   });
+
+  it('routes misplaced achievement bleed into education and experience sections', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'cs.candidate@example.com',
+      phone: '+91 98765 43210',
+      rawText: [
+        'CS Mujahid Ali',
+        'cs.candidate@example.com',
+        '+91 98765 43210',
+        '',
+        '2. EDUCATION',
+        'COMPANY SECRETARY (CS)',
+        'MASTERS OF BUSINESS ADMINISTRATION (MBA)',
+        '',
+        'M/S. RSR & ASSOCIATES (PCS FIRM) BHOPAL',
+        'MCA/21 Portal',
+        'ROC/E-Filing',
+      ].join('\n'),
+      achievements: [
+        '2. EDUCATION',
+        'COMPANY SECRETARY (CS)',
+        'MASTERS OF BUSINESS ADMINISTRATION (MBA)',
+        'M/S. RSR & ASSOCIATES (PCS FIRM) BHOPAL',
+        'MCA/21 Portal',
+        'ROC/E-Filing',
+      ],
+      experience: [],
+      education: [{ institution: 'M/S. RSR & ASSOCIATES (PCS FIRM) BHOPAL', degree: '' }],
+      skills: [],
+    });
+
+    expect(transformed.achievements).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/^2\.\s*EDUCATION/i)])
+    );
+    expect(transformed.education.some((e: { degree?: string }) => /company secretary|mba/i.test(String(e.degree || '')))).toBe(true);
+    expect(transformed.experience.some((e: { company?: string }) => /RSR/i.test(String(e.company || '')))).toBe(true);
+    expect(transformed.skills.some((s: string) => /MCA\/21|ROC/i.test(s))).toBe(true);
+    expect(transformed.email).toBe('cs.candidate@example.com');
+    expect(transformed.phone).toMatch(/98765/);
+  });
 });
