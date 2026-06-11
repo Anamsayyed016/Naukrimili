@@ -14,7 +14,7 @@ import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-en
 import { ensureWorkspacePreferenceOwnedBy } from '@/lib/preferences/workspace-preference';
 
 export default function RoleSelectionPage() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [hasRedirectedToSignin, setHasRedirectedToSignin] = useState(false);
   const [hasRedirectedAway, setHasRedirectedAway] = useState(false);
@@ -43,9 +43,6 @@ export default function RoleSelectionPage() {
       try {
         const nextSession = await getSession();
         applySession(nextSession);
-        if (nextSession?.user) {
-          void update();
-        }
       } catch {
         if (!cancelled) {
           setBootstrappedStatus('unauthenticated');
@@ -62,31 +59,46 @@ export default function RoleSelectionPage() {
       void loadSession();
     }, 2500);
 
-    const escapeTimer = window.setTimeout(() => {
-      if (cancelled) {
-        return;
-      }
-      setBootstrappedStatus((prev) => (prev === 'loading' ? 'unauthenticated' : prev));
-    }, 8000);
-
     return () => {
       cancelled = true;
       window.clearTimeout(retryTimer);
-      window.clearTimeout(escapeTimer);
     };
-  }, [status, update]);
+  }, [status]);
 
+  // Only upgrade bootstrap from useSession — never downgrade a valid bootstrap
+  // session to unauthenticated (update() flicker was causing signin ↔ role-selection loops).
   useEffect(() => {
-    if (status !== 'loading') {
-      setBootstrappedSession(session ?? null);
-      setBootstrappedStatus(status);
+    if (status === 'authenticated' && session?.user) {
+      setBootstrappedSession(session);
+      setBootstrappedStatus('authenticated');
     }
   }, [session, status]);
 
-  const effectiveStatus =
-    status !== 'loading' ? status : bootstrappedStatus;
-  const effectiveSession =
-    status !== 'loading' ? session : bootstrappedSession;
+  const effectiveStatus = (() => {
+    if (status === 'authenticated' && session?.user) {
+      return 'authenticated' as const;
+    }
+    if (bootstrappedSession?.user) {
+      return 'authenticated' as const;
+    }
+    if (status === 'unauthenticated' && !bootstrappedSession?.user) {
+      return 'unauthenticated' as const;
+    }
+    if (status === 'loading') {
+      return bootstrappedStatus;
+    }
+    return status;
+  })();
+
+  const effectiveSession = (() => {
+    if (status === 'authenticated' && session?.user) {
+      return session;
+    }
+    if (bootstrappedSession?.user) {
+      return bootstrappedSession;
+    }
+    return status !== 'loading' ? session : bootstrappedSession;
+  })();
 
   console.log('RoleSelectionPage - effectiveStatus:', effectiveStatus);
   console.log('RoleSelectionPage - effectiveSession:', effectiveSession);
