@@ -504,6 +504,37 @@ describe('resume preview data binding', () => {
     expect(transformed.skills.length).toBeGreaterThan(0);
   });
 
+  it('recovers sections from summary bleed when parser arrays are empty (_apiFinalized)', () => {
+    const summary = [
+      'Software developer with internship experience.',
+      '',
+      'Education',
+      'Bachelor of Computer Application (BCA)',
+      'Jan 2025 - Mar 2025',
+      '',
+      'Experience',
+      'Marketing Intern',
+      'Assisted in creating and scheduling email campaigns using Mailchimp.',
+      '',
+      'Skills',
+      'HTML, CSS, JavaScript, Mailchimp',
+    ].join('\n');
+
+    const transformed = transformImportDataToBuilder({
+      firstName: 'Arshil',
+      lastName: 'Alam',
+      email: 'arshil@example.com',
+      summary,
+      experience: [],
+      education: [],
+      skills: [],
+      _apiFinalized: true,
+    });
+
+    expect(transformed.experience.length + transformed.education.length + transformed.skills.length).toBeGreaterThan(0);
+    expect(transformed.summary).not.toMatch(/Mailchimp/i);
+  });
+
   it('transformImportDataToBuilder trims summary bleed when structured sections exist', () => {
     const transformed = transformImportDataToBuilder({
       firstName: 'Anam',

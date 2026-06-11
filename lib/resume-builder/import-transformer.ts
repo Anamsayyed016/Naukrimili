@@ -177,6 +177,48 @@ function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unkn
   return [];
 }
 
+/** True when any major structured section is missing (parser dumped prose into summary). */
+function isSparseSectionImport(data: Record<string, unknown>): boolean {
+  const experience = firstNonEmptyArray(data, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]);
+  const education = firstNonEmptyArray(data, ['education', 'Education']);
+  const skills = firstNonEmptyArray(data, ['skills', 'Skills', 'technicalSkills']);
+  return experience.length === 0 || education.length === 0 || skills.length === 0;
+}
+
+/**
+ * Prefer full PDF/text extraction; when AI leaves only a bloated summary, parse that instead.
+ */
+function resolveEffectiveRawText(data: Record<string, unknown>): string {
+  const raw = typeof data.rawText === 'string' ? data.rawText.trim() : '';
+  if (raw.length >= 80) return raw;
+
+  const summary = String(data.summary || data.bio || data.objective || '').trim();
+  if (summary.length < 120) return raw;
+
+  const looksLikeFullResume =
+    /(experience|employment|work history|education|academic|skills|technical skills|projects|certifications)/i.test(
+      summary
+    );
+  if (looksLikeFullResume) return summary;
+
+  return raw;
+}
+
+/** Backfill sparse parser arrays from rawText or summary bleed (builder mapping only). */
+function applyTextRecoveryWhenSparse(data: Record<string, unknown>): Record<string, unknown> {
+  if (!isSparseSectionImport(data)) return data;
+
+  const effectiveRaw = resolveEffectiveRawText(data);
+  if (effectiveRaw.length < 80) return data;
+
+  return supplementImportFromRawText({ ...data, rawText: effectiveRaw });
+}
+
 function mergeUniqueStrings(existing: unknown[], recovered: string[]): string[] {
   const base = existing.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
   if (!recovered.length) return base;
@@ -372,29 +414,35 @@ export function transformImportDataToBuilder(
   }
 
   if (importedData.builderFormData && typeof importedData.builderFormData === 'object') {
+    const { builderFormData, ...parent } = importedData;
     const merged = mergeBuilderFormWithParent(
-      importedData as Record<string, unknown>,
-      importedData.builderFormData as Record<string, any>
+      parent as Record<string, unknown>,
+      builderFormData as Record<string, any>
     );
-    return applySummaryHygieneToBuilderForm(merged);
+    // Run full transform so text recovery + sanitize pipelines apply to merged data.
+    return transformImportDataToBuilder({ ...parent, ...merged, builderFormData: undefined });
   }
 
   const apiFinalized = importedData._apiFinalized === true;
+  const effectiveRawText = resolveEffectiveRawText(importedData as Record<string, unknown>);
 
   // 1. Identity recovery + section backfill from rawText when parser arrays are sparse
-  const recovered = apiFinalized ? ({} as ReturnType<typeof recoverFromRawText>) : recoverFromRawText(importedData.rawText);
+  const recovered = apiFinalized
+    ? ({} as ReturnType<typeof recoverFromRawText>)
+    : recoverFromRawText(effectiveRawText || importedData.rawText);
   const mergedBase = apiFinalized
     ? (importedData as Record<string, unknown>)
     : (mergeRecovery(importedData, recovered) as Record<string, unknown>);
   const textParsed =
-    !apiFinalized &&
-    typeof mergedBase.rawText === 'string' &&
-    mergedBase.rawText.length >= 80
-      ? extractResumeFromText(mergedBase.rawText)
-      : undefined;
-  const mergedImport = apiFinalized
-    ? mergedBase
-    : supplementImportFromRawText(mergedBase, textParsed);
+    effectiveRawText.length >= 80 ? extractResumeFromText(effectiveRawText) : undefined;
+  let mergedImport =
+    apiFinalized && !isSparseSectionImport(mergedBase)
+      ? mergedBase
+      : supplementImportFromRawText(
+          { ...mergedBase, rawText: effectiveRawText || mergedBase.rawText },
+          textParsed
+        );
+  mergedImport = applyTextRecoveryWhenSparse(mergedImport);
 
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};
@@ -557,7 +605,7 @@ export function transformImportDataToBuilder(
 
     additionalResumeData: mergedAdditional,
 
-    rawText: mergedImport.rawText || importedData.rawText,
+    rawText: effectiveRawText || mergedImport.rawText || importedData.rawText,
 
     // Metadata
     _imported: true,

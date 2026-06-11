@@ -344,14 +344,16 @@ export default function ResumeEditorPage() {
             try {
               const parsed = JSON.parse(savedData);
               const sparseSections =
-                (!Array.isArray(parsed.experience) || parsed.experience.length === 0) &&
-                (!Array.isArray(parsed.skills) || parsed.skills.length === 0) &&
+                (!Array.isArray(parsed.experience) || parsed.experience.length === 0) ||
+                (!Array.isArray(parsed.skills) || parsed.skills.length === 0) ||
                 (!Array.isArray(parsed.education) || parsed.education.length === 0);
+              const hasRecoverySource =
+                (typeof parsed.rawText === 'string' && parsed.rawText.length >= 80) ||
+                (typeof parsed.summary === 'string' &&
+                  parsed.summary.length >= 120 &&
+                  /(experience|education|skills|employment)/i.test(parsed.summary));
               const shouldRehydrate =
-                parsed._imported === true ||
-                (typeof parsed.rawText === 'string' &&
-                  parsed.rawText.length >= 80 &&
-                  sparseSections);
+                parsed._imported === true || (sparseSections && hasRecoverySource);
               if (shouldRehydrate) {
                 const { transformImportDataToBuilder } = await import(
                   '@/lib/resume-builder/import-transformer'

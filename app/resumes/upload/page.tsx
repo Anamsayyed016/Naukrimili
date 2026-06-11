@@ -96,23 +96,31 @@ export default function ResumeUploadPage() {
           educationCount: data.extractedData.education?.length || 0
         });
         
-        // Store full extracted data in sessionStorage for resume builder
-        const dataToStore = {
-          ...data.extractedData,
-          resumeId: data.resumeId,
-        };
-        
-        sessionStorage.setItem('resume-import-data', JSON.stringify(dataToStore));
-        console.log('💾 Data stored in sessionStorage');
-        
-        toast({
-          title: '✅ Resume Imported!',
-          description: 'Select a template to build your professional resume...',
-          duration: 3000,
-        });
-        
-        // Navigate to template selection with import flag
-        router.push('/resume-builder/templates?source=import');
+        void (async () => {
+          const { transformImportDataToBuilder } = await import(
+            '@/lib/resume-builder/import-transformer'
+          );
+          const builderReady = transformImportDataToBuilder(parsed);
+          const dataToStore = {
+            ...builderReady,
+            rawText: parsed.rawText || builderReady.rawText,
+            resumeId: data.resumeId,
+          };
+          console.log('💾 Builder mapping after upload:', {
+            experience: dataToStore.experience?.length || 0,
+            education: dataToStore.education?.length || 0,
+            skills: dataToStore.skills?.length || 0,
+            summaryChars: String(dataToStore.summary || '').length,
+          });
+          sessionStorage.setItem('resume-import-data', JSON.stringify(dataToStore));
+
+          toast({
+            title: '✅ Resume Imported!',
+            description: 'Select a template to build your professional resume...',
+            duration: 3000,
+          });
+          router.push('/resume-builder/templates?source=import');
+        })();
         return;
       }
 
