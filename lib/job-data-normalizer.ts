@@ -488,7 +488,9 @@ export function passesJobListingQualityCheck(job: {
     return false;
   }
   if (source === 'manual' || source === 'employer') return true;
-  return !!job.description?.trim();
+  // Lightweight list queries omit description (view=list) — title+company already validated above.
+  if (!Object.prototype.hasOwnProperty.call(job, 'description')) return true;
+  return !!String(job.description || '').trim();
 }
 
 /**
