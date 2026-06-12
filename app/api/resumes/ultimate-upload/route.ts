@@ -48,8 +48,8 @@ import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-// Allow up to 10MB file uploads and 60 seconds processing time
-export const maxDuration = 60;
+// Large/image-rich PDFs: Affinda (55s) + Eden (55s) + OCR can exceed 60s — align with nginx /api/ 300s cap
+export const maxDuration = 180;
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -59,6 +59,10 @@ const ALLOWED_TYPES = [
 ];
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+/** Full-PDF Vision OCR above this size spikes memory and often times out; document parsers handle large files. */
+const OCR_MAX_FILE_BYTES = 3 * 1024 * 1024;
+/** Serial Affinda+Eden (55s each) exceeds gateway limits on heavy uploads when both run. */
+const EDEN_ENRICH_MAX_FILE_BYTES = 4 * 1024 * 1024;
 
 /**
  * POST /api/resumes/ultimate-upload
@@ -210,6 +214,12 @@ export async function POST(request: NextRequest) {
       });
       
       if (shouldAttemptOcr) {
+        if (fileBuffer.length > OCR_MAX_FILE_BYTES) {
+          warn('Skipping OCR for large file — relying on Affinda/document parsers', {
+            fileSizeBytes: fileBuffer.length,
+            limitBytes: OCR_MAX_FILE_BYTES,
+          });
+        } else {
         console.warn('⚠️ Low-quality PDF text — attempting OCR recovery...');
         console.log('   - Text starts with:', extractedText.substring(0, 100));
         
@@ -248,6 +258,7 @@ export async function POST(request: NextRequest) {
           console.warn('⚠️ OCR service not available (API key not configured)');
           console.log('   → Proceeding with basic text extraction');
           // DON'T throw - OCR is optional, proceed without it
+        }
         }
       }
       
@@ -368,7 +379,20 @@ export async function POST(request: NextRequest) {
           }
 
           if (isAffindaPrimaryAcceptable(affindaResult, resumeDocumentProfile)) {
-            const enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
+            let enriched: Awaited<ReturnType<typeof enrichAffindaWithEden>>;
+            if (file.size > EDEN_ENRICH_MAX_FILE_BYTES) {
+              log('Skipping Eden enrichment for large file (Affinda primary sufficient)', {
+                fileSizeBytes: file.size,
+                limitBytes: EDEN_ENRICH_MAX_FILE_BYTES,
+              });
+              enriched = {
+                data: affindaResult,
+                provider: 'affinda',
+                affindaData: affindaResult,
+              };
+            } else {
+              enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
+            }
             provenanceAffinda = enriched.affindaData;
             provenanceEden = enriched.edenData || null;
             parsedData = mapExtractedToUploadProfile(enriched.data, {

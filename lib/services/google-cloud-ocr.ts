@@ -31,6 +31,10 @@ export class GoogleCloudOCRService {
       throw new Error('Google Cloud OCR API key not configured');
     }
 
+    const timeoutMs = parseInt(process.env.GOOGLE_CLOUD_OCR_TIMEOUT_MS || '45000', 10);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     try {
       const response = await fetch(
         `https://vision.googleapis.com/v1/images:annotate?key=${this.apiKey}`,
@@ -39,6 +43,7 @@ export class GoogleCloudOCRService {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: controller.signal,
           body: JSON.stringify({
             requests: [
               {
@@ -105,8 +110,13 @@ export class GoogleCloudOCRService {
         detectedLanguages: languages,
       };
     } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`Google Cloud OCR timed out after ${timeoutMs}ms`);
+      }
       console.error('Google Cloud OCR error:', error);
       throw new Error(`Failed to extract text: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

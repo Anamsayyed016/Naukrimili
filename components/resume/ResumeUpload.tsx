@@ -17,9 +17,17 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
+      if (selectedFile.size > MAX_FILE_BYTES) {
+        const msg = `File size exceeds maximum limit of 10MB. Your file is ${(selectedFile.size / (1024 * 1024)).toFixed(2)}MB.`;
+        setError(msg);
+        setFile(null);
+        return;
+      }
       setFile(selectedFile);
       setError(null);
     }
@@ -40,7 +48,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       
       toast({
         title: 'AI Processing Started',
-        description: 'Analyzing your resume with AI. This may take a few seconds...',
+        description: 'Analyzing your resume with AI. Large files may take up to 3 minutes...',
       });
       
       const formData = new FormData();
@@ -51,13 +59,28 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         fileSize: file.size,
         fileType: file.type
       });
+
+      const uploadController = new AbortController();
+      const uploadTimeoutId = setTimeout(() => uploadController.abort(), 180_000);
       
-      const response = await fetch('/api/resumes/ultimate-upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-        // Don't set Content-Type header - browser will set it with boundary for FormData
-      });
+      let response: Response;
+      try {
+        response = await fetch('/api/resumes/ultimate-upload', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+          signal: uploadController.signal,
+        });
+      } catch (fetchErr) {
+        if (fetchErr instanceof Error && fetchErr.name === 'AbortError') {
+          throw new Error(
+            'Upload timed out after 3 minutes. Try a smaller PDF or wait and retry — large resumes take longer to parse.'
+          );
+        }
+        throw fetchErr;
+      } finally {
+        clearTimeout(uploadTimeoutId);
+      }
       
       console.log('📥 Server response status:', response.status, response.statusText);
       
@@ -75,6 +98,10 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         // Handle specific error codes with enhanced error messages
         if (response.status === 413) {
           throw new Error('File size exceeds maximum limit of 10MB. Please upload a smaller file.');
+        } else if (response.status === 504) {
+          throw new Error(
+            'Server timed out while parsing your resume. Large or image-heavy PDFs can take longer — please retry or use a smaller file.'
+          );
         } else if (response.status === 401) {
           throw new Error('Please log in to upload your resume.');
         } else if (response.status === 400) {
