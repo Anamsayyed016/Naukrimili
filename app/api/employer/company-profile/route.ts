@@ -296,6 +296,13 @@ export async function POST(request: Request) {
       // Don't fail the company creation if email fails
     }
 
+    try {
+      const { notifyCompanyIndexNow } = await import('@/lib/indexnow');
+      notifyCompanyIndexNow(company.id);
+    } catch (indexNowError) {
+      console.error('[IndexNow] Company notify failed:', indexNowError);
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Company profile created successfully',
@@ -387,6 +394,13 @@ export async function PUT(request: Request) {
     });
 
     console.log('✅ Company updated successfully:', { id: updatedCompany.id, name: updatedCompany.name });
+
+    try {
+      const { notifyCompanyIndexNow } = await import('@/lib/indexnow');
+      notifyCompanyIndexNow(updatedCompany.id);
+    } catch (indexNowError) {
+      console.error('[IndexNow] Company notify failed:', indexNowError);
+    }
 
     return NextResponse.json({
       success: true,

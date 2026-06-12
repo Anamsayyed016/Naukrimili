@@ -221,6 +221,28 @@ export async function POST(request: NextRequest) {
       data: updateData
     });
 
+    if (action === 'approve' || action === 'activate') {
+      try {
+        const activeJobs = await prisma.job.findMany({
+          where: { id: { in: jobIds }, isActive: true },
+          select: {
+            id: true,
+            title: true,
+            company: true,
+            location: true,
+            source: true,
+            sourceId: true,
+            isActive: true,
+          },
+        });
+        const { notifyIndexNow, buildJobPublicUrl } = await import('@/lib/indexnow');
+        const urls = activeJobs.map((job) => buildJobPublicUrl(job));
+        notifyIndexNow(urls);
+      } catch (indexNowError) {
+        console.error('[IndexNow] Admin job notify failed:', indexNowError);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message,

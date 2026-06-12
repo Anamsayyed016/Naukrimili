@@ -204,6 +204,13 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    try {
+      const { notifyJobIndexNow } = await import('@/lib/indexnow');
+      notifyJobIndexNow(job);
+    } catch (indexNowError) {
+      console.error('[IndexNow] Job notify failed:', indexNowError);
+    }
+
     return NextResponse.json({
       success: true,
       data: job,

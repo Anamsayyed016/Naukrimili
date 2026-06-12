@@ -121,6 +121,13 @@ export async function POST(request: NextRequest) {
 
     await jobCacheService.invalidateJobsListingCache();
 
+    try {
+      const { notifyJobIndexNow } = await import('@/lib/indexnow');
+      notifyJobIndexNow(job);
+    } catch (indexNowError) {
+      console.error('[IndexNow] Job notify failed:', indexNowError);
+    }
+
     // Send email notifications
     try {
       const { getBaseUrl } = await import('@/lib/url-utils');

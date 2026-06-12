@@ -224,6 +224,13 @@ export async function PUT(
     });
     console.log('✅ Job updated successfully:', updatedJob.id);
 
+    try {
+      const { notifyJobIndexNow } = await import('@/lib/indexnow');
+      notifyJobIndexNow(updatedJob);
+    } catch (indexNowError) {
+      console.error('[IndexNow] Job notify failed:', indexNowError);
+    }
+
     return NextResponse.json({
       success: true,
       data: updatedJob,

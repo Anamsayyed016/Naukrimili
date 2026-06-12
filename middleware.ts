@@ -4,6 +4,9 @@ import type { NextRequest } from 'next/server';
 // Canonical base URL - single source of truth
 const CANONICAL_BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://naukrimili.com';
 
+// IndexNow key verification file (also excluded from matcher below)
+const INDEXNOW_KEY_FILE = '/c7d11205cff98387f261807b34d0a8b975bd141091cf9e8e1af5677afb408add.txt';
+
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get('host') || '';
@@ -37,8 +40,12 @@ export function middleware(request: NextRequest) {
     const isHttpPort3000 = requestPort === '3000';
     // Always redirect www to non-www on canonical origin (not request.nextUrl — behind
     // nginx that port is 3000 and protocol is http, which would yield :3000 redirects)
-    // Serve Bing verification file on www without redirect (Bing may not follow 301 for XML verify)
-    if (hostname.startsWith('www.') && pathname !== '/BingSiteAuth.xml') {
+    // Serve Bing / IndexNow verification files on www without redirect
+    if (
+      hostname.startsWith('www.') &&
+      pathname !== '/BingSiteAuth.xml' &&
+      pathname !== INDEXNOW_KEY_FILE
+    ) {
       const canonical = new URL(
         `${url.pathname}${url.search}`,
         CANONICAL_BASE_URL.replace(/\/$/, '')
@@ -142,6 +149,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon.ico|BingSiteAuth\\.xml).*)',
+    '/((?!_next/static|_next/image|favicon.ico|BingSiteAuth\\.xml|c7d11205cff98387f261807b34d0a8b975bd141091cf9e8e1af5677afb408add\\.txt).*)',
   ],
 };
