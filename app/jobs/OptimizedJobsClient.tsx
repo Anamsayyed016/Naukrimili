@@ -35,7 +35,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('grid');
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
