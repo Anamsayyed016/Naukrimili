@@ -5,7 +5,9 @@
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { EdenResumeParser } from '@/lib/eden-resume-parser';
+import { ApilayerResumeParser } from '@/lib/apilayer-resume-parser';
 import { isEdenEnabled } from '@/lib/resume-parser/eden-config';
+import { isApilayerEnabled } from '@/lib/resume-parser/apilayer-config';
 import {
   hasAutofillPayload,
   hasMinimalAutofillPayload,
@@ -504,7 +506,44 @@ export type DocumentParserResult = {
   provider: string;
   affindaData: ExtractedResumeData | null;
   edenData?: ExtractedResumeData;
+  apilayerData?: ExtractedResumeData;
 };
+
+/**
+ * ApiLayer standalone or Affinda+ApiLayer merge — used when Eden is unavailable or fails.
+ */
+export async function tryApilayerDocumentParse(
+  affindaData: ExtractedResumeData | null,
+  fileBuffer: Buffer,
+  fileName: string
+): Promise<DocumentParserResult | null> {
+  const affindaBase = affindaData || emptyExtractedResumeData();
+
+  if (!isApilayerEnabled()) {
+    return null;
+  }
+
+  try {
+    const apilayerParser = new ApilayerResumeParser();
+    const apilayerData = await apilayerParser.parseResume(fileBuffer, fileName);
+    const merged = mergeResumeData(affindaBase, apilayerData);
+    logResumeMergeStats(affindaBase, apilayerData, merged);
+    const provider = affindaData ? 'affinda+apilayer' : 'apilayer';
+    console.log('[resume-merge] ApiLayer document parse accepted:', provider);
+    return {
+      data: merged,
+      provider,
+      affindaData,
+      apilayerData,
+    };
+  } catch (error) {
+    console.warn(
+      '[resume-merge] ApiLayer document parse failed:',
+      error instanceof Error ? error.message : error
+    );
+    return null;
+  }
+}
 
 /**
  * Eden standalone or Affinda+Eden merge — used when Affinda primary is rejected or AI is unavailable.
@@ -559,6 +598,16 @@ export async function resolveDocumentParserAutofill(
     const withText = mergeTextRecoveryIntoExtracted(doc.data, extractedText);
     if (hasMinimalAutofillPayload(withText)) {
       return { ...doc, data: withText };
+    }
+  }
+
+  if (!doc?.provider?.includes('apilayer')) {
+    const apilayerDoc = await tryApilayerDocumentParse(affindaData, fileBuffer, fileName);
+    if (apilayerDoc) {
+      const withText = mergeTextRecoveryIntoExtracted(apilayerDoc.data, extractedText);
+      if (hasMinimalAutofillPayload(withText)) {
+        return { ...apilayerDoc, data: withText };
+      }
     }
   }
 

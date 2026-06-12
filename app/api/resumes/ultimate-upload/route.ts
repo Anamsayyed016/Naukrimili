@@ -9,6 +9,8 @@ import { EnhancedResumeAI } from '@/lib/enhanced-resume-ai';
 import { AffindaResumeParser } from '@/lib/affinda-resume-parser';
 import { GoogleCloudOCRService } from '@/lib/services/google-cloud-ocr';
 import { isAffindaEnabled } from '@/lib/resume-parser/affinda-config';
+import { isApilayerEnabled } from '@/lib/resume-parser/apilayer-config';
+import { getResumeParserHealth } from '@/lib/resume-parser/parser-health';
 import {
   mapExtractedToUploadProfile,
   hasMinimalAutofillPayload,
@@ -76,6 +78,9 @@ export async function POST(request: NextRequest) {
   try {
     log('parser environment', {
       affinda: isAffindaEnabled(),
+      eden: !!process.env.EDEN_AI_API_KEY,
+      apilayer: isApilayerEnabled(),
+      parsers: getResumeParserHealth().map((p) => ({ id: p.id, enabled: p.enabled })),
       openai: !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.startsWith('sk-'),
       gemini: !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.startsWith('AIzaSy'),
     });
@@ -392,7 +397,7 @@ export async function POST(request: NextRequest) {
 
       if (!usedAffindaPrimary) {
         try {
-          console.log('🌿 Trying Eden/Affinda document parsers (no OpenAI required)...');
+          console.log('🌿 Trying Eden/ApiLayer/Affinda document parsers (no OpenAI required)...');
           const docAutofill = await resolveDocumentParserAutofill(
             lastAffindaResult,
             fileBuffer,
