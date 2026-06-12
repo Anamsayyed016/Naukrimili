@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Inter } from 'next/font/google';
+import { navigationFont, navType } from '@/lib/fonts/navigation';
 import {
   User,
   LogOut,
@@ -38,12 +38,6 @@ import { MessageBell } from './MessageBell';
 import { useResponsive } from '@/components/ui/use-mobile';
 import WorkspaceSwitcher from './navigation/WorkspaceSwitcher';
 
-const navFont = Inter({
-  subsets: ['latin'],
-  weight: ['500', '600'],
-  display: 'swap',
-});
-
 /** Shared nav surface — clean white with subtle SaaS-style depth on scroll */
 function navShellClass(scrolled: boolean) {
   return cn(
@@ -55,13 +49,17 @@ function navShellClass(scrolled: boolean) {
   );
 }
 
-const navLinkBase =
-  'group relative flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium tracking-[-0.01em] text-slate-700 transition-all duration-200 ease-out hover:text-slate-900 sm:px-3.5 sm:text-[13.5px]';
+const navLinkBase = cn(
+  'group relative flex items-center gap-2.5 rounded-lg px-3 py-2 transition-[color,background-color] duration-200 ease-out sm:px-3.5',
+  navType.link,
+  navType.linkHover
+);
 
-const navLinkActive = 'font-semibold text-slate-900';
+const navLinkActive = navType.linkActive;
 
 const ctaClass = cn(
-  'inline-flex items-center justify-center rounded-lg px-4 py-2 text-[13px] font-semibold tracking-[-0.01em] text-white sm:text-sm',
+  'inline-flex items-center justify-center rounded-lg px-4 py-2 text-white',
+  navType.cta,
   'bg-slate-900',
   'shadow-[0_1px_2px_rgba(15,23,42,0.12),0_4px_12px_-4px_rgba(15,23,42,0.2)]',
   'transition-[transform,box-shadow,background-color] duration-200 ease-out',
@@ -114,13 +112,13 @@ function DesktopNavLink({
       <Icon
         className={cn(
           'relative z-10 h-[15px] w-[15px] shrink-0 text-slate-500 transition-colors duration-200 ease-out group-hover:text-slate-700',
-          isActive && 'text-slate-900',
-          isResumeBuilder && !isActive && 'text-teal-600/90',
-          isResumeBuilder && isActive && 'text-teal-700'
+          isActive && 'text-[#1f2937]',
+          isResumeBuilder && !isActive && 'text-teal-700/90',
+          isResumeBuilder && isActive && 'text-teal-800'
         )}
         aria-hidden
       />
-      <span className="relative z-10 leading-none">{link.title}</span>
+      <span className="relative z-10">{link.title}</span>
       {isActive && (
         <motion.span
           layoutId={layoutId}
@@ -148,9 +146,11 @@ function MobileNavLink({
       href={link.href}
       onClick={onNavigate}
       className={cn(
-        'flex min-h-[48px] items-center gap-3 rounded-xl px-4 py-3.5 text-[15px] font-medium tracking-[-0.01em] text-slate-800 transition-all duration-200 ease-out touch-target',
-        'hover:bg-slate-50 hover:text-slate-900',
-        isActive && 'border border-slate-200/80 bg-slate-50 font-semibold text-slate-900 shadow-[inset_3px_0_0_0_rgb(15,23,42)]'
+        'flex min-h-[48px] items-center gap-3 rounded-xl px-4 py-3.5 transition-[color,background-color] duration-200 ease-out touch-target',
+        navType.mobile,
+        navType.mobileHover,
+        'hover:bg-slate-50',
+        isActive && cn('border border-slate-200/80 bg-slate-50 shadow-[inset_3px_0_0_0_rgb(31,41,55)]', navType.mobileActive)
       )}
     >
       <Icon className={cn('h-5 w-5 shrink-0', isActive ? 'text-slate-900' : 'text-slate-500')} aria-hidden />
@@ -269,7 +269,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
 
   if (!isMounted) {
     return (
-      <nav className={cn(navFont.className, navShellClass(false))} style={shellStyle}>
+      <nav className={cn(navigationFont.className, 'antialiased', navShellClass(false))} style={shellStyle}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between sm:h-20 lg:h-[5.25rem]">
             {logoBlock}
@@ -281,7 +281,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
   }
 
   return (
-    <nav className={cn(navFont.className, navShellClass(scrolled))} style={shellStyle}>
+    <nav className={cn(navigationFont.className, 'antialiased', navShellClass(scrolled))} style={shellStyle}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3 max-md:gap-2 sm:h-20 lg:h-[5.25rem]">
           {logoBlock}
@@ -308,7 +308,9 @@ export default function MainNavigation(_props: MainNavigationProps) {
                     variant="ghost"
                     className={cn(
                       navLinkBase,
-                      'h-auto border-0 bg-transparent text-slate-700 shadow-none hover:bg-slate-50 hover:text-slate-900'
+                      'h-auto border-0 bg-transparent shadow-none hover:bg-slate-50',
+                      navType.link,
+                      navType.linkHover
                     )}
                   >
                     <span>{user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}</span>
@@ -441,7 +443,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
 
                 {isAuthenticated && user?.role === 'jobseeker' && (
                   <div className="mt-3 border-t border-slate-200/80 px-2 pt-4">
-                    <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <p className={cn('px-2 pb-2', navType.sectionLabel)}>
                       Workspace
                     </p>
                     <div onClick={closeMenu}>
@@ -452,7 +454,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
 
                 {isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
                   <div className="mt-3 space-y-1 border-t border-slate-200/80 px-2 pt-4">
-                    <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <p className={cn('px-2 pb-2', navType.sectionLabel)}>
                       {user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}
                     </p>
                     {roleSpecificLinks.map((link) => (
