@@ -76,7 +76,7 @@ export default function WorkspaceSwitcher({
     return (
       <div
         className={cn(
-          'grid grid-cols-2 gap-2 rounded-2xl bg-slate-50 p-1.5 ring-1 ring-slate-200/70',
+          'grid grid-cols-2 gap-1.5 rounded-xl bg-slate-100/70 p-1 ring-1 ring-slate-200/50',
           className
         )}
       >
@@ -88,10 +88,10 @@ export default function WorkspaceSwitcher({
               key={tab.id}
               href={WORKSPACE_ROUTES[tab.id]}
               className={cn(
-                'group/wstab relative flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200',
+                'group/wstab relative flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold tracking-[-0.01em] transition-all duration-200 ease-out',
                 isActive
-                  ? 'bg-white text-slate-900 shadow-[0_4px_12px_-4px_rgba(15,23,42,0.12)] ring-1 ring-slate-200'
-                  : 'text-slate-500 hover:bg-white/70 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_4px_12px_-4px_rgba(15,23,42,0.1)] ring-1 ring-slate-200/60'
+                  : 'text-slate-600 hover:bg-white/80 hover:text-slate-900'
               )}
               aria-current={isActive ? 'page' : undefined}
             >
@@ -107,7 +107,7 @@ export default function WorkspaceSwitcher({
   return (
     <div
       className={cn(
-        'relative inline-flex items-center rounded-full bg-slate-100/80 p-0.5 ring-1 ring-slate-200/70 backdrop-blur-sm',
+        'relative inline-flex items-center rounded-full bg-slate-100/70 p-0.5 ring-1 ring-slate-200/50',
         className
       )}
       role="tablist"
@@ -123,16 +123,16 @@ export default function WorkspaceSwitcher({
             role="tab"
             aria-selected={isActive}
             className={cn(
-              'group/wstab relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold tracking-tight transition-all duration-200 sm:text-[13px]',
+              'group/wstab relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold tracking-[-0.01em] transition-all duration-200 ease-out sm:px-3.5 sm:py-[7px] sm:text-[13px]',
               isActive
-                ? 'bg-white text-slate-900 shadow-[0_4px_12px_-4px_rgba(15,23,42,0.18),inset_0_1px_0_0_rgba(255,255,255,0.8)]'
-                : 'text-slate-500 hover:text-slate-900'
+                ? 'bg-white text-slate-900 shadow-[0_1px_2px_rgba(15,23,42,0.05),0_4px_14px_-4px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/50'
+                : 'text-slate-600 hover:bg-white/50 hover:text-slate-900'
             )}
           >
             <Icon
               className={cn(
-                'h-3.5 w-3.5 transition-colors duration-200',
-                isActive ? 'text-indigo-600' : 'text-slate-400 group-hover/wstab:text-slate-700'
+                'h-3.5 w-3.5 shrink-0 transition-colors duration-200 ease-out',
+                isActive ? 'text-slate-900' : 'text-slate-500 group-hover/wstab:text-slate-700'
               )}
               aria-hidden
             />

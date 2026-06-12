@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import {
   User,
   LogOut,
@@ -38,38 +38,35 @@ import { MessageBell } from './MessageBell';
 import { useResponsive } from '@/components/ui/use-mobile';
 import WorkspaceSwitcher from './navigation/WorkspaceSwitcher';
 
-const navFont = Plus_Jakarta_Sans({
+const navFont = Inter({
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['500', '600'],
   display: 'swap',
 });
 
-/** Shared nav surface — scroll-aware premium glass header */
+/** Shared nav surface — clean white with subtle SaaS-style depth on scroll */
 function navShellClass(scrolled: boolean) {
   return cn(
-    'fixed top-0 left-0 right-0 w-full transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300',
-    // Premium glassmorphism — more transparent when at top, denser on scroll
-    'backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:backdrop-blur-2xl',
+    'fixed top-0 left-0 right-0 w-full transition-[box-shadow,border-color] duration-300 ease-out',
+    'bg-white border-b',
     scrolled
-      ? 'bg-white/75 supports-[backdrop-filter]:bg-white/65 border-b border-slate-200/70 shadow-[0_10px_40px_-15px_rgba(15,23,42,0.12)]'
-      : 'bg-white/55 supports-[backdrop-filter]:bg-white/45 border-b border-white/40 shadow-[0_1px_0_0_rgba(255,255,255,0.7)_inset,0_8px_24px_-20px_rgba(15,23,42,0.08)]',
-    // Subtle gradient hairline at the bottom for premium feel
-    'before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-teal-200/50 before:to-transparent before:pointer-events-none before:opacity-75'
+      ? 'border-slate-200/50 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_-12px_rgba(15,23,42,0.1)]'
+      : 'border-slate-200/30 shadow-[0_1px_1px_rgba(15,23,42,0.02)]'
   );
 }
 
 const navLinkBase =
-  'group relative flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium tracking-tight text-slate-600 transition-colors duration-200 hover:text-slate-900 sm:px-3.5 sm:text-sm';
+  'group relative flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium tracking-[-0.01em] text-slate-700 transition-all duration-200 ease-out hover:text-slate-900 sm:px-3.5 sm:text-[13.5px]';
 
-const navLinkActive = 'text-slate-950';
+const navLinkActive = 'font-semibold text-slate-900';
 
 const ctaClass = cn(
-  'inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold tracking-tight text-white',
-  'bg-gradient-to-r from-slate-900 via-slate-800 to-teal-800',
-  'shadow-[0_4px_14px_-4px_rgba(15,23,42,0.35)]',
-  'transition-[transform,box-shadow,filter] duration-200',
-  'hover:shadow-[0_8px_24px_-6px_rgba(15,118,110,0.35)] hover:brightness-105',
-  'active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-2'
+  'inline-flex items-center justify-center rounded-lg px-4 py-2 text-[13px] font-semibold tracking-[-0.01em] text-white sm:text-sm',
+  'bg-slate-900',
+  'shadow-[0_1px_2px_rgba(15,23,42,0.12),0_4px_12px_-4px_rgba(15,23,42,0.2)]',
+  'transition-[transform,box-shadow,background-color] duration-200 ease-out',
+  'hover:bg-slate-800 hover:shadow-[0_4px_16px_-4px_rgba(15,23,42,0.25)]',
+  'active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2'
 );
 
 const NAUKRIMILI_LOGO_SRC =
@@ -103,31 +100,32 @@ function DesktopNavLink({
       className={cn(
         navLinkBase,
         isActive && navLinkActive,
-        isResumeBuilder && !isActive && 'text-teal-700/90 hover:text-teal-800',
-        isResumeBuilder && isActive && 'text-teal-800'
+        isResumeBuilder && !isActive && 'text-teal-800/90 hover:text-teal-900',
+        isResumeBuilder && isActive && 'text-teal-900'
       )}
     >
       <span
         className={cn(
-          'pointer-events-none absolute inset-0 z-0 rounded-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100',
-          isActive ? 'bg-slate-100/80 opacity-100' : 'bg-slate-50/90'
+          'pointer-events-none absolute inset-0 z-0 rounded-lg opacity-0 transition-all duration-200 ease-out group-hover:opacity-100',
+          isActive ? 'bg-slate-100/90 opacity-100' : 'bg-slate-50/80'
         )}
         aria-hidden
       />
       <Icon
         className={cn(
-          'relative z-10 h-4 w-4 shrink-0 text-slate-400 transition-colors duration-200 group-hover:text-slate-600',
-          isActive && 'text-teal-600',
-          isResumeBuilder && !isActive && 'text-teal-500/80'
+          'relative z-10 h-[15px] w-[15px] shrink-0 text-slate-500 transition-colors duration-200 ease-out group-hover:text-slate-700',
+          isActive && 'text-slate-900',
+          isResumeBuilder && !isActive && 'text-teal-600/90',
+          isResumeBuilder && isActive && 'text-teal-700'
         )}
         aria-hidden
       />
-      <span className="relative z-10">{link.title}</span>
+      <span className="relative z-10 leading-none">{link.title}</span>
       {isActive && (
         <motion.span
           layoutId={layoutId}
-          className="absolute inset-x-2 -bottom-0.5 z-10 h-0.5 rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 shadow-[0_6px_18px_-8px_rgba(99,102,241,0.35)]"
-          transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+          className="absolute inset-x-2.5 -bottom-px z-10 h-[2px] rounded-full bg-slate-900/90"
+          transition={{ type: 'spring', stiffness: 420, damping: 34 }}
         />
       )}
     </Link>
@@ -150,12 +148,12 @@ function MobileNavLink({
       href={link.href}
       onClick={onNavigate}
       className={cn(
-        'flex min-h-[48px] items-center gap-3 rounded-xl px-4 py-3.5 text-[15px] font-medium tracking-tight text-slate-700 transition-colors duration-200 touch-target',
+        'flex min-h-[48px] items-center gap-3 rounded-xl px-4 py-3.5 text-[15px] font-medium tracking-[-0.01em] text-slate-800 transition-all duration-200 ease-out touch-target',
         'hover:bg-slate-50 hover:text-slate-900',
-        isActive && 'border border-teal-100/80 bg-teal-50/50 text-teal-900 shadow-[inset_3px_0_0_0_rgb(20,184,166)]'
+        isActive && 'border border-slate-200/80 bg-slate-50 font-semibold text-slate-900 shadow-[inset_3px_0_0_0_rgb(15,23,42)]'
       )}
     >
-      <Icon className={cn('h-5 w-5 shrink-0', isActive ? 'text-teal-600' : 'text-slate-400')} aria-hidden />
+      <Icon className={cn('h-5 w-5 shrink-0', isActive ? 'text-slate-900' : 'text-slate-500')} aria-hidden />
       {link.title}
     </Link>
   );
@@ -310,7 +308,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
                     variant="ghost"
                     className={cn(
                       navLinkBase,
-                      'h-auto border-0 bg-transparent shadow-none hover:bg-slate-50/90'
+                      'h-auto border-0 bg-transparent text-slate-700 shadow-none hover:bg-slate-50 hover:text-slate-900'
                     )}
                   >
                     <span>{user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}</span>
@@ -320,7 +318,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
                 <DropdownMenuContent
                   align="end"
                   sideOffset={10}
-                  className="w-72 rounded-xl border border-slate-200/80 bg-white/95 p-1 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] backdrop-blur-md"
+                  className="w-72 rounded-xl border border-slate-200/60 bg-white p-1 shadow-[0_8px_30px_-8px_rgba(15,23,42,0.12)]"
                 >
                   {roleSpecificLinks.map((link) => (
                     <DropdownMenuItem key={link.title} asChild>
@@ -423,7 +421,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
               animate={{ opacity: 1, height: 'auto' }}
               exit={prefersReducedMotion ? undefined : { opacity: 0, height: 0 }}
               transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden border-t border-slate-200/70 bg-white/95 py-4 backdrop-blur-md sm:py-5"
+              className="overflow-hidden border-t border-slate-200/50 bg-white py-4 sm:py-5"
             >
               <div className="space-y-1">
                 {navLinks.map((link, i) => (
