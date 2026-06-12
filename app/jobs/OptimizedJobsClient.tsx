@@ -470,35 +470,15 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     }
   };
 
-  // Handle pagination
+  // Handle pagination — URL is source of truth; useEffect on searchParams loads the page (avoids double fetch).
   const handlePageChange = (page: number) => {
-    const query = searchParams.get('q') || searchParams.get('query') || '';
-    const location = searchParams.get('location') || '';
-    const jobType = searchParams.get('jobType') || '';
-    const experienceLevel = searchParams.get('experienceLevel') || '';
-    const isRemote = searchParams.get('isRemote') === 'true';
-    const salaryMin = searchParams.get('salaryMin') || '';
-    const salaryMax = searchParams.get('salaryMax') || '';
-    const sector = searchParams.get('sector') || '';
-    const countryParam = (searchParams.get('country') || '').toUpperCase();
-    
-    // Scroll to top smoothly when changing pages
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    setCurrentPage(page);
-    sessionStorage.setItem(JOB_NAV_KEYS.listPage, String(page));
 
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', String(page));
     saveJobSearchContext(params.toString(), page);
     saveJobNavigationSource(`${window.location.pathname}?${params.toString()}`);
-
-    const limitParam = searchParams.get('limit') || '25';
-    fetchJobs(query, location, page, {
-      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
-      country: countryParam || undefined,
-      limit: limitParam,
-    });
+    router.replace(`/jobs?${params.toString()}`, { scroll: false });
   };
 
   // Handle bookmark toggle

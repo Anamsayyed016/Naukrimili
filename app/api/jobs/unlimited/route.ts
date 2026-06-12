@@ -195,6 +195,12 @@ const LIST_JOB_SELECT = {
   },
 } as const;
 
+/** List/grid cards — omit full description to cut payload and Prisma I/O (~80% smaller rows). */
+const LIST_JOB_LIST_SELECT = {
+  ...LIST_JOB_SELECT,
+  description: false,
+} as const;
+
 type ListingFilterParams = {
   query: string;
   location: string;
@@ -239,7 +245,9 @@ function capListingWithEmployerFirst<T extends { source?: string | null }>(
   rows: T[],
   limit: number
 ): T[] {
-  const employerRows = rows.filter((j) => j.source === 'manual' || j.source === 'employer');
+  const employerRows = rows
+    .filter((j) => j.source === 'manual' || j.source === 'employer')
+    .slice(0, limit);
   const otherRows = rows.filter((j) => j.source !== 'manual' && j.source !== 'employer');
   const otherCap = Math.max(0, limit - employerRows.length);
   return [...employerRows, ...otherRows.slice(0, otherCap)];
@@ -347,6 +355,8 @@ export async function GET(request: NextRequest) {
 
     const includeExternalParam = searchParams.get('includeExternal');
     const refreshExternal = searchParams.get('refreshExternal') === 'true';
+    const isListView = (searchParams.get('view') || '').toLowerCase() === 'list';
+    const jobSelect = isListView ? LIST_JOB_LIST_SELECT : LIST_JOB_SELECT;
     const cacheKey = buildUnlimitedCacheKey({
       query,
       location,
@@ -378,30 +388,33 @@ export async function GET(request: NextRequest) {
     if (cached && !refreshExternal) {
       let responsePayload = { ...cached };
       const cachedJobs = (responsePayload as { jobs?: Record<string, unknown>[] }).jobs;
-      try {
-        const manualRows = await prisma.job.findMany({
-          where: buildEmployerListingWhere(listingFilters),
-          take: 50,
-          orderBy: { createdAt: 'desc' },
-          select: LIST_JOB_SELECT,
-        });
-        const existingIds = new Set(
-          (Array.isArray(cachedJobs) ? cachedJobs : []).map((j) => String(j.id))
-        );
-        const freshManual = manualRows
-          .filter((row) => !existingIds.has(String(row.id)))
-          .map((row) => formatListingJob(row as Record<string, unknown>));
-        if (freshManual.length > 0) {
-          const merged = capListingWithEmployerFirst(
-            [...freshManual, ...(Array.isArray(cachedJobs) ? cachedJobs : [])] as {
-              source?: string | null;
-            }[],
-            limit
+      // Employer boost only on page 1 — re-injecting on page 2+ duplicates the same rows every page.
+      if (page === 1) {
+        try {
+          const manualRows = await prisma.job.findMany({
+            where: buildEmployerListingWhere(listingFilters),
+            take: 50,
+            orderBy: { createdAt: 'desc' },
+            select: jobSelect,
+          });
+          const existingIds = new Set(
+            (Array.isArray(cachedJobs) ? cachedJobs : []).map((j) => String(j.id))
           );
-          responsePayload = { ...responsePayload, jobs: merged };
+          const freshManual = manualRows
+            .filter((row) => !existingIds.has(String(row.id)))
+            .map((row) => formatListingJob(row as Record<string, unknown>));
+          if (freshManual.length > 0) {
+            const merged = capListingWithEmployerFirst(
+              [...freshManual, ...(Array.isArray(cachedJobs) ? cachedJobs : [])] as {
+                source?: string | null;
+              }[],
+              limit
+            );
+            responsePayload = { ...responsePayload, jobs: merged };
+          }
+        } catch (employerCacheMergeError) {
+          console.warn('⚠️ Employer cache merge failed (serving cached list):', employerCacheMergeError);
         }
-      } catch (employerCacheMergeError) {
-        console.warn('⚠️ Employer cache merge failed (serving cached list):', employerCacheMergeError);
       }
       const jobsForDetail = (responsePayload as { jobs?: Record<string, unknown>[] }).jobs;
       if (Array.isArray(jobsForDetail) && jobsForDetail.length > 0) {
@@ -492,12 +505,14 @@ export async function GET(request: NextRequest) {
       where.salaryMax = { lte: parseInt(salaryMax) };
     }
 
-    // Calculate pagination — widen DB pool on active search so relevance ranking has candidates
+    // Calculate pagination — search uses a ranked pool then slices by page (skip/take alone breaks ranking pages)
     const skip = (page - 1) * limit;
-    const dbTake = isSearchActive ? Math.min(Math.max(limit * 4, 50), 150) : limit;
-    const dbSkip = isSearchActive && page === 1 ? 0 : skip;
+    const dbTake = isSearchActive
+      ? Math.min(Math.max(page * limit, limit * 2), 200)
+      : limit;
+    const dbSkip = isSearchActive ? 0 : skip;
 
-    console.log(`🔍 Database query built:`, { where, skip: dbSkip, take: dbTake, limit });
+    console.log(`🔍 Database query built:`, { where, skip: dbSkip, take: dbTake, limit, page });
 
     // Fetch jobs from database with company relations
     let jobs: any[] = [];
@@ -518,26 +533,33 @@ export async function GET(request: NextRequest) {
             skip: dbSkip,
             take: dbTake,
             orderBy: { createdAt: 'desc' },
-            select: LIST_JOB_SELECT,
+            select: jobSelect,
           }),
           prisma.job.count({ where })
         ]);
 
-        const manualEmployerRows = await prisma.job.findMany({
-          where: buildEmployerListingWhere(listingFilters),
-          take: 50,
-          orderBy: { createdAt: 'desc' },
-          select: LIST_JOB_SELECT,
-        });
-        const dbRowById = new Map<string, (typeof jobsResult)[0]>();
-        for (const row of [...manualEmployerRows, ...jobsResult]) {
-          dbRowById.set(String(row.id), row);
-        }
-        jobsResult = Array.from(dbRowById.values()).sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        if (jobsResult.length > limit) {
-          jobsResult = capListingWithEmployerFirst(jobsResult, limit);
+        let employerBoostCount = 0;
+        // Page 1 only: pin fresh employer/manual posts — on page 2+ this would ignore skip and repeat page-1 rows.
+        if (page === 1 && !isSearchActive) {
+          const manualEmployerRows = await prisma.job.findMany({
+            where: buildEmployerListingWhere(listingFilters),
+            take: 50,
+            orderBy: { createdAt: 'desc' },
+            select: jobSelect,
+          });
+          const dbRowById = new Map<string, (typeof jobsResult)[0]>();
+          for (const row of [...manualEmployerRows, ...jobsResult]) {
+            dbRowById.set(String(row.id), row);
+          }
+          jobsResult = Array.from(dbRowById.values()).sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          employerBoostCount = manualEmployerRows.length;
+          if (jobsResult.length > limit) {
+            jobsResult = capListingWithEmployerFirst(jobsResult, limit);
+          }
+        } else if (!isSearchActive && jobsResult.length > limit) {
+          jobsResult = jobsResult.slice(0, limit);
         }
 
         timings.prismaMs = Date.now() - prismaStart;
@@ -547,7 +569,7 @@ export async function GET(request: NextRequest) {
         console.log('[jobs-pipeline] after-prisma', {
           dbRows: jobsResult.length,
           internalRows: prismaInternal,
-          employerBoost: manualEmployerRows.length,
+          employerBoost: employerBoostCount,
           totalInDb: totalResult,
         });
       } catch (dbQueryError: any) {
@@ -859,9 +881,8 @@ export async function GET(request: NextRequest) {
             0;
           return scoreB - scoreA;
         });
-        if (page === 1 && jobs.length > limit) {
-          jobs = jobs.slice(0, limit);
-        }
+        const pageStart = (page - 1) * limit;
+        jobs = jobs.slice(pageStart, pageStart + limit);
         console.log('[jobs-pipeline] after-ranking', {
           jobs: jobs.length,
           internal: jobs.filter((j) => j.source === 'manual' || j.source === 'employer').length,
