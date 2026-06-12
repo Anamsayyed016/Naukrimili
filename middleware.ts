@@ -4,8 +4,15 @@ import type { NextRequest } from 'next/server';
 // Canonical base URL - single source of truth
 const CANONICAL_BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://naukrimili.com';
 
-// IndexNow key verification file (also excluded from matcher below)
-const INDEXNOW_KEY_FILE = '/c7d11205cff98387f261807b34d0a8b975bd141091cf9e8e1af5677afb408add.txt';
+/** IndexNow serves `{key}.txt` at the site root; path must track INDEXNOW_KEY at runtime. */
+function isIndexNowVerificationPath(pathname: string): boolean {
+  const key = process.env.INDEXNOW_KEY?.trim();
+  if (key && key.length >= 32 && /^[a-f0-9]+$/i.test(key)) {
+    if (pathname === `/${key}.txt`) return true;
+  }
+  // Root-level hex key files (IndexNow spec); works when key rotates before redeploy
+  return /^\/[a-f0-9]{32,128}\.txt$/i.test(pathname);
+}
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
@@ -44,7 +51,7 @@ export function middleware(request: NextRequest) {
     if (
       hostname.startsWith('www.') &&
       pathname !== '/BingSiteAuth.xml' &&
-      pathname !== INDEXNOW_KEY_FILE
+      !isIndexNowVerificationPath(pathname)
     ) {
       const canonical = new URL(
         `${url.pathname}${url.search}`,
@@ -148,7 +155,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - BingSiteAuth.xml (Bing verification)
+     * - [hex32+].txt (IndexNow key verification at site root)
      */
-    '/((?!_next/static|_next/image|favicon.ico|BingSiteAuth\\.xml|c7d11205cff98387f261807b34d0a8b975bd141091cf9e8e1af5677afb408add\\.txt).*)',
+    '/((?!_next/static|_next/image|favicon.ico|BingSiteAuth\\.xml|[a-f0-9]{32,128}\\.txt).*)',
   ],
 };
