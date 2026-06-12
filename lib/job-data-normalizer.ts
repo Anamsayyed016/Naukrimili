@@ -458,6 +458,21 @@ export function applyExperienceLevelFilterToWhere(
   where.AND = and;
 }
 
+/** Sources excluded from public job listings (DB-level + quality check). */
+export const EXCLUDED_LISTING_SOURCES = ['sample', 'dynamic', 'seeded'] as const;
+
+/**
+ * Base Prisma where for listing APIs — flat shape (nested AND/OR source filter returned 0 rows in production).
+ * Matches the working pattern in real-job-search / simple-unlimited.
+ */
+export function buildJobListingBaseWhere(): Record<string, unknown> {
+  return {
+    isActive: true,
+    // Flat filter — matches /api/jobs/real (nested AND/OR + notIn returned 0 rows in production).
+    source: { not: 'sample' },
+  };
+}
+
 /** Listing quality: required fields only; never drop employer manual jobs for AI/generic wording. */
 export function passesJobListingQualityCheck(job: {
   title?: string | null;
@@ -469,6 +484,9 @@ export function passesJobListingQualityCheck(job: {
   const companyLabel = (job.company || job.companyRelation?.name || '').trim();
   if (!job.title?.trim() || !companyLabel) return false;
   const source = (job.source || '').toLowerCase();
+  if (EXCLUDED_LISTING_SOURCES.includes(source as (typeof EXCLUDED_LISTING_SOURCES)[number])) {
+    return false;
+  }
   if (source === 'manual' || source === 'employer') return true;
   return !!job.description?.trim();
 }

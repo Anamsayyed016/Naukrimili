@@ -16,6 +16,7 @@ import {
   jobTypeMatchesFilter,
   experienceLevelMatchesFilter,
   passesJobListingQualityCheck,
+  buildJobListingBaseWhere,
 } from '@/lib/job-data-normalizer';
 
 // Cache for external API responses (5 minutes)
@@ -354,19 +355,7 @@ export async function GET(request: NextRequest) {
     try {
       console.log('🗄️ Fetching jobs from database...');
       
-      // Build where clause for database query
-      // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
-      const where: any = {
-        isActive: true,
-        AND: [
-          {
-            OR: [
-              { source: null },
-              { source: { notIn: ['sample', 'dynamic', 'seeded'] } },
-            ],
-          },
-        ],
-      };
+      const where: any = buildJobListingBaseWhere();
       
       if (query && query.trim().length > 0) {
         where.OR = [

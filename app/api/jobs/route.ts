@@ -8,6 +8,7 @@ import {
   applyExplicitCountryToWhere,
   applyJobTypeFilterToWhere,
   applyExperienceLevelFilterToWhere,
+  buildJobListingBaseWhere,
 } from "@/lib/job-data-normalizer";
 
 export async function GET(request: NextRequest) {
@@ -36,19 +37,7 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const cutoff = daysParam ? new Date(now.getTime() - Math.max(1, parseInt(daysParam)) * 24 * 60 * 60 * 1000) : undefined;
 
-    // Build dynamic where clause for filtering
-    // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
-    const where: any = {
-      isActive: true,
-      AND: [
-        {
-          OR: [
-            { source: null },
-            { source: { notIn: ['sample', 'dynamic', 'seeded'] } },
-          ],
-        },
-      ],
-    };
+    const where: any = buildJobListingBaseWhere();
 
     if (query) {
       applyJobTextSearchToWhere(where, query);

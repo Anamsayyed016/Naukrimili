@@ -25,6 +25,7 @@ import {
   applyJobTypeFilterToWhere,
   applyExperienceLevelFilterToWhere,
   jobMatchesListingLocation,
+  buildJobListingBaseWhere,
 } from '@/lib/job-data-normalizer';
 import { JobRankingService } from '@/lib/services/job-ranking-service';
 
@@ -160,6 +161,7 @@ const LIST_JOB_SELECT = {
   source: true,
   title: true,
   company: true,
+  description: true,
   companyLogo: true,
   location: true,
   country: true,
@@ -429,19 +431,7 @@ export async function GET(request: NextRequest) {
       includeDatabase: searchParams.get('includeDatabase')
     });
 
-    // Build database query with enhanced filtering
-    // Align with /api/jobs: do NOT use source.notIn alone — in PostgreSQL it excludes NULL source rows
-    const where: any = {
-      isActive: true,
-      AND: [
-        {
-          OR: [
-            { source: null },
-            { source: { notIn: ['sample', 'dynamic', 'seeded'] } },
-          ],
-        },
-      ],
-    };
+    const where: any = buildJobListingBaseWhere();
 
     const isSearchActive = !!(query.trim() || location.trim());
 

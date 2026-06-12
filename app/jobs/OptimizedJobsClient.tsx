@@ -49,6 +49,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const filtersSectionRef = React.useRef<HTMLDivElement>(null);
   const viewBarRef = React.useRef<HTMLDivElement>(null);
+  const hasRestoredSearchParams = React.useRef(false);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -59,8 +60,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       const hasUrlParams = searchParams.toString().length > 0;
       const savedParams = sessionStorage.getItem(JOB_NAV_KEYS.searchParams);
       
-      // If no URL params but we have saved params, restore them
-      if (!hasUrlParams && savedParams) {
+      // If no URL params but we have saved params, restore them once (prevents redirect loops)
+      if (!hasUrlParams && savedParams && !hasRestoredSearchParams.current) {
+        hasRestoredSearchParams.current = true;
         console.log('🔄 Restoring saved search params from sessionStorage:', savedParams);
         router.replace(`/jobs?${savedParams}`);
         return;
@@ -87,6 +89,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       sector?: string;
       country?: string;
       limit?: string; // Add limit to filters
+      refreshExternal?: boolean;
     } = {}
   ) => {
     // Smart country detection using the country detection utility
@@ -131,12 +134,21 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         enhancedParams.set('includeExternal', 'false');
       }
       enhancedParams.set('includeDatabase', 'true');
-      // Always bypass stale listing cache so new employer (manual) jobs appear in search
-      enhancedParams.set('refreshExternal', 'true');
+      // Only force external sync on explicit Refresh — avoids slow/hung page-1 loads
+      if (filters.refreshExternal) {
+        enhancedParams.set('refreshExternal', 'true');
+      }
 
-      response = await fetch(`/api/jobs/unlimited?${enhancedParams.toString()}`, {
-        cache: 'no-store',
-      });
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), 25000);
+      try {
+        response = await fetch(`/api/jobs/unlimited?${enhancedParams.toString()}`, {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(fetchTimeout);
+      }
       if (!response.ok) {
         // Fallback to regular API if unlimited fails
         response = await fetch(`/api/jobs?${dbParams.toString()}`);
@@ -226,6 +238,36 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           limit: 25,
           shouldShowPagination: totalPagesCount > 1 || page < totalPagesCount || totalCount > 200
         });
+
+        // Empty success response: try real-jobs API (known-good listing path on production)
+        const hasActiveFilters = !!(
+          query || location || filters.jobType || filters.experienceLevel ||
+          filters.isRemote || filters.salaryMin || filters.salaryMax || filters.sector || filters.country
+        );
+        if (page === 1 && jobs.length === 0 && !hasActiveFilters) {
+          const realParams = new URLSearchParams({
+            page: page.toString(),
+            limit: filters.limit || '25',
+            ...(countryToUse ? { country: countryToUse } : { country: 'IN' }),
+          });
+          const realResponse = await fetch(`/api/jobs/real?${realParams.toString()}`, {
+            cache: 'no-store',
+          });
+          if (realResponse.ok) {
+            const realData = await realResponse.json();
+            const realJobs = (realData.jobs || []).map(convertToSimpleJob).filter(Boolean);
+            if (realJobs.length > 0) {
+              const rp = realData.pagination || {};
+              setJobs(realJobs as any);
+              setTotalJobs(rp.totalJobs || realJobs.length);
+              setTotalPages(rp.totalPages || 1);
+              setHasNextPage(page < (rp.totalPages || 1));
+              setHasPrevPage(false);
+              setLastRefresh(new Date());
+              return;
+            }
+          }
+        }
 
       } else if (data.success && Array.isArray(data.jobs)) {
         // Some APIs may still return jobs directly
@@ -770,7 +812,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   
                   fetchJobs(query, location, currentPage, {
                     jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
-                    country: countryParam || undefined
+                    country: countryParam || undefined,
+                    refreshExternal: true,
                   });
                 }}
                 disabled={loading}
