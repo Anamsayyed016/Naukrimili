@@ -19,6 +19,7 @@ import {
   ChevronDown,
   Heart,
   Users,
+  Share2,
   type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -217,6 +218,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
     { title: 'Jobs', href: '/jobs', icon: BriefcaseIcon },
     { title: 'Companies', href: '/companies', icon: BuildingIcon },
     { title: 'Resume Builder', href: '/resume-builder/start', icon: FileTextIcon },
+    { title: 'Affiliate Partners', href: '/affiliate', icon: Share2 },
   ];
 
   const getRoleSpecificLinks = () => {

@@ -30,6 +30,24 @@ export function isGoAffProEnabled(): boolean {
   return process.env.NEXT_PUBLIC_GOAFFPRO_ENABLED === 'true';
 }
 
+/** GoAffPro affiliate registration URL (env override or shop subdomain default). */
+export function getGoAffProRegisterUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_GOAFFPRO_REGISTER_URL?.trim();
+  if (explicit) return explicit;
+  const shopId = process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID?.trim();
+  if (shopId) return `https://${shopId}.goaffpro.com/create-account`;
+  return '';
+}
+
+/** GoAffPro affiliate dashboard / portal login URL. */
+export function getGoAffProDashboardUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_GOAFFPRO_DASHBOARD_URL?.trim();
+  if (explicit) return explicit;
+  const shopId = process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID?.trim();
+  if (shopId) return `https://${shopId}.goaffpro.com/`;
+  return '';
+}
+
 function storageKey(prefix: string, orderNumber: string): string {
   return `${prefix}${orderNumber}`;
 }
