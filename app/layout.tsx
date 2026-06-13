@@ -460,6 +460,15 @@ export default function RootLayout({
             `,
           }}
         />
+
+        {/* GoAffPro affiliate tracking — click attribution (env-gated) */}
+        {process.env.NEXT_PUBLIC_GOAFFPRO_ENABLED === 'true' &&
+          process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID && (
+          <script
+            async
+            src={`https://api.goaffpro.com/loader.js?shop=${encodeURIComponent(process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID)}`}
+          />
+        )}
         
         {/* CRITICAL: Suppress Razorpay console errors BEFORE Razorpay scripts load */}
         <script

@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { checkIndividualPlanValidity, checkBusinessSubscription } from '@/lib/services/payment-service';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,6 +22,58 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = session.user.id;
+    const subscriptionConversionId = request.nextUrl.searchParams.get('subscriptionConversion');
+
+    if (subscriptionConversionId) {
+      const subscription = await prisma.subscription.findFirst({
+        where: {
+          razorpaySubscriptionId: subscriptionConversionId,
+          userId,
+        },
+        include: { payment: true },
+      });
+
+      if (!subscription || subscription.status !== 'active') {
+        return NextResponse.json({ ready: false });
+      }
+
+      const metadata =
+        subscription.payment.metadata &&
+        typeof subscription.payment.metadata === 'object' &&
+        !Array.isArray(subscription.payment.metadata)
+          ? (subscription.payment.metadata as Record<string, unknown>)
+          : {};
+
+      if (metadata.goaffproReported) {
+        return NextResponse.json({ ready: false, alreadyReported: true });
+      }
+
+      if (!metadata.goaffproEligible) {
+        return NextResponse.json({ ready: false });
+      }
+
+      const orderNumber = String(metadata.goaffproOrderNumber || subscription.razorpaySubscriptionId);
+      const total = Number(metadata.goaffproTotal ?? subscription.payment.amount / 100);
+
+      await prisma.payment.update({
+        where: { id: subscription.paymentId },
+        data: {
+          metadata: {
+            ...metadata,
+            goaffproReported: true,
+            goaffproReportedAt: new Date().toISOString(),
+          },
+        },
+      });
+
+      return NextResponse.json({
+        ready: true,
+        conversion: {
+          number: orderNumber,
+          total,
+        },
+      });
+    }
 
     // Check business subscription first
     try {

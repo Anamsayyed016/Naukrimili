@@ -11,6 +11,7 @@ export function generateCSP(): string {
       'https://pagead2.googlesyndication.com',
       'https://www.googletagmanager.com',
       'https://www.google-analytics.com',
+      'https://api.goaffpro.com',
       ...(isDev ? ["'unsafe-eval'"] : [])
     ],
     "style-src": ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
@@ -23,6 +24,7 @@ export function generateCSP(): string {
       'https://www.googletagmanager.com',
       'https://pagead2.googlesyndication.com',
       'https://googleads.g.doubleclick.net',
+      'https://api.goaffpro.com',
       ...(isDev ? ['ws://localhost:*', 'http://localhost:*'] : [])
     ],
     "frame-src": [

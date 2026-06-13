@@ -480,6 +480,10 @@ export async function POST(request: NextRequest) {
       message: 'Payment verified and plan activated',
       paymentId: payment.id,
       readyForDownload: true, // Indicate that download should work
+      conversion: {
+        number: razorpayPaymentId,
+        total: payment.amount / 100,
+      },
     });
   } catch (error: any) {
     console.error('❌ [Verify Payment] Error:', {

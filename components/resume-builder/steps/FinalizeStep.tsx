@@ -1054,6 +1054,11 @@ export default function FinalizeStep({
                 readyForDownload: result.readyForDownload,
                 pendingExportFormat,
               });
+
+              if (!result.alreadyProcessed) {
+                const { trackGoAffProConversionFromVerifyResult } = await import('@/lib/goaffpro');
+                trackGoAffProConversionFromVerifyResult(result);
+              }
               
               // Close payment dialog FIRST to ensure UI updates immediately
               setShowPaymentDialog(false);
@@ -1403,6 +1408,9 @@ export default function FinalizeStep({
               hasPaymentId: !!response.razorpay_payment_id,
               hasSignature: !!response.razorpay_signature,
             });
+
+            const { pollAndTrackBusinessSubscriptionConversion } = await import('@/lib/goaffpro');
+            await pollAndTrackBusinessSubscriptionConversion(subscriptionId);
 
             toast({
               title: 'Payment successful!',

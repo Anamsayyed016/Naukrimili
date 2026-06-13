@@ -225,6 +225,26 @@ async function handleSubscriptionActivated(subscription: any) {
       startDate,
       endDate,
     });
+
+    // Mark payment eligible for GoAffPro conversion (client polls after webhook confirmation)
+    const existingMetadata =
+      subscriptionRecord.payment.metadata &&
+      typeof subscriptionRecord.payment.metadata === 'object' &&
+      !Array.isArray(subscriptionRecord.payment.metadata)
+        ? (subscriptionRecord.payment.metadata as Record<string, unknown>)
+        : {};
+
+    await prisma.payment.update({
+      where: { id: subscriptionRecord.paymentId },
+      data: {
+        metadata: {
+          ...existingMetadata,
+          goaffproEligible: true,
+          goaffproOrderNumber: subscription.id,
+          goaffproTotal: subscriptionRecord.payment.amount / 100,
+        },
+      },
+    });
   } catch (error: any) {
     console.error('❌ [Webhook] handleSubscriptionActivated error:', error);
   }
