@@ -27,7 +27,7 @@ export function CouponPreviewCard({ coupon }: { coupon: CouponPreviewData }) {
   );
 
   return (
-    <div className="rounded-xl border-2 border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-white to-indigo-50/50 dark:from-gray-900 dark:to-indigo-950/20 p-6 shadow-md h-full">
+    <div className="rounded-xl border-2 border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-white to-indigo-50/50 dark:from-gray-900 dark:to-indigo-950/20 p-6 shadow-md">
       <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-1">
         Preview
       </p>

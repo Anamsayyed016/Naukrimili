@@ -181,12 +181,15 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[90vh] w-[min(100vw-2rem,64rem)] max-w-5xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 border-b px-6 py-4">
           <DialogTitle>{isEdit ? 'Edit Coupon' : 'Create Coupon'}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-2">
-          <div className="space-y-4">
+
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <div className="grid h-full grid-cols-1 gap-6 overflow-y-auto px-6 py-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:overflow-hidden">
+            {/* Form column — independent scroll on desktop */}
+            <div className="min-w-0 space-y-4 lg:max-h-[calc(90vh-10.5rem)] lg:overflow-y-auto lg:overscroll-contain lg:pr-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="coupon-code">Coupon Code</Label>
@@ -356,12 +359,16 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                 rows={2}
               />
             </div>
-          </div>
-          <div className="lg:sticky lg:top-0">
-            <CouponPreviewCard coupon={previewData} />
+            </div>
+
+            {/* Preview column — fixed width, never overlaps form */}
+            <div className="min-w-0 lg:self-start lg:overflow-y-auto lg:max-h-[calc(90vh-10.5rem)]">
+              <CouponPreviewCard coupon={previewData} />
+            </div>
           </div>
         </div>
-        <DialogFooter className="gap-2 sm:gap-0">
+
+        <DialogFooter className="shrink-0 gap-2 border-t px-6 py-4 sm:gap-0">
           <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
