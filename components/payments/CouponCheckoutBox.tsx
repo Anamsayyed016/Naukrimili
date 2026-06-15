@@ -100,12 +100,12 @@ export function CouponCheckoutBox({
 
   return (
     <div
-      className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 ${className}`}
+      className={`rounded-lg border border-gray-200 bg-white p-4 text-gray-900 ${className}`}
       aria-label="Coupon code section"
     >
       {!appliedQuote ? (
         <div className="space-y-3">
-          <Label htmlFor={`coupon-${planKey}`} className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <Label htmlFor={`coupon-${planKey}`} className="text-sm font-medium text-gray-700">
             Coupon Code
           </Label>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
@@ -117,9 +117,9 @@ export function CouponCheckoutBox({
                 setError(null);
               }}
               onKeyDown={handleKeyDown}
-              placeholder="Enter code"
+              placeholder="ENTER CODE"
               disabled={disabled || loading}
-              className="font-mono uppercase flex-1 min-w-0"
+              className="font-mono uppercase flex-1 min-w-0 border-gray-300 bg-white text-gray-900 placeholder:text-gray-500 focus-visible:border-indigo-500 focus-visible:ring-indigo-500"
               aria-label="Coupon code"
               aria-invalid={!!error}
               aria-describedby={error ? `coupon-error-${planKey}` : undefined}
@@ -129,14 +129,14 @@ export function CouponCheckoutBox({
               variant="outline"
               onClick={() => void handleApply()}
               disabled={disabled || loading || !code.trim()}
-              className="shrink-0 border-indigo-200 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-300 min-h-11"
+              className="shrink-0 min-h-11 border-indigo-600 bg-white font-semibold text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
               aria-label="Apply coupon"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Apply'}
             </Button>
           </div>
           {error && (
-            <p id={`coupon-error-${planKey}`} className="text-sm text-red-600 dark:text-red-400" role="alert">
+            <p id={`coupon-error-${planKey}`} className="text-sm text-red-600" role="alert">
               {error}
             </p>
           )}
@@ -152,24 +152,24 @@ export function CouponCheckoutBox({
             className="space-y-3"
             aria-live="polite"
           >
-            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+            <div className="flex items-center gap-2 text-green-700">
               <Check className="h-4 w-4 shrink-0" aria-hidden />
               <span className="text-sm font-medium">Coupon Applied</span>
-              <span className="ml-auto flex items-center gap-1 font-mono text-xs bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded">
+              <span className="ml-auto flex items-center gap-1 font-mono text-xs bg-green-50 text-green-800 px-2 py-0.5 rounded border border-green-200">
                 <Tag className="h-3 w-3" aria-hidden />
                 {appliedQuote.code}
               </span>
             </div>
-            <div className="space-y-1.5 text-sm border-t border-gray-100 dark:border-gray-800 pt-3">
-              <div className="flex justify-between text-gray-600 dark:text-gray-400">
+            <div className="space-y-1.5 text-sm border-t border-gray-200 pt-3">
+              <div className="flex justify-between text-gray-600">
                 <span>Original Price</span>
                 <span className="line-through">{formatRupee(appliedQuote.originalPrice)}</span>
               </div>
-              <div className="flex justify-between text-green-600 dark:text-green-400">
+              <div className="flex justify-between text-green-700">
                 <span>Discount</span>
                 <span>-{formatRupee(appliedQuote.discountPrice)}</span>
               </div>
-              <div className="flex justify-between font-semibold text-gray-900 dark:text-gray-100 text-base pt-1">
+              <div className="flex justify-between font-semibold text-gray-900 text-base pt-1">
                 <span>Final Price</span>
                 <span>{formatRupee(appliedQuote.finalPrice)}</span>
               </div>
@@ -180,7 +180,7 @@ export function CouponCheckoutBox({
               size="sm"
               onClick={handleRemove}
               disabled={disabled}
-              className="w-full text-gray-500 hover:text-red-600 min-h-11"
+              className="w-full text-gray-600 hover:bg-red-50 hover:text-red-600 min-h-11"
               aria-label="Remove coupon"
             >
               <X className="h-4 w-4 mr-1" aria-hidden />
@@ -190,7 +190,7 @@ export function CouponCheckoutBox({
         </AnimatePresence>
       )}
       {!appliedQuote && listPriceRupees > 0 && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 sr-only">
+        <p className="text-xs text-gray-500 mt-2 sr-only">
           List price {formatRupee(listPriceRupees)}
         </p>
       )}
