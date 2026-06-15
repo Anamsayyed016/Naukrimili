@@ -37,7 +37,9 @@ import {
   ArrowUp,
   ArrowDown,
   Mail,
-  Ticket
+  Ticket,
+  ArrowRight,
+  LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
@@ -147,6 +149,82 @@ interface AdminActivity {
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+
+const adminSurfaceCard =
+  'rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200';
+
+type QuickActionItem = {
+  href: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  metric?: string;
+  iconTone: string;
+};
+
+function QuickActionCard({
+  href,
+  icon: Icon,
+  title,
+  description,
+  metric,
+  iconTone,
+}: QuickActionItem) {
+  return (
+    <Link href={href} className="group block h-full">
+      <div
+        className={`${adminSurfaceCard} flex h-full flex-col p-5 hover:-translate-y-1 hover:shadow-lg`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className={`rounded-lg p-2.5 ${iconTone}`}>
+            <Icon className="h-5 w-5" aria-hidden />
+          </div>
+          <ArrowRight
+            className="h-4 w-4 shrink-0 text-gray-300 transition-colors group-hover:text-indigo-600"
+            aria-hidden
+          />
+        </div>
+        <h3 className="mt-4 text-base font-semibold text-gray-900">{title}</h3>
+        <p className="mt-1 text-sm leading-snug text-gray-500">{description}</p>
+        {metric ? (
+          <p className="mt-3 text-2xl font-bold tabular-nums text-gray-900">{metric}</p>
+        ) : null}
+        <span className="mt-auto pt-4 text-sm font-medium text-indigo-600">Open →</span>
+      </div>
+    </Link>
+  );
+}
+
+type StatOverviewItem = {
+  href: string;
+  icon: LucideIcon;
+  title: string;
+  value: number;
+  subtitle: string;
+  iconTone: string;
+};
+
+function StatOverviewCard({ href, icon: Icon, title, value, subtitle, iconTone }: StatOverviewItem) {
+  return (
+    <Link href={href} className="group block h-full">
+      <div className={`${adminSurfaceCard} h-full p-5 hover:-translate-y-1 hover:shadow-lg`}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-gray-500">{title}</p>
+            <p className="mt-2 text-3xl font-bold tabular-nums text-gray-900">{value.toLocaleString()}</p>
+          </div>
+          <div className={`rounded-lg p-2.5 ${iconTone}`}>
+            <Icon className="h-5 w-5" aria-hidden />
+          </div>
+        </div>
+        <p className="mt-3 text-sm text-gray-600">{subtitle}</p>
+        <span className="mt-3 inline-flex text-sm font-medium text-indigo-600 group-hover:text-indigo-700">
+          Open →
+        </span>
+      </div>
+    </Link>
+  );
+}
 
 function AdminDashboardContent() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -301,6 +379,96 @@ function AdminDashboardContent() {
     }));
   }, [stats]);
 
+  const quickActions = useMemo<QuickActionItem[]>(() => {
+    if (!stats) return [];
+    return [
+      {
+        href: '/dashboard/admin/users',
+        icon: Users,
+        title: 'Manage Users',
+        description: 'Manage employers and job seekers',
+        metric: `${stats.totalUsers.toLocaleString()} users`,
+        iconTone: 'bg-blue-50 text-blue-600',
+      },
+      {
+        href: '/dashboard/admin/jobs',
+        icon: Briefcase,
+        title: 'Manage Jobs',
+        description: 'Review and moderate job listings',
+        metric: `${stats.totalJobs.toLocaleString()} jobs`,
+        iconTone: 'bg-emerald-50 text-emerald-600',
+      },
+      {
+        href: '/dashboard/admin/companies',
+        icon: Building2,
+        title: 'Manage Companies',
+        description: 'Verify employers and company profiles',
+        metric: `${stats.totalCompanies.toLocaleString()} companies`,
+        iconTone: 'bg-violet-50 text-violet-600',
+      },
+      {
+        href: '/dashboard/admin/resume-builder',
+        icon: FileText,
+        title: 'Resume Builder',
+        description: 'Credits, plans, and builder access',
+        metric: `${stats.activeUsers.toLocaleString()} active`,
+        iconTone: 'bg-amber-50 text-amber-600',
+      },
+      {
+        href: '/dashboard/admin/coupons',
+        icon: Ticket,
+        title: 'Coupons',
+        description: 'Create and manage discount codes',
+        iconTone: 'bg-indigo-50 text-indigo-600',
+      },
+      {
+        href: '/admin/applications',
+        icon: FileText,
+        title: 'Applications',
+        description: 'Track candidate applications',
+        metric: `${stats.totalApplications.toLocaleString()} applications`,
+        iconTone: 'bg-orange-50 text-orange-600',
+      },
+      {
+        href: '/admin/contact-messages',
+        icon: Mail,
+        title: 'Contact Messages',
+        description: 'Customer inquiries and support',
+        metric: 'Inbox',
+        iconTone: 'bg-pink-50 text-pink-600',
+      },
+      {
+        href: '/admin/resumes',
+        icon: FileText,
+        title: 'Resumes',
+        description: 'Browse uploaded resumes',
+        iconTone: 'bg-teal-50 text-teal-600',
+      },
+      {
+        href: '/admin/seed-jobs',
+        icon: Database,
+        title: 'Seed Jobs',
+        description: 'Populate sample job listings',
+        iconTone: 'bg-slate-50 text-slate-600',
+      },
+      {
+        href: '/admin/scrape-jobs',
+        icon: Database,
+        title: 'Scrape Jobs',
+        description: 'Import jobs from external sources',
+        iconTone: 'bg-yellow-50 text-yellow-700',
+      },
+      {
+        href: '/dashboard/admin/analytics',
+        icon: BarChart3,
+        title: 'Analytics',
+        description: 'Platform performance and trends',
+        metric: `${stats.newUsersToday.toLocaleString()} new this week`,
+        iconTone: 'bg-indigo-50 text-indigo-600',
+      },
+    ];
+  }, [stats]);
+
   const handleDelete = async () => {
     if (!itemToDelete) return;
     
@@ -437,32 +605,32 @@ function AdminDashboardContent() {
         )}
 
         {/* System Health & Growth */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <Card className="lg:col-span-2 bg-white border-2 border-gray-200 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Activity className="h-5 w-5" />
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+          <Card className={`${adminSurfaceCard} lg:col-span-2`}>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                <Activity className="h-5 w-5 text-indigo-600" />
                 System Health
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Current system status</p>
+                  <p className="mb-2 text-sm text-gray-500">Current system status</p>
                   {getSystemHealthBadge(stats.systemHealth)}
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900">{stats.activeJobs}</p>
-                  <p className="text-xs text-gray-500">Active Jobs</p>
+                  <p className="text-3xl font-bold tabular-nums text-gray-900">{stats.activeJobs}</p>
+                  <p className="text-sm text-gray-500">Active Jobs</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5" />
+
+          <Card className={adminSurfaceCard}>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                <TrendingUp className="h-5 w-5 text-indigo-600" />
                 Growth Rate
               </CardTitle>
             </CardHeader>
@@ -493,113 +661,56 @@ function AdminDashboardContent() {
           </Card>
         </div>
 
-        {/* Stats Cards - All Clickable */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <Link href="/dashboard/admin/users" className="block">
-            <Card className="bg-white border-2 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-blue-200 cursor-pointer group h-full">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-blue-700">Total Users</CardTitle>
-                <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                  <Users className="h-5 w-5 text-blue-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalUsers}</div>
-                <div className="flex items-center gap-1">
-                  {previousStats && (calculateChange(stats.totalUsers, previousStats.totalUsers).isPositive ? 
-                    <ArrowUp className="h-3 w-3 text-green-600" /> : 
-                    <ArrowDown className="h-3 w-3 text-red-600" />)}
-                  <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                    {stats.activeUsers} active users
-                  </p>
-                </div>
-                <p className="text-xs text-blue-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/dashboard/admin/jobs" className="block">
-            <Card className="bg-white border-2 border-green-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-green-200 cursor-pointer group h-full">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-green-700">Total Jobs</CardTitle>
-                <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                  <Briefcase className="h-5 w-5 text-green-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalJobs}</div>
-                <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                  {stats.activeJobs} active • {stats.totalJobs - stats.activeJobs} inactive
-                </p>
-                <p className="text-xs text-green-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/dashboard/admin/companies" className="block">
-            <Card className="bg-white border-2 border-purple-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-purple-200 cursor-pointer group h-full">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-purple-700">Companies</CardTitle>
-                <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                  <Building2 className="h-5 w-5 text-purple-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalCompanies}</div>
-                <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                  {stats.verifiedCompanies} verified • {stats.pendingVerifications} pending
-                </p>
-                <p className="text-xs text-purple-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/applications" className="block">
-            <Card className="bg-white border-2 border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange-200 cursor-pointer group h-full">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-orange-700">Applications</CardTitle>
-                <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                  <FileText className="h-5 w-5 text-orange-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalApplications}</div>
-                <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                  {stats.pendingApplications || 0} pending • {stats.totalApplications - (stats.pendingApplications || 0)} reviewed
-                </p>
-                <p className="text-xs text-orange-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/contact-messages" className="block">
-            <Card className="bg-white border-2 border-pink-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-pink-200 cursor-pointer group h-full">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-pink-700">Contact Messages</CardTitle>
-                <div className="p-2 bg-pink-100 rounded-lg group-hover:bg-pink-200 transition-colors">
-                  <Mail className="h-5 w-5 text-pink-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">0</div>
-                <p className="text-xs sm:text-sm text-gray-600 font-medium">Customer inquiries</p>
-                <p className="text-xs text-pink-600 mt-2 font-medium group-hover:underline">Click to view →</p>
-              </CardContent>
-            </Card>
-          </Link>
+        {/* Overview Stats */}
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">Platform Overview</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
+            <StatOverviewCard
+              href="/dashboard/admin/users"
+              icon={Users}
+              title="Total Users"
+              value={stats.totalUsers}
+              subtitle={`${stats.activeUsers.toLocaleString()} active users`}
+              iconTone="bg-blue-50 text-blue-600"
+            />
+            <StatOverviewCard
+              href="/dashboard/admin/jobs"
+              icon={Briefcase}
+              title="Total Jobs"
+              value={stats.totalJobs}
+              subtitle={`${stats.activeJobs.toLocaleString()} active • ${(stats.totalJobs - stats.activeJobs).toLocaleString()} inactive`}
+              iconTone="bg-emerald-50 text-emerald-600"
+            />
+            <StatOverviewCard
+              href="/dashboard/admin/companies"
+              icon={Building2}
+              title="Companies"
+              value={stats.totalCompanies}
+              subtitle={`${stats.verifiedCompanies.toLocaleString()} verified • ${stats.pendingVerifications.toLocaleString()} pending`}
+              iconTone="bg-violet-50 text-violet-600"
+            />
+            <StatOverviewCard
+              href="/admin/applications"
+              icon={FileText}
+              title="Applications"
+              value={stats.totalApplications}
+              subtitle={`${(stats.pendingApplications || 0).toLocaleString()} pending • ${(stats.totalApplications - (stats.pendingApplications || 0)).toLocaleString()} reviewed`}
+              iconTone="bg-orange-50 text-orange-600"
+            />
+          </div>
         </div>
 
         {/* Charts Section */}
         {(growthTrendData.length > 0 || jobTypeChartData.length > 0) && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {growthTrendData.length > 0 && (
-              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+              <Card className={adminSurfaceCard}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                    <TrendingUp className="h-5 w-5 text-indigo-600" />
                     7-Day Growth Trend
                   </CardTitle>
-                  <CardDescription>Weekly activity overview</CardDescription>
+                  <CardDescription className="text-sm text-gray-500">Weekly activity overview</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={250}>
@@ -625,13 +736,13 @@ function AdminDashboardContent() {
             )}
 
             {jobTypeChartData.length > 0 && (
-              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+              <Card className={adminSurfaceCard}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                    <Briefcase className="h-5 w-5 text-indigo-600" />
                     Job Types Distribution
                   </CardTitle>
-                  <CardDescription>Breakdown by job type</CardDescription>
+                  <CardDescription className="text-sm text-gray-500">Breakdown by job type</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={250}>
@@ -666,15 +777,15 @@ function AdminDashboardContent() {
         {stats.recent && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {stats.recent.users && stats.recent.users.length > 0 && (
-              <Card className="bg-white border-2 border-gray-200 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
+              <Card className={adminSurfaceCard}>
+                <CardHeader className="border-b border-gray-100 pb-4">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <Users className="h-5 w-5" />
+                      <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                        <Users className="h-5 w-5 text-indigo-600" />
                         Recent Users
                       </CardTitle>
-                      <CardDescription>Latest registered users</CardDescription>
+                      <CardDescription className="text-sm text-gray-500">Latest registered users</CardDescription>
                     </div>
                     <Link href="/dashboard/admin/users">
                       <Button size="sm">
@@ -728,15 +839,15 @@ function AdminDashboardContent() {
             )}
 
             {stats.recent.jobs && stats.recent.jobs.length > 0 && (
-              <Card className="bg-white border-2 border-gray-200 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
+              <Card className={adminSurfaceCard}>
+                <CardHeader className="border-b border-gray-100 pb-4">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <Briefcase className="h-5 w-5" />
+                      <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                        <Briefcase className="h-5 w-5 text-indigo-600" />
                         Recent Jobs
                       </CardTitle>
-                      <CardDescription>Latest job postings</CardDescription>
+                      <CardDescription className="text-sm text-gray-500">Latest job postings</CardDescription>
                     </div>
                     <Link href="/dashboard/admin/jobs">
                       <Button size="sm">
@@ -793,15 +904,15 @@ function AdminDashboardContent() {
 
         {/* Recent Applications Section */}
         {stats?.recent?.applications && stats.recent.applications.length > 0 && (
-          <Card className="bg-white border-2 border-orange-200 shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-gray-200">
-              <div className="flex items-center justify-between">
+          <Card className={adminSurfaceCard}>
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                    <FileText className="h-5 w-5 text-indigo-600" />
                     Recent Applications
                   </CardTitle>
-                  <CardDescription>Latest job applications from jobseekers</CardDescription>
+                  <CardDescription className="text-sm text-gray-500">Latest job applications from jobseekers</CardDescription>
                 </div>
                 <Link href="/admin/applications">
                   <Button size="sm">
@@ -871,103 +982,39 @@ function AdminDashboardContent() {
         )}
 
         {/* Quick Actions */}
-        <Card className="bg-white border-gray-200 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
-            <CardDescription>Manage different aspects of your platform</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Link href="/dashboard/admin/users">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300">
-                  <Users className="h-6 w-6" />
-                  <span className="font-medium">Manage Users</span>
-                </Button>
-              </Link>
-              <Link href="/dashboard/admin/jobs">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300">
-                  <Briefcase className="h-6 w-6" />
-                  <span className="font-medium">Manage Jobs</span>
-                </Button>
-              </Link>
-              <Link href="/dashboard/admin/companies">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300">
-                  <Building2 className="h-6 w-6" />
-                  <span className="font-medium">Manage Companies</span>
-                </Button>
-              </Link>
-              <Link href="/dashboard/admin/resume-builder">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
-                  <FileText className="h-6 w-6" />
-                  <span className="font-medium">Resume Builder</span>
-                </Button>
-              </Link>
-              <Link href="/dashboard/admin/coupons">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-violet-50 border-violet-200 text-violet-700 hover:bg-violet-100 hover:border-violet-300">
-                  <Ticket className="h-6 w-6" />
-                  <span className="font-medium">Coupons</span>
-                </Button>
-              </Link>
-              <Link href="/admin/applications">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
-                  <FileText className="h-6 w-6" />
-                  <span className="font-medium">Applications</span>
-                </Button>
-              </Link>
-              <Link href="/admin/contact-messages">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100 hover:border-pink-300">
-                  <Mail className="h-6 w-6" />
-                  <span className="font-medium">Contact Messages</span>
-                </Button>
-              </Link>
-              <Link href="/admin/resumes">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100 hover:border-teal-300">
-                  <FileText className="h-6 w-6" />
-                  <span className="font-medium">Resumes</span>
-                </Button>
-              </Link>
-              <Link href="/admin/seed-jobs">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300">
-                  <Database className="h-6 w-6" />
-                  <span className="font-medium">Seed Jobs</span>
-                </Button>
-              </Link>
-              <Link href="/admin/scrape-jobs">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 hover:border-amber-300">
-                  <Database className="h-6 w-6" />
-                  <span className="font-medium">Scrape Jobs</span>
-                </Button>
-              </Link>
-              <Link href="/dashboard/admin/analytics">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300">
-                  <TrendingUp className="h-6 w-6" />
-                  <span className="font-medium">Analytics</span>
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        <div>
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+            <p className="mt-1 text-sm text-gray-500">Manage different aspects of your platform</p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {quickActions.map((action) => (
+              <QuickActionCard key={action.href + action.title} {...action} />
+            ))}
+          </div>
+        </div>
 
         {/* Recent Activity */}
-        <Card className="bg-white border-2 border-gray-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-            <CardTitle className="flex items-center gap-2 text-gray-900 text-xl font-bold">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Activity className="h-6 w-6 text-blue-600" />
-              </div>
+        <Card className={adminSurfaceCard}>
+          <CardHeader className="border-b border-gray-100 pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+              <Activity className="h-5 w-5 text-indigo-600" />
               Recent Activity
             </CardTitle>
-            <CardDescription>Latest platform activities and updates</CardDescription>
+            <CardDescription className="text-sm text-gray-500">Latest platform activities and updates</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="space-y-4">
+            <div className="space-y-3">
               {(activities || []).slice(0, 10).map((activity) => (
-                <div key={activity.id} className="flex items-center gap-4 p-4 border-2 border-gray-100 rounded-xl bg-white hover:bg-gray-50 hover:border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md">
+                <div
+                  key={activity.id}
+                  className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50"
+                >
                   <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
                       {activity.type === 'user_signup' && <UserPlus className="h-5 w-5 text-blue-600" />}
-                      {activity.type === 'job_posted' && <Briefcase className="h-5 w-5 text-green-600" />}
-                      {activity.type === 'company_registered' && <Building2 className="h-5 w-5 text-purple-600" />}
+                      {activity.type === 'job_posted' && <Briefcase className="h-5 w-5 text-emerald-600" />}
+                      {activity.type === 'company_registered' && <Building2 className="h-5 w-5 text-violet-600" />}
                       {activity.type === 'application_submitted' && <FileText className="h-5 w-5 text-orange-600" />}
                     </div>
                   </div>
@@ -1000,12 +1047,12 @@ function AdminDashboardContent() {
         </Card>
 
         {/* Distribution Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <Card className="bg-white border-2 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
-              <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="p-2 bg-blue-200 rounded-lg">
-                  <Users className="h-5 w-5 text-blue-700" />
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+          <Card className={adminSurfaceCard}>
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                <div className="rounded-lg bg-blue-50 p-2">
+                  <Users className="h-5 w-5 text-blue-600" />
                 </div>
                 User Roles
               </CardTitle>
@@ -1016,9 +1063,14 @@ function AdminDashboardContent() {
                   const role = (item.role || 'unknown') as string;
                   const count = (item._count?.role || 0) as number;
                   return (
-                    <div key={String(role)} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors">
-                      <span className="capitalize text-sm font-semibold text-gray-800">{String(role)}</span>
-                      <Badge className="bg-blue-200 text-blue-800 border-blue-300 font-bold px-3 py-1">{Number(count)}</Badge>
+                    <div
+                      key={String(role)}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                    >
+                      <span className="text-sm font-medium capitalize text-gray-800">{String(role)}</span>
+                      <Badge variant="secondary" className="font-semibold tabular-nums">
+                        {Number(count)}
+                      </Badge>
                     </div>
                   );
                 }) || []}
@@ -1034,11 +1086,11 @@ function AdminDashboardContent() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-2 border-green-100 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
-              <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="p-2 bg-green-200 rounded-lg">
-                  <Briefcase className="h-5 w-5 text-green-700" />
+          <Card className={adminSurfaceCard}>
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                <div className="rounded-lg bg-emerald-50 p-2">
+                  <Briefcase className="h-5 w-5 text-emerald-600" />
                 </div>
                 Job Types
               </CardTitle>
@@ -1049,9 +1101,14 @@ function AdminDashboardContent() {
                   const jobType = (item.jobType || 'unknown') as string;
                   const count = (item._count?.jobType || 0) as number;
                   return (
-                    <div key={String(jobType)} className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-100 hover:bg-green-100 transition-colors">
-                      <span className="capitalize text-sm font-semibold text-gray-800">{String(jobType)}</span>
-                      <Badge className="bg-green-200 text-green-800 border-green-300 font-bold px-3 py-1">{Number(count)}</Badge>
+                    <div
+                      key={String(jobType)}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                    >
+                      <span className="text-sm font-medium capitalize text-gray-800">{String(jobType)}</span>
+                      <Badge variant="secondary" className="font-semibold tabular-nums">
+                        {Number(count)}
+                      </Badge>
                     </div>
                   );
                 }) || []}
@@ -1067,11 +1124,11 @@ function AdminDashboardContent() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-2 border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="bg-gradient-to-r from-orange-50 to-orange-100 border-b border-orange-200">
-              <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="p-2 bg-orange-200 rounded-lg">
-                  <FileText className="h-5 w-5 text-orange-700" />
+          <Card className={adminSurfaceCard}>
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                <div className="rounded-lg bg-orange-50 p-2">
+                  <FileText className="h-5 w-5 text-orange-600" />
                 </div>
                 Application Status
               </CardTitle>
@@ -1082,9 +1139,14 @@ function AdminDashboardContent() {
                   const status = (item.status || 'unknown') as string;
                   const count = (item._count?.status || 0) as number;
                   return (
-                    <div key={String(status)} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-100 hover:bg-orange-100 transition-colors">
-                      <span className="capitalize text-sm font-semibold text-gray-800">{String(status)}</span>
-                      <Badge className="bg-orange-200 text-orange-800 border-orange-300 font-bold px-3 py-1">{Number(count)}</Badge>
+                    <div
+                      key={String(status)}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                    >
+                      <span className="text-sm font-medium capitalize text-gray-800">{String(status)}</span>
+                      <Badge variant="secondary" className="font-semibold tabular-nums">
+                        {Number(count)}
+                      </Badge>
                     </div>
                   );
                 }) || []}
