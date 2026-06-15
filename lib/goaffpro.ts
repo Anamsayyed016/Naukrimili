@@ -3,22 +3,25 @@
  * Loader is injected globally in app/layout.tsx when enabled.
  */
 
+import {
+  logGoAffPro,
+  type GoAffProConversionPayload,
+} from '@/lib/goaffpro-conversion';
+
 declare global {
   interface Window {
-    goaffpro_order?: { number: string; total: number };
-    goaffproTrackConversion?: (order: { number: string; total: number }) => void;
+    goaffpro_order?: GoAffProConversionPayload;
+    goaffproTrackConversion?: (order: GoAffProConversionPayload) => void;
   }
 }
 
-export interface GoAffProOrder {
-  number: string;
-  total: number;
-}
+export type GoAffProOrder = GoAffProConversionPayload;
 
 export interface GoAffProVerifyResult {
   success?: boolean;
   alreadyProcessed?: boolean;
-  conversion?: GoAffProOrder;
+  paymentId?: string;
+  conversion?: GoAffProConversionPayload;
 }
 
 const SESSION_PREFIX = 'goaffpro:converted:';
@@ -83,54 +86,108 @@ function markConversionTracked(orderNumber: string): void {
     sessionStorage.setItem(storageKey(SESSION_PREFIX, orderNumber), '1');
     localStorage.setItem(storageKey(LOCAL_PREFIX, orderNumber), String(Date.now()));
   } catch {
-    // Storage blocked — in-memory dedup still applies per page load via sessionStorage failure path
+    // Storage blocked — server ack remains source of truth
   }
 }
 
-function fireGoAffProConversion(order: GoAffProOrder): boolean {
+function fireGoAffProConversion(order: GoAffProConversionPayload): boolean {
   if (typeof window.goaffproTrackConversion !== 'function') {
     return false;
   }
   window.goaffpro_order = order;
   window.goaffproTrackConversion(order);
-  console.log('[GoAffPro] Conversion tracked:', order.number);
+  logGoAffPro('conversion sent', {
+    orderNumber: order.number,
+    total: order.total,
+    currency: order.currency,
+  });
   return true;
 }
 
-function scheduleConversionRetry(order: GoAffProOrder, attempt = 0): void {
-  if (attempt >= MAX_LOADER_RETRIES) {
-    console.warn('[GoAffPro] Loader not ready — conversion skipped after retries:', order.number);
-    return;
+async function ackGoAffProConversion(paymentId: string): Promise<void> {
+  try {
+    await fetch('/api/payments/goaffpro-ack', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ paymentId }),
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Ack request failed';
+    logGoAffPro('conversion failed', { stage: 'ack', paymentId, error: message });
   }
-  window.setTimeout(() => {
-    if (fireGoAffProConversion(order)) return;
-    scheduleConversionRetry(order, attempt + 1);
-  }, LOADER_RETRY_MS);
 }
 
-/** Fire GoAffPro conversion once per payment (refresh-safe, multi-tab safe). */
-export function trackGoAffProConversion(order: GoAffProOrder): boolean {
-  if (typeof window === 'undefined') return false;
-  if (!isGoAffProEnabled()) return false;
-  if (!order?.number || !Number.isFinite(order.total) || order.total <= 0) return false;
-  if (isConversionAlreadyTracked(order.number)) return false;
+/** Fire GoAffPro conversion with retries; marks local dedup only after SDK accepts. */
+export function trackGoAffProConversionAsync(
+  order: GoAffProConversionPayload,
+  paymentId?: string
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(false);
+      return;
+    }
+    if (!isGoAffProEnabled()) {
+      logGoAffPro('conversion skipped', { reason: 'disabled' });
+      resolve(false);
+      return;
+    }
+    if (!order?.number || !Number.isFinite(order.total) || order.total <= 0) {
+      logGoAffPro('conversion skipped', { reason: 'invalid payload' });
+      resolve(false);
+      return;
+    }
+    if (isConversionAlreadyTracked(order.number)) {
+      logGoAffPro('conversion skipped', { reason: 'duplicate-client', orderNumber: order.number });
+      resolve(false);
+      return;
+    }
 
-  markConversionTracked(order.number);
+    const attemptFire = (attempt: number) => {
+      if (fireGoAffProConversion(order)) {
+        markConversionTracked(order.number);
+        logGoAffPro('conversion success', { orderNumber: order.number, attempt });
+        if (paymentId) {
+          void ackGoAffProConversion(paymentId);
+        }
+        resolve(true);
+        return;
+      }
+      if (attempt >= MAX_LOADER_RETRIES) {
+        logGoAffPro('conversion failed', {
+          reason: 'loader not ready',
+          orderNumber: order.number,
+          attempts: attempt,
+        });
+        resolve(false);
+        return;
+      }
+      window.setTimeout(() => attemptFire(attempt + 1), LOADER_RETRY_MS);
+    };
 
-  if (fireGoAffProConversion(order)) {
-    return true;
-  }
+    attemptFire(0);
+  });
+}
 
-  scheduleConversionRetry(order);
+/** @deprecated Prefer trackGoAffProConversionAsync — sync wrapper without ack. */
+export function trackGoAffProConversion(order: GoAffProConversionPayload): boolean {
+  void trackGoAffProConversionAsync(order);
   return true;
 }
 
-/** Track only on first verified capture (respects alreadyProcessed from verify API). */
-export function trackGoAffProConversionFromVerifyResult(result: GoAffProVerifyResult): boolean {
-  if (!result.success || result.alreadyProcessed || !result.conversion) {
+/** Track only after verified payment; server omits payload when already reported. */
+export async function trackGoAffProConversionFromVerifyResult(
+  result: GoAffProVerifyResult
+): Promise<boolean> {
+  if (!result.success || !result.conversion) {
+    logGoAffPro('conversion skipped', {
+      reason: 'no verify payload',
+      alreadyProcessed: result.alreadyProcessed,
+    });
     return false;
   }
-  return trackGoAffProConversion(result.conversion);
+  return trackGoAffProConversionAsync(result.conversion, result.paymentId);
 }
 
 /** Poll until webhook confirms business subscription, then track conversion once. */
@@ -159,21 +216,27 @@ export async function pollAndTrackBusinessSubscriptionConversion(
       const data = (await response.json()) as {
         ready?: boolean;
         alreadyReported?: boolean;
-        conversion?: GoAffProOrder;
+        paymentId?: string;
+        conversion?: GoAffProConversionPayload;
       };
 
-      if (data.alreadyReported) return false;
-      if (data.ready && data.conversion) {
-        return trackGoAffProConversion(data.conversion);
+      if (data.alreadyReported) {
+        logGoAffPro('conversion skipped', { reason: 'duplicate-server', subscriptionId });
+        return false;
       }
-    } catch (error) {
-      console.warn('[GoAffPro] Subscription conversion poll error:', error);
+      if (data.ready && data.conversion) {
+        logGoAffPro('referral found', { subscriptionId, attempt });
+        return trackGoAffProConversionAsync(data.conversion, data.paymentId);
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Poll error';
+      logGoAffPro('conversion failed', { stage: 'poll', subscriptionId, error: message });
     }
 
     await sleep(intervalMs);
   }
 
-  console.warn('[GoAffPro] Subscription conversion poll timed out:', subscriptionId);
+  logGoAffPro('conversion failed', { reason: 'poll timeout', subscriptionId });
   return false;
 }
 

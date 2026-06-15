@@ -10,6 +10,12 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { checkIndividualPlanValidity, checkBusinessSubscription } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
+import {
+  buildGoAffProConversionPayload,
+  isGoAffProReported,
+  logGoAffPro,
+  parsePaymentGoAffProMetadata,
+} from '@/lib/goaffpro-conversion';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,14 +43,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ ready: false });
       }
 
-      const metadata =
-        subscription.payment.metadata &&
-        typeof subscription.payment.metadata === 'object' &&
-        !Array.isArray(subscription.payment.metadata)
-          ? (subscription.payment.metadata as Record<string, unknown>)
-          : {};
+      const metadata = parsePaymentGoAffProMetadata(subscription.payment.metadata);
 
-      if (metadata.goaffproReported) {
+      if (isGoAffProReported(metadata)) {
+        logGoAffPro('conversion skipped', {
+          reason: 'duplicate-server',
+          subscriptionId: subscriptionConversionId,
+        });
         return NextResponse.json({ ready: false, alreadyReported: true });
       }
 
@@ -52,26 +57,49 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ ready: false });
       }
 
-      const orderNumber = String(metadata.goaffproOrderNumber || subscription.razorpaySubscriptionId);
-      const total = Number(metadata.goaffproTotal ?? subscription.payment.amount / 100);
+      const orderNumber = String(
+        metadata.goaffproOrderNumber || subscription.razorpaySubscriptionId
+      );
 
-      await prisma.payment.update({
-        where: { id: subscription.paymentId },
-        data: {
-          metadata: {
-            ...metadata,
-            goaffproReported: true,
-            goaffproReportedAt: new Date().toISOString(),
-          },
-        },
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, name: true },
+      });
+
+      let couponCode: string | null = null;
+      if (subscription.payment.couponId) {
+        const coupon = await prisma.coupon.findUnique({
+          where: { id: subscription.payment.couponId },
+          select: { code: true },
+        });
+        couponCode = coupon?.code ?? null;
+      }
+
+      const conversion = buildGoAffProConversionPayload({
+        orderNumber,
+        paymentId: subscription.payment.id,
+        amountPaise: subscription.payment.amount,
+        currency: subscription.payment.currency,
+        customerEmail: user?.email,
+        customerName: user?.name,
+        couponCode,
+        planName: subscription.planName,
+      });
+
+      if (!conversion) {
+        return NextResponse.json({ ready: false });
+      }
+
+      logGoAffPro('referral found', {
+        subscriptionId: subscriptionConversionId,
+        paymentId: subscription.payment.id,
+        plan: subscription.planName,
       });
 
       return NextResponse.json({
         ready: true,
-        conversion: {
-          number: orderNumber,
-          total,
-        },
+        paymentId: subscription.payment.id,
+        conversion,
       });
     }
 

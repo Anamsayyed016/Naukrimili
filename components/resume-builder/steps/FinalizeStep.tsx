@@ -1061,9 +1061,9 @@ export default function FinalizeStep({
                 pendingExportFormat,
               });
 
-              if (!result.alreadyProcessed) {
+              if (result.conversion) {
                 const { trackGoAffProConversionFromVerifyResult } = await import('@/lib/goaffpro');
-                trackGoAffProConversionFromVerifyResult(result);
+                await trackGoAffProConversionFromVerifyResult(result);
               }
               
               // Close payment dialog FIRST to ensure UI updates immediately

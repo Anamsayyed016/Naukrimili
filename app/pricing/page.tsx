@@ -375,7 +375,7 @@ export default function PricingPage() {
             if (verifyResponse.ok && result.success === true) {
               console.log('✅ [Payment Handler] Payment verified successfully by backend');
               const { trackGoAffProConversionFromVerifyResult } = await import('@/lib/goaffpro');
-              trackGoAffProConversionFromVerifyResult(result);
+              await trackGoAffProConversionFromVerifyResult(result);
               toast.success('Payment successful! Plan activated.');
               
               // Check if user came from resume builder - redirect back there

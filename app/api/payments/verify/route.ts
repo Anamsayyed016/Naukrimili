@@ -16,12 +16,71 @@ import {
   assertPaymentAmountMatches,
   redeemCoupon,
 } from '@/lib/services/coupon-service';
+import {
+  buildGoAffProConversionPayload,
+  isGoAffProReported,
+  logGoAffPro,
+} from '@/lib/goaffpro-conversion';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 // Ensure route is registered
 export const revalidate = 0;
+
+async function resolveCouponCode(couponId: string | null | undefined): Promise<string | null> {
+  if (!couponId) return null;
+  try {
+    const coupon = await prisma.coupon.findUnique({
+      where: { id: couponId },
+      select: { code: true },
+    });
+    return coupon?.code ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function buildConversionPayloadForPayment(
+  payment: {
+    id: string;
+    amount: number;
+    currency: string | null;
+    couponId: string | null;
+    planName: string;
+    metadata: unknown;
+  },
+  razorpayPaymentId: string,
+  sessionUser: { email?: string | null; name?: string | null }
+) {
+  if (isGoAffProReported(payment.metadata)) {
+    logGoAffPro('conversion skipped', { reason: 'duplicate-server', paymentId: payment.id });
+    return undefined;
+  }
+
+  const couponCode = await resolveCouponCode(payment.couponId);
+  const conversion = buildGoAffProConversionPayload({
+    orderNumber: razorpayPaymentId,
+    paymentId: payment.id,
+    amountPaise: payment.amount,
+    currency: payment.currency,
+    customerEmail: sessionUser.email,
+    customerName: sessionUser.name,
+    couponCode,
+    planName: payment.planName,
+  });
+
+  if (conversion) {
+    logGoAffPro('referral found', {
+      paymentId: payment.id,
+      orderNumber: conversion.number,
+      plan: payment.planName,
+      coupon: couponCode || undefined,
+    });
+  }
+
+  return conversion;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -209,12 +268,19 @@ export async function POST(request: NextRequest) {
     // Check if already processed - prevent duplicate activation
     if (payment.status === 'captured') {
       console.log('⚠️ [Verify Payment] Payment already captured, returning success without reactivation');
-      // Return success but don't activate plan again (already activated)
+      const conversion = payment.razorpayPaymentId
+        ? await buildConversionPayloadForPayment(
+            payment,
+            payment.razorpayPaymentId,
+            session.user
+          )
+        : undefined;
       return NextResponse.json({
         success: true,
         message: 'Payment already processed',
         paymentId: payment.id,
-        alreadyProcessed: true, // Flag to indicate this was already processed
+        alreadyProcessed: true,
+        ...(conversion ? { conversion } : {}),
       });
     }
 
@@ -519,15 +585,17 @@ export async function POST(request: NextRequest) {
     // Note: Business subscriptions are activated via webhook
 
     console.log('✅ [Verify Payment] Payment verified and plan activated successfully');
+    const conversion = await buildConversionPayloadForPayment(
+      payment,
+      razorpayPaymentId,
+      session.user
+    );
     return NextResponse.json({
       success: true,
       message: 'Payment verified and plan activated',
       paymentId: payment.id,
-      readyForDownload: true, // Indicate that download should work
-      conversion: {
-        number: razorpayPaymentId,
-        total: payment.amount / 100,
-      },
+      readyForDownload: true,
+      ...(conversion ? { conversion } : {}),
     });
   } catch (error: any) {
     console.error('❌ [Verify Payment] Error:', {
