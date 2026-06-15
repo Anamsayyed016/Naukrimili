@@ -56,7 +56,7 @@ function planLabel(keys: unknown) {
 export function CouponTable({ coupons, onEdit, onDeactivate }: CouponTableProps) {
   if (coupons.length === 0) {
     return (
-      <Card className="p-8 text-center text-gray-500 dark:text-gray-400">
+      <Card className="p-8 text-center text-gray-500 bg-white">
         No coupons found. Create your first coupon to get started.
       </Card>
     );
@@ -65,7 +65,7 @@ export function CouponTable({ coupons, onEdit, onDeactivate }: CouponTableProps)
   return (
     <>
       {/* Desktop table */}
-      <Card className="hidden md:block overflow-hidden">
+      <Card className="hidden md:block overflow-hidden bg-white">
         <div className="overflow-x-auto max-w-full">
           <Table>
             <TableHeader>
@@ -83,7 +83,7 @@ export function CouponTable({ coupons, onEdit, onDeactivate }: CouponTableProps)
             </TableHeader>
             <TableBody>
               {coupons.map((c) => (
-                <TableRow key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <TableRow key={c.id} className="hover:bg-gray-50">
                   <TableCell className="font-mono font-semibold">{c.code}</TableCell>
                   <TableCell className="max-w-[140px] truncate">{c.name}</TableCell>
                   <TableCell>
@@ -136,11 +136,11 @@ export function CouponTable({ coupons, onEdit, onDeactivate }: CouponTableProps)
       {/* Mobile cards */}
       <div className="md:hidden space-y-3">
         {coupons.map((c) => (
-          <Card key={c.id} className="p-4">
+          <Card key={c.id} className="p-4 bg-white">
             <div className="flex items-start justify-between gap-2 mb-3">
               <div className="min-w-0">
-                <p className="font-mono font-bold text-gray-900 dark:text-gray-100">{c.code}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{c.name}</p>
+                <p className="font-mono font-bold text-gray-900">{c.code}</p>
+                <p className="text-sm text-gray-600 truncate">{c.name}</p>
               </div>
               <CouponStatusBadge status={c.status} />
             </div>

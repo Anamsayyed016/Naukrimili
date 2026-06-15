@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { CouponPlanChips } from './CouponPlanChips';
 import { CouponPreviewCard } from './CouponPreviewCard';
 
@@ -70,6 +71,9 @@ const defaultValues: CouponFormValues = {
   isActive: true,
   redemptionCount: 0,
 };
+
+const labelClass = 'text-sm font-medium text-gray-700';
+const fieldClass = 'border-gray-300 bg-white text-gray-900 placeholder:text-gray-400';
 
 export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFormDialogProps) {
   const [form, setForm] = useState<CouponFormValues>(defaultValues);
@@ -181,9 +185,11 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="flex max-h-[90vh] w-[min(100vw-2rem,64rem)] max-w-5xl flex-col gap-0 overflow-hidden p-0">
-        <DialogHeader className="shrink-0 border-b px-6 py-4">
-          <DialogTitle>{isEdit ? 'Edit Coupon' : 'Create Coupon'}</DialogTitle>
+      <DialogContent className="flex max-h-[90vh] w-[min(100vw-2rem,64rem)] max-w-5xl flex-col gap-0 overflow-hidden bg-white p-0 text-gray-900">
+        <DialogHeader className="shrink-0 border-b border-gray-200 px-6 py-4">
+          <DialogTitle className="text-xl font-semibold text-gray-900">
+            {isEdit ? 'Edit Coupon' : 'Create Coupon'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-hidden">
@@ -192,36 +198,37 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
             <div className="min-w-0 space-y-4 lg:max-h-[calc(90vh-10.5rem)] lg:overflow-y-auto lg:overscroll-contain lg:pr-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="coupon-code">Coupon Code</Label>
+                <Label htmlFor="coupon-code" className={labelClass}>Coupon Code</Label>
                 <Input
                   id="coupon-code"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   disabled={isEdit}
-                  className="font-mono uppercase"
+                  className={cn('font-mono uppercase', fieldClass)}
                   placeholder="ANAM10"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="coupon-name">Name</Label>
+                <Label htmlFor="coupon-name" className={labelClass}>Name</Label>
                 <Input
                   id="coupon-name"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Launch discount"
+                  className={fieldClass}
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Discount Type</Label>
+                <Label className={labelClass}>Discount Type</Label>
                 <Select
                   value={form.discountType}
                   onValueChange={(v: 'percentage' | 'fixed') =>
                     setForm({ ...form, discountType: v })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={fieldClass}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -231,7 +238,7 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="discount-value">
+                <Label htmlFor="discount-value" className={labelClass}>
                   {form.discountType === 'percentage' ? 'Percentage' : 'Amount (₹)'}
                 </Label>
                 <Input
@@ -243,12 +250,13 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                   onChange={(e) =>
                     setForm({ ...form, discountValue: parseFloat(e.target.value) || 0 })
                   }
+                  className={fieldClass}
                 />
               </div>
             </div>
             {form.discountType === 'percentage' && (
               <div className="space-y-2">
-                <Label htmlFor="max-discount">Max Discount Cap (₹, optional)</Label>
+                <Label htmlFor="max-discount" className={labelClass}>Max Discount Cap (₹, optional)</Label>
                 <Input
                   id="max-discount"
                   type="number"
@@ -260,11 +268,12 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                       maxDiscountAmount: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
+                  className={fieldClass}
                 />
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="min-purchase">Min Purchase (₹, optional)</Label>
+              <Label htmlFor="min-purchase" className={labelClass}>Min Purchase (₹, optional)</Label>
               <Input
                 id="min-purchase"
                 type="number"
@@ -276,10 +285,11 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                     minOrderAmount: e.target.value ? parseFloat(e.target.value) : null,
                   })
                 }
+                className={fieldClass}
               />
             </div>
             <div className="space-y-2">
-              <Label>Applicable Plans</Label>
+              <Label className={labelClass}>Applicable Plans</Label>
               <CouponPlanChips
                 selected={form.applicablePlanKeys}
                 onChange={(keys) => setForm({ ...form, applicablePlanKeys: keys })}
@@ -287,7 +297,7 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="max-redemptions">Max Redemptions</Label>
+                <Label htmlFor="max-redemptions" className={labelClass}>Max Redemptions</Label>
                 <Input
                   id="max-redemptions"
                   type="number"
@@ -300,14 +310,15 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                       maxRedemptions: parseInt(e.target.value, 10) || null,
                     })
                   }
+                  className={fieldClass}
                 />
-                <label className="flex items-center gap-2 text-sm">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
                   <Switch checked={unlimitedUsage} onCheckedChange={setUnlimitedUsage} />
                   Unlimited
                 </label>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="per-user">Per User Limit</Label>
+                <Label htmlFor="per-user" className={labelClass}>Per User Limit</Label>
                 <Input
                   id="per-user"
                   type="number"
@@ -319,26 +330,29 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                       maxRedemptionsPerUser: parseInt(e.target.value, 10) || 1,
                     })
                   }
+                  className={fieldClass}
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="valid-from">Valid From</Label>
+                <Label htmlFor="valid-from" className={labelClass}>Valid From</Label>
                 <Input
                   id="valid-from"
                   type="datetime-local"
                   value={form.validFrom}
                   onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
+                  className={fieldClass}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="valid-until">Valid Until</Label>
+                <Label htmlFor="valid-until" className={labelClass}>Valid Until</Label>
                 <Input
                   id="valid-until"
                   type="datetime-local"
                   value={form.validUntil}
                   onChange={(e) => setForm({ ...form, validUntil: e.target.value })}
+                  className={fieldClass}
                 />
               </div>
             </div>
@@ -348,15 +362,16 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
                 checked={form.isActive}
                 onCheckedChange={(v) => setForm({ ...form, isActive: v })}
               />
-              <Label htmlFor="is-active">Active</Label>
+              <Label htmlFor="is-active" className={labelClass}>Active</Label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes (internal)</Label>
+              <Label htmlFor="notes" className={labelClass}>Notes (internal)</Label>
               <Textarea
                 id="notes"
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 rows={2}
+                className={fieldClass}
               />
             </div>
             </div>
@@ -368,7 +383,7 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
           </div>
         </div>
 
-        <DialogFooter className="shrink-0 gap-2 border-t px-6 py-4 sm:gap-0">
+        <DialogFooter className="shrink-0 gap-2 border-t border-gray-200 bg-white px-6 py-4 sm:gap-0">
           <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
             Cancel
           </Button>

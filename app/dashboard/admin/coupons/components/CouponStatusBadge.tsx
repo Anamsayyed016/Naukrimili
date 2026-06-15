@@ -7,10 +7,10 @@ import { cn } from '@/lib/utils';
 export type CouponStatus = 'active' | 'expired' | 'scheduled' | 'inactive';
 
 const STATUS_STYLES: Record<CouponStatus, string> = {
-  active: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  expired: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  scheduled: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  inactive: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+  active: 'bg-green-100 text-green-700',
+  expired: 'bg-red-100 text-red-700',
+  scheduled: 'bg-blue-100 text-blue-700',
+  inactive: 'bg-gray-100 text-gray-600',
 };
 
 export function CouponStatusBadge({
@@ -38,7 +38,7 @@ export function CouponUsageProgress({
 }) {
   if (max == null) {
     return (
-      <span className={cn('text-xs text-gray-500 dark:text-gray-400', className)}>
+      <span className={cn('text-xs text-gray-500', className)}>
         {used} / ∞
       </span>
     );
@@ -49,7 +49,7 @@ export function CouponUsageProgress({
 
   return (
     <div className={cn('space-y-1 min-w-[80px]', className)}>
-      <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+      <div className="flex justify-between text-xs text-gray-600">
         <span>{used} / {max}</span>
         <span>{pct}%</span>
       </div>

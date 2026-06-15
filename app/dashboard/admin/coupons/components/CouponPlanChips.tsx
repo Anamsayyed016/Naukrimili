@@ -34,7 +34,7 @@ function Chip({
         'rounded-full px-3 py-1.5 text-xs font-medium border transition-colors min-h-9',
         selected
           ? 'bg-indigo-600 text-white border-indigo-600'
-          : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-300'
+          : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'
       )}
       aria-pressed={selected}
     >
@@ -55,7 +55,7 @@ export function CouponPlanChips({ selected, onChange, disabled }: CouponPlanChip
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+        <p className="text-xs font-semibold text-gray-500 mb-2 uppercase">
           Individual Plans
         </p>
         <div className="flex flex-wrap gap-2">
@@ -71,7 +71,7 @@ export function CouponPlanChips({ selected, onChange, disabled }: CouponPlanChip
         </div>
       </div>
       <div>
-        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+        <p className="text-xs font-semibold text-gray-500 mb-2 uppercase">
           Business Plans
         </p>
         <div className="flex flex-wrap gap-2">

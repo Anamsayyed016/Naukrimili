@@ -127,21 +127,21 @@ function AdminCouponsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Link
               href="/dashboard/admin"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 text-sm mb-2"
+              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm mb-2"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden />
               Back to Admin
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Coupon Management
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+            <p className="text-gray-600 text-sm mt-1">
               Create and manage discount codes for all plans
             </p>
           </div>
@@ -174,12 +174,12 @@ function AdminCouponsPageContent() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="pl-9"
+              className="pl-9 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
               aria-label="Search coupons"
             />
           </div>
           <Select value={status} onValueChange={(v) => { setStatus(v); setPage(1); }}>
-            <SelectTrigger className="w-full sm:w-40">
+            <SelectTrigger className="w-full sm:w-40 border-gray-300 bg-white text-gray-900">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -191,7 +191,7 @@ function AdminCouponsPageContent() {
             </SelectContent>
           </Select>
           <Select value={sort} onValueChange={setSort}>
-            <SelectTrigger className="w-full sm:w-40">
+            <SelectTrigger className="w-full sm:w-40 border-gray-300 bg-white text-gray-900">
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>

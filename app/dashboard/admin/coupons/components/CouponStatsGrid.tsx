@@ -37,21 +37,21 @@ const CARDS = [
 ] as const;
 
 const colorMap: Record<string, string> = {
-  blue: 'border-blue-100 dark:border-blue-900/40 bg-blue-50/30 dark:bg-blue-950/20',
-  green: 'border-green-100 dark:border-green-900/40 bg-green-50/30 dark:bg-green-950/20',
-  red: 'border-red-100 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/20',
-  purple: 'border-purple-100 dark:border-purple-900/40 bg-purple-50/30 dark:bg-purple-950/20',
-  amber: 'border-amber-100 dark:border-amber-900/40 bg-amber-50/30 dark:bg-amber-950/20',
-  indigo: 'border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/30 dark:bg-indigo-950/20',
+  blue: 'border-blue-100 bg-blue-50/30',
+  green: 'border-green-100 bg-green-50/30',
+  red: 'border-red-100 bg-red-50/30',
+  purple: 'border-purple-100 bg-purple-50/30',
+  amber: 'border-amber-100 bg-amber-50/30',
+  indigo: 'border-indigo-100 bg-indigo-50/30',
 };
 
 const iconColorMap: Record<string, string> = {
-  blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
-  green: 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400',
-  red: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400',
-  purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400',
-  amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
-  indigo: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400',
+  blue: 'bg-blue-100 text-blue-600',
+  green: 'bg-green-100 text-green-600',
+  red: 'bg-red-100 text-red-600',
+  purple: 'bg-purple-100 text-purple-600',
+  amber: 'bg-amber-100 text-amber-600',
+  indigo: 'bg-indigo-100 text-indigo-600',
 };
 
 export function CouponStatsGrid({ stats, loading }: CouponStatsGridProps) {
@@ -97,10 +97,10 @@ export function CouponStatsGrid({ stats, loading }: CouponStatsGridProps) {
         return (
           <Card
             key={card.key}
-            className={`border-2 shadow-lg hover:shadow-xl transition-all duration-300 h-full ${colorMap[card.color]}`}
+            className={`border-2 shadow-lg hover:shadow-xl transition-all duration-300 h-full bg-white ${colorMap[card.color]}`}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+              <CardTitle className="text-sm font-semibold text-gray-800">
                 {card.title}
               </CardTitle>
               <div className={`p-2 rounded-lg ${iconColorMap[card.color]}`}>
@@ -108,7 +108,7 @@ export function CouponStatsGrid({ stats, loading }: CouponStatsGridProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 truncate">
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate">
                 {card.key === 'top' ? (
                   <span className="font-mono text-xl">{val.main}</span>
                 ) : (
@@ -116,7 +116,7 @@ export function CouponStatsGrid({ stats, loading }: CouponStatsGridProps) {
                 )}
               </div>
               {val.sub && (
-                <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                <p className="text-xs text-gray-600 flex items-center gap-1">
                   {card.key === 'redemptions' && stats.redemptionsLast30Days > 0 && (
                     <ArrowUp className="h-3 w-3 text-green-600" aria-hidden />
                   )}
