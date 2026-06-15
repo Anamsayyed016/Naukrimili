@@ -24,9 +24,12 @@ export interface GoAffProConversionPayload {
 export interface PaymentGoAffProMetadata {
   goaffproReported?: boolean;
   goaffproReportedAt?: string;
+  goaffproReportMethod?: 'order_complete' | 'sdk' | 'admin' | 'client';
   goaffproEligible?: boolean;
   goaffproOrderNumber?: string;
   goaffproTotal?: number;
+  /** Affiliate referral code captured from the `ref` cookie at checkout. */
+  goaffproRef?: string;
 }
 
 export function logGoAffPro(

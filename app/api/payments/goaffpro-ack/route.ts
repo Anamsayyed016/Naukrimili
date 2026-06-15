@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
-import { isGoAffProReported, logGoAffPro, parsePaymentGoAffProMetadata } from '@/lib/goaffpro-conversion';
+import { isGoAffProReported, logGoAffPro } from '@/lib/goaffpro-conversion';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,19 +34,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment not captured' }, { status: 400 });
     }
 
-    const metadata = parsePaymentGoAffProMetadata(payment.metadata);
-    if (isGoAffProReported(metadata)) {
+    if (isGoAffProReported(payment.metadata)) {
       logGoAffPro('conversion skipped', { reason: 'duplicate', paymentId });
       return NextResponse.json({ success: true, alreadyReported: true });
     }
+
+    const existingMeta =
+      payment.metadata && typeof payment.metadata === 'object' && !Array.isArray(payment.metadata)
+        ? (payment.metadata as Record<string, unknown>)
+        : {};
 
     await prisma.payment.update({
       where: { id: paymentId },
       data: {
         metadata: {
-          ...metadata,
+          ...existingMeta,
           goaffproReported: true,
           goaffproReportedAt: new Date().toISOString(),
+          goaffproReportMethod: 'client',
         },
       },
     });

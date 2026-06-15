@@ -21,6 +21,11 @@ import {
   isGoAffProReported,
   logGoAffPro,
 } from '@/lib/goaffpro-conversion';
+import {
+  mergePaymentCaptureMetadata,
+  readGoAffProRefFromRequest,
+  reportGoAffProSaleForPayment,
+} from '@/lib/goaffpro-server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -268,10 +273,19 @@ export async function POST(request: NextRequest) {
     // Check if already processed - prevent duplicate activation
     if (payment.status === 'captured') {
       console.log('⚠️ [Verify Payment] Payment already captured, returning success without reactivation');
-      const conversion = payment.razorpayPaymentId
+      const affiliateRef = readGoAffProRefFromRequest(request);
+      if (payment.razorpayPaymentId) {
+        await reportGoAffProSaleForPayment(payment.id, payment.razorpayPaymentId, {
+          affiliateRef,
+          userId: session.user.id,
+        });
+      }
+      const freshPayment = await prisma.payment.findUnique({ where: { id: payment.id } });
+      const paymentForConversion = freshPayment || payment;
+      const conversion = paymentForConversion.razorpayPaymentId
         ? await buildConversionPayloadForPayment(
-            payment,
-            payment.razorpayPaymentId,
+            paymentForConversion,
+            paymentForConversion.razorpayPaymentId,
             session.user
           )
         : undefined;
@@ -359,6 +373,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment amount mismatch', details: msg }, { status: 400 });
     }
 
+    const affiliateRef = readGoAffProRefFromRequest(request);
+    const captureMetadata = mergePaymentCaptureMetadata(payment.metadata, razorpayPayment as Record<string, unknown>, {
+      ...(affiliateRef ? { goaffproRef: affiliateRef } : {}),
+    });
+
     // CRITICAL: Update payment record to 'captured' BEFORE activating plan
     // This prevents duplicate activations if verification is called multiple times
     console.log('🔄 [Verify Payment] Updating payment record to captured...');
@@ -369,7 +388,7 @@ export async function POST(request: NextRequest) {
         razorpaySignature,
         status: 'captured',
         paymentMethod: razorpayPayment.method,
-        metadata: razorpayPayment as any,
+        metadata: captureMetadata,
       });
       
       const updateTimeoutPromise = new Promise((_, reject) => 
@@ -398,7 +417,7 @@ export async function POST(request: NextRequest) {
             razorpaySignature,
             status: 'captured',
             paymentMethod: razorpayPayment.method,
-            metadata: razorpayPayment as any,
+            metadata: captureMetadata,
           },
         });
         
@@ -585,8 +604,16 @@ export async function POST(request: NextRequest) {
     // Note: Business subscriptions are activated via webhook
 
     console.log('✅ [Verify Payment] Payment verified and plan activated successfully');
+
+    await reportGoAffProSaleForPayment(payment.id, razorpayPaymentId, {
+      affiliateRef,
+      userId: session.user.id,
+    });
+
+    const freshPayment = await prisma.payment.findUnique({ where: { id: payment.id } });
+    const paymentForConversion = freshPayment || payment;
     const conversion = await buildConversionPayloadForPayment(
-      payment,
+      paymentForConversion,
       razorpayPaymentId,
       session.user
     );

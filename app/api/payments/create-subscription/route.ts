@@ -15,6 +15,7 @@ import {
 import { BUSINESS_PLANS, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
 import { validateCoupon } from '@/lib/services/coupon-service';
+import { captureGoAffProRefForPayment } from '@/lib/goaffpro-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -259,6 +260,8 @@ export async function POST(request: NextRequest) {
     if (!keyId) {
       throw new Error('RAZORPAY_KEY_ID not set in environment');
     }
+
+    await captureGoAffProRefForPayment(payment.id, request);
 
     return NextResponse.json({
       subscriptionId: subscription.id,
