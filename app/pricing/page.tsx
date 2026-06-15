@@ -10,6 +10,7 @@ import { Check, Star, Zap, Crown, Building2 } from 'lucide-react';
 import Script from 'next/script';
 import { toast } from 'sonner';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
+import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
 
 // Transform plans for UI display (centralized from razorpay-plans.ts)
 const getIndividualPlansForUI = () => {
@@ -75,6 +76,7 @@ export default function PricingPage() {
   // Error suppression is handled globally in app/layout.tsx
   // No need for duplicate suppression here
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
+  const [couponQuotes, setCouponQuotes] = useState<Record<string, CouponQuote | null>>({});
   
   // Store return URL from query params for after payment redirect
   useEffect(() => {
@@ -227,11 +229,15 @@ export default function PricingPage() {
       );
 
       // Create order
+      const appliedCoupon = couponQuotes[planKey];
       const response = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Required to send session cookies
-        body: JSON.stringify({ planKey }),
+        body: JSON.stringify({
+          planKey,
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+        }),
       });
 
       let data;
@@ -572,11 +578,15 @@ export default function PricingPage() {
       );
 
       // Create subscription
+      const appliedCoupon = couponQuotes[planKey];
       const response = await fetch('/api/payments/create-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Required to send session cookies
-        body: JSON.stringify({ planKey }),
+        body: JSON.stringify({
+          planKey,
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+        }),
       });
 
       let data;
@@ -890,7 +900,14 @@ export default function PricingPage() {
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
                     <CardDescription>{plan.validity} Access</CardDescription>
                     <div className="mt-4">
-                      <span className="text-4xl font-bold">₹{plan.price}</span>
+                      {couponQuotes[plan.key] ? (
+                        <div className="space-y-1">
+                          <span className="text-lg text-gray-400 line-through">₹{plan.price}</span>
+                          <span className="text-4xl font-bold text-indigo-600">₹{couponQuotes[plan.key]!.finalPrice}</span>
+                        </div>
+                      ) : (
+                        <span className="text-4xl font-bold">₹{plan.price}</span>
+                      )}
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -941,7 +958,19 @@ export default function PricingPage() {
                       )}
                     </ul>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex flex-col gap-3">
+                    <CouponCheckoutBox
+                      planKey={plan.key}
+                      listPriceRupees={plan.price}
+                      appliedQuote={couponQuotes[plan.key] ?? null}
+                      onApplied={(quote) =>
+                        setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
+                      }
+                      onRemoved={() =>
+                        setCouponQuotes((prev) => ({ ...prev, [plan.key]: null }))
+                      }
+                      disabled={loading !== null}
+                    />
                     <Button
                       className={`w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide transition-all duration-200 ${
                         plan.popular || plan.bestValue
@@ -952,7 +981,9 @@ export default function PricingPage() {
                       onClick={() => handleIndividualPlan(plan.key)}
                       disabled={loading !== null || !razorpayLoaded}
                     >
-                      {loading === plan.key ? 'Processing...' : `Buy Now - ₹${plan.price}`}
+                      {loading === plan.key
+                        ? 'Processing...'
+                        : `Buy Now - ₹${couponQuotes[plan.key]?.finalPrice ?? plan.price}`}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -987,7 +1018,12 @@ export default function PricingPage() {
                     </div>
                     <CardDescription>{plan.validity} Subscription</CardDescription>
                     <div className="mt-4">
-                      {plan.originalPrice ? (
+                      {couponQuotes[plan.key] ? (
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-2xl font-normal text-gray-400 line-through">₹{plan.price}</span>
+                          <span className="text-4xl font-bold text-indigo-600">₹{couponQuotes[plan.key]!.finalPrice}</span>
+                        </div>
+                      ) : plan.originalPrice ? (
                         <div className="flex items-baseline gap-2">
                           <span className="text-2xl font-normal text-gray-400 line-through">₹{plan.originalPrice}</span>
                           <span className="text-4xl font-bold">₹{plan.price}</span>
@@ -1043,7 +1079,19 @@ export default function PricingPage() {
                       )}
                     </ul>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex flex-col gap-3">
+                    <CouponCheckoutBox
+                      planKey={plan.key}
+                      listPriceRupees={plan.price}
+                      appliedQuote={couponQuotes[plan.key] ?? null}
+                      onApplied={(quote) =>
+                        setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
+                      }
+                      onRemoved={() =>
+                        setCouponQuotes((prev) => ({ ...prev, [plan.key]: null }))
+                      }
+                      disabled={loading !== null}
+                    />
                     <Button
                       className={`w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide transition-all duration-200 ${
                         plan.recommended || plan.popular
@@ -1054,7 +1102,9 @@ export default function PricingPage() {
                       onClick={() => handleBusinessPlan(plan.key)}
                       disabled={loading !== null || !razorpayLoaded}
                     >
-                      {loading === plan.key ? 'Processing...' : `Subscribe - ₹${plan.price}`}
+                      {loading === plan.key
+                        ? 'Processing...'
+                        : `Subscribe - ₹${couponQuotes[plan.key]?.finalPrice ?? plan.price}`}
                     </Button>
                   </CardFooter>
                 </Card>

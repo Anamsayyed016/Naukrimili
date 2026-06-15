@@ -136,4 +136,36 @@ export const BUSINESS_PLANS = {
 
 export type IndividualPlanKey = keyof typeof INDIVIDUAL_PLANS;
 export type BusinessPlanKey = keyof typeof BUSINESS_PLANS;
+export type PlanKey = IndividualPlanKey | BusinessPlanKey;
+
+export const ALL_INDIVIDUAL_PLAN_KEYS = Object.keys(INDIVIDUAL_PLANS) as IndividualPlanKey[];
+export const ALL_BUSINESS_PLAN_KEYS = Object.keys(BUSINESS_PLANS) as BusinessPlanKey[];
+export const ALL_PLAN_KEYS: PlanKey[] = [...ALL_INDIVIDUAL_PLAN_KEYS, ...ALL_BUSINESS_PLAN_KEYS];
+
+export const PLAN_DISPLAY_NAMES: Record<PlanKey, string> = {
+  mini_starter: INDIVIDUAL_PLANS.mini_starter.name,
+  starter_premium: INDIVIDUAL_PLANS.starter_premium.name,
+  pro_job_seeker: INDIVIDUAL_PLANS.pro_job_seeker.name,
+  partner_lite: BUSINESS_PLANS.partner_lite.name,
+  partner_pro: BUSINESS_PLANS.partner_pro.name,
+  partner_max: BUSINESS_PLANS.partner_max.name,
+  business_partner: BUSINESS_PLANS.business_partner.name,
+};
+
+export function getPlanType(planKey: string): 'individual' | 'business' | null {
+  if (planKey in INDIVIDUAL_PLANS) return 'individual';
+  if (planKey in BUSINESS_PLANS) return 'business';
+  return null;
+}
+
+export function getListAmountPaise(planKey: string): number | null {
+  const planType = getPlanType(planKey);
+  if (planType === 'individual') {
+    return INDIVIDUAL_PLANS[planKey as IndividualPlanKey].amount;
+  }
+  if (planType === 'business') {
+    return BUSINESS_PLANS[planKey as BusinessPlanKey].amount;
+  }
+  return null;
+}
 

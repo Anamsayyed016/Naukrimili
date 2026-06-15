@@ -14,6 +14,7 @@ import {
 } from '@/lib/services/razorpay-service';
 import { BUSINESS_PLANS, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
+import { validateCoupon } from '@/lib/services/coupon-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { planKey } = body;
+    const { planKey, couponCode } = body;
 
     // Validate plan key
     if (!planKey || !(planKey in BUSINESS_PLANS)) {
@@ -66,6 +67,29 @@ export async function POST(request: NextRequest) {
     }
 
     const plan = BUSINESS_PLANS[planKey as BusinessPlanKey];
+
+    let chargeAmount = plan.amount;
+    let originalAmount: number | null = null;
+    let discountAmount = 0;
+    let couponId: string | null = null;
+
+    if (couponCode && String(couponCode).trim()) {
+      const couponResult = await validateCoupon({
+        code: String(couponCode),
+        planKey,
+        userId: session.user.id,
+      });
+      if (!couponResult.valid) {
+        return NextResponse.json(
+          { error: couponResult.error },
+          { status: 400 }
+        );
+      }
+      chargeAmount = couponResult.finalAmount;
+      originalAmount = couponResult.originalAmount;
+      discountAmount = couponResult.discountAmount;
+      couponId = couponResult.couponId;
+    }
 
     // Check for existing subscription (any status)
     const existingSubscription = await prisma.subscription.findUnique({
@@ -116,8 +140,8 @@ export async function POST(request: NextRequest) {
       period: plan.billingCycle === 'monthly' ? 'monthly' : 'yearly',
       interval: 1,
       item: {
-        name: plan.name,
-        amount: plan.amount,
+        name: couponId ? `${plan.name} (Coupon)` : plan.name,
+        amount: chargeAmount,
         currency: 'INR',
         description: `Business plan: ${plan.name}`,
       },
@@ -132,6 +156,7 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         planKey,
         planName: plan.name,
+        ...(couponId ? { couponId } : {}),
       },
     });
 
@@ -153,10 +178,13 @@ export async function POST(request: NextRequest) {
           razorpayOrderId: subscription.id,
           planType: 'business',
           planName: planKey,
-          amount: plan.amount,
+          amount: chargeAmount,
+          originalAmount: originalAmount ?? plan.amount,
+          discountAmount,
+          couponId,
           currency: 'INR',
           status: 'pending',
-          razorpayPaymentId: null, // Reset payment details
+          razorpayPaymentId: null,
           razorpaySignature: null,
           paymentMethod: null,
           failureReason: null,
@@ -194,10 +222,13 @@ export async function POST(request: NextRequest) {
       payment = await prisma.payment.create({
         data: {
           userId: session.user.id,
-          razorpayOrderId: subscription.id, // Using subscription ID as order ID reference
+          razorpayOrderId: subscription.id,
           planType: 'business',
           planName: planKey,
-          amount: plan.amount,
+          amount: chargeAmount,
+          originalAmount: originalAmount ?? plan.amount,
+          discountAmount,
+          couponId,
           currency: 'INR',
           status: 'pending',
         },
@@ -232,7 +263,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       subscriptionId: subscription.id,
       planId: razorpayPlan.id,
-      amount: plan.amount,
+      amount: chargeAmount,
+      originalAmount: originalAmount ?? plan.amount,
+      discountAmount,
       currency: 'INR',
       keyId,
     });

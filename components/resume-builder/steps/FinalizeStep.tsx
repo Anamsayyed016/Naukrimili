@@ -19,6 +19,7 @@ import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building2 } from 'lucide-react';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
+import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
 import './finalize-payment-dialog.css';
 
 declare global {
@@ -56,6 +57,7 @@ export default function FinalizeStep({
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
+  const [couponQuotes, setCouponQuotes] = useState<Record<string, CouponQuote | null>>({});
   const [skipPaymentCheck, setSkipPaymentCheck] = useState(false); // Bypass payment check after successful payment
 
   // Transform plans for UI display (centralized from razorpay-plans.ts)
@@ -728,11 +730,15 @@ export default function FinalizeStep({
       );
 
       // Create order
+      const appliedCoupon = couponQuotes[planKey];
       const response = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Required to send session cookies
-        body: JSON.stringify({ planKey }),
+        body: JSON.stringify({
+          planKey,
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+        }),
       });
 
       let data;
@@ -1355,10 +1361,14 @@ export default function FinalizeStep({
       );
 
       // Create subscription
+      const appliedCoupon = couponQuotes[planKey];
       const response = await fetch('/api/payments/create-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planKey }),
+        body: JSON.stringify({
+          planKey,
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+        }),
       });
 
       let data;
@@ -1780,6 +1790,19 @@ export default function FinalizeStep({
                     </li>
                   )}
                 </ul>
+                <CouponCheckoutBox
+                  planKey={plan.key}
+                  listPriceRupees={plan.price}
+                  appliedQuote={couponQuotes[plan.key] ?? null}
+                  onApplied={(quote) =>
+                    setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
+                  }
+                  onRemoved={() =>
+                    setCouponQuotes((prev) => ({ ...prev, [plan.key]: null }))
+                  }
+                  disabled={loadingPlan !== null}
+                  className="mb-3"
+                />
                 <Button
                   onClick={() => handleIndividualPlan(plan.key)}
                   disabled={loadingPlan !== null || !razorpayLoaded}
@@ -1795,7 +1818,7 @@ export default function FinalizeStep({
                       Processing...
                     </>
                   ) : (
-                    `Buy Now - ₹${plan.price}`
+                    `Buy Now - ₹${couponQuotes[plan.key]?.finalPrice ?? plan.price}`
                   )}
                 </Button>
               </div>
@@ -1882,6 +1905,19 @@ export default function FinalizeStep({
                       </li>
                     )}
                   </ul>
+                  <CouponCheckoutBox
+                    planKey={plan.key}
+                    listPriceRupees={plan.price}
+                    appliedQuote={couponQuotes[plan.key] ?? null}
+                    onApplied={(quote) =>
+                      setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
+                    }
+                    onRemoved={() =>
+                      setCouponQuotes((prev) => ({ ...prev, [plan.key]: null }))
+                    }
+                    disabled={loadingPlan !== null}
+                    className="mb-3"
+                  />
                   <Button
                     onClick={() => handleBusinessPlan(plan.key)}
                     disabled={loadingPlan !== null || !razorpayLoaded}
@@ -1897,7 +1933,7 @@ export default function FinalizeStep({
                         Processing...
                       </>
                     ) : (
-                      `Subscribe - ₹${plan.price}`
+                      `Subscribe - ₹${couponQuotes[plan.key]?.finalPrice ?? plan.price}`
                     )}
                   </Button>
                 </div>

@@ -36,7 +36,8 @@ import {
   MoreVertical,
   ArrowUp,
   ArrowDown,
-  Mail
+  Mail,
+  Ticket
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
@@ -899,6 +900,12 @@ function AdminDashboardContent() {
                 <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
                   <FileText className="h-6 w-6" />
                   <span className="font-medium">Resume Builder</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/admin/coupons">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-violet-50 border-violet-200 text-violet-700 hover:bg-violet-100 hover:border-violet-300">
+                  <Ticket className="h-6 w-6" />
+                  <span className="font-medium">Coupons</span>
                 </Button>
               </Link>
               <Link href="/admin/applications">

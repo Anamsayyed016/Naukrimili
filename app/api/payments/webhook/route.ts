@@ -19,6 +19,10 @@ import {
 import { activateIndividualPlan, activateBusinessSubscription } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
 import { BUSINESS_PLANS } from '@/lib/services/razorpay-plans';
+import {
+  assertPaymentAmountMatches,
+  redeemCoupon,
+} from '@/lib/services/coupon-service';
 
 // Verify webhook signature using dynamic import for crypto
 async function verifyWebhookSignature(body: string, signature: string): Promise<boolean> {
@@ -116,6 +120,21 @@ async function handlePaymentCaptured(payment: any) {
       return;
     }
 
+    // Mandatory amount validation for captured payments
+    if (payment.status === 'captured') {
+      try {
+        assertPaymentAmountMatches(paymentRecord.amount, payment.amount);
+      } catch (amountError: unknown) {
+        const msg = amountError instanceof Error ? amountError.message : 'Amount mismatch';
+        console.error('❌ [Webhook] Payment amount mismatch:', msg);
+        await prisma.payment.update({
+          where: { id: paymentRecord.id },
+          data: { status: 'failed', failureReason: msg },
+        });
+        return;
+      }
+    }
+
     // Update payment status (only if not already captured to prevent overwriting)
     // Use update with conditional check to prevent race conditions
     const currentStatus = paymentRecord.status;
@@ -138,6 +157,26 @@ async function handlePaymentCaptured(payment: any) {
     // This prevents duplicate activation if webhook and verify endpoint both process the payment
     if (paymentRecord.planType === 'individual' && paymentRecord.status !== 'captured') {
       console.log('🔄 [Webhook] Activating individual plan for payment:', paymentRecord.id);
+
+      if (paymentRecord.couponId) {
+        try {
+          await redeemCoupon({
+            couponId: paymentRecord.couponId,
+            userId: paymentRecord.userId,
+            paymentId: paymentRecord.id,
+            planType: 'individual',
+            planKey: paymentRecord.planName,
+            originalAmount: paymentRecord.originalAmount ?? paymentRecord.amount,
+            discountAmount: paymentRecord.discountAmount ?? 0,
+            finalAmount: paymentRecord.amount,
+            razorpayReference: payment.order_id,
+          });
+        } catch (redeemError: unknown) {
+          console.error('❌ [Webhook] Coupon redemption failed:', redeemError);
+          return;
+        }
+      }
+
       try {
         // Check if plan is already active to prevent duplicate activation
         const existingCredits = await prisma.userCredits.findUnique({
@@ -190,6 +229,66 @@ async function handleSubscriptionActivated(subscription: any) {
 
     const startDate = new Date(subscription.current_start * 1000);
     const endDate = new Date(subscription.current_end * 1000);
+
+    // Validate subscription plan matches stored record
+    if (subscription.plan_id !== subscriptionRecord.razorpayPlanId) {
+      console.error('❌ [Webhook] Subscription plan_id mismatch');
+      await prisma.payment.update({
+        where: { id: subscriptionRecord.paymentId },
+        data: {
+          status: 'failed',
+          failureReason: 'Subscription plan mismatch',
+        },
+      });
+      return;
+    }
+
+    // Validate first payment amount when available
+    const linkedPaymentId =
+      subscription.linked_payments?.[0]?.payment_id ||
+      subscription.linked_payments?.[0] ||
+      null;
+
+    if (linkedPaymentId) {
+      try {
+        const razorpayPayment = await fetchPaymentDetails(String(linkedPaymentId));
+        if (razorpayPayment.status === 'captured') {
+          assertPaymentAmountMatches(
+            subscriptionRecord.payment.amount,
+            razorpayPayment.amount
+          );
+        }
+      } catch (amountError: unknown) {
+        const msg = amountError instanceof Error ? amountError.message : 'Amount mismatch';
+        console.error('❌ [Webhook] Subscription payment amount validation failed:', msg);
+        await prisma.payment.update({
+          where: { id: subscriptionRecord.paymentId },
+          data: { status: 'failed', failureReason: msg },
+        });
+        return;
+      }
+    }
+
+    // Redeem coupon (subscription rail — primary redemption path)
+    if (subscriptionRecord.payment.couponId) {
+      try {
+        await redeemCoupon({
+          couponId: subscriptionRecord.payment.couponId,
+          userId: subscriptionRecord.userId,
+          paymentId: subscriptionRecord.paymentId,
+          planType: 'business',
+          planKey: subscriptionRecord.planName,
+          originalAmount:
+            subscriptionRecord.payment.originalAmount ?? subscriptionRecord.payment.amount,
+          discountAmount: subscriptionRecord.payment.discountAmount ?? 0,
+          finalAmount: subscriptionRecord.payment.amount,
+          razorpayReference: subscription.id,
+        });
+      } catch (redeemError: unknown) {
+        console.error('❌ [Webhook] Subscription coupon redemption failed:', redeemError);
+        return;
+      }
+    }
 
     // Update subscription status
     await prisma.subscription.update({

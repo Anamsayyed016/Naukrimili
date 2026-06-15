@@ -12,6 +12,10 @@ import { verifyPaymentSignature, fetchPaymentDetails } from '@/lib/services/razo
 import { activateIndividualPlan } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
 import { findPaymentByOrderId, updatePaymentStatus, findUserCredits, createOrUpdateUserCredits } from '@/lib/db-direct';
+import {
+  assertPaymentAmountMatches,
+  redeemCoupon,
+} from '@/lib/services/coupon-service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -273,6 +277,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Mandatory amount validation — prevent coupon / price manipulation
+    try {
+      assertPaymentAmountMatches(payment.amount, razorpayPayment.amount);
+    } catch (amountError: unknown) {
+      const msg = amountError instanceof Error ? amountError.message : 'Amount mismatch';
+      console.error('❌ [Verify Payment] Amount validation failed:', msg);
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'failed',
+          failureReason: msg,
+        },
+      });
+      return NextResponse.json({ error: 'Payment amount mismatch', details: msg }, { status: 400 });
+    }
+
     // CRITICAL: Update payment record to 'captured' BEFORE activating plan
     // This prevents duplicate activations if verification is called multiple times
     console.log('🔄 [Verify Payment] Updating payment record to captured...');
@@ -330,6 +350,30 @@ export async function POST(request: NextRequest) {
         // Continue anyway - payment is verified, just logging failed
         // But mark payment as captured in memory so activation can proceed
         payment = { ...payment, status: 'captured' };
+      }
+    }
+
+    // Redeem coupon after payment captured (idempotent per paymentId)
+    if (payment.couponId) {
+      try {
+        await redeemCoupon({
+          couponId: payment.couponId,
+          userId: payment.userId,
+          paymentId: payment.id,
+          planType: 'individual',
+          planKey: payment.planName,
+          originalAmount: payment.originalAmount ?? payment.amount,
+          discountAmount: payment.discountAmount ?? 0,
+          finalAmount: payment.amount,
+          razorpayReference: razorpayOrderId,
+        });
+      } catch (redeemError: unknown) {
+        const msg = redeemError instanceof Error ? redeemError.message : 'Redemption failed';
+        console.error('❌ [Verify Payment] Coupon redemption failed:', msg);
+        return NextResponse.json(
+          { error: 'Coupon redemption failed', details: msg },
+          { status: 400 }
+        );
       }
     }
 

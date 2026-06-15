@@ -10,7 +10,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { createRazorpayOrder } from '@/lib/services/razorpay-service';
 import { INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpay-plans';
-import { prisma } from '@/lib/prisma';
+import { validateCoupon } from '@/lib/services/coupon-service';
 import { checkPaymentExists, createPayment, invalidatePendingPayment } from '@/lib/db-direct';
 
 export async function POST(request: NextRequest) {
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { planKey } = body;
+    const { planKey, couponCode } = body;
 
     // Validate plan key
     if (!planKey || !(planKey in INDIVIDUAL_PLANS)) {
@@ -78,10 +78,33 @@ export async function POST(request: NextRequest) {
 
     const plan = INDIVIDUAL_PLANS[planKey as IndividualPlanKey];
 
+    let chargeAmount = plan.amount;
+    let originalAmount: number | null = null;
+    let discountAmount = 0;
+    let couponId: string | null = null;
+
+    if (couponCode && String(couponCode).trim()) {
+      const couponResult = await validateCoupon({
+        code: String(couponCode),
+        planKey,
+        userId: session.user.id,
+      });
+      if (!couponResult.valid) {
+        return NextResponse.json(
+          { error: couponResult.error },
+          { status: 400 }
+        );
+      }
+      chargeAmount = couponResult.finalAmount;
+      originalAmount = couponResult.originalAmount;
+      discountAmount = couponResult.discountAmount;
+      couponId = couponResult.couponId;
+    }
+
     // Check for existing pending payment using direct database query (bypass Prisma cache issue)
     let existingPayment = null;
     try {
-      existingPayment = await checkPaymentExists(session.user.id, planKey);
+      existingPayment = await checkPaymentExists(session.user.id, planKey, couponId);
     } catch (dbError: any) {
       console.error('❌ [Create Order] Error checking existing payment:', {
         error: dbError?.message || dbError,
@@ -98,16 +121,19 @@ export async function POST(request: NextRequest) {
       }
 
       const dbAmount = Number(existingPayment.amount);
-      if (dbAmount === plan.amount) {
+      if (dbAmount === chargeAmount) {
         console.log('[PricingAudit] Reuse pending order', {
           planKey,
-          configAmountPaise: plan.amount,
+          chargeAmountPaise: chargeAmount,
           dbAmountPaise: dbAmount,
           razorpayOrderId: existingPayment.razorpayOrderId,
+          couponId,
         });
         return NextResponse.json({
           orderId: existingPayment.razorpayOrderId,
-          amount: plan.amount,
+          amount: chargeAmount,
+          originalAmount,
+          discountAmount,
           currency: 'INR',
           keyId,
           existing: true,
@@ -116,7 +142,7 @@ export async function POST(request: NextRequest) {
 
       console.log('[PricingAudit] Stale pending order — creating new order', {
         planKey,
-        configAmountPaise: plan.amount,
+        chargeAmountPaise: chargeAmount,
         staleDbAmountPaise: dbAmount,
         staleOrderId: existingPayment.razorpayOrderId,
       });
@@ -128,9 +154,10 @@ export async function POST(request: NextRequest) {
 
     // Create Razorpay order
     console.log('🔄 [Create Order] Creating Razorpay order...', {
-      amount: plan.amount,
+      amount: chargeAmount,
       userId: session.user.id,
-      planKey
+      planKey,
+      couponId,
     });
     
     // Generate receipt ID that's guaranteed to be <= 40 characters (Razorpay limit)
@@ -142,13 +169,14 @@ export async function POST(request: NextRequest) {
     let order;
     try {
       order = await createRazorpayOrder({
-        amount: plan.amount,
+        amount: chargeAmount,
         currency: 'INR',
         receipt: receiptId,
         notes: {
           userId: session.user.id,
           planKey,
           planName: plan.name,
+          ...(couponId ? { couponId } : {}),
         },
       });
       console.log('✅ [Create Order] Razorpay order created:', order.id);
@@ -178,7 +206,10 @@ export async function POST(request: NextRequest) {
         razorpayOrderId: order.id,
         planType: 'individual',
         planName: planKey,
-        amount: plan.amount,
+        amount: chargeAmount,
+        originalAmount: originalAmount ?? plan.amount,
+        discountAmount,
+        couponId,
         currency: 'INR',
         expiresAt,
       });
@@ -214,14 +245,17 @@ export async function POST(request: NextRequest) {
     console.log('[PricingAudit] New order created', {
       planKey,
       planName: plan.name,
-      configAmountPaise: plan.amount,
+      chargeAmountPaise: chargeAmount,
       razorpayOrderId: order.id,
       userId: session.user.id,
+      couponId,
     });
 
     return NextResponse.json({
       orderId: order.id,
-      amount: plan.amount,
+      amount: chargeAmount,
+      originalAmount: originalAmount ?? plan.amount,
+      discountAmount,
       currency: 'INR',
       keyId,
     });
