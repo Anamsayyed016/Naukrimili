@@ -26,6 +26,19 @@ const LOCAL_PREFIX = 'goaffpro:lock:';
 const MAX_LOADER_RETRIES = 12;
 const LOADER_RETRY_MS = 500;
 
+/** Default affiliate landing path — Resume Builder entry (not homepage). */
+export const GOAFFPRO_AFFILIATE_LANDING_PATH = '/resume-builder/start';
+
+/** Build affiliate landing URL for sharing (GoAffPro dashboard or docs). */
+export function getGoAffProAffiliateLandingUrl(refCode?: string): string {
+  const base = (process.env.NEXT_PUBLIC_APP_URL || 'https://naukrimili.com').replace(/\/$/, '');
+  const path = GOAFFPRO_AFFILIATE_LANDING_PATH;
+  if (refCode?.trim()) {
+    return `${base}${path}?ref=${encodeURIComponent(refCode.trim())}`;
+  }
+  return `${base}${path}`;
+}
+
 export function isGoAffProEnabled(): boolean {
   return process.env.NEXT_PUBLIC_GOAFFPRO_ENABLED === 'true';
 }

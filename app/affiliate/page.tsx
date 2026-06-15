@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getGoAffProDashboardUrl, getGoAffProRegisterUrl } from '@/lib/goaffpro';
+import { getGoAffProDashboardUrl, getGoAffProRegisterUrl, getGoAffProAffiliateLandingUrl } from '@/lib/goaffpro';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,7 +76,7 @@ const HOW_IT_WORKS = [
     step: '2',
     icon: Link2,
     title: 'Get Link',
-    description: 'Receive your unique referral link from the affiliate dashboard.',
+    description: 'Share your link — visitors land on the Resume Builder start page ready to create a resume.',
   },
   {
     step: '3',
@@ -110,7 +110,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How do I get my referral link?',
-    a: 'After registering and account approval, log in to the GoAffPro affiliate dashboard. Your unique referral link and tracking stats are available there.',
+    a: `After registering and account approval, log in to the GoAffPro affiliate dashboard for your unique code. Point referrals to the Resume Builder start page, e.g. ${getGoAffProAffiliateLandingUrl('YOUR_CODE')}. Legacy homepage links with ?ref= still work and redirect automatically.`,
   },
   {
     q: 'When are commissions paid?',
@@ -253,6 +253,9 @@ export default function AffiliatePage() {
               <p className="mb-8 max-w-2xl text-slate-300">
                 Commissions apply to paid resume builder purchases made through your referral link.
                 Promote products your audience values — premium templates, AI tools, and plan upgrades.
+                Referral traffic lands on{' '}
+                <span className="font-medium text-white">/resume-builder/start</span> so users begin
+                building a resume immediately.
               </p>
               <ul className="mb-8 space-y-3">
                 {COMMISSION_ITEMS.map((item) => (
@@ -268,6 +271,12 @@ export default function AffiliatePage() {
                   className="inline-flex items-center rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700"
                 >
                   View Plans to Promote
+                </Link>
+                <Link
+                  href="/resume-builder/start"
+                  className="inline-flex items-center rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700"
+                >
+                  Resume Builder Landing
                 </Link>
                 <Link
                   href="/resume-builder/templates"

@@ -18,6 +18,14 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get('host') || '';
   const pathname = request.nextUrl.pathname;
+
+  // GoAffPro affiliate links: legacy homepage ?ref= → Resume Builder start (preserves ref for loader.js)
+  const affiliateRef = url.searchParams.get('ref')?.trim();
+  if (pathname === '/' && affiliateRef) {
+    const dest = request.nextUrl.clone();
+    dest.pathname = '/resume-builder/start';
+    return NextResponse.redirect(dest, 302);
+  }
   
   // Skip redirects for:
   // 1. Localhost/development environments (localhost, 127.0.0.1, 0.0.0.0)
