@@ -18,6 +18,62 @@ import {
 import Link from 'next/link';
 import { clearJobseekerRecommendationsCache } from '@/lib/jobseeker/recommendations-cache';
 
+const RESUME_IMPORT_STORAGE_KEY = 'resume-import-data';
+
+function devResumeImportLog(message: string, detail?: Record<string, unknown>) {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[resume-import:upload] ${message}`, detail ?? '');
+  }
+}
+
+function importSectionCounts(data: Record<string, unknown>) {
+  return {
+    experience: Array.isArray(data.experience) ? data.experience.length : 0,
+    education: Array.isArray(data.education) ? data.education.length : 0,
+    skills: Array.isArray(data.skills) ? data.skills.length : 0,
+    projects: Array.isArray(data.projects) ? data.projects.length : 0,
+  };
+}
+
+function safeSessionStorageWrite(key: string, data: Record<string, unknown>): boolean {
+  const json = JSON.stringify(data);
+  devResumeImportLog('payload', {
+    payloadBytes: json.length,
+    ...importSectionCounts(data),
+  });
+
+  try {
+    sessionStorage.setItem(key, json);
+    return true;
+  } catch (error) {
+    const isQuota =
+      (error instanceof DOMException &&
+        (error.name === 'QuotaExceededError' || error.code === 22)) ||
+      (error instanceof Error && /quota/i.test(error.message));
+
+    if (!isQuota) {
+      console.error('[resume-import:upload] sessionStorage setItem failed', error);
+      return false;
+    }
+
+    devResumeImportLog('QuotaExceeded — retrying without rawText');
+    const { rawText: _rawText, ...withoutRawText } = data;
+    const retryJson = JSON.stringify(withoutRawText);
+
+    try {
+      sessionStorage.setItem(key, retryJson);
+      devResumeImportLog('stored without rawText', {
+        payloadBytes: retryJson.length,
+        ...importSectionCounts(withoutRawText),
+      });
+      return true;
+    } catch (retryError) {
+      console.error('[resume-import:upload] sessionStorage retry failed', retryError);
+      return false;
+    }
+  }
+}
+
 export default function ResumeUploadPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -121,7 +177,18 @@ export default function ResumeUploadPage() {
             skills: dataToStore.skills?.length || 0,
             summaryChars: String(dataToStore.summary || '').length,
           });
-          sessionStorage.setItem('resume-import-data', JSON.stringify(dataToStore));
+
+          const stored = safeSessionStorageWrite(RESUME_IMPORT_STORAGE_KEY, dataToStore);
+          if (!stored) {
+            toast({
+              title: 'Import Warning',
+              description:
+                'Could not save imported resume data in this browser. Try a smaller PDF or clear site data, then upload again.',
+              variant: 'destructive',
+              duration: 6000,
+            });
+            return;
+          }
 
           toast({
             title: '✅ Resume Imported!',

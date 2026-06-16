@@ -123,6 +123,51 @@ function syncEducationEntryAliases(entry: Record<string, unknown>): Record<strin
   };
 }
 
+function devResumeImportLog(message: string, detail?: Record<string, unknown>) {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[resume-import:editor] ${message}`, detail ?? '');
+  }
+}
+
+function importSectionCounts(data: Record<string, unknown>) {
+  return {
+    experience: Array.isArray(data.experience) ? data.experience.length : 0,
+    education: Array.isArray(data.education) ? data.education.length : 0,
+    skills: Array.isArray(data.skills) ? data.skills.length : 0,
+    projects: Array.isArray(data.projects) ? data.projects.length : 0,
+  };
+}
+
+/** API / upload page already produced builder form data — skip second sanitize pass. */
+function isBuilderReadyImportPayload(parsed: Record<string, unknown>): boolean {
+  if (parsed._imported === true) return true;
+
+  const hasContact =
+    !!String(parsed.firstName || '').trim() ||
+    !!String(parsed.lastName || '').trim() ||
+    !!String(parsed.fullName || '').trim() ||
+    !!String(parsed.name || '').trim() ||
+    !!String(parsed.email || '').trim();
+
+  const counts = importSectionCounts(parsed);
+  const hasSections =
+    counts.experience > 0 ||
+    counts.education > 0 ||
+    counts.skills > 0 ||
+    counts.projects > 0;
+
+  return hasContact && hasSections;
+}
+
+function resolveBuilderImportPayload(parsed: Record<string, unknown>): Record<string, unknown> {
+  const nested = parsed.builderFormData;
+  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+    const { builderFormData: _nested, ...rest } = parsed;
+    return { ...rest, ...(nested as Record<string, unknown>) };
+  }
+  return { ...parsed };
+}
+
 const STEPS: Step[] = [
   { id: 'contacts', label: 'Contacts' },
   { id: 'experience', label: 'Experience' },
@@ -268,7 +313,13 @@ export default function ResumeEditorPage() {
           const importData = sessionStorage.getItem('resume-import-data');
           if (importData) {
             try {
-              const parsed = JSON.parse(importData);
+              const parsed = JSON.parse(importData) as Record<string, unknown>;
+
+              devResumeImportLog('before import', {
+                payloadBytes: importData.length,
+                ...importSectionCounts(parsed),
+              });
+
               console.log('SESSION STORAGE PROJECTS', parsed.projects);
               console.log('📥 Loaded imported resume data from sessionStorage');
               console.log('   - Has fullName?', !!parsed.fullName);
@@ -284,24 +335,39 @@ export default function ResumeEditorPage() {
                 validateTransformedData,
                 hasImportableContent,
               } = await import('@/lib/resume-builder/import-transformer');
-              // Never use builderFormData alone — parent profile may have section arrays
-              // that builderFormData dropped during sanitize. Allow rawText recovery too.
-              const { builderFormData: _nestedBuilder, ...profileForTransform } = parsed;
-              const transformed = transformImportDataToBuilder(profileForTransform);
-              const validation = validateTransformedData(transformed);
 
-              console.log('🔄 After transformation:', {
-                firstName: transformed.firstName || '(empty)',
-                lastName: transformed.lastName || '(empty)',
-                skills: transformed.skills?.length || 0,
-                experience: transformed.experience?.length || 0,
-                education: transformed.education?.length || 0,
-                validation,
+              const builderReady = isBuilderReadyImportPayload(parsed);
+              let formPayload: Record<string, unknown>;
+
+              if (builderReady) {
+                formPayload = resolveBuilderImportPayload(parsed);
+                devResumeImportLog('using builder-ready payload (skipped re-transform)', {
+                  ...importSectionCounts(formPayload),
+                });
+              } else {
+                const { builderFormData: _nestedBuilder, ...profileForTransform } = parsed;
+                formPayload = transformImportDataToBuilder(profileForTransform);
+                console.log('🔄 After transformation:', {
+                  firstName: formPayload.firstName || '(empty)',
+                  lastName: formPayload.lastName || '(empty)',
+                  skills: formPayload.skills?.length || 0,
+                  experience: formPayload.experience?.length || 0,
+                  education: formPayload.education?.length || 0,
+                });
+              }
+
+              const validation = validateTransformedData(formPayload);
+              const importOk = hasImportableContent(formPayload);
+
+              devResumeImportLog('after import', {
+                hasImportableContent: importOk,
+                ...importSectionCounts(formPayload),
+                importSuccess: importOk,
               });
 
-              if (hasImportableContent(transformed)) {
-                setFormData(transformed);
-                console.log('formData.projects after import', transformed.projects);
+              if (importOk) {
+                setFormData(formPayload);
+                console.log('formData.projects after import', formPayload.projects);
                 formLoaded = true;
                 sessionStorage.removeItem('resume-import-data');
 
