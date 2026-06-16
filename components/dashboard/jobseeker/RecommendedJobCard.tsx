@@ -11,6 +11,7 @@ import {
 import type { JobRecommendation } from './types';
 import { resolveCompanyName } from './types';
 import { saveJobNavigationSource } from '@/lib/job-navigation-state';
+import { formatJobCardLocation, normalizeJobLocationText } from '@/lib/jobs/format-job-location';
 
 interface RecommendedJobCardProps {
   job: JobRecommendation;
@@ -65,9 +66,14 @@ export default function RecommendedJobCard({ job }: RecommendedJobCardProps) {
 
       <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
         {job.location && (
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
-            {job.location}
+          <span className="flex items-start gap-1 min-w-0 max-w-full">
+            <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <span
+              className="line-clamp-2 sm:line-clamp-1 sm:truncate break-words"
+              title={normalizeJobLocationText(job.location)}
+            >
+              {formatJobCardLocation(job.location)}
+            </span>
           </span>
         )}
         {job.salary && (

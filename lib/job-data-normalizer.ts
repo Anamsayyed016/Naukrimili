@@ -6,6 +6,14 @@
 
 import { JobResult } from '@/types/jobs';
 
+function normalizeDescriptionField(value: unknown): string {
+  const text = typeof value === 'string' ? value.trim() : '';
+  if (!text || text === 'Job description not available' || text === 'No description available') {
+    return '';
+  }
+  return text;
+}
+
 /**
  * Normalize job data to ensure consistent structure
  * Handles various data formats from different sources
@@ -34,7 +42,7 @@ export function normalizeJobData(job: any): JobResult {
     company: job.company || job.companyRelation?.name || 'Company',
     companyLogo: job.companyLogo || job.companyRelation?.logo,
     location: job.location || 'Location',
-    description: job.description || 'No description available',
+    description: normalizeDescriptionField(job.description),
     salary: normalizeSalary(job),
     salary_formatted: normalizeSalary(job),
     // Preserve original salary fields for proper currency formatting
@@ -169,7 +177,7 @@ function getDefaultJobData(): JobResult {
     title: 'Job Title',
     company: 'Company',
     location: 'Location',
-    description: 'No description available',
+    description: '',
     salary: 'Salary not specified',
     salary_formatted: 'Salary not specified',
     time_ago: 'Recently posted',

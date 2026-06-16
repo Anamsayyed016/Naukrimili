@@ -424,7 +424,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       title: job.title || 'Job Title',
       company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
-      description: job.description || 'Job description not available',
+      description: job.description || '',
       salary: salaryFormatted,
       salary_formatted: salaryFormatted, // Add this for consistency
       postedAt: job.postedAt || job.createdAt || job.created_at,

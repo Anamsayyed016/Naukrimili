@@ -12,6 +12,7 @@ import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
 import { JOB_NAV_KEYS, navigateJobDetailsBack } from "@/lib/job-navigation-state";
 import { JobDescriptionView } from "@/components/EnhancedJobCard";
+import { formatJobDetailLocation, normalizeJobLocationText } from "@/lib/jobs/format-job-location";
 
 interface Job {
   id: string;
@@ -466,9 +467,14 @@ export default function JobDetailsPage() {
                         <span className="font-medium truncate">{job.company}</span>
                       </div>
                       {job.location && (
-                        <div className="flex items-center gap-2 min-w-0">
-                          <MapPin className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{job.location}</span>
+                        <div className="flex items-start gap-2 min-w-0 max-w-full">
+                          <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                          <span
+                            className="whitespace-pre-line break-words text-sm sm:text-base leading-snug"
+                            title={normalizeJobLocationText(job.location)}
+                          >
+                            {formatJobDetailLocation(job.location)}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -554,7 +560,11 @@ export default function JobDetailsPage() {
                 {/* Job Description */}
                 <div className="mb-6 w-full overflow-x-hidden">
                   <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight mb-3 sm:mb-4">Job Description</h3>
-                  <JobDescriptionView description={job.description} />
+                  {job.description?.trim() ? (
+                    <JobDescriptionView description={job.description} />
+                  ) : (
+                    <p className="text-sm text-slate-500">Job description not available.</p>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

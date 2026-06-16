@@ -28,6 +28,7 @@ import {
   buildJobListingBaseWhere,
 } from '@/lib/job-data-normalizer';
 import { JobRankingService } from '@/lib/services/job-ranking-service';
+import { getJobDescriptionPreview } from '@/lib/jobs/clean-job-description';
 
 function isExternalSource(source?: string | null): boolean {
   if (!source) return false;
@@ -195,11 +196,15 @@ const LIST_JOB_SELECT = {
   },
 } as const;
 
-/** List/grid cards — omit full description to cut payload and Prisma I/O (~80% smaller rows). */
+/** List view still reads description from DB but serializes a short preview only. */
 const LIST_JOB_LIST_SELECT = {
   ...LIST_JOB_SELECT,
-  description: false,
 } as const;
+
+type ListingFormatOptions = {
+  /** When true, return ~200 char preview instead of full description (smaller JSON). */
+  listView?: boolean;
+};
 
 type ListingFilterParams = {
   query: string;
@@ -253,7 +258,7 @@ function capListingWithEmployerFirst<T extends { source?: string | null }>(
   return [...employerRows, ...otherRows.slice(0, otherCap)];
 }
 
-function formatListingJob(job: Record<string, unknown>) {
+function formatListingJob(job: Record<string, unknown>, options?: ListingFormatOptions) {
   const isExternalJob = isExternalSource(job.source as string | undefined);
   const listingId = isExternalJob
     ? externalListingId(job as { source?: string; sourceId?: string | number; id?: string | number })
@@ -265,6 +270,10 @@ function formatListingJob(job: Record<string, unknown>) {
     applyUrl = `/jobs/${job.id}/apply`;
   }
   const rel = job.companyRelation as { name?: string; logo?: string } | undefined;
+  const fullDescription = String(job.description || '');
+  const description = options?.listView
+    ? getJobDescriptionPreview(fullDescription, 220)
+    : fullDescription;
   return {
     id: listingId,
     sourceId: job.sourceId,
@@ -273,7 +282,7 @@ function formatListingJob(job: Record<string, unknown>) {
     companyLogo: job.companyLogo || rel?.logo,
     location: job.location,
     country: job.country,
-    description: job.description || '',
+    description,
     applyUrl,
     source: job.source || 'database',
     isExternal: isExternalJob,
@@ -372,6 +381,7 @@ export async function GET(request: NextRequest) {
       limit,
       includeExternal: includeExternalParam ?? 'true',
       refreshExternal: refreshExternal ? 1 : 0,
+      descPreview: 1,
     });
     const listingFilters: ListingFilterParams = {
       query,
@@ -402,7 +412,7 @@ export async function GET(request: NextRequest) {
           );
           const freshManual = manualRows
             .filter((row) => !existingIds.has(String(row.id)))
-            .map((row) => formatListingJob(row as Record<string, unknown>));
+            .map((row) => formatListingJob(row as Record<string, unknown>, { listView: isListView }));
           if (freshManual.length > 0) {
             const merged = capListingWithEmployerFirst(
               [...freshManual, ...(Array.isArray(cachedJobs) ? cachedJobs : [])] as {
@@ -919,7 +929,9 @@ export async function GET(request: NextRequest) {
     // Format jobs with SMART apply URL handling
     let formattedJobs = [];
     try {
-      formattedJobs = jobs.map((job) => formatListingJob(job as Record<string, unknown>));
+      formattedJobs = jobs.map((job) =>
+        formatListingJob(job as Record<string, unknown>, { listView: isListView })
+      );
       formattedJobs = capListingWithEmployerFirst(
         [
           ...formattedJobs.filter((j) => j.source === 'manual' || j.source === 'employer'),

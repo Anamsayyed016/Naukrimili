@@ -27,8 +27,10 @@ import {
   getJobDescriptionPreview,
   parseJobDescriptionBlocks,
 } from '@/lib/jobs/clean-job-description';
-
-/** Shared job card surface tokens (UI only). */
+import {
+  formatJobCardLocation,
+  normalizeJobLocationText,
+} from '@/lib/jobs/format-job-location';
 const jc = {
   card:
     'group bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/70 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_28px_-10px_rgba(15,23,42,0.09)] hover:border-blue-200/60 hover:shadow-[0_12px_32px_-8px_rgba(37,99,235,0.14),0_4px_16px_-6px_rgba(124,58,237,0.08)] hover:-translate-y-0.5 transition-all duration-200 ease-out',
@@ -64,32 +66,27 @@ const jc = {
   bookmarkActive: 'bg-amber-50/90 border-amber-200/80 text-amber-600 hover:bg-amber-50 shadow-sm',
 } as const;
 
-/** City-first display; avoids long locality strings overflowing cards. */
-function formatJobCardLocation(location?: string): string {
-  const raw = (location || '').trim();
-  if (!raw) return 'Location not specified';
-
-  const parts = raw
-    .split(/[,•|]/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-
-  if (parts.length === 0) return raw;
-  if (parts.length === 1) {
-    return parts[0].length > 56 ? `${parts[0].slice(0, 56)}…` : parts[0];
-  }
-
-  const city = parts[0];
-  const second = parts[1];
-
-  if (second.length > 32 || parts.length > 2) {
-    const locality = second.length > 24 ? `${second.slice(0, 24)}…` : second;
-    return `${city} • ${locality}`;
-  }
-
-  return `${city}, ${second}`;
+/** Card location: responsive clamp + full text in native tooltip. */
+function JobCardLocation({
+  location,
+  className = '',
+}: {
+  location?: string;
+  className?: string;
+}) {
+  const full = normalizeJobLocationText(location);
+  const label = formatJobCardLocation(location);
+  return (
+    <span
+      className={`min-w-0 max-w-full break-words line-clamp-2 sm:line-clamp-1 sm:truncate ${className}`}
+      title={full || undefined}
+    >
+      {label}
+    </span>
+  );
 }
 
+/** Shared job card surface tokens (UI only). */
 function JobCardDescription({
   description,
   maxLines,
@@ -302,14 +299,9 @@ export default function EnhancedJobCard({
                   <span className={jc.companyCompact}>{normalizedJob.company}</span>
                 </div>
                 <span className="hidden sm:inline text-slate-300">·</span>
-                <div className="flex items-center min-w-0 max-w-full overflow-hidden">
-                  <MapPinIcon className="w-3 h-3 mr-1.5 text-slate-400 flex-shrink-0" />
-                  <span
-                    className="truncate max-w-full"
-                    title={normalizedJob.location}
-                  >
-                    {formatJobCardLocation(normalizedJob.location)}
-                  </span>
+                <div className="flex items-start min-w-0 max-w-full gap-1.5 overflow-hidden">
+                  <MapPinIcon className="w-3 h-3 mr-0.5 text-slate-400 flex-shrink-0 mt-0.5" />
+                  <JobCardLocation location={normalizedJob.location} className={jc.companyCompact} />
                 </div>
               </div>
 
@@ -451,11 +443,9 @@ export default function EnhancedJobCard({
 
               {/* Location and job details */}
               <div className={`flex items-center flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3 min-w-0 max-w-full overflow-hidden ${jc.meta}`}>
-                <div className="flex items-center min-w-0 max-w-full overflow-hidden gap-1">
+                <div className="flex items-start min-w-0 max-w-full gap-1.5 overflow-hidden">
                   <MapPinIcon className={jc.metaIcon} />
-                  <span className="truncate max-w-full" title={job.location}>
-                    {formatJobCardLocation(job.location)}
-                  </span>
+                  <JobCardLocation location={job.location} />
                 </div>
                 
                 {job.job_type && (
