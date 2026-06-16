@@ -651,6 +651,8 @@ export default function PricingPage() {
         handler: async function (response: any) {
           const confirmingToast = toast.loading('Confirming subscription with payment gateway...');
 
+          await triggerGoAffProConversionAfterSubscription(subscriptionId);
+
           toast.dismiss(confirmingToast);
           toast.success('Subscription activated!');
           
@@ -1111,6 +1113,5 @@ export default function PricingPage() {
     </>
   );
 }
-
 
 

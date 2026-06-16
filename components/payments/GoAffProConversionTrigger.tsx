@@ -2,7 +2,7 @@
 
 /**
  * Fires official GoAffPro conversion tracking after verified payment.
- * Use only from payment confirmation flows (e.g. FinalizeStep), never at checkout init.
+ * Use from post-verify payment confirmation flows (e.g. FinalizeStep, pricing page).
  */
 
 import {
