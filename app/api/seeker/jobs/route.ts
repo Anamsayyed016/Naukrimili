@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
       data: body 
     });
   } catch (_error) {
+    
     return NextResponse.json({ 
       success: false, 
       error: 'Invalid request' 

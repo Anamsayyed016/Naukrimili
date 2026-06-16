@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { BREAKPOINTS } from '@/components/ui/use-mobile';
 import { useSearchParams } from 'next/navigation';
 import EnhancedJobCard from '@/components/EnhancedJobCard';
 import { JobResult } from '@/types/jobs';
@@ -19,7 +20,18 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('grid');
+  const userPickedView = useRef(false);
+
+  useLayoutEffect(() => {
+    if (userPickedView.current) return;
+    setViewMode(window.innerWidth < BREAKPOINTS.md ? 'list' : 'grid');
+  }, []);
+
+  const handleViewModeChange = (mode: 'list' | 'grid' | 'compact') => {
+    userPickedView.current = true;
+    setViewMode(mode);
+  };
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -331,7 +343,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">View:</span>
             <button 
-              onClick={() => setViewMode('list')}
+              onClick={() => handleViewModeChange('list')}
               className={`p-2 transition-colors rounded-lg ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'}`} 
               title="List View"
             >
@@ -340,7 +352,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               </svg>
             </button>
             <button 
-              onClick={() => setViewMode('grid')}
+              onClick={() => handleViewModeChange('grid')}
               className={`p-2 transition-colors rounded-lg ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'}`} 
               title="Grid View"
             >
@@ -349,7 +361,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               </svg>
             </button>
             <button 
-              onClick={() => setViewMode('compact')}
+              onClick={() => handleViewModeChange('compact')}
               className={`p-2 transition-colors rounded-lg ${viewMode === 'compact' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'}`} 
               title="Compact View"
             >

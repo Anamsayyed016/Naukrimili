@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { BREAKPOINTS } from '@/components/ui/use-mobile';
 import { useSearchParams, useRouter } from 'next/navigation';
 import EnhancedJobCard from '@/components/EnhancedJobCard';
 import { Job } from '@/types/job';
@@ -36,6 +37,18 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   const [error, setError] = useState<string | null>(null);
   const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('grid');
+  const userPickedView = useRef(false);
+
+  /** Initial load only: list on mobile, grid on desktop (matches BREAKPOINTS.md). */
+  useLayoutEffect(() => {
+    if (userPickedView.current) return;
+    setViewMode(window.innerWidth < BREAKPOINTS.md ? 'list' : 'grid');
+  }, []);
+
+  const handleViewModeChange = (mode: 'list' | 'grid' | 'compact') => {
+    userPickedView.current = true;
+    setViewMode(mode);
+  };
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -759,19 +772,19 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-medium text-slate-600 whitespace-nowrap">View</span>
               <button
-                onClick={() => setViewMode('list')}
+                onClick={() => handleViewModeChange('list')}
                 className={viewMode === 'list' ? viewPillActive : viewPillInactive}
               >
                 List
               </button>
               <button
-                onClick={() => setViewMode('grid')}
+                onClick={() => handleViewModeChange('grid')}
                 className={viewMode === 'grid' ? viewPillActive : viewPillInactive}
               >
                 Grid
               </button>
               <button
-                onClick={() => setViewMode('compact')}
+                onClick={() => handleViewModeChange('compact')}
                 className={viewMode === 'compact' ? viewPillActive : viewPillInactive}
               >
                 Compact
