@@ -11,6 +11,10 @@ import Script from 'next/script';
 import { toast } from 'sonner';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
+import {
+  triggerGoAffProConversionAfterSubscription,
+  triggerGoAffProConversionAfterVerify,
+} from '@/components/payments/GoAffProConversionTrigger';
 
 // Transform plans for UI display (centralized from razorpay-plans.ts)
 const getIndividualPlansForUI = () => {
@@ -372,8 +376,13 @@ export default function PricingPage() {
             // CRITICAL: Only show success if backend explicitly confirms with success: true
             // AND HTTP status is 200-299
             // Do NOT trust frontend Razorpay response alone
-            if (verifyResponse.ok && result.success === true) {
+            if (verifyResponse.ok && (result.success === true || result.alreadyProcessed === true)) {
               console.log('✅ [Payment Handler] Payment verified successfully by backend');
+
+              if (result.conversion) {
+                await triggerGoAffProConversionAfterVerify(result);
+              }
+
               toast.success('Payment successful! Plan activated.');
               
               // Check if user came from resume builder - redirect back there
