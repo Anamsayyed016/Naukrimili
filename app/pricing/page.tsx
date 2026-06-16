@@ -374,8 +374,6 @@ export default function PricingPage() {
             // Do NOT trust frontend Razorpay response alone
             if (verifyResponse.ok && result.success === true) {
               console.log('✅ [Payment Handler] Payment verified successfully by backend');
-              const { trackGoAffProConversionFromVerifyResult } = await import('@/lib/goaffpro');
-              await trackGoAffProConversionFromVerifyResult(result);
               toast.success('Payment successful! Plan activated.');
               
               // Check if user came from resume builder - redirect back there
@@ -651,10 +649,7 @@ export default function PricingPage() {
           color: '#6366f1',
         },
         handler: async function (response: any) {
-          const { pollAndTrackBusinessSubscriptionConversion } = await import('@/lib/goaffpro');
           const confirmingToast = toast.loading('Confirming subscription with payment gateway...');
-
-          await pollAndTrackBusinessSubscriptionConversion(subscriptionId);
 
           toast.dismiss(confirmingToast);
           toast.success('Subscription activated!');

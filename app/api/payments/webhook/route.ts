@@ -23,7 +23,6 @@ import {
   assertPaymentAmountMatches,
   redeemCoupon,
 } from '@/lib/services/coupon-service';
-import { reportGoAffProSaleForPayment } from '@/lib/goaffpro-server';
 
 // Verify webhook signature using dynamic import for crypto
 async function verifyWebhookSignature(body: string, signature: string): Promise<boolean> {
@@ -344,13 +343,6 @@ async function handleSubscriptionActivated(subscription: any) {
           goaffproTotal: subscriptionRecord.payment.amount / 100,
         },
       },
-    });
-
-    const orderNumber = String(
-      subscription.linked_payments?.[0] || subscription.id
-    );
-    await reportGoAffProSaleForPayment(subscriptionRecord.paymentId, orderNumber, {
-      userId: subscriptionRecord.userId,
     });
   } catch (error: any) {
     console.error('❌ [Webhook] handleSubscriptionActivated error:', error);

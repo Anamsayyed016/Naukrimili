@@ -20,6 +20,10 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building2 } from 'lucide-react';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
+import {
+  triggerGoAffProConversionAfterSubscription,
+  triggerGoAffProConversionAfterVerify,
+} from '@/components/payments/GoAffProConversionTrigger';
 import './finalize-payment-dialog.css';
 
 declare global {
@@ -1062,8 +1066,7 @@ export default function FinalizeStep({
               });
 
               if (result.conversion) {
-                const { trackGoAffProConversionFromVerifyResult } = await import('@/lib/goaffpro');
-                await trackGoAffProConversionFromVerifyResult(result);
+                await triggerGoAffProConversionAfterVerify(result);
               }
               
               // Close payment dialog FIRST to ensure UI updates immediately
@@ -1419,8 +1422,7 @@ export default function FinalizeStep({
               hasSignature: !!response.razorpay_signature,
             });
 
-            const { pollAndTrackBusinessSubscriptionConversion } = await import('@/lib/goaffpro');
-            await pollAndTrackBusinessSubscriptionConversion(subscriptionId);
+            await triggerGoAffProConversionAfterSubscription(subscriptionId);
 
             toast({
               title: 'Payment successful!',

@@ -1,35 +1,23 @@
 /**
- * Shared GoAffPro conversion payload helpers (server + client safe).
+ * GoAffPro conversion payload helpers (official loader.js order schema).
  * Click attribution remains in loader.js; this module builds order payloads only.
  */
 
-export interface GoAffProConversionCustomer {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-}
-
-/** Extended order schema compatible with GoAffPro custom SDK integration. */
+/** Official goaffpro_order shape + optional fields used in this project. */
 export interface GoAffProConversionPayload {
   number: string;
   total: number;
-  id?: string;
-  currency?: string;
-  forceSDK?: boolean;
-  customer?: GoAffProConversionCustomer;
+  email?: string;
   coupons?: string[];
-  status?: string;
 }
 
 export interface PaymentGoAffProMetadata {
   goaffproReported?: boolean;
   goaffproReportedAt?: string;
-  goaffproReportMethod?: 'order_complete' | 'sdk' | 'admin' | 'client';
+  goaffproReportMethod?: 'client';
   goaffproEligible?: boolean;
   goaffproOrderNumber?: string;
   goaffproTotal?: number;
-  /** Affiliate referral code captured from the `ref` cookie at checkout. */
-  goaffproRef?: string;
 }
 
 export function logGoAffPro(
@@ -55,47 +43,40 @@ export function isGoAffProReported(metadata: unknown): boolean {
   return Boolean(parsePaymentGoAffProMetadata(metadata).goaffproReported);
 }
 
-export function splitCustomerName(fullName?: string | null): {
-  first_name?: string;
-  last_name?: string;
-} {
-  if (!fullName?.trim()) return {};
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length === 1) return { first_name: parts[0] };
+/** Preserve existing payment metadata when storing Razorpay capture details. */
+export function mergePaymentCaptureMetadata(
+  existing: unknown,
+  razorpayPayment: Record<string, unknown>
+): Record<string, unknown> {
+  const base =
+    existing && typeof existing === 'object' && !Array.isArray(existing)
+      ? { ...(existing as Record<string, unknown>) }
+      : {};
   return {
-    first_name: parts[0],
-    last_name: parts.slice(1).join(' '),
+    ...base,
+    razorpay: razorpayPayment,
   };
 }
 
 export function buildGoAffProConversionPayload(input: {
   orderNumber: string;
-  paymentId: string;
   amountPaise: number;
-  currency?: string | null;
   customerEmail?: string | null;
-  customerName?: string | null;
   couponCode?: string | null;
-  planName?: string | null;
 }): GoAffProConversionPayload | null {
   const total = input.amountPaise / 100;
   if (!input.orderNumber || !Number.isFinite(total) || total <= 0) {
     return null;
   }
 
-  const nameParts = splitCustomerName(input.customerName);
   const payload: GoAffProConversionPayload = {
-    id: input.paymentId,
     number: input.orderNumber,
     total,
-    currency: input.currency || 'INR',
-    forceSDK: true,
-    status: 'approved',
-    customer: {
-      ...nameParts,
-      ...(input.customerEmail ? { email: input.customerEmail } : {}),
-    },
   };
+
+  if (input.customerEmail?.trim()) {
+    payload.email = input.customerEmail.trim();
+  }
 
   if (input.couponCode?.trim()) {
     payload.coupons = [input.couponCode.trim().toUpperCase()];

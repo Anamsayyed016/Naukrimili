@@ -16,7 +16,6 @@ import {
   logGoAffPro,
   parsePaymentGoAffProMetadata,
 } from '@/lib/goaffpro-conversion';
-import { reportGoAffProSaleForPayment } from '@/lib/goaffpro-server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -62,21 +61,6 @@ export async function GET(request: NextRequest) {
         metadata.goaffproOrderNumber || subscription.razorpaySubscriptionId
       );
 
-      await reportGoAffProSaleForPayment(subscription.payment.id, orderNumber, {
-        userId,
-      });
-
-      const refreshedPayment = await prisma.payment.findUnique({
-        where: { id: subscription.payment.id },
-      });
-      if (refreshedPayment && isGoAffProReported(refreshedPayment.metadata)) {
-        logGoAffPro('conversion skipped', {
-          reason: 'duplicate-server',
-          subscriptionId: subscriptionConversionId,
-        });
-        return NextResponse.json({ ready: false, alreadyReported: true });
-      }
-
       const user = await prisma.user.findUnique({
         where: { id: userId },
         select: { email: true, name: true },
@@ -93,13 +77,9 @@ export async function GET(request: NextRequest) {
 
       const conversion = buildGoAffProConversionPayload({
         orderNumber,
-        paymentId: subscription.payment.id,
         amountPaise: subscription.payment.amount,
-        currency: subscription.payment.currency,
         customerEmail: user?.email,
-        customerName: user?.name,
         couponCode,
-        planName: subscription.planName,
       });
 
       if (!conversion) {

@@ -12,8 +12,6 @@ import { createRazorpayOrder } from '@/lib/services/razorpay-service';
 import { INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpay-plans';
 import { validateCoupon } from '@/lib/services/coupon-service';
 import { checkPaymentExists, createPayment, invalidatePendingPayment } from '@/lib/db-direct';
-import { prisma } from '@/lib/prisma';
-import { captureGoAffProRefForPayment } from '@/lib/goaffpro-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -131,7 +129,6 @@ export async function POST(request: NextRequest) {
           razorpayOrderId: existingPayment.razorpayOrderId,
           couponId,
         });
-        await captureGoAffProRefForPayment(existingPayment.id, request);
         return NextResponse.json({
           orderId: existingPayment.razorpayOrderId,
           amount: chargeAmount,
@@ -217,14 +214,6 @@ export async function POST(request: NextRequest) {
         expiresAt,
       });
       console.log('✅ [Create Order] Payment record stored successfully');
-
-      const storedPayment = await prisma.payment.findUnique({
-        where: { razorpayOrderId: order.id },
-        select: { id: true },
-      });
-      if (storedPayment) {
-        await captureGoAffProRefForPayment(storedPayment.id, request);
-      }
     } catch (dbError: any) {
       console.error('❌ [Create Order] Database error storing payment:', {
         error: dbError?.message || dbError,

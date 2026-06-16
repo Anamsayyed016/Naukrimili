@@ -1,6 +1,12 @@
 /**
- * GoAffPro affiliate conversion tracking — client-side only.
- * Loader is injected globally in app/layout.tsx when enabled.
+ * GoAffPro affiliate conversion tracking — official loader.js pattern.
+ * Loader is injected once in app/layout.tsx when enabled.
+ *
+ * Conversion (after verified payment):
+ *   window.goaffpro_order = { number, total, ... }
+ *   if (typeof window.goaffproTrackConversion !== 'undefined') {
+ *     window.goaffproTrackConversion(window.goaffpro_order)
+ *   }
  */
 
 import {
@@ -90,16 +96,23 @@ function markConversionTracked(orderNumber: string): void {
   }
 }
 
+/** Official GoAffPro conversion snippet — sets goaffpro_order then calls track. */
 function fireGoAffProConversion(order: GoAffProConversionPayload): boolean {
-  if (typeof window.goaffproTrackConversion !== 'function') {
+  window.goaffpro_order = {
+    number: order.number,
+    total: order.total,
+    ...(order.email ? { email: order.email } : {}),
+    ...(order.coupons?.length ? { coupons: order.coupons } : {}),
+  };
+
+  if (typeof window.goaffproTrackConversion === 'undefined') {
     return false;
   }
-  window.goaffpro_order = order;
-  window.goaffproTrackConversion(order);
+
+  window.goaffproTrackConversion(window.goaffpro_order);
   logGoAffPro('conversion sent', {
     orderNumber: order.number,
     total: order.total,
-    currency: order.currency,
   });
   return true;
 }
@@ -118,7 +131,7 @@ async function ackGoAffProConversion(paymentId: string): Promise<void> {
   }
 }
 
-/** Fire GoAffPro conversion with retries; marks local dedup only after SDK accepts. */
+/** Fire GoAffPro conversion with retries; marks dedup only after loader accepts. */
 export function trackGoAffProConversionAsync(
   order: GoAffProConversionPayload,
   paymentId?: string
@@ -168,12 +181,6 @@ export function trackGoAffProConversionAsync(
 
     attemptFire(0);
   });
-}
-
-/** @deprecated Prefer trackGoAffProConversionAsync — sync wrapper without ack. */
-export function trackGoAffProConversion(order: GoAffProConversionPayload): boolean {
-  void trackGoAffProConversionAsync(order);
-  return true;
 }
 
 /** Track only after verified payment; server omits payload when already reported. */
