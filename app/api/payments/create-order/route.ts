@@ -11,7 +11,8 @@ import { authOptions } from '@/lib/nextauth-config';
 import { createRazorpayOrder } from '@/lib/services/razorpay-service';
 import { INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpay-plans';
 import { validateCoupon } from '@/lib/services/coupon-service';
-import { checkPaymentExists, createPayment, invalidatePendingPayment } from '@/lib/db-direct';
+import { checkPaymentExists, createPayment, findPaymentByOrderId, invalidatePendingPayment } from '@/lib/db-direct';
+import { captureGoAffProRefForPayment } from '@/lib/goaffpro-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -129,6 +130,9 @@ export async function POST(request: NextRequest) {
           razorpayOrderId: existingPayment.razorpayOrderId,
           couponId,
         });
+        if (existingPayment.id) {
+          await captureGoAffProRefForPayment(existingPayment.id, request);
+        }
         return NextResponse.json({
           orderId: existingPayment.razorpayOrderId,
           amount: chargeAmount,
@@ -214,6 +218,11 @@ export async function POST(request: NextRequest) {
         expiresAt,
       });
       console.log('✅ [Create Order] Payment record stored successfully');
+
+      const storedPayment = await findPaymentByOrderId(order.id);
+      if (storedPayment?.id) {
+        await captureGoAffProRefForPayment(storedPayment.id, request);
+      }
     } catch (dbError: any) {
       console.error('❌ [Create Order] Database error storing payment:', {
         error: dbError?.message || dbError,

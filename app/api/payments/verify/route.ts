@@ -22,6 +22,11 @@ import {
   logGoAffPro,
   mergePaymentCaptureMetadata,
 } from '@/lib/goaffpro-conversion';
+import {
+  readGoAffProRefFromRequest,
+  readGoAffProVisitIdFromRequest,
+  reportGoAffProSaleForPayment,
+} from '@/lib/goaffpro-server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -265,6 +270,15 @@ export async function POST(request: NextRequest) {
     // Check if already processed - prevent duplicate activation
     if (payment.status === 'captured') {
       console.log('⚠️ [Verify Payment] Payment already captured, returning success without reactivation');
+      if (payment.razorpayPaymentId) {
+        await reportGoAffProSaleForPayment(payment.id, payment.razorpayPaymentId, {
+          affiliateRef: readGoAffProRefFromRequest(request),
+          visitId: readGoAffProVisitIdFromRequest(request),
+          location: request.headers.get('referer') || undefined,
+        });
+        const refreshed = await prisma.payment.findUnique({ where: { id: payment.id } });
+        if (refreshed) payment = refreshed;
+      }
       const conversion = payment.razorpayPaymentId
         ? await buildConversionPayloadForPayment(
             payment,
@@ -587,6 +601,16 @@ export async function POST(request: NextRequest) {
     // Note: Business subscriptions are activated via webhook
 
     console.log('✅ [Verify Payment] Payment verified and plan activated successfully');
+
+    await reportGoAffProSaleForPayment(payment.id, razorpayPaymentId, {
+      affiliateRef: readGoAffProRefFromRequest(request),
+      visitId: readGoAffProVisitIdFromRequest(request),
+      location: request.headers.get('referer') || undefined,
+    });
+
+    const refreshedPayment = await prisma.payment.findUnique({ where: { id: payment.id } });
+    if (refreshedPayment) payment = refreshedPayment;
+
     const conversion = await buildConversionPayloadForPayment(
       payment,
       razorpayPaymentId,

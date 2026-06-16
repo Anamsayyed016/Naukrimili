@@ -14,10 +14,14 @@ export interface GoAffProConversionPayload {
 export interface PaymentGoAffProMetadata {
   goaffproReported?: boolean;
   goaffproReportedAt?: string;
-  goaffproReportMethod?: 'client';
+  goaffproReportMethod?: 'order_complete' | 'client';
   goaffproEligible?: boolean;
   goaffproOrderNumber?: string;
   goaffproTotal?: number;
+  /** Affiliate referral code captured from loader.js cookies at checkout. */
+  goaffproRef?: string;
+  /** Visit id from gfp_v_id cookie at checkout. */
+  goaffproVisitId?: string;
 }
 
 export function logGoAffPro(

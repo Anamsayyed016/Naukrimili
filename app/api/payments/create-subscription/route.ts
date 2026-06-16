@@ -15,6 +15,7 @@ import {
 import { BUSINESS_PLANS, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
 import { validateCoupon } from '@/lib/services/coupon-service';
+import { captureGoAffProRefForPayment } from '@/lib/goaffpro-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -254,6 +255,8 @@ export async function POST(request: NextRequest) {
       });
       console.log('✅ [Create Subscription] New subscription created successfully');
     }
+
+    await captureGoAffProRefForPayment(payment.id, request);
 
     // keyId is already defined at the top of the function
     if (!keyId) {

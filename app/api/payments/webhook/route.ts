@@ -23,6 +23,8 @@ import {
   assertPaymentAmountMatches,
   redeemCoupon,
 } from '@/lib/services/coupon-service';
+import { mergePaymentCaptureMetadata } from '@/lib/goaffpro-conversion';
+import { reportGoAffProSaleForPayment } from '@/lib/goaffpro-server';
 
 // Verify webhook signature using dynamic import for crypto
 async function verifyWebhookSignature(body: string, signature: string): Promise<boolean> {
@@ -139,18 +141,27 @@ async function handlePaymentCaptured(payment: any) {
     // Use update with conditional check to prevent race conditions
     const currentStatus = paymentRecord.status;
     if (currentStatus !== 'captured') {
+      const captureMetadata = mergePaymentCaptureMetadata(
+        paymentRecord.metadata,
+        payment as Record<string, unknown>
+      );
+
       await prisma.payment.update({
         where: { id: paymentRecord.id },
         data: {
           razorpayPaymentId: payment.id,
           status: 'captured',
           paymentMethod: payment.method,
-          metadata: payment as any,
+          metadata: captureMetadata,
         },
       });
       console.log('✅ [Webhook] Payment status updated to captured');
     } else {
       console.log('⚠️ [Webhook] Payment already captured, skipping status update');
+    }
+
+    if (payment.status === 'captured' && payment.id) {
+      await reportGoAffProSaleForPayment(paymentRecord.id, payment.id);
     }
 
     // Activate individual plan if applicable (only if not already captured)
@@ -344,6 +355,8 @@ async function handleSubscriptionActivated(subscription: any) {
         },
       },
     });
+
+    await reportGoAffProSaleForPayment(subscriptionRecord.paymentId, subscription.id);
   } catch (error: any) {
     console.error('❌ [Webhook] handleSubscriptionActivated error:', error);
   }

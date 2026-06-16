@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 import { isGoAffProReported, logGoAffPro } from '@/lib/goaffpro-conversion';
+import { reportGoAffProSaleForPayment } from '@/lib/goaffpro-server';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,26 @@ export async function POST(request: NextRequest) {
     if (isGoAffProReported(payment.metadata)) {
       logGoAffPro('conversion skipped', { reason: 'duplicate', paymentId });
       return NextResponse.json({ success: true, alreadyReported: true });
+    }
+
+    const orderNumber =
+      payment.razorpayPaymentId ||
+      (typeof payment.metadata === 'object' &&
+      payment.metadata &&
+      !Array.isArray(payment.metadata) &&
+      typeof (payment.metadata as Record<string, unknown>).goaffproOrderNumber === 'string'
+        ? String((payment.metadata as Record<string, unknown>).goaffproOrderNumber)
+        : null);
+
+    if (orderNumber) {
+      const serverResult = await reportGoAffProSaleForPayment(paymentId, orderNumber);
+      if (serverResult.reported || serverResult.alreadyReported) {
+        return NextResponse.json({
+          success: true,
+          alreadyReported: serverResult.alreadyReported,
+          reportedBy: 'server',
+        });
+      }
     }
 
     const existingMeta =
