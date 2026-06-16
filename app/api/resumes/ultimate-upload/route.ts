@@ -4,8 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { uploadResume } from '@/lib/storage/resume-storage';
-import { HybridResumeAI } from '@/lib/hybrid-resume-ai';
-import { EnhancedResumeAI } from '@/lib/enhanced-resume-ai';
+import { HybridResumeAI, type HybridResumeData } from '@/lib/hybrid-resume-ai';
+import { EnhancedResumeAI, type ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { AffindaResumeParser } from '@/lib/affinda-resume-parser';
 import { GoogleCloudOCRService } from '@/lib/services/google-cloud-ocr';
 import { isAffindaEnabled } from '@/lib/resume-parser/affinda-config';
@@ -21,6 +21,7 @@ import {
 } from '@/lib/resume-parser/map-to-upload-profile';
 import {
   enrichAffindaWithEden,
+  mergeTextRecoveryIntoExtracted,
   resolveDocumentParserAutofill,
 } from '@/lib/resume-parser/merge-resume-data';
 import {
@@ -42,7 +43,6 @@ import {
   logProfileFormDataAudit,
   logUploadPipelineTrace,
 } from '@/lib/resume-parser/upload-pipeline-trace';
-import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/resume-parser/text-recovery';
 
 // Configure route for larger file uploads
@@ -215,9 +215,11 @@ export async function POST(request: NextRequest) {
       
       if (shouldAttemptOcr) {
         if (fileBuffer.length > OCR_MAX_FILE_BYTES) {
-          warn('Skipping OCR for large file — relying on Affinda/document parsers', {
+          warn('[OCR] skipped: file_too_large', {
+            reason: 'file_too_large',
             fileSizeBytes: fileBuffer.length,
             limitBytes: OCR_MAX_FILE_BYTES,
+            note: 'Relying on Affinda/document parsers for this upload',
           });
         } else {
         console.warn('⚠️ Low-quality PDF text — attempting OCR recovery...');
@@ -246,20 +248,33 @@ export async function POST(request: NextRequest) {
               extractedText = ocrResult.text;
               ocrApplied = true;
             } else {
-              console.warn('⚠️ OCR returned insufficient text - proceeding with basic extraction');
-              // DON'T throw - just log and continue with whatever we have
+              warn('[OCR] skipped: insufficient_text_returned', {
+                reason: 'insufficient_text_returned',
+                returnedLength: ocrResult?.text?.length ?? 0,
+                minimumRequired: 100,
+              });
             }
           } catch (ocrError) {
-            console.warn('⚠️ OCR extraction failed:', ocrError);
-            console.log('   → Proceeding with basic extraction instead');
-            // DON'T throw - OCR is optional, not required
+            warn('[OCR] failed', {
+              reason: 'ocr_request_failed',
+              message: ocrError instanceof Error ? ocrError.message : String(ocrError),
+            });
           }
         } else {
-          console.warn('⚠️ OCR service not available (API key not configured)');
-          console.log('   → Proceeding with basic text extraction');
-          // DON'T throw - OCR is optional, proceed without it
+          warn('[OCR] skipped: ocr_disabled', {
+            reason: 'missing_api_key',
+            note: 'OCR is disabled without a Google Cloud Vision API key',
+            hint: 'Set GOOGLE_CLOUD_OCR_API_KEY, GOOGLE_CLOUD_API_KEY, or GOOGLE_VISION_API_KEY',
+          });
         }
         }
+      } else if (file.type === 'application/pdf' && layoutSignals.scannedLikely) {
+        warn('[OCR] skipped: ocr_disabled', {
+          reason: 'ocr_gate_not_met',
+          note: 'Scanned PDF signals detected but OCR gate thresholds were not met',
+          wordCount: readableWords.length,
+          textDensity: textDensity.toFixed(4),
+        });
       }
       
       console.log('✅ Text extraction successful!');
@@ -409,7 +424,30 @@ export async function POST(request: NextRequest) {
           } else {
             const quality = shouldPreferHybridOverAffinda(affindaResult, resumeDocumentProfile);
             hybridSkippedReason = quality.reasons.join(', ') || 'not_usable';
-            console.warn('⚠️ Affinda not primary-acceptable — Hybrid fallback', quality);
+
+            // Layout-tolerant path: keep usable Affinda data (multi-column, executive, etc.)
+            if (hasMinimalAutofillPayload(affindaResult)) {
+              const affindaWithText = mergeTextRecoveryIntoExtracted(affindaResult, extractedText);
+              if (hasMinimalAutofillPayload(affindaWithText)) {
+                provenanceAffinda = affindaResult;
+                parsedData = mapExtractedToUploadProfile(affindaWithText, {
+                  aiProvider: 'affinda+text-recovery',
+                });
+                aiSuccess = true;
+                aiProvider = 'affinda+text-recovery';
+                usedAffindaPrimary = true;
+                log('Affinda accepted via layout-tolerant path (minimal payload)', {
+                  layoutReasons: quality.reasons,
+                  experience: affindaWithText.experience?.length ?? 0,
+                  education: affindaWithText.education?.length ?? 0,
+                  skills: affindaWithText.skills?.length ?? 0,
+                });
+              } else {
+                console.warn('⚠️ Affinda not primary-acceptable — Hybrid fallback', quality);
+              }
+            } else {
+              console.warn('⚠️ Affinda not primary-acceptable — Hybrid fallback', quality);
+            }
           }
         } catch (affindaPrimaryError) {
           console.warn(
@@ -492,14 +530,18 @@ export async function POST(request: NextRequest) {
           console.log('   ✓ Education:', hybridResult.education.map((e: any) => `${e.institution} - ${e.degree}`));
         }
         
-        // CRITICAL: Check if this is fallback data and reject it
-        const isFallbackData =
-          hybridResult.aiProvider === 'fallback' ||
+        // Placeholder strings vs text-recovery fallback are handled separately
+        const hasPlaceholderStrings =
           hybridResult.experience?.[0]?.role?.includes('not extracted') ||
           hybridResult.education?.[0]?.degree?.includes('not extracted');
-        
-        if (isFallbackData) {
-          console.warn('⚠️ Hybrid returned placeholder data — trying document + text parsers');
+        const isTextRecoveryFallback = hybridResult.aiProvider === 'fallback';
+        const hybridForPayloadCheck = hybridResultToExtracted(hybridResult);
+
+        let shouldMapHybrid = false;
+        let hybridAiProvider: string = hybridResult.aiProvider || 'hybrid';
+
+        const tryDocumentParserAfterHybridReject = async (reason: string): Promise<boolean> => {
+          console.warn(`⚠️ Hybrid rejected (${reason}) — trying document + text parsers`);
           const docAutofill = await resolveDocumentParserAutofill(
             lastAffindaResult,
             fileBuffer,
@@ -515,14 +557,39 @@ export async function POST(request: NextRequest) {
             aiSuccess = true;
             aiProvider = docAutofill.provider;
             usedDocumentParser = true;
-            console.log('✅ Recovered autofill via document parsers after Hybrid placeholder');
-          } else {
+            console.log('✅ Recovered autofill via document parsers after Hybrid rejection');
+            return true;
+          }
+          return false;
+        };
+
+        if (hasPlaceholderStrings) {
+          const recovered = await tryDocumentParserAfterHybridReject('placeholder strings');
+          if (!recovered) {
             throw new Error('AI returned fallback data - will use document/text extraction instead');
           }
+        } else if (isTextRecoveryFallback) {
+          if (hasMinimalAutofillPayload(hybridForPayloadCheck)) {
+            log('Accepting Hybrid text-recovery fallback (minimal autofill payload)', {
+              aiProvider: 'hybrid-text-recovery',
+              experience: hybridForPayloadCheck.experience?.length ?? 0,
+              education: hybridForPayloadCheck.education?.length ?? 0,
+              skills: hybridForPayloadCheck.skills?.length ?? 0,
+            });
+            shouldMapHybrid = true;
+            hybridAiProvider = 'hybrid-text-recovery';
+          } else {
+            const recovered = await tryDocumentParserAfterHybridReject('empty fallback payload');
+            if (!recovered) {
+              throw new Error('AI returned fallback data - will use document/text extraction instead');
+            }
+          }
         } else {
-        
+          shouldMapHybrid = true;
+        }
+
+        if (shouldMapHybrid) {
         // Transform HybridResumeAI format to our format. We now preserve EVERY
-        // field the validator returned — `summary`, `professionalInformation.jobTitle`,
         // structured experience fields (`startDate`, `endDate`, `current`,
         // `description`, `location`), projects, languages — instead of dropping
         // them and re-deriving with `duration.split(' - ')`.
@@ -616,7 +683,7 @@ export async function POST(request: NextRequest) {
           confidence: hybridResult.confidence || 85,
         };
         aiSuccess = true;
-        aiProvider = hybridResult.aiProvider || 'hybrid';
+        aiProvider = hybridAiProvider;
         console.log('✅ HybridResumeAI parsing successful');
         console.log('   - AI Provider:', aiProvider);
         console.log('   - Confidence:', parsedData.confidence, '%');
@@ -1987,6 +2054,40 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
     console.error('❌ Text extraction failed:', extractError);
     return `Resume: ${file.name}`;
   }
+}
+
+/**
+ * Map HybridResumeAI output to ExtractedResumeData for payload gates.
+ */
+function hybridResultToExtracted(hybrid: HybridResumeData): ExtractedResumeData {
+  return {
+    fullName: hybrid.personalInformation?.fullName || '',
+    email: hybrid.personalInformation?.email || '',
+    phone: hybrid.personalInformation?.phone || '',
+    location: hybrid.personalInformation?.location || '',
+    summary: hybrid.summary || '',
+    skills: hybrid.skills || [],
+    experience: (hybrid.experience || []).map((exp) => ({
+      company: exp.company || '',
+      position: exp.role || '',
+      location: exp.location || '',
+      startDate: exp.startDate || '',
+      endDate: exp.endDate || '',
+      current: !!exp.current,
+      description: exp.description || '',
+      achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
+    })),
+    education: (hybrid.education || []).map((edu) => ({
+      institution: edu.institution || '',
+      degree: edu.degree || '',
+      field: edu.field || '',
+      startDate: '',
+      endDate: edu.year || '',
+      gpa: edu.gpa || '',
+    })),
+    confidence: hybrid.confidence || 0,
+    rawText: '',
+  };
 }
 
 /**
