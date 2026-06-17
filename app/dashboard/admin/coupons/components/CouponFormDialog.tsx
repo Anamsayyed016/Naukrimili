@@ -23,7 +23,6 @@ import {
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { ALL_PLAN_KEYS } from '@/lib/services/razorpay-plans';
 import { CouponPlanChips } from './CouponPlanChips';
 import { CouponPreviewCard } from './CouponPreviewCard';
 
@@ -48,7 +47,7 @@ function getDefaultFormValues(): CouponFormValues {
     discountValue: 10,
     maxDiscountAmount: null,
     minOrderAmount: null,
-    applicablePlanKeys: [...ALL_PLAN_KEYS],
+    applicablePlanKeys: [],
     maxRedemptions: 100,
     maxRedemptionsPerUser: 1,
     validFrom: new Date().toISOString().slice(0, 16),
@@ -140,7 +139,11 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
       return;
     }
     if (form.applicablePlanKeys.length === 0) {
-      toast({ title: 'Error', description: 'Select at least one plan', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Please select at least one applicable plan.',
+        variant: 'destructive',
+      });
       return;
     }
     if (!Number.isFinite(form.discountValue) || form.discountValue <= 0) {

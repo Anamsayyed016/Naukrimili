@@ -146,18 +146,19 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const coupon = await prisma.coupon.update({
-      where: { id },
-      data: { isActive: false },
-    });
+    const existing = await prisma.coupon.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ success: false, error: 'Coupon not found' }, { status: 404 });
+    }
+
+    await prisma.coupon.delete({ where: { id } });
 
     return NextResponse.json({
       success: true,
-      message: 'Coupon deactivated',
-      data: coupon,
+      message: 'Coupon deleted',
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Failed to deactivate coupon';
+    const message = error instanceof Error ? error.message : 'Failed to delete coupon';
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

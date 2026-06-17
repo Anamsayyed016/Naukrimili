@@ -7,10 +7,10 @@ import { cn } from '@/lib/utils';
 export type CouponStatus = 'active' | 'expired' | 'scheduled' | 'inactive';
 
 const STATUS_STYLES: Record<CouponStatus, string> = {
-  active: 'bg-green-100 text-green-700',
-  expired: 'bg-red-100 text-red-700',
-  scheduled: 'bg-blue-100 text-blue-700',
-  inactive: 'bg-gray-100 text-gray-600',
+  active: 'bg-green-100 text-green-800 border-green-200',
+  expired: 'bg-red-100 text-red-800 border-red-200',
+  scheduled: 'bg-blue-100 text-blue-800 border-blue-200',
+  inactive: 'bg-gray-100 text-gray-600 border-gray-200',
 };
 
 export function CouponStatusBadge({
@@ -21,7 +21,7 @@ export function CouponStatusBadge({
   className?: string;
 }) {
   return (
-    <Badge variant="outline" className={cn('capitalize border-0', STATUS_STYLES[status], className)}>
+    <Badge variant="outline" className={cn('capitalize font-medium', STATUS_STYLES[status], className)}>
       {status}
     </Badge>
   );
@@ -45,7 +45,7 @@ export function CouponUsageProgress({
   }
   const pct = max > 0 ? Math.min(100, Math.round((used / max) * 100)) : 0;
   const barColor =
-    pct >= 90 ? '[&>div]:bg-red-500' : pct >= 70 ? '[&>div]:bg-amber-500' : '[&>div]:bg-green-500';
+    pct >= 71 ? '[&>div]:bg-red-500' : pct >= 31 ? '[&>div]:bg-amber-400' : '[&>div]:bg-green-500';
 
   return (
     <div className={cn('space-y-1 min-w-[80px]', className)}>

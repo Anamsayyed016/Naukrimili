@@ -17,6 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { CouponStatsGrid } from './components/CouponStatsGrid';
 import { CouponTable, type CouponRow } from './components/CouponTable';
 import { CouponFormDialog, type CouponFormValues } from './components/CouponFormDialog';
+import { CouponDeleteDialog } from './components/CouponDeleteDialog';
 import { EnhancedPagination } from '@/components/ui/enhanced-pagination';
 
 function AdminCouponsPageContent() {
@@ -31,6 +32,13 @@ function AdminCouponsPageContent() {
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1, limit: 20 });
   const [formOpen, setFormOpen] = useState(false);
   const [editCoupon, setEditCoupon] = useState<CouponFormValues | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CouponRow | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const openCreateForm = () => {
+    setEditCoupon(null);
+    setFormOpen(true);
+  };
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -106,21 +114,63 @@ function AdminCouponsPageContent() {
     }
   };
 
-  const handleDeactivate = async (id: string) => {
-    if (!confirm('Deactivate this coupon?')) return;
+  const handleToggleActive = async (id: string, isActive: boolean) => {
+    const action = isActive ? 'activate' : 'deactivate';
+    if (!isActive && !confirm('Deactivate this coupon?')) return;
+
     try {
       const res = await fetch(`/api/admin/coupons/${id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: isActive ? 'Coupon activated' : 'Coupon deactivated' });
+        void fetchCoupons();
+        void fetchStats();
+      } else {
+        throw new Error(data.error || `Failed to ${action} coupon`);
+      }
+    } catch (e: unknown) {
+      toast({
+        title: 'Error',
+        description: e instanceof Error ? e.message : `Failed to ${action} coupon`,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteRequest = (coupon: CouponRow) => {
+    setDeleteTarget(coupon);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    try {
+      const res = await fetch(`/api/admin/coupons/${deleteTarget.id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
       const data = await res.json();
       if (data.success) {
-        toast({ title: 'Coupon deactivated' });
+        toast({ title: 'Success', description: 'Coupon deleted successfully' });
+        setDeleteTarget(null);
         void fetchCoupons();
         void fetchStats();
+      } else {
+        throw new Error(data.error || 'Failed to delete coupon');
       }
-    } catch {
-      toast({ title: 'Error', description: 'Failed to deactivate', variant: 'destructive' });
+    } catch (e: unknown) {
+      toast({
+        title: 'Error',
+        description: e instanceof Error ? e.message : 'Failed to delete coupon',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -130,38 +180,37 @@ function AdminCouponsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 pb-24">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <Link
-              href="/dashboard/admin"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm mb-2"
-            >
-              <ArrowLeft className="h-4 w-4" aria-hidden />
-              Back to Admin
-            </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Coupon Management
-            </h1>
-            <p className="text-gray-600 text-sm mt-1">
-              Create and manage discount codes for all plans
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={refreshAll} aria-label="Refresh">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={() => {
-                setEditCoupon(null);
-                setFormOpen(true);
-              }}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              <Plus className="h-4 w-4 mr-2" aria-hidden />
-              Create Coupon
-            </Button>
+        <div className="sticky top-0 z-20 -mx-4 px-4 py-3 sm:-mx-6 sm:px-6 bg-gray-50/95 backdrop-blur-sm border-b border-gray-200/80">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <Link
+                href="/dashboard/admin"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm mb-2"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden />
+                Back to Admin
+              </Link>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Coupon Management
+              </h1>
+              <p className="text-gray-600 text-sm mt-1">
+                Create and manage discount codes for all plans
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" onClick={refreshAll} aria-label="Refresh">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={openCreateForm}
+                className="bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+              >
+                <Plus className="h-4 w-4 mr-2" aria-hidden />
+                Create Coupon
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -209,7 +258,12 @@ function AdminCouponsPageContent() {
         {loading ? (
           <div className="text-center py-12 text-gray-500">Loading coupons...</div>
         ) : (
-          <CouponTable coupons={coupons} onEdit={handleEdit} onDeactivate={handleDeactivate} />
+          <CouponTable
+            coupons={coupons}
+            onEdit={handleEdit}
+            onToggleActive={handleToggleActive}
+            onDelete={handleDeleteRequest}
+          />
         )}
 
         {pagination.totalPages > 1 && (
@@ -233,6 +287,24 @@ function AdminCouponsPageContent() {
           onSuccess={refreshAll}
           initial={editCoupon}
         />
+
+        <CouponDeleteDialog
+          open={Boolean(deleteTarget)}
+          couponCode={deleteTarget?.code}
+          loading={deleteLoading}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={() => void handleDeleteConfirm()}
+        />
+
+        <div className="fixed bottom-0 inset-x-0 z-30 border-t border-gray-200 bg-white/95 backdrop-blur-sm p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
+          <Button
+            onClick={openCreateForm}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+          >
+            <Plus className="h-4 w-4 mr-2" aria-hidden />
+            Create Coupon
+          </Button>
+        </div>
       </div>
     </div>
   );
