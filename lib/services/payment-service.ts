@@ -8,6 +8,135 @@ import { isAiPaymentBypassEnabled } from '@/lib/ai-payment-bypass';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from './razorpay-plans';
 import { findUserCredits } from '@/lib/db-direct';
 
+/** Reuses existing Settings table — no schema migration. */
+const INDIVIDUAL_PLAN_USAGE_KEY = 'individual_plan_usage';
+
+type IndividualPlanUsage = {
+  pdfDailyDate?: string;
+  pdfDailyCount?: number;
+  usedPremiumTemplates?: string[];
+};
+
+function calendarDayKey(date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function planHasAtsFeature(ats: string | boolean | undefined): boolean {
+  return ats === 'basic' || ats === 'advanced' || ats === true;
+}
+
+function atsTierFromPlanFeatures(
+  features: { atsOptimization?: string | boolean } | undefined | null
+): 'basic' | 'advanced' | 'none' {
+  if (!features) return 'none';
+  if (features.atsOptimization === 'advanced') return 'advanced';
+  if (features.atsOptimization === 'basic') return 'basic';
+  return 'none';
+}
+
+function computeBusinessSubscriptionExpiresAt(startDate: Date, planKey: BusinessPlanKey): Date {
+  const plan = BUSINESS_PLANS[planKey];
+  const expiresAt = new Date(startDate);
+  expiresAt.setMonth(expiresAt.getMonth() + plan.durationMonths);
+  return expiresAt;
+}
+
+function businessActivationCycleKey(subscriptionId: string, startDate: Date): string {
+  return `${subscriptionId}:${startDate.getTime()}`;
+}
+
+function computeIndividualValidUntil(
+  planKey: IndividualPlanKey,
+  existingCredits: { planName?: string | null; validUntil?: Date | string | null; isActive?: boolean } | null
+): Date {
+  const plan = INDIVIDUAL_PLANS[planKey];
+  const now = new Date();
+  const base =
+    existingCredits?.isActive &&
+    existingCredits.planName === planKey &&
+    existingCredits.validUntil &&
+    new Date(existingCredits.validUntil) > now
+      ? new Date(existingCredits.validUntil)
+      : now;
+  const validUntil = new Date(base);
+  validUntil.setDate(validUntil.getDate() + plan.validityDays);
+  return validUntil;
+}
+
+async function getIndividualPlanUsage(userId: string): Promise<IndividualPlanUsage> {
+  try {
+    const setting = await prisma.settings.findUnique({
+      where: { userId_key: { userId, key: INDIVIDUAL_PLAN_USAGE_KEY } },
+    });
+    if (!setting?.value || typeof setting.value !== 'object' || Array.isArray(setting.value)) {
+      return {};
+    }
+    return setting.value as IndividualPlanUsage;
+  } catch {
+    return {};
+  }
+}
+
+async function setIndividualPlanUsage(userId: string, usage: IndividualPlanUsage): Promise<void> {
+  await prisma.settings.upsert({
+    where: { userId_key: { userId, key: INDIVIDUAL_PLAN_USAGE_KEY } },
+    create: { userId, key: INDIVIDUAL_PLAN_USAGE_KEY, value: usage },
+    update: { value: usage },
+  });
+}
+
+export async function clearIndividualPlanUsage(userId: string): Promise<void> {
+  try {
+    await prisma.settings.deleteMany({
+      where: { userId, key: INDIVIDUAL_PLAN_USAGE_KEY },
+    });
+  } catch {
+    // Non-fatal
+  }
+}
+
+async function isPremiumTemplateId(templateId: string): Promise<boolean> {
+  try {
+    const templatesData = await import('@/lib/resume-builder/templates.json');
+    const template = templatesData.default.templates?.find((t: { id: string }) => t.id === templateId);
+    return Boolean(
+      template?.categories?.includes('Premium') || template?.categories?.includes('premium')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function getIndividualDailyPdfCount(usage: IndividualPlanUsage): number {
+  const today = calendarDayKey();
+  if (usage.pdfDailyDate !== today) return 0;
+  return usage.pdfDailyCount ?? 0;
+}
+
+async function recordIndividualDailyPdfDownload(userId: string): Promise<void> {
+  const usage = await getIndividualPlanUsage(userId);
+  const today = calendarDayKey();
+  const count = usage.pdfDailyDate === today ? (usage.pdfDailyCount ?? 0) + 1 : 1;
+  await setIndividualPlanUsage(userId, {
+    ...usage,
+    pdfDailyDate: today,
+    pdfDailyCount: count,
+  });
+}
+
+async function registerPremiumTemplateSlot(userId: string, templateId: string): Promise<void> {
+  const usage = await getIndividualPlanUsage(userId);
+  const used = usage.usedPremiumTemplates ?? [];
+  if (used.includes(templateId)) return;
+  await setIndividualPlanUsage(userId, {
+    ...usage,
+    usedPremiumTemplates: [...used, templateId],
+  });
+}
+
 /**
  * Activate Individual Plan after successful payment
  */
@@ -16,55 +145,80 @@ export async function activateIndividualPlan(params: {
   paymentId: string;
   planKey: IndividualPlanKey;
 }) {
-  const plan = INDIVIDUAL_PLANS[params.planKey];
-  const validUntil = new Date();
-  validUntil.setDate(validUntil.getDate() + plan.validityDays);
+  const payment = await prisma.payment.findUnique({
+    where: { id: params.paymentId },
+    select: { metadata: true, userId: true, status: true },
+  });
 
-  // Get or create user credits
-  let userCredits = await prisma.userCredits.findUnique({
+  if (!payment || payment.userId !== params.userId) {
+    throw new Error('Payment not found for plan activation');
+  }
+
+  const paymentMeta =
+    payment.metadata && typeof payment.metadata === 'object' && !Array.isArray(payment.metadata)
+      ? (payment.metadata as Record<string, unknown>)
+      : {};
+
+  if (paymentMeta.individualPlanActivated === true) {
+    const existing = await prisma.userCredits.findUnique({ where: { userId: params.userId } });
+    if (existing) return existing;
+  }
+
+  const plan = INDIVIDUAL_PLANS[params.planKey];
+
+  const existingCredits = await prisma.userCredits.findUnique({
     where: { userId: params.userId },
   });
 
-  // Handle unlimited features (-1 means unlimited, set to a high number for database)
+  const validUntil = computeIndividualValidUntil(params.planKey, existingCredits);
+
   const aiResumeLimit = plan.features.aiResumeUsage === -1 ? 999999 : plan.features.aiResumeUsage;
   const aiCoverLetterLimit = plan.features.aiCoverLetterUsage === -1 ? 999999 : plan.features.aiCoverLetterUsage;
+  const atsEnabled = planHasAtsFeature(plan.features.atsOptimization);
 
-  if (!userCredits) {
-    userCredits = await prisma.userCredits.create({
-      data: {
-        userId: params.userId,
-        resumeDownloadsLimit: plan.features.pdfDownloads, // Use pdfDownloads as resumeDownloads
-        aiResumeLimit,
-        aiCoverLetterLimit,
-        templateAccess: plan.features.templateAccess,
-        atsOptimization: plan.features.atsOptimization === 'advanced',
-        pdfDownloadsLimit: plan.features.pdfDownloads,
-        docxDownloadsLimit: 0, // DOCX is disabled
-        validUntil,
-        planType: 'individual',
-        planName: params.planKey,
-        isActive: true,
+  const activationData = {
+    resumeDownloadsLimit: plan.features.pdfDownloads,
+    resumeDownloads: 0,
+    aiResumeLimit,
+    aiResumeUsage: 0,
+    aiCoverLetterLimit,
+    aiCoverLetterUsage: 0,
+    templateAccess: plan.features.templateAccess,
+    atsOptimization: atsEnabled,
+    pdfDownloadsLimit: plan.features.pdfDownloads,
+    pdfDownloads: 0,
+    docxDownloadsLimit: 0,
+    validUntil,
+    planType: 'individual' as const,
+    planName: params.planKey,
+    isActive: true,
+  };
+
+  const userCredits = existingCredits
+    ? await prisma.userCredits.update({
+        where: { userId: params.userId },
+        data: activationData,
+      })
+    : await prisma.userCredits.create({
+        data: {
+          userId: params.userId,
+          ...activationData,
+        },
+      });
+
+  await clearIndividualPlanUsage(params.userId);
+
+  await prisma.payment.update({
+    where: { id: params.paymentId },
+    data: {
+      metadata: {
+        ...paymentMeta,
+        individualPlanActivated: true,
+        activatedPlanKey: params.planKey,
+        activatedAt: new Date().toISOString(),
       },
-    });
-  } else {
-    // Update existing credits
-    userCredits = await prisma.userCredits.update({
-      where: { userId: params.userId },
-      data: {
-        resumeDownloadsLimit: plan.features.pdfDownloads, // Use pdfDownloads as resumeDownloads
-        aiResumeLimit,
-        aiCoverLetterLimit,
-        templateAccess: plan.features.templateAccess,
-        atsOptimization: plan.features.atsOptimization === 'advanced',
-        pdfDownloadsLimit: plan.features.pdfDownloads,
-        docxDownloadsLimit: 0, // DOCX is disabled
-        validUntil,
-        planType: 'individual',
-        planName: params.planKey,
-        isActive: true,
-      },
-    });
-  }
+    },
+  });
 
   return userCredits;
 }
@@ -81,7 +235,33 @@ export async function activateBusinessSubscription(params: {
   startDate: Date;
   endDate: Date;
 }) {
+  const payment = await prisma.payment.findUnique({
+    where: { id: params.paymentId },
+    select: { metadata: true, userId: true, status: true },
+  });
+
+  if (!payment || payment.userId !== params.userId) {
+    throw new Error('Payment not found for business subscription activation');
+  }
+
+  const paymentMeta =
+    payment.metadata && typeof payment.metadata === 'object' && !Array.isArray(payment.metadata)
+      ? (payment.metadata as Record<string, unknown>)
+      : {};
+
+  const cycleKey = businessActivationCycleKey(params.subscriptionId, params.startDate);
+
+  if (
+    paymentMeta.businessPlanActivated === true &&
+    paymentMeta.businessActivationCycle === cycleKey
+  ) {
+    const existing = await prisma.subscription.findUnique({ where: { userId: params.userId } });
+    if (existing) return existing;
+  }
+
   const plan = BUSINESS_PLANS[params.planKey];
+  const expiresAt = computeBusinessSubscriptionExpiresAt(params.startDate, params.planKey);
+  const creditPool = plan.features.resumeCredits;
 
   // Create or update subscription
   const subscription = await prisma.subscription.upsert({
@@ -95,10 +275,11 @@ export async function activateBusinessSubscription(params: {
       status: 'active',
       currentStart: params.startDate,
       currentEnd: params.endDate,
-      expiresAt: params.endDate,
+      expiresAt,
       billingCycle: plan.billingCycle,
-      totalCredits: plan.features.resumeCredits,
-      remainingCredits: plan.features.resumeCredits,
+      totalCredits: creditPool,
+      usedCredits: 0,
+      remainingCredits: creditPool,
       autoRenew: true,
     },
     update: {
@@ -109,10 +290,11 @@ export async function activateBusinessSubscription(params: {
       status: 'active',
       currentStart: params.startDate,
       currentEnd: params.endDate,
-      expiresAt: params.endDate,
+      expiresAt,
       billingCycle: plan.billingCycle,
-      totalCredits: plan.features.resumeCredits,
-      remainingCredits: plan.features.resumeCredits,
+      totalCredits: creditPool,
+      usedCredits: 0,
+      remainingCredits: creditPool,
       autoRenew: true,
       cancelledAt: null,
       cancelledReason: null,
@@ -127,17 +309,65 @@ export async function activateBusinessSubscription(params: {
       planType: 'business',
       planName: params.planKey,
       isActive: true,
-      validUntil: params.endDate,
+      validUntil: expiresAt,
     },
     update: {
       planType: 'business',
       planName: params.planKey,
       isActive: true,
-      validUntil: params.endDate,
+      validUntil: expiresAt,
+    },
+  });
+
+  await prisma.payment.update({
+    where: { id: params.paymentId },
+    data: {
+      metadata: {
+        ...paymentMeta,
+        businessPlanActivated: true,
+        businessActivationCycle: cycleKey,
+        activatedPlanKey: params.planKey,
+        activatedSubscriptionId: params.subscriptionId,
+        activatedAt: new Date().toISOString(),
+      },
     },
   });
 
   return subscription;
+}
+
+/**
+ * Sync billing-cycle dates for an active business subscription (no credit refresh).
+ */
+export async function syncBusinessSubscriptionBillingCycle(params: {
+  razorpaySubscriptionId: string;
+  currentStart: Date;
+  currentEnd: Date;
+}): Promise<boolean> {
+  const subscription = await prisma.subscription.findUnique({
+    where: { razorpaySubscriptionId: params.razorpaySubscriptionId },
+  });
+
+  if (!subscription || subscription.status !== 'active') {
+    return false;
+  }
+
+  if (
+    subscription.currentStart.getTime() === params.currentStart.getTime() &&
+    subscription.currentEnd.getTime() === params.currentEnd.getTime()
+  ) {
+    return false;
+  }
+
+  await prisma.subscription.update({
+    where: { id: subscription.id },
+    data: {
+      currentStart: params.currentStart,
+      currentEnd: params.currentEnd,
+    },
+  });
+
+  return true;
 }
 
 /**
@@ -374,14 +604,18 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
   }
 
   // Check daily limit if plan has maxDownloadsPerDay
-  // Note: Daily limit tracking for individual plans requires schema changes (daily counter field)
-  // For now, we rely on total limit enforcement. Daily limits are primarily enforced
-  // through the total limit divided by validity days, which naturally limits daily usage.
   if (plan && plan.features.maxDownloadsPerDay !== null) {
-    // Daily limits are enforced through total limits for individual plans
-    // Proper daily tracking would require a daily counter field in UserCredits schema
-    // The total limit already provides effective rate limiting
-    console.log(`📅 [canDownloadResume] Plan has daily limit: ${plan.features.maxDownloadsPerDay}, but using total limit enforcement`);
+    const usage = await getIndividualPlanUsage(userId);
+    const todayDownloads = getIndividualDailyPdfCount(usage);
+    if (todayDownloads >= plan.features.maxDownloadsPerDay) {
+      console.log(`❌ [canDownloadResume] Daily limit reached for user ${userId}: ${todayDownloads}/${plan.features.maxDownloadsPerDay}`);
+      return {
+        allowed: false,
+        reason: 'Daily download limit reached. Please try again tomorrow.',
+        remaining,
+        dailyLimitReached: true,
+      };
+    }
   }
 
   console.log(`✅ [canDownloadResume] Download allowed for user ${userId}, remaining: ${remaining}`);
@@ -476,83 +710,191 @@ export async function canEditResume(userId: string): Promise<{
 /**
  * Check if user can access a specific template based on plan
  */
-export async function canAccessTemplate(userId: string, templateId: string): Promise<{
+export async function canAccessTemplate(
+  userId: string,
+  templateId: string,
+  options?: { registerUse?: boolean }
+): Promise<{
   allowed: boolean;
   reason?: string;
+  lockReason?: 'upgrade' | 'slot_limit' | 'error';
 }> {
+  const registerUse = options?.registerUse ?? false;
+  let isPremium = false;
+
+  try {
+    isPremium = await isPremiumTemplateId(templateId);
+  } catch {
+    return {
+      allowed: false,
+      reason: 'Unable to verify template access. Please try again.',
+      lockReason: 'error',
+    };
+  }
+
   // Check individual plan first
   const validity = await checkIndividualPlanValidity(userId);
-  
+
   if (validity.isValid && validity.credits) {
     const credits = validity.credits;
     const templateAccess = credits.templateAccess || 'free';
-    
-    // Load templates data to check if template is premium
-    try {
-      const templatesData = await import('@/lib/resume-builder/templates.json');
-      const template = templatesData.default.templates?.find((t: any) => t.id === templateId);
-      
-      if (!template) {
-        return { allowed: true }; // Template not found, allow access (will fail elsewhere)
-      }
 
-      const isPremium = template.categories?.includes('Premium') || template.categories?.includes('premium');
-      
-      // Check access based on templateAccess level
-      if (templateAccess === 'free' && isPremium) {
-        return {
-          allowed: false,
-          reason: 'Premium templates require a paid plan. Please upgrade to access this template.',
-        };
-      }
+    if (templateAccess === 'free' && isPremium) {
+      return {
+        allowed: false,
+        reason: 'Premium templates require a paid plan. Please upgrade to access this template.',
+        lockReason: 'upgrade',
+      };
+    }
 
-      if (templateAccess === 'premium' && isPremium) {
-        // Check template count limit if plan has one
-        const planKey = credits.planName as keyof typeof INDIVIDUAL_PLANS;
-        const plan = planKey ? INDIVIDUAL_PLANS[planKey] : null;
-        
-        if (plan && plan.features.templateCount !== null && plan.features.templateCount !== undefined) {
-          // Note: Template count tracking would require storing used templates
-          // For now, we allow access if user has premium access
+    if (templateAccess === 'all') {
+      return { allowed: true };
+    }
+
+    if (templateAccess === 'premium' && isPremium) {
+      const planKey = credits.planName as keyof typeof INDIVIDUAL_PLANS;
+      const plan = planKey ? INDIVIDUAL_PLANS[planKey] : null;
+      const templateCount = plan?.features.templateCount;
+
+      if (templateCount !== null && templateCount !== undefined) {
+        const usage = await getIndividualPlanUsage(userId);
+        const used = usage.usedPremiumTemplates ?? [];
+
+        if (used.includes(templateId)) {
           return { allowed: true };
         }
-        
+
+        if (used.length >= templateCount) {
+          return {
+            allowed: false,
+            reason: `Your plan includes ${templateCount} premium template${templateCount === 1 ? '' : 's'}. Upgrade to unlock more.`,
+            lockReason: 'slot_limit',
+          };
+        }
+
+        if (registerUse) {
+          await registerPremiumTemplateSlot(userId, templateId);
+        }
+
         return { allowed: true };
       }
 
-      if (templateAccess === 'all') {
-        return { allowed: true };
-      }
-    } catch (error) {
-      console.warn('⚠️ [Template Access] Failed to load templates, allowing access:', error);
-      return { allowed: true }; // Fail open if templates can't be loaded
+      return { allowed: true };
     }
+
+    return { allowed: true };
   }
 
   // Check business subscription as fallback
   const businessCheck = await checkBusinessSubscription(userId);
   if (businessCheck.isActive) {
-    // Business plans have access to all templates
     return { allowed: true };
   }
 
-  // No active plan - allow free templates only
-  try {
-    const templatesData = await import('@/lib/resume-builder/templates.json');
-    const template = templatesData.default.templates?.find((t: any) => t.id === templateId);
-    const isPremium = template?.categories?.includes('Premium') || template?.categories?.includes('premium');
-    
-    if (isPremium) {
-      return {
-        allowed: false,
-        reason: 'Premium templates require a paid plan. Please upgrade to access this template.',
-      };
-    }
-  } catch (error) {
-    // Fail open if templates can't be loaded
+  if (isPremium) {
+    return {
+      allowed: false,
+      reason: 'Premium templates require a paid plan. Please upgrade to access this template.',
+      lockReason: 'upgrade',
+    };
   }
 
   return { allowed: true };
+}
+
+export type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
+
+export async function getTemplateLockState(
+  userId: string,
+  templateId: string
+): Promise<TemplateLockState> {
+  const isPremium = await isPremiumTemplateId(templateId);
+  if (!isPremium) return 'open';
+
+  const check = await canAccessTemplate(userId, templateId, { registerUse: false });
+  if (check.allowed) {
+    const validity = await checkIndividualPlanValidity(userId);
+    if (validity.isValid && validity.credits?.templateAccess === 'premium') {
+      const usage = await getIndividualPlanUsage(userId);
+      if ((usage.usedPremiumTemplates ?? []).includes(templateId)) {
+        return 'slot_used';
+      }
+    }
+    return 'open';
+  }
+  if (check.lockReason === 'slot_limit') return 'locked';
+  if (check.lockReason === 'upgrade') return 'upgrade';
+  return 'locked';
+}
+
+export async function getTemplateEntitlementSummary(userId: string): Promise<{
+  templateSlotsMax: number | null;
+  templateSlotsUsed: number;
+  usedPremiumTemplateIds: string[];
+  pdfDailyLimitReached: boolean;
+  resumeVersionHistory: boolean;
+  atsTier: 'basic' | 'advanced' | 'none';
+}> {
+  const validity = await checkIndividualPlanValidity(userId);
+  const usage = await getIndividualPlanUsage(userId);
+  const usedPremiumTemplateIds = usage.usedPremiumTemplates ?? [];
+
+  let templateSlotsMax: number | null = null;
+  let pdfDailyLimitReached = false;
+  let resumeVersionHistory = false;
+  let atsTier: 'basic' | 'advanced' | 'none' = 'none';
+
+  if (validity.isValid && validity.credits) {
+    const planKey = validity.credits.planName as keyof typeof INDIVIDUAL_PLANS;
+    const plan = planKey ? INDIVIDUAL_PLANS[planKey] : null;
+    if (plan) {
+      templateSlotsMax =
+        plan.features.templateAccess === 'all' ? null : plan.features.templateCount ?? null;
+      resumeVersionHistory = Boolean((plan.features as { resumeVersionHistory?: boolean }).resumeVersionHistory);
+      if (plan.features.atsOptimization === 'advanced') atsTier = 'advanced';
+      else if (plan.features.atsOptimization === 'basic') atsTier = 'basic';
+
+      if (plan.features.maxDownloadsPerDay !== null) {
+        pdfDailyLimitReached =
+          getIndividualDailyPdfCount(usage) >= plan.features.maxDownloadsPerDay;
+      }
+    }
+  }
+
+  const businessCheck = await checkBusinessSubscription(userId);
+  if (businessCheck.isActive && businessCheck.subscription?.planName) {
+    templateSlotsMax = null;
+    const bPlan = BUSINESS_PLANS[businessCheck.subscription.planName as BusinessPlanKey];
+    resumeVersionHistory = Boolean(
+      (bPlan?.features as { resumeVersionHistory?: boolean }).resumeVersionHistory
+    );
+    atsTier = atsTierFromPlanFeatures(
+      bPlan?.features as { atsOptimization?: string | boolean } | undefined
+    );
+  }
+
+  return {
+    templateSlotsMax,
+    templateSlotsUsed: usedPremiumTemplateIds.length,
+    usedPremiumTemplateIds,
+    pdfDailyLimitReached,
+    resumeVersionHistory,
+    atsTier,
+  };
+}
+
+export async function canUseResumeVersionHistory(userId: string): Promise<boolean> {
+  const validity = await checkIndividualPlanValidity(userId);
+  if (validity.isValid && validity.credits?.planName) {
+    const plan = INDIVIDUAL_PLANS[validity.credits.planName as IndividualPlanKey];
+    return Boolean((plan?.features as { resumeVersionHistory?: boolean }).resumeVersionHistory);
+  }
+  const businessCheck = await checkBusinessSubscription(userId);
+  if (businessCheck.isActive && businessCheck.subscription?.planName) {
+    const plan = BUSINESS_PLANS[businessCheck.subscription.planName as BusinessPlanKey];
+    return Boolean((plan?.features as { resumeVersionHistory?: boolean }).resumeVersionHistory);
+  }
+  return false;
 }
 
 /**
@@ -560,27 +902,19 @@ export async function canAccessTemplate(userId: string, templateId: string): Pro
  */
 export async function getATSOptimizationLevel(userId: string): Promise<'basic' | 'advanced' | 'none'> {
   const validity = await checkIndividualPlanValidity(userId);
-  
-  if (validity.isValid && validity.credits) {
-    const credits = validity.credits;
-    
-    if (credits.atsOptimization) {
-      const planKey = credits.planName as keyof typeof INDIVIDUAL_PLANS;
-      const plan = planKey ? INDIVIDUAL_PLANS[planKey] : null;
-      
-      if (plan && plan.features.atsOptimization === 'advanced') {
-        return 'advanced';
-      }
-      
-      return 'basic';
-    }
+
+  if (validity.isValid && validity.credits?.planName) {
+    const plan = INDIVIDUAL_PLANS[validity.credits.planName as IndividualPlanKey];
+    if (plan?.features.atsOptimization === 'advanced') return 'advanced';
+    if (plan?.features.atsOptimization === 'basic') return 'basic';
   }
 
-  // Check business subscription
   const businessCheck = await checkBusinessSubscription(userId);
-  if (businessCheck.isActive) {
-    // Business plans typically have advanced ATS
-    return 'advanced';
+  if (businessCheck.isActive && businessCheck.subscription?.planName) {
+    const plan = BUSINESS_PLANS[businessCheck.subscription.planName as BusinessPlanKey];
+    return atsTierFromPlanFeatures(
+      plan?.features as { atsOptimization?: string | boolean } | undefined
+    );
   }
 
   return 'none';
@@ -658,6 +992,7 @@ export async function incrementUsage(userId: string, action: 'resumeDownload' | 
       
       console.log(`✅ [Payment Service] Incrementing PDF download: ${credits.pdfDownloads + 1}/${credits.pdfDownloadsLimit} for user ${userId}`);
       updateData.pdfDownloads = { increment: 1 };
+      updateData.resumeDownloads = { increment: 1 };
       break;
     case 'docxDownload':
       // Check if limit reached
@@ -675,6 +1010,10 @@ export async function incrementUsage(userId: string, action: 'resumeDownload' | 
       where: { userId },
       data: updateData,
     });
+
+    if (action === 'pdfDownload' && credits.planType === 'individual') {
+      await recordIndividualDailyPdfDownload(userId);
+    }
     
     // Log successful increment
     console.log(`✅ [Payment Service] Successfully incremented ${action} for user ${userId}`);

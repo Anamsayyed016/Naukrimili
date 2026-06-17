@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
-import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
 import type { Template } from '@/lib/resume-builder/types';
 
@@ -19,14 +20,47 @@ interface Filters {
   color: string | null;
 }
 
+type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
+
+type EntitlementSnapshot = {
+  isActive: boolean;
+  templateSlotsMax: number | null;
+  usedPremiumTemplateIds: string[];
+  templateAccess?: string;
+};
+
+function isPremiumTemplate(template: Template): boolean {
+  return Boolean(
+    template.categories?.includes('Premium') || template.categories?.includes('premium')
+  );
+}
+
+function computeTemplateLockState(
+  template: Template,
+  entitlements: EntitlementSnapshot | null
+): TemplateLockState {
+  if (!isPremiumTemplate(template)) return 'open';
+  if (!entitlements?.isActive) return 'upgrade';
+  if (entitlements.templateAccess === 'all' || entitlements.templateSlotsMax === null) {
+    return 'open';
+  }
+  if (entitlements.usedPremiumTemplateIds.includes(template.id)) return 'slot_used';
+  if (entitlements.usedPremiumTemplateIds.length >= entitlements.templateSlotsMax) {
+    return 'locked';
+  }
+  return 'open';
+}
+
 export default function TemplateSelectionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { status: sessionStatus } = useSession();
   const { isMobile } = useResponsive();
   const typeId = searchParams.get('type') || 'experienced';
   const source = searchParams.get('source'); // Check if coming from import
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [entitlements, setEntitlements] = useState<EntitlementSnapshot | null>(null);
 
   // Lazy load templates data to avoid module initialization issues
   useEffect(() => {
@@ -35,6 +69,55 @@ export default function TemplateSelectionPage() {
       setTemplatesLoaded(true);
     });
   }, []);
+
+  useEffect(() => {
+    if (sessionStatus !== 'authenticated') {
+      setEntitlements(null);
+      return;
+    }
+
+    let cancelled = false;
+    fetch('/api/payments/status')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        setEntitlements({
+          isActive: Boolean(data.isActive),
+          templateSlotsMax: data.entitlements?.templateSlotsMax ?? null,
+          usedPremiumTemplateIds: data.entitlements?.usedPremiumTemplateIds ?? [],
+          templateAccess: data.credits?.templateAccess,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setEntitlements(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionStatus]);
+
+  const templateLockStates = useMemo(() => {
+    const states: Record<string, TemplateLockState> = {};
+    for (const template of templates) {
+      states[template.id] = computeTemplateLockState(template, entitlements);
+    }
+    return states;
+  }, [templates, entitlements]);
+
+  const handleLockedTemplateSelect = useCallback((templateId: string, lockState: TemplateLockState) => {
+    if (lockState === 'upgrade') {
+      toast.info('Premium templates require a paid plan.', {
+        description: 'Choose a plan on the pricing page to unlock premium templates.',
+      });
+      router.push('/pricing');
+      return;
+    }
+    toast.info('Template slot limit reached.', {
+      description: 'Upgrade your plan to unlock more premium templates.',
+    });
+    router.push('/pricing');
+  }, [router]);
 
   // Template filters state
   const [filters, setFilters] = useState<Filters>({
@@ -166,6 +249,8 @@ export default function TemplateSelectionPage() {
             formData={{}}
             selectedTemplateId={null}
             onTemplateSelect={handleTemplateSelect}
+            templateLockStates={templateLockStates}
+            onLockedTemplateSelect={handleLockedTemplateSelect}
           />
         </div>
       </div>

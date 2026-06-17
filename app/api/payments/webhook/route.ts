@@ -5,8 +5,13 @@
  * Handles Razorpay webhook events:
  * - payment.captured
  * - subscription.activated
+ * - subscription.charged
+ * - subscription.completed
  * - subscription.cancelled
  * - subscription.expired
+ * - subscription.halted
+ * - subscription.paused
+ * - subscription.resumed
  * 
  * SECURITY: Webhook signature verification required
  */
@@ -14,9 +19,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { 
   fetchPaymentDetails,
-  fetchSubscriptionDetails 
 } from '@/lib/services/razorpay-service';
-import { activateIndividualPlan, activateBusinessSubscription } from '@/lib/services/payment-service';
+import { activateIndividualPlan, activateBusinessSubscription, syncBusinessSubscriptionBillingCycle } from '@/lib/services/payment-service';
+import type { IndividualPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
 import { BUSINESS_PLANS } from '@/lib/services/razorpay-plans';
 import {
@@ -82,6 +87,16 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case 'subscription.charged': {
+        await handleSubscriptionCharged(payload.subscription.entity);
+        break;
+      }
+
+      case 'subscription.completed': {
+        await handleSubscriptionCompleted(payload.subscription.entity);
+        break;
+      }
+
       case 'subscription.cancelled': {
         await handleSubscriptionCancelled(payload.subscription.entity);
         break;
@@ -89,6 +104,21 @@ export async function POST(request: NextRequest) {
 
       case 'subscription.expired': {
         await handleSubscriptionExpired(payload.subscription.entity);
+        break;
+      }
+
+      case 'subscription.halted': {
+        await handleSubscriptionPaused(payload.subscription.entity, 'halted');
+        break;
+      }
+
+      case 'subscription.paused': {
+        await handleSubscriptionPaused(payload.subscription.entity, 'paused');
+        break;
+      }
+
+      case 'subscription.resumed': {
+        await handleSubscriptionResumed(payload.subscription.entity);
         break;
       }
 
@@ -189,25 +219,12 @@ async function handlePaymentCaptured(payment: any) {
       }
 
       try {
-        // Check if plan is already active to prevent duplicate activation
-        const existingCredits = await prisma.userCredits.findUnique({
-          where: { userId: paymentRecord.userId },
+        await activateIndividualPlan({
+          userId: paymentRecord.userId,
+          paymentId: paymentRecord.id,
+          planKey: paymentRecord.planName as IndividualPlanKey,
         });
-
-        const isAlreadyActive = existingCredits?.isActive && 
-                                existingCredits?.planType === 'individual' &&
-                                existingCredits?.planName === paymentRecord.planName;
-
-        if (isAlreadyActive) {
-          console.log('⚠️ [Webhook] Plan already active, skipping activation');
-        } else {
-          await activateIndividualPlan({
-            userId: paymentRecord.userId,
-            paymentId: paymentRecord.id,
-            planKey: paymentRecord.planName as any,
-          });
-          console.log('✅ [Webhook] Plan activated successfully');
-        }
+        console.log('✅ [Webhook] Plan activated successfully');
       } catch (activateError: any) {
         console.error('❌ [Webhook] Failed to activate plan:', activateError);
         // Don't throw - webhook should not fail, payment status is already updated
@@ -240,6 +257,22 @@ async function handleSubscriptionActivated(subscription: any) {
 
     const startDate = new Date(subscription.current_start * 1000);
     const endDate = new Date(subscription.current_end * 1000);
+
+    const paymentMeta =
+      subscriptionRecord.payment.metadata &&
+      typeof subscriptionRecord.payment.metadata === 'object' &&
+      !Array.isArray(subscriptionRecord.payment.metadata)
+        ? (subscriptionRecord.payment.metadata as Record<string, unknown>)
+        : {};
+
+    const activationCycleKey = `${subscription.id}:${startDate.getTime()}`;
+    if (
+      paymentMeta.businessPlanActivated === true &&
+      paymentMeta.businessActivationCycle === activationCycleKey
+    ) {
+      console.log('⚠️ [Webhook] Business subscription already activated for this cycle, skipping');
+      return;
+    }
 
     // Validate subscription plan matches stored record
     if (subscription.plan_id !== subscriptionRecord.razorpayPlanId) {
@@ -301,19 +334,6 @@ async function handleSubscriptionActivated(subscription: any) {
       }
     }
 
-    // Update subscription status
-    await prisma.subscription.update({
-      where: { id: subscriptionRecord.id },
-      data: {
-        status: 'active',
-        currentStart: startDate,
-        currentEnd: endDate,
-        expiresAt: endDate,
-        totalCredits: plan.features.resumeCredits,
-        remainingCredits: plan.features.resumeCredits,
-      },
-    });
-
     // Update payment status if not already captured
     if (subscriptionRecord.payment.status !== 'captured') {
       await prisma.payment.update({
@@ -325,7 +345,7 @@ async function handleSubscriptionActivated(subscription: any) {
       });
     }
 
-    // Activate business subscription
+    // Activate business subscription (credits, usedCredits reset, idempotency)
     await activateBusinessSubscription({
       userId: subscriptionRecord.userId,
       paymentId: subscriptionRecord.paymentId,
@@ -359,6 +379,118 @@ async function handleSubscriptionActivated(subscription: any) {
     await reportGoAffProSaleForPayment(subscriptionRecord.paymentId, subscription.id);
   } catch (error: any) {
     console.error('❌ [Webhook] handleSubscriptionActivated error:', error);
+  }
+}
+
+async function handleSubscriptionCharged(subscription: any) {
+  try {
+    if (!subscription?.id || !subscription.current_start || !subscription.current_end) {
+      return;
+    }
+
+    const synced = await syncBusinessSubscriptionBillingCycle({
+      razorpaySubscriptionId: subscription.id,
+      currentStart: new Date(subscription.current_start * 1000),
+      currentEnd: new Date(subscription.current_end * 1000),
+    });
+
+    if (synced) {
+      console.log(`✅ [Webhook] Synced billing cycle for subscription: ${subscription.id}`);
+    }
+  } catch (error: any) {
+    console.error('❌ [Webhook] handleSubscriptionCharged error:', error);
+  }
+}
+
+async function handleSubscriptionCompleted(subscription: any) {
+  try {
+    await prisma.subscription.updateMany({
+      where: { razorpaySubscriptionId: subscription.id },
+      data: { status: 'expired' },
+    });
+
+    const subscriptionRecord = await prisma.subscription.findUnique({
+      where: { razorpaySubscriptionId: subscription.id },
+    });
+
+    if (subscriptionRecord) {
+      await prisma.userCredits.updateMany({
+        where: { userId: subscriptionRecord.userId },
+        data: { isActive: false },
+      });
+    }
+  } catch (error: any) {
+    console.error('❌ [Webhook] handleSubscriptionCompleted error:', error);
+  }
+}
+
+async function handleSubscriptionPaused(subscription: any, reason: 'paused' | 'halted') {
+  try {
+    await prisma.subscription.updateMany({
+      where: { razorpaySubscriptionId: subscription.id },
+      data: {
+        status: 'paused',
+        cancelledReason: reason === 'halted' ? 'Payment halted' : 'Subscription paused',
+      },
+    });
+
+    const subscriptionRecord = await prisma.subscription.findUnique({
+      where: { razorpaySubscriptionId: subscription.id },
+    });
+
+    if (subscriptionRecord) {
+      await prisma.userCredits.updateMany({
+        where: { userId: subscriptionRecord.userId },
+        data: { isActive: false },
+      });
+    }
+  } catch (error: any) {
+    console.error(`❌ [Webhook] handleSubscriptionPaused (${reason}) error:`, error);
+  }
+}
+
+async function handleSubscriptionResumed(subscription: any) {
+  try {
+    const subscriptionRecord = await prisma.subscription.findUnique({
+      where: { razorpaySubscriptionId: subscription.id },
+    });
+
+    if (!subscriptionRecord) {
+      return;
+    }
+
+    const now = new Date();
+    if (subscriptionRecord.expiresAt < now) {
+      console.log('⚠️ [Webhook] Subscription resumed but already past expiresAt');
+      return;
+    }
+
+    const startDate = subscription.current_start
+      ? new Date(subscription.current_start * 1000)
+      : subscriptionRecord.currentStart;
+    const endDate = subscription.current_end
+      ? new Date(subscription.current_end * 1000)
+      : subscriptionRecord.currentEnd;
+
+    await prisma.subscription.update({
+      where: { id: subscriptionRecord.id },
+      data: {
+        status: 'active',
+        currentStart: startDate,
+        currentEnd: endDate,
+        cancelledReason: null,
+      },
+    });
+
+    await prisma.userCredits.updateMany({
+      where: { userId: subscriptionRecord.userId },
+      data: {
+        isActive: true,
+        validUntil: subscriptionRecord.expiresAt,
+      },
+    });
+  } catch (error: any) {
+    console.error('❌ [Webhook] handleSubscriptionResumed error:', error);
   }
 }
 

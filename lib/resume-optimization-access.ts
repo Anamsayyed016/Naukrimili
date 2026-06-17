@@ -4,7 +4,7 @@
  * Does NOT disable global billing, PDF export paywall, or ai-enhance credits.
  * Only the POST /api/resume-builder/optimize flow uses this module by default.
  *
- * Set RESUME_OPTIMIZATION_FREE_ACCESS=false to require plan/credits for optimization again.
+ * Set RESUME_OPTIMIZATION_FREE_ACCESS=true to enable free access for onboarding.
  */
 
 import { checkResumeAccess } from '@/lib/middleware/payment-middleware';
@@ -19,14 +19,11 @@ export type ResumeOptimizationAccessResult = {
 };
 
 /**
- * Free tier for the editor optimization panel (on by default for onboarding).
- * Opt out with RESUME_OPTIMIZATION_FREE_ACCESS=false when monetizing this feature.
+ * Free tier for the editor optimization panel.
+ * Disabled by default — set RESUME_OPTIMIZATION_FREE_ACCESS=true to enable free access.
  */
 export function isResumeOptimizationFreeAccessEnabled(): boolean {
-  if (process.env.RESUME_OPTIMIZATION_FREE_ACCESS === 'false') {
-    return false;
-  }
-  return true;
+  return process.env.RESUME_OPTIMIZATION_FREE_ACCESS === 'true';
 }
 
 /** Whether to increment aiResume usage counters after a successful optimize call */

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Lock, Crown } from 'lucide-react';
 import Image from 'next/image';
 import {
   buildGallerySampleFormData,
@@ -12,11 +12,15 @@ import {
 } from '@/lib/resume-builder/gallery-demo';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
+type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
+
 interface TemplatePreviewGalleryProps {
   templates: Template[];
   formData: Record<string, unknown>;
   selectedTemplateId: string | null;
   onTemplateSelect: (templateId: string) => void;
+  templateLockStates?: Record<string, TemplateLockState>;
+  onLockedTemplateSelect?: (templateId: string, lockState: TemplateLockState) => void;
 }
 
 /**
@@ -33,6 +37,8 @@ export default function TemplatePreviewGallery({
   formData,
   selectedTemplateId,
   onTemplateSelect,
+  templateLockStates,
+  onLockedTemplateSelect,
 }: TemplatePreviewGalleryProps) {
   // Stable identity for the memoised template list so card identity is
   // preserved across re-renders that don't actually change the array contents.
@@ -72,7 +78,15 @@ export default function TemplatePreviewGallery({
             template={template}
             formData={formData}
             isSelected={selectedTemplateId === template.id}
-            onSelect={() => onTemplateSelect(template.id)}
+            lockState={templateLockStates?.[template.id] ?? 'open'}
+            onSelect={() => {
+              const lockState = templateLockStates?.[template.id] ?? 'open';
+              if (lockState !== 'open' && lockState !== 'slot_used') {
+                onLockedTemplateSelect?.(template.id, lockState);
+                return;
+              }
+              onTemplateSelect(template.id);
+            }}
           />
         ))}
       </div>
@@ -84,6 +98,7 @@ interface EnhancedTemplateCardProps {
   template: Template;
   formData: Record<string, unknown>;
   isSelected: boolean;
+  lockState?: TemplateLockState;
   onSelect: () => void;
 }
 
@@ -91,8 +106,10 @@ function EnhancedTemplateCard({
   template,
   formData,
   isSelected,
+  lockState = 'open',
   onSelect,
 }: EnhancedTemplateCardProps) {
+  const isLocked = lockState === 'locked' || lockState === 'upgrade';
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string>('');
@@ -275,10 +292,36 @@ function EnhancedTemplateCard({
         )}
 
         {/* Recommended Badge */}
-        {template.recommended && !isSelected && (
+        {template.recommended && !isSelected && lockState === 'open' && (
           <div className="absolute top-2 right-2 z-20">
             <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
               ★ Recommended
+            </div>
+          </div>
+        )}
+
+        {lockState === 'slot_used' && (
+          <div className="absolute top-2 left-2 z-20">
+            <div className="bg-emerald-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md">
+              Used Slot
+            </div>
+          </div>
+        )}
+
+        {lockState === 'upgrade' && (
+          <div className="absolute top-2 left-2 z-20">
+            <div className="bg-amber-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+              <Crown className="w-3 h-3" />
+              Upgrade Required
+            </div>
+          </div>
+        )}
+
+        {lockState === 'locked' && (
+          <div className="absolute top-2 left-2 z-20">
+            <div className="bg-slate-700 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+              <Lock className="w-3 h-3" />
+              Locked
             </div>
           </div>
         )}
@@ -325,16 +368,25 @@ function EnhancedTemplateCard({
           className={cn(
             'absolute inset-0 bg-gradient-to-t via-transparent to-transparent',
             cardAccent.hoverOverlay,
-            'opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+            isLocked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+            'transition-opacity duration-300',
             'flex items-end justify-center pb-8 z-10 rounded-2xl pointer-events-none'
           )}
         >
           <div className={cn(
             "text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 pointer-events-auto",
-            "group-hover:translate-y-0 translate-y-2",
-            isSelected ? "bg-blue-600/95" : "bg-blue-600/90"
+            isLocked ? "translate-y-0" : "group-hover:translate-y-0 translate-y-2",
+            isSelected ? "bg-blue-600/95" : isLocked ? "bg-slate-700/95" : "bg-blue-600/90"
           )}>
-            {isSelected ? '✓ Selected' : 'Click to Edit'}
+            {isLocked
+              ? lockState === 'upgrade'
+                ? 'Upgrade Required'
+                : 'Locked'
+              : isSelected
+                ? '✓ Selected'
+                : lockState === 'slot_used'
+                  ? 'Open Used Template'
+                  : 'Click to Edit'}
           </div>
         </div>
       </div>

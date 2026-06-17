@@ -65,7 +65,9 @@ export async function POST(request: NextRequest) {
     // Check template access before allowing download (skip for admins)
     if (!isAdmin && templateId) {
       const { canAccessTemplate } = await import('@/lib/services/payment-service');
-      const templateAccessCheck = await canAccessTemplate(session.user.id, templateId);
+      const templateAccessCheck = await canAccessTemplate(session.user.id, templateId, {
+        registerUse: true,
+      });
       if (!templateAccessCheck.allowed) {
         return NextResponse.json(
           { 

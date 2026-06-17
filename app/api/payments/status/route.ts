@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
-import { checkIndividualPlanValidity, checkBusinessSubscription } from '@/lib/services/payment-service';
+import { checkIndividualPlanValidity, checkBusinessSubscription, getTemplateEntitlementSummary, canAccessTemplate, getATSOptimizationLevel } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
 import {
   buildGoAffProConversionPayload,
@@ -156,9 +156,9 @@ export async function GET(request: NextRequest) {
         daysRemaining: individualCheck.daysRemaining,
         credits: {
           resumeDownloads: {
-            used: credits.resumeDownloads,
-            limit: credits.resumeDownloadsLimit,
-            remaining: credits.resumeDownloadsLimit - credits.resumeDownloads,
+            used: credits.pdfDownloads,
+            limit: credits.pdfDownloadsLimit,
+            remaining: credits.pdfDownloadsLimit - credits.pdfDownloads,
           },
           aiResume: {
             used: credits.aiResumeUsage,
@@ -182,7 +182,9 @@ export async function GET(request: NextRequest) {
           },
           templateAccess: credits.templateAccess,
           atsOptimization: credits.atsOptimization,
+          atsTier: await getATSOptimizationLevel(userId),
         },
+        entitlements: await getTemplateEntitlementSummary(userId),
         validUntil: credits.validUntil,
       });
       }
@@ -203,6 +205,40 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch payment status', details: error.message },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * POST /api/payments/status
+ * Register premium template slot usage (editor entry).
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const templateId = typeof body.templateId === 'string' ? body.templateId.trim() : '';
+
+    if (!templateId) {
+      return NextResponse.json({ error: 'templateId is required' }, { status: 400 });
+    }
+
+    const accessCheck = await canAccessTemplate(session.user.id, templateId, { registerUse: true });
+
+    return NextResponse.json(
+      {
+        allowed: accessCheck.allowed,
+        reason: accessCheck.reason,
+        lockReason: accessCheck.lockReason,
+      },
+      { status: accessCheck.allowed ? 200 : 403 }
+    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to register template access';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 

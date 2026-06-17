@@ -51,9 +51,9 @@ export async function GET(request: NextRequest) {
         daysRemaining: individualCheck.daysRemaining,
         credits: {
           resumeDownloads: {
-            used: credits.resumeDownloads,
-            limit: credits.resumeDownloadsLimit,
-            remaining: credits.resumeDownloadsLimit - credits.resumeDownloads,
+            used: credits.pdfDownloads,
+            limit: credits.pdfDownloadsLimit,
+            remaining: credits.pdfDownloadsLimit - credits.pdfDownloads,
           },
           aiResume: {
             used: credits.aiResumeUsage,

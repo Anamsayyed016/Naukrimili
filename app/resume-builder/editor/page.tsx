@@ -138,6 +138,12 @@ function importSectionCounts(data: Record<string, unknown>) {
   };
 }
 
+function isPremiumTemplateCategories(categories: string[] | undefined): boolean {
+  return Boolean(
+    categories?.includes('Premium') || categories?.includes('premium')
+  );
+}
+
 /** API / upload page already produced builder form data — skip second sanitize pass. */
 function isBuilderReadyImportPayload(parsed: Record<string, unknown>): boolean {
   if (parsed._imported === true) return true;
@@ -236,6 +242,35 @@ export default function ResumeEditorPage() {
           return;
         }
 
+        const isPremiumTemplate = isPremiumTemplateCategories(loaded.template.categories);
+        if (isPremiumTemplate && session?.user?.id) {
+          try {
+            const accessRes = await fetch('/api/payments/status', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ templateId }),
+            });
+            if (!accessRes.ok) {
+              const accessData = await accessRes.json().catch(() => ({}));
+              toast({
+                title: 'Template access denied',
+                description: accessData.reason || 'This premium template is not available on your plan.',
+                variant: 'destructive',
+              });
+              router.push('/resume-builder/templates');
+              return;
+            }
+          } catch {
+            toast({
+              title: 'Template access check failed',
+              description: 'Unable to verify template access. Please try again.',
+              variant: 'destructive',
+            });
+            router.push('/resume-builder/templates');
+            return;
+          }
+        }
+
         setTemplate(loaded.template);
         // Honour ?color= passed back from Design Studio; otherwise fall back to
         // the template's default colour. Custom-color ids (custom:<hex>) are
@@ -326,9 +361,10 @@ export default function ResumeEditorPage() {
               console.log('   - Has name?', !!parsed.name);
               console.log('   - Has email?', !!parsed.email);
               console.log('   - Has rawText?', typeof parsed.rawText === 'string' && parsed.rawText.length > 0);
-              console.log('   - Skills count:', parsed.skills?.length || 0);
-              console.log('   - Experience count:', parsed.experience?.length || 0);
-              console.log('   - Education count:', parsed.education?.length || 0);
+              const parsedCounts = importSectionCounts(parsed);
+              console.log('   - Skills count:', parsedCounts.skills);
+              console.log('   - Experience count:', parsedCounts.experience);
+              console.log('   - Education count:', parsedCounts.education);
 
               const {
                 transformImportDataToBuilder,
@@ -347,12 +383,13 @@ export default function ResumeEditorPage() {
               } else {
                 const { builderFormData: _nestedBuilder, ...profileForTransform } = parsed;
                 formPayload = transformImportDataToBuilder(profileForTransform);
+                const transformedCounts = importSectionCounts(formPayload);
                 console.log('🔄 After transformation:', {
                   firstName: formPayload.firstName || '(empty)',
                   lastName: formPayload.lastName || '(empty)',
-                  skills: formPayload.skills?.length || 0,
-                  experience: formPayload.experience?.length || 0,
-                  education: formPayload.education?.length || 0,
+                  skills: transformedCounts.skills,
+                  experience: transformedCounts.experience,
+                  education: transformedCounts.education,
                 });
               }
 
@@ -457,7 +494,7 @@ export default function ResumeEditorPage() {
     // colorParam is intentionally read here as well so returning from the
     // Design Studio with ?color= restores the chosen palette.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templateId, router, toast, colorParam, shouldPrefill]);
+  }, [templateId, router, toast, colorParam, shouldPrefill, session?.user?.id]);
 
   // Auto-save to localStorage
   useEffect(() => {

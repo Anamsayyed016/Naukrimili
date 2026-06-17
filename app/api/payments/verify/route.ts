@@ -10,8 +10,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { verifyPaymentSignature, fetchPaymentDetails } from '@/lib/services/razorpay-service';
 import { activateIndividualPlan } from '@/lib/services/payment-service';
+import type { IndividualPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
-import { findPaymentByOrderId, updatePaymentStatus, findUserCredits, createOrUpdateUserCredits } from '@/lib/db-direct';
+import { findPaymentByOrderId, updatePaymentStatus } from '@/lib/db-direct';
 import {
   assertPaymentAmountMatches,
   redeemCoupon,
@@ -459,108 +460,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Activate plan if individual plan (only if not already activated)
+    // Activate plan if individual plan
     if (payment.planType === 'individual') {
       console.log('🔄 [Verify Payment] Activating individual plan...');
       try {
-        // Check if plan is already active to prevent duplicate activation (try direct DB first)
-        let existingCredits = await findUserCredits(payment.userId);
-        
-        // Fallback to Prisma if direct DB fails
-        if (!existingCredits) {
-          try {
-            existingCredits = await prisma.userCredits.findUnique({
-              where: { userId: payment.userId },
-            });
-          } catch (prismaError: any) {
-            console.warn('⚠️ [Verify Payment] Prisma check failed, using direct DB only:', prismaError?.message);
-          }
-        }
+        const activatePromise = activateIndividualPlan({
+          userId: payment.userId,
+          paymentId: payment.id,
+          planKey: payment.planName as IndividualPlanKey,
+        });
 
-        // Only activate if not already active for this payment
-        const isAlreadyActive = existingCredits?.isActive && 
-                                existingCredits?.planType === 'individual' &&
-                                existingCredits?.planName === payment.planName;
+        const activateTimeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Plan activation timed out')), 15000)
+        );
 
-        if (isAlreadyActive) {
-          console.log('⚠️ [Verify Payment] Plan already active, skipping activation');
-        } else {
-          // Try to activate using direct DB first, then fallback to Prisma
-          try {
-            const { INDIVIDUAL_PLANS } = await import('@/lib/services/razorpay-plans');
-            const plan = INDIVIDUAL_PLANS[payment.planName as keyof typeof INDIVIDUAL_PLANS];
-            
-            if (!plan) {
-              throw new Error(`Plan ${payment.planName} not found`);
-            }
-            
-            const validUntil = new Date();
-            validUntil.setDate(validUntil.getDate() + plan.validityDays);
-            
-            const aiResumeLimit = plan.features.aiResumeUsage === -1 ? 999999 : plan.features.aiResumeUsage;
-            const aiCoverLetterLimit = plan.features.aiCoverLetterUsage === -1 ? 999999 : plan.features.aiCoverLetterUsage;
-            
-            // Try direct DB first with timeout
-            try {
-              const creditsPromise = createOrUpdateUserCredits(payment.userId, {
-                resumeDownloadsLimit: plan.features.pdfDownloads,
-                aiResumeLimit,
-                aiCoverLetterLimit,
-                templateAccess: plan.features.templateAccess,
-                atsOptimization: plan.features.atsOptimization === 'advanced' || plan.features.atsOptimization === true,
-                pdfDownloadsLimit: plan.features.pdfDownloads,
-                docxDownloadsLimit: 0,
-                validUntil,
-                planType: 'individual',
-                planName: payment.planName,
-                isActive: true,
-              });
-              
-              const creditsTimeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Credits update timed out')), 15000)
-              );
-              
-              await Promise.race([creditsPromise, creditsTimeoutPromise]);
-              console.log('✅ [Verify Payment] Plan activated successfully (direct DB)');
-              console.log('[PricingAudit] Subscription activated', {
-                planKey: payment.planName,
-                paymentAmountPaise: payment.amount,
-                razorpayAmountPaise: razorpayPayment.amount,
-                validityDays: plan.validityDays,
-                userId: payment.userId,
-              });
-            } catch (dbError: any) {
-              console.warn('⚠️ [Verify Payment] Direct DB activation failed, trying Prisma:', {
-                error: dbError?.message || dbError,
-                errorType: dbError?.name,
-              });
-              // Fallback to Prisma with timeout
-              try {
-                const activatePromise = activateIndividualPlan({
-                  userId: payment.userId,
-                  paymentId: payment.id,
-                  planKey: payment.planName as any,
-                });
-                
-                const activateTimeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error('Prisma activation timed out')), 15000)
-                );
-                
-                await Promise.race([activatePromise, activateTimeoutPromise]);
-                console.log('✅ [Verify Payment] Plan activated successfully (Prisma)');
-              } catch (prismaActivateError: any) {
-                console.error('❌ [Verify Payment] Prisma activation also failed:', {
-                  error: prismaActivateError?.message || prismaActivateError,
-                  errorType: prismaActivateError?.name,
-                });
-                throw prismaActivateError; // Re-throw to be caught by outer try-catch
-              }
-            }
-          } catch (activateError: any) {
-            console.error('❌ [Verify Payment] Failed to activate plan:', activateError);
-            throw activateError;
-          }
-        }
+        await Promise.race([activatePromise, activateTimeoutPromise]);
+        console.log('✅ [Verify Payment] Plan activated successfully');
+        console.log('[PricingAudit] Subscription activated', {
+          planKey: payment.planName,
+          paymentAmountPaise: payment.amount,
+          razorpayAmountPaise: razorpayPayment.amount,
+          userId: payment.userId,
+        });
 
         // SERVER-SIDE VERIFICATION: Verify plan is ready for download
         console.log('🔍 [Verify Payment] Verifying plan is ready for download...');
