@@ -8,6 +8,8 @@ import {
   isClassifiedPersonName,
   isEmailOrDomainFragment,
   isFirmOrLocationNamePhrase,
+  isLikelyCompanyNameFragment,
+  isLikelyJobTitleFragment,
   splitClassifiedFullName,
   type ClassifiedText,
 } from './field-classification';
@@ -876,8 +878,8 @@ export function isValidExperienceEntry(exp: {
 
   if (!company && !position) return false;
 
-  if (position && isLikelyJobTitle(position) && !company) return hasDates;
-  if (company && isLikelyCompanyName(company) && !position) return hasDates;
+  if (position && isLikelyJobTitleFragment(position) && !company) return hasDates;
+  if (company && isLikelyCompanyNameFragment(company) && !position) return hasDates;
 
   return false;
 }
