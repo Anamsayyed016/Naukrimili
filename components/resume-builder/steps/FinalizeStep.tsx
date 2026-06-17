@@ -146,7 +146,9 @@ function renderPdfInDeliveryWindow(
         return;
       }
 
-      const timeoutId = window.setTimeout(() => finish(true), MOBILE_IFRAME_LOAD_TIMEOUT_MS);
+      // If the iframe never loads, treat as failure (mobile browsers can silently
+      // refuse to render blob: PDFs in a popup window).
+      const timeoutId = window.setTimeout(() => finish(false), MOBILE_IFRAME_LOAD_TIMEOUT_MS);
       iframe.onload = () => {
         window.clearTimeout(timeoutId);
         finish(true);
@@ -256,20 +258,19 @@ async function deliverMobilePdfBlob(
     return shareOutcome;
   }
 
+  // Android: anchor.click() can be silently ignored after async work (gesture lost).
+  // Treat it as an attempted delivery only; we still open the PDF viewer so the
+  // user can save/share reliably without a false "downloaded" success.
   if (options?.allowAnchorDownload && device.deviceType === 'android') {
     const anchorClicked = tryAndroidAnchorDownload(blob, filename);
-    if (anchorClicked) {
-      closeOrphanDeliveryWindow(deliveryWindow);
-      const result: PdfDeliveryResult = { method: 'anchor-download', success: true, device };
-      logPdfDeliveryDiagnostics({
-        device,
-        blobSize: blob.size,
-        method: result.method,
-        success: true,
-        revokeDelayMs: ANDROID_BLOB_REVOKE_MS,
-      });
-      return result;
-    }
+    logPdfDeliveryDiagnostics({
+      device,
+      blobSize: blob.size,
+      method: 'anchor-download',
+      success: false,
+      error: anchorClicked ? 'android-download-unverified' : 'anchor-click-failed',
+      revokeDelayMs: ANDROID_BLOB_REVOKE_MS,
+    });
   }
 
   const viewerWindow =
@@ -288,8 +289,14 @@ async function deliverMobilePdfBlob(
     return result;
   }
 
+  // Viewer failed: close any opened tab so user never stays on a blank page.
   closeOrphanDeliveryWindow(deliveryWindow);
   closeOrphanDeliveryWindow(viewerWindow);
+  try {
+    if (viewerWindow && !viewerWindow.closed) viewerWindow.close();
+  } catch {
+    // ignore
+  }
 
   const deferred: PdfDeliveryResult = {
     method: 'open-blob-tab',
