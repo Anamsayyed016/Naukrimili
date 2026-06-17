@@ -115,8 +115,8 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         ${coloredCss}
         
         /* ========================================
-           PDF EXPORT CSS - SMART MODERATE COMPRESSION
-           Fits on 1 A4 page while maintaining professional appearance
+           PDF EXPORT CSS - MULTI-PAGE FLOW
+           Natural pagination; no forced single-page compression
            ======================================== */
         
         /* Page margin reset – let .resume-container control spacing */
@@ -134,7 +134,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           margin: 0;
           padding: 0;
           width: 100%;
-          height: 100%;
+          height: auto !important;
         }
         
         body {
@@ -142,7 +142,8 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           margin: 0;
           padding: 0;
           width: 100%;
-          height: 100%;
+          height: auto !important;
+          min-height: auto !important;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
@@ -153,16 +154,40 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           line-height: 1.5 !important; /* Moderate line height for readability */
         }
         
-        /* Resume Container - A4 Size with Moderate Compression */
+        /* Resume Container - A4 width, natural height across pages */
         .resume-container {
           width: 794px !important;
           max-width: 794px !important;
           min-width: 794px !important;
+          min-height: auto !important;
+          height: auto !important;
+          max-height: none !important;
           margin: 0 auto !important;
-          padding: 28px 36px !important; /* Slightly more padding; still one-page-friendly */
+          padding: 28px 36px !important;
           background: white !important;
           box-sizing: border-box !important;
           position: relative;
+          overflow: visible !important;
+        }
+
+        /* Templates pin min-height to one A4 page — allow content to flow */
+        .resume-wrapper,
+        .resume-container > *,
+        [class*="-resume"],
+        [class*="-layout"],
+        [class*="-shell"],
+        [class*="-body"],
+        [class*="-columns"],
+        .sidebar,
+        .main-content,
+        .main-column,
+        .content-column,
+        .content-header,
+        header {
+          min-height: auto !important;
+          height: auto !important;
+          max-height: none !important;
+          overflow: visible !important;
         }
         
         /* Override CSS Variables with Moderate Values */
@@ -323,11 +348,65 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           print-color-adjust: exact !important;
         }
         
-        /* Prevent page breaks inside important elements */
-        .experience-item, .education-item, .project-item,
-        .certification-item {
-          page-break-inside: avoid;
-          break-inside: avoid;
+        /* Multi-page pagination — allow long sections to split naturally */
+        .experience-item,
+        .education-item,
+        .project-item,
+        .certification-item,
+        .achievement-item,
+        .reference-item,
+        [class*="timeline"] .experience-item,
+        [class*="timeline"] .certification-item,
+        [class*="timeline"] .education-item,
+        .experience-list,
+        .education-list,
+        .projects-list,
+        [class*="timeline"],
+        section,
+        .section,
+        .content-section,
+        .sidebar-section {
+          page-break-inside: auto !important;
+          break-inside: auto !important;
+        }
+
+        /* Two-column layouts: each column flows independently across pages */
+        .resume-wrapper,
+        .sidebar,
+        .main-content,
+        .main-column {
+          page-break-inside: auto !important;
+          break-inside: auto !important;
+        }
+
+        /* Keep compact units together (headers, badges, small chips) */
+        h1, .name, .header-name,
+        h2, .section-title, .sidebar-section-title,
+        .experience-header,
+        .education-header,
+        .project-header,
+        .duration, .year, .date,
+        .skill-item,
+        .language-item,
+        .hobby-item,
+        .contact-item,
+        .contact-list li {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+          page-break-after: avoid;
+          break-after: avoid-page;
+        }
+
+        /* Descriptions and list items may continue on the next page */
+        .experience-item .description,
+        .education-item .description,
+        .project-item .description,
+        .certification-item .description,
+        .experience-item li,
+        .project-item li,
+        .education-item li {
+          page-break-inside: auto !important;
+          break-inside: auto !important;
         }
         
         /* Ensure visibility */

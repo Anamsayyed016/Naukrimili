@@ -602,22 +602,29 @@ export default function FinalizeStep({
               padding: 0;
             }
             
-            /* CRITICAL: Maintain exact container dimensions */
+            /* A4 width; natural multi-page height */
             .resume-container {
-              width: 794px !important; /* Fixed width to match screen preview */
+              width: 794px !important;
               max-width: 794px !important;
               box-shadow: none !important;
-              margin: 0 auto !important; /* Center on page */
+              margin: 0 auto !important;
               padding: 0 !important;
-              page-break-inside: avoid;
+              min-height: auto !important;
+              height: auto !important;
+              max-height: none !important;
+              overflow: visible !important;
+              page-break-inside: auto !important;
+              break-inside: auto !important;
             }
             
-            /* CRITICAL: Preserve layout structure */
+            /* Preserve layout structure */
             .resume-wrapper {
               display: flex !important;
               min-height: auto !important;
               width: 100% !important;
               height: auto !important;
+              page-break-inside: auto !important;
+              break-inside: auto !important;
             }
             
             .sidebar {
@@ -626,9 +633,12 @@ export default function FinalizeStep({
               max-width: 280px !important;
               flex-shrink: 0 !important;
               flex-grow: 0 !important;
+              min-height: auto !important;
+              height: auto !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
-              page-break-inside: avoid;
+              page-break-inside: auto !important;
+              break-inside: auto !important;
             }
             
             .main-content {
@@ -636,9 +646,28 @@ export default function FinalizeStep({
               flex-grow: 1 !important;
               flex-shrink: 1 !important;
               width: auto !important;
+              min-height: auto !important;
+              height: auto !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
-              page-break-inside: avoid;
+              page-break-inside: auto !important;
+              break-inside: auto !important;
+            }
+
+            .experience-item,
+            .education-item,
+            .project-item,
+            .certification-item,
+            [class*="timeline"] .experience-item {
+              page-break-inside: auto !important;
+              break-inside: auto !important;
+            }
+
+            h2, .section-title, .sidebar-section-title,
+            .experience-header, .duration, .year, .date,
+            .skill-item, .language-item {
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
             }
             
             /* Preserve all background colors and images - DO NOT reset */
