@@ -33,6 +33,207 @@ declare global {
   }
 }
 
+type PdfDeliveryMethod = 'share-files' | 'open-blob-tab' | 'anchor-download';
+
+type PdfDeliveryDeviceType = 'ios' | 'android' | 'desktop';
+
+interface PdfDeliveryDeviceInfo {
+  deviceType: PdfDeliveryDeviceType;
+  browser: string;
+  userAgent: string;
+}
+
+interface PdfDeliveryResult {
+  method: PdfDeliveryMethod;
+  success: boolean;
+  error?: string;
+  device: PdfDeliveryDeviceInfo;
+}
+
+function getPdfDeliveryDeviceInfo(): PdfDeliveryDeviceInfo {
+  if (typeof navigator === 'undefined') {
+    return { deviceType: 'desktop', browser: 'unknown', userAgent: '' };
+  }
+
+  const ua = navigator.userAgent;
+  const isIPad =
+    /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isIOS =
+    /iPhone|iPod/i.test(ua) ||
+    isIPad ||
+    (/CriOS/i.test(ua) && /Mobile/i.test(ua));
+
+  let deviceType: PdfDeliveryDeviceType = 'desktop';
+  if (isIOS) deviceType = 'ios';
+  else if (/Android/i.test(ua)) deviceType = 'android';
+
+  let browser = 'unknown';
+  if (/CriOS/i.test(ua)) browser = 'chrome-ios';
+  else if (/FxiOS/i.test(ua)) browser = 'firefox-ios';
+  else if (deviceType === 'ios' && /Safari/i.test(ua)) browser = 'safari-ios';
+  else if (/SamsungBrowser/i.test(ua)) browser = 'samsung-internet';
+  else if (/Chrome/i.test(ua)) browser = 'chrome';
+  else if (/Safari/i.test(ua)) browser = 'safari';
+  else if (/Firefox/i.test(ua)) browser = 'firefox';
+  else if (/Edg/i.test(ua)) browser = 'edge';
+
+  return { deviceType, browser, userAgent: ua };
+}
+
+function isMobilePdfDeliveryDevice(): boolean {
+  const { deviceType } = getPdfDeliveryDeviceInfo();
+  return deviceType === 'ios' || deviceType === 'android';
+}
+
+function scheduleBlobUrlRevoke(url: string, delayMs: number): void {
+  window.setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, delayMs);
+}
+
+function logPdfDeliveryDiagnostics(input: {
+  device: PdfDeliveryDeviceInfo;
+  blobSize: number;
+  method: PdfDeliveryMethod;
+  success: boolean;
+  error?: string;
+  revokeDelayMs?: number;
+}): void {
+  console.log('📱 [PDF Delivery]', {
+    deviceType: input.device.deviceType,
+    browser: input.device.browser,
+    userAgent: input.device.userAgent,
+    blobSize: input.blobSize,
+    method: input.method,
+    success: input.success,
+    error: input.error ?? null,
+    revokeDelayMs: input.revokeDelayMs ?? null,
+  });
+}
+
+function getPdfDeliveryFeedback(
+  device: PdfDeliveryDeviceInfo,
+  result: PdfDeliveryResult
+): { title: string; description: string } {
+  if (result.error === 'cancelled') {
+    return {
+      title: 'Share cancelled',
+      description: 'Tap Export again when you are ready to save your PDF.',
+    };
+  }
+
+  if (device.deviceType === 'ios') {
+    return {
+      title: 'PDF ready',
+      description: 'Use Share → Save to Files to keep a copy.',
+    };
+  }
+
+  if (device.deviceType === 'android') {
+    return {
+      title: 'PDF download started',
+      description: 'Check your Downloads folder.',
+    };
+  }
+
+  return {
+    title: 'Download started',
+    description: 'Your resume PDF is downloading.',
+  };
+}
+
+async function deliverPdfBlob(blob: Blob, filename: string): Promise<PdfDeliveryResult> {
+  const device = getPdfDeliveryDeviceInfo();
+
+  if (device.deviceType === 'ios') {
+    const file = new File([blob], filename, { type: 'application/pdf' });
+    const canShareFiles =
+      typeof navigator.share === 'function' &&
+      (typeof navigator.canShare !== 'function' || navigator.canShare({ files: [file] }));
+
+    if (canShareFiles) {
+      try {
+        await navigator.share({ files: [file], title: 'Resume PDF' });
+        const result: PdfDeliveryResult = { method: 'share-files', success: true, device };
+        logPdfDeliveryDiagnostics({
+          device,
+          blobSize: blob.size,
+          method: result.method,
+          success: true,
+        });
+        return result;
+      } catch (shareError: unknown) {
+        const err = shareError instanceof Error ? shareError : new Error(String(shareError));
+        if (err.name === 'AbortError') {
+          const result: PdfDeliveryResult = {
+            method: 'share-files',
+            success: false,
+            error: 'cancelled',
+            device,
+          };
+          logPdfDeliveryDiagnostics({
+            device,
+            blobSize: blob.size,
+            method: result.method,
+            success: false,
+            error: 'cancelled',
+          });
+          return result;
+        }
+        console.warn('⚠️ [PDF Delivery] navigator.share failed, opening PDF in same tab', err.message);
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+    window.location.assign(url);
+    scheduleBlobUrlRevoke(url, 5000);
+    const result: PdfDeliveryResult = { method: 'open-blob-tab', success: true, device };
+    logPdfDeliveryDiagnostics({
+      device,
+      blobSize: blob.size,
+      method: result.method,
+      success: true,
+      revokeDelayMs: 5000,
+    });
+    return result;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.rel = 'noopener';
+  document.body.appendChild(anchor);
+
+  let clickSuccess = true;
+  try {
+    anchor.click();
+  } catch (clickError: unknown) {
+    clickSuccess = false;
+    console.error('❌ [PDF Delivery] anchor.click() failed:', clickError);
+  }
+
+  document.body.removeChild(anchor);
+  const revokeDelayMs = device.deviceType === 'android' ? 3000 : 1000;
+  scheduleBlobUrlRevoke(url, revokeDelayMs);
+
+  const result: PdfDeliveryResult = {
+    method: 'anchor-download',
+    success: clickSuccess,
+    device,
+    error: clickSuccess ? undefined : 'anchor-click-failed',
+  };
+  logPdfDeliveryDiagnostics({
+    device,
+    blobSize: blob.size,
+    method: result.method,
+    success: result.success,
+    error: result.error,
+    revokeDelayMs,
+  });
+  return result;
+}
+
 interface FinalizeStepProps {
   formData: Record<string, unknown>;
   updateFormData: (updates: Record<string, unknown>) => void;
@@ -64,6 +265,7 @@ export default function FinalizeStep({
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
   const [couponQuotes, setCouponQuotes] = useState<Record<string, CouponQuote | null>>({});
   const [skipPaymentCheck, setSkipPaymentCheck] = useState(false); // Bypass payment check after successful payment
+  const [mobilePdfReadyAfterPayment, setMobilePdfReadyAfterPayment] = useState(false);
 
   // Transform plans for UI display (centralized from razorpay-plans.ts)
   const INDIVIDUAL_PLANS_UI = Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
@@ -505,19 +707,19 @@ export default function FinalizeStep({
       }
       
       console.log('✅ [Export] Valid PDF received, size:', blob.size, 'bytes');
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `resume-${templateId}-${Date.now()}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      const filename = `resume-${templateId}-${Date.now()}.pdf`;
+      const delivery = await deliverPdfBlob(blob, filename);
 
-      toast({
-        title: 'Export successful!',
-        description: `Your resume has been exported as ${format.toUpperCase()}.`,
-      });
+      if (!delivery.success) {
+        if (delivery.error === 'cancelled') {
+          toast(getPdfDeliveryFeedback(delivery.device, delivery));
+          return;
+        }
+        throw new Error('PDF delivery failed');
+      }
+
+      toast(getPdfDeliveryFeedback(delivery.device, delivery));
+      setMobilePdfReadyAfterPayment(false);
       
       // Reset skipPaymentCheck flag after successful download
       if (skipPaymentCheck) {
@@ -670,6 +872,92 @@ export default function FinalizeStep({
     }
   };
 
+  const runDesktopPostPaymentExportWithRetries = (
+    exportFormat: 'pdf',
+    maxAttempts = 3
+  ): void => {
+    const attemptDownload = async (attempt: number = 1): Promise<void> => {
+      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000);
+
+      console.log(
+        `🔄 [Post-Payment Export] Desktop download attempt ${attempt}/${maxAttempts} after ${delay}ms`
+      );
+
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          try {
+            await handleExport(exportFormat, true);
+            console.log(`✅ [Post-Payment Export] Download succeeded on attempt ${attempt}`);
+            resolve();
+          } catch (exportError: unknown) {
+            const errorMessage =
+              exportError instanceof Error ? exportError.message : String(exportError);
+            console.warn(`⚠️ [Post-Payment Export] Attempt ${attempt} failed:`, errorMessage);
+
+            if (attempt < maxAttempts) {
+              try {
+                await attemptDownload(attempt + 1);
+              } catch {
+                // handled on final attempt
+              }
+              resolve();
+              return;
+            }
+
+            toast({
+              title: 'Download failed',
+              description:
+                'Payment was successful, but download failed. Please try downloading manually.',
+              variant: 'destructive',
+            });
+            resolve();
+          }
+        }, delay);
+      });
+    };
+
+    attemptDownload().catch((error) => {
+      console.error('❌ [Post-Payment Export] Unexpected error in retry logic:', error);
+    });
+  };
+
+  const offerPostPaymentPdfDownload = (toastOptions?: {
+    title: string;
+    description?: string;
+    maxAttempts?: number;
+  }): void => {
+    setShowPaymentDialog(false);
+    setLoadingPlan(null);
+    setSkipPaymentCheck(true);
+
+    const exportFormat: 'pdf' = pendingExportFormat || 'pdf';
+    if (!pendingExportFormat) {
+      setPendingExportFormat('pdf');
+    }
+
+    if (isMobilePdfDeliveryDevice()) {
+      setMobilePdfReadyAfterPayment(true);
+      toast({
+        title: toastOptions?.title ?? 'Payment successful!',
+        description: toastOptions?.description ?? 'PDF ready — tap Download PDF below.',
+      });
+      console.log('📱 [Post-Payment Export] Awaiting user tap for mobile PDF delivery', {
+        exportFormat,
+        device: getPdfDeliveryDeviceInfo(),
+      });
+      return;
+    }
+
+    if (toastOptions?.title) {
+      toast({
+        title: toastOptions.title,
+        description: toastOptions?.description ?? 'Downloading your resume...',
+      });
+    }
+
+    runDesktopPostPaymentExportWithRetries(exportFormat, toastOptions?.maxAttempts ?? 3);
+  };
+
   // Handle payment for individual plan
   const handleIndividualPlan = async (planKey: string) => {
     if (!session?.user) {
@@ -809,87 +1097,22 @@ export default function FinalizeStep({
               // Handle different types of errors
               if (fetchError.name === 'AbortError') {
                 console.error('❌ [Payment Handler] Verification request timed out');
-                setLoadingPlan(null);
-                toast({
+                offerPostPaymentPdfDownload({
                   title: 'Verification timeout',
-                  description: 'Payment verification timed out. Attempting download anyway since payment succeeded...',
-                  variant: 'default',
+                  description:
+                    'Payment verified on Razorpay. PDF ready — tap Download PDF below.',
                 });
-                
-                // CRITICAL FALLBACK: If verification times out but payment succeeded on Razorpay side,
-                // still attempt download since payment was confirmed by Razorpay
-                setShowPaymentDialog(false);
-                setSkipPaymentCheck(true);
-                const exportFormat = pendingExportFormat || 'pdf';
-                if (!pendingExportFormat) {
-                  setPendingExportFormat('pdf');
-                }
-                
-                // Trigger download after delay to allow webhook to process
-                setTimeout(async () => {
-                  try {
-                    await handleExport(exportFormat, true);
-                  } catch (downloadError) {
-                    console.error('❌ [Payment Handler] Fallback download failed:', downloadError);
-                    toast({
-                      title: 'Download failed',
-                      description: 'Please try downloading manually or contact support.',
-                      variant: 'destructive',
-                    });
-                  }
-                }, 2000);
                 return;
               }
               
               // Handle 404 or other fetch errors
               if (fetchError.message?.includes('404') || fetchError.message?.includes('Failed to fetch')) {
                 console.error('❌ [Payment Handler] Verification endpoint not found (404) or network error:', fetchError);
-                setLoadingPlan(null);
-                
-                // CRITICAL FALLBACK: Payment succeeded on Razorpay side, but backend verification failed
-                // Still attempt download since Razorpay confirmed payment
-                toast({
+                offerPostPaymentPdfDownload({
                   title: 'Payment successful!',
-                  description: 'Payment confirmed. Attempting download (verification may process via webhook)...',
-                  variant: 'default',
+                  description: 'Payment confirmed. PDF ready — tap Download PDF below.',
+                  maxAttempts: 5,
                 });
-                
-                setShowPaymentDialog(false);
-                setSkipPaymentCheck(true);
-                const exportFormat = pendingExportFormat || 'pdf';
-                if (!pendingExportFormat) {
-                  setPendingExportFormat('pdf');
-                }
-                
-                // Trigger download with retries since webhook might still be processing
-                const attemptDownloadWithRetries = async (attempt: number = 1, maxAttempts: number = 5) => {
-                  const delay = attempt * 1000; // 1s, 2s, 3s, 4s, 5s
-                  
-                  await new Promise(resolve => setTimeout(resolve, delay));
-                  
-                  try {
-                    console.log(`🔄 [Payment Handler] Fallback download attempt ${attempt}/${maxAttempts}...`);
-                    await handleExport(exportFormat, true);
-                    console.log(`✅ [Payment Handler] Fallback download succeeded on attempt ${attempt}`);
-                  } catch (downloadError: any) {
-                    console.warn(`⚠️ [Payment Handler] Fallback download attempt ${attempt} failed:`, downloadError?.message);
-                    
-                    if (attempt < maxAttempts) {
-                      await attemptDownloadWithRetries(attempt + 1, maxAttempts);
-                    } else {
-                      toast({
-                        title: 'Download failed',
-                        description: 'Payment was successful, but download failed. Please try downloading manually or refresh the page.',
-                        variant: 'destructive',
-                      });
-                    }
-                  }
-                };
-                
-                attemptDownloadWithRetries().catch(error => {
-                  console.error('❌ [Payment Handler] Fallback download retries exhausted:', error);
-                });
-                
                 return; // Don't throw - we've handled it with fallback
               }
               
@@ -901,52 +1124,11 @@ export default function FinalizeStep({
             // CRITICAL: Handle 404 response - endpoint might not exist or be misconfigured
             if (verifyResponse.status === 404) {
               console.error('❌ [Payment Handler] Verification endpoint returned 404 - endpoint not found');
-              setLoadingPlan(null);
-              
-              // CRITICAL FALLBACK: Payment succeeded on Razorpay side, but backend endpoint is missing
-              // Still attempt download since Razorpay confirmed payment
-              toast({
+              offerPostPaymentPdfDownload({
                 title: 'Payment successful!',
-                description: 'Payment confirmed. Attempting download (verification will process via webhook)...',
-                variant: 'default',
+                description: 'Payment confirmed. PDF ready — tap Download PDF below.',
+                maxAttempts: 8,
               });
-              
-              setShowPaymentDialog(false);
-              setSkipPaymentCheck(true);
-              const exportFormat = pendingExportFormat || 'pdf';
-              if (!pendingExportFormat) {
-                setPendingExportFormat('pdf');
-              }
-              
-              // Trigger download with extended retries since webhook needs time to process
-              const attemptDownloadWithExtendedRetries = async (attempt: number = 1, maxAttempts: number = 8) => {
-                const delay = attempt * 1000; // 1s, 2s, 3s, 4s, 5s, 6s, 7s, 8s
-                
-                await new Promise(resolve => setTimeout(resolve, delay));
-                
-                try {
-                  console.log(`🔄 [Payment Handler] 404 fallback download attempt ${attempt}/${maxAttempts}...`);
-                  await handleExport(exportFormat, true);
-                  console.log(`✅ [Payment Handler] 404 fallback download succeeded on attempt ${attempt}`);
-                } catch (downloadError: any) {
-                  console.warn(`⚠️ [Payment Handler] 404 fallback download attempt ${attempt} failed:`, downloadError?.message);
-                  
-                  if (attempt < maxAttempts) {
-                    await attemptDownloadWithExtendedRetries(attempt + 1, maxAttempts);
-                  } else {
-                    toast({
-                      title: 'Download pending',
-                      description: 'Payment was successful. Please wait a few seconds and try downloading manually, or refresh the page.',
-                      variant: 'default',
-                    });
-                  }
-                }
-              };
-              
-              attemptDownloadWithExtendedRetries().catch(error => {
-                console.error('❌ [Payment Handler] 404 fallback download retries exhausted:', error);
-              });
-              
               return; // Exit early - we've handled it with fallback
             }
 
@@ -973,30 +1155,19 @@ export default function FinalizeStep({
               // If status is not ok, try fallback download
               if (!verifyResponse.ok) {
                 console.log('⚠️ [Payment Handler] Non-OK response - attempting fallback download');
-                setShowPaymentDialog(false);
-                setSkipPaymentCheck(true);
-                const exportFormat = pendingExportFormat || 'pdf';
-                if (!pendingExportFormat) {
-                  setPendingExportFormat('pdf');
-                }
-                
-                setTimeout(async () => {
-                  try {
-                    await handleExport(exportFormat, true);
-                  } catch (downloadError) {
-                    console.error('❌ [Payment Handler] Parse error fallback download failed:', downloadError);
-                  }
-                }, 2000);
+                offerPostPaymentPdfDownload({
+                  title: 'Payment successful',
+                  description: 'Payment confirmed. PDF ready — tap Download PDF below.',
+                });
+              } else {
+                setLoadingPlan(null);
+                toast({
+                  title: 'Verification error',
+                  description:
+                    'Invalid response from payment verification server. Please contact support.',
+                  variant: 'destructive',
+                });
               }
-              
-              setLoadingPlan(null);
-              toast({
-                title: verifyResponse.ok ? 'Verification error' : 'Payment successful',
-                description: verifyResponse.ok 
-                  ? 'Invalid response from payment verification server. Please contact support.'
-                  : 'Payment confirmed. Attempting download...',
-                variant: verifyResponse.ok ? 'destructive' : 'default',
-              });
               return; // Exit early
             }
 
@@ -1024,104 +1195,12 @@ export default function FinalizeStep({
               if (result.conversion) {
                 await triggerGoAffProConversionAfterVerify(result);
               }
-              
-              // Close payment dialog FIRST to ensure UI updates immediately
-              setShowPaymentDialog(false);
-              setLoadingPlan(null);
-              
-              toast({
+
+              offerPostPaymentPdfDownload({
                 title: 'Payment successful!',
-                description: result.alreadyProcessed 
-                  ? 'Payment was already processed. Downloading your resume...'
-                  : 'Plan activated. Downloading your resume...',
-              });
-              
-              // Set flag to bypass payment check and retry the download after successful payment
-              setSkipPaymentCheck(true);
-              
-              // Use pendingExportFormat or default to 'pdf' if not set (safeguard)
-              // CRITICAL: If pendingExportFormat is not set, set it to 'pdf' for consistency
-              const exportFormat = pendingExportFormat || 'pdf';
-              if (!pendingExportFormat) {
-                setPendingExportFormat('pdf');
-                console.log('📥 [Payment Handler] No pendingExportFormat found - setting to default: pdf');
-              }
-              
-              console.log('📥 [Payment Handler] Triggering download after payment:', {
-                pendingExportFormat,
-                exportFormat,
-                hasPendingFormat: !!pendingExportFormat,
-                willUseDefault: !pendingExportFormat
-              });
-              
-              // Retry logic with exponential backoff to handle database update delays
-              const attemptDownload = async (attempt: number = 1, maxAttempts: number = 3): Promise<void> => {
-                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // 1s, 2s, 3s
-                
-                console.log(`🔄 [Payment Handler] Attempting download (attempt ${attempt}/${maxAttempts}) after ${delay}ms delay...`);
-                
-                // Use Promise to properly handle async setTimeout
-                await new Promise<void>((resolve) => {
-                  setTimeout(async () => {
-                    try {
-                      console.log(`📄 [Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
-                      
-                      try {
-                        await handleExport(exportFormat, true); // Pass bypass flag
-                        console.log(`✅ [Payment Handler] Download completed successfully on attempt ${attempt}`);
-                        resolve(); // Success - resolve and exit
-                      } catch (exportError: any) {
-                        console.error(`❌ [Payment Handler] handleExport threw error on attempt ${attempt}:`, {
-                          error: exportError,
-                          errorMessage: exportError?.message,
-                          errorStack: exportError?.stack,
-                          errorType: typeof exportError,
-                        });
-                        // Re-throw to trigger retry logic below
-                        throw exportError;
-                      }
-                    } catch (error: any) {
-                      const errorMessage = error instanceof Error ? error.message : String(error);
-                      console.warn(`⚠️ [Payment Handler] Download attempt ${attempt} failed:`, {
-                        error,
-                        errorMessage,
-                        errorType: typeof error,
-                        isError: error instanceof Error
-                      });
-                      
-                      // Retry on ANY error if we have attempts left (broader retry logic)
-                      if (attempt < maxAttempts) {
-                        console.log(`🔄 [Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
-                        try {
-                          await attemptDownload(attempt + 1, maxAttempts);
-                          resolve(); // Resolve after successful retry
-                        } catch (retryError) {
-                          // If retry also fails, it will handle its own error
-                          resolve(); // Still resolve to prevent hanging
-                        }
-                      } else {
-                        // Final attempt failed
-                        console.error('❌ [Payment Handler] All download attempts failed after', maxAttempts, 'attempts');
-                        toast({
-                          title: 'Download failed',
-                          description: 'Payment was successful, but download failed. Please try downloading manually.',
-                          variant: 'destructive',
-                        });
-                        resolve(); // Resolve to prevent hanging
-                      }
-                    }
-                  }, delay);
-                });
-              };
-              
-              // Start first attempt (don't await - let it run in background)
-              attemptDownload().catch((error) => {
-                console.error('❌ [Payment Handler] Unexpected error in download retry logic:', error);
-                toast({
-                  title: 'Download error',
-                  description: 'Payment was successful, but download failed. Please try downloading manually.',
-                  variant: 'destructive',
-                });
+                description: result.alreadyProcessed
+                  ? 'Payment was already processed. PDF ready — tap Download PDF below.'
+                  : 'Plan activated. PDF ready — tap Download PDF below.',
               });
             } else {
               // Backend verification failed - mark as failed
@@ -1380,94 +1459,10 @@ export default function FinalizeStep({
 
             await triggerGoAffProConversionAfterSubscription(subscriptionId);
 
-            toast({
+            offerPostPaymentPdfDownload({
               title: 'Payment successful!',
-              description: 'Business plan activated. Downloading your resume...',
+              description: 'Business plan activated. PDF ready — tap Download PDF below.',
             });
-            
-            // Close payment dialog FIRST to ensure UI updates immediately
-            setShowPaymentDialog(false);
-            setLoadingPlan(null);
-            
-            // Set flag to bypass payment check and retry the download after successful payment
-            setSkipPaymentCheck(true);
-            
-            // Use pendingExportFormat or default to 'pdf' if not set (safeguard)
-            // CRITICAL: If pendingExportFormat is not set, set it to 'pdf' for consistency
-            const exportFormat = pendingExportFormat || 'pdf';
-            if (!pendingExportFormat) {
-              setPendingExportFormat('pdf');
-              console.log('📥 [Business Payment Handler] No pendingExportFormat found - setting to default: pdf');
-            }
-            
-            console.log('📥 [Business Payment Handler] Triggering download after business payment:', {
-              pendingExportFormat,
-              exportFormat,
-              hasPendingFormat: !!pendingExportFormat,
-              willUseDefault: !pendingExportFormat
-            });
-              
-              // Use Promise to properly handle async setTimeout with retry logic
-              const attemptBusinessDownload = async (attempt: number = 1, maxAttempts: number = 3): Promise<void> => {
-                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // 1s, 2s, 3s
-                
-                console.log(`🔄 [Business Payment Handler] Attempting download (attempt ${attempt}/${maxAttempts}) after ${delay}ms delay...`);
-                
-                await new Promise<void>((resolve) => {
-                  setTimeout(async () => {
-                    try {
-                      console.log(`📄 [Business Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
-                      
-                      try {
-                        await handleExport(exportFormat, true); // Pass bypass flag
-                        console.log(`✅ [Business Payment Handler] Download completed successfully on attempt ${attempt}`);
-                        resolve();
-                      } catch (exportError: any) {
-                        console.error(`❌ [Business Payment Handler] handleExport threw error on attempt ${attempt}:`, {
-                          error: exportError,
-                          errorMessage: exportError?.message,
-                          errorStack: exportError?.stack,
-                        });
-                        // Re-throw to trigger retry logic
-                        throw exportError;
-                      }
-                    } catch (error: any) {
-                      const errorMessage = error instanceof Error ? error.message : String(error);
-                      console.warn(`⚠️ [Business Payment Handler] Download attempt ${attempt} failed:`, {
-                        error,
-                        errorMessage
-                      });
-                      
-                      if (attempt < maxAttempts) {
-                        console.log(`🔄 [Business Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
-                        try {
-                          await attemptBusinessDownload(attempt + 1, maxAttempts);
-                          resolve();
-                        } catch (retryError) {
-                          resolve();
-                        }
-                      } else {
-                        console.error('❌ [Business Payment Handler] All download attempts failed after', maxAttempts, 'attempts');
-                        toast({
-                          title: 'Download failed',
-                          description: 'Payment was successful, but download failed. Please try downloading manually.',
-                          variant: 'destructive',
-                        });
-                        resolve();
-                      }
-                    }
-                  }, delay);
-                });
-              };
-              
-              attemptBusinessDownload().catch((error) => {
-                console.error('❌ [Business Payment Handler] Unexpected error in download retry logic:', error);
-                toast({
-                  title: 'Download error',
-                  description: 'Payment was successful, but download failed. Please try downloading manually.',
-                  variant: 'destructive',
-                });
-              });
           } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
             console.error('❌ [Business Payment Handler] Payment verification error:', {
@@ -1979,7 +1974,26 @@ export default function FinalizeStep({
             </p>
           </div>
         </div>
-        <div className="flex justify-center sm:justify-start">
+        <div className="flex flex-col items-center sm:items-start gap-3">
+          {mobilePdfReadyAfterPayment && (
+            <div className="w-full max-w-md rounded-lg border border-green-300 bg-green-50 p-4 text-center sm:text-left">
+              <p className="text-sm font-semibold text-green-900 mb-3">PDF Ready</p>
+              <p className="text-sm text-green-800 mb-4">
+                Your payment is complete. Tap below to save your resume PDF.
+              </p>
+              <Button
+                onClick={() => {
+                  setMobilePdfReadyAfterPayment(false);
+                  void handleExport('pdf', true);
+                }}
+                disabled={exporting !== null}
+                className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download PDF
+              </Button>
+            </div>
+          )}
           <Button
             onClick={() => handleExport('pdf')}
             disabled={exporting !== null}
@@ -2000,8 +2014,6 @@ export default function FinalizeStep({
           </Button>
         </div>
       </div>
-
-      {/* Completion Message */}
       <div className="bg-green-50 rounded-lg border border-green-200 p-6">
         <div className="flex items-start gap-3">
           <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
