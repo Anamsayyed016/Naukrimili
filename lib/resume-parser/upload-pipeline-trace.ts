@@ -108,3 +108,83 @@ export function logFullUploadProvenance(input: {
 }): void {
   logFieldProvenanceReport(buildFieldProvenanceReport(input), `[resume-provenance:${input.reqId}]`);
 }
+
+export interface UploadStageTimings {
+  textExtractionMs?: number;
+  ocrMs?: number;
+  affindaMs?: number;
+  edenMs?: number;
+  apilayerMs?: number;
+  aiExtractionMs?: number;
+  totalProcessingMs?: number;
+  parserBudgetMs?: number;
+  parserBudgetRemainingMs?: number;
+}
+
+/** Tracks per-stage durations for upload pipeline diagnostics. */
+export class UploadPipelineTiming {
+  private readonly pipelineStart = Date.now();
+  readonly stages: UploadStageTimings = {};
+
+  record(stage: keyof UploadStageTimings, ms: number): void {
+    const key = stage as keyof UploadStageTimings;
+    const current = this.stages[key];
+    if (typeof current === 'number') {
+      (this.stages as Record<string, number>)[key] = current + ms;
+    } else {
+      (this.stages as Record<string, number>)[key] = ms;
+    }
+  }
+
+  async measure<T>(stage: keyof UploadStageTimings, fn: () => Promise<T>): Promise<T> {
+    const start = Date.now();
+    try {
+      return await fn();
+    } finally {
+      this.record(stage, Date.now() - start);
+    }
+  }
+
+  finalize(parserBudget?: ParserTimeBudget): void {
+    this.stages.totalProcessingMs = Date.now() - this.pipelineStart;
+    if (parserBudget) {
+      this.stages.parserBudgetMs = parserBudget.budgetMs;
+      this.stages.parserBudgetRemainingMs = parserBudget.remainingMs();
+    }
+  }
+
+  log(reqId: string): void {
+    console.log(`[upload-timing:${reqId}]`, this.stages);
+  }
+}
+
+/** Soft cap for serial document-parser calls — keeps uploads under typical nginx limits. */
+export class ParserTimeBudget {
+  readonly budgetMs: number;
+  private readonly start = Date.now();
+
+  constructor(budgetMs: number) {
+    this.budgetMs = budgetMs;
+  }
+
+  elapsedMs(): number {
+    return Date.now() - this.start;
+  }
+
+  remainingMs(): number {
+    return Math.max(0, this.budgetMs - this.elapsedMs());
+  }
+
+  isExceeded(): boolean {
+    return this.remainingMs() <= 0;
+  }
+
+  shouldRunNextParser(minReserveMs = 5000): boolean {
+    return this.remainingMs() > minReserveMs;
+  }
+}
+
+export function getUploadParserBudgetMs(): number {
+  const parsed = parseInt(process.env.UPLOAD_PARSER_BUDGET_MS || '75000', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 75000;
+}

@@ -20,7 +20,6 @@ import {
   shouldPreferHybridOverAffinda,
 } from '@/lib/resume-parser/map-to-upload-profile';
 import {
-  enrichAffindaWithEden,
   mergeTextRecoveryIntoExtracted,
   resolveDocumentParserAutofill,
 } from '@/lib/resume-parser/merge-resume-data';
@@ -42,6 +41,9 @@ import {
   logFullUploadProvenance,
   logProfileFormDataAudit,
   logUploadPipelineTrace,
+  UploadPipelineTiming,
+  ParserTimeBudget,
+  getUploadParserBudgetMs,
 } from '@/lib/resume-parser/upload-pipeline-trace';
 import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/resume-parser/text-recovery';
 
@@ -61,8 +63,8 @@ const ALLOWED_TYPES = [
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 /** Full-PDF Vision OCR above this size spikes memory and often times out; document parsers handle large files. */
 const OCR_MAX_FILE_BYTES = 3 * 1024 * 1024;
-/** Serial Affinda+Eden (55s each) exceeds gateway limits on heavy uploads when both run. */
-const EDEN_ENRICH_MAX_FILE_BYTES = 4 * 1024 * 1024;
+/** Minimum remaining budget (ms) before starting Hybrid / Enhanced AI extraction. */
+const AI_PARSER_MIN_BUDGET_MS = 12_000;
 
 /**
  * POST /api/resumes/ultimate-upload
@@ -80,6 +82,18 @@ export async function POST(request: NextRequest) {
   };
 
   try {
+    const uploadTiming = new UploadPipelineTiming();
+    const parserBudget = new ParserTimeBudget(getUploadParserBudgetMs());
+    log('upload timeout chain', {
+      nextMaxDurationSec: maxDuration,
+      clientAbortSec: 180,
+      parserBudgetMs: parserBudget.budgetMs,
+      affindaTimeoutMs: parseInt(process.env.AFFINDA_TIMEOUT_MS || '55000', 10),
+      edenTimeoutMs: parseInt(process.env.EDEN_AI_TIMEOUT_MS || '55000', 10),
+      apilayerTimeoutMs: parseInt(process.env.APILAYER_TIMEOUT_MS || '45000', 10),
+      note: 'HTTP 504 is emitted by nginx/proxy when proxy_read_timeout is exceeded before this route returns',
+    });
+
     log('parser environment', {
       affinda: isAffindaEnabled(),
       eden: !!process.env.EDEN_AI_API_KEY,
@@ -172,6 +186,7 @@ export async function POST(request: NextRequest) {
     
     let extractedText: string;
     let ocrApplied = false;
+    const textExtractionStart = Date.now();
     try {
       extractedText = await extractTextFromFile(file, bytes);
       
@@ -222,6 +237,7 @@ export async function POST(request: NextRequest) {
             note: 'Relying on Affinda/document parsers for this upload',
           });
         } else {
+        const ocrStart = Date.now();
         console.warn('⚠️ Low-quality PDF text — attempting OCR recovery...');
         console.log('   - Text starts with:', extractedText.substring(0, 100));
         
@@ -267,6 +283,7 @@ export async function POST(request: NextRequest) {
             hint: 'Set GOOGLE_CLOUD_OCR_API_KEY, GOOGLE_CLOUD_API_KEY, or GOOGLE_VISION_API_KEY',
           });
         }
+        uploadTiming.record('ocrMs', Date.now() - ocrStart);
         }
       } else if (file.type === 'application/pdf' && layoutSignals.scannedLikely) {
         warn('[OCR] skipped: ocr_disabled', {
@@ -316,6 +333,8 @@ export async function POST(request: NextRequest) {
       
       console.log('✅ Continuing with fallback text to allow upload');
     }
+
+    uploadTiming.record('textExtractionMs', Date.now() - textExtractionStart);
 
     const rawPdfText = extractedText;
 
@@ -378,7 +397,9 @@ export async function POST(request: NextRequest) {
         try {
           console.log('🚀 Affinda enabled — trying document parse first...');
           const affindaParser = new AffindaResumeParser();
-          const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
+          const affindaResult = await uploadTiming.measure('affindaMs', () =>
+            affindaParser.parseResume(fileBuffer, file.name)
+          );
           lastAffindaResult = affindaResult;
 
           if (affindaResult.rawText && affindaResult.rawText.length > extractedText.length) {
@@ -394,22 +415,20 @@ export async function POST(request: NextRequest) {
           }
 
           if (isAffindaPrimaryAcceptable(affindaResult, resumeDocumentProfile)) {
-            let enriched: Awaited<ReturnType<typeof enrichAffindaWithEden>>;
-            if (file.size > EDEN_ENRICH_MAX_FILE_BYTES) {
-              log('Skipping Eden enrichment for large file (Affinda primary sufficient)', {
-                fileSizeBytes: file.size,
-                limitBytes: EDEN_ENRICH_MAX_FILE_BYTES,
-              });
-              enriched = {
-                data: affindaResult,
-                provider: 'affinda',
-                affindaData: affindaResult,
-              };
-            } else {
-              enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
-            }
+            log('Skipping Eden enrichment — Affinda primary payload is acceptable', {
+              fileSizeBytes: file.size,
+              experience: affindaResult.experience?.length ?? 0,
+              education: affindaResult.education?.length ?? 0,
+              skills: affindaResult.skills?.length ?? 0,
+              confidence: affindaResult.confidence,
+            });
+            const enriched = {
+              data: affindaResult,
+              provider: 'affinda',
+              affindaData: affindaResult,
+            };
             provenanceAffinda = enriched.affindaData;
-            provenanceEden = enriched.edenData || null;
+            provenanceEden = null;
             parsedData = mapExtractedToUploadProfile(enriched.data, {
               aiProvider: enriched.provider,
             });
@@ -419,7 +438,7 @@ export async function POST(request: NextRequest) {
             console.log(
               '✅ Affinda primary extraction accepted (confidence:',
               affindaResult.confidence,
-              enriched.provider === 'affinda+eden' ? '+ Eden enrichment' : ''
+              ')'
             );
           } else {
             const quality = shouldPreferHybridOverAffinda(affindaResult, resumeDocumentProfile);
@@ -464,7 +483,8 @@ export async function POST(request: NextRequest) {
             lastAffindaResult,
             fileBuffer,
             file.name,
-            extractedText
+            extractedText,
+            { budget: parserBudget, timing: uploadTiming }
           );
           if (docAutofill) {
             provenanceAffinda = docAutofill.affindaData;
@@ -490,6 +510,31 @@ export async function POST(request: NextRequest) {
       }
 
       if (!usedAffindaPrimary && !usedDocumentParser) {
+      if (!parserBudget.shouldRunNextParser(AI_PARSER_MIN_BUDGET_MS)) {
+        warn('Parser budget exceeded — skipping Hybrid AI', {
+          remainingMs: parserBudget.remainingMs(),
+          budgetMs: parserBudget.budgetMs,
+        });
+        hybridSkippedReason = 'parser_budget_exceeded';
+        const docAutofill = await resolveDocumentParserAutofill(
+          lastAffindaResult,
+          fileBuffer,
+          file.name,
+          extractedText,
+          { budget: parserBudget, timing: uploadTiming }
+        );
+        if (docAutofill) {
+          provenanceAffinda = docAutofill.affindaData;
+          provenanceEden = docAutofill.edenData || null;
+          parsedData = mapExtractedToUploadProfile(docAutofill.data, {
+            aiProvider: docAutofill.provider,
+          });
+          aiSuccess = true;
+          aiProvider = docAutofill.provider;
+          usedDocumentParser = true;
+        }
+      } else {
+      const aiExtractionStart = Date.now();
       try {
         // Try HybridResumeAI when document parsers did not produce enough data
         console.log('🚀 Attempting HybridResumeAI extraction with REAL AI...');
@@ -546,7 +591,8 @@ export async function POST(request: NextRequest) {
             lastAffindaResult,
             fileBuffer,
             file.name,
-            extractedText
+            extractedText,
+            { budget: parserBudget, timing: uploadTiming }
           );
           if (docAutofill && hasMinimalAutofillPayload(docAutofill.data)) {
             provenanceAffinda = docAutofill.affindaData;
@@ -723,7 +769,8 @@ export async function POST(request: NextRequest) {
             lastAffindaResult,
             fileBuffer,
             file.name,
-            extractedText
+            extractedText,
+            { budget: parserBudget, timing: uploadTiming }
           );
           if (docAutofill) {
             provenanceAffinda = docAutofill.affindaData;
@@ -744,7 +791,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      if (!usedDocumentParser) {
+      if (!usedDocumentParser && parserBudget.shouldRunNextParser(AI_PARSER_MIN_BUDGET_MS)) {
       console.warn('⚠️ Falling back to EnhancedResumeAI...');
       
       try {
@@ -811,12 +858,11 @@ export async function POST(request: NextRequest) {
                 educationCount: (affindaResult.education || []).length,
               });
               
-              const enriched = await enrichAffindaWithEden(affindaResult, fileBuffer, file.name);
-              parsedData = mapExtractedToUploadProfile(enriched.data, {
-                aiProvider: enriched.provider,
+              parsedData = mapExtractedToUploadProfile(affindaResult, {
+                aiProvider: 'affinda',
               });
               aiSuccess = true;
-              aiProvider = enriched.provider;
+              aiProvider = 'affinda';
               console.log('✅ Affinda parsing successful');
               console.log('   - Confidence:', parsedData.confidence, '%');
               console.log('   - Skills:', parsedData.skills.length);
@@ -835,7 +881,8 @@ export async function POST(request: NextRequest) {
             lastAffindaResult,
             fileBuffer,
             file.name,
-            extractedText
+            extractedText,
+            { budget: parserBudget, timing: uploadTiming }
           );
           if (docAutofill) {
             provenanceAffinda = docAutofill.affindaData;
@@ -850,8 +897,10 @@ export async function POST(request: NextRequest) {
           }
         }
       }
+      }
     }
-    }
+      uploadTiming.record('aiExtractionMs', Date.now() - aiExtractionStart);
+      }
     }
     }
 
@@ -1665,6 +1714,8 @@ export async function POST(request: NextRequest) {
       aiProvider,
       hybridSkippedReason,
     });
+    uploadTiming.finalize(parserBudget);
+    uploadTiming.log(REQ);
     logFullUploadProvenance({
       reqId: REQ,
       affinda: provenanceAffinda,

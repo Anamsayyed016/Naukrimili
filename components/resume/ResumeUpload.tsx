@@ -100,7 +100,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
           throw new Error('File size exceeds maximum limit of 10MB. Please upload a smaller file.');
         } else if (response.status === 504) {
           throw new Error(
-            'Server timed out while parsing your resume. Large or image-heavy PDFs can take longer — please retry or use a smaller file.'
+            'Resume processing exceeded server timeout. Please retry in a moment.'
           );
         } else if (response.status === 401) {
           throw new Error('Please log in to upload your resume.');

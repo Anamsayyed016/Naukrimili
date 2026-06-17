@@ -15,6 +15,7 @@ import {
   isSuspectSummary,
 } from '@/lib/resume-parser/map-to-upload-profile';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
+import type { ParserTimeBudget, UploadPipelineTiming } from '@/lib/resume-parser/upload-pipeline-trace';
 import {
   deriveDisplayNameFromEmail,
   isLikelyJobTitle,
@@ -586,31 +587,10 @@ export async function tryEdenAffindaDocumentParse(
   }
 }
 
-/** Document parsers + text recovery — independent of OpenAI/Gemini quota. */
-export async function resolveDocumentParserAutofill(
+function resolveTextRecoveryAutofill(
   affindaData: ExtractedResumeData | null,
-  fileBuffer: Buffer,
-  fileName: string,
   extractedText: string
-): Promise<(DocumentParserResult & { data: ExtractedResumeData }) | null> {
-  const doc = await tryEdenAffindaDocumentParse(affindaData, fileBuffer, fileName);
-  if (doc) {
-    const withText = mergeTextRecoveryIntoExtracted(doc.data, extractedText);
-    if (hasMinimalAutofillPayload(withText)) {
-      return { ...doc, data: withText };
-    }
-  }
-
-  if (!doc?.provider?.includes('apilayer')) {
-    const apilayerDoc = await tryApilayerDocumentParse(affindaData, fileBuffer, fileName);
-    if (apilayerDoc) {
-      const withText = mergeTextRecoveryIntoExtracted(apilayerDoc.data, extractedText);
-      if (hasMinimalAutofillPayload(withText)) {
-        return { ...apilayerDoc, data: withText };
-      }
-    }
-  }
-
+): (DocumentParserResult & { data: ExtractedResumeData }) | null {
   const affindaTextBase = affindaData
     ? mergeTextRecoveryIntoExtracted(affindaData, extractedText)
     : null;
@@ -632,6 +612,58 @@ export async function resolveDocumentParserAutofill(
   }
 
   return null;
+}
+
+export type DocumentParserAutofillOptions = {
+  budget?: ParserTimeBudget;
+  timing?: UploadPipelineTiming;
+};
+
+/** Document parsers + text recovery — independent of OpenAI/Gemini quota. */
+export async function resolveDocumentParserAutofill(
+  affindaData: ExtractedResumeData | null,
+  fileBuffer: Buffer,
+  fileName: string,
+  extractedText: string,
+  options?: DocumentParserAutofillOptions
+): Promise<(DocumentParserResult & { data: ExtractedResumeData }) | null> {
+  const budget = options?.budget;
+  const timing = options?.timing;
+
+  if (budget && !budget.shouldRunNextParser(8000)) {
+    console.warn('[resume-merge] Parser budget low — skipping Eden/Apilayer, using text recovery');
+    return resolveTextRecoveryAutofill(affindaData, extractedText);
+  }
+
+  let doc: DocumentParserResult | null = null;
+  if (!budget || budget.shouldRunNextParser(8000)) {
+    const edenStart = Date.now();
+    doc = await tryEdenAffindaDocumentParse(affindaData, fileBuffer, fileName);
+    timing?.record('edenMs', Date.now() - edenStart);
+  }
+
+  if (doc) {
+    const withText = mergeTextRecoveryIntoExtracted(doc.data, extractedText);
+    if (hasMinimalAutofillPayload(withText)) {
+      return { ...doc, data: withText };
+    }
+  }
+
+  if (!doc?.provider?.includes('apilayer') && (!budget || budget.shouldRunNextParser(5000))) {
+    const apilayerStart = Date.now();
+    const apilayerDoc = await tryApilayerDocumentParse(affindaData, fileBuffer, fileName);
+    timing?.record('apilayerMs', Date.now() - apilayerStart);
+    if (apilayerDoc) {
+      const withText = mergeTextRecoveryIntoExtracted(apilayerDoc.data, extractedText);
+      if (hasMinimalAutofillPayload(withText)) {
+        return { ...apilayerDoc, data: withText };
+      }
+    }
+  } else if (budget && !budget.shouldRunNextParser(5000)) {
+    console.warn('[resume-merge] Parser budget low — skipping Apilayer');
+  }
+
+  return resolveTextRecoveryAutofill(affindaData, extractedText);
 }
 
 /**
