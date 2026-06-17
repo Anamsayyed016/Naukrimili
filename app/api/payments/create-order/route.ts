@@ -13,9 +13,46 @@ import { INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpa
 import { validateCoupon } from '@/lib/services/coupon-service';
 import { checkPaymentExists, createPayment, findPaymentByOrderId, invalidatePendingPayment } from '@/lib/db-direct';
 import { captureGoAffProRefForPayment } from '@/lib/goaffpro-server';
+import { activateIndividualPlanAdminBypass } from '@/lib/services/payment-service';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { planKey, couponCode } = body;
+
+    if (!planKey || !(planKey in INDIVIDUAL_PLANS)) {
+      return NextResponse.json(
+        { error: 'Invalid plan key' },
+        { status: 400 }
+      );
+    }
+
+    const plan = INDIVIDUAL_PLANS[planKey as IndividualPlanKey];
+
+    if (session.user.role === 'admin') {
+      await activateIndividualPlanAdminBypass({
+        userId: session.user.id,
+        planKey: planKey as IndividualPlanKey,
+        adminUserId: session.user.id,
+      });
+      console.log('🔑 [Create Order] Admin bypass — plan activated without Razorpay:', planKey);
+      return NextResponse.json({
+        adminBypass: true,
+        activated: true,
+        planKey,
+        planType: 'individual',
+        planName: plan.name,
+      });
+    }
+
     // Check for Razorpay configuration
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -54,30 +91,8 @@ export async function POST(request: NextRequest) {
     } else if (isLiveMode) {
       console.log('✅ [Create Order] Using LIVE keys - payments will process real transactions');
     } else {
-      console.warn('⚠️ [Create Order] Unknown key format - key should start with rzp_test_ or rzp_live_');
+      console.warn('⚠️ [Create Order] Unknown key format - key should start with rzp_test_ or rzp_live_'      );
     }
-
-    // Verify authentication
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const { planKey, couponCode } = body;
-
-    // Validate plan key
-    if (!planKey || !(planKey in INDIVIDUAL_PLANS)) {
-      return NextResponse.json(
-        { error: 'Invalid plan key' },
-        { status: 400 }
-      );
-    }
-
-    const plan = INDIVIDUAL_PLANS[planKey as IndividualPlanKey];
 
     let chargeAmount = plan.amount;
     let originalAmount: number | null = null;

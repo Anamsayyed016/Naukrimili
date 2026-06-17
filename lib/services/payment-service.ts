@@ -224,6 +224,45 @@ export async function activateIndividualPlan(params: {
 }
 
 /**
+ * Admin testing bypass — reuses activateIndividualPlan (same entitlements as verify/webhook).
+ */
+export async function activateIndividualPlanAdminBypass(params: {
+  userId: string;
+  planKey: IndividualPlanKey;
+  adminUserId: string;
+}) {
+  const plan = INDIVIDUAL_PLANS[params.planKey];
+  const orderId = `admin_bypass_${params.userId}_${params.planKey}_${Date.now()}`;
+
+  const payment = await prisma.payment.create({
+    data: {
+      userId: params.userId,
+      razorpayOrderId: orderId,
+      razorpayPaymentId: `admin_${orderId}`,
+      planType: 'individual',
+      planName: params.planKey,
+      amount: plan.amount,
+      originalAmount: plan.amount,
+      currency: 'INR',
+      status: 'captured',
+      metadata: {
+        adminBypass: true,
+        bypassedByAdminId: params.adminUserId,
+        bypassedAt: new Date().toISOString(),
+      },
+    },
+  });
+
+  const userCredits = await activateIndividualPlan({
+    userId: params.userId,
+    paymentId: payment.id,
+    planKey: params.planKey,
+  });
+
+  return { payment, userCredits };
+}
+
+/**
  * Activate Business Subscription after successful payment
  */
 export async function activateBusinessSubscription(params: {

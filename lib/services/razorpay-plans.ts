@@ -158,6 +158,18 @@ export function getPlanType(planKey: string): 'individual' | 'business' | null {
   return null;
 }
 
+/** Response from POST /api/payments/create-order when admin bypass activates a plan. */
+export function isAdminPlanBypassResponse(
+  data: Record<string, unknown> | null | undefined
+): data is { adminBypass: true; activated: true; planKey: string } {
+  return Boolean(
+    data &&
+      data.adminBypass === true &&
+      data.activated === true &&
+      typeof data.planKey === 'string'
+  );
+}
+
 export function getListAmountPaise(planKey: string): number | null {
   const planType = getPlanType(planKey);
   if (planType === 'individual') {

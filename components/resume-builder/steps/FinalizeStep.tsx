@@ -18,7 +18,7 @@ import {
 import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building2 } from 'lucide-react';
-import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
+import { INDIVIDUAL_PLANS, BUSINESS_PLANS, isAdminPlanBypassResponse, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
 import {
   triggerGoAffProConversionAfterSubscription,
@@ -1291,6 +1291,16 @@ export default function FinalizeStep({
       } else {
         data = await response.json();
       }
+
+      if (isAdminPlanBypassResponse(data)) {
+        setLoadingPlan(null);
+        offerPostPaymentPdfDownload({
+          title: 'Admin plan activated',
+          description: `${INDIVIDUAL_PLANS[data.planKey as IndividualPlanKey]?.name ?? data.planKey} activated for testing.`,
+        });
+        return;
+      }
+
       const { orderId, amount, keyId } = data;
 
       if (!keyId) {

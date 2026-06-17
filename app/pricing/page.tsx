@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star, Zap, Crown, Building2 } from 'lucide-react';
 import Script from 'next/script';
 import { toast } from 'sonner';
-import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
+import { INDIVIDUAL_PLANS, BUSINESS_PLANS, isAdminPlanBypassResponse, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
 import {
   triggerGoAffProConversionAfterSubscription,
@@ -267,6 +267,15 @@ export default function PricingPage() {
       } else {
         data = await response.json();
       }
+
+      if (isAdminPlanBypassResponse(data)) {
+        setLoading(null);
+        toast.success('Admin plan activated', {
+          description: `${INDIVIDUAL_PLANS[data.planKey as IndividualPlanKey]?.name ?? data.planKey} — same entitlements as a real purchase.`,
+        });
+        return;
+      }
+
       const { orderId, amount, keyId } = data;
 
       if (!keyId) {
