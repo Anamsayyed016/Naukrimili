@@ -25,6 +25,7 @@ import {
   triggerGoAffProConversionAfterVerify,
 } from '@/components/payments/GoAffProConversionTrigger';
 import './finalize-payment-dialog.css';
+import { PDF_PAGINATION_PRINT_CSS } from '@/lib/resume-builder/pdf-pagination-overrides';
 
 declare global {
   interface Window {
@@ -77,9 +78,9 @@ export default function FinalizeStep({
       aiCoverLetterUsage: plan.features.aiCoverLetterUsage === -1 ? 'Unlimited' : plan.features.aiCoverLetterUsage,
       atsOptimization: plan.features.atsOptimization,
       maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
-      unlimitedEdits: plan.features.unlimitedEdits || false,
-      resumeVersionHistory: plan.features.resumeVersionHistory || false,
-      prioritySupport: plan.features.prioritySupport || false,
+      unlimitedEdits: 'unlimitedEdits' in plan.features ? plan.features.unlimitedEdits : false,
+      resumeVersionHistory: 'resumeVersionHistory' in plan.features ? plan.features.resumeVersionHistory : false,
+      prioritySupport: 'prioritySupport' in plan.features ? plan.features.prioritySupport : false,
     },
     popular: plan.popular || false,
     bestValue: (plan as any).bestValue || false,
@@ -590,95 +591,34 @@ export default function FinalizeStep({
         // Add print-specific styles to ensure graphics/colors are preserved
         const printStyles = printWindow.document.createElement('style');
         printStyles.textContent = `
+          ${PDF_PAGINATION_PRINT_CSS}
+
           @media print {
             * {
               -webkit-print-color-adjust: exact !important;
               color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            
+
             body {
               margin: 0;
               padding: 0;
+              width: 100%;
+              overflow: visible;
             }
-            
-            /* A4 width; natural multi-page height */
+
             .resume-container {
               width: 794px !important;
               max-width: 794px !important;
               box-shadow: none !important;
               margin: 0 auto !important;
-              padding: 0 !important;
-              min-height: auto !important;
-              height: auto !important;
-              max-height: none !important;
-              overflow: visible !important;
-              page-break-inside: auto !important;
-              break-inside: auto !important;
-            }
-            
-            /* Preserve layout structure */
-            .resume-wrapper {
-              display: flex !important;
-              min-height: auto !important;
-              width: 100% !important;
-              height: auto !important;
-              page-break-inside: auto !important;
-              break-inside: auto !important;
-            }
-            
-            .sidebar {
-              width: 280px !important;
-              min-width: 280px !important;
-              max-width: 280px !important;
-              flex-shrink: 0 !important;
-              flex-grow: 0 !important;
-              min-height: auto !important;
-              height: auto !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              page-break-inside: auto !important;
-              break-inside: auto !important;
-            }
-            
-            .main-content {
-              flex: 1 !important;
-              flex-grow: 1 !important;
-              flex-shrink: 1 !important;
-              width: auto !important;
-              min-height: auto !important;
-              height: auto !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              page-break-inside: auto !important;
-              break-inside: auto !important;
             }
 
-            .experience-item,
-            .education-item,
-            .project-item,
-            .certification-item,
-            [class*="timeline"] .experience-item {
-              page-break-inside: auto !important;
-              break-inside: auto !important;
-            }
-
-            h2, .section-title, .sidebar-section-title,
-            .experience-header, .duration, .year, .date,
-            .skill-item, .language-item {
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
-            }
-            
-            /* Preserve all background colors and images - DO NOT reset */
             [style*="background"],
             [class*="bg-"],
             [class*="background"],
-            .sidebar,
             .profile-image-wrapper,
             .profile-placeholder,
-            .sidebar-section,
-            .section-title,
             .psp-skill-bar-fill,
             .psp-language-bar-fill,
             .skill-progress,
@@ -686,15 +626,13 @@ export default function FinalizeStep({
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            
-            /* Preserve borders and decorative elements */
+
             [style*="border"],
             [class*="border"] {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            
-            /* Ensure images are visible */
+
             img {
               display: block !important;
               max-width: 100% !important;
@@ -702,22 +640,11 @@ export default function FinalizeStep({
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            
-            /* Preserve SVG graphics */
+
             svg {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-          }
-          
-          @page {
-            size: letter;
-            margin: 0;
-          }
-          
-          body {
-            width: 100%;
-            overflow: visible;
           }
         `;
         printWindow.document.head.appendChild(printStyles);

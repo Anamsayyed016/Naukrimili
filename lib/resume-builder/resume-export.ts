@@ -6,6 +6,7 @@
 import { loadTemplateServer, applyColorVariant, injectResumeData } from './template-loader-server';
 import { resolveColorVariant } from './color-theme';
 import { buildTypographyCss, readTypographyFromFormData } from './typography';
+import { PDF_PAGINATION_EXPORT_CSS } from './pdf-pagination-overrides';
 import type { LoadedTemplate } from './types';
 
 export interface ExportOptions {
@@ -119,11 +120,6 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
            Natural pagination; no forced single-page compression
            ======================================== */
         
-        /* Page margin reset – let .resume-container control spacing */
-        @page {
-          margin: 0;
-        }
-        
         /* Universal Reset */
         *, *::before, *::after {
           box-sizing: border-box !important;
@@ -170,26 +166,6 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           overflow: visible !important;
         }
 
-        /* Templates pin min-height to one A4 page — allow content to flow */
-        .resume-wrapper,
-        .resume-container > *,
-        [class*="-resume"],
-        [class*="-layout"],
-        [class*="-shell"],
-        [class*="-body"],
-        [class*="-columns"],
-        .sidebar,
-        .main-content,
-        .main-column,
-        .content-column,
-        .content-header,
-        header {
-          min-height: auto !important;
-          height: auto !important;
-          max-height: none !important;
-          overflow: visible !important;
-        }
-        
         /* Override CSS Variables with Moderate Values */
         :root {
           --spacing-xl: 22px !important;
@@ -348,67 +324,8 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           print-color-adjust: exact !important;
         }
         
-        /* Multi-page pagination — allow long sections to split naturally */
-        .experience-item,
-        .education-item,
-        .project-item,
-        .certification-item,
-        .achievement-item,
-        .reference-item,
-        [class*="timeline"] .experience-item,
-        [class*="timeline"] .certification-item,
-        [class*="timeline"] .education-item,
-        .experience-list,
-        .education-list,
-        .projects-list,
-        [class*="timeline"],
-        section,
-        .section,
-        .content-section,
-        .sidebar-section {
-          page-break-inside: auto !important;
-          break-inside: auto !important;
-        }
+        ${PDF_PAGINATION_EXPORT_CSS}
 
-        /* Two-column layouts: each column flows independently across pages */
-        .resume-wrapper,
-        .sidebar,
-        .main-content,
-        .main-column {
-          page-break-inside: auto !important;
-          break-inside: auto !important;
-        }
-
-        /* Keep compact units together (headers, badges, small chips) */
-        h1, .name, .header-name,
-        h2, .section-title, .sidebar-section-title,
-        .experience-header,
-        .education-header,
-        .project-header,
-        .duration, .year, .date,
-        .skill-item,
-        .language-item,
-        .hobby-item,
-        .contact-item,
-        .contact-list li {
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-          page-break-after: avoid;
-          break-after: avoid-page;
-        }
-
-        /* Descriptions and list items may continue on the next page */
-        .experience-item .description,
-        .education-item .description,
-        .project-item .description,
-        .certification-item .description,
-        .experience-item li,
-        .project-item li,
-        .education-item li {
-          page-break-inside: auto !important;
-          break-inside: auto !important;
-        }
-        
         /* Ensure visibility */
         img, svg, .icon, .contact-icon {
           -webkit-print-color-adjust: exact !important;

@@ -136,7 +136,7 @@ export function NotificationTestPanel() {
       );
 
       toast.error(`❌ Failed to send notification to ${selectedRole}s`, {
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Unknown error',
         duration: 5000
       });
     } finally {
