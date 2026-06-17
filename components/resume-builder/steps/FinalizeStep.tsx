@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { FileText, CheckCircle2, AlertCircle, X, Download } from 'lucide-react';
@@ -48,6 +48,53 @@ interface PdfDeliveryResult {
   success: boolean;
   error?: string;
   device: PdfDeliveryDeviceInfo;
+  /** Mobile only: blob is ready but needs a fresh user tap (gesture lost after async export). */
+  needsDeferredTap?: boolean;
+}
+
+interface PdfDeliveryOptions {
+  /** Opened synchronously on user tap — keeps mobile gesture for blob navigation. */
+  deliveryWindow?: Window | null;
+}
+
+const ANDROID_BLOB_REVOKE_MS = 15_000;
+const IOS_BLOB_REVOKE_MS = 60_000;
+
+function writeMobilePdfPreparing(win: Window): void {
+  try {
+    win.document.title = 'Resume PDF';
+    win.document.body.innerHTML =
+      '<p style="font-family:system-ui,sans-serif;padding:1rem;margin:0;">Preparing your PDF…</p>';
+  } catch {
+    // cross-origin or closed
+  }
+}
+
+function openPdfBlobInWindow(
+  blob: Blob,
+  win: Window | null | undefined,
+  revokeDelayMs: number
+): boolean {
+  if (!win || win.closed) return false;
+  try {
+    const url = URL.createObjectURL(blob);
+    win.location.href = url;
+    scheduleBlobUrlRevoke(url, revokeDelayMs);
+    return true;
+  } catch (err) {
+    console.warn('⚠️ [PDF Delivery] Failed to open blob in delivery window', err);
+    return false;
+  }
+}
+
+function openMobilePdfDeliveryWindow(): Window | null {
+  try {
+    const win = window.open('about:blank', '_blank');
+    if (win) writeMobilePdfPreparing(win);
+    return win;
+  } catch {
+    return null;
+  }
 }
 
 function getPdfDeliveryDeviceInfo(): PdfDeliveryDeviceInfo {
@@ -142,8 +189,13 @@ function getPdfDeliveryFeedback(
   };
 }
 
-async function deliverPdfBlob(blob: Blob, filename: string): Promise<PdfDeliveryResult> {
+async function deliverPdfBlob(
+  blob: Blob,
+  filename: string,
+  options?: PdfDeliveryOptions
+): Promise<PdfDeliveryResult> {
   const device = getPdfDeliveryDeviceInfo();
+  const deliveryWindow = options?.deliveryWindow;
 
   if (device.deviceType === 'ios') {
     const file = new File([blob], filename, { type: 'application/pdf' });
@@ -154,6 +206,9 @@ async function deliverPdfBlob(blob: Blob, filename: string): Promise<PdfDelivery
     if (canShareFiles) {
       try {
         await navigator.share({ files: [file], title: 'Resume PDF' });
+        if (deliveryWindow && !deliveryWindow.closed) {
+          deliveryWindow.close();
+        }
         const result: PdfDeliveryResult = { method: 'share-files', success: true, device };
         logPdfDeliveryDiagnostics({
           device,
@@ -180,24 +235,129 @@ async function deliverPdfBlob(blob: Blob, filename: string): Promise<PdfDelivery
           });
           return result;
         }
-        console.warn('⚠️ [PDF Delivery] navigator.share failed, opening PDF in same tab', err.message);
+        console.warn(
+          '⚠️ [PDF Delivery] navigator.share failed (gesture may have expired), using blob tab fallback',
+          err.message
+        );
       }
     }
 
+    if (openPdfBlobInWindow(blob, deliveryWindow, IOS_BLOB_REVOKE_MS)) {
+      const result: PdfDeliveryResult = { method: 'open-blob-tab', success: true, device };
+      logPdfDeliveryDiagnostics({
+        device,
+        blobSize: blob.size,
+        method: result.method,
+        success: true,
+        revokeDelayMs: IOS_BLOB_REVOKE_MS,
+      });
+      return result;
+    }
+
+    // Last resort: same-tab PDF viewer (Share → Save to Files in Safari)
+    try {
+      const url = URL.createObjectURL(blob);
+      window.location.assign(url);
+      scheduleBlobUrlRevoke(url, IOS_BLOB_REVOKE_MS);
+      const result: PdfDeliveryResult = { method: 'open-blob-tab', success: true, device };
+      logPdfDeliveryDiagnostics({
+        device,
+        blobSize: blob.size,
+        method: result.method,
+        success: true,
+        revokeDelayMs: IOS_BLOB_REVOKE_MS,
+      });
+      return result;
+    } catch (assignError) {
+      console.warn('⚠️ [PDF Delivery] iOS same-tab fallback failed', assignError);
+    }
+
+    const deferred: PdfDeliveryResult = {
+      method: 'open-blob-tab',
+      success: false,
+      needsDeferredTap: true,
+      device,
+      error: 'needs-user-tap',
+    };
+    logPdfDeliveryDiagnostics({
+      device,
+      blobSize: blob.size,
+      method: deferred.method,
+      success: false,
+      error: deferred.error,
+    });
+    return deferred;
+  }
+
+  if (device.deviceType === 'android') {
     const url = URL.createObjectURL(blob);
-    window.location.assign(url);
-    scheduleBlobUrlRevoke(url, 5000);
-    const result: PdfDeliveryResult = { method: 'open-blob-tab', success: true, device };
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.rel = 'noopener';
+    document.body.appendChild(anchor);
+
+    let clickSuccess = true;
+    try {
+      anchor.click();
+    } catch (clickError: unknown) {
+      clickSuccess = false;
+      console.error('❌ [PDF Delivery] Android anchor.click() failed:', clickError);
+    }
+
+    window.setTimeout(() => {
+      if (anchor.parentNode) {
+        anchor.parentNode.removeChild(anchor);
+      }
+    }, 2000);
+    scheduleBlobUrlRevoke(url, ANDROID_BLOB_REVOKE_MS);
+
+    if (!clickSuccess && openPdfBlobInWindow(blob, deliveryWindow, ANDROID_BLOB_REVOKE_MS)) {
+      const result: PdfDeliveryResult = { method: 'open-blob-tab', success: true, device };
+      logPdfDeliveryDiagnostics({
+        device,
+        blobSize: blob.size,
+        method: result.method,
+        success: true,
+        revokeDelayMs: ANDROID_BLOB_REVOKE_MS,
+      });
+      return result;
+    }
+
+    if (!clickSuccess) {
+      const deferred: PdfDeliveryResult = {
+        method: 'anchor-download',
+        success: false,
+        needsDeferredTap: true,
+        device,
+        error: 'anchor-click-failed',
+      };
+      logPdfDeliveryDiagnostics({
+        device,
+        blobSize: blob.size,
+        method: deferred.method,
+        success: false,
+        error: deferred.error,
+      });
+      return deferred;
+    }
+
+    const result: PdfDeliveryResult = {
+      method: 'anchor-download',
+      success: true,
+      device,
+    };
     logPdfDeliveryDiagnostics({
       device,
       blobSize: blob.size,
       method: result.method,
       success: true,
-      revokeDelayMs: 5000,
+      revokeDelayMs: ANDROID_BLOB_REVOKE_MS,
     });
     return result;
   }
 
+  // Desktop — unchanged anchor download flow
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
@@ -214,8 +374,7 @@ async function deliverPdfBlob(blob: Blob, filename: string): Promise<PdfDelivery
   }
 
   document.body.removeChild(anchor);
-  const revokeDelayMs = device.deviceType === 'android' ? 3000 : 1000;
-  scheduleBlobUrlRevoke(url, revokeDelayMs);
+  scheduleBlobUrlRevoke(url, 1000);
 
   const result: PdfDeliveryResult = {
     method: 'anchor-download',
@@ -229,7 +388,7 @@ async function deliverPdfBlob(blob: Blob, filename: string): Promise<PdfDelivery
     method: result.method,
     success: result.success,
     error: result.error,
-    revokeDelayMs,
+    revokeDelayMs: 1000,
   });
   return result;
 }
@@ -266,6 +425,51 @@ export default function FinalizeStep({
   const [couponQuotes, setCouponQuotes] = useState<Record<string, CouponQuote | null>>({});
   const [skipPaymentCheck, setSkipPaymentCheck] = useState(false); // Bypass payment check after successful payment
   const [mobilePdfReadyAfterPayment, setMobilePdfReadyAfterPayment] = useState(false);
+  const pendingMobilePdfRef = useRef<{ blob: Blob; filename: string } | null>(null);
+
+  const deliverMobilePdfWithFreshGesture = async (): Promise<void> => {
+    const pending = pendingMobilePdfRef.current;
+    if (!pending) {
+      await handleExport('pdf', true);
+      return;
+    }
+
+    setExporting('pdf');
+    const deliveryWindow = isMobilePdfDeliveryDevice() ? openMobilePdfDeliveryWindow() : null;
+
+    try {
+      const delivery = await deliverPdfBlob(pending.blob, pending.filename, { deliveryWindow });
+
+      if (delivery.needsDeferredTap) {
+        toast({
+          title: 'PDF ready',
+          description: 'Allow pop-ups or tap Download PDF again to save your file.',
+        });
+        return;
+      }
+
+      if (!delivery.success) {
+        if (delivery.error === 'cancelled') {
+          toast(getPdfDeliveryFeedback(delivery.device, delivery));
+          return;
+        }
+        throw new Error('PDF delivery failed');
+      }
+
+      pendingMobilePdfRef.current = null;
+      setMobilePdfReadyAfterPayment(false);
+      toast(getPdfDeliveryFeedback(delivery.device, delivery));
+    } catch (error: unknown) {
+      console.error('❌ [PDF Delivery] Deferred mobile delivery failed:', error);
+      toast({
+        title: 'Export failed',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setExporting(null);
+    }
+  };
 
   // Transform plans for UI display (centralized from razorpay-plans.ts)
   const INDIVIDUAL_PLANS_UI = Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
@@ -388,6 +592,8 @@ export default function FinalizeStep({
 
   const handleExport = async (format: 'pdf', bypassPaymentCheck: boolean = false) => {
     setExporting(format);
+
+    const mobileDeliveryWindow = isMobilePdfDeliveryDevice() ? openMobilePdfDeliveryWindow() : null;
 
     try {
       // Check authentication FIRST before any payment checks
@@ -708,7 +914,19 @@ export default function FinalizeStep({
       
       console.log('✅ [Export] Valid PDF received, size:', blob.size, 'bytes');
       const filename = `resume-${templateId}-${Date.now()}.pdf`;
-      const delivery = await deliverPdfBlob(blob, filename);
+      const delivery = await deliverPdfBlob(blob, filename, {
+        deliveryWindow: mobileDeliveryWindow,
+      });
+
+      if (delivery.needsDeferredTap) {
+        pendingMobilePdfRef.current = { blob, filename };
+        setMobilePdfReadyAfterPayment(true);
+        toast({
+          title: 'PDF ready',
+          description: 'Tap Download PDF below to save your file.',
+        });
+        return;
+      }
 
       if (!delivery.success) {
         if (delivery.error === 'cancelled') {
@@ -718,6 +936,7 @@ export default function FinalizeStep({
         throw new Error('PDF delivery failed');
       }
 
+      pendingMobilePdfRef.current = null;
       toast(getPdfDeliveryFeedback(delivery.device, delivery));
       setMobilePdfReadyAfterPayment(false);
       
@@ -768,6 +987,18 @@ export default function FinalizeStep({
         variant: 'destructive',
       });
     } finally {
+      if (mobileDeliveryWindow) {
+        try {
+          if (!mobileDeliveryWindow.closed) {
+            const href = mobileDeliveryWindow.location.href;
+            if (href === 'about:blank' || href.endsWith('about:blank')) {
+              mobileDeliveryWindow.close();
+            }
+          }
+        } catch {
+          // Blob URL loaded — leave the PDF tab open
+        }
+      }
       setExporting(null);
     }
   };
@@ -1983,8 +2214,7 @@ export default function FinalizeStep({
               </p>
               <Button
                 onClick={() => {
-                  setMobilePdfReadyAfterPayment(false);
-                  void handleExport('pdf', true);
+                  void deliverMobilePdfWithFreshGesture();
                 }}
                 disabled={exporting !== null}
                 className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold"
