@@ -23,11 +23,39 @@ import {
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { ALL_PLAN_KEYS } from '@/lib/services/razorpay-plans';
 import { CouponPlanChips } from './CouponPlanChips';
 import { CouponPreviewCard } from './CouponPreviewCard';
 
 function normalizeCode(code: string) {
   return code.trim().toUpperCase();
+}
+
+function toIsoDateTime(value: string): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error('Valid From and Valid Until must be valid dates');
+  }
+  return parsed.toISOString();
+}
+
+function getDefaultFormValues(): CouponFormValues {
+  return {
+    code: '',
+    name: '',
+    notes: '',
+    discountType: 'percentage',
+    discountValue: 10,
+    maxDiscountAmount: null,
+    minOrderAmount: null,
+    applicablePlanKeys: [...ALL_PLAN_KEYS],
+    maxRedemptions: 100,
+    maxRedemptionsPerUser: 1,
+    validFrom: new Date().toISOString().slice(0, 16),
+    validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
+    isActive: true,
+    redemptionCount: 0,
+  };
 }
 
 export interface CouponFormValues {
@@ -55,28 +83,11 @@ interface CouponFormDialogProps {
   initial?: CouponFormValues | null;
 }
 
-const defaultValues: CouponFormValues = {
-  code: '',
-  name: '',
-  notes: '',
-  discountType: 'percentage',
-  discountValue: 10,
-  maxDiscountAmount: null,
-  minOrderAmount: null,
-  applicablePlanKeys: [],
-  maxRedemptions: 100,
-  maxRedemptionsPerUser: 1,
-  validFrom: new Date().toISOString().slice(0, 16),
-  validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
-  isActive: true,
-  redemptionCount: 0,
-};
-
 const labelClass = 'text-sm font-medium text-gray-700';
 const fieldClass = 'border-gray-300 bg-white text-gray-900 placeholder:text-gray-400';
 
 export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFormDialogProps) {
-  const [form, setForm] = useState<CouponFormValues>(defaultValues);
+  const [form, setForm] = useState<CouponFormValues>(getDefaultFormValues);
   const [loading, setLoading] = useState(false);
   const [unlimitedUsage, setUnlimitedUsage] = useState(false);
   const isEdit = Boolean(initial?.id);
@@ -99,7 +110,7 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
         });
         setUnlimitedUsage(initial.maxRedemptions == null);
       } else {
-        setForm(defaultValues);
+        setForm(getDefaultFormValues());
         setUnlimitedUsage(false);
       }
     }
@@ -132,6 +143,14 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
       toast({ title: 'Error', description: 'Select at least one plan', variant: 'destructive' });
       return;
     }
+    if (!Number.isFinite(form.discountValue) || form.discountValue <= 0) {
+      toast({
+        title: 'Error',
+        description: 'Discount value must be greater than zero',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -152,8 +171,8 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
         applicablePlanKeys: form.applicablePlanKeys,
         maxRedemptions: unlimitedUsage ? null : form.maxRedemptions,
         maxRedemptionsPerUser: form.maxRedemptionsPerUser,
-        validFrom: new Date(form.validFrom).toISOString(),
-        validUntil: new Date(form.validUntil).toISOString(),
+        validFrom: toIsoDateTime(form.validFrom),
+        validUntil: toIsoDateTime(form.validUntil),
         isActive: form.isActive,
       };
 
@@ -162,12 +181,16 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
 
       const res = await fetch(url, {
         method,
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
+      const data = (await res.json().catch(() => ({}))) as {
+        success?: boolean;
+        error?: string;
+      };
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to save coupon');
+        throw new Error(data.error || `Failed to save coupon (${res.status})`);
       }
       toast({ title: 'Success', description: isEdit ? 'Coupon updated' : 'Coupon created' });
       onSuccess();
@@ -384,10 +407,21 @@ export function CouponFormDialog({ open, onClose, onSuccess, initial }: CouponFo
         </div>
 
         <DialogFooter className="shrink-0 gap-2 border-t border-gray-200 bg-white px-6 py-4 sm:gap-0">
-          <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-gray-600 hover:text-gray-900"
+            onClick={onClose}
+            disabled={loading}
+          >
             Cancel
           </Button>
-          <Button type="button" onClick={() => void handleSubmit()} disabled={loading}>
+          <Button
+            type="button"
+            className="bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm"
+            onClick={() => void handleSubmit()}
+            disabled={loading}
+          >
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             {isEdit ? 'Save Changes' : 'Create Coupon'}
           </Button>

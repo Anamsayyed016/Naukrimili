@@ -18,8 +18,8 @@ const updateSchema = z.object({
   applicablePlanKeys: z.array(z.string()).min(1).optional(),
   maxRedemptions: z.number().int().positive().optional().nullable(),
   maxRedemptionsPerUser: z.number().int().min(1).optional(),
-  validFrom: z.string().datetime().optional(),
-  validUntil: z.string().datetime().optional(),
+  validFrom: z.string().min(1).optional(),
+  validUntil: z.string().min(1).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -30,7 +30,7 @@ export async function GET(
   try {
     const auth = await requireAdminAuth();
     if ('error' in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const { id } = await params;
@@ -70,7 +70,7 @@ export async function PATCH(
   try {
     const auth = await requireAdminAuth();
     if ('error' in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const { id } = await params;
@@ -95,8 +95,26 @@ export async function PATCH(
       }
       data.applicablePlanKeys = validKeys;
     }
-    if (parsed.validFrom) data.validFrom = new Date(parsed.validFrom);
-    if (parsed.validUntil) data.validUntil = new Date(parsed.validUntil);
+    if (parsed.validFrom) {
+      const validFrom = new Date(parsed.validFrom);
+      if (Number.isNaN(validFrom.getTime())) {
+        return NextResponse.json(
+          { success: false, error: 'Valid From must be a valid date' },
+          { status: 400 }
+        );
+      }
+      data.validFrom = validFrom;
+    }
+    if (parsed.validUntil) {
+      const validUntil = new Date(parsed.validUntil);
+      if (Number.isNaN(validUntil.getTime())) {
+        return NextResponse.json(
+          { success: false, error: 'Valid Until must be a valid date' },
+          { status: 400 }
+        );
+      }
+      data.validUntil = validUntil;
+    }
 
     const coupon = await prisma.coupon.update({
       where: { id },
@@ -123,7 +141,7 @@ export async function DELETE(
   try {
     const auth = await requireAdminAuth();
     if ('error' in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const { id } = await params;

@@ -35,7 +35,7 @@ function AdminCouponsPageContent() {
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
     try {
-      const res = await fetch('/api/admin/coupons/stats');
+      const res = await fetch('/api/admin/coupons/stats', { credentials: 'include' });
       const data = await res.json();
       if (data.success) setStats(data.data);
     } catch {
@@ -55,7 +55,7 @@ function AdminCouponsPageContent() {
         ...(search ? { search } : {}),
         ...(status !== 'all' ? { status } : {}),
       });
-      const res = await fetch(`/api/admin/coupons?${params}`);
+      const res = await fetch(`/api/admin/coupons?${params}`, { credentials: 'include' });
       const data = await res.json();
       if (data.success) {
         setCoupons(data.data.coupons);
@@ -78,7 +78,7 @@ function AdminCouponsPageContent() {
 
   const handleEdit = async (id: string) => {
     try {
-      const res = await fetch(`/api/admin/coupons/${id}`);
+      const res = await fetch(`/api/admin/coupons/${id}`, { credentials: 'include' });
       const data = await res.json();
       if (data.success) {
         const c = data.data;
@@ -109,7 +109,10 @@ function AdminCouponsPageContent() {
   const handleDeactivate = async (id: string) => {
     if (!confirm('Deactivate this coupon?')) return;
     try {
-      const res = await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/coupons/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
       const data = await res.json();
       if (data.success) {
         toast({ title: 'Coupon deactivated' });

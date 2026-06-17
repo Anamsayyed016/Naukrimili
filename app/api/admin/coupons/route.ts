@@ -23,8 +23,8 @@ const couponSchema = z.object({
   applicablePlanKeys: z.array(z.string()).min(1),
   maxRedemptions: z.number().int().positive().optional().nullable(),
   maxRedemptionsPerUser: z.number().int().min(1).default(1),
-  validFrom: z.string().datetime(),
-  validUntil: z.string().datetime(),
+  validFrom: z.string().min(1),
+  validUntil: z.string().min(1),
   isActive: z.boolean().default(true),
 });
 
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
   try {
     const auth = await requireAdminAuth();
     if ('error' in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const { searchParams } = new URL(request.url);
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
   try {
     const auth = await requireAdminAuth();
     if ('error' in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const body = await request.json();
@@ -148,6 +148,12 @@ export async function POST(request: NextRequest) {
 
     const validFrom = new Date(parsed.validFrom);
     const validUntil = new Date(parsed.validUntil);
+    if (Number.isNaN(validFrom.getTime()) || Number.isNaN(validUntil.getTime())) {
+      return NextResponse.json(
+        { success: false, error: 'Valid From and Valid Until must be valid dates' },
+        { status: 400 }
+      );
+    }
     if (validUntil <= validFrom) {
       return NextResponse.json(
         { success: false, error: 'End date must be after start date' },
