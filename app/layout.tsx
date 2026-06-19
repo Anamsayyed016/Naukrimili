@@ -465,6 +465,7 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_GOAFFPRO_ENABLED === 'true' &&
           process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID && (
           <script
+            async
             type="text/javascript"
             src={`https://api.goaffpro.com/loader.js?shop=${encodeURIComponent(process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID)}`}
           />
