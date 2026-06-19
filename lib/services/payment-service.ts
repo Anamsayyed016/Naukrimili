@@ -5,8 +5,15 @@
 
 import { prisma } from '@/lib/prisma';
 import { isAiPaymentBypassEnabled } from '@/lib/ai-payment-bypass';
-import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from './razorpay-plans';
-import { findUserCredits } from '@/lib/db-direct';
+import {
+  INDIVIDUAL_PLANS,
+  BUSINESS_PLANS,
+  PLAN_DISPLAY_NAMES,
+  type IndividualPlanKey,
+  type BusinessPlanKey,
+  type PlanKey,
+} from './razorpay-plans';
+import { findUserCredits, incrementPdfDownloadUsage } from '@/lib/db-direct';
 import { isPaymentBypassAdmin } from '@/lib/auth-utils';
 
 /** Reuses existing Settings table — no schema migration. */
@@ -23,6 +30,52 @@ function calendarDayKey(date = new Date()): string {
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
+}
+
+export function getPdfDownloadQuota(credits: Record<string, unknown>): {
+  used: number;
+  limit: number;
+  remaining: number;
+} {
+  const used = Number(credits.pdfDownloads) || 0;
+  const limit = Number(credits.pdfDownloadsLimit) || 0;
+  return {
+    used,
+    limit,
+    remaining: Math.max(0, limit - used),
+  };
+}
+
+export function resolvePlanDisplayName(planKey: string | null | undefined): string {
+  if (!planKey) return 'Current plan';
+  return PLAN_DISPLAY_NAMES[planKey as PlanKey] || planKey.replace(/_/g, ' ');
+}
+
+export function formatPdfDownloadLimitMessage(
+  planKey: string | null | undefined,
+  used: number,
+  limit: number
+): string {
+  const planName = resolvePlanDisplayName(planKey);
+  const downloadWord = limit === 1 ? 'download' : 'downloads';
+  return `You have used all ${limit} PDF ${downloadWord} included in your ${planName} plan.`;
+}
+
+export function buildPdfDownloadLimitPayload(credits: Record<string, unknown>) {
+  const { used, limit } = getPdfDownloadQuota(credits);
+  const planKey = typeof credits.planName === 'string' ? credits.planName : undefined;
+  const planName = resolvePlanDisplayName(planKey);
+  return {
+    error: formatPdfDownloadLimitMessage(planKey, used, limit),
+    requiresPayment: true,
+    downloadLimitReached: true,
+    downloadsUsed: used,
+    downloadsAllowed: limit,
+    planName,
+    planKey,
+    title: 'PDF Download Limit Reached',
+    description: 'You have used all downloads included in your current plan.',
+  };
 }
 
 function planHasAtsFeature(ats: string | boolean | undefined): boolean {
@@ -620,6 +673,11 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
   reason?: string;
   remaining?: number;
   dailyLimitReached?: boolean;
+  downloadLimitReached?: boolean;
+  downloadsUsed?: number;
+  downloadsAllowed?: number;
+  planName?: string;
+  planKey?: string;
 }> {
   const validity = await checkIndividualPlanValidity(userId);
   
@@ -628,24 +686,45 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
     return { allowed: false, reason: 'No active plan or plan expired' };
   }
 
-  const credits = validity.credits;
+  const credits = validity.credits as Record<string, unknown>;
   const planKey = credits.planName as keyof typeof INDIVIDUAL_PLANS;
   const plan = planKey ? INDIVIDUAL_PLANS[planKey] : null;
 
-  // Check total PDF download limit (use pdfDownloads, not resumeDownloads)
-  const remaining = credits.pdfDownloadsLimit - credits.pdfDownloads;
+  const { used, limit, remaining } = getPdfDownloadQuota(credits);
   
   console.log(`🔍 [canDownloadResume] Checking download limit for user ${userId}:`, {
     planName: credits.planName,
-    pdfDownloads: credits.pdfDownloads,
-    pdfDownloadsLimit: credits.pdfDownloadsLimit,
-    remaining: remaining,
+    pdfDownloads: used,
+    pdfDownloadsLimit: limit,
+    remaining,
     planFeatures: plan?.features,
   });
   
-  if (remaining <= 0) {
-    console.log(`❌ [canDownloadResume] Download limit reached for user ${userId}: ${credits.pdfDownloads}/${credits.pdfDownloadsLimit}`);
-    return { allowed: false, reason: 'Download limit reached', remaining: 0 };
+  if (limit <= 0) {
+    return {
+      allowed: false,
+      reason: 'No PDF downloads included in your current plan.',
+      remaining: 0,
+      downloadLimitReached: true,
+      downloadsUsed: used,
+      downloadsAllowed: limit,
+      planName: resolvePlanDisplayName(String(credits.planName ?? '')),
+      planKey: String(credits.planName ?? ''),
+    };
+  }
+
+  if (used >= limit) {
+    console.log(`❌ [canDownloadResume] Download limit reached for user ${userId}: ${used}/${limit}`);
+    return {
+      allowed: false,
+      reason: formatPdfDownloadLimitMessage(String(credits.planName ?? ''), used, limit),
+      remaining: 0,
+      downloadLimitReached: true,
+      downloadsUsed: used,
+      downloadsAllowed: limit,
+      planName: resolvePlanDisplayName(String(credits.planName ?? '')),
+      planKey: String(credits.planName ?? ''),
+    };
   }
 
   // Check daily limit if plan has maxDownloadsPerDay
@@ -1026,19 +1105,32 @@ export async function incrementUsage(userId: string, action: 'resumeDownload' | 
       }
       updateData.aiCoverLetterUsage = { increment: 1 };
       break;
-    case 'pdfDownload':
-      // CRITICAL FIX: Validate PDF download limit BEFORE incrementing
-      // This prevents race conditions and ensures limits are enforced
-      if (credits.pdfDownloads >= credits.pdfDownloadsLimit) {
-        console.error(`❌ [Payment Service] PDF download limit reached: ${credits.pdfDownloads}/${credits.pdfDownloadsLimit} for user ${userId}`);
-        console.error(`   Plan: ${credits.planName}, PlanType: ${credits.planType}`);
-        throw new Error(`PDF download limit reached. Used: ${credits.pdfDownloads}, Limit: ${credits.pdfDownloadsLimit}`);
+    case 'pdfDownload': {
+      const quota = getPdfDownloadQuota(credits as Record<string, unknown>);
+      if (quota.used >= quota.limit) {
+        console.error(
+          `❌ [Payment Service] PDF download limit reached: ${quota.used}/${quota.limit} for user ${userId}`
+        );
+        throw new Error(
+          formatPdfDownloadLimitMessage(String(credits.planName ?? ''), quota.used, quota.limit)
+        );
       }
-      
-      console.log(`✅ [Payment Service] Incrementing PDF download: ${credits.pdfDownloads + 1}/${credits.pdfDownloadsLimit} for user ${userId}`);
-      updateData.pdfDownloads = { increment: 1 };
-      updateData.resumeDownloads = { increment: 1 };
-      break;
+
+      const incremented = await incrementPdfDownloadUsage(userId);
+      if (!incremented.success || !incremented.row) {
+        console.error(`❌ [Payment Service] Atomic PDF increment failed for user ${userId}`);
+        throw new Error('PDF download limit reached');
+      }
+
+      if (credits.planType === 'individual') {
+        await recordIndividualDailyPdfDownload(userId);
+      }
+
+      console.log(
+        `✅ [Payment Service] Incremented PDF download via DB: ${Number(incremented.row.pdfDownloads)}/${Number(incremented.row.pdfDownloadsLimit)} for user ${userId}`
+      );
+      return incremented.row;
+    }
     case 'docxDownload':
       // Check if limit reached
       if (credits.docxDownloads >= credits.docxDownloadsLimit) {
@@ -1056,10 +1148,6 @@ export async function incrementUsage(userId: string, action: 'resumeDownload' | 
       data: updateData,
     });
 
-    if (action === 'pdfDownload' && credits.planType === 'individual') {
-      await recordIndividualDailyPdfDownload(userId);
-    }
-    
     // Log successful increment
     console.log(`✅ [Payment Service] Successfully incremented ${action} for user ${userId}`);
     

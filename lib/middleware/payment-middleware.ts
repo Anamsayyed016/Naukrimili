@@ -30,6 +30,11 @@ export async function checkResumeAccess(userId: string, action: 'download' | 'ai
   daysRemaining?: number;
   dailyLimitReached?: boolean;
   perResumeLimitReached?: boolean;
+  downloadLimitReached?: boolean;
+  downloadsUsed?: number;
+  downloadsAllowed?: number;
+  planName?: string;
+  planKey?: string;
 }> {
   if (isAiResumePaymentAction(action) && isAiPaymentBypassEnabled()) {
     logAiPaymentBypassIfActive(action);
@@ -108,6 +113,12 @@ export async function checkResumeAccess(userId: string, action: 'download' | 'ai
       reason: downloadCheck.reason,
       daysRemaining: individualCheck.daysRemaining,
       creditsRemaining: downloadCheck.remaining,
+      dailyLimitReached: downloadCheck.dailyLimitReached,
+      downloadLimitReached: downloadCheck.downloadLimitReached,
+      downloadsUsed: downloadCheck.downloadsUsed,
+      downloadsAllowed: downloadCheck.downloadsAllowed,
+      planName: downloadCheck.planName,
+      planKey: downloadCheck.planKey,
     };
   } else if (action === 'aiResume' || action === 'aiCoverLetter') {
     const aiCheck = await canUseAI(userId, action === 'aiResume' ? 'resume' : 'coverLetter');

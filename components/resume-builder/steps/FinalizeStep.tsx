@@ -18,7 +18,7 @@ import {
 import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building2 } from 'lucide-react';
-import { INDIVIDUAL_PLANS, BUSINESS_PLANS, isAdminPlanBypassResponse, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
+import { INDIVIDUAL_PLANS, BUSINESS_PLANS, PLAN_DISPLAY_NAMES, isAdminPlanBypassResponse, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
 import {
   triggerGoAffProConversionAfterSubscription,
@@ -479,6 +479,12 @@ export default function FinalizeStep({
   const [atsScore, setAtsScore] = useState(0);
   const [exporting, setExporting] = useState<'pdf' | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showDownloadLimitDialog, setShowDownloadLimitDialog] = useState(false);
+  const [downloadLimitInfo, setDownloadLimitInfo] = useState<{
+    downloadsUsed: number;
+    downloadsAllowed: number;
+    planName: string;
+  } | null>(null);
   const [pendingExportFormat, setPendingExportFormat] = useState<'pdf' | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -487,6 +493,25 @@ export default function FinalizeStep({
   const [skipPaymentCheck, setSkipPaymentCheck] = useState(false); // Bypass payment check after successful payment
   const [mobilePdfReadyAfterPayment, setMobilePdfReadyAfterPayment] = useState(false);
   const pendingMobilePdfRef = useRef<{ blob: Blob; filename: string } | null>(null);
+
+  const openPdfDownloadLimitDialog = (info: {
+    downloadsUsed?: number;
+    downloadsAllowed?: number;
+    planName?: string;
+    planKey?: string;
+  }) => {
+    const planKey = info.planKey;
+    const resolvedPlanName =
+      info.planName ||
+      (planKey ? PLAN_DISPLAY_NAMES[planKey as IndividualPlanKey] ?? planKey.replace(/_/g, ' ') : 'Current plan');
+    setDownloadLimitInfo({
+      downloadsUsed: info.downloadsUsed ?? 0,
+      downloadsAllowed: info.downloadsAllowed ?? 0,
+      planName: resolvedPlanName,
+    });
+    setShowDownloadLimitDialog(true);
+    setExporting(null);
+  };
 
   const deliverMobilePdfWithFreshGesture = async (): Promise<void> => {
     const pending = pendingMobilePdfRef.current;
@@ -832,10 +857,12 @@ export default function FinalizeStep({
               
               // Check if credits are exhausted
               if (!pdfCredits.remaining || pdfCredits.remaining <= 0) {
-                console.log('💳 [Export] Individual plan - no PDF credits remaining - showing payment dialog');
-                setPendingExportFormat(format);
-                setShowPaymentDialog(true);
-                setExporting(null);
+                console.log('🚫 [Export] Individual plan - PDF download limit reached');
+                openPdfDownloadLimitDialog({
+                  downloadsUsed: pdfCredits.used,
+                  downloadsAllowed: pdfCredits.limit,
+                  planKey: paymentStatus.planName,
+                });
                 return;
               }
             } else {
@@ -909,6 +936,18 @@ export default function FinalizeStep({
           console.error('❌ [Export] Failed to parse error response:', parseError);
         }
         
+        // Download quota exhausted on an active plan — not a new purchase flow
+        if (error.downloadLimitReached) {
+          console.log('🚫 [Export] PDF download limit reached', error);
+          openPdfDownloadLimitDialog({
+            downloadsUsed: error.downloadsUsed,
+            downloadsAllowed: error.downloadsAllowed,
+            planName: error.planName,
+            planKey: error.planKey,
+          });
+          return;
+        }
+
         // Check if payment is required (backend check) - ALWAYS handle this first
         if (error.requiresPayment || response.status === 403 || response.status === 401) {
           console.log('💳 [Export] Backend requires payment - showing payment dialog', { 
@@ -940,6 +979,17 @@ export default function FinalizeStep({
         const responseText = await response.text();
         try {
           const errorData = JSON.parse(responseText);
+          // Check if it's a download limit error
+          if (errorData.downloadLimitReached) {
+            console.log('🚫 [Export] Download limit in non-PDF response');
+            openPdfDownloadLimitDialog({
+              downloadsUsed: errorData.downloadsUsed,
+              downloadsAllowed: errorData.downloadsAllowed,
+              planName: errorData.planName,
+              planKey: errorData.planKey,
+            });
+            return;
+          }
           // Check if it's a payment error
           if (errorData.requiresPayment || errorData.error === 'Unauthorized') {
             console.log('💳 [Export] Invalid content type but payment error detected - showing payment dialog');
@@ -1933,6 +1983,42 @@ export default function FinalizeStep({
           }
         }}
       />
+
+      {/* PDF download limit dialog */}
+      <Dialog open={showDownloadLimitDialog} onOpenChange={setShowDownloadLimitDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>PDF Download Limit Reached</DialogTitle>
+            <DialogDescription>
+              You have used all downloads included in your current plan.
+            </DialogDescription>
+          </DialogHeader>
+          {downloadLimitInfo && (
+            <div className="space-y-3 text-sm text-gray-700">
+              <p>
+                <span className="font-medium">Downloads used:</span>{' '}
+                {downloadLimitInfo.downloadsUsed} / {downloadLimitInfo.downloadsAllowed}
+              </p>
+              <p>
+                <span className="font-medium">Current plan:</span> {downloadLimitInfo.planName}
+              </p>
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setShowDownloadLimitDialog(false)}>
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setShowDownloadLimitDialog(false);
+                setShowPaymentDialog(true);
+              }}
+            >
+              Upgrade Plan
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>

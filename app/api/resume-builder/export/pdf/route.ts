@@ -17,7 +17,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { generateExportHTML } from '@/lib/resume-builder/resume-export';
 import { checkResumeAccess } from '@/lib/middleware/payment-middleware';
-import { incrementUsage, deductResumeCredits } from '@/lib/services/payment-service';
+import { incrementUsage, deductResumeCredits, buildPdfDownloadLimitPayload, checkIndividualPlanValidity } from '@/lib/services/payment-service';
 import { checkBusinessSubscription } from '@/lib/services/payment-service';
 import { isPaymentBypassAdmin } from '@/lib/auth-utils';
 
@@ -111,6 +111,15 @@ export async function POST(request: NextRequest) {
       }
       
       if (!accessCheck.allowed) {
+        const limitPayload = accessCheck.downloadLimitReached
+          ? {
+              ...buildPdfDownloadLimitPayload({
+                planName: accessCheck.planKey,
+                pdfDownloads: accessCheck.downloadsUsed ?? 0,
+                pdfDownloadsLimit: accessCheck.downloadsAllowed ?? 0,
+              }),
+            }
+          : {};
         return NextResponse.json(
           { 
             error: accessCheck.reason || 'Download limit reached',
@@ -119,6 +128,11 @@ export async function POST(request: NextRequest) {
             creditsRemaining: accessCheck.creditsRemaining,
             dailyLimitReached: accessCheck.dailyLimitReached,
             perResumeLimitReached: accessCheck.perResumeLimitReached,
+            downloadLimitReached: accessCheck.downloadLimitReached,
+            downloadsUsed: accessCheck.downloadsUsed,
+            downloadsAllowed: accessCheck.downloadsAllowed,
+            planName: accessCheck.planName,
+            ...limitPayload,
           },
           { 
             status: 403,
@@ -457,7 +471,6 @@ export async function POST(request: NextRequest) {
         const businessCheck = await checkBusinessSubscription(session.user.id, resumeId);
         if (businessCheck.isActive && businessCheck.subscription) {
           planType = 'business';
-          // Business plan: deduct credits with resumeId for per-resume tracking
           await deductResumeCredits({
             userId: session.user.id,
             credits: 1,
@@ -468,32 +481,40 @@ export async function POST(request: NextRequest) {
           console.log('✅ [PDF Export] Business plan credits deducted successfully');
         } else {
           planType = 'individual';
-          // Individual plan: increment usage counter
-          // CRITICAL: This should never fail if pre-download check worked correctly
-          // If it fails, it means limit was reached between check and increment (race condition)
           await incrementUsage(session.user.id, 'pdfDownload');
           console.log('✅ [PDF Export] Individual plan usage incremented successfully');
         }
       } catch (creditError: any) {
-        // CRITICAL ERROR: Credit deduction/increment failed
-        // This could indicate:
-        // 1. Limit was reached between check and increment (race condition)
-        // 2. Database issue
-        // 3. Logic error in incrementUsage
-        console.error('❌ [PDF Export] CRITICAL: Credit deduction/increment failed:', {
+        console.error('❌ [PDF Export] Credit deduction/increment failed:', {
           error: creditError.message,
           userId: session.user.id,
-          planType: planType,
-          stack: creditError.stack,
+          planType,
         });
-        
-        // Log this as a critical issue that needs investigation
-        // The PDF was already sent, so we can't fail the request
-        // But this should be investigated to prevent abuse
-        console.error('🚨 [PDF Export] SECURITY WARNING: PDF was sent but credit deduction failed. This may indicate a race condition or limit bypass.');
-        
-        // Don't fail the request since PDF is already generated and sent
-        // But log it for investigation
+
+        let limitPayload: Record<string, unknown> = {
+          error: creditError.message || 'PDF download limit reached',
+          requiresPayment: true,
+          downloadLimitReached: true,
+          title: 'PDF Download Limit Reached',
+          description: 'You have used all downloads included in your current plan.',
+        };
+
+        if (planType === 'individual') {
+          const validity = await checkIndividualPlanValidity(session.user.id);
+          if (validity.credits) {
+            limitPayload = {
+              ...buildPdfDownloadLimitPayload(validity.credits as Record<string, unknown>),
+              error: creditError.message || limitPayload.error,
+            };
+          }
+        }
+
+        return NextResponse.json(limitPayload, {
+          status: 403,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
       }
     } else {
       console.log('🔑 [PDF Export] Admin user - skipping credit deduction');
