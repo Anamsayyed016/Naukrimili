@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,15 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import { motion, AnimatePresence } from "framer-motion";
 import { Z_INDEX } from "@/lib/utils";
 import { useResponsive } from "@/components/ui/use-mobile";
+import {
+  EMPLOYER_JOB_TYPES,
+  EMPLOYER_EXPERIENCE_LEVELS,
+  EMPLOYER_JOB_SECTORS,
+  normalizeEmployerJobType,
+  normalizeEmployerExperienceLevel,
+  normalizeEmployerJobSector,
+  withLegacyOption,
+} from "@/lib/jobs/employer-job-form-options";
 
 interface JobFormData {
   title: string;
@@ -52,14 +61,6 @@ interface JobFormData {
   sector: string;
   skills: string[];
   applicationDeadline: string;
-}
-
-interface DynamicOptions {
-  jobTypes: Array<{ value: string; label: string; count: number }>;
-  experienceLevels: Array<{ value: string; label: string; count: number }>;
-  sectors: Array<{ value: string; label: string; count: number }>;
-  skills: Array<{ value: string; label: string; count: number }>;
-  locations: Array<{ value: string; label: string; count: number }>;
 }
 
 interface AISuggestions {
@@ -82,7 +83,6 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   const [fetching, setFetching] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [dynamicOptions, setDynamicOptions] = useState<DynamicOptions | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
   
@@ -115,6 +115,19 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   });
 
   const [skillsInput, setSkillsInput] = useState('');
+
+  const jobTypeOptions = useMemo(
+    () => withLegacyOption(EMPLOYER_JOB_TYPES, formData.jobType),
+    [formData.jobType]
+  );
+  const experienceLevelOptions = useMemo(
+    () => withLegacyOption(EMPLOYER_EXPERIENCE_LEVELS, formData.experienceLevel),
+    [formData.experienceLevel]
+  );
+  const sectorOptions = useMemo(
+    () => withLegacyOption(EMPLOYER_JOB_SECTORS, formData.sector),
+    [formData.sector]
+  );
   
   // Refs for debouncing dynamic AI suggestions  
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -130,9 +143,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     console.log('📍 useEffect[jobId] triggered, jobId:', jobId);
     
     if (jobId) {
-      console.log('✅ JobId exists, fetching job and options');
+      console.log('✅ JobId exists, fetching job');
       fetchJob();
-      fetchDynamicOptions();
     } else {
       console.log('⚠️ No jobId yet, waiting...');
       // Don't set fetching to false here - wait for jobId to be available
@@ -390,8 +402,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           title: job.title || '',
           location: job.location || '',
           country: job.country || 'IN',
-          jobType: job.jobType || '',
-          experienceLevel: job.experienceLevel || '',
+          jobType: normalizeEmployerJobType(job.jobType || ''),
+          experienceLevel: normalizeEmployerExperienceLevel(job.experienceLevel || ''),
           salary: job.salary || '',
           description: job.description || '',
           requirements: requirements,
@@ -400,7 +412,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           isHybrid: job.isHybrid || false,
           isUrgent: job.isUrgent || false,
           isFeatured: job.isFeatured || false,
-          sector: job.sector || '',
+          sector: normalizeEmployerJobSector(job.sector || ''),
           skills: skills,
           // FIXED: Map expiryDate from database to applicationDeadline in form
           applicationDeadline: job.expiryDate ? new Date(job.expiryDate).toISOString().split('T')[0] : ''
@@ -427,20 +439,6 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       }
     } finally {
       setFetching(false);
-    }
-  };
-
-  const fetchDynamicOptions = async () => {
-    try {
-      const response = await fetch('/api/jobs/constants');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setDynamicOptions(data.data);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching dynamic options:', error);
     }
   };
 
@@ -1076,24 +1074,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
-                              {dynamicOptions?.jobTypes?.length ? (
-                                dynamicOptions.jobTypes.map((type) => (
-                                  <SelectItem key={type.value} value={type.value}>
-                                    <div className="flex items-center justify-between w-full min-w-0 gap-2">
-                                      <span className="truncate flex-1">{type.label}</span>
-                                      <span className="text-xs text-gray-500 shrink-0">({type.count})</span>
-                                    </div>
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <>
-                                  <SelectItem value="full-time">Full Time</SelectItem>
-                                  <SelectItem value="part-time">Part Time</SelectItem>
-                                  <SelectItem value="contract">Contract</SelectItem>
-                                  <SelectItem value="internship">Internship</SelectItem>
-                                  <SelectItem value="freelance">Freelance</SelectItem>
-                                </>
-                              )}
+                              {jobTypeOptions.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
@@ -1107,24 +1092,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
-                              {dynamicOptions?.experienceLevels?.length ? (
-                                dynamicOptions.experienceLevels.map((level) => (
-                                  <SelectItem key={level.value} value={level.value}>
-                                    <div className="flex items-center justify-between w-full min-w-0 gap-2">
-                                      <span className="truncate flex-1">{level.label}</span>
-                                      <span className="text-xs text-gray-500 shrink-0">({level.count})</span>
-                                    </div>
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <>
-                                  <SelectItem value="entry">Entry Level (0-2 years)</SelectItem>
-                                  <SelectItem value="mid">Mid Level (2-5 years)</SelectItem>
-                                  <SelectItem value="senior">Senior Level (5-10 years)</SelectItem>
-                                  <SelectItem value="lead">Lead Level (10-15 years)</SelectItem>
-                                  <SelectItem value="executive">Executive (15+ years)</SelectItem>
-                                </>
-                              )}
+                              {experienceLevelOptions.map((level) => (
+                                <SelectItem key={level} value={level}>
+                                  {level}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
@@ -1138,47 +1110,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
-                              {dynamicOptions?.sectors?.length ? (
-                                <>
-                                  {dynamicOptions.sectors.map((sector) => (
-                                    <SelectItem key={sector.value} value={sector.value}>
-                                      <div className="flex items-center justify-between w-full min-w-0 gap-2">
-                                        <span className="truncate flex-1">{sector.label}</span>
-                                        <span className="text-xs text-gray-500 shrink-0">({sector.count})</span>
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                  <SelectItem value="other">Other</SelectItem>
-                                </>
-                              ) : (
-                                <>
-                                  <SelectItem value="Technology">Technology</SelectItem>
-                                  <SelectItem value="Healthcare">Healthcare</SelectItem>
-                                  <SelectItem value="Finance & Banking">Finance & Banking</SelectItem>
-                                  <SelectItem value="Education">Education</SelectItem>
-                                  <SelectItem value="IT & Software">IT & Software</SelectItem>
-                                  <SelectItem value="Manufacturing">Manufacturing</SelectItem>
-                                  <SelectItem value="Retail & E-commerce">Retail & E-commerce</SelectItem>
-                                  <SelectItem value="Marketing & Advertising">Marketing & Advertising</SelectItem>
-                                  <SelectItem value="Sales">Sales</SelectItem>
-                                  <SelectItem value="Customer Service & BPO">Customer Service & BPO</SelectItem>
-                                  <SelectItem value="Real Estate">Real Estate</SelectItem>
-                                  <SelectItem value="Construction">Construction</SelectItem>
-                                  <SelectItem value="Hospitality & Tourism">Hospitality & Tourism</SelectItem>
-                                  <SelectItem value="Transportation & Logistics">Transportation & Logistics</SelectItem>
-                                  <SelectItem value="Media & Entertainment">Media & Entertainment</SelectItem>
-                                  <SelectItem value="Telecommunications">Telecommunications</SelectItem>
-                                  <SelectItem value="Legal">Legal</SelectItem>
-                                  <SelectItem value="Consulting">Consulting</SelectItem>
-                                  <SelectItem value="Human Resources">Human Resources</SelectItem>
-                                  <SelectItem value="Agriculture">Agriculture</SelectItem>
-                                  <SelectItem value="Energy & Utilities">Energy & Utilities</SelectItem>
-                                  <SelectItem value="Government & Public Sector">Government & Public Sector</SelectItem>
-                                  <SelectItem value="Non-Profit & NGO">Non-Profit & NGO</SelectItem>
-                                  <SelectItem value="General">General</SelectItem>
-                                  <SelectItem value="Other">Other</SelectItem>
-                                </>
-                              )}
+                              {sectorOptions.map((sector) => (
+                                <SelectItem key={sector} value={sector}>
+                                  {sector}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
