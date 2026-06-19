@@ -6,13 +6,14 @@ import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search, Send, Globe } from "lucide-react";
+import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search, Send, Globe, Mail, Phone } from "lucide-react";
 import JobShare from "@/components/JobShare";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
 import { JOB_NAV_KEYS, navigateJobDetailsBack } from "@/lib/job-navigation-state";
 import { JobDescriptionView } from "@/components/EnhancedJobCard";
 import { formatJobDetailLocation, normalizeJobLocationText } from "@/lib/jobs/format-job-location";
+import { extractJobContactFromRawJson } from "@/lib/jobs/job-detail-content";
 
 interface Job {
   id: string;
@@ -53,6 +54,7 @@ interface Job {
     industry: string;
     website: string | null;
   };
+  rawJson?: unknown;
 }
 
 export default function JobDetailsPage() {
@@ -380,6 +382,7 @@ export default function JobDetailsPage() {
                        (job.source !== 'manual' && job.source !== 'sample') ||
                        !!(job.source_url || job.applyUrl)) : false;
   const skillsArray = job ? (Array.isArray(job.skills) ? job.skills : (job.skills ? [job.skills] : [])) : [];
+  const jobContact = job ? extractJobContactFromRawJson(job.rawJson) : { email: null, phone: null };
 
   return (
     <>
@@ -474,6 +477,28 @@ export default function JobDetailsPage() {
                             title={normalizeJobLocationText(job.location)}
                           >
                             {formatJobDetailLocation(job.location)}
+                          </span>
+                        </div>
+                      )}
+                      {jobContact.email && (
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Mail className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm sm:text-base break-all">
+                            Email:{' '}
+                            <a href={`mailto:${jobContact.email}`} className="text-blue-600 hover:underline">
+                              {jobContact.email}
+                            </a>
+                          </span>
+                        </div>
+                      )}
+                      {jobContact.phone && (
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Phone className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm sm:text-base">
+                            Phone:{' '}
+                            <a href={`tel:${jobContact.phone.replace(/\s/g, '')}`} className="text-blue-600 hover:underline">
+                              {jobContact.phone}
+                            </a>
                           </span>
                         </div>
                       )}

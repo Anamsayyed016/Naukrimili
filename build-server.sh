@@ -202,6 +202,12 @@ fi
 echo "📝 Creating build ID..."
 node -e "require('fs').writeFileSync('.next/BUILD_ID', Date.now().toString())"
 
+# Sync static assets into standalone bundle (prevents ChunkLoadError 404 on redeploy)
+echo "📦 Syncing static assets to standalone bundle..."
+node scripts/sync-env-to-standalone.cjs || {
+  echo "⚠️  WARNING: Standalone asset sync failed"
+}
+
 # Final verification
 if [ ! -f ".next/BUILD_ID" ]; then
     echo "⚠️  WARNING: BUILD_ID file was not created, but build directory exists"

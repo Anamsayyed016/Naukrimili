@@ -11,8 +11,19 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error('Global error boundary caught:', error)
+
+    const isChunkLoadError =
+      error.name === 'ChunkLoadError' ||
+      /Loading chunk \d+ failed/i.test(error.message)
+
+    if (isChunkLoadError && typeof window !== 'undefined') {
+      const reloadKey = `chunk-reload:${window.location.pathname}`
+      if (!sessionStorage.getItem(reloadKey)) {
+        sessionStorage.setItem(reloadKey, '1')
+        window.location.reload()
+      }
+    }
   }, [error])
 
   return (

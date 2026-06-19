@@ -1,3 +1,50 @@
+export interface JobContactInfo {
+  email: string | null;
+  phone: string | null;
+}
+
+/** Read employer contact from job.rawJson (same storage as create/edit job flow). */
+export function extractJobContactFromRawJson(rawJson: unknown): JobContactInfo {
+  if (!rawJson || typeof rawJson !== 'object' || Array.isArray(rawJson)) {
+    return { email: null, phone: null };
+  }
+
+  const raw = rawJson as Record<string, unknown>;
+  const hideEmail = raw.hideEmail === true;
+  const hidePhone = raw.hidePhone === true || raw.hideContact === true;
+
+  const readString = (...keys: string[]): string | null => {
+    for (const key of keys) {
+      const value = raw[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim();
+      }
+    }
+    return null;
+  };
+
+  return {
+    email: hideEmail
+      ? null
+      : readString(
+          'contactEmail',
+          'contact_email',
+          'recruiter_email',
+          'application_email',
+          'company_email'
+        ),
+    phone: hidePhone
+      ? null
+      : readString(
+          'contactPhone',
+          'contact_phone',
+          'recruiter_phone',
+          'application_phone',
+          'company_phone'
+        ),
+  };
+}
+
 export interface JobDetailContentInput {
   title?: string | null;
   company?: string | null;

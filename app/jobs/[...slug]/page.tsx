@@ -6,13 +6,13 @@ import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search } from "lucide-react";
+import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search, Mail, Phone } from "lucide-react";
 import JobShare from "@/components/JobShare";
 import { parseSEOJobUrl, cleanJobDataForSEO } from "@/lib/seo-url-utils";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
 import { JOB_NAV_KEYS, navigateJobDetailsBack } from "@/lib/job-navigation-state";
-import { buildJobDetailContent } from "@/lib/jobs/job-detail-content";
+import { buildJobDetailContent, extractJobContactFromRawJson } from "@/lib/jobs/job-detail-content";
 import { JobDescriptionView } from "@/components/EnhancedJobCard";
 
 interface Job {
@@ -54,6 +54,7 @@ interface Job {
     industry: string;
     website: string | null;
   };
+  rawJson?: unknown;
 }
 
 export default function SEOJobDetailsPage() {
@@ -316,6 +317,7 @@ export default function SEOJobDetailsPage() {
           : null,
       })
     : null;
+  const jobContact = extractJobContactFromRawJson(job.rawJson);
 
   return (
     <>
@@ -410,6 +412,33 @@ export default function SEOJobDetailsPage() {
                         </div>
                       )}
                     </div>
+
+                    {(jobContact.email || jobContact.phone) && (
+                      <div className="flex flex-col gap-1 text-sm text-gray-600 mb-4">
+                        {jobContact.email && (
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Mail className="w-4 h-4 flex-shrink-0" />
+                            <span className="break-all">
+                              Email:{' '}
+                              <a href={`mailto:${jobContact.email}`} className="text-blue-600 hover:underline">
+                                {jobContact.email}
+                              </a>
+                            </span>
+                          </div>
+                        )}
+                        {jobContact.phone && (
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Phone className="w-4 h-4 flex-shrink-0" />
+                            <span>
+                              Phone:{' '}
+                              <a href={`tel:${jobContact.phone.replace(/\s/g, '')}`} className="text-blue-600 hover:underline">
+                                {jobContact.phone}
+                              </a>
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Job Tags */}
                     <div className="flex flex-wrap gap-2">
