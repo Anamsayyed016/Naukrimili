@@ -1,6 +1,38 @@
 import { auth } from "./nextauth-config";
 import { prisma } from "./prisma";
 
+/** Parsed ADMIN_EMAILS env — rejects wildcard; never grants access to all users. */
+export function parseAdminEmailWhitelist(): string[] {
+  const raw = process.env.ADMIN_EMAILS?.trim() ?? '';
+  if (!raw || raw === '*') return [];
+  return raw
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter((e) => e.length > 0 && e !== '*');
+}
+
+/**
+ * Authoritative admin check for payment/plan bypass (DB role or ADMIN_EMAILS only).
+ * Does NOT trust JWT/session role claims.
+ */
+export async function isPaymentBypassAdmin(
+  userId: string,
+  emailHint?: string | null
+): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, email: true, isActive: true },
+  });
+
+  if (!user?.isActive) return false;
+  if (user.role === 'admin') return true;
+
+  const email = (emailHint ?? user.email ?? '').trim().toLowerCase();
+  if (!email) return false;
+
+  return parseAdminEmailWhitelist().includes(email);
+}
+
 export interface AuthUser {
   id: string;
   email: string;

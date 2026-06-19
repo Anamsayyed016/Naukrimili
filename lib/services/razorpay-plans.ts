@@ -161,12 +161,14 @@ export function getPlanType(planKey: string): 'individual' | 'business' | null {
 /** Response from POST /api/payments/create-order when admin bypass activates a plan. */
 export function isAdminPlanBypassResponse(
   data: Record<string, unknown> | null | undefined
-): data is { adminBypass: true; activated: true; planKey: string } {
+): data is { adminBypass: true; activated: true; planKey: string; planType: 'individual' } {
   return Boolean(
     data &&
       data.adminBypass === true &&
       data.activated === true &&
-      typeof data.planKey === 'string'
+      data.planType === 'individual' &&
+      typeof data.planKey === 'string' &&
+      data.planKey in INDIVIDUAL_PLANS
   );
 }
 

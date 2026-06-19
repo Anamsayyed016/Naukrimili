@@ -14,6 +14,7 @@ import { validateCoupon } from '@/lib/services/coupon-service';
 import { checkPaymentExists, createPayment, findPaymentByOrderId, invalidatePendingPayment } from '@/lib/db-direct';
 import { captureGoAffProRefForPayment } from '@/lib/goaffpro-server';
 import { activateIndividualPlanAdminBypass } from '@/lib/services/payment-service';
+import { isPaymentBypassAdmin } from '@/lib/auth-utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     const plan = INDIVIDUAL_PLANS[planKey as IndividualPlanKey];
 
-    if (session.user.role === 'admin') {
+    if (await isPaymentBypassAdmin(session.user.id, session.user.email)) {
       await activateIndividualPlanAdminBypass({
         userId: session.user.id,
         planKey: planKey as IndividualPlanKey,

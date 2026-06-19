@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { isAiPaymentBypassEnabled } from '@/lib/ai-payment-bypass';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from './razorpay-plans';
 import { findUserCredits } from '@/lib/db-direct';
+import { isPaymentBypassAdmin } from '@/lib/auth-utils';
 
 /** Reuses existing Settings table — no schema migration. */
 const INDIVIDUAL_PLAN_USAGE_KEY = 'individual_plan_usage';
@@ -231,6 +232,11 @@ export async function activateIndividualPlanAdminBypass(params: {
   planKey: IndividualPlanKey;
   adminUserId: string;
 }) {
+  const authorized = await isPaymentBypassAdmin(params.adminUserId);
+  if (!authorized) {
+    throw new Error('Admin authorization required for plan bypass');
+  }
+
   const plan = INDIVIDUAL_PLANS[params.planKey];
   const orderId = `admin_bypass_${params.userId}_${params.planKey}_${Date.now()}`;
 

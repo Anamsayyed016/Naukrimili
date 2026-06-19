@@ -19,6 +19,7 @@ import { generateExportHTML } from '@/lib/resume-builder/resume-export';
 import { checkResumeAccess } from '@/lib/middleware/payment-middleware';
 import { incrementUsage, deductResumeCredits } from '@/lib/services/payment-service';
 import { checkBusinessSubscription } from '@/lib/services/payment-service';
+import { isPaymentBypassAdmin } from '@/lib/auth-utils';
 
 // Ensure Node.js runtime (not edge) for Puppeteer
 export const runtime = 'nodejs';
@@ -53,8 +54,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Admin bypass: Admins can download without payment
-    const isAdmin = session.user.role === 'admin';
+    // Admin bypass: DB-verified admin only (never trust session JWT role alone)
+    const isAdmin = await isPaymentBypassAdmin(session.user.id, session.user.email);
     if (isAdmin) {
       console.log('🔑 [PDF Export] Admin user detected - bypassing payment check');
     }
