@@ -16,6 +16,8 @@ export interface SmartSuggestionContextInput extends ResumeSuggestionContextInpu
   regenerateIndex?: number;
   templateId?: string;
   parsedResumeSections?: Record<string, unknown>;
+  /** Zero-based index of the project row requesting suggestions (ProjectsStep). */
+  currentProjectIndex?: number;
 }
 
 export interface SmartSuggestionContext extends Record<string, unknown> {
@@ -46,6 +48,7 @@ export interface SmartSuggestionContext extends Record<string, unknown> {
   resumeTemplate: string;
   regenerate: boolean;
   regenerateIndex: number;
+  currentProjectIndex?: number;
   certifications?: string[];
   experienceDetails?: string[];
   variationTone?: string;
@@ -167,6 +170,8 @@ export function buildSmartSuggestionContext(
     regenerate: !!input.regenerate,
     regenerateIndex:
       typeof input.regenerateIndex === 'number' ? input.regenerateIndex : 0,
+    currentProjectIndex:
+      typeof input.currentProjectIndex === 'number' ? input.currentProjectIndex : undefined,
     certifications: collectCertifications(formData.certifications),
     experienceDetails: experience
       .slice(0, 3)

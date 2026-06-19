@@ -522,10 +522,31 @@ export default function ResumeEditorPage() {
         next.hobbies = list;
         next.Hobbies = list;
         next['Hobbies & Interests'] = list;
+        next.interests = list;
       }
 
       if ('projects' in patch) {
-        const list = Array.isArray(patch.projects) ? patch.projects : [];
+        const list = (Array.isArray(patch.projects) ? patch.projects : []).map((item) => {
+          const base =
+            item && typeof item === 'object' ? { ...(item as Record<string, unknown>) } : {};
+          if (typeof base.description === 'string') {
+            base.Description = base.description;
+          }
+          if (typeof base.name === 'string') {
+            base.Name = base.name;
+            base.title = base.name;
+          }
+          if (typeof base.technologies === 'string') {
+            base.Technologies = base.technologies;
+          }
+          const link = typeof base.link === 'string' ? base.link : typeof base.url === 'string' ? base.url : '';
+          if (link) {
+            base.link = link;
+            base.url = link;
+            base.Link = link;
+          }
+          return base;
+        });
         next.projects = list;
         next.Projects = list;
       }

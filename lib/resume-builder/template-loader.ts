@@ -486,7 +486,12 @@ export function injectResumeData(
   ) as Array<string | Record<string, string>>;
   const languagesDataRaw = Array.isArray(data.languages) ? data.languages : [];
   const languagesData = languagesDataRaw as Array<string | Record<string, unknown>>;
-  const hobbiesDataRaw = getArray<unknown>(['Hobbies', 'Hobbies & Interests', 'hobbies'], []);
+  const hobbiesDataRaw = Array.isArray(data.hobbies)
+    ? data.hobbies
+    : getArray<unknown>(
+        ['hobbies', 'Hobbies', 'Hobbies & Interests', 'interests', 'Interests', 'personalInterests'],
+        []
+      );
   const hobbiesData = hobbiesDataRaw as Array<string | Record<string, unknown>>;
 
   const placeholders: Record<string, string> = {

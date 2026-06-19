@@ -46,14 +46,52 @@ interface Project {
   url?: string;
 }
 
+function cloneProjectEntry(item: unknown): Project {
+  return item && typeof item === 'object' ? { ...(item as Project) } : {};
+}
+
+function withProjectFieldAliases(project: Project, field: keyof Project, value: string): Project {
+  const updated: Project = { ...project, [field]: value };
+  const rec = updated as Record<string, unknown>;
+  if (field === 'description') {
+    rec.Description = value;
+  }
+  if (field === 'name') {
+    rec.Name = value;
+    rec.title = value;
+  }
+  if (field === 'technologies') {
+    rec.Technologies = value;
+  }
+  if (field === 'link') {
+    rec.url = value;
+    rec.Link = value;
+  }
+  return updated;
+}
+
+function cloneProjectsList(raw: unknown): Project[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item) => cloneProjectEntry(item));
+}
+
 export default function ProjectsStep({ formData, updateFormData }: ProjectsStepProps) {
   const projects: Project[] = Array.isArray(formData.projects) ? formData.projects : [];
-  console.log('[ProjectsStep] projects.length', projects.length, 'projects[0]', projects[0]);
   const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: { name?: string[]; description?: string[]; technologies?: string[] } }>({});
   const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { name?: boolean; description?: boolean; technologies?: boolean } }>({});
   const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const skipProjectFetchRef = useRef<Record<string, boolean>>({});
   const applyProjectLockUntilRef = useRef<Record<string, number>>({});
+  const formDataRef = useRef(formData);
+  const aiSuggestionsRef = useRef(aiSuggestions);
+
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
+
+  useEffect(() => {
+    aiSuggestionsRef.current = aiSuggestions;
+  }, [aiSuggestions]);
 
   const requestProjectSuggestions = async (
     index: number,
@@ -61,13 +99,15 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     value: string,
     options?: { regenerate?: boolean }
   ) => {
-    const projectName = projects[index]?.name || '';
-    const projectDescription = projects[index]?.description || '';
+    const latestProjects = cloneProjectsList(formDataRef.current.projects);
+    const project = latestProjects[index] || {};
+    const projectName = project.name || '';
+    const projectDescription = project.description || '';
     const techList =
-      typeof projects[index]?.technologies === 'string'
-        ? projects[index]!.technologies!.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
+      typeof project.technologies === 'string'
+        ? project.technologies.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
         : [];
-    const exclude = options?.regenerate ? aiSuggestions[index]?.[field] || [] : [];
+    const exclude = options?.regenerate ? aiSuggestionsRef.current[index]?.[field] || [] : [];
 
     const response = await fetch('/api/ai/form-suggestions', {
       method: 'POST',
@@ -75,11 +115,11 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       body: JSON.stringify({
         field: field === 'name' ? 'project' : field === 'description' ? 'description' : 'skills',
         value,
-        formData,
+        formData: formDataRef.current,
         regenerate: !!options?.regenerate,
         excludeSuggestions: exclude,
         context: buildSmartSuggestionContext({
-          formData,
+          formData: formDataRef.current,
           currentSection: 'projects',
           currentField: field,
           projectName,
@@ -89,6 +129,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
           isProjectDescription: field === 'description',
           excludeSuggestions: exclude,
           regenerate: !!options?.regenerate,
+          currentProjectIndex: index,
         }),
       }),
     });
@@ -107,30 +148,44 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       link: '',
     };
     updateFormData((prev) => {
-      const current = Array.isArray(prev.projects) ? prev.projects : [];
+      const current = cloneProjectsList(prev.projects);
       return { projects: [...current, newProject] };
     });
   };
 
   const updateProject = (index: number, field: keyof Project, value: string) => {
     updateFormData((prev) => {
-      const current = Array.isArray(prev.projects) ? [...prev.projects] : [];
-      const existing = { ...((current[index] as Project) || {}) };
-      current[index] = { ...existing, [field]: value };
-      return { projects: current };
+      const current = cloneProjectsList(prev.projects);
+      return {
+        projects: current.map((project, i) =>
+          i === index ? withProjectFieldAliases(project, field, value) : project
+        ),
+      };
     });
   };
 
   const removeProject = (index: number) => {
     updateFormData((prev) => {
-      const current = Array.isArray(prev.projects) ? prev.projects : [];
+      const current = cloneProjectsList(prev.projects);
       return { projects: current.filter((_, i) => i !== index) };
     });
-    // Clear suggestions for removed project
-    setAiSuggestions(prev => {
-      const newSuggestions = { ...prev };
-      delete newSuggestions[index];
-      return newSuggestions;
+    setAiSuggestions((prev) => {
+      const next: typeof prev = {};
+      Object.entries(prev).forEach(([key, value]) => {
+        const i = Number(key);
+        if (i < index) next[i] = value;
+        else if (i > index) next[i - 1] = value;
+      });
+      return next;
+    });
+    setLoadingSuggestions((prev) => {
+      const next: typeof prev = {};
+      Object.entries(prev).forEach(([key, value]) => {
+        const i = Number(key);
+        if (i < index) next[i] = value;
+        else if (i > index) next[i - 1] = value;
+      });
+      return next;
     });
   };
 
@@ -145,12 +200,13 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     }
 
     if (field === 'technologies') {
+      const latestProjects = cloneProjectsList(formDataRef.current.projects);
       const instant = getProjectTechnologySuggestions({
         userInput: value,
-        projectName: projects[index]?.name || '',
-        projectDescription: projects[index]?.description || '',
+        projectName: latestProjects[index]?.name || '',
+        projectDescription: latestProjects[index]?.description || '',
         technologies: value.split(/[,;]/).map((s) => s.trim()).filter(Boolean),
-        skills: Array.isArray(formData.skills) ? (formData.skills as string[]) : [],
+        skills: Array.isArray(formDataRef.current.skills) ? (formDataRef.current.skills as string[]) : [],
       });
       if (instant.length > 0) {
         setAiSuggestions((prev) => ({

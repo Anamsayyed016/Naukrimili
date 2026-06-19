@@ -560,6 +560,55 @@ function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {
   });
 }
 
+/** Coerce hobbies/interests from builder, import, or parser into a string array. */
+function normalizeHobbiesInput(raw: unknown): unknown[] {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string' && raw.trim()) {
+    return raw
+      .split(/[,;|•\n]+/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function resolveHobbiesArray(formData: Record<string, unknown>): unknown[] {
+  const fromArrays = resolveCanonicalArray(formData, 'hobbies', [
+    'Hobbies',
+    'Hobbies & Interests',
+    'interests',
+    'Interests',
+    'personalInterests',
+  ]);
+
+  if (fromArrays.length > 0) {
+    const expanded: unknown[] = [];
+    for (const item of fromArrays) {
+      if (typeof item === 'string') {
+        const parts = normalizeHobbiesInput(item);
+        expanded.push(...(parts.length > 0 ? parts : [item]));
+      } else {
+        expanded.push(item);
+      }
+    }
+    return expanded;
+  }
+
+  for (const key of [
+    'hobbies',
+    'interests',
+    'Interests',
+    'personalInterests',
+    'Hobbies',
+    'Hobbies & Interests',
+  ]) {
+    const normalized = normalizeHobbiesInput(formData[key]);
+    if (normalized.length > 0) return normalized;
+  }
+
+  return [];
+}
+
 /** Prefer non-empty canonical array; when canonical is missing or [], fall back to first non-empty alias. */
 function resolveCanonicalArray(
   data: Record<string, unknown>,
@@ -617,9 +666,7 @@ export function coalesceFormDataForTemplateRender(
     'Achievements',
     'Key Achievements',
   ]);
-  const hobbies = filterHobbiesExcludingPersonal(
-    resolveCanonicalArray(formData, 'hobbies', ['Hobbies', 'Hobbies & Interests'])
-  );
+  const hobbies = filterHobbiesExcludingPersonal(resolveHobbiesArray(formData));
 
   return {
     ...formData,
