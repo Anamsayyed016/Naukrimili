@@ -15,11 +15,19 @@ interface HobbiesStepProps {
   ) => void;
 }
 
+function resolveHobbiesList(data: Record<string, unknown>): string[] {
+  for (const key of ['hobbies', 'Hobbies', 'interests', 'Interests', 'personalInterests']) {
+    const raw = data[key];
+    if (Array.isArray(raw)) {
+      return raw.filter((h): h is string => typeof h === 'string');
+    }
+  }
+  return [];
+}
+
 export default function HobbiesStep({ formData, updateFormData }: HobbiesStepProps) {
   const [newHobby, setNewHobby] = useState('');
-  const hobbies: string[] = Array.isArray(formData.hobbies)
-    ? formData.hobbies
-    : [];
+  const hobbies: string[] = resolveHobbiesList(formData);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const debouncedHobby = useDebounce(newHobby, 300);
@@ -28,15 +36,16 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
 
   useEffect(() => {
     formDataRef.current = formData;
+    if (process.env.NODE_ENV === 'development') {
+      console.log('HOBBIES FORM', resolveHobbiesList(formData));
+    }
   }, [formData]);
 
   const addHobby = () => {
     const value = newHobby.trim();
     if (!value) return;
     updateFormData((prev) => {
-      const current = Array.isArray(prev.hobbies)
-        ? prev.hobbies.filter((h): h is string => typeof h === 'string')
-        : [];
+      const current = resolveHobbiesList(prev);
       if (current.includes(value)) return {};
       return { hobbies: [...current, value] };
     });
@@ -45,9 +54,7 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
 
   const removeHobby = (index: number) => {
     updateFormData((prev) => {
-      const current = Array.isArray(prev.hobbies)
-        ? prev.hobbies.filter((h): h is string => typeof h === 'string')
-        : [];
+      const current = resolveHobbiesList(prev);
       return { hobbies: current.filter((_, i) => i !== index) };
     });
   };
@@ -162,9 +169,7 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
                     type="button"
                     onClick={() => {
                       updateFormData((prev) => {
-                        const current = Array.isArray(prev.hobbies)
-                          ? prev.hobbies.filter((h): h is string => typeof h === 'string')
-                          : [];
+                        const current = resolveHobbiesList(prev);
                         if (current.includes(suggestion)) return {};
                         return { hobbies: [...current, suggestion] };
                       });

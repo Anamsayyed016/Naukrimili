@@ -97,6 +97,39 @@ function syncExperienceEntryAliases(entry: Record<string, unknown>): Record<stri
   };
 }
 
+function syncProjectEntryAliases(entry: Record<string, unknown>): Record<string, unknown> {
+  const pick = (keys: string[]): string => {
+    for (const key of keys) {
+      const value = entry[key];
+      if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+    for (const key of keys) {
+      const value = entry[key];
+      if (typeof value === 'string') return value;
+    }
+    return '';
+  };
+
+  const name = pick(['name', 'Name', 'title', 'Title']);
+  const description = pick(['description', 'Description', 'summary', 'Summary']);
+  const technologies = pick(['technologies', 'Technologies', 'tech_stack']);
+  const link = pick(['link', 'Link', 'url']);
+
+  return {
+    ...entry,
+    name,
+    Name: name,
+    title: name,
+    description,
+    Description: description,
+    technologies,
+    Technologies: technologies,
+    link,
+    url: link,
+    Link: link,
+  };
+}
+
 function syncEducationEntryAliases(entry: Record<string, unknown>): Record<string, unknown> {
   const degree =
     'degree' in entry
@@ -526,27 +559,11 @@ export default function ResumeEditorPage() {
       }
 
       if ('projects' in patch) {
-        const list = (Array.isArray(patch.projects) ? patch.projects : []).map((item) => {
-          const base =
-            item && typeof item === 'object' ? { ...(item as Record<string, unknown>) } : {};
-          if (typeof base.description === 'string') {
-            base.Description = base.description;
-          }
-          if (typeof base.name === 'string') {
-            base.Name = base.name;
-            base.title = base.name;
-          }
-          if (typeof base.technologies === 'string') {
-            base.Technologies = base.technologies;
-          }
-          const link = typeof base.link === 'string' ? base.link : typeof base.url === 'string' ? base.url : '';
-          if (link) {
-            base.link = link;
-            base.url = link;
-            base.Link = link;
-          }
-          return base;
-        });
+        const list = (Array.isArray(patch.projects) ? patch.projects : []).map((item) =>
+          syncProjectEntryAliases(
+            item && typeof item === 'object' ? (item as Record<string, unknown>) : {}
+          )
+        );
         next.projects = list;
         next.Projects = list;
       }

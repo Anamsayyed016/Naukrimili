@@ -75,8 +75,33 @@ function cloneProjectsList(raw: unknown): Project[] {
   return raw.map((item) => cloneProjectEntry(item));
 }
 
+function resolveProjectsList(data: Record<string, unknown>): Project[] {
+  const fromProjects = Array.isArray(data.projects) ? data.projects : null;
+  const fromAlias = Array.isArray(data.Projects) ? data.Projects : null;
+  const raw =
+    (fromProjects && fromProjects.length > 0 && fromProjects) ||
+    (fromAlias && fromAlias.length > 0 && fromAlias) ||
+    fromProjects ||
+    fromAlias ||
+    [];
+  return cloneProjectsList(raw);
+}
+
+function readProjectField(project: Project, keys: string[]): string {
+  const rec = project as Record<string, unknown>;
+  for (const key of keys) {
+    const value = rec[key];
+    if (typeof value === 'string' && value.trim()) return value;
+  }
+  for (const key of keys) {
+    const value = rec[key];
+    if (typeof value === 'string') return value;
+  }
+  return '';
+}
+
 export default function ProjectsStep({ formData, updateFormData }: ProjectsStepProps) {
-  const projects: Project[] = Array.isArray(formData.projects) ? formData.projects : [];
+  const projects: Project[] = resolveProjectsList(formData);
   const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: { name?: string[]; description?: string[]; technologies?: string[] } }>({});
   const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { name?: boolean; description?: boolean; technologies?: boolean } }>({});
   const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
@@ -99,10 +124,10 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     value: string,
     options?: { regenerate?: boolean }
   ) => {
-    const latestProjects = cloneProjectsList(formDataRef.current.projects);
+    const latestProjects = resolveProjectsList(formDataRef.current);
     const project = latestProjects[index] || {};
-    const projectName = project.name || '';
-    const projectDescription = project.description || '';
+    const projectName = readProjectField(project, ['name', 'Name', 'title', 'Title']);
+    const projectDescription = readProjectField(project, ['description', 'Description', 'summary', 'Summary']);
     const techList =
       typeof project.technologies === 'string'
         ? project.technologies.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
@@ -148,25 +173,27 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       link: '',
     };
     updateFormData((prev) => {
-      const current = cloneProjectsList(prev.projects);
+      const current = resolveProjectsList(prev);
       return { projects: [...current, newProject] };
     });
   };
 
   const updateProject = (index: number, field: keyof Project, value: string) => {
     updateFormData((prev) => {
-      const current = cloneProjectsList(prev.projects);
-      return {
-        projects: current.map((project, i) =>
-          i === index ? withProjectFieldAliases(project, field, value) : project
-        ),
-      };
+      const current = resolveProjectsList(prev);
+      const next = current.map((project, i) =>
+        i === index ? withProjectFieldAliases(project, field, value) : project
+      );
+      if (process.env.NODE_ENV === 'development') {
+        console.log('PROJECT SUGGESTIONS apply', { index, field, next });
+      }
+      return { projects: next };
     });
   };
 
   const removeProject = (index: number) => {
     updateFormData((prev) => {
-      const current = cloneProjectsList(prev.projects);
+      const current = resolveProjectsList(prev);
       return { projects: current.filter((_, i) => i !== index) };
     });
     setAiSuggestions((prev) => {
@@ -200,11 +227,11 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     }
 
     if (field === 'technologies') {
-      const latestProjects = cloneProjectsList(formDataRef.current.projects);
+      const latestProjects = resolveProjectsList(formDataRef.current);
       const instant = getProjectTechnologySuggestions({
         userInput: value,
-        projectName: latestProjects[index]?.name || '',
-        projectDescription: latestProjects[index]?.description || '',
+        projectName: readProjectField(latestProjects[index] || {}, ['name', 'Name', 'title', 'Title']),
+        projectDescription: readProjectField(latestProjects[index] || {}, ['description', 'Description', 'summary', 'Summary']),
         technologies: value.split(/[,;]/).map((s) => s.trim()).filter(Boolean),
         skills: Array.isArray(formDataRef.current.skills) ? (formDataRef.current.skills as string[]) : [],
       });
@@ -275,10 +302,10 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
 
       <div className="space-y-6">
         {projects.map((project, index) => {
-          const name = project.name || '';
-          const description = project.description || '';
-          const technologies = project.technologies || '';
-          const link = project.link || project.url || '';
+          const name = readProjectField(project, ['name', 'Name', 'title', 'Title']);
+          const description = readProjectField(project, ['description', 'Description', 'summary', 'Summary']);
+          const technologies = readProjectField(project, ['technologies', 'Technologies', 'tech_stack']);
+          const link = readProjectField(project, ['link', 'Link', 'url']);
 
           return (
             <div

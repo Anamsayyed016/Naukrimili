@@ -494,6 +494,10 @@ export function injectResumeData(
       );
   const hobbiesData = hobbiesDataRaw as Array<string | Record<string, unknown>>;
 
+  if (process.env.NODE_ENV === 'development' && hobbiesData.length > 0) {
+    console.log('HOBBIES TEMPLATE inject', { hobbiesData, templateHasBlock: htmlTemplate.includes('{{#if HOBBIES}}') || htmlTemplate.includes('{{HOBBIES}}') });
+  }
+
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName || '',
     '{{FIRST_NAME}}': firstName || '',
@@ -567,15 +571,21 @@ export function injectResumeData(
   return result;
 }
 
-/** Canonical field wins when present (including ''). Aliases used only when canonical is undefined. */
+/** Prefer first non-empty string among canonical + aliases; fall back to canonical when empty. */
 function readCanonicalString(
   record: Record<string, unknown>,
   canonical: string,
   aliases: string[] = []
 ): string {
-  if (canonical in record) {
-    const value = record[canonical];
-    return typeof value === 'string' ? value : '';
+  for (const key of [canonical, ...aliases]) {
+    if (!(key in record)) continue;
+    const value = record[key];
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+  if (canonical in record && typeof record[canonical] === 'string') {
+    return record[canonical];
   }
   for (const key of aliases) {
     const value = record[key];
@@ -1059,70 +1069,40 @@ function renderLanguages(languages: Array<string | Record<string, unknown>>, use
  * Render hobbies section
  * Supports string array format (from HobbiesStep)
  */
+function hobbyLabel(item: string | Record<string, unknown>): string {
+  if (typeof item === 'string') return item.trim();
+  if (item && typeof item === 'object') {
+    const rec = item as Record<string, unknown>;
+    for (const key of ['Hobby', 'hobby', 'name', 'title', 'Title']) {
+      const value = rec[key];
+      if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+  }
+  return '';
+}
+
 function renderHobbies(hobbies: Array<string | Record<string, unknown>>): string {
-  console.log('[renderHobbies] ===== START =====');
-  console.log('[renderHobbies] Input:', { hobbies, type: typeof hobbies, isArray: Array.isArray(hobbies), length: Array.isArray(hobbies) ? hobbies.length : 0 });
-  console.log('[renderHobbies] Full hobbies value:', JSON.stringify(hobbies, null, 2));
-  
   if (!Array.isArray(hobbies) || hobbies.length === 0) {
-    console.log('[renderHobbies] Empty or not array, returning empty string');
-    console.log('[renderHobbies] ===== END (EMPTY) =====');
     return '';
   }
 
-  // Handle string array format (primary format from HobbiesStep)
-  if (typeof hobbies[0] === 'string') {
-    console.log('[renderHobbies] Processing as string array');
-    const validHobbies = (hobbies as string[]).filter(hobby => hobby && typeof hobby === 'string' && hobby.trim().length > 0);
-    console.log('[renderHobbies] Valid hobbies (string):', validHobbies);
-    if (validHobbies.length === 0) {
-      console.log('[renderHobbies] No valid string hobbies, returning empty');
-      return '';
-    }
-    
-    const result = validHobbies
-      .map((hobby) => `
+  const labels = hobbies.map(hobbyLabel).filter((label) => label.length > 0);
+  if (process.env.NODE_ENV === 'development' && labels.length > 0) {
+    console.log('HOBBIES TEMPLATE render', labels);
+  }
+  if (labels.length === 0) {
+    return '';
+  }
+
+  return labels
+    .map(
+      (hobby) => `
         <div class="hobby-item">
           <span class="hobby">${escapeHtml(hobby)}</span>
         </div>
-      `)
-      .join('');
-    console.log('[renderHobbies] String array result length:', result.length);
-    return result;
-  }
-
-  // Handle object array format (legacy format, if any)
-  console.log('[renderHobbies] Processing as object array');
-  const validHobbies = (hobbies as Array<Record<string, unknown>>).filter(hobby => {
-    const hobbyName = hobby.Hobby || hobby.hobby || hobby.name || '';
-    const isValid = hobbyName && typeof hobbyName === 'string' && hobbyName.trim().length > 0;
-    if (!isValid) {
-      console.log('[renderHobbies] Filtered out invalid hobby:', hobby);
-    }
-    return isValid;
-  });
-
-  console.log('[renderHobbies] Valid hobbies (object):', validHobbies.length, validHobbies);
-
-  if (validHobbies.length === 0) {
-    console.log('[renderHobbies] No valid object hobbies, returning empty');
-    return '';
-  }
-
-  const result = validHobbies
-    .map((hobby) => {
-      const hobbyName = hobby.Hobby || hobby.hobby || hobby.name || '';
-
-      return `
-        <div class="hobby-item">
-          <span class="hobby">${escapeHtml(String(hobbyName))}</span>
-        </div>
-      `;
-    })
+      `
+    )
     .join('');
-  
-  console.log('[renderHobbies] Final result length:', result.length, 'Preview:', result.substring(0, 200));
-  return result;
 }
 
 /**

@@ -668,6 +668,10 @@ export function coalesceFormDataForTemplateRender(
   ]);
   const hobbies = filterHobbiesExcludingPersonal(resolveHobbiesArray(formData));
 
+  if (process.env.NODE_ENV === 'development' && hobbies.length > 0) {
+    console.log('HOBBIES STATE coalesce', { hobbies, raw: formData.hobbies, interests: formData.interests });
+  }
+
   return {
     ...formData,
     experience,
@@ -688,6 +692,9 @@ export function coalesceFormDataForTemplateRender(
     Languages: languages,
     Hobbies: hobbies,
     'Hobbies & Interests': hobbies,
+    interests: hobbies,
+    Interests: hobbies,
+    personalInterests: hobbies,
   };
 }
 
