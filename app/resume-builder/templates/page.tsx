@@ -1,14 +1,11 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
-import { useResponsive } from '@/components/ui/use-mobile';
 import type { Template } from '@/lib/resume-builder/types';
 
 // Prevent static generation
@@ -20,47 +17,48 @@ interface Filters {
   color: string | null;
 }
 
-type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
+/** Load uploaded/imported resume data for gallery previews (same source as editor). */
+function loadGalleryPreviewFormData(): Record<string, unknown> {
+  if (typeof window === 'undefined') return {};
 
-type EntitlementSnapshot = {
-  isActive: boolean;
-  templateSlotsMax: number | null;
-  usedPremiumTemplateIds: string[];
-  templateAccess?: string;
-};
-
-function isPremiumTemplate(template: Template): boolean {
-  return Boolean(
-    template.categories?.includes('Premium') || template.categories?.includes('premium')
-  );
-}
-
-function computeTemplateLockState(
-  template: Template,
-  entitlements: EntitlementSnapshot | null
-): TemplateLockState {
-  if (!isPremiumTemplate(template)) return 'open';
-  if (!entitlements?.isActive) return 'upgrade';
-  if (entitlements.templateAccess === 'all' || entitlements.templateSlotsMax === null) {
-    return 'open';
+  const importRaw = sessionStorage.getItem('resume-import-data');
+  if (importRaw) {
+    try {
+      const parsed = JSON.parse(importRaw) as Record<string, unknown>;
+      const nested = parsed.builderFormData;
+      if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+        const { builderFormData: _nested, ...rest } = parsed;
+        return { ...rest, ...(nested as Record<string, unknown>) };
+      }
+      return parsed;
+    } catch {
+      // fall through
+    }
   }
-  if (entitlements.usedPremiumTemplateIds.includes(template.id)) return 'slot_used';
-  if (entitlements.usedPremiumTemplateIds.length >= entitlements.templateSlotsMax) {
-    return 'locked';
+
+  const paymentFlowRaw = sessionStorage.getItem('resume-builder-payment-flow');
+  if (paymentFlowRaw) {
+    try {
+      const saved = JSON.parse(paymentFlowRaw) as { formData?: Record<string, unknown> };
+      if (saved.formData && typeof saved.formData === 'object') {
+        return saved.formData;
+      }
+    } catch {
+      // fall through
+    }
   }
-  return 'open';
+
+  return {};
 }
 
 export default function TemplateSelectionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { status: sessionStatus } = useSession();
-  const { isMobile } = useResponsive();
   const typeId = searchParams.get('type') || 'experienced';
   const source = searchParams.get('source'); // Check if coming from import
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
-  const [entitlements, setEntitlements] = useState<EntitlementSnapshot | null>(null);
+  const [previewFormData, setPreviewFormData] = useState<Record<string, unknown>>({});
 
   // Lazy load templates data to avoid module initialization issues
   useEffect(() => {
@@ -71,53 +69,8 @@ export default function TemplateSelectionPage() {
   }, []);
 
   useEffect(() => {
-    if (sessionStatus !== 'authenticated') {
-      setEntitlements(null);
-      return;
-    }
-
-    let cancelled = false;
-    fetch('/api/payments/status')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (cancelled || !data) return;
-        setEntitlements({
-          isActive: Boolean(data.isActive),
-          templateSlotsMax: data.entitlements?.templateSlotsMax ?? null,
-          usedPremiumTemplateIds: data.entitlements?.usedPremiumTemplateIds ?? [],
-          templateAccess: data.credits?.templateAccess,
-        });
-      })
-      .catch(() => {
-        if (!cancelled) setEntitlements(null);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [sessionStatus]);
-
-  const templateLockStates = useMemo(() => {
-    const states: Record<string, TemplateLockState> = {};
-    for (const template of templates) {
-      states[template.id] = computeTemplateLockState(template, entitlements);
-    }
-    return states;
-  }, [templates, entitlements]);
-
-  const handleLockedTemplateSelect = useCallback((templateId: string, lockState: TemplateLockState) => {
-    if (lockState === 'upgrade') {
-      toast.info('Premium templates require a paid plan.', {
-        description: 'Choose a plan on the pricing page to unlock premium templates.',
-      });
-      router.push('/pricing');
-      return;
-    }
-    toast.info('Template slot limit reached.', {
-      description: 'Upgrade your plan to unlock more premium templates.',
-    });
-    router.push('/pricing');
-  }, [router]);
+    setPreviewFormData(loadGalleryPreviewFormData());
+  }, [source]);
 
   // Template filters state
   const [filters, setFilters] = useState<Filters>({
@@ -246,11 +199,9 @@ export default function TemplateSelectionPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sm:p-6 lg:p-8">
           <TemplatePreviewGallery
             templates={filteredTemplates}
-            formData={{}}
+            formData={previewFormData}
             selectedTemplateId={null}
             onTemplateSelect={handleTemplateSelect}
-            templateLockStates={templateLockStates}
-            onLockedTemplateSelect={handleLockedTemplateSelect}
           />
         </div>
       </div>

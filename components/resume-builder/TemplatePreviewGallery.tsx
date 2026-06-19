@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
-import { Check, Sparkles, Lock, Crown } from 'lucide-react';
+import { Check, Sparkles, Crown } from 'lucide-react';
 import Image from 'next/image';
 import {
   buildGallerySampleFormData,
@@ -79,14 +79,7 @@ export default function TemplatePreviewGallery({
             formData={formData}
             isSelected={selectedTemplateId === template.id}
             lockState={templateLockStates?.[template.id] ?? 'open'}
-            onSelect={() => {
-              const lockState = templateLockStates?.[template.id] ?? 'open';
-              if (lockState !== 'open' && lockState !== 'slot_used') {
-                onLockedTemplateSelect?.(template.id, lockState);
-                return;
-              }
-              onTemplateSelect(template.id);
-            }}
+            onSelect={() => onTemplateSelect(template.id)}
           />
         ))}
       </div>
@@ -109,7 +102,8 @@ function EnhancedTemplateCard({
   lockState = 'open',
   onSelect,
 }: EnhancedTemplateCardProps) {
-  const isLocked = lockState === 'locked' || lockState === 'upgrade';
+  const isPremium =
+    template.categories?.includes('Premium') || template.categories?.includes('premium');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string>('');
@@ -300,28 +294,19 @@ function EnhancedTemplateCard({
           </div>
         )}
 
+        {isPremium && lockState !== 'slot_used' && (
+          <div className="absolute top-2 left-2 z-20">
+            <div className="bg-slate-800/90 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+              <Crown className="w-3 h-3" />
+              Premium
+            </div>
+          </div>
+        )}
+
         {lockState === 'slot_used' && (
           <div className="absolute top-2 left-2 z-20">
             <div className="bg-emerald-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md">
               Used Slot
-            </div>
-          </div>
-        )}
-
-        {lockState === 'upgrade' && (
-          <div className="absolute top-2 left-2 z-20">
-            <div className="bg-amber-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-              <Crown className="w-3 h-3" />
-              Upgrade Required
-            </div>
-          </div>
-        )}
-
-        {lockState === 'locked' && (
-          <div className="absolute top-2 left-2 z-20">
-            <div className="bg-slate-700 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-              <Lock className="w-3 h-3" />
-              Locked
             </div>
           </div>
         )}
@@ -368,25 +353,17 @@ function EnhancedTemplateCard({
           className={cn(
             'absolute inset-0 bg-gradient-to-t via-transparent to-transparent',
             cardAccent.hoverOverlay,
-            isLocked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+            'opacity-0 group-hover:opacity-100',
             'transition-opacity duration-300',
             'flex items-end justify-center pb-8 z-10 rounded-2xl pointer-events-none'
           )}
         >
           <div className={cn(
             "text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 pointer-events-auto",
-            isLocked ? "translate-y-0" : "group-hover:translate-y-0 translate-y-2",
-            isSelected ? "bg-blue-600/95" : isLocked ? "bg-slate-700/95" : "bg-blue-600/90"
+            "group-hover:translate-y-0 translate-y-2",
+            isSelected ? "bg-blue-600/95" : "bg-blue-600/90"
           )}>
-            {isLocked
-              ? lockState === 'upgrade'
-                ? 'Upgrade Required'
-                : 'Locked'
-              : isSelected
-                ? '✓ Selected'
-                : lockState === 'slot_used'
-                  ? 'Open Used Template'
-                  : 'Click to Edit'}
+            {isSelected ? '✓ Selected' : 'Click to Edit'}
           </div>
         </div>
       </div>

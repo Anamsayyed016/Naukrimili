@@ -13,7 +13,6 @@ import './optimization-panel.css';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -138,12 +137,6 @@ function importSectionCounts(data: Record<string, unknown>) {
   };
 }
 
-function isPremiumTemplateCategories(categories: string[] | undefined): boolean {
-  return Boolean(
-    categories?.includes('Premium') || categories?.includes('premium')
-  );
-}
-
 /** API / upload page already produced builder form data — skip second sanitize pass. */
 function isBuilderReadyImportPayload(parsed: Record<string, unknown>): boolean {
   if (parsed._imported === true) return true;
@@ -191,7 +184,6 @@ const STEPS: Step[] = [
 export default function ResumeEditorPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
   const { toast } = useToast();
 
   const templateId = searchParams.get('template') || '';
@@ -240,35 +232,6 @@ export default function ResumeEditorPage() {
           });
           router.push('/resume-builder/templates');
           return;
-        }
-
-        const isPremiumTemplate = isPremiumTemplateCategories(loaded.template.categories);
-        if (isPremiumTemplate && session?.user?.id) {
-          try {
-            const accessRes = await fetch('/api/payments/status', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ templateId }),
-            });
-            if (!accessRes.ok) {
-              const accessData = await accessRes.json().catch(() => ({}));
-              toast({
-                title: 'Template access denied',
-                description: accessData.reason || 'This premium template is not available on your plan.',
-                variant: 'destructive',
-              });
-              router.push('/resume-builder/templates');
-              return;
-            }
-          } catch {
-            toast({
-              title: 'Template access check failed',
-              description: 'Unable to verify template access. Please try again.',
-              variant: 'destructive',
-            });
-            router.push('/resume-builder/templates');
-            return;
-          }
         }
 
         setTemplate(loaded.template);
@@ -494,7 +457,7 @@ export default function ResumeEditorPage() {
     // colorParam is intentionally read here as well so returning from the
     // Design Studio with ?color= restores the chosen palette.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templateId, router, toast, colorParam, shouldPrefill, session?.user?.id]);
+  }, [templateId, router, toast, colorParam, shouldPrefill]);
 
   // Auto-save to localStorage
   useEffect(() => {
