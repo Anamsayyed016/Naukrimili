@@ -32,6 +32,7 @@ import {
   renderContactListHtml,
   resolveProfileImageForRender,
   coalesceFormDataForTemplateRender,
+  appendHobbiesSectionIfMissing,
 } from './section-visibility';
 import { resolveGalleryProfileImage } from './gallery-demo';
 
@@ -541,6 +542,13 @@ export function injectResumeData(
   if (remainingPlaceholders && remainingPlaceholders.length > 0) {
     // no-op (temporary debug logs removed)
   }
+
+  result = appendHobbiesSectionIfMissing(
+    result,
+    htmlTemplate,
+    placeholders['{{HOBBIES}}'] || '',
+    data
+  );
 
   // Minimal render fixes only — skill chip spacing (does not alter template layout).
   const renderFixesCSS = `

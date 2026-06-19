@@ -114,9 +114,17 @@ function syncProjectEntryAliases(entry: Record<string, unknown>): Record<string,
   const description = pick(['description', 'Description', 'summary', 'Summary']);
   const technologies = pick(['technologies', 'Technologies', 'tech_stack']);
   const link = pick(['link', 'Link', 'url']);
+  const existingId =
+    typeof entry._id === 'string' && entry._id.trim() ? entry._id.trim() : '';
+  const id =
+    existingId ||
+    (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `proj_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`);
 
   return {
     ...entry,
+    _id: id,
     name,
     Name: name,
     title: name,
@@ -556,6 +564,8 @@ export default function ResumeEditorPage() {
         next.Hobbies = list;
         next['Hobbies & Interests'] = list;
         next.interests = list;
+        next.Interests = list;
+        next.personalInterests = list;
       }
 
       if ('projects' in patch) {

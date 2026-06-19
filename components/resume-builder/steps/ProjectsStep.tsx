@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
-import { useDebounce } from '@/hooks/useDebounce';
 import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 import { getProjectTechnologySuggestions } from '@/lib/resume-builder/project-aware-suggestions';
 import {
@@ -24,6 +23,16 @@ interface ProjectsStepProps {
   ) => void;
 }
 
+type ProjectSuggestionField = 'name' | 'description' | 'technologies';
+
+type ProjectFieldSuggestions = {
+  name?: string[];
+  description?: string[];
+  technologies?: string[];
+};
+
+type ProjectAiSuggestionsMap = Record<string, ProjectFieldSuggestions>;
+
 function mergeTechnologySuggestion(existing: string, suggestion: string): string {
   const parts = existing
     .split(/[,;]/)
@@ -39,6 +48,7 @@ function mergeTechnologySuggestion(existing: string, suggestion: string): string
 }
 
 interface Project {
+  _id?: string;
   name?: string;
   description?: string;
   technologies?: string;
@@ -100,39 +110,85 @@ function readProjectField(project: Project, keys: string[]): string {
   return '';
 }
 
+function readProjectId(project: Project): string {
+  const id = (project as Record<string, unknown>)._id;
+  return typeof id === 'string' ? id : '';
+}
+
+function resolveProjectAiSuggestions(formData: Record<string, unknown>): ProjectAiSuggestionsMap {
+  const raw = formData.projectAiSuggestions;
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    return raw as ProjectAiSuggestionsMap;
+  }
+  return {};
+}
+
+function getSuggestionsForProject(
+  formData: Record<string, unknown>,
+  project: Project
+): ProjectFieldSuggestions {
+  const id = readProjectId(project);
+  if (!id) return {};
+  return resolveProjectAiSuggestions(formData)[id] || {};
+}
+
 export default function ProjectsStep({ formData, updateFormData }: ProjectsStepProps) {
   const projects: Project[] = resolveProjectsList(formData);
-  const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: { name?: string[]; description?: string[]; technologies?: string[] } }>({});
-  const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { name?: boolean; description?: boolean; technologies?: boolean } }>({});
+  const [loadingSuggestions, setLoadingSuggestions] = useState<
+    Record<string, Partial<Record<ProjectSuggestionField, boolean>>>
+  >({});
   const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const skipProjectFetchRef = useRef<Record<string, boolean>>({});
   const applyProjectLockUntilRef = useRef<Record<string, number>>({});
   const formDataRef = useRef(formData);
-  const aiSuggestionsRef = useRef(aiSuggestions);
 
   useEffect(() => {
     formDataRef.current = formData;
   }, [formData]);
 
+  // Assign stable _id to legacy projects so suggestions persist per project (not by index).
   useEffect(() => {
-    aiSuggestionsRef.current = aiSuggestions;
-  }, [aiSuggestions]);
+    const list = resolveProjectsList(formData);
+    if (list.some((project) => !readProjectId(project))) {
+      updateFormData((prev) => ({ projects: resolveProjectsList(prev) }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const setProjectSuggestions = (
+    projectId: string,
+    field: ProjectSuggestionField,
+    suggestions: string[]
+  ) => {
+    if (!projectId) return;
+    updateFormData((prev) => {
+      const all = { ...resolveProjectAiSuggestions(prev) };
+      all[projectId] = { ...(all[projectId] || {}), [field]: suggestions };
+      if (process.env.NODE_ENV === 'development') {
+        console.log('PROJECT SUGGESTIONS store', { projectId, field, all });
+      }
+      return { projectAiSuggestions: all };
+    });
+  };
 
   const requestProjectSuggestions = async (
     index: number,
-    field: 'name' | 'description' | 'technologies',
+    field: ProjectSuggestionField,
     value: string,
     options?: { regenerate?: boolean }
   ) => {
     const latestProjects = resolveProjectsList(formDataRef.current);
     const project = latestProjects[index] || {};
+    const projectId = readProjectId(project);
     const projectName = readProjectField(project, ['name', 'Name', 'title', 'Title']);
     const projectDescription = readProjectField(project, ['description', 'Description', 'summary', 'Summary']);
     const techList =
       typeof project.technologies === 'string'
         ? project.technologies.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
         : [];
-    const exclude = options?.regenerate ? aiSuggestionsRef.current[index]?.[field] || [] : [];
+    const exclude = options?.regenerate
+      ? getSuggestionsForProject(formDataRef.current, project)[field] || []
+      : [];
 
     const response = await fetch('/api/ai/form-suggestions', {
       method: 'POST',
@@ -181,69 +237,63 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
   const updateProject = (index: number, field: keyof Project, value: string) => {
     updateFormData((prev) => {
       const current = resolveProjectsList(prev);
-      const next = current.map((project, i) =>
-        i === index ? withProjectFieldAliases(project, field, value) : project
-      );
-      if (process.env.NODE_ENV === 'development') {
-        console.log('PROJECT SUGGESTIONS apply', { index, field, next });
-      }
-      return { projects: next };
+      return {
+        projects: current.map((project, i) =>
+          i === index ? withProjectFieldAliases(project, field, value) : project
+        ),
+      };
     });
   };
 
   const removeProject = (index: number) => {
     updateFormData((prev) => {
       const current = resolveProjectsList(prev);
-      return { projects: current.filter((_, i) => i !== index) };
-    });
-    setAiSuggestions((prev) => {
-      const next: typeof prev = {};
-      Object.entries(prev).forEach(([key, value]) => {
-        const i = Number(key);
-        if (i < index) next[i] = value;
-        else if (i > index) next[i - 1] = value;
-      });
-      return next;
+      const removedId = readProjectId(current[index] || {});
+      const nextProjects = current.filter((_, i) => i !== index);
+      const nextSuggestions = { ...resolveProjectAiSuggestions(prev) };
+      if (removedId) {
+        delete nextSuggestions[removedId];
+      }
+      return { projects: nextProjects, projectAiSuggestions: nextSuggestions };
     });
     setLoadingSuggestions((prev) => {
-      const next: typeof prev = {};
-      Object.entries(prev).forEach(([key, value]) => {
-        const i = Number(key);
-        if (i < index) next[i] = value;
-        else if (i > index) next[i - 1] = value;
-      });
+      const removedId = readProjectId(projects[index] || {});
+      if (!removedId) return prev;
+      const next = { ...prev };
+      delete next[removedId];
       return next;
     });
   };
 
-  // Fetch AI suggestions dynamically
-  const fetchAISuggestions = async (index: number, field: 'name' | 'description' | 'technologies', value: string) => {
+  const fetchAISuggestions = async (
+    index: number,
+    field: ProjectSuggestionField,
+    value: string
+  ) => {
+    const latestProjects = resolveProjectsList(formDataRef.current);
+    const project = latestProjects[index] || {};
+    const projectId = readProjectId(project);
+    if (!projectId) return;
+
     if (!value || value.trim().length < 1) {
-      setAiSuggestions(prev => ({
-        ...prev,
-        [index]: { ...prev[index], [field]: [] }
-      }));
+      setProjectSuggestions(projectId, field, []);
       return;
     }
 
     if (field === 'technologies') {
-      const latestProjects = resolveProjectsList(formDataRef.current);
       const instant = getProjectTechnologySuggestions({
         userInput: value,
-        projectName: readProjectField(latestProjects[index] || {}, ['name', 'Name', 'title', 'Title']),
-        projectDescription: readProjectField(latestProjects[index] || {}, ['description', 'Description', 'summary', 'Summary']),
+        projectName: readProjectField(project, ['name', 'Name', 'title', 'Title']),
+        projectDescription: readProjectField(project, ['description', 'Description', 'summary', 'Summary']),
         technologies: value.split(/[,;]/).map((s) => s.trim()).filter(Boolean),
         skills: Array.isArray(formDataRef.current.skills) ? (formDataRef.current.skills as string[]) : [],
       });
       if (instant.length > 0) {
-        setAiSuggestions((prev) => ({
-          ...prev,
-          [index]: { ...prev[index], technologies: instant },
-        }));
+        setProjectSuggestions(projectId, 'technologies', instant);
       }
     }
 
-    const timerKey = `${index}-${field}`;
+    const timerKey = `${projectId}-${field}`;
     if (debounceTimers.current[timerKey]) {
       clearTimeout(debounceTimers.current[timerKey]);
     }
@@ -256,36 +306,31 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       if (Date.now() < (applyProjectLockUntilRef.current[timerKey] || 0)) {
         return;
       }
-      setLoadingSuggestions(prev => ({
+
+      setLoadingSuggestions((prev) => ({
         ...prev,
-        [index]: { ...prev[index], [field]: true }
+        [projectId]: { ...prev[projectId], [field]: true },
       }));
 
       try {
         const list = await requestProjectSuggestions(index, field, value);
+        const latestId = readProjectId(resolveProjectsList(formDataRef.current)[index] || {});
+        if (!latestId) return;
+
         if (list?.length) {
-          setAiSuggestions((prev) => {
-            const current = prev[index]?.[field] || [];
-            const currentItems = stringsToItems(current);
-            const mode = pickMergeMode(currentItems, { source: 'auto' });
-            const merged = mergeStringSuggestions(current, list, mode);
-            return {
-              ...prev,
-              [index]: { ...prev[index], [field]: merged },
-            };
-          });
+          const current = getSuggestionsForProject(formDataRef.current, project)[field] || [];
+          const mode = pickMergeMode(stringsToItems(current), { source: 'auto' });
+          const merged = mergeStringSuggestions(current, list, mode);
+          setProjectSuggestions(latestId, field, merged);
         } else {
-          setAiSuggestions((prev) => ({
-            ...prev,
-            [index]: { ...prev[index], [field]: [] },
-          }));
+          setProjectSuggestions(latestId, field, []);
         }
       } catch (error) {
         console.error('Failed to fetch AI suggestions:', error);
       } finally {
-        setLoadingSuggestions(prev => ({
+        setLoadingSuggestions((prev) => ({
           ...prev,
-          [index]: { ...prev[index], [field]: false }
+          [projectId]: { ...prev[projectId], [field]: false },
         }));
       }
     }, 600);
@@ -302,6 +347,8 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
 
       <div className="space-y-6">
         {projects.map((project, index) => {
+          const projectId = readProjectId(project) || `project-${index}`;
+          const suggestions = getSuggestionsForProject(formData, project);
           const name = readProjectField(project, ['name', 'Name', 'title', 'Title']);
           const description = readProjectField(project, ['description', 'Description', 'summary', 'Summary']);
           const technologies = readProjectField(project, ['technologies', 'Technologies', 'tech_stack']);
@@ -309,7 +356,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
 
           return (
             <div
-              key={index}
+              key={projectId}
               className="bg-gray-50 rounded-lg border border-gray-200 p-4 sm:p-5 md:p-6 space-y-4 w-full max-w-full overflow-x-hidden"
             >
               <div className="flex items-center justify-between mb-4">
@@ -341,7 +388,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                     }}
                     className="w-full"
                   />
-                  {aiSuggestions[index]?.name && aiSuggestions[index].name!.length > 0 && (
+                  {suggestions.name && suggestions.name.length > 0 && (
                     <div className="mt-2 space-y-1">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -353,36 +400,40 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                           variant="ghost"
                           size="sm"
                           className="h-7 text-xs"
-                          disabled={loadingSuggestions[index]?.name}
+                          disabled={loadingSuggestions[projectId]?.name}
                           onClick={async () => {
-                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], name: true } }));
-                            const list = await requestProjectSuggestions(index, 'name', name, { regenerate: true });
+                            setLoadingSuggestions((p) => ({
+                              ...p,
+                              [projectId]: { ...p[projectId], name: true },
+                            }));
+                            const list = await requestProjectSuggestions(index, 'name', name, {
+                              regenerate: true,
+                            });
                             if (list?.length) {
-                              setAiSuggestions((p) => {
-                                const current = p[index]?.name || [];
-                                const mode = pickMergeMode(stringsToItems(current), { regenerate: true });
-                                return {
-                                  ...p,
-                                  [index]: {
-                                    ...p[index],
-                                    name: mergeStringSuggestions(current, list, mode),
-                                  },
-                                };
-                              });
+                              const current = suggestions.name || [];
+                              const mode = pickMergeMode(stringsToItems(current), { regenerate: true });
+                              setProjectSuggestions(
+                                projectId,
+                                'name',
+                                mergeStringSuggestions(current, list, mode)
+                              );
                             }
-                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], name: false } }));
+                            setLoadingSuggestions((p) => ({
+                              ...p,
+                              [projectId]: { ...p[projectId], name: false },
+                            }));
                           }}
                         >
                           Regenerate
                         </Button>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {aiSuggestions[index].name!.slice(0, 6).map((suggestion, idx) => (
+                        {suggestions.name.slice(0, 6).map((suggestion, idx) => (
                           <button
                             key={idx}
                             type="button"
                             onClick={() => {
-                              const key = `${index}-name`;
+                              const key = `${projectId}-name`;
                               skipProjectFetchRef.current[key] = true;
                               applyProjectLockUntilRef.current[key] = Date.now() + 3000;
                               updateProject(index, 'name', suggestion);
@@ -396,7 +447,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                       </div>
                     </div>
                   )}
-                  {loadingSuggestions[index]?.name && (
+                  {loadingSuggestions[projectId]?.name && (
                     <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       <span>Getting AI suggestions...</span>
@@ -411,21 +462,16 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                     value={description}
                     onChange={(e) => {
                       updateProject(index, 'description', e.target.value);
-                      // Trigger suggestions dynamically as user types (reduced threshold to 3 characters)
                       if (e.target.value.trim().length >= 3) {
                         fetchAISuggestions(index, 'description', e.target.value);
-                      } else {
-                        // Clear suggestions if input is too short
-                        setAiSuggestions(prev => ({
-                          ...prev,
-                          [index]: { ...prev[index], description: [] }
-                        }));
+                      } else if (readProjectId(project)) {
+                        setProjectSuggestions(readProjectId(project), 'description', []);
                       }
                     }}
                     rows={4}
                     className="w-full"
                   />
-                  {aiSuggestions[index]?.description && aiSuggestions[index].description!.length > 0 && (
+                  {suggestions.description && suggestions.description.length > 0 && (
                     <div className="mt-2 space-y-2 rounded-lg border border-blue-100 bg-blue-50/50 p-2">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-xs font-medium text-gray-700">
@@ -437,36 +483,40 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                           variant="ghost"
                           size="sm"
                           className="h-7 text-xs"
-                          disabled={loadingSuggestions[index]?.description}
+                          disabled={loadingSuggestions[projectId]?.description}
                           onClick={async () => {
-                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], description: true } }));
-                            const list = await requestProjectSuggestions(index, 'description', description, { regenerate: true });
+                            setLoadingSuggestions((p) => ({
+                              ...p,
+                              [projectId]: { ...p[projectId], description: true },
+                            }));
+                            const list = await requestProjectSuggestions(index, 'description', description, {
+                              regenerate: true,
+                            });
                             if (list?.length) {
-                              setAiSuggestions((p) => {
-                                const current = p[index]?.description || [];
-                                const mode = pickMergeMode(stringsToItems(current), { regenerate: true });
-                                return {
-                                  ...p,
-                                  [index]: {
-                                    ...p[index],
-                                    description: mergeStringSuggestions(current, list, mode),
-                                  },
-                                };
-                              });
+                              const current = suggestions.description || [];
+                              const mode = pickMergeMode(stringsToItems(current), { regenerate: true });
+                              setProjectSuggestions(
+                                projectId,
+                                'description',
+                                mergeStringSuggestions(current, list, mode)
+                              );
                             }
-                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], description: false } }));
+                            setLoadingSuggestions((p) => ({
+                              ...p,
+                              [projectId]: { ...p[projectId], description: false },
+                            }));
                           }}
                         >
                           Regenerate
                         </Button>
                       </div>
                       <div className="space-y-1.5">
-                        {aiSuggestions[index].description!.slice(0, 6).map((suggestion, idx) => (
+                        {suggestions.description.slice(0, 6).map((suggestion, idx) => (
                           <button
                             key={idx}
                             type="button"
                             onClick={() => {
-                              const key = `${index}-description`;
+                              const key = `${projectId}-description`;
                               skipProjectFetchRef.current[key] = true;
                               applyProjectLockUntilRef.current[key] = Date.now() + 3000;
                               updateProject(index, 'description', suggestion);
@@ -480,7 +530,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                       </div>
                     </div>
                   )}
-                  {loadingSuggestions[index]?.description && (
+                  {loadingSuggestions[projectId]?.description && (
                     <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       <span>Getting AI suggestions...</span>
@@ -500,18 +550,18 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                       }}
                       className="w-full"
                     />
-                    {aiSuggestions[index]?.technologies && aiSuggestions[index].technologies!.length > 0 && (
+                    {suggestions.technologies && suggestions.technologies.length > 0 && (
                       <div className="mt-2 space-y-1">
                         <div className="flex items-center gap-2 text-xs text-gray-600">
                           <Sparkles className="w-3 h-3" />
                           <span>AI Suggestions:</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {aiSuggestions[index].technologies!.slice(0, 4).map((suggestion, idx) => (
+                          {suggestions.technologies.slice(0, 4).map((suggestion, idx) => (
                             <button
                               key={idx}
                               onClick={() => {
-                                const key = `${index}-technologies`;
+                                const key = `${projectId}-technologies`;
                                 skipProjectFetchRef.current[key] = true;
                                 applyProjectLockUntilRef.current[key] = Date.now() + 3000;
                                 updateProject(
@@ -528,7 +578,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                         </div>
                       </div>
                     )}
-                    {loadingSuggestions[index]?.technologies && (
+                    {loadingSuggestions[projectId]?.technologies && (
                       <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         <span>Getting AI suggestions...</span>
@@ -574,4 +624,3 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     </div>
   );
 }
-

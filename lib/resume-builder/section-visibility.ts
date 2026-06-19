@@ -542,6 +542,25 @@ function mergeLanguageHints(existing: unknown[], hints: string[]): unknown[] {
   return out;
 }
 
+/** Strip resume metadata wrongly placed in hobbies — not legitimate hobby names (cooking, sports, etc.). */
+const HOBBIES_METADATA_PATTERNS: RegExp[] = [
+  /\bhusband\b/i,
+  /\bwife\b/i,
+  /\bfather\b/i,
+  /\bmother\b/i,
+  /\bmarital\b/i,
+  /\bmarried\b/i,
+  /\bdate of birth\b/i,
+  /\bd\.?o\.?b\.?\b/i,
+  /\bnationality\b/i,
+  /\breligion\b/i,
+  /\bgender\b/i,
+  /\bpassport\b/i,
+  /language\s*known/i,
+  /^hobbies?\s*$/i,
+  /^interests?\s*$/i,
+];
+
 function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {
   if (!Array.isArray(hobbies)) return [];
   return hobbies.filter((item) => {
@@ -550,14 +569,111 @@ function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {
         ? item
         : String((item as Record<string, unknown>).name ?? (item as Record<string, unknown>).title ?? '');
     if (!hasMeaningfulText(text)) return false;
-    if (isPersonalOrNonSkillEntry(text)) {
-      return false;
-    }
-    if (/language\s*known/i.test(text)) {
+    if (HOBBIES_METADATA_PATTERNS.some((pattern) => pattern.test(text))) {
       return false;
     }
     return true;
   });
+}
+
+type HobbiesSectionShell = {
+  sectionClass: string;
+  headingClass: string;
+  listClass: string;
+  headingLabel: string;
+  placement: 'main' | 'sidebar';
+};
+
+function detectHobbiesSectionShell(htmlTemplate: string): HobbiesSectionShell {
+  for (const token of ['HOBBIES', 'ACHIEVEMENTS', 'PROJECTS', 'LANGUAGES', 'CERTIFICATIONS']) {
+    const re = new RegExp(`\\{\\{#if ${token}\\}\\}([\\s\\S]*?)\\{\\{/if\\}\\}`, 'i');
+    const match = htmlTemplate.match(re);
+    if (!match) continue;
+
+    const block = match[1];
+    const sectionClass =
+      block.match(/<section[^>]*class="([^"]*)"/i)?.[1] ||
+      block.match(/class="([^"]*section[^"]*)"/i)?.[1] ||
+      'content-section';
+    const headingClass =
+      block.match(/<h2[^>]*class="([^"]*)"/i)?.[1] ||
+      block.match(/<h3[^>]*class="([^"]*)"/i)?.[1] ||
+      'section-title';
+    const listClass =
+      block.match(/<div[^>]*class="([^"]*-list[^"]*)"/i)?.[1] || 'hobbies-list';
+    const inSidebar =
+      /sidebar-section|tm-sidebar-panel|<aside/i.test(block) ||
+      (htmlTemplate.includes('sidebar') &&
+        htmlTemplate.indexOf(match[0]) < htmlTemplate.indexOf('main-content'));
+
+    return {
+      sectionClass,
+      headingClass,
+      listClass: token === 'HOBBIES' ? listClass : listClass.replace(/achievements|projects|languages|certifications/gi, 'hobbies') || 'hobbies-list',
+      headingLabel: token === 'HOBBIES' ? 'Interests' : 'Interests',
+      placement: inSidebar ? 'sidebar' : 'main',
+    };
+  }
+
+  return {
+    sectionClass: 'content-section',
+    headingClass: 'section-title',
+    listClass: 'hobbies-list',
+    headingLabel: 'Interests',
+    placement: 'main',
+  };
+}
+
+/**
+ * When a template has no {{HOBBIES}} block (or the conditional stripped it), inject hobbies
+ * using the same section shell pattern as achievements/projects/languages on that template.
+ */
+export function appendHobbiesSectionIfMissing(
+  renderedHtml: string,
+  htmlTemplate: string,
+  hobbiesRenderedHtml: string,
+  formData: Record<string, unknown>
+): string {
+  if (!shouldRenderSection('HOBBIES', hobbiesRenderedHtml, formData)) {
+    return renderedHtml;
+  }
+
+  if (/\bhobby-item\b/i.test(renderedHtml)) {
+    return renderedHtml;
+  }
+
+  const shell = detectHobbiesSectionShell(htmlTemplate);
+  const sectionHtml = `
+    <section class="${shell.sectionClass}">
+      <h2 class="${shell.headingClass}">${shell.headingLabel}</h2>
+      <div class="${shell.listClass}">
+        ${hobbiesRenderedHtml}
+      </div>
+    </section>
+  `;
+
+  if (shell.placement === 'sidebar') {
+    const sidebarMatch = renderedHtml.match(
+      /(<aside[^>]*>[\s\S]*?)(\s*<\/aside>)/i
+    );
+    if (sidebarMatch) {
+      return renderedHtml.replace(sidebarMatch[0], `${sidebarMatch[1]}\n${sectionHtml}\n${sidebarMatch[2]}`);
+    }
+  }
+
+  const mainMatch = renderedHtml.match(/(<main[^>]*>[\s\S]*?)(\s*<\/main>)/i);
+  if (mainMatch) {
+    return renderedHtml.replace(mainMatch[0], `${mainMatch[1]}\n${sectionHtml}\n${mainMatch[2]}`);
+  }
+
+  const containerMatch = renderedHtml.match(
+    /(<div[^>]*class="[^"]*main-content[^"]*"[^>]*>[\s\S]*?)(\s*<\/div>)/i
+  );
+  if (containerMatch) {
+    return renderedHtml.replace(containerMatch[0], `${containerMatch[1]}\n${sectionHtml}\n${containerMatch[2]}`);
+  }
+
+  return `${renderedHtml}\n${sectionHtml}`;
 }
 
 /** Coerce hobbies/interests from builder, import, or parser into a string array. */
