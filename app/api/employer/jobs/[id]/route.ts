@@ -213,6 +213,44 @@ export async function PUT(
         : null;
       console.log('  ✓ expiryDate (from applicationDeadline):', body.applicationDeadline);
     }
+
+    const rawJsonPatchKeys = [
+      'contactEmail',
+      'contactPhone',
+      'openings',
+      'hideEmail',
+      'hidePhone',
+    ] as const;
+    const hasRawJsonPatch = rawJsonPatchKeys.some((key) => body[key] !== undefined);
+    if (hasRawJsonPatch) {
+      const existingRaw =
+        existingJob.rawJson &&
+        typeof existingJob.rawJson === 'object' &&
+        !Array.isArray(existingJob.rawJson)
+          ? { ...(existingJob.rawJson as Record<string, unknown>) }
+          : {};
+
+      if (body.contactEmail !== undefined) {
+        existingRaw.contactEmail = body.contactEmail;
+      }
+      if (body.contactPhone !== undefined) {
+        existingRaw.contactPhone = body.contactPhone;
+      }
+      if (body.openings !== undefined) {
+        const parsedOpenings = Number.parseInt(String(body.openings), 10);
+        existingRaw.openings = Number.isFinite(parsedOpenings) && parsedOpenings > 0 ? parsedOpenings : 1;
+      }
+      if (body.hideEmail !== undefined) {
+        existingRaw.hideEmail = body.hideEmail === true;
+      }
+      if (body.hidePhone !== undefined) {
+        existingRaw.hidePhone = body.hidePhone === true;
+        existingRaw.hideContact = body.hidePhone === true;
+      }
+
+      updateData.rawJson = existingRaw;
+      console.log('  ✓ rawJson contact fields updated');
+    }
     
     console.log('📊 Total fields to update:', Object.keys(updateData).length);
 

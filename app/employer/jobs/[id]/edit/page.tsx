@@ -26,7 +26,9 @@ import {
   FileText,
   Zap,
   Trash2,
-  Sparkles
+  Sparkles,
+  Mail,
+  Phone
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
@@ -61,6 +63,11 @@ interface JobFormData {
   sector: string;
   skills: string[];
   applicationDeadline: string;
+  contactEmail: string;
+  contactPhone: string;
+  openings: string;
+  hideEmail: boolean;
+  hidePhone: boolean;
 }
 
 interface AISuggestions {
@@ -111,7 +118,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     isFeatured: false,
     sector: '',
     skills: [],
-    applicationDeadline: ''
+    applicationDeadline: '',
+    contactEmail: '',
+    contactPhone: '',
+    openings: '1',
+    hideEmail: false,
+    hidePhone: false,
   });
 
   const [skillsInput, setSkillsInput] = useState('');
@@ -397,7 +409,20 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
             skills = typeof job.skills === 'string' ? job.skills.split(',').map(s => s.trim()).filter(s => s) : [];
           }
         }
-        
+
+        const rawJson =
+          job.rawJson && typeof job.rawJson === 'object' && !Array.isArray(job.rawJson)
+            ? (job.rawJson as Record<string, unknown>)
+            : {};
+
+        const readRawString = (...keys: string[]): string => {
+          for (const key of keys) {
+            const value = rawJson[key];
+            if (typeof value === 'string' && value.trim()) return value.trim();
+          }
+          return '';
+        };
+
         setFormData({
           title: job.title || '',
           location: job.location || '',
@@ -414,8 +439,24 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           isFeatured: job.isFeatured || false,
           sector: normalizeEmployerJobSector(job.sector || ''),
           skills: skills,
-          // FIXED: Map expiryDate from database to applicationDeadline in form
-          applicationDeadline: job.expiryDate ? new Date(job.expiryDate).toISOString().split('T')[0] : ''
+          applicationDeadline: job.expiryDate ? new Date(job.expiryDate).toISOString().split('T')[0] : '',
+          contactEmail: readRawString(
+            'contactEmail',
+            'contact_email',
+            'recruiter_email',
+            'application_email',
+            'company_email'
+          ),
+          contactPhone: readRawString(
+            'contactPhone',
+            'contact_phone',
+            'recruiter_phone',
+            'application_phone',
+            'company_phone'
+          ),
+          openings: rawJson.openings != null && rawJson.openings !== '' ? String(rawJson.openings) : '1',
+          hideEmail: rawJson.hideEmail === true,
+          hidePhone: rawJson.hidePhone === true || rawJson.hideContact === true,
         });
       } else {
         console.error('❌ data.success is false');
@@ -1132,6 +1173,77 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           placeholder="e.g., 50000-80000"
                           className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0"
                         />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="openings" className="text-sm sm:text-base font-bold text-gray-900">
+                          Number Of People To Hire
+                        </Label>
+                        <Input
+                          id="openings"
+                          name="openings"
+                          type="number"
+                          min="1"
+                          value={formData.openings}
+                          onChange={(e) => handleInputChange('openings', e.target.value)}
+                          className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200">
+                        <div>
+                          <Label htmlFor="contactEmail" className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            Contact Email
+                          </Label>
+                          <Input
+                            id="contactEmail"
+                            name="contactEmail"
+                            type="email"
+                            value={formData.contactEmail}
+                            onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                            placeholder="hr@yourcompany.com"
+                            className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="contactPhone" className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                            <Phone className="h-4 w-4" />
+                            Contact Phone
+                          </Label>
+                          <Input
+                            id="contactPhone"
+                            name="contactPhone"
+                            type="tel"
+                            value={formData.contactPhone}
+                            onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                            placeholder="+91 12345 67890"
+                            className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="hideEmail"
+                            checked={formData.hideEmail}
+                            onCheckedChange={(checked) => handleInputChange('hideEmail', checked === true)}
+                          />
+                          <Label htmlFor="hideEmail" className="text-sm font-medium text-gray-900 cursor-pointer">
+                            Hide Email from job listing
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="hidePhone"
+                            checked={formData.hidePhone}
+                            onCheckedChange={(checked) => handleInputChange('hidePhone', checked === true)}
+                          />
+                          <Label htmlFor="hidePhone" className="text-sm font-medium text-gray-900 cursor-pointer">
+                            Hide Phone from job listing
+                          </Label>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
