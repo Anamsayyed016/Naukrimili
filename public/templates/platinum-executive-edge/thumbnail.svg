@@ -1,0 +1,25 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="400" fill="#F7F7F7"/>
+  <path d="M0 0 L48 0 L48 8 L8 8 L8 48 L0 48 Z" fill="#C9CDD3"/>
+  <path d="M252 0 L300 0 L300 48 L292 48 L292 8 L252 8 Z" fill="#C9CDD3"/>
+  <path d="M0 352 L0 400 L48 400 L48 392 L8 392 L8 352 Z" fill="#C9CDD3"/>
+  <rect x="0" y="0" width="300" height="72" fill="#E4E7EB" opacity="0.9"/>
+  <polygon points="36,54 54,42 72,54 72,72 36,72" fill="#D5D9DE" stroke="#D8A28F" stroke-width="1.5"/>
+  <text x="88" y="44" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1F1F1F">MARCUS J.</text>
+  <text x="88" y="56" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1F1F1F">STERLING</text>
+  <text x="88" y="68" font-family="Arial,sans-serif" font-size="4.5" fill="#5D636B" letter-spacing="0.5">SENIOR TECHNOLOGY INNOVATOR</text>
+  <rect x="88" y="74" width="40" height="10" rx="5" fill="#fff" stroke="#ddd"/>
+  <rect x="134" y="74" width="40" height="10" rx="5" fill="#fff" stroke="#ddd"/>
+  <rect x="24" y="84" width="252" height="14" fill="#2F3136"/>
+  <polygon points="24,84 34,84 28,98 24,98" fill="#D8A28F"/>
+  <text x="38" y="94" font-family="Georgia,serif" font-size="5" fill="#fff" letter-spacing="1">SUMMARY</text>
+  <rect x="24" y="102" width="168" height="280" fill="#F7F7F7"/>
+  <rect x="192" y="102" width="84" height="280" fill="#ECEEF1"/>
+  <line x1="192" y1="102" x2="192" y2="382" stroke="#D5D9DE"/>
+  <rect x="24" y="118" width="168" height="12" fill="#2F3136"/>
+  <polygon points="24,118 32,118 27,130 24,130" fill="#D8A28F"/>
+  <line x1="32" y1="150" x2="32" y2="200" stroke="#9BA1A9"/>
+  <circle cx="32" cy="158" r="3" fill="#2F3136"/>
+  <rect x="192" y="118" width="84" height="12" fill="#2F3136"/>
+  <text x="150" y="392" text-anchor="middle" font-family="Georgia,serif" font-size="9" font-weight="600" fill="#2F3136">Platinum Executive Edge</text>
+</svg>
