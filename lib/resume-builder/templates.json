@@ -502,6 +502,30 @@
         { "id": "teal", "name": "Teal", "primary": "#2DD4BF", "accent": "#5EEAD4", "text": "#0F172A" }
       ],
       "defaultColor": "frost-blue"
+    },
+    {
+      "id": "executive-burgundy-diamond",
+      "name": "Executive Burgundy Diamond",
+      "slug": "executive-burgundy-diamond",
+      "description": "Fortune 500 executive resume with deep burgundy luxury palette, geometric diamond photo framing, gold accents, timeline experience layout, and premium skill tags.",
+      "thumbnail": "/templates/executive-burgundy-diamond/thumbnail.svg",
+      "preview": "/templates/executive-burgundy-diamond/preview.svg",
+      "html": "/templates/executive-burgundy-diamond/index.html",
+      "css": "/templates/executive-burgundy-diamond/style.css",
+      "categories": ["Premium", "Executive", "Professional", "Leadership", "With Photo", "ATS"],
+      "layout": "One Column",
+      "hasSidebar": false,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "burgundy-gold", "name": "Burgundy Gold", "primary": "#5B1024", "accent": "#C9A26B", "text": "#2A2A2A" },
+        { "id": "wine-copper", "name": "Wine Copper", "primary": "#6B1428", "accent": "#B8894A", "text": "#2A2A2A" },
+        { "id": "crimson-champagne", "name": "Crimson Champagne", "primary": "#7A1830", "accent": "#D4BC82", "text": "#2A2A2A" },
+        { "id": "mahogany-platinum", "name": "Mahogany Platinum", "primary": "#4A0E1E", "accent": "#C8C4BC", "text": "#2A2A2A" },
+        { "id": "deep-rose-gold", "name": "Deep Rose Gold", "primary": "#5C1A2E", "accent": "#C99585", "text": "#2A2A2A" },
+        { "id": "oxblood-bronze", "name": "Oxblood Bronze", "primary": "#4F1018", "accent": "#B8934A", "text": "#2A2A2A" }
+      ],
+      "defaultColor": "burgundy-gold"
     }
   ],
   "filters": {
