@@ -59,7 +59,7 @@ interface PdfDeliveryOptions {
 
 const ANDROID_BLOB_REVOKE_MS = 60_000;
 const IOS_BLOB_REVOKE_MS = 60_000;
-const MOBILE_IFRAME_LOAD_TIMEOUT_MS = 2_500;
+const MOBILE_IFRAME_LOAD_TIMEOUT_MS = 8_000;
 
 function escapeHtmlAttr(value: string): string {
   return value
@@ -146,17 +146,26 @@ function renderPdfInDeliveryWindow(
         return;
       }
 
-      // If the iframe never loads, treat as failure (mobile browsers can silently
-      // refuse to render blob: PDFs in a popup window).
-      const timeoutId = window.setTimeout(() => finish(false), MOBILE_IFRAME_LOAD_TIMEOUT_MS);
+      // onload may not fire on iOS for blob PDFs even when the viewer is mounted.
+      const timeoutId = window.setTimeout(() => {
+        const hasBlobViewer = win.document.querySelector(
+          'iframe[src^="blob:"], embed[src^="blob:"], object[data^="blob:"]'
+        );
+        finish(!!hasBlobViewer && blob.size > 0);
+      }, MOBILE_IFRAME_LOAD_TIMEOUT_MS);
       iframe.onload = () => {
         window.clearTimeout(timeoutId);
         finish(true);
       };
       iframe.onerror = () => {
         window.clearTimeout(timeoutId);
-        URL.revokeObjectURL(url);
-        finish(false);
+        const hasBlobViewer = win.document.querySelector('iframe[src^="blob:"]');
+        if (hasBlobViewer && blob.size > 0) {
+          finish(true);
+        } else {
+          URL.revokeObjectURL(url);
+          finish(false);
+        }
       };
 
       win.addEventListener(
@@ -515,13 +524,17 @@ export default function FinalizeStep({
 
   const deliverMobilePdfWithFreshGesture = async (): Promise<void> => {
     const pending = pendingMobilePdfRef.current;
-    if (!pending) {
-      await handleExport('pdf', true);
+    if (!pending || pending.blob.size === 0) {
+      toast({
+        title: 'PDF not ready yet',
+        description: 'Wait for generation to finish, then tap Download PDF again.',
+        variant: 'default',
+      });
       return;
     }
 
     setExporting('pdf');
-    const deliveryWindow = isMobilePdfDeliveryDevice() ? openMobilePdfDeliveryWindow() : null;
+    const deliveryWindow = openMobilePdfDeliveryWindow();
 
     try {
       const delivery = await deliverPdfBlob(pending.blob, pending.filename, {
@@ -542,17 +555,30 @@ export default function FinalizeStep({
           toast(getPdfDeliveryFeedback(delivery.device, delivery));
           return;
         }
-        throw new Error('PDF delivery failed');
+        toast({
+          title: 'PDF ready',
+          description: 'Tap Download PDF below to try saving again.',
+          variant: 'default',
+        });
+        return;
       }
 
       pendingMobilePdfRef.current = null;
       setMobilePdfReadyAfterPayment(false);
+
+      if (skipPaymentCheck) {
+        setSkipPaymentCheck(false);
+      }
+      if (pendingExportFormat) {
+        setPendingExportFormat(null);
+      }
+
       toast(getPdfDeliveryFeedback(delivery.device, delivery));
     } catch (error: unknown) {
       console.error('❌ [PDF Delivery] Deferred mobile delivery failed:', error);
       toast({
-        title: 'Export failed',
-        description: error instanceof Error ? error.message : 'Please try again.',
+        title: 'Save failed',
+        description: 'Your PDF is still ready — tap Download PDF below to retry.',
         variant: 'destructive',
       });
     } finally {
@@ -680,10 +706,32 @@ export default function FinalizeStep({
     return recommendations;
   };
 
-  const handleExport = async (format: 'pdf', bypassPaymentCheck: boolean = false) => {
+  const handleExport = async (
+    format: 'pdf',
+    bypassPaymentCheck: boolean = false,
+    options?: { generateOnly?: boolean }
+  ) => {
+    // Mobile: reuse cached blob — never re-fetch (avoids extra download count).
+    if (
+      isMobilePdfDeliveryDevice() &&
+      pendingMobilePdfRef.current &&
+      !options?.generateOnly
+    ) {
+      void deliverMobilePdfWithFreshGesture();
+      return;
+    }
+
     setExporting(format);
 
-    const mobileDeliveryWindow = isMobilePdfDeliveryDevice() ? openMobilePdfDeliveryWindow() : null;
+    if (
+      options?.generateOnly &&
+      isMobilePdfDeliveryDevice() &&
+      pendingMobilePdfRef.current &&
+      pendingMobilePdfRef.current.blob.size > 0
+    ) {
+      setMobilePdfReadyAfterPayment(true);
+      return;
+    }
 
     try {
       // Check authentication FIRST before any payment checks
@@ -1029,19 +1077,20 @@ export default function FinalizeStep({
       
       console.log('✅ [Export] Valid PDF received, size:', blob.size, 'bytes');
       const filename = `resume-${templateId}-${Date.now()}.pdf`;
-      const delivery = await deliverPdfBlob(blob, filename, {
-        deliveryWindow: mobileDeliveryWindow,
-      });
 
-      if (delivery.needsDeferredTap) {
+      // Mobile: cache validated blob; delivery happens on a fresh user tap only.
+      if (isMobilePdfDeliveryDevice()) {
         pendingMobilePdfRef.current = { blob, filename };
         setMobilePdfReadyAfterPayment(true);
         toast({
           title: 'PDF ready',
           description: 'Tap Download PDF below to save your file.',
         });
+        console.log('📱 [Export] Mobile PDF cached — awaiting fresh tap for delivery');
         return;
       }
+
+      const delivery = await deliverPdfBlob(blob, filename);
 
       if (!delivery.success) {
         if (delivery.error === 'cancelled') {
@@ -1054,13 +1103,13 @@ export default function FinalizeStep({
       pendingMobilePdfRef.current = null;
       toast(getPdfDeliveryFeedback(delivery.device, delivery));
       setMobilePdfReadyAfterPayment(false);
-      
+
       // Reset skipPaymentCheck flag after successful download
       if (skipPaymentCheck) {
         console.log('✅ [Export] Resetting skipPaymentCheck flag after successful download');
         setSkipPaymentCheck(false);
       }
-      
+
       // Clear pending export format after successful download
       if (pendingExportFormat) {
         console.log('✅ [Export] Clearing pendingExportFormat after successful download');
@@ -1102,7 +1151,6 @@ export default function FinalizeStep({
         variant: 'destructive',
       });
     } finally {
-      closeOrphanDeliveryWindow(mobileDeliveryWindow);
       setExporting(null);
     }
   };
@@ -1271,15 +1319,15 @@ export default function FinalizeStep({
     }
 
     if (isMobilePdfDeliveryDevice()) {
-      setMobilePdfReadyAfterPayment(true);
       toast({
         title: toastOptions?.title ?? 'Payment successful!',
-        description: toastOptions?.description ?? 'PDF ready — tap Download PDF below.',
+        description: 'Generating your PDF… tap Download PDF below when ready.',
       });
-      console.log('📱 [Post-Payment Export] Awaiting user tap for mobile PDF delivery', {
+      console.log('📱 [Post-Payment Export] Prefetching PDF once for mobile cached delivery', {
         exportFormat,
         device: getPdfDeliveryDeviceInfo(),
       });
+      void handleExport(exportFormat, true, { generateOnly: true });
       return;
     }
 
