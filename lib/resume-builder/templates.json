@@ -598,6 +598,30 @@
         { "id": "executive-ash", "name": "Executive Ash", "primary": "#787F87", "accent": "#2F3136", "text": "#1F1F1F" }
       ],
       "defaultColor": "slate-pro"
+    },
+    {
+      "id": "executive-minimal-pro",
+      "name": "Executive Minimal Pro",
+      "slug": "executive-minimal-pro",
+      "description": "Single-column minimalist executive layout with centered copper-accent header, three-column expertise board, keyword skills row, and ATS-friendly dense typography with content-aware spacing.",
+      "thumbnail": "/templates/executive-minimal-pro/thumbnail.svg",
+      "preview": "/templates/executive-minimal-pro/preview.svg",
+      "html": "/templates/executive-minimal-pro/index.html",
+      "css": "/templates/executive-minimal-pro/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Executive", "One Column", "Minimal", "ATS"],
+      "layout": "One Column",
+      "hasSidebar": false,
+      "hasPhoto": false,
+      "recommended": true,
+      "colors": [
+        { "id": "minimal-pro", "name": "Minimal Pro", "primary": "#222222", "accent": "#B59A7A", "text": "#1F1F1F" },
+        { "id": "graphite-copper", "name": "Graphite Copper", "primary": "#2A2A2A", "accent": "#C4A882", "text": "#1F1F1F" },
+        { "id": "charcoal-bronze", "name": "Charcoal Bronze", "primary": "#333333", "accent": "#A68968", "text": "#1F1F1F" },
+        { "id": "slate-warm", "name": "Slate Warm", "primary": "#3D3D3D", "accent": "#B59A7A", "text": "#1F1F1F" },
+        { "id": "ink-copper", "name": "Ink Copper", "primary": "#1A1A1A", "accent": "#C99585", "text": "#1F1F1F" },
+        { "id": "executive-neutral", "name": "Executive Neutral", "primary": "#444444", "accent": "#B8A088", "text": "#1F1F1F" }
+      ],
+      "defaultColor": "minimal-pro"
     }
   ],
   "filters": {

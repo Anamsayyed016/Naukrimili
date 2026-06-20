@@ -34,6 +34,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-copper': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
   'platinum-executive-edge': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'slate-executive-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
+  'executive-minimal-pro': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -201,6 +202,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-slate-500/65',
     hoverOverlay: 'from-slate-300/25',
   },
+  'executive-minimal-pro': {
+    glow: 'radial-gradient(circle, rgba(181,154,122,0.38) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(34,34,34,0.18) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-700/50',
+    hoverOverlay: 'from-stone-200/28',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -232,6 +239,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-copper': { firstName: 'Sebastian', lastName: 'Cole', jobTitle: 'Chief Innovation Officer' },
   'platinum-executive-edge': { firstName: 'Marcus', lastName: 'Sterling', jobTitle: 'Senior Technology Innovator & Product Strategist' },
   'slate-executive-pro': { firstName: 'Ethan', lastName: 'Clark', jobTitle: 'Senior Product Manager' },
+  'executive-minimal-pro': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Senior Product Manager & Innovation Leader' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

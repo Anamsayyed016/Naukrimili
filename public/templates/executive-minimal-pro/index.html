@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container emp-resume">
+        <header class="emp-header">
+            <div class="emp-header-accent" aria-hidden="true"></div>
+            <div class="emp-header-inner">
+                <h1 class="candidate-name">
+                    <span class="name-first">{{FIRST_NAME}}</span>
+                    <span class="name-space"> </span>
+                    <span class="name-last">{{LAST_NAME}}</span>
+                    <span class="name-fallback">{{FULL_NAME}}</span>
+                </h1>
+                {{#if JOB_TITLE}}
+                <p class="header-title">{{JOB_TITLE}}</p>
+                {{/if}}
+                {{#if CONTACT}}
+                <div class="emp-contact">
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </div>
+                {{/if}}
+            </div>
+        </header>
+
+        <main class="emp-main">
+            {{#if SUMMARY}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Professional Summary</span></h2>
+                <p class="summary-text">{{SUMMARY}}</p>
+            </section>
+            {{/if}}
+
+            {{#if EXPERIENCE}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Professional Experience</span></h2>
+                <div class="experience-list emp-experience">
+                    {{EXPERIENCE}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if PROJECTS}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Key Projects</span></h2>
+                <div class="projects-list emp-projects">
+                    {{PROJECTS}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if SKILLS}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Expertise &amp; Skills</span></h2>
+                <div class="emp-skills-board">
+                    <div class="skills-list emp-skills-pillars">
+                        {{SKILLS}}
+                    </div>
+                    <div class="emp-skills-keywords-row">
+                        <span class="emp-skills-label">Skills</span>
+                        <div class="skills-list emp-skills-keywords">
+                            {{SKILLS}}
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if EDUCATION}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Education</span></h2>
+                <div class="education-list emp-education">
+                    {{EDUCATION}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if CERTIFICATIONS}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Certifications</span></h2>
+                <div class="certifications-list emp-certifications">
+                    {{CERTIFICATIONS}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if ACHIEVEMENTS}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Key Achievements</span></h2>
+                <div class="achievements-list emp-achievements">
+                    {{ACHIEVEMENTS}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if LANGUAGES}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Languages</span></h2>
+                <div class="languages-list emp-languages">
+                    {{LANGUAGES}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if HOBBIES}}
+            <section class="emp-section">
+                <h2 class="emp-heading"><span class="emp-heading-text">Interests</span></h2>
+                <div class="hobbies-list emp-interests">
+                    {{HOBBIES}}
+                </div>
+            </section>
+            {{/if}}
+        </main>
+    </div>
+</body>
+</html>

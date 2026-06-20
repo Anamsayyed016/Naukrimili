@@ -1,0 +1,52 @@
+<svg width="600" height="800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <rect width="600" height="6" fill="#B59A7A"/>
+  <rect x="0" y="6" width="600" height="72" fill="url(#empPreviewHeader)"/>
+  <defs>
+    <linearGradient id="empPreviewHeader" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EFEFEF"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <text x="300" y="52" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#222222" letter-spacing="3">JONATHAN REED</text>
+  <text x="300" y="78" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#222222" letter-spacing="1.5">SENIOR PRODUCT MANAGER &amp; INNOVATION LEADER</text>
+  <text x="300" y="98" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#6B6B6B">+1 (555) 123-4567  "  jonathan.reed@email.com  "  San Francisco, CA</text>
+  <text x="48" y="130" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">PROFESSIONAL SUMMARY</text>
+  <line x1="220" y1="126" x2="552" y2="126" stroke="#D6D6D6" stroke-width="1"/>
+  <text x="48" y="152" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F">Results-driven executive with 15+ years leading product strategy, cross-functional teams,</text>
+  <text x="48" y="166" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F">and enterprise-scale innovation initiatives across global technology organizations.</text>
+  <text x="48" y="196" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">PROFESSIONAL EXPERIENCE</text>
+  <line x1="248" y1="192" x2="552" y2="192" stroke="#D6D6D6" stroke-width="1"/>
+  <text x="48" y="218" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#222222">GLOBAL INNOVATIONS TECH, San Francisco, CA</text>
+  <text x="48" y="234" font-family="Arial,sans-serif" font-size="10" fill="#6B6B6B" font-style="italic">Director of Product Management | Jan 2018  Present</text>
+  <circle cx="54" cy="252" r="2.5" fill="#222222"/>
+  <text x="64" y="256" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F">Led product roadmap for $50M SaaS platform serving 2M+ users globally</text>
+  <circle cx="54" cy="272" r="2.5" fill="#222222"/>
+  <text x="64" y="276" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F">Increased customer retention by 34% through data-driven feature prioritization</text>
+  <text x="48" y="310" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">KEY PROJECTS</text>
+  <line x1="168" y1="306" x2="552" y2="306" stroke="#D6D6D6" stroke-width="1"/>
+  <text x="48" y="332" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F"><tspan font-weight="700" fill="#222222">AI Platform Launch:</tspan> Enterprise AI integration reducing processing time by 60%</text>
+  <text x="48" y="362" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">EXPERTISE &amp; SKILLS</text>
+  <line x1="210" y1="358" x2="552" y2="358" stroke="#D6D6D6" stroke-width="1"/>
+  <rect x="48" y="374" width="504" height="56" fill="rgba(181,154,122,0.12)" stroke="rgba(181,154,122,0.3)" stroke-width="0.8"/>
+  <line x1="216" y1="374" x2="216" y2="430" stroke="rgba(181,154,122,0.35)" stroke-width="0.8"/>
+  <line x1="384" y1="374" x2="384" y2="430" stroke="rgba(181,154,122,0.35)" stroke-width="0.8"/>
+  <text x="132" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#222222">PRODUCT MANAGEMENT</text>
+  <text x="300" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#222222">LEADERSHIP &amp; STRATEGY</text>
+  <text x="468" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#222222">TECHNICAL STACK</text>
+  <text x="48" y="448" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F"><tspan font-weight="700">SKILLS </tspan> Leadership, Strategy, Product Development, AI, Technology, Operations</text>
+  <text x="48" y="478" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">EDUCATION</text>
+  <line x1="148" y1="474" x2="552" y2="474" stroke="#D6D6D6" stroke-width="1"/>
+  <text x="48" y="498" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F"><tspan font-weight="700" fill="#222222">MBA, Business Administration</tspan> " Stanford Graduate School of Business " 2012</text>
+  <text x="48" y="528" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">CERTIFICATIONS</text>
+  <line x1="178" y1="524" x2="552" y2="524" stroke="#D6D6D6" stroke-width="1"/>
+  <text x="48" y="548" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F"><tspan font-weight="700" fill="#222222">Certified Scrum Product Owner</tspan> " Scrum Alliance</text>
+  <text x="48" y="578" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">KEY ACHIEVEMENTS</text>
+  <line x1="198" y1="574" x2="552" y2="574" stroke="#D6D6D6" stroke-width="1"/>
+  <circle cx="54" cy="596" r="2.5" fill="#222222"/>
+  <text x="64" y="600" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F">Named Top 40 Under 40 in Product Leadership, 2023</text>
+  <text x="48" y="630" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1.2">LANGUAGES</text>
+  <line x1="148" y1="626" x2="552" y2="626" stroke="#D6D6D6" stroke-width="1"/>
+  <text x="48" y="650" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F">English " Fluent  "  Hindi " Native  "  Spanish " Conversational</text>
+  <text x="300" y="770" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="600" fill="#B59A7A">Executive Minimal Pro</text>
+</svg>

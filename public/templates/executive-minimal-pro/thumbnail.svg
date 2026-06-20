@@ -1,0 +1,44 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="400" fill="#FFFFFF"/>
+  <rect width="300" height="4" fill="#B59A7A"/>
+  <rect x="0" y="4" width="300" height="36" fill="url(#empHeaderBg)"/>
+  <defs>
+    <linearGradient id="empHeaderBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EFEFEF"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <text x="150" y="28" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#222222" letter-spacing="1.5">JONATHAN REED</text>
+  <text x="150" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-size="4.5" fill="#222222" letter-spacing="0.8">SENIOR PRODUCT MANAGER</text>
+  <circle cx="72" cy="52" r="2" fill="#B59A7A"/>
+  <circle cx="108" cy="52" r="2" fill="#B59A7A"/>
+  <circle cx="150" cy="52" r="2" fill="#B59A7A"/>
+  <circle cx="192" cy="52" r="2" fill="#B59A7A"/>
+  <circle cx="228" cy="52" r="2" fill="#B59A7A"/>
+  <text x="150" y="54" text-anchor="middle" font-family="Arial,sans-serif" font-size="3.5" fill="#6B6B6B">contact details</text>
+  <text x="24" y="78" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#222222" letter-spacing="0.8">PROFESSIONAL SUMMARY</text>
+  <line x1="120" y1="76" x2="276" y2="76" stroke="#D6D6D6" stroke-width="0.8"/>
+  <rect x="24" y="84" width="252" height="14" rx="1" fill="#F5F5F5"/>
+  <text x="24" y="112" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#222222" letter-spacing="0.8">PROFESSIONAL EXPERIENCE</text>
+  <line x1="132" y1="110" x2="276" y2="110" stroke="#D6D6D6" stroke-width="0.8"/>
+  <text x="24" y="124" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#222222">GLOBAL INNOVATIONS TECH</text>
+  <text x="24" y="132" font-family="Arial,sans-serif" font-size="4.5" fill="#6B6B6B" font-style="italic">Director of Product | Jan 2018  Present</text>
+  <circle cx="28" cy="142" r="1.2" fill="#222222"/>
+  <rect x="32" y="140" width="200" height="3" fill="#E8E8E8"/>
+  <circle cx="28" cy="150" r="1.2" fill="#222222"/>
+  <rect x="32" y="148" width="180" height="3" fill="#E8E8E8"/>
+  <text x="24" y="168" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#222222" letter-spacing="0.8">EXPERTISE &amp; SKILLS</text>
+  <line x1="108" y1="166" x2="276" y2="166" stroke="#D6D6D6" stroke-width="0.8"/>
+  <rect x="24" y="174" width="252" height="32" fill="rgba(181,154,122,0.12)" stroke="rgba(181,154,122,0.3)" stroke-width="0.5"/>
+  <line x1="108" y1="174" x2="108" y2="206" stroke="rgba(181,154,122,0.35)" stroke-width="0.5"/>
+  <line x1="192" y1="174" x2="192" y2="206" stroke="rgba(181,154,122,0.35)" stroke-width="0.5"/>
+  <text x="66" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#222222">PRODUCT</text>
+  <text x="150" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#222222">LEADERSHIP</text>
+  <text x="234" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#222222">TECH STACK</text>
+  <text x="24" y="218" font-family="Arial,sans-serif" font-size="4.5" font-weight="700" fill="#222222">SKILLS </text>
+  <text x="58" y="218" font-family="Arial,sans-serif" font-size="4" fill="#1F1F1F">Leadership, Strategy, AI, Operations</text>
+  <text x="24" y="238" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#222222" letter-spacing="0.8">EDUCATION</text>
+  <line x1="68" y1="236" x2="276" y2="236" stroke="#D6D6D6" stroke-width="0.8"/>
+  <text x="24" y="250" font-family="Arial,sans-serif" font-size="4.5" font-weight="700" fill="#222222">MBA, Stanford GSB</text>
+  <text x="150" y="388" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="600" fill="#B59A7A">Executive Minimal Pro</text>
+</svg>
