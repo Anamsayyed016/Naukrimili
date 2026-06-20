@@ -1,8 +1,7 @@
 import HomePageClient from './HomePageClient';
 // FORCE HASH CHANGE - Build timestamp: 2025-01-19 15:30:00
 
-// CRITICAL: Force dynamic rendering to prevent build-time execution
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 export const runtime = 'nodejs';
 
 interface HomePageJob {
@@ -317,118 +316,108 @@ export default async function HomePage() {
           // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
           try {
             const { prisma } = await import('@/lib/prisma');
-          // Add timeout wrapper to prevent hanging during build
-          const dbQueryPromise = prisma.job.findMany({
-          where: {
-            isFeatured: true,
-            isActive: true
-          },
-          take: 6,
-          orderBy: [
-            { isUrgent: 'desc' },
-            { createdAt: 'desc' }
-          ],
-          select: {
-            id: true,
-            sourceId: true, // CRITICAL: For URL generation
-            source: true, // CRITICAL: For job type identification
-            title: true,
-            company: true,
-            companyLogo: true,
-            location: true,
-            country: true, // CRITICAL: For SEO URL and region validation
-            salary: true,
-            salaryMin: true,
-            salaryMax: true,
-            salaryCurrency: true,
-            jobType: true,
-            experienceLevel: true, // CRITICAL: For SEO URL
-            isRemote: true,
-            isFeatured: true,
-            sector: true // CRITICAL: For SEO URL
-          }
-        });
-        
-        // Add 10 second timeout for database query
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Database query timeout')), 10000)
-        );
-        
-        const dbFeaturedJobs = await Promise.race([dbQueryPromise, timeoutPromise]) as typeof dbQueryPromise extends Promise<infer T> ? T : never;
+            const jobSelect = {
+              id: true,
+              sourceId: true,
+              source: true,
+              title: true,
+              company: true,
+              companyLogo: true,
+              location: true,
+              country: true,
+              salary: true,
+              salaryMin: true,
+              salaryMax: true,
+              salaryCurrency: true,
+              jobType: true,
+              experienceLevel: true,
+              isRemote: true,
+              isFeatured: true,
+              sector: true,
+            } as const;
 
-        if (dbFeaturedJobs.length > 0) {
-        featuredJobs = dbFeaturedJobs.map(job => ({
-          id: job.id,
-          sourceId: job.sourceId, // Include for URL generation
-          source: job.source || 'database',
-          title: job.title,
-          company: job.company,
-          companyLogo: job.companyLogo,
-          location: job.location,
-          country: job.country || 'IN', // Always include country
-          salary: job.salary || (job.salaryMin && job.salaryMax ? 
-            `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
-          jobType: job.jobType,
-          experienceLevel: job.experienceLevel,
-          isRemote: job.isRemote,
-          isFeatured: job.isFeatured,
-          sector: job.sector
-        }));
-        console.log(`✅ Fetched ${featuredJobs.length} featured jobs from database`);
-      } else {
-        // Fallback to API endpoint if database fails
-        console.log('🔧 No featured jobs from database, trying API endpoint...');
-        
-        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        // Add timeout to prevent hanging during build
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-        
-        try {
-          const featuredResponse = await fetch(`${baseUrl}/api/featured-jobs?limit=6`, {
-            signal: controller.signal,
-            next: { revalidate: 60 } // Cache for 1 minute
-          });
-          clearTimeout(timeoutId);
+            const featuredQueryPromise = prisma.job.findMany({
+              where: {
+                isFeatured: true,
+                isActive: true,
+              },
+              take: 6,
+              orderBy: [{ isUrgent: 'desc' }, { createdAt: 'desc' }],
+              select: jobSelect,
+            });
 
-          if (featuredResponse.ok) {
-            const featuredData = await featuredResponse.json();
-            if (featuredData.success && featuredData.jobs) {
-              featuredJobs = featuredData.jobs.map((job: any) => ({
+            const companiesQueryPromise = prisma.company.findMany({
+              where: { isActive: true },
+              include: {
+                _count: {
+                  select: {
+                    jobs: {
+                      where: {
+                        isActive: true,
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: [{ jobs: { _count: 'desc' } }, { createdAt: 'desc' }],
+              take: 6,
+            });
+
+            const timeoutPromise = new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Database query timeout')), 10000)
+            );
+
+            const [featuredResult, companiesResult] = await Promise.allSettled([
+              Promise.race([featuredQueryPromise, timeoutPromise]),
+              companiesQueryPromise,
+            ]);
+
+            if (featuredResult.status === 'fulfilled') {
+              featuredJobs = featuredResult.value.map((job) => ({
                 id: job.id,
-                sourceId: job.sourceId, // Include for URL generation
+                sourceId: job.sourceId,
                 source: job.source || 'database',
                 title: job.title,
                 company: job.company,
                 companyLogo: job.companyLogo,
                 location: job.location,
-                country: job.country || 'IN', // Always include country
-                salary: job.salary,
+                country: job.country || 'IN',
+                salary:
+                  job.salary ||
+                  (job.salaryMin && job.salaryMax
+                    ? `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}`
+                    : null),
                 jobType: job.jobType,
                 experienceLevel: job.experienceLevel,
                 isRemote: job.isRemote,
                 isFeatured: job.isFeatured,
-                sector: job.sector
+                sector: job.sector,
               }));
-              console.log(`✅ Fetched ${featuredJobs.length} featured jobs from API`);
+              console.log(`✅ Fetched ${featuredJobs.length} featured jobs from database`);
             }
-          }
-        } catch (fetchError) {
-          clearTimeout(timeoutId);
-          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-            console.warn('⚠️ Featured jobs API fetch timed out, using fallback data');
-          } else {
-            console.warn('⚠️ Featured jobs API fetch failed:', fetchError instanceof Error ? fetchError.message : 'Unknown error');
+
+            if (companiesResult.status === 'fulfilled') {
+              topCompanies = companiesResult.value.map((company) => ({
+                id: company.id,
+                name: company.name,
+                logo: company.logo,
+                website: company.website,
+                location: company.location,
+                industry: company.industry,
+                sector: company.industry,
+                isGlobal: false,
+                jobCount: company._count.jobs,
+              }));
+            }
+          } catch (dbError) {
+            console.warn(
+              '⚠️ Database connection failed during build (expected):',
+              dbError instanceof Error ? dbError.message : 'Unknown error'
+            );
           }
         }
       }
-    } catch (dbError) {
-      // Database connection failed (expected during build) - use fallback
-      console.warn('⚠️ Database connection failed during build (expected):', dbError instanceof Error ? dbError.message : 'Unknown error');
-      // Continue with fallback data below
     }
-  }
-}
 
       // If we have fewer than 6 featured jobs, use recent jobs from database
       if (featuredJobs.length < 6) {
@@ -530,116 +519,6 @@ export default async function HomePage() {
           }
         }
       }
-
-      // Fetch top companies (active portal + verified; include employers with 0 jobs)
-      try {
-        if (process.env.DATABASE_URL && process.env.SKIP_BUILD_DB_QUERIES !== 'true' && process.env.SKIP_DB_QUERIES !== 'true') {
-          const { prisma } = await import('@/lib/prisma');
-          const companiesWithJobs = await prisma.company.findMany({
-          where: { isActive: true },
-          include: {
-            _count: {
-              select: {
-                jobs: {
-                  where: {
-                    isActive: true
-                  }
-                }
-              }
-            }
-          },
-          orderBy: [
-            { jobs: { _count: 'desc' } },
-            { createdAt: 'desc' }
-          ],
-          take: 6
-          });
-
-          topCompanies = companiesWithJobs.map(company => ({
-            id: company.id,
-            name: company.name,
-            logo: company.logo,
-            website: company.website,
-            location: company.location,
-            industry: company.industry,
-            sector: company.industry, // Use industry as sector fallback
-            isGlobal: false, // Default to false (will be updated after migration)
-            jobCount: company._count.jobs
-          }));
-        } else if (process.env.SKIP_BUILD_DB_QUERIES === 'true' || process.env.SKIP_DB_QUERIES === 'true') {
-          console.log('⚠️ SKIP_BUILD_DB_QUERIES is set, skipping company queries');
-        } else {
-          // DATABASE_URL not available (build time) - use fallback
-          console.log('⚠️ DATABASE_URL not available, using fallback companies');
-        }
-      } catch (companyError) {
-        console.error('❌ Error loading companies:', companyError);
-        
-        // Use fallback companies when database fails
-        topCompanies = [
-          {
-            id: 'techcorp-solutions',
-            name: 'TechCorp Solutions',
-            logo: 'https://img.icons8.com/color/96/000000/google-logo.png',
-            location: 'Bangalore, India',
-            industry: 'Technology',
-            sector: 'Technology',
-            isGlobal: false,
-            jobCount: 0
-          },
-          {
-            id: 'innovate-lab',
-            name: 'InnovateLab',
-            logo: 'https://img.icons8.com/color/96/000000/microsoft.png',
-            location: 'Mumbai, India',
-            industry: 'Technology',
-            sector: 'Technology',
-            isGlobal: false,
-            jobCount: 0
-          },
-          {
-            id: 'dataflow-inc',
-            name: 'DataFlow Inc',
-            logo: 'https://img.icons8.com/color/96/000000/amazon-web-services.png',
-            location: 'Hyderabad, India',
-            industry: 'Technology',
-            sector: 'Technology',
-            isGlobal: false,
-            jobCount: 0
-          },
-          {
-            id: 'cloudtech',
-            name: 'CloudTech',
-            logo: 'https://img.icons8.com/color/96/000000/google-cloud.png',
-            location: 'Delhi, India',
-            industry: 'Technology',
-            sector: 'Technology',
-            isGlobal: false,
-            jobCount: 0
-          },
-          {
-            id: 'creative-studio',
-            name: 'Creative Studio',
-            logo: 'https://img.icons8.com/color/96/000000/adobe-creative-cloud.png',
-            location: 'Pune, India',
-            industry: 'Design',
-            sector: 'Design',
-            isGlobal: false,
-            jobCount: 0
-          },
-          {
-            id: 'fintech-pro',
-            name: 'FinTech Pro',
-            logo: 'https://img.icons8.com/color/96/000000/money-bag.png',
-            location: 'Chennai, India',
-            industry: 'Finance',
-            sector: 'Finance',
-            isGlobal: false,
-            jobCount: 0
-          }
-        ];
-      }
-    }
 
     console.log(`📊 Homepage data loaded: ${featuredJobs.length} featured jobs, ${topCompanies.length} companies`);
   } catch (_error) {
