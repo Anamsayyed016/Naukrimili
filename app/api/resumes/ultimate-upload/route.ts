@@ -66,6 +66,27 @@ const OCR_MAX_FILE_BYTES = 3 * 1024 * 1024;
 /** Minimum remaining budget (ms) before starting Hybrid / Enhanced AI extraction. */
 const AI_PARSER_MIN_BUDGET_MS = 12_000;
 
+/** Temporary pipeline diagnostics — grep pm2 logs for [UPLOAD-DIAG]. Remove when stable. */
+function uploadDiag(
+  reqId: string,
+  layer: string,
+  data?: Record<string, unknown>
+): void {
+  const payload = {
+    layer,
+    ts: new Date().toISOString(),
+    ...data,
+  };
+  console.log(`[UPLOAD-DIAG][${reqId}] ${layer}`, payload);
+}
+
+function parseContentLength(request: NextRequest): number | null {
+  const raw = request.headers.get('content-length');
+  if (!raw) return null;
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
 /**
  * POST /api/resumes/ultimate-upload
  * Enhanced resume upload with AI parsing and job recommendations
@@ -80,6 +101,17 @@ export async function POST(request: NextRequest) {
     if (data !== undefined) console.warn(`[${REQ}] ${msg}`, data);
     else console.warn(`[${REQ}] ${msg}`);
   };
+
+  const contentLength = parseContentLength(request);
+  uploadDiag(REQ, 'L4-next-route-enter', {
+    path: '/api/resumes/ultimate-upload',
+    method: 'POST',
+    contentLength,
+    contentLengthMb: contentLength != null ? (contentLength / (1024 * 1024)).toFixed(3) : null,
+    contentType: request.headers.get('content-type'),
+    maxAppBytes: MAX_FILE_SIZE,
+    note: 'If browser shows 413 and this log never appears, reject layer is nginx/proxy (default client_max_body_size 1m)',
+  });
 
   try {
     const uploadTiming = new UploadPipelineTiming();
@@ -114,26 +146,54 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('👤 Authenticated user:', session.user.email);
-    
+    uploadDiag(REQ, 'L4-next-auth-ok', { user: session.user.email });
+
     const formData = await request.formData();
+    uploadDiag(REQ, 'L4-next-formdata-ok', {
+      contentLength,
+      note: 'Request body parsed by Next.js — nginx/proxy already accepted the upload',
+    });
     const file = formData.get('file') as File;
 
     if (!file) {
       console.log('❌ No file provided');
+      uploadDiag(REQ, 'L5-app-no-file', { rejectLayer: 'application' });
       return NextResponse.json({ 
         success: false,
         error: 'No file provided' 
       }, { status: 400 });
     }
 
+    uploadDiag(REQ, 'L5-app-file-received', {
+      fileName: file.name,
+      fileType: file.type,
+      fileSizeBytes: file.size,
+      fileSizeMb: (file.size / (1024 * 1024)).toFixed(3),
+      contentLength,
+    });
+
     // Check file size
     if (file.size > MAX_FILE_SIZE) {
       console.log('❌ File too large:', file.size, 'bytes (max:', MAX_FILE_SIZE, ')');
+      uploadDiag(REQ, 'L5-app-size-reject', {
+        rejectLayer: 'application',
+        fileSizeBytes: file.size,
+        maxBytes: MAX_FILE_SIZE,
+      });
       return NextResponse.json({ 
         success: false, 
-        error: `File size exceeds maximum limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.` 
-      }, { status: 413 });
+        error: `File size exceeds maximum limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.`,
+        rejectLayer: 'application',
+      }, {
+        status: 413,
+        headers: { 'X-Upload-Reject-Layer': 'application' },
+      });
     }
+
+    uploadDiag(REQ, 'L5-app-size-pass', {
+      fileSizeBytes: file.size,
+      maxBytes: MAX_FILE_SIZE,
+    });
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       console.log('❌ Invalid file type:', file.type);
@@ -154,6 +214,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const fileBuffer = Buffer.from(bytes);
     console.log('✅ File converted to buffer, size:', fileBuffer.length, 'bytes');
+    uploadDiag(REQ, 'L6-storage-start', { bufferBytes: fileBuffer.length });
 
     // Upload file using the unified storage service (GCS or local)
     console.log('💾 Uploading file using storage service...');
@@ -179,6 +240,11 @@ export async function POST(request: NextRequest) {
     const filename = uploadResult.fileName;
 
     // Extract text from file with enhanced PDF parsing
+    uploadDiag(REQ, 'L7-parser-start', {
+      fileName: file.name,
+      fileSizeBytes: file.size,
+      storage: uploadResult.storage,
+    });
     console.log('📄 Starting text extraction from file...');
     console.log('   - File type:', file.type);
     console.log('   - File size:', file.size, 'bytes');
@@ -1987,6 +2053,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
+    uploadDiag(REQ, 'L-error-catch', {
+      name: error?.name,
+      message: error?.message,
+    });
     console.error('❌ Ultimate resume upload error:', error);
     console.error('❌ Error stack:', error?.stack);
     console.error('❌ Error name:', error?.name);
