@@ -53,150 +53,15 @@ interface PdfDeliveryResult {
 }
 
 interface PdfDeliveryOptions {
-  /** Opened synchronously on user tap — keeps mobile gesture for blob navigation. */
+  /** @deprecated Mobile delivery no longer uses popup windows. */
   deliveryWindow?: Window | null;
 }
 
 const ANDROID_BLOB_REVOKE_MS = 60_000;
-const IOS_BLOB_REVOKE_MS = 60_000;
-const MOBILE_IFRAME_LOAD_TIMEOUT_MS = 8_000;
-
-function escapeHtmlAttr(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-function writeMobilePdfPreparing(win: Window): void {
-  try {
-    win.document.open();
-    win.document.write(`<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Resume PDF</title>
-<style>
-  html,body{margin:0;height:100%;background:#f4f4f5;font-family:system-ui,sans-serif;}
-  .wrap{display:flex;align-items:center;justify-content:center;height:100%;padding:1rem;box-sizing:border-box;}
-  p{margin:0;color:#3f3f46;font-size:1rem;text-align:center;}
-</style>
-</head><body><div class="wrap"><p>Preparing your PDF…</p></div></body></html>`);
-    win.document.close();
-  } catch {
-    // cross-origin or closed
-  }
-}
-
-function closeOrphanDeliveryWindow(win: Window | null | undefined): void {
-  if (!win || win.closed) return;
-  try {
-    const hasPdfViewer = win.document.querySelector(
-      'iframe[src^="blob:"], embed[src^="blob:"], object[data^="blob:"]'
-    );
-    if (hasPdfViewer) return;
-    win.close();
-  } catch {
-    // PDF viewer may be cross-origin — leave tab open
-  }
-}
-
-/** Mobile: render PDF via iframe/embed — never navigate popup to blob: directly. */
-function renderPdfInDeliveryWindow(
-  blob: Blob,
-  win: Window | null | undefined,
-  filename: string,
-  revokeDelayMs: number
-): Promise<boolean> {
-  if (!win || win.closed) return Promise.resolve(false);
-
-  return new Promise((resolve) => {
-    let settled = false;
-    const finish = (ok: boolean) => {
-      if (settled) return;
-      settled = true;
-      resolve(ok);
-    };
-
-    try {
-      const url = URL.createObjectURL(blob);
-      const safeTitle = escapeHtmlAttr(filename);
-      const safeUrl = escapeHtmlAttr(url);
-
-      win.document.open();
-      win.document.write(`<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${safeTitle}</title>
-<style>
-  html,body{margin:0;height:100%;background:#525659;overflow:hidden;}
-  iframe,embed,object{width:100%;height:100%;border:0;display:block;background:#fff;}
-</style>
-</head><body>
-<iframe src="${safeUrl}" title="${safeTitle}" type="application/pdf"></iframe>
-</body></html>`);
-      win.document.close();
-
-      const iframe = win.document.querySelector('iframe');
-      if (!iframe) {
-        URL.revokeObjectURL(url);
-        finish(false);
-        return;
-      }
-
-      // onload may not fire on iOS for blob PDFs even when the viewer is mounted.
-      const timeoutId = window.setTimeout(() => {
-        const hasBlobViewer = win.document.querySelector(
-          'iframe[src^="blob:"], embed[src^="blob:"], object[data^="blob:"]'
-        );
-        finish(!!hasBlobViewer && blob.size > 0);
-      }, MOBILE_IFRAME_LOAD_TIMEOUT_MS);
-      iframe.onload = () => {
-        window.clearTimeout(timeoutId);
-        finish(true);
-      };
-      iframe.onerror = () => {
-        window.clearTimeout(timeoutId);
-        const hasBlobViewer = win.document.querySelector('iframe[src^="blob:"]');
-        if (hasBlobViewer && blob.size > 0) {
-          finish(true);
-        } else {
-          URL.revokeObjectURL(url);
-          finish(false);
-        }
-      };
-
-      win.addEventListener(
-        'beforeunload',
-        () => {
-          window.setTimeout(() => URL.revokeObjectURL(url), 500);
-        },
-        { once: true }
-      );
-      scheduleBlobUrlRevoke(url, revokeDelayMs);
-    } catch (err) {
-      console.warn('⚠️ [PDF Delivery] Failed to render PDF in delivery window', err);
-      finish(false);
-    }
-  });
-}
-
-function openMobilePdfDeliveryWindow(): Window | null {
-  try {
-    const win = window.open('about:blank', '_blank');
-    if (win) writeMobilePdfPreparing(win);
-    return win;
-  } catch {
-    return null;
-  }
-}
 
 async function tryMobilePdfShare(
   blob: Blob,
-  filename: string,
-  deliveryWindow?: Window | null
+  filename: string
 ): Promise<PdfDeliveryResult | null> {
   const device = getPdfDeliveryDeviceInfo();
   const file = new File([blob], filename, { type: 'application/pdf' });
@@ -207,20 +72,23 @@ async function tryMobilePdfShare(
   if (!canShareFiles) return null;
 
   try {
-    await navigator.share({ files: [file], title: 'Resume PDF' });
-    closeOrphanDeliveryWindow(deliveryWindow);
+    await navigator.share({
+      files: [file],
+      title: 'Resume PDF',
+      text: filename,
+    });
     return { method: 'share-files', success: true, device };
   } catch (shareError: unknown) {
     const err = shareError instanceof Error ? shareError : new Error(String(shareError));
     if (err.name === 'AbortError') {
       return { method: 'share-files', success: false, error: 'cancelled', device };
     }
-    console.warn('⚠️ [PDF Delivery] navigator.share failed, trying PDF viewer fallback', err.message);
+    console.warn('⚠️ [PDF Delivery] navigator.share failed', err.message);
     return null;
   }
 }
 
-/** Android only — anchor download on a fresh user tap (not after long async). */
+/** Android fallback — direct file download without in-browser PDF preview. */
 function tryAndroidAnchorDownload(blob: Blob, filename: string): boolean {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
@@ -249,13 +117,22 @@ function tryAndroidAnchorDownload(blob: Blob, filename: string): boolean {
 async function deliverMobilePdfBlob(
   blob: Blob,
   filename: string,
-  options?: PdfDeliveryOptions & { allowAnchorDownload?: boolean }
+  _options?: PdfDeliveryOptions & { allowAnchorDownload?: boolean }
 ): Promise<PdfDeliveryResult> {
   const device = getPdfDeliveryDeviceInfo();
-  const revokeMs = device.deviceType === 'ios' ? IOS_BLOB_REVOKE_MS : ANDROID_BLOB_REVOKE_MS;
-  const deliveryWindow = options?.deliveryWindow;
 
-  const shareOutcome = await tryMobilePdfShare(blob, filename, deliveryWindow);
+  if (blob.size === 0) {
+    return {
+      method: 'share-files',
+      success: false,
+      needsDeferredTap: true,
+      device,
+      error: 'empty-blob',
+    };
+  }
+
+  // Primary: deliver the original PDF file via native share sheet (Save to Files / Download).
+  const shareOutcome = await tryMobilePdfShare(blob, filename);
   if (shareOutcome) {
     logPdfDeliveryDiagnostics({
       device,
@@ -267,52 +144,34 @@ async function deliverMobilePdfBlob(
     return shareOutcome;
   }
 
-  // Android: anchor.click() can be silently ignored after async work (gesture lost).
-  // Treat it as an attempted delivery only; we still open the PDF viewer so the
-  // user can save/share reliably without a false "downloaded" success.
-  if (options?.allowAnchorDownload && device.deviceType === 'android') {
+  // Android fallback: direct file download — never open an in-browser PDF viewer.
+  if (device.deviceType === 'android') {
     const anchorClicked = tryAndroidAnchorDownload(blob, filename);
-    logPdfDeliveryDiagnostics({
-      device,
-      blobSize: blob.size,
+    const result: PdfDeliveryResult = {
       method: 'anchor-download',
-      success: false,
-      error: anchorClicked ? 'android-download-unverified' : 'anchor-click-failed',
-      revokeDelayMs: ANDROID_BLOB_REVOKE_MS,
-    });
-  }
-
-  const viewerWindow =
-    deliveryWindow && !deliveryWindow.closed ? deliveryWindow : openMobilePdfDeliveryWindow();
-  const iframeOk = await renderPdfInDeliveryWindow(blob, viewerWindow, filename, revokeMs);
-
-  if (iframeOk) {
-    const result: PdfDeliveryResult = { method: 'open-blob-tab', success: true, device };
+      success: anchorClicked,
+      device,
+      error: anchorClicked ? undefined : 'anchor-click-failed',
+    };
     logPdfDeliveryDiagnostics({
       device,
       blobSize: blob.size,
       method: result.method,
-      success: true,
-      revokeDelayMs: revokeMs,
+      success: result.success,
+      error: result.error,
+      revokeDelayMs: ANDROID_BLOB_REVOKE_MS,
     });
-    return result;
-  }
-
-  // Viewer failed: close any opened tab so user never stays on a blank page.
-  closeOrphanDeliveryWindow(deliveryWindow);
-  closeOrphanDeliveryWindow(viewerWindow);
-  try {
-    if (viewerWindow && !viewerWindow.closed) viewerWindow.close();
-  } catch {
-    // ignore
+    if (anchorClicked) {
+      return result;
+    }
   }
 
   const deferred: PdfDeliveryResult = {
-    method: 'open-blob-tab',
+    method: 'share-files',
     success: false,
     needsDeferredTap: true,
     device,
-    error: 'needs-user-tap',
+    error: 'share-unavailable',
   };
   logPdfDeliveryDiagnostics({
     device,
@@ -392,21 +251,21 @@ function getPdfDeliveryFeedback(
   if (result.error === 'cancelled') {
     return {
       title: 'Share cancelled',
-      description: 'Tap Export again when you are ready to save your PDF.',
+      description: 'Tap Download PDF again when you are ready to save your file.',
     };
   }
 
   if (device.deviceType === 'ios') {
     return {
       title: 'PDF ready',
-      description: 'Use the PDF tab or Share → Save to Files to keep a copy.',
+      description: 'Choose Save to Files in the share sheet to keep your resume PDF.',
     };
   }
 
   if (device.deviceType === 'android') {
     return {
       title: 'PDF ready',
-      description: 'Your PDF is open in a new tab. Use Download or Share to save it.',
+      description: 'Your resume PDF file was shared or saved to your device.',
     };
   }
 
@@ -534,18 +393,16 @@ export default function FinalizeStep({
     }
 
     setExporting('pdf');
-    const deliveryWindow = openMobilePdfDeliveryWindow();
 
     try {
       const delivery = await deliverPdfBlob(pending.blob, pending.filename, {
-        deliveryWindow,
         allowAnchorDownload: true,
       });
 
       if (delivery.needsDeferredTap) {
         toast({
           title: 'PDF ready',
-          description: 'Allow pop-ups or tap Download PDF again to save your file.',
+          description: 'Tap Download PDF again and use Share or Save to Files.',
         });
         return;
       }
@@ -582,7 +439,6 @@ export default function FinalizeStep({
         variant: 'destructive',
       });
     } finally {
-      closeOrphanDeliveryWindow(deliveryWindow);
       setExporting(null);
     }
   };
