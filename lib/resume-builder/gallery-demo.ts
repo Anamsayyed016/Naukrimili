@@ -35,6 +35,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'platinum-executive-edge': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'slate-executive-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
   'executive-minimal-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
+  'executive-burgundy-diamond': `${DEMO_PROFILES_BASE}/luxury-corporate.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -240,6 +241,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'platinum-executive-edge': { firstName: 'Marcus', lastName: 'Sterling', jobTitle: 'Senior Technology Innovator & Product Strategist' },
   'slate-executive-pro': { firstName: 'Ethan', lastName: 'Clark', jobTitle: 'Senior Product Manager' },
   'executive-minimal-pro': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Senior Product Manager & Innovation Leader' },
+  'executive-burgundy-diamond': { firstName: 'Victoria', lastName: 'Ashford', jobTitle: 'Chief Executive Officer | Global Operations' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {
@@ -278,79 +280,185 @@ export function resolveGalleryProfileImage(
   return getGalleryDemoProfileImage(templateId);
 }
 
+/** Shared rich resume sections for gallery previews (never persisted to user data) */
+const GALLERY_RICH_RESUME_SECTIONS = {
+  summary:
+    'Visionary executive leader with 18+ years driving enterprise-scale product strategy, digital transformation, and operational excellence across global technology organizations. Proven record of building high-performing teams, launching market-defining platforms, and delivering sustained revenue growth in complex B2B and SaaS environments. Expert at translating board-level objectives into actionable roadmaps that balance innovation, profitability, and customer impact. Recognized for stakeholder leadership, P&L ownership, and building cultures of accountability and continuous improvement.',
+  skills: [
+    'Leadership',
+    'Strategy',
+    'Product Development',
+    'Communication',
+    'Project Management',
+    'Innovation',
+    'Operations',
+    'Artificial Intelligence',
+    'Technology',
+    'Stakeholder Management',
+    'P&L Management',
+    'Digital Transformation',
+    'Agile Methodologies',
+    'Data Analytics',
+    'Change Management',
+  ],
+  experience: [
+    {
+      title: 'Chief Innovation Officer',
+      company: 'Global Innovations Tech',
+      location: 'San Francisco, CA',
+      startDate: 'Jan 2018',
+      endDate: 'Present',
+      current: true,
+      achievements: [
+        'Directed enterprise product portfolio generating $120M+ in annual recurring revenue across 28 international markets.',
+        'Led cross-functional organization of 45+ engineers, designers, and analysts through three major platform releases.',
+        'Reduced time-to-market by 38% by implementing agile portfolio governance and executive steering cadences.',
+        'Partnered with C-suite and board directors to align innovation investments with five-year strategic growth plan.',
+      ],
+    },
+    {
+      title: 'VP of Product Management',
+      company: 'Meridian Digital Solutions',
+      location: 'New York, NY',
+      startDate: 'Mar 2014',
+      endDate: 'Dec 2017',
+      achievements: [
+        'Scaled product organization from 12 to 34 FTEs while improving NPS by 22 points over two years.',
+        'Launched AI-powered analytics suite adopted by 180+ enterprise clients within the first 18 months.',
+        'Negotiated strategic partnerships contributing $18M in incremental pipeline and expanded market reach.',
+        'Established product ops function standardizing OKRs, roadmap reviews, and executive reporting.',
+      ],
+    },
+    {
+      title: 'Director of Product Strategy',
+      company: 'Northbridge Capital Systems',
+      location: 'Chicago, IL',
+      startDate: 'Jun 2010',
+      endDate: 'Feb 2014',
+      achievements: [
+        'Owned roadmap for compliance and risk platform serving top-tier financial institutions.',
+        'Delivered regulatory-ready features ahead of deadline, preserving $12M in at-risk renewal revenue.',
+        'Mentored six product managers promoted to senior leadership roles within 24 months.',
+      ],
+    },
+    {
+      title: 'Senior Product Manager',
+      company: 'Atlas Enterprise Software',
+      location: 'Boston, MA',
+      startDate: 'Aug 2006',
+      endDate: 'May 2010',
+      achievements: [
+        'Introduced customer discovery program influencing 70% of quarterly roadmap priorities.',
+        'Increased activation rates by 29% through onboarding redesign and behavioral analytics integration.',
+        'Collaborated with sales and customer success to reduce churn in mid-market segment by 15%.',
+      ],
+    },
+    {
+      title: 'Product Manager',
+      company: 'Summit Logic Group',
+      location: 'Austin, TX',
+      startDate: 'Jul 2004',
+      endDate: 'Jul 2006',
+      achievements: [
+        'Managed end-to-end delivery of workflow automation module used by 50,000+ daily active users.',
+        'Coordinated beta program with 12 lighthouse accounts, achieving 92% satisfaction at general availability.',
+      ],
+    },
+  ],
+  projects: [
+    {
+      name: 'Enterprise AI Platform Launch',
+      description:
+        'Led cross-functional initiative to deploy machine-learning infrastructure enabling predictive insights, automated workflows, and real-time decision support for enterprise clients.',
+      technologies: 'Python, TensorFlow, AWS, Kubernetes, React',
+    },
+    {
+      name: 'Global SaaS Platform Modernization',
+      description:
+        'Orchestrated multi-year cloud migration and microservices refactor that improved system reliability to 99.97% uptime and cut infrastructure costs by 24%.',
+      technologies: 'Node.js, PostgreSQL, Docker, Azure, GraphQL',
+    },
+    {
+      name: 'Customer 360 Analytics Dashboard',
+      description:
+        'Designed executive reporting suite consolidating product, sales, and support metrics into a single board-ready view adopted by leadership worldwide.',
+      technologies: 'Tableau, Snowflake, SQL, Figma',
+    },
+    {
+      name: 'Mobile-First Field Operations App',
+      description:
+        'Delivered offline-capable mobile application for distributed teams, reducing field reporting time by 41% and improving data accuracy across regions.',
+      technologies: 'React Native, Firebase, REST APIs',
+    },
+  ],
+  education: [
+    {
+      degree: 'Master of Business Administration',
+      school: 'Stanford Graduate School of Business',
+      field: 'Strategy & Leadership',
+      year: '2010',
+      graduationDate: '2010',
+    },
+    {
+      degree: 'Bachelor of Science in Computer Science',
+      school: 'University of Michigan',
+      field: 'Computer Science',
+      year: '2004',
+      graduationDate: '2004',
+    },
+  ],
+  certifications: [
+    { name: 'Certified Scrum Product Owner (CSPO)', issuer: 'Scrum Alliance', date: '2019' },
+    { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services', date: '2021' },
+    { name: 'Project Management Professional (PMP)', issuer: 'PMI', date: '2016' },
+    { name: 'Leading Digital Transformation', issuer: 'MIT Sloan Executive Education', date: '2022' },
+  ],
+  languages: [
+    { language: 'English', proficiency: 'Native' },
+    { language: 'Spanish', proficiency: 'Fluent' },
+    { language: 'French', proficiency: 'Professional Working Proficiency' },
+  ],
+  achievements: [
+    'Named Top 40 Under 40 in Product Leadership by Industry Executive Council, 2023',
+    'Led team awarded Corporate Innovation Excellence Award for AI platform launch, 2022',
+    'Recognized as Executive of the Year by Global Technology Forum, 2020',
+    'Drove $45M in net-new ARR through strategic product expansion initiative, 2019',
+    'Selected for Fortune 500 High-Potential Leadership Program, 2017',
+    'Published thought leadership on digital transformation in Harvard Business Review, 2018',
+    'Keynote speaker at International Product Leadership Summit, 2021',
+    'Championed diversity hiring initiative increasing leadership pipeline diversity by 35%',
+  ],
+  hobbies: ['Executive Mentorship', 'Marathon Running', 'Classical Piano', 'Global Travel', 'Strategic Reading'],
+};
+
 /** Rich sample resume used only when gallery has no user form data */
 export function buildGallerySampleFormData(templateId?: string): Record<string, unknown> {
   const persona =
     (templateId && GALLERY_PERSONA_BY_TEMPLATE[templateId]) ||
     GALLERY_PERSONA_BY_TEMPLATE['teal-modern'];
   const profileImage = getGalleryDemoProfileImage(templateId);
+  const sections = GALLERY_RICH_RESUME_SECTIONS;
 
   return {
     firstName: persona.firstName,
     lastName: persona.lastName,
-    name: `${persona.firstName} ${persona.lastName.charAt(0)}. ${persona.lastName}`,
+    name: `${persona.firstName} ${persona.lastName}`,
     email: `${persona.firstName.toLowerCase()}.${persona.lastName.toLowerCase()}@email.com`,
-    phone: '+1 234 567 8900',
+    phone: '+1 (415) 555-0142',
     jobTitle: persona.jobTitle,
-    location: 'Chicago, IL',
-    linkedin: `linkedin.com/in/${persona.firstName.toLowerCase()}${persona.lastName.toLowerCase()}`,
-    portfolio: 'www.yourwebsite.com',
+    location: 'San Francisco, CA',
+    linkedin: `linkedin.com/in/${persona.firstName.toLowerCase()}-${persona.lastName.toLowerCase()}`,
+    portfolio: 'www.executiveportfolio.com',
     profileImage,
-    summary:
-      'Creative and experienced professional with a proven track record of delivering high-quality results. Skilled at leading cross-functional teams and translating strategy into polished, impactful work.',
-    skills: [
-      'Leadership',
-      'Strategy',
-      'Communication',
-      'Project Management',
-      'Design Systems',
-      'Stakeholder Management',
-    ],
-    experience: [
-      {
-        title: 'Senior ' + persona.jobTitle,
-        company: 'Creative Agency',
-        location: 'Chicago',
-        startDate: '2020',
-        endDate: 'Present',
-        description:
-          'Lead initiatives for major client projects, creating innovative solutions and measurable business outcomes.',
-      },
-      {
-        title: persona.jobTitle,
-        company: 'Growth Partners',
-        location: 'Chicago',
-        startDate: '2015',
-        endDate: '2020',
-        description:
-          'Delivered marketing materials, brand identities, and digital assets for diverse clients.',
-      },
-    ],
-    education: [
-      {
-        degree: 'Master Degree',
-        school: 'Stanford University',
-        field: 'Business & Design',
-        year: '2011-2013',
-        graduationDate: '2013',
-      },
-    ],
-    projects: [
-      {
-        name: 'Platform Redesign',
-        description: 'End-to-end redesign resulting in 40% increase in conversions.',
-        technologies: 'React, Node.js, Figma',
-      },
-    ],
-    certifications: [
-      { name: 'Professional Certification', issuer: 'Industry Board', date: '2020' },
-    ],
-    languages: [
-      { language: 'English', proficiency: 'Native' },
-      { language: 'Spanish', proficiency: 'Fluent' },
-    ],
-    achievements: ['Employee of the Year 2023', 'Excellence Award 2022'],
-    hobbies: ['Photography', 'Reading', 'Traveling'],
+    summary: sections.summary,
+    skills: sections.skills,
+    experience: sections.experience,
+    education: sections.education,
+    projects: sections.projects,
+    certifications: sections.certifications,
+    languages: sections.languages,
+    achievements: sections.achievements,
+    hobbies: sections.hobbies,
   };
 }
 
