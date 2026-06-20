@@ -97,7 +97,10 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         
         // Handle specific error codes with enhanced error messages
         if (response.status === 413) {
-          throw new Error('File size exceeds maximum limit of 10MB. Please upload a smaller file.');
+          throw new Error(
+            errorData.error ||
+              'Upload rejected: request body exceeds the server upload limit. Files up to 10MB are supported when nginx client_max_body_size is configured to 10M.'
+          );
         } else if (response.status === 504) {
           throw new Error(
             'Resume processing exceeded server timeout. Please retry in a moment.'

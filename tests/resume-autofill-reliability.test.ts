@@ -608,4 +608,43 @@ describe('resume preview data binding', () => {
     expect(transformed.email).toBe('cs.candidate@example.com');
     expect(transformed.phone).toMatch(/98765/);
   });
+
+  it('splits compound languages and filters non-measurable achievements', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      summary: 'Objective: Seeking growth.\n\nProfessional Highlights: 8+ years in logistics.',
+      objective: 'Seeking growth.',
+      experience: [
+        {
+          company: 'Acme Logistics',
+          position: 'Operations Manager',
+          startDate: '2020-01',
+          achievements: ['Managed warehouse operations', 'Coordinated shipments daily'],
+        },
+      ],
+      education: [{ degree: 'B.Com', institution: 'Delhi University', year: '2015' }],
+      languages: ['Hindi & English'],
+      achievements: [
+        'Managed warehouse operations',
+        'Increased delivery efficiency by 25%',
+        'IATA/UFTAA Certified',
+      ],
+      certifications: [],
+      skills: ['Logistics'],
+      _apiFinalized: true,
+    });
+
+    const langNames = transformed.languages.map((l: { name?: string; language?: string }) =>
+      String(l.name || l.language || '').toLowerCase()
+    );
+    expect(langNames).toContain('hindi');
+    expect(langNames).toContain('english');
+    expect(transformed.achievements).toEqual(
+      expect.arrayContaining([expect.stringMatching(/25%/i)])
+    );
+    expect(transformed.achievements.some((a: string) => /managed warehouse/i.test(a))).toBe(false);
+    expect(transformed.experience[0].achievements.some((a: string) => /managed warehouse/i.test(a))).toBe(true);
+    expect(transformed.summary).toMatch(/growth/i);
+    expect(transformed.summary).toMatch(/logistics/i);
+  });
 });

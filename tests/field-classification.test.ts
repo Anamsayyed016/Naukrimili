@@ -2,6 +2,9 @@ import {
   classifyResumeTextFragment,
   isClassifiedPersonName,
   isEmailOrDomainFragment,
+  isExperienceResponsibility,
+  isMeasurableAchievement,
+  shouldKeepAsGlobalAchievement,
   splitClassifiedFullName,
 } from '@/lib/resume-parser/field-classification';
 
@@ -59,5 +62,16 @@ describe('field classification', () => {
     expect(split.firstName).toBe('');
     expect(split.lastName).toBe('');
     expect(split.rejected.length).toBeGreaterThan(0);
+  });
+
+  it('classifies experience responsibilities vs measurable achievements', () => {
+    expect(isExperienceResponsibility('Managed daily operations and coordinated team schedules')).toBe(true);
+    expect(isExperienceResponsibility('Handled client inquiries and resolved complaints')).toBe(true);
+    expect(isMeasurableAchievement('Increased sales by 30% within 6 months')).toBe(true);
+    expect(isMeasurableAchievement('Managed team of 50 across 3 regions')).toBe(true);
+    expect(isMeasurableAchievement('Managed daily operations and coordinated team schedules')).toBe(false);
+    expect(shouldKeepAsGlobalAchievement('Led cross-functional projects')).toBe(false);
+    expect(shouldKeepAsGlobalAchievement('Reduced operational cost by 15%')).toBe(true);
+    expect(shouldKeepAsGlobalAchievement('B.Tech in Computer Science, IIT Delhi')).toBe(false);
   });
 });

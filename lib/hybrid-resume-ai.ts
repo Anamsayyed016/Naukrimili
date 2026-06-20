@@ -282,10 +282,11 @@ Return ONLY valid JSON in this EXACT shape (no markdown, no commentary):
       "startDate": "YYYY-MM or YYYY",
       "endDate": "YYYY-MM or YYYY or empty if current",
       "current": false,
-      "description": "Multi-line description as written, preserving newlines if any",
-      "achievements": ["Every bullet / responsibility / achievement as a separate string — short bullets like 'Led team of 5' are valid"]
+      "description": "Multi-line job duties / responsibilities as written, preserving newlines if any",
+      "achievements": ["Job duties and responsibilities ONLY — action bullets like Managed, Led, Coordinated, Implemented. Do NOT put measurable awards here unless they are part of this role's bullet list"]
     }
   ],
+  "achievements": ["ONLY measurable-impact outcomes: e.g. Increased sales by 30%, Reduced cost by 15%, Managed team of 50, Award winner. Empty array if none exist — do NOT duplicate job duties here"],
   "projects": [
     {
       "name": "Project name",
@@ -324,8 +325,14 @@ COVER LETTER RULE: If the document starts with "Dear Hiring Manager", a subject 
 
 SEPARATION RULES:
 - "Languages" means spoken/written languages (English, Hindi, Spanish, ASL, ...). NEVER put React, Python, SQL there.
+- Split compound language lines: "Hindi & English" → two entries: English and Hindi.
 - "Skills" includes programming languages, frameworks, soft skills, domain skills (Makeup Techniques, Airbrushing, Leadership, etc.).
-- "Certifications" must NOT contain language entries.
+- "Certifications" / "Professional Qualifications" (IATA, PMP, AWS, diploma courses, licenses) — NEVER in education or achievements.
+- "Education" is university/college degrees only (Bachelor, Master, MBA, B.Tech, etc.) — NEVER in experience.
+- experience[].achievements = job RESPONSIBILITIES (Managed, Handled, Led, Coordinated, Implemented, Supervised, etc.).
+- Top-level achievements[] = ONLY measurable outcomes (percentages, revenue, team size, awards). If a bullet has no measurable impact, keep it under experience responsibilities — NOT achievements.
+- Merge Objective + Professional Summary + Professional Highlights into summary (preserve all unique content, do not invent).
+- Preserve employment chronology exactly as written — do not reorder jobs.
 
 Resume Text:
 ${resumeText}`;

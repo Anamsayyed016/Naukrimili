@@ -130,6 +130,7 @@ const SECTION_ALIASES = {
     'career synopsis', 'executive synopsis',
     'objective', 'career objective', 'professional objective',
     'profile', 'professional profile', 'career profile',
+    'professional highlights', 'career highlights', 'highlights', 'key highlights',
     'about', 'about me', 'introduction', 'overview', 'bio', 'biography',
   ],
   experience: [
@@ -141,8 +142,7 @@ const SECTION_ALIASES = {
   ],
   education: [
     'education', 'educations', 'academic background', 'academic history', 'academic record',
-    'qualifications', 'academic qualifications', 'educational qualifications',
-    'professional qualification', 'professional qualifications',
+    'academic qualifications', 'educational qualifications',
     'cs articleship', 'articleship',
     'educational background', 'degrees', 'schooling', 'studies', 'academics',
   ],
@@ -168,6 +168,8 @@ const SECTION_ALIASES = {
     'licenses and certifications', 'licences and certifications',
     'certifications and licenses',
     'professional certifications', 'professional development',
+    'professional qualification', 'professional qualifications',
+    'accreditation', 'accreditations',
     'training', 'trainings', 'courses', 'online courses',
     'workshops', 'continuing education',
   ],
@@ -328,7 +330,14 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
 
   const eduBlock = extractSection(text, SECTION_ALIASES.education);
   if (eduBlock) {
-    result.education = parseEducation(eduBlock.body);
+    const { eduText, certText: eduCertText } = splitEducationAndCertificationBody(eduBlock);
+    if (eduText) result.education = parseEducation(eduText);
+    if (eduCertText) {
+      result.certifications = mergeCertificationLists(
+        result.certifications,
+        parseCertifications(eduCertText)
+      );
+    }
   }
 
   const projBlock = extractSection(text, SECTION_ALIASES.projects);
@@ -369,6 +378,96 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
   result.confidence = scoreConfidence(result);
 
   return result;
+}
+
+const PROFESSIONAL_QUAL_SUBHEADER_RE =
+  /^\s*(?:professional\s+qualifications?|certifications?|licenses?|licences?|training|accreditations?)\s*:?\s*$/i;
+
+const EDUCATION_SUBHEADER_RE =
+  /^\s*(?:education|academic\s+qualifications?|educational\s+qualifications?|degrees?)\s*:?\s*$/i;
+
+const CERT_LINE_HEURISTIC_RE =
+  /\b(?:IATA|UFTAA|PMP|AWS|Google|Microsoft|certified|certification|license|licence|accredit|diploma\s+course|training\s+course|chartered|CPA|CFA)\b/i;
+
+/**
+ * When an Education section also contains Professional Qualifications / certs,
+ * split the body so degrees stay in education and certs go to certifications.
+ */
+function splitEducationAndCertificationBody(block: SectionMatch): {
+  eduText: string;
+  certText: string;
+} {
+  const lines = block.body.split('\n');
+  const isCombined =
+    /(?:education|academic)\s*(?:&|and|\/)\s*(?:professional\s+qualification|certification)/i.test(
+      block.heading
+    ) || /professional\s+qualification/i.test(block.heading);
+
+  const profStart = lines.findIndex((l) => PROFESSIONAL_QUAL_SUBHEADER_RE.test(l.trim()));
+  const eduStart = lines.findIndex((l) => EDUCATION_SUBHEADER_RE.test(l.trim()));
+
+  if (profStart >= 0 || eduStart >= 0 || isCombined) {
+    const markers = [
+      { kind: 'edu' as const, idx: eduStart },
+      { kind: 'cert' as const, idx: profStart },
+    ]
+      .filter((m) => m.idx >= 0)
+      .sort((a, b) => a.idx - b.idx);
+
+    if (markers.length >= 1) {
+      const result = { eduText: '', certText: '' };
+      for (let i = 0; i < markers.length; i++) {
+        const start = markers[i].idx + 1;
+        const end = i + 1 < markers.length ? markers[i + 1].idx : lines.length;
+        const body = lines.slice(start, end).join('\n').trim();
+        if (markers[i].kind === 'edu') result.eduText = body;
+        else result.certText = body;
+      }
+      if (!result.eduText && profStart > 0) {
+        result.eduText = lines.slice(0, profStart).join('\n').trim();
+      }
+      if (!result.certText && profStart >= 0) {
+        result.certText = lines.slice(profStart + 1).join('\n').trim();
+      }
+      if (result.eduText || result.certText) return result;
+    }
+  }
+
+  const eduLines: string[] = [];
+  const certLines: string[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (PROFESSIONAL_QUAL_SUBHEADER_RE.test(trimmed) || EDUCATION_SUBHEADER_RE.test(trimmed)) {
+      continue;
+    }
+    if (CERT_LINE_HEURISTIC_RE.test(trimmed) && !DEGREE_PATTERNS.some((p) => p.test(trimmed))) {
+      certLines.push(trimmed);
+    } else {
+      eduLines.push(trimmed);
+    }
+  }
+
+  if (certLines.length && eduLines.length) {
+    return { eduText: eduLines.join('\n').trim(), certText: certLines.join('\n').trim() };
+  }
+
+  return { eduText: block.body, certText: '' };
+}
+
+function mergeCertificationLists(
+  existing: NonNullable<ExtractedResumeData['certifications']>,
+  incoming: NonNullable<ExtractedResumeData['certifications']>
+): NonNullable<ExtractedResumeData['certifications']> {
+  const seen = new Set(existing.map((c) => c.name.toLowerCase()));
+  const out = [...existing];
+  for (const c of incoming) {
+    const key = c.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(c);
+  }
+  return out;
 }
 
 /**
@@ -1678,7 +1777,7 @@ function parseLanguages(block: string): Array<{ name: string; proficiency: strin
     for (const ch of s) {
       if (ch === '(' || ch === '[') depth++;
       else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
-      if (depth === 0 && /[,;|·•\u2022]/.test(ch)) {
+      if (depth === 0 && /[,;|·•\u2022&]/.test(ch)) {
         if (buf.trim()) parts.push(buf.trim());
         buf = '';
       } else {
@@ -1709,6 +1808,22 @@ function parseLanguages(block: string): Array<{ name: string; proficiency: strin
       name = sep[1].trim();
       proficiency = sep[2].trim();
     } else {
+      // "Hindi & English" — split on & / and when no proficiency delimiter present
+      const ampParts = tok
+        .split(/\s*(?:&|\/|\||\band\b)\s*/i)
+        .map((p) => p.trim().replace(/[.,;]+$/, ''))
+        .filter(Boolean);
+      if (ampParts.length > 1 && ampParts.every((p) => p.length >= 2 && p.length <= 40)) {
+        for (const part of ampParts) {
+          const key = part.toLowerCase();
+          if (seen.has(key)) continue;
+          if (looksLikeTechLanguageToken(part)) continue;
+          if (looksLikeSectionLabel(part)) continue;
+          seen.add(key);
+          out.push({ name: part, proficiency: '' });
+        }
+        continue;
+      }
       name = tok.trim();
     }
 

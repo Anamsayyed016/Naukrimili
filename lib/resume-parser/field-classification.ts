@@ -448,6 +448,63 @@ export function splitClassifiedFullName(fullName: string): {
   return { firstName, lastName, rejected };
 }
 
+/** Action verbs that signal job responsibilities — not standalone global achievements. */
+const EXPERIENCE_RESPONSIBILITY_RE =
+  /^\s*(?:managed|handled|coordinated|led|implement(?:ed|ing)?|supervised|maintained|develop(?:ed|ing)?|support(?:ed|ing)?|organiz(?:ed|ing)|organis(?:ed|ing)|prepared|conducted|assisted|monitored|reviewed|collaborated|facilitated|executed|operated|oversaw|delivered|designed|built|created|established|streamlined|optimiz(?:ed|ing)|optimis(?:ed|ing)|enhanced|ensured|provided|performed|reported|troubleshot|trained|mentored|negotiated|analyz(?:ed|ing)|analys(?:ed|ing)|researched|planned|scheduled|delegated|directed|administered|processed|resolved|identified|evaluated|recommended|presented|communicated|contributed|participated|worked|served|advised|consulted|liaised|liaisoned|liaison|updated|configured|deployed|tested|documented|architected|migrated|integrated|automated|validated|audited|inspected|regulated|complied|filed|drafted|negotiated|recruited|onboarded|on-boarded)\b/i;
+
+/** Measurable impact markers — true achievements when present. */
+const MEASURABLE_ACHIEVEMENT_RE =
+  /\b(?:\d+\s*(?:%|percent|percentage)|(?:₹|rs\.?\s*|inr\s*|\$\s*|€\s*|£\s*)\s*\d[\d,.]*|\d[\d,.]*\s*(?:crore?s?|lakh?s?|million?s?|bn\b|k\+?)\b|team\s+of\s+\d+|\d+\+\s*(?:people|employees|clients|customers|users|projects|members)|\d{2,}\s*(?:people|employees|clients|customers|users|projects|members)|(?:increased|reduced|improved|decreased|lowered|raised|grew|boosted|saved|generated|achieved|delivered|exceeded|surpassed|cut)\s+(?:by\s+)?\d+\s*%|from\s+\d[\d,.]*\s*(?:%|to)\s+\d|within\s+\d+\s*(?:days?|weeks?|months?|years?))\b/i;
+
+const EDUCATION_LINE_RE =
+  /\b(?:university|college|school|institute|academy|b\.?\s*tech|m\.?\s*tech|bachelor|master|mba|ph\.?d|doctorate|diploma|graduation|post\s+graduation|b\.?\s*com|m\.?\s*com|b\.?\s*a\.?|m\.?\s*a\.?|hsc|ssc|intermediate|matriculation|degree|articleship)\b/i;
+
+const CERTIFICATION_LINE_RE =
+  /\b(?:certif(?:ied|ication|icate)|professional\s+qualification|IATA|UFTAA|PMP|AWS|Google|Microsoft|license|licence|accredit(?:ation|ed)|credential|chartered|CPA|CFA|CMA|CS\s+executive|CA\s+final|training\s+course|diploma\s+course)\b/i;
+
+const AWARD_ACHIEVEMENT_RE =
+  /\b(?:award(?:ed|s)?|recogniz(?:ed|ition)|honou?r(?:ed|s)?|ranked|top\s+\d+|employee\s+of\s+the\s+(?:month|year|quarter)|best\s+\w+\s+award|president'?s?\s+award|merit\s+award|distinction|gold\s+medal|silver\s+medal)\b/i;
+
+export function isLikelyEducationLine(text: string): boolean {
+  const s = normalizeFragment(text);
+  if (!s) return false;
+  return EDUCATION_LINE_RE.test(s);
+}
+
+export function isLikelyCertificationLine(text: string): boolean {
+  const s = normalizeFragment(text);
+  if (!s) return false;
+  if (/\b(?:university|college|bachelor|master|mba|b\.?\s*tech|m\.?\s*tech)\b/i.test(s)) {
+    return false;
+  }
+  return CERTIFICATION_LINE_RE.test(s);
+}
+
+export function isMeasurableAchievement(text: string): boolean {
+  const s = normalizeFragment(text);
+  if (!s || s.length < 8) return false;
+  if (isLikelyEducationLine(s) || isLikelyCertificationLine(s)) return false;
+  if (AWARD_ACHIEVEMENT_RE.test(s)) return true;
+  return MEASURABLE_ACHIEVEMENT_RE.test(s);
+}
+
+export function isExperienceResponsibility(text: string): boolean {
+  const s = normalizeFragment(text);
+  if (!s) return false;
+  if (isMeasurableAchievement(s)) return false;
+  if (EXPERIENCE_RESPONSIBILITY_RE.test(s)) return true;
+  return /\b(?:responsible for|duties included|key responsibilities|accountable for|reporting to)\b/i.test(s);
+}
+
+/** Global AchievementsStep should only receive measurable-impact lines. */
+export function shouldKeepAsGlobalAchievement(text: string): boolean {
+  const s = normalizeFragment(text);
+  if (!s) return false;
+  if (isLikelyEducationLine(s) || isLikelyCertificationLine(s)) return false;
+  if (isExperienceResponsibility(s) && !isMeasurableAchievement(s)) return false;
+  return isMeasurableAchievement(s);
+}
+
 export function stashUnclassifiedFragment(
   store: AdditionalResumeData,
   value: string,

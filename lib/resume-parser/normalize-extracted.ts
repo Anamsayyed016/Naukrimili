@@ -407,6 +407,20 @@ function educationKey(edu: ExtractedResumeData['education'][0]): string {
   ].join('|');
 }
 
+/** Split "Hindi & English" / "English and Hindi" into separate language names. */
+function splitCompoundLanguageNames(name: string): string[] {
+  const s = cleanString(name);
+  if (!s) return [];
+  const parts = s
+    .split(/\s*(?:&|\/|\||\band\b)\s*/i)
+    .map((p) => p.trim().replace(/[.,;]+$/, ''))
+    .filter((p) => p.length >= 2 && p.length <= 40);
+  if (parts.length > 1 && parts.every((p) => /^[A-Za-z]/.test(p))) {
+    return parts;
+  }
+  return [s];
+}
+
 export function normalizeExtractedResumeData(data: ExtractedResumeData): ExtractedResumeData {
   // STEP 0a: move language declarations OUT of certifications[]
   const { certifications: realCerts, extraLanguages: certLangs } =
@@ -530,6 +544,9 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     skills,
     experience: Array.from(experienceMap.values()),
     education: Array.from(educationMap.values()),
+    achievements: Array.isArray(data.achievements)
+      ? dedupeStrings(data.achievements.map((a) => cleanString(a)).filter(Boolean))
+      : [],
     projects: (data.projects || [])
       .map((p: ExtractedResumeData['projects'][0], index: number) => {
         const name =
@@ -613,6 +630,25 @@ function splitLangString(raw: string): { name: string; proficiency: string } {
     };
   }
   return { name: s, proficiency: '' };
+}
+
+/** Expand compound language strings into individual entries. */
+export function expandCompoundLanguages(
+  input: unknown
+): Array<{ name: string; proficiency: string }> {
+  const normalized = normalizeLanguageList(input);
+  const seen = new Set<string>();
+  const out: Array<{ name: string; proficiency: string }> = [];
+  for (const lang of normalized) {
+    const parts = splitCompoundLanguageNames(lang.name);
+    for (const part of parts) {
+      const key = part.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ name: part, proficiency: lang.proficiency || '' });
+    }
+  }
+  return out;
 }
 
 /** Normalize upload API profile object (post-mapping) */
@@ -747,10 +783,12 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
     experience: uniqueExp,
     education,
     certifications: dedupeCertifications(realCerts),
-    languages: reclassifiedLangs.map((l) => ({
-      name: l.name,
-      proficiency: l.proficiency || 'Fluent',
-    })),
+    languages: expandCompoundLanguages(
+      reclassifiedLangs.map((l) => ({
+        name: l.name,
+        proficiency: l.proficiency || 'Fluent',
+      }))
+    ),
   };
 }
 

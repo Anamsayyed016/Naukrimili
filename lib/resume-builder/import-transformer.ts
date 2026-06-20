@@ -29,7 +29,9 @@ import {
   dedupeStrings,
   normalizeDate,
   splitBullets,
+  expandCompoundLanguages,
 } from '@/lib/resume-parser/normalize-extracted';
+import { validateAndRepairResumeExtraction } from '@/lib/resume-parser/extraction-repair';
 import {
   splitFullName,
   splitFullNameWithRejected,
@@ -59,6 +61,7 @@ import {
   emptyAdditionalResumeData,
   isFirmOrLocationNamePhrase,
   nameOverlapsLocation,
+  shouldKeepAsGlobalAchievement,
   stashUnclassifiedFragment,
   type AdditionalResumeData,
 } from '@/lib/resume-parser/field-classification';
@@ -610,6 +613,8 @@ export function transformImportDataToBuilder(
     : enrichIdentityFromText(mergedBase, textParsed, recovered);
   mergedImport = applyTextRecoveryWhenSparse(mergedImport);
   mergedImport = relocateMisplacedEducationEntries(mergedImport);
+  const { data: repairedImport } = validateAndRepairResumeExtraction(mergedImport);
+  mergedImport = repairedImport;
 
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};
@@ -634,10 +639,8 @@ export function transformImportDataToBuilder(
       recovered.portfolio
   );
 
-  // Summary — fall back to recovered text from rawText if parser missed it.
-  // Use cleanMultiline so paragraph breaks survive into the textarea field.
-  const summaryRaw = mergedImport.summary || mergedImport.bio || mergedImport.objective;
-  const summary = cleanMultiline(summaryRaw || recovered.summary || '').slice(0, 4000);
+  const summaryRaw = mergeSummarySections(mergedImport, textParsed, recovered.summary);
+  const summary = summaryRaw || cleanMultiline(mergedImport.summary || mergedImport.bio || mergedImport.objective || recovered.summary || '').slice(0, 4000);
 
   // Names — classification layer before any contact field mapping
   const locationHint = String(
@@ -670,6 +673,8 @@ export function transformImportDataToBuilder(
   ];
   const partitionedAchievements = partitionSpilloverLines(achievementCandidateLines);
   mergedImport = applySpilloverToImport(mergedImport, partitionedAchievements);
+  const { data: postSpillover } = validateAndRepairResumeExtraction(mergedImport);
+  mergedImport = postSpillover;
 
   const experience = transformExperienceArray(
     firstNonEmptyArray(mergedImport, [
@@ -752,7 +757,10 @@ export function transformImportDataToBuilder(
     ),
 
     // ===== AchievementsStep =====
-    achievements: transformAchievementsArray(partitionedAchievements.achievements),
+    achievements: transformAchievementsArray([
+      ...partitionedAchievements.achievements,
+      ...(Array.isArray(mergedImport.achievements) ? mergedImport.achievements : []),
+    ]),
 
     // ===== HobbiesStep =====
     hobbies: cleanHobbies(
@@ -1261,10 +1269,10 @@ function transformCertificationsArray(certifications: unknown): any[] {
 }
 
 function transformLanguagesArray(languages: unknown): any[] {
-  if (!Array.isArray(languages)) return [];
+  const expanded = expandCompoundLanguages(languages);
   const out: Array<{ name: string; language: string; proficiency: string }> = [];
   const seen = new Set<string>();
-  for (const l of languages) {
+  for (const l of expanded) {
     const item = sanitizeLanguageEntry(l);
     if (!item) continue;
     const key = item.name.toLowerCase();
@@ -1279,6 +1287,32 @@ function transformLanguagesArray(languages: unknown): any[] {
  * AchievementsStep expects `string[]`. Templates also support string arrays.
  * We coerce whatever the parser gave us into a clean list of one-line strings.
  */
+function mergeSummarySections(
+  mergedImport: Record<string, unknown>,
+  textParsed?: ReturnType<typeof extractResumeFromText>,
+  recoveredSummary?: string
+): string {
+  const seen = new Set<string>();
+  const parts: string[] = [];
+  const add = (raw: unknown) => {
+    const t = cleanMultiline(String(raw || '')).trim();
+    if (!t || t.length < 12) return;
+    const key = t.toLowerCase().replace(/\s+/g, ' ').slice(0, 120);
+    if (seen.has(key)) return;
+    seen.add(key);
+    parts.push(t);
+  };
+
+  add(mergedImport.summary);
+  add(mergedImport.professionalSummary);
+  add(mergedImport.objective);
+  add(mergedImport.bio);
+  add(textParsed?.summary);
+  add(recoveredSummary);
+
+  return parts.join('\n\n').slice(0, 4000);
+}
+
 function transformAchievementsArray(achievements: unknown): string[] {
   if (!Array.isArray(achievements)) return [];
   const seen = new Set<string>();
@@ -1286,6 +1320,7 @@ function transformAchievementsArray(achievements: unknown): string[] {
   for (const a of achievements) {
     const value = sanitizeAchievementEntry(a);
     if (!value || isMisplacedAchievementLine(value)) continue;
+    if (!shouldKeepAsGlobalAchievement(value)) continue;
     const key = value.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);

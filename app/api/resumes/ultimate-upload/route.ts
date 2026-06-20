@@ -1999,10 +1999,10 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       errorMessage = error.message;
       
-      // Handle specific error types
-      if (error.message.includes('413') || error.message.includes('too large')) {
+      // Only remap errors that are explicitly about the uploaded file size check above.
+      // Do NOT blanket-map "too large" — OCR/parser/API failures were misreported as 10MB file limits.
+      if (/File size exceeds maximum limit/i.test(error.message)) {
         statusCode = 413;
-        errorMessage = 'File size exceeds maximum limit of 10MB';
       } else if (error.message.includes('401') || error.message.includes('auth')) {
         statusCode = 401;
         errorMessage = 'Authentication required. Please log in to upload your resume.';
