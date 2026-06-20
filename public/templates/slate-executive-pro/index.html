@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container sep-resume">
+        <header class="sep-header">
+            <div class="sep-header-accent" aria-hidden="true"></div>
+            <h1 class="candidate-name">
+                <span class="name-first">{{FIRST_NAME}}</span>
+                <span class="name-space"> </span>
+                <span class="name-last">{{LAST_NAME}}</span>
+                <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+            {{#if CONTACT}}
+            <div class="sep-contact">
+                <div class="contact-list">
+                    {{CONTACT}}
+                </div>
+            </div>
+            {{/if}}
+        </header>
+
+        <div class="sep-body">
+            <main class="sep-main">
+                {{#if SUMMARY}}
+                <section class="sep-section sep-section--summary">
+                    <p class="summary-text">{{SUMMARY}}</p>
+                </section>
+                {{/if}}
+
+                {{#if EXPERIENCE}}
+                <section class="sep-section">
+                    <h2 class="sep-heading"><span class="sep-heading-text">Professional Experience</span></h2>
+                    <div class="experience-list sep-timeline">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if PROJECTS}}
+                <section class="sep-section">
+                    <h2 class="sep-heading"><span class="sep-heading-text">Projects</span></h2>
+                    <div class="projects-list sep-projects-list">
+                        {{PROJECTS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if ACHIEVEMENTS}}
+                <section class="sep-section">
+                    <h2 class="sep-heading"><span class="sep-heading-text">Achievements</span></h2>
+                    <div class="achievements-list sep-achievements-list">
+                        {{ACHIEVEMENTS}}
+                    </div>
+                </section>
+                {{/if}}
+            </main>
+
+            <div class="sep-rail" aria-hidden="true"></div>
+
+            <aside class="sep-sidebar">
+                {{#if SKILLS}}
+                <section class="sep-section sep-section--side">
+                    <h2 class="sep-heading sep-heading--side"><span class="sep-heading-text">Skills</span></h2>
+                    <div class="skills-list sep-skills-tags">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if EDUCATION}}
+                <section class="sep-section sep-section--side">
+                    <h2 class="sep-heading sep-heading--side"><span class="sep-heading-text">Education</span></h2>
+                    <div class="education-list sep-side-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CERTIFICATIONS}}
+                <section class="sep-section sep-section--side">
+                    <h2 class="sep-heading sep-heading--side"><span class="sep-heading-text">Certifications</span></h2>
+                    <div class="certifications-list sep-side-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if LANGUAGES}}
+                <section class="sep-section sep-section--side">
+                    <h2 class="sep-heading sep-heading--side"><span class="sep-heading-text">Languages</span></h2>
+                    <div class="languages-list sep-languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if HOBBIES}}
+                <section class="sep-section sep-section--side">
+                    <h2 class="sep-heading sep-heading--side"><span class="sep-heading-text">Interests</span></h2>
+                    <div class="hobbies-list sep-hobbies-inline">
+                        {{HOBBIES}}
+                    </div>
+                </section>
+                {{/if}}
+            </aside>
+        </div>
+    </div>
+</body>
+</html>

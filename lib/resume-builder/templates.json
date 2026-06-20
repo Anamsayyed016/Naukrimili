@@ -574,6 +574,30 @@
         { "id": "midnight-silver", "name": "Midnight Silver", "primary": "#1E2024", "accent": "#A8B4C4", "text": "#1F1F1F" }
       ],
       "defaultColor": "platinum-edge"
+    },
+    {
+      "id": "slate-executive-pro",
+      "name": "Slate Executive Pro",
+      "slug": "slate-executive-pro",
+      "description": "Modern executive layout with dark charcoal header, slate section bars, vertical experience timeline, stacked skill tags, and ATS-friendly two-column structure with content-aware spacing.",
+      "thumbnail": "/templates/slate-executive-pro/thumbnail.svg",
+      "preview": "/templates/slate-executive-pro/preview.svg",
+      "html": "/templates/slate-executive-pro/index.html",
+      "css": "/templates/slate-executive-pro/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": false,
+      "recommended": true,
+      "colors": [
+        { "id": "slate-pro", "name": "Slate Pro", "primary": "#5F6973", "accent": "#1E2328", "text": "#1F1F1F" },
+        { "id": "charcoal-silver", "name": "Charcoal Silver", "primary": "#4A5058", "accent": "#1E2328", "text": "#1F1F1F" },
+        { "id": "graphite-copper", "name": "Graphite Copper", "primary": "#5F6973", "accent": "#2A2E32", "text": "#1F1F1F" },
+        { "id": "steel-slate", "name": "Steel Slate", "primary": "#6B7280", "accent": "#374151", "text": "#1F1F1F" },
+        { "id": "midnight-gray", "name": "Midnight Gray", "primary": "#4B5563", "accent": "#111827", "text": "#1F1F1F" },
+        { "id": "executive-ash", "name": "Executive Ash", "primary": "#787F87", "accent": "#2F3136", "text": "#1F1F1F" }
+      ],
+      "defaultColor": "slate-pro"
     }
   ],
   "filters": {
