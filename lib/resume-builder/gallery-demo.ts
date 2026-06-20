@@ -34,7 +34,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-copper': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
   'platinum-executive-edge': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'slate-executive-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
-  'executive-minimal-pro': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
+  'executive-minimal-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =

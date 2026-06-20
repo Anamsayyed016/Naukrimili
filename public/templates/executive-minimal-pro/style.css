@@ -1,4 +1,4 @@
-/* Executive Minimal Pro — single-column minimalist executive resume */
+/* Executive Minimal Pro — balanced two-column executive resume */
 .emp-resume {
   --primary-color: #222222;
   --secondary-color: #6B6B6B;
@@ -8,9 +8,11 @@
   --main-text: #1F1F1F;
   --muted-text: #6B6B6B;
   --background: #FFFFFF;
+  --sidebar-bg: rgba(181, 154, 122, 0.06);
+  --sidebar-width: 248px;
   --max-width: 210mm;
   --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-  --section-gap: clamp(10px, 1.5vw, 16px);
+  --section-gap: clamp(8px, 1.2vw, 14px);
 }
 
 .emp-resume,
@@ -39,12 +41,11 @@
 /* ── Header ── */
 .emp-header {
   position: relative;
-  text-align: center;
   background: linear-gradient(
     180deg,
-    rgba(214, 214, 214, 0.22) 0%,
-    rgba(245, 245, 245, 0.35) 18%,
-    #ffffff 55%
+    rgba(214, 214, 214, 0.24) 0%,
+    rgba(245, 245, 245, 0.38) 22%,
+    #ffffff 62%
   );
 }
 
@@ -54,19 +55,74 @@
   background: var(--accent-color);
 }
 
-.emp-header-inner {
-  padding: 22px 44px 18px;
+.emp-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 26px;
+  padding: 18px 36px 16px;
+}
+
+/* Executive portrait */
+.emp-photo-block {
+  position: relative;
+  flex-shrink: 0;
+  width: 102px;
+  height: 102px;
+}
+
+.emp-photo-ring {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.emp-photo-ring--outer {
+  inset: -4px;
+  border: 2px solid rgba(181, 154, 122, 0.35);
+}
+
+.emp-photo-ring--inner {
+  inset: -1px;
+  border: 2px solid var(--accent-color);
+  opacity: 0.85;
+}
+
+.emp-photo-block .profile-image-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 20px rgba(34, 34, 34, 0.14);
+  background: #EFEFEF;
+}
+
+.emp-photo-block .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.emp-identity {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
 }
 
 .emp-resume .candidate-name {
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 32px;
-  line-height: 1.08;
-  letter-spacing: 2.5px;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: 2.2px;
   text-transform: uppercase;
   color: var(--primary-color);
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .emp-resume .name-first,
@@ -90,20 +146,22 @@
 }
 
 .emp-resume .header-title {
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 2px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
-  color: var(--primary-color);
-  margin-bottom: 12px;
+  color: var(--secondary-color);
+  margin-bottom: 10px;
 }
 
 .emp-contact .contact-list {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 4px 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--divider-color);
 }
 
 .emp-contact .contact-item {
@@ -148,29 +206,60 @@
   word-break: break-word;
 }
 
-/* ── Main layout ── */
+/* ── Body layout ── */
+.emp-body {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  min-height: auto;
+  padding: 14px 0 22px;
+}
+
 .emp-main {
-  padding: 0 44px 28px;
+  flex: 1;
+  min-width: 0;
+  padding: 0 18px 0 36px;
   display: flex;
   flex-direction: column;
   gap: var(--section-gap);
+}
+
+.emp-rail {
+  width: 1px;
+  align-self: stretch;
+  flex-shrink: 0;
+  background: var(--divider-color);
+  margin: 0 2px;
+}
+
+.emp-sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  flex-shrink: 0;
+  padding: 0 28px 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  min-height: auto;
+  background: var(--sidebar-bg);
 }
 
 .emp-section {
   margin-bottom: 0;
 }
 
+/* ── Section headings ── */
 .emp-heading {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 7px;
 }
 
 .emp-heading-text {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 1.8px;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
   color: var(--primary-color);
   flex-shrink: 0;
@@ -183,15 +272,24 @@
   background: var(--divider-color);
 }
 
+.emp-heading--side {
+  margin-bottom: 6px;
+}
+
+.emp-heading--side .emp-heading-text {
+  font-size: 9.5px;
+  letter-spacing: 1.3px;
+}
+
 .emp-resume .summary-text {
   font-size: 10.5px;
-  line-height: 1.62;
+  line-height: 1.6;
   color: var(--main-text);
 }
 
 /* ── Experience ── */
 .emp-experience .experience-item {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -203,7 +301,7 @@
 .emp-experience .experience-header {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .emp-experience .experience-header .company {
@@ -211,7 +309,7 @@
   width: 100%;
   font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--primary-color);
   line-height: 1.35;
@@ -242,7 +340,7 @@
 
 .emp-experience .description {
   font-size: 10px;
-  line-height: 1.55;
+  line-height: 1.52;
   color: var(--main-text);
 }
 
@@ -253,7 +351,7 @@
 }
 
 .emp-experience .description li {
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .emp-experience .description li:last-child {
@@ -267,7 +365,7 @@
 
 /* ── Projects ── */
 .emp-projects .project-item {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -280,7 +378,7 @@
   font-size: 10.5px;
   font-weight: 700;
   color: var(--primary-color);
-  margin-bottom: 3px;
+  margin-bottom: 2px;
   display: block;
 }
 
@@ -290,7 +388,7 @@
 
 .emp-projects .project-item .description {
   font-size: 10px;
-  line-height: 1.55;
+  line-height: 1.52;
   color: var(--main-text);
   display: block;
 }
@@ -298,102 +396,74 @@
 .emp-projects .project-item .technologies {
   font-size: 9.5px;
   color: var(--muted-text);
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
-/* ── Expertise & Skills ── */
+/* ── Expertise & Skills (sidebar) ── */
 .emp-skills-board {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.emp-skills-pillars {
+.emp-skills-categories {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
-  background: rgba(181, 154, 122, 0.1);
-  border: 1px solid rgba(181, 154, 122, 0.22);
-  padding: 0;
-  align-items: stretch;
+  background: rgba(181, 154, 122, 0.12);
+  border: 1px solid rgba(181, 154, 122, 0.24);
 }
 
-.emp-skills-pillars .skill-tag {
+.emp-category-col {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  padding: 10px 12px;
-  background: none;
-  border: none;
-  border-right: 1px solid rgba(181, 154, 122, 0.28);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
+  padding: 8px 6px;
   text-align: center;
+  border-right: 1px solid rgba(181, 154, 122, 0.22);
+}
+
+.emp-category-col:last-child {
+  border-right: none;
+}
+
+.emp-category-title {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
   color: var(--primary-color);
   line-height: 1.35;
+}
+
+.emp-skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: flex-start;
+}
+
+.emp-skills-grid .skill-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: #FFFFFF;
+  border: 1px solid rgba(181, 154, 122, 0.32);
+  border-radius: 2px;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--primary-color);
+  line-height: 1.3;
   word-break: break-word;
   box-shadow: none;
 }
 
-.emp-skills-pillars .skill-tag:nth-child(3n) {
-  border-right: none;
-}
-
-.emp-skills-pillars .skill-tag:nth-child(n + 4) {
-  border-top: 1px solid rgba(181, 154, 122, 0.2);
-}
-
-.emp-skills-keywords-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0;
-  line-height: 1.6;
-}
-
-.emp-skills-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: var(--primary-color);
-  flex-shrink: 0;
-}
-
-.emp-skills-label::after {
-  content: ' – ';
-  font-weight: 400;
-  letter-spacing: normal;
-  text-transform: none;
-}
-
-.emp-skills-keywords {
-  display: inline;
-  flex: 1;
-  min-width: 0;
-}
-
-.emp-skills-keywords .skill-tag {
-  display: inline;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--main-text);
-  box-shadow: none;
-}
-
-.emp-skills-keywords .skill-tag:not(:last-child)::after {
-  content: ', ';
-}
-
-/* ── Education ── */
+/* ── Education (sidebar) ── */
 .emp-education .education-item {
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -403,7 +473,7 @@
 }
 
 .emp-education .education-item h3 {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--primary-color);
   line-height: 1.35;
@@ -412,16 +482,13 @@
 .emp-education .education-item .institution,
 .emp-education .education-item .year,
 .emp-education .education-item .cgpa {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--muted-text);
-  display: inline;
+  display: block;
+  line-height: 1.4;
 }
 
-.emp-education .education-item .institution:not(:empty) + .year::before {
-  content: ' • ';
-}
-
-/* ── Certifications ── */
+/* ── Certifications (sidebar) ── */
 .emp-certifications .certification-item {
   margin-bottom: 6px;
   page-break-inside: avoid;
@@ -433,25 +500,23 @@
 }
 
 .emp-certifications .certification-item h3 {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--primary-color);
+  line-height: 1.35;
 }
 
 .emp-certifications .certification-item .issuer,
 .emp-certifications .certification-item .date {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--muted-text);
+  display: block;
 }
 
-.emp-certifications .certification-item .issuer:not(:empty) + .date::before {
-  content: ' • ';
-}
-
-/* ── Achievements ── */
+/* ── Achievements (sidebar) ── */
 .emp-achievements .achievement-item {
   position: relative;
-  padding-left: 12px;
+  padding-left: 11px;
   margin-bottom: 4px;
 }
 
@@ -467,43 +532,39 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--primary-color);
+  background: var(--accent-color);
 }
 
 .emp-achievements .achievement-item h3 {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 400;
-  line-height: 1.55;
+  line-height: 1.5;
   color: var(--main-text);
 }
 
-/* ── Languages ── */
+/* ── Languages (sidebar) ── */
 .emp-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emp-languages .language-item {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0;
-  line-height: 1.6;
-}
-
-.emp-languages .language-item {
-  display: inline;
-}
-
-.emp-languages .language-item:not(:last-child)::after {
-  content: ' • ';
-  margin: 0 6px;
-  color: var(--divider-color);
+  line-height: 1.45;
 }
 
 .emp-languages .language {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 9.5px;
+  font-weight: 700;
   color: var(--primary-color);
 }
 
 .emp-languages .proficiency {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 400;
   color: var(--muted-text);
 }
@@ -513,13 +574,13 @@
   color: var(--divider-color);
 }
 
-/* ── Interests ── */
+/* ── Interests (sidebar) ── */
 .emp-interests {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .emp-interests .hobby-item {
@@ -531,19 +592,25 @@
 
 .emp-interests .hobby-item:not(:last-child)::after {
   content: ' • ';
-  margin: 0 5px;
+  margin: 0 4px;
   color: var(--accent-color);
 }
 
 .emp-interests .hobby,
 .emp-interests .hobby-text {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--main-text);
 }
 
-/* Content density — compress when fewer sections present */
-.emp-main:has(.emp-section:only-child) {
+/* Content density */
+.emp-main:has(.emp-section:only-child),
+.emp-sidebar:has(.emp-section--side:only-child) {
   gap: 8px;
+}
+
+.emp-body:has(.emp-sidebar:empty) .emp-main,
+.emp-body:not(:has(.emp-sidebar .emp-section)) .emp-main {
+  padding-right: 36px;
 }
 
 /* Responsive */
@@ -553,30 +620,35 @@
     max-width: 100%;
   }
 
-  .emp-header-inner {
-    padding: 18px 20px 14px;
+  .emp-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 20px 14px;
+    gap: 14px;
+  }
+
+  .emp-body {
+    flex-direction: column;
+    padding: 12px 0 20px;
   }
 
   .emp-main {
-    padding: 0 20px 24px;
+    padding: 0 20px;
+  }
+
+  .emp-rail {
+    display: none;
+  }
+
+  .emp-sidebar {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 20px 0;
   }
 
   .emp-resume .candidate-name {
-    font-size: 24px;
+    font-size: 22px;
     letter-spacing: 1.5px;
-  }
-
-  .emp-skills-pillars {
-    grid-template-columns: 1fr;
-  }
-
-  .emp-skills-pillars .skill-tag {
-    border-right: none;
-    border-bottom: 1px solid rgba(181, 154, 122, 0.2);
-  }
-
-  .emp-skills-pillars .skill-tag:last-child {
-    border-bottom: none;
   }
 }
 
@@ -602,8 +674,10 @@
     overflow: visible !important;
   }
 
-  .emp-skills-pillars,
-  .emp-skills-pillars .skill-tag {
+  .emp-photo-block .profile-image-wrapper,
+  .emp-skills-categories,
+  .emp-skills-grid .skill-tag,
+  .emp-sidebar {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -616,7 +690,9 @@
   height: auto !important;
 }
 
+.emp-resume .emp-body,
 .emp-resume .emp-main,
+.emp-resume .emp-sidebar,
 .emp-resume .emp-section {
   align-items: flex-start !important;
   min-height: auto !important;
@@ -624,13 +700,16 @@
   justify-content: flex-start !important;
 }
 
-.emp-resume .emp-section:last-child {
+.emp-resume .emp-section:last-child,
+.emp-resume .emp-sidebar > .emp-section--side:last-child {
   margin-bottom: 0 !important;
 }
 
 @media print {
   .emp-resume,
-  .emp-resume .emp-main {
+  .emp-resume .emp-body,
+  .emp-resume .emp-main,
+  .emp-resume .emp-sidebar {
     min-height: auto !important;
     height: auto !important;
     align-items: flex-start !important;
