@@ -13,22 +13,36 @@
     <div class="resume-container sep-resume">
         <header class="sep-header">
             <div class="sep-header-accent" aria-hidden="true"></div>
-            <h1 class="candidate-name">
-                <span class="name-first">{{FIRST_NAME}}</span>
-                <span class="name-space"> </span>
-                <span class="name-last">{{LAST_NAME}}</span>
-                <span class="name-fallback">{{FULL_NAME}}</span>
-            </h1>
-            {{#if JOB_TITLE}}
-            <p class="header-title">{{JOB_TITLE}}</p>
-            {{/if}}
-            {{#if CONTACT}}
-            <div class="sep-contact">
-                <div class="contact-list">
-                    {{CONTACT}}
+            <div class="sep-header-row">
+                {{#if PROFILE_IMAGE}}
+                <div class="sep-photo-block">
+                    <span class="sep-photo-ring sep-photo-ring--outer" aria-hidden="true"></span>
+                    <span class="sep-photo-ring sep-photo-ring--inner" aria-hidden="true"></span>
+                    <div class="profile-image-wrapper">
+                        <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                    </div>
+                </div>
+                {{/if}}
+
+                <div class="sep-identity">
+                    <h1 class="candidate-name">
+                        <span class="name-first">{{FIRST_NAME}}</span>
+                        <span class="name-space"> </span>
+                        <span class="name-last">{{LAST_NAME}}</span>
+                        <span class="name-fallback">{{FULL_NAME}}</span>
+                    </h1>
+                    {{#if JOB_TITLE}}
+                    <p class="header-title">{{JOB_TITLE}}</p>
+                    {{/if}}
+                    {{#if CONTACT}}
+                    <div class="sep-contact">
+                        <div class="contact-list">
+                            {{CONTACT}}
+                        </div>
+                    </div>
+                    {{/if}}
                 </div>
             </div>
-            {{/if}}
         </header>
 
         <div class="sep-body">

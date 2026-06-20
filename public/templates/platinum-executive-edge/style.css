@@ -78,6 +78,7 @@
   z-index: 2;
   padding: 24px 32px 20px;
   background: var(--background);
+  border-bottom: 3px solid var(--metallic);
 }
 
 .pee-header-banner {
@@ -162,7 +163,7 @@
   min-width: 0;
 }
 
-.candidate-name {
+.pee-resume .candidate-name {
   font-family: var(--font-serif);
   font-weight: 700;
   font-size: 34px;
@@ -193,7 +194,7 @@
   display: none;
 }
 
-.header-title {
+.pee-resume .header-title {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 2px;

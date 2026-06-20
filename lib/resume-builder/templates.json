@@ -584,10 +584,10 @@
       "preview": "/templates/slate-executive-pro/preview.svg",
       "html": "/templates/slate-executive-pro/index.html",
       "css": "/templates/slate-executive-pro/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "ATS"],
+      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "ATS"],
       "layout": "Two Column",
       "hasSidebar": true,
-      "hasPhoto": false,
+      "hasPhoto": true,
       "recommended": true,
       "colors": [
         { "id": "slate-pro", "name": "Slate Pro", "primary": "#5F6973", "accent": "#1E2328", "text": "#1F1F1F" },

@@ -40,12 +40,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Header ── */
+/* ── Header — dark executive banner, photo left ── */
 .sep-header {
   position: relative;
   background: var(--header-bg);
-  padding: 22px 36px 18px;
-  text-align: center;
+  padding: 20px 32px 18px;
 }
 
 .sep-header-accent {
@@ -57,8 +56,69 @@
   background: linear-gradient(90deg, #A06540, var(--copper-accent), #E8A060);
 }
 
-.candidate-name {
-  font-size: 28px;
+.sep-header-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Executive portrait — square frame (distinct from Platinum hex) */
+.sep-photo-block {
+  position: relative;
+  flex-shrink: 0;
+  width: 108px;
+  height: 108px;
+}
+
+.sep-photo-ring {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+.sep-photo-ring--outer {
+  inset: -5px;
+  border: 2px solid var(--tag-bg);
+  opacity: 0.55;
+}
+
+.sep-photo-ring--inner {
+  inset: -2px;
+  border: 2px solid var(--copper-accent);
+  opacity: 0.85;
+}
+
+.sep-photo-block .profile-image-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  background: #3A4048;
+}
+
+.sep-photo-block .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.sep-identity {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.sep-header .candidate-name {
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 2px;
@@ -87,21 +147,21 @@
   display: none;
 }
 
-.header-title {
+.sep-header .header-title {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 2.4px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.88);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .sep-contact .contact-list {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 20px;
-  padding-top: 12px;
+  justify-content: flex-start;
+  gap: 8px 18px;
+  padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -545,11 +605,16 @@
   }
 
   .sep-header {
-    padding: 18px 16px 14px;
+    padding: 16px 18px 14px;
   }
 
-  .candidate-name {
-    font-size: 22px;
+  .sep-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sep-header .candidate-name {
+    font-size: 20px;
   }
 }
 
