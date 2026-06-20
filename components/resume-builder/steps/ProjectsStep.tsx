@@ -47,6 +47,17 @@ function mergeTechnologySuggestion(existing: string, suggestion: string): string
   return parts.join(', ');
 }
 
+/** Append AI description suggestions without replacing manual or prior AI content. */
+function mergeDescriptionSuggestion(existing: string, suggestion: string): string {
+  const current = existing.trim();
+  const add = suggestion.trim();
+  if (!add) return existing;
+  if (!current) return add;
+  const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (norm(current).includes(norm(add))) return existing;
+  return `${current}\n\n${add}`;
+}
+
 interface Project {
   _id?: string;
   name?: string;
@@ -519,7 +530,11 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                               const key = `${projectId}-description`;
                               skipProjectFetchRef.current[key] = true;
                               applyProjectLockUntilRef.current[key] = Date.now() + 3000;
-                              updateProject(index, 'description', suggestion);
+                              updateProject(
+                                index,
+                                'description',
+                                mergeDescriptionSuggestion(description, suggestion)
+                              );
                             }}
                             className="block w-full text-left text-xs px-2.5 py-2 bg-white text-gray-800 rounded border border-blue-100 hover:border-blue-300 hover:bg-blue-50 transition-colors"
                           >
