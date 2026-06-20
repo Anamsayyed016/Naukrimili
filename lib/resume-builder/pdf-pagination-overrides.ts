@@ -42,6 +42,8 @@ body {
 .resume-container [class*='-layout'],
 .resume-container [class*='-columns'],
 .resume-container [class*='-shell'],
+.resume-container [class*='-frame'],
+.resume-container [class*='-inner'],
 .resume-container [class*='col-main'],
 .resume-container [class*='col-side'],
 .resume-container [class*='col-left'],
@@ -57,6 +59,8 @@ body {
 .resume-container .vhe-body,
 .resume-container .boardroom-body,
 .resume-container .graphite-body,
+.resume-container .ebd-body,
+.resume-container .esl-body,
 .resume-container .eel-col-main,
 .resume-container .eel-col-side,
 .resume-container .re-main,
@@ -66,15 +70,41 @@ body {
 .resume-container .content-column,
 .resume-container .sidebar,
 .resume-container .side-column,
-.resume-container .content {
+.resume-container .content,
+.resume-container .column-inner,
+.resume-container [class*='sidebar-inner'],
+.resume-container [class*='main-inner'] {
   align-items: flex-start !important;
   align-self: auto !important;
+  justify-content: flex-start !important;
   min-height: auto !important;
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;
   page-break-inside: auto !important;
   break-inside: auto !important;
+}
+
+/* Trailing sections — collapse bottom gap before page edge */
+.resume-container .content-section:last-child,
+.resume-container .sidebar-section:last-child,
+.resume-container .main-content > section:last-child,
+.resume-container .sidebar > section:last-child,
+.resume-container .sidebar > .sidebar-panel:last-child,
+.resume-container [class*='-section']:last-of-type {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Prevent flex auto-margin from isolating Interests / trailing blocks */
+.resume-container .main-content > section,
+.resume-container .sidebar > section,
+.resume-container .main-content > [class*='-section'],
+.resume-container .sidebar > [class*='-section'],
+.resume-container .main-content > .content-section,
+.resume-container .sidebar > .sidebar-section {
+  margin-top: 0 !important;
+  flex-grow: 0 !important;
 }
 
 /* Decorative / frame layers — must not force full page height */

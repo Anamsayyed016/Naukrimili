@@ -30,7 +30,7 @@
   flex-direction: row;
   width: 794px;
   max-width: var(--max-width);
-  min-height: var(--page-height);
+  min-height: auto;
   margin: 0 auto;
   padding: 0 !important;
   font-family: var(--font-sans);
@@ -63,7 +63,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: var(--page-height);
+  min-height: auto;
 }
 
 /* ── Main shell + architecture background ── */
@@ -79,7 +79,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  min-height: var(--page-height);
+  min-height: auto;
   pointer-events: none;
   z-index: 0;
 }
@@ -350,7 +350,7 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  min-height: calc(var(--page-height) - 220px);
+  min-height: auto;
   padding: 12px 24px 40px 12px;
 
   -webkit-font-smoothing: antialiased;
@@ -836,7 +836,7 @@ body[data-density='sparse'] .eel-resume .eel-column-inner {
 
 body[data-density='sparse'] .eel-resume .eel-body {
   padding-bottom: 52px;
-  min-height: calc(var(--page-height) - 180px);
+  min-height: auto;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -889,5 +889,58 @@ body[data-density='light'] .eel-resume .eel-column-inner {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     animation: none !important;
+  }
+}
+
+/* ── Content-aware vertical packing (no forced page height) ── */
+.resume-container,
+.resume-container[class*='-resume'],
+[class*='-resume'].resume-container {
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container .resume-wrapper,
+.resume-container [class*='-body']:not(body):not(html),
+.resume-container [class*='-layout'],
+.resume-container [class*='-shell'],
+.resume-container [class*='-columns'] {
+  align-items: flex-start !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container .sidebar,
+.resume-container .main-content,
+.resume-container .main-column,
+.resume-container .content-column,
+.resume-container .side-column,
+.resume-container [class*='col-main'],
+.resume-container [class*='col-side'],
+.resume-container [class*='col-left'],
+.resume-container [class*='col-right'],
+.resume-container .re-main,
+.resume-container .re-sidebar {
+  min-height: auto !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container .content-section:last-child,
+.resume-container .sidebar-section:last-child,
+.resume-container .main-content > section:last-child,
+.resume-container .sidebar > section:last-child {
+  margin-bottom: 0 !important;
+}
+
+@media print {
+  .resume-container,
+  .resume-container .resume-wrapper,
+  .resume-container [class*='-body']:not(body):not(html),
+  .resume-container .sidebar,
+  .resume-container .main-content {
+    min-height: auto !important;
+    height: auto !important;
+    align-items: flex-start !important;
   }
 }

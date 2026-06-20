@@ -32,7 +32,7 @@
   position: relative;
   width: 794px;
   max-width: var(--max-width);
-  min-height: var(--page-height);
+  min-height: auto;
   margin: 0 auto;
   padding: 0 !important;
   font-family: var(--font-sans);
@@ -58,7 +58,7 @@
   right: 0;
   width: 100%;
   height: 100%;
-  min-height: var(--page-height);
+  min-height: auto;
   pointer-events: none;
   z-index: 0;
 }
@@ -66,7 +66,7 @@
 .vhe-resume .vhe-shell {
   position: relative;
   z-index: 1;
-  min-height: var(--page-height);
+  min-height: auto;
 }
 
 /* ── Executive header ── */
@@ -723,5 +723,58 @@ body[data-density='light'] .vhe-resume .vhe-section { margin-bottom: 20px; }
   .vhe-resume .vhe-section {
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+}
+
+/* ── Content-aware vertical packing (no forced page height) ── */
+.resume-container,
+.resume-container[class*='-resume'],
+[class*='-resume'].resume-container {
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container .resume-wrapper,
+.resume-container [class*='-body']:not(body):not(html),
+.resume-container [class*='-layout'],
+.resume-container [class*='-shell'],
+.resume-container [class*='-columns'] {
+  align-items: flex-start !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container .sidebar,
+.resume-container .main-content,
+.resume-container .main-column,
+.resume-container .content-column,
+.resume-container .side-column,
+.resume-container [class*='col-main'],
+.resume-container [class*='col-side'],
+.resume-container [class*='col-left'],
+.resume-container [class*='col-right'],
+.resume-container .re-main,
+.resume-container .re-sidebar {
+  min-height: auto !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container .content-section:last-child,
+.resume-container .sidebar-section:last-child,
+.resume-container .main-content > section:last-child,
+.resume-container .sidebar > section:last-child {
+  margin-bottom: 0 !important;
+}
+
+@media print {
+  .resume-container,
+  .resume-container .resume-wrapper,
+  .resume-container [class*='-body']:not(body):not(html),
+  .resume-container .sidebar,
+  .resume-container .main-content {
+    min-height: auto !important;
+    height: auto !important;
+    align-items: flex-start !important;
   }
 }

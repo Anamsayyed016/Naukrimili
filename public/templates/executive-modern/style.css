@@ -38,7 +38,7 @@ body {
 .resume-container {
   width: 794px;
   max-width: var(--max-width);
-  min-height: var(--page-height);
+  min-height: auto;
   background: var(--main-bg);
   margin: 0 auto;
 }
@@ -46,9 +46,9 @@ body {
 .resume-wrapper {
   display: flex !important;
   flex-direction: row !important;
-  align-items: stretch !important;
+  align-items: flex-start !important;
   width: 100% !important;
-  min-height: var(--page-height) !important;
+  min-height: auto !important;
 }
 
 /* ── Dark sidebar ── */
@@ -534,5 +534,58 @@ body {
   .profile-image-wrapper {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+}
+
+/* ── Content-aware vertical packing (no forced page height) ── */
+.resume-container,
+.resume-container[class*='-resume'],
+[class*='-resume'].resume-container {
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container .resume-wrapper,
+.resume-container [class*='-body']:not(body):not(html),
+.resume-container [class*='-layout'],
+.resume-container [class*='-shell'],
+.resume-container [class*='-columns'] {
+  align-items: flex-start !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container .sidebar,
+.resume-container .main-content,
+.resume-container .main-column,
+.resume-container .content-column,
+.resume-container .side-column,
+.resume-container [class*='col-main'],
+.resume-container [class*='col-side'],
+.resume-container [class*='col-left'],
+.resume-container [class*='col-right'],
+.resume-container .re-main,
+.resume-container .re-sidebar {
+  min-height: auto !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container .content-section:last-child,
+.resume-container .sidebar-section:last-child,
+.resume-container .main-content > section:last-child,
+.resume-container .sidebar > section:last-child {
+  margin-bottom: 0 !important;
+}
+
+@media print {
+  .resume-container,
+  .resume-container .resume-wrapper,
+  .resume-container [class*='-body']:not(body):not(html),
+  .resume-container .sidebar,
+  .resume-container .main-content {
+    min-height: auto !important;
+    height: auto !important;
+    align-items: flex-start !important;
   }
 }
