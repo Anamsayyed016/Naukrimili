@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { FileText, CheckCircle2, AlertCircle, X, Download } from 'lucide-react';
@@ -48,8 +48,8 @@ interface PdfDeliveryResult {
   success: boolean;
   error?: string;
   device: PdfDeliveryDeviceInfo;
-  /** Mobile only: blob is ready but needs a fresh user tap (gesture lost after async export). */
-  needsDeferredTap?: boolean;
+  /** Mobile only: share and anchor failed — present explicit download link. */
+  showDownloadModal?: { url: string; filename: string };
 }
 
 interface PdfDeliveryOptions {
@@ -57,7 +57,27 @@ interface PdfDeliveryOptions {
   deliveryWindow?: Window | null;
 }
 
-const ANDROID_BLOB_REVOKE_MS = 60_000;
+const MOBILE_BLOB_REVOKE_MS = 60_000;
+
+const MOBILE_PDF_GENERATION_FAILED = 'PDF generation failed. Please try again.';
+
+function logExportDiagnostics(input: {
+  status: number;
+  contentType: string;
+  blobType?: string;
+  blobSize?: number;
+}): void {
+  console.log('📊 [Export] Diagnostics', {
+    status: input.status,
+    contentType: input.contentType,
+    blobType: input.blobType ?? null,
+    blobSize: input.blobSize ?? null,
+  });
+}
+
+function logExportFailure(reason: string, details?: Record<string, unknown>): void {
+  console.error('❌ [Export] Failure', { reason, ...(details ?? {}) });
+}
 
 async function tryMobilePdfShare(
   blob: Blob,
@@ -88,8 +108,8 @@ async function tryMobilePdfShare(
   }
 }
 
-/** Android fallback — direct file download without in-browser PDF preview. */
-function tryAndroidAnchorDownload(blob: Blob, filename: string): boolean {
+/** Mobile fallback — direct file download without in-browser PDF preview. */
+function tryMobileAnchorDownload(blob: Blob, filename: string): boolean {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
@@ -102,7 +122,7 @@ function tryAndroidAnchorDownload(blob: Blob, filename: string): boolean {
     anchor.click();
     clicked = true;
   } catch (clickError: unknown) {
-    console.error('❌ [PDF Delivery] Android anchor.click() failed:', clickError);
+    console.error('❌ [PDF Delivery] Mobile anchor.click() failed:', clickError);
   }
 
   window.setTimeout(() => {
@@ -110,7 +130,7 @@ function tryAndroidAnchorDownload(blob: Blob, filename: string): boolean {
       anchor.parentNode.removeChild(anchor);
     }
   }, 2000);
-  scheduleBlobUrlRevoke(url, ANDROID_BLOB_REVOKE_MS);
+  scheduleBlobUrlRevoke(url, MOBILE_BLOB_REVOKE_MS);
   return clicked;
 }
 
@@ -122,16 +142,16 @@ async function deliverMobilePdfBlob(
   const device = getPdfDeliveryDeviceInfo();
 
   if (blob.size === 0) {
+    logExportFailure('mobile-delivery-empty-blob', { blobSize: 0 });
     return {
       method: 'share-files',
       success: false,
-      needsDeferredTap: true,
       device,
       error: 'empty-blob',
     };
   }
 
-  // Primary: deliver the original PDF file via native share sheet (Save to Files / Download).
+  // 1. Primary: native share sheet (Save to Files / Download) — iOS and Android.
   const shareOutcome = await tryMobilePdfShare(blob, filename);
   if (shareOutcome) {
     logPdfDeliveryDiagnostics({
@@ -141,46 +161,42 @@ async function deliverMobilePdfBlob(
       success: shareOutcome.success,
       error: shareOutcome.error,
     });
-    return shareOutcome;
+    if (shareOutcome.success || shareOutcome.error === 'cancelled') {
+      return shareOutcome;
+    }
   }
 
-  // Android fallback: direct file download — never open an in-browser PDF viewer.
-  if (device.deviceType === 'android') {
-    const anchorClicked = tryAndroidAnchorDownload(blob, filename);
+  // 2. Fallback: anchor.download — never open HTML preview.
+  const anchorClicked = tryMobileAnchorDownload(blob, filename);
+  if (anchorClicked) {
     const result: PdfDeliveryResult = {
       method: 'anchor-download',
-      success: anchorClicked,
+      success: true,
       device,
-      error: anchorClicked ? undefined : 'anchor-click-failed',
     };
     logPdfDeliveryDiagnostics({
       device,
       blobSize: blob.size,
       method: result.method,
-      success: result.success,
-      error: result.error,
-      revokeDelayMs: ANDROID_BLOB_REVOKE_MS,
+      success: true,
+      revokeDelayMs: MOBILE_BLOB_REVOKE_MS,
     });
-    if (anchorClicked) {
-      return result;
-    }
+    return result;
   }
 
-  const deferred: PdfDeliveryResult = {
-    method: 'share-files',
-    success: false,
-    needsDeferredTap: true,
-    device,
-    error: 'share-unavailable',
-  };
-  logPdfDeliveryDiagnostics({
-    device,
+  // 3. Last resort: explicit download link — never HTML preview.
+  logExportFailure('mobile-delivery-exhausted', {
     blobSize: blob.size,
-    method: deferred.method,
-    success: false,
-    error: deferred.error,
+    deviceType: device.deviceType,
+    browser: device.browser,
   });
-  return deferred;
+  const url = URL.createObjectURL(blob);
+  return {
+    method: 'anchor-download',
+    success: true,
+    device,
+    showDownloadModal: { url, filename },
+  };
 }
 
 function getPdfDeliveryDeviceInfo(): PdfDeliveryDeviceInfo {
@@ -360,7 +376,27 @@ export default function FinalizeStep({
   const [couponQuotes, setCouponQuotes] = useState<Record<string, CouponQuote | null>>({});
   const [skipPaymentCheck, setSkipPaymentCheck] = useState(false); // Bypass payment check after successful payment
   const [mobilePdfReadyAfterPayment, setMobilePdfReadyAfterPayment] = useState(false);
-  const pendingMobilePdfRef = useRef<{ blob: Blob; filename: string } | null>(null);
+  const [mobileDownloadFallback, setMobileDownloadFallback] = useState<{
+    url: string;
+    filename: string;
+  } | null>(null);
+
+  const closeMobileDownloadFallback = (): void => {
+    setMobileDownloadFallback((current) => {
+      if (current?.url) {
+        URL.revokeObjectURL(current.url);
+      }
+      return null;
+    });
+  };
+
+  const showMobilePdfGenerationFailed = (): void => {
+    toast({
+      title: 'PDF generation failed',
+      description: MOBILE_PDF_GENERATION_FAILED,
+      variant: 'destructive',
+    });
+  };
 
   const openPdfDownloadLimitDialog = (info: {
     downloadsUsed?: number;
@@ -379,68 +415,6 @@ export default function FinalizeStep({
     });
     setShowDownloadLimitDialog(true);
     setExporting(null);
-  };
-
-  const deliverMobilePdfWithFreshGesture = async (): Promise<void> => {
-    const pending = pendingMobilePdfRef.current;
-    if (!pending || pending.blob.size === 0) {
-      toast({
-        title: 'PDF not ready yet',
-        description: 'Wait for generation to finish, then tap Download PDF again.',
-        variant: 'default',
-      });
-      return;
-    }
-
-    setExporting('pdf');
-
-    try {
-      const delivery = await deliverPdfBlob(pending.blob, pending.filename, {
-        allowAnchorDownload: true,
-      });
-
-      if (delivery.needsDeferredTap) {
-        toast({
-          title: 'PDF ready',
-          description: 'Tap Download PDF again and use Share or Save to Files.',
-        });
-        return;
-      }
-
-      if (!delivery.success) {
-        if (delivery.error === 'cancelled') {
-          toast(getPdfDeliveryFeedback(delivery.device, delivery));
-          return;
-        }
-        toast({
-          title: 'PDF ready',
-          description: 'Tap Download PDF below to try saving again.',
-          variant: 'default',
-        });
-        return;
-      }
-
-      pendingMobilePdfRef.current = null;
-      setMobilePdfReadyAfterPayment(false);
-
-      if (skipPaymentCheck) {
-        setSkipPaymentCheck(false);
-      }
-      if (pendingExportFormat) {
-        setPendingExportFormat(null);
-      }
-
-      toast(getPdfDeliveryFeedback(delivery.device, delivery));
-    } catch (error: unknown) {
-      console.error('❌ [PDF Delivery] Deferred mobile delivery failed:', error);
-      toast({
-        title: 'Save failed',
-        description: 'Your PDF is still ready — tap Download PDF below to retry.',
-        variant: 'destructive',
-      });
-    } finally {
-      setExporting(null);
-    }
   };
 
   // Transform plans for UI display (centralized from razorpay-plans.ts)
@@ -564,30 +538,9 @@ export default function FinalizeStep({
 
   const handleExport = async (
     format: 'pdf',
-    bypassPaymentCheck: boolean = false,
-    options?: { generateOnly?: boolean }
+    bypassPaymentCheck: boolean = false
   ) => {
-    // Mobile: reuse cached blob — never re-fetch (avoids extra download count).
-    if (
-      isMobilePdfDeliveryDevice() &&
-      pendingMobilePdfRef.current &&
-      !options?.generateOnly
-    ) {
-      void deliverMobilePdfWithFreshGesture();
-      return;
-    }
-
     setExporting(format);
-
-    if (
-      options?.generateOnly &&
-      isMobilePdfDeliveryDevice() &&
-      pendingMobilePdfRef.current &&
-      pendingMobilePdfRef.current.blob.size > 0
-    ) {
-      setMobilePdfReadyAfterPayment(true);
-      return;
-    }
 
     try {
       // Check authentication FIRST before any payment checks
@@ -865,9 +818,17 @@ export default function FinalizeStep({
           return;
         }
         
-        // If server-side export failed and fallback is suggested, try client-side
-        // BUT ONLY if it's not a payment/authentication error
+        // If server-side export failed and fallback is suggested, try client-side (desktop only)
         if (error.fallback && format === 'pdf' && response.status !== 403 && response.status !== 401) {
+          logExportFailure('api-fallback-suggested', {
+            status: response.status,
+            contentType,
+            error,
+          });
+          if (isMobilePdfDeliveryDevice()) {
+            showMobilePdfGenerationFailed();
+            return;
+          }
           console.log('📄 [Export] Server-side PDF export unavailable, using client-side fallback...');
           await handleClientSidePDFExport();
           return;
@@ -878,6 +839,7 @@ export default function FinalizeStep({
 
       // Verify we received a PDF
       if (!contentType.includes('application/pdf')) {
+        logExportFailure('invalid-content-type', { status: response.status, contentType });
         console.error('❌ [Export] Invalid content type received:', contentType);
         // For non-PDF responses, read as text first to check if it's an error
         const responseText = await response.text();
@@ -904,7 +866,10 @@ export default function FinalizeStep({
           }
           throw new Error(errorData.error || errorData.details || 'Invalid response from server');
         } catch (jsonError) {
-          // Not JSON, just throw generic error
+          if (isMobilePdfDeliveryDevice()) {
+            showMobilePdfGenerationFailed();
+            return;
+          }
           throw new Error('Server did not return a valid PDF. Please try again.');
         }
       }
@@ -917,47 +882,68 @@ export default function FinalizeStep({
         throw new Error('Received empty PDF file. Please try again.');
       }
       
+      logExportDiagnostics({
+        status: response.status,
+        contentType,
+        blobType: blob.type,
+        blobSize: blob.size,
+      });
+
       // Check if blob starts with PDF magic bytes (%PDF)
       const firstBytes = await blob.slice(0, 4).text();
       if (!firstBytes.startsWith('%PDF')) {
+        logExportFailure('invalid-pdf-magic-bytes', {
+          status: response.status,
+          contentType,
+          blobType: blob.type,
+          blobSize: blob.size,
+        });
         console.error('❌ [Export] Blob does not appear to be a valid PDF');
-        // Try to read as text to see error message
         const errorText = await blob.text();
+        let parsedError: { error?: string; details?: string } | null = null;
         try {
-          const errorData = JSON.parse(errorText);
-          throw new Error(errorData.error || errorData.details || 'Invalid PDF received');
+          parsedError = JSON.parse(errorText);
         } catch {
-          throw new Error('Received invalid PDF file. Please try again.');
+          parsedError = null;
         }
+        if (isMobilePdfDeliveryDevice()) {
+          showMobilePdfGenerationFailed();
+          return;
+        }
+        throw new Error(
+          parsedError?.error || parsedError?.details || 'Received invalid PDF file. Please try again.'
+        );
       }
-      
-      console.log('✅ [Export] Valid PDF received, size:', blob.size, 'bytes');
+
       const filename = `resume-${templateId}-${Date.now()}.pdf`;
 
-      // Mobile: cache validated blob; delivery happens on a fresh user tap only.
-      if (isMobilePdfDeliveryDevice()) {
-        pendingMobilePdfRef.current = { blob, filename };
-        setMobilePdfReadyAfterPayment(true);
-        toast({
-          title: 'PDF ready',
-          description: 'Tap Download PDF below to save your file.',
-        });
-        console.log('📱 [Export] Mobile PDF cached — awaiting fresh tap for delivery');
-        return;
-      }
-
+      // Mobile and desktop: deliver immediately after successful generation (one tap on mobile).
       const delivery = await deliverPdfBlob(blob, filename);
 
-      if (!delivery.success) {
+      if (delivery.showDownloadModal) {
+        setMobileDownloadFallback(delivery.showDownloadModal);
+        toast({
+          title: 'PDF ready',
+          description: 'Tap the download link to save your resume PDF.',
+        });
+      } else if (!delivery.success) {
         if (delivery.error === 'cancelled') {
           toast(getPdfDeliveryFeedback(delivery.device, delivery));
           return;
         }
+        logExportFailure('pdf-delivery-failed', {
+          error: delivery.error,
+          deviceType: delivery.device.deviceType,
+        });
+        if (isMobilePdfDeliveryDevice()) {
+          showMobilePdfGenerationFailed();
+          return;
+        }
         throw new Error('PDF delivery failed');
+      } else {
+        toast(getPdfDeliveryFeedback(delivery.device, delivery));
       }
 
-      pendingMobilePdfRef.current = null;
-      toast(getPdfDeliveryFeedback(delivery.device, delivery));
       setMobilePdfReadyAfterPayment(false);
 
       // Reset skipPaymentCheck flag after successful download
@@ -990,8 +976,13 @@ export default function FinalizeStep({
         return;
       }
       
-      // Only try client-side PDF export as final fallback for non-payment errors
+      // Client-side HTML fallback — desktop only; never open HTML preview on mobile
       if (format === 'pdf' && !isPaymentError) {
+        logExportFailure('export-catch', { errorMessage });
+        if (isMobilePdfDeliveryDevice()) {
+          showMobilePdfGenerationFailed();
+          return;
+        }
         console.log('📄 Attempting client-side PDF export fallback...');
         try {
           await handleClientSidePDFExport();
@@ -1177,13 +1168,13 @@ export default function FinalizeStep({
     if (isMobilePdfDeliveryDevice()) {
       toast({
         title: toastOptions?.title ?? 'Payment successful!',
-        description: 'Generating your PDF… tap Download PDF below when ready.',
+        description: toastOptions?.description ?? 'Downloading your resume...',
       });
-      console.log('📱 [Post-Payment Export] Prefetching PDF once for mobile cached delivery', {
+      console.log('📱 [Post-Payment Export] One-tap mobile PDF download', {
         exportFormat,
         device: getPdfDeliveryDeviceInfo(),
       });
-      void handleExport(exportFormat, true, { generateOnly: true });
+      void handleExport(exportFormat, true);
       return;
     }
 
@@ -1924,6 +1915,37 @@ export default function FinalizeStep({
         </DialogContent>
       </Dialog>
 
+      {/* Mobile PDF download fallback — shown only when share and anchor both fail */}
+      <Dialog
+        open={mobileDownloadFallback !== null}
+        onOpenChange={(open) => {
+          if (!open) closeMobileDownloadFallback();
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Download your PDF</DialogTitle>
+            <DialogDescription>
+              Tap the link below to save your resume PDF file.
+            </DialogDescription>
+          </DialogHeader>
+          {mobileDownloadFallback && (
+            <a
+              href={mobileDownloadFallback.url}
+              download={mobileDownloadFallback.filename}
+              className="block rounded-md border border-orange-300 bg-orange-50 px-4 py-3 text-center text-sm font-semibold text-orange-900 underline"
+            >
+              {mobileDownloadFallback.filename}
+            </a>
+          )}
+          <div className="flex justify-end pt-2">
+            <Button variant="outline" onClick={closeMobileDownloadFallback}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="resume-payment-dialog max-w-5xl w-full max-h-[90vh] sm:max-h-[90vh]">
@@ -2268,7 +2290,7 @@ export default function FinalizeStep({
               </p>
               <Button
                 onClick={() => {
-                  void deliverMobilePdfWithFreshGesture();
+                  void handleExport('pdf', true);
                 }}
                 disabled={exporting !== null}
                 className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold"
