@@ -256,10 +256,8 @@ export async function POST(request: NextRequest) {
       deviceScaleFactor: 2, // Higher DPI for better quality
     });
 
-    // Use 'screen' media type to match live preview exactly
-    await page.emulateMediaType('screen');
-    
-    // Set content with the generated HTML
+    // Set content first; switch to print media immediately before PDF capture so template
+    // @media print color/break fixes apply without affecting layout load.
     try {
       await page.setContent(html, {
         waitUntil: 'networkidle0',
@@ -436,6 +434,10 @@ export async function POST(request: NextRequest) {
 
     // Wait for layout to stabilize
     await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Print media for page.pdf() — template @media print fixes + export pagination
+    await page.emulateMediaType('print');
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Generate PDF with ATS-friendly settings (A4 format)
     console.log('📄 Generating PDF...');

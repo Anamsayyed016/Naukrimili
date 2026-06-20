@@ -114,43 +114,40 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         ${coloredCss}
-        
-        /* ========================================
-           PDF EXPORT CSS - MULTI-PAGE FLOW
-           Natural pagination; no forced single-page compression
-           ======================================== */
-        
-        /* Universal Reset */
-        *, *::before, *::after {
+
+        /* PDF export base — aligned with LivePreview (no typography compression) */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
           box-sizing: border-box !important;
         }
-        
+
         html {
-          background-color: #ffffff !important;
-          margin: 0;
-          padding: 0;
-          width: 100%;
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
           height: auto !important;
+          background-color: #ffffff !important;
         }
-        
+
         body {
-          background-color: #ffffff !important;
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: auto !important;
-          min-height: auto !important;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
-          color: #000000;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: auto !important;
+          overflow-x: hidden !important;
+          overflow-y: visible !important;
+          transform: none !important;
           word-wrap: break-word;
           overflow-wrap: break-word;
-          hyphens: auto;
-          line-height: 1.5 !important; /* Moderate line height for readability */
         }
-        
-        /* Resume Container - A4 width, natural height across pages */
+
         .resume-container {
           width: 794px !important;
           max-width: 794px !important;
@@ -159,178 +156,37 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           height: auto !important;
           max-height: none !important;
           margin: 0 auto !important;
-          padding: 28px 36px !important;
-          background: white !important;
           box-sizing: border-box !important;
-          position: relative;
+          position: relative !important;
           overflow: visible !important;
+          transform: none !important;
         }
 
-        /* Override CSS Variables with Moderate Values */
-        :root {
-          --spacing-xl: 22px !important;
-          --spacing-lg: 18px !important;
-          --spacing-md: 14px !important;
-          --spacing-sm: 10px !important;
-          --spacing-xs: 6px !important;
-          --section-gap: 18px !important;
+        body > *,
+        html > * {
+          transform: none !important;
         }
-        
-        /* Moderate Section Spacing */
-        section, .section, .content-section, .sidebar-section {
-          margin-bottom: 16px !important;
-          padding-bottom: 0 !important;
-        }
-        
-        section:last-child, .section:last-child {
-          margin-bottom: 0 !important;
-        }
-        
-        /* Moderate Heading Compression */
-        h1, .name, .header-name {
-          font-size: 30px !important; /* Readable, not too small */
-          margin-bottom: 8px !important;
-          margin-top: 0 !important;
-          line-height: 1.2 !important;
-        }
-        
-        h2, .section-title, .sidebar-section-title {
-          font-size: 17px !important;
-          margin-bottom: 12px !important;
-          margin-top: 0 !important;
-          padding-bottom: 6px !important;
-        }
-        
-        h3, .experience-header h3, .education-item h3 {
-          font-size: 15px !important;
-          margin-bottom: 6px !important;
-          margin-top: 0 !important;
-        }
-        
-        /* Moderate Text Compression */
-        p, .description, .profile-text, .about-text {
-          margin-top: 8px !important;
-          margin-bottom: 8px !important;
-          line-height: 1.5 !important;
-          font-size: 13px !important;
-        }
-        
-        /* Moderate List Spacing */
-        ul, ol {
-          margin-top: 8px !important;
-          margin-bottom: 8px !important;
-          padding-left: 20px !important;
-        }
-        
-        li {
-          margin-bottom: 6px !important;
-          line-height: 1.5 !important;
-        }
-        
-        /* Moderate Header Compression */
-        .content-header, header {
-          padding: 20px 24px !important;
-          margin-bottom: 0 !important;
-          margin-top: 0 !important;
-          gap: 16px !important;
-        }
-        
-        /* Moderate Sidebar & Main Content Spacing */
-        .sidebar {
-          padding: 24px 20px !important;
-          gap: 14px !important;
-        }
-        
-        .main-content {
-          padding: 24px 28px !important;
-          gap: 14px !important;
-        }
-        
-        /* Moderate List Gaps */
-        .experience-list, .education-list, .projects-list,
-        .certifications-list, .achievements-list {
-          gap: 14px !important;
-        }
-        
-        .skills-list, .languages-list, .references-list,
-        .hobbies-list, .interests-list {
-          gap: 10px !important;
-        }
-        
-        .experience-item, .education-item, .project-item,
-        .certification-item, .achievement-item,
-        .reference-item, .language-item, .skill-item {
-          margin-bottom: 0 !important;
-          padding-bottom: 0 !important;
-          gap: 6px !important;
-        }
-        
-        /* Moderate Contact/Info Lists */
-        .contact-list, .social-list {
-          gap: 10px !important;
-        }
-        
-        /* Moderate Profile Image - Medium size for better visibility */
-        .profile-image-wrapper, .profile-placeholder {
-          width: 120px !important;
-          height: 120px !important;
-        }
-        
-        .profile-initials {
-          font-size: 32px !important;
-        }
-        
-        /* Moderate Experience/Education Headers */
-        .company, .institution, .issuer, .technologies {
-          font-size: 13px !important;
-          margin-bottom: 4px !important;
-        }
-        
-        .duration, .year, .date {
-          font-size: 11px !important;
-          margin-top: 0 !important;
-          margin-bottom: 0 !important;
-          padding: 3px 8px !important;
-        }
-        
-        /* Moderate Skills/Languages */
-        .skill-name, .language-name,
-        .psp-skill-name, .psp-language-name {
-          font-size: 12px !important;
-        }
-        
-        .cgpa, .proficiency,
-        .psp-skill-percentage, .psp-language-percentage {
-          font-size: 11px !important;
-          margin-top: 3px !important;
-          margin-bottom: 3px !important;
-        }
-        
-        /* Moderate Progress Bar */
-        .psp-skill-bar-container, .psp-language-bar-container {
-          height: 7px !important;
-          margin-top: 3px !important;
-          margin-bottom: 3px !important;
-        }
-        
-        .psp-skill-item, .psp-language-item {
-          gap: 5px !important;
-        }
-        
-        /* Print color preservation */
-        * {
+
+        img {
+          display: block !important;
+          max-width: 100% !important;
+          height: auto !important;
           -webkit-print-color-adjust: exact !important;
-          color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
-        
+
+        svg, svg * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          display: inline-block !important;
+        }
+
+        p, div, span, li, td, th {
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+        }
+
         ${PDF_PAGINATION_EXPORT_CSS}
-
-        /* Ensure visibility */
-        img, svg, .icon, .contact-icon {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
 
         /* ── Resume typography overrides (Design Studio) — no-op when default ── */
         ${typographyCss}
