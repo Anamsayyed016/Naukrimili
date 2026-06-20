@@ -31,6 +31,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'velvet-horizon-executive': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
   'midnight-prestige-executive': `${DEMO_PROFILES_BASE}/charcoal-premium.svg`,
   'frosted-glass-executive': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
+  'executive-copper': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -180,6 +181,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-sky-300/75',
     hoverOverlay: 'from-sky-100/35',
   },
+  'executive-copper': {
+    glow: 'radial-gradient(circle, rgba(166,124,99,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(107,75,62,0.22) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-600/55',
+    hoverOverlay: 'from-amber-100/28',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -208,6 +215,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'velvet-horizon-executive': { firstName: 'Oliver', lastName: 'Hayes', jobTitle: 'Chief Marketing Officer' },
   'midnight-prestige-executive': { firstName: 'Alexander', lastName: 'Vance', jobTitle: 'Chief Executive Officer | Global Operations' },
   'frosted-glass-executive': { firstName: 'Julian', lastName: 'Pierce', jobTitle: 'Senior Product Strategist | Digital Innovation Leader' },
+  'executive-copper': { firstName: 'Sebastian', lastName: 'Cole', jobTitle: 'Chief Innovation Officer' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {
