@@ -34,6 +34,7 @@
   overflow: visible;
   box-shadow: 0 16px 48px rgba(34, 34, 34, 0.07);
   -webkit-font-smoothing: antialiased;
+  isolation: isolate;
 }
 
 /* ── Decorative corners ── */
@@ -43,46 +44,94 @@
   z-index: 0;
 }
 
+/* Soft blush washes — 12–18% opacity, edge-only */
+.ap-resume .ap-deco--wash {
+  border-radius: 0;
+  background: transparent;
+}
+
+.ap-resume .ap-deco--wash-tl {
+  top: 0;
+  left: 0;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle at 0% 0%, rgba(217, 178, 178, 0.18) 0%, transparent 68%);
+}
+
+.ap-resume .ap-deco--wash-tr {
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle at 100% 0%, rgba(217, 178, 178, 0.15) 0%, transparent 70%);
+}
+
+.ap-resume .ap-deco--wash-bl {
+  bottom: 0;
+  left: 0;
+  width: 110px;
+  height: 110px;
+  background: radial-gradient(circle at 0% 100%, rgba(217, 178, 178, 0.14) 0%, transparent 72%);
+}
+
+.ap-resume .ap-deco--wash-br {
+  bottom: 0;
+  right: 0;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle at 100% 100%, rgba(217, 178, 178, 0.16) 0%, transparent 70%);
+}
+
+/* Solid geometric corner accents */
 .ap-resume .ap-deco--tl {
   top: 0;
   left: 0;
-  width: 28px;
-  height: 88px;
-  border-radius: 0 0 14px 0;
-  background: var(--primary-color);
-  opacity: 0.92;
+  width: 34px;
+  height: 96px;
+  border-radius: 0 0 16px 0;
+  background: #d9b2b2;
 }
 
 .ap-resume .ap-deco--tr {
-  top: 18px;
-  right: 18px;
-  width: 36px;
-  height: 36px;
-  border-top: 3px solid var(--primary-color);
-  border-right: 3px solid var(--primary-color);
-  border-radius: 0 8px 0 0;
-  opacity: 0.85;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border-top: 3px solid #d9b2b2;
+  border-right: 3px solid #d9b2b2;
+  border-radius: 0 10px 0 0;
+  background: transparent;
+}
+
+.ap-resume .ap-deco--bl {
+  bottom: 20px;
+  left: 20px;
+  width: 38px;
+  height: 38px;
+  border-bottom: 3px solid #d9b2b2;
+  border-left: 3px solid #d9b2b2;
+  border-radius: 0 0 0 10px;
+  background: transparent;
 }
 
 .ap-resume .ap-deco--br {
-  bottom: 22px;
-  right: 22px;
-  width: 40px;
-  height: 40px;
-  border-bottom: 3px solid var(--primary-color);
-  border-right: 3px solid var(--primary-color);
-  border-radius: 0 0 10px 0;
-  opacity: 0.85;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-bottom: 3px solid #d9b2b2;
+  border-right: 3px solid #d9b2b2;
+  border-radius: 0 0 12px 0;
+  background: transparent;
 }
 
 .ap-resume .ap-deco--br::after {
   content: '✦';
   position: absolute;
-  right: -2px;
-  bottom: -6px;
-  font-size: 11px;
-  color: var(--primary-color);
-  opacity: 0.75;
+  right: -3px;
+  bottom: -8px;
+  font-size: 12px;
+  color: #d9b2b2;
 }
 
 /* ── Header ── */
@@ -296,8 +345,8 @@
   width: 6px;
   height: 22px;
   border-radius: 999px;
-  background: var(--card-bg);
-  border: 1px solid var(--divider-color);
+  background: rgba(217, 178, 178, 0.2);
+  border: 1px solid rgba(217, 178, 178, 0.45);
   flex-shrink: 0;
 }
 
@@ -365,19 +414,32 @@
   margin-bottom: 4px;
 }
 
-/* ── Two-column projects / skills ── */
+/* ── Balanced two-column executive grid ── */
 .ap-resume .ap-dual-grid {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 28px;
-  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px 32px;
+  align-items: start;
+  margin-bottom: 0;
 }
 
-.ap-resume .ap-section--projects,
-.ap-resume .ap-section--skills {
-  flex: 1;
+.ap-resume .ap-dual-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   min-width: 0;
+}
+
+.ap-resume .ap-dual-col .ap-section {
+  margin-bottom: 0;
+}
+
+.ap-resume .ap-dual-grid:has(.ap-dual-col--left .ap-section):not(:has(.ap-dual-col--right .ap-section)) {
+  grid-template-columns: 1fr;
+}
+
+.ap-resume .ap-dual-grid:has(.ap-dual-col--right .ap-section):not(:has(.ap-dual-col--left .ap-section)) {
+  grid-template-columns: 1fr;
 }
 
 .ap-resume .ap-projects {
@@ -427,85 +489,122 @@
   word-break: break-word;
 }
 
-/* ── Lower stacked sections ── */
-.ap-resume .ap-section--lower {
+/* ── Education & certifications (left column) ── */
+.ap-resume .ap-education,
+.ap-resume .ap-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ap-resume .ap-education .education-item {
   display: grid;
-  grid-template-columns: 120px 1px 1fr;
-  column-gap: 18px;
-  align-items: start;
-  padding-top: 16px;
-  margin-bottom: 12px;
-  border-top: 1px solid var(--divider-color);
+  grid-template-columns: 1fr auto;
+  column-gap: 10px;
+  row-gap: 2px;
 }
 
-.ap-resume .ap-lower-title {
+.ap-resume .ap-education .education-item h3 {
   grid-column: 1;
-  font-size: 10px;
+  grid-row: 1;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
   color: var(--text-color);
-  padding-top: 2px;
+  line-height: 1.4;
 }
 
-.ap-resume .ap-lower-rule {
+.ap-resume .ap-education .education-item .year {
   grid-column: 2;
-  width: 1px;
-  min-height: 100%;
-  background: var(--divider-color);
-  align-self: stretch;
+  grid-row: 1;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-text);
+  white-space: nowrap;
 }
 
-.ap-resume .ap-lower-content {
-  grid-column: 3;
-  min-width: 0;
+.ap-resume .ap-education .education-item .institution,
+.ap-resume .ap-education .education-item .cgpa {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  color: var(--muted-text);
 }
 
-.ap-resume .ap-lower-content .education-item,
-.ap-resume .ap-lower-content .certification-item,
-.ap-resume .ap-lower-content .language-item,
-.ap-resume .ap-lower-content .achievement-item {
-  margin-bottom: 8px;
-}
-
-.ap-resume .ap-lower-content .education-item:last-child,
-.ap-resume .ap-lower-content .certification-item:last-child,
-.ap-resume .ap-lower-content .language-item:last-child,
-.ap-resume .ap-lower-content .achievement-item:last-child {
-  margin-bottom: 0;
-}
-
-.ap-resume .ap-lower-content h3 {
+.ap-resume .ap-certifications .certification-item h3 {
   font-size: 10.5px;
   font-weight: 600;
   color: var(--text-color);
   line-height: 1.45;
 }
 
-.ap-resume .ap-lower-content .institution,
-.ap-resume .ap-lower-content .issuer,
-.ap-resume .ap-lower-content .year,
-.ap-resume .ap-lower-content .date,
-.ap-resume .ap-lower-content .proficiency {
+.ap-resume .ap-certifications .issuer,
+.ap-resume .ap-certifications .date {
+  display: block;
+  font-size: 10px;
+  color: var(--muted-text);
+  margin-top: 2px;
+}
+
+/* ── Languages & achievements (right column) ── */
+.ap-resume .ap-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ap-resume .ap-languages .language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid rgba(214, 208, 200, 0.65);
+}
+
+.ap-resume .ap-languages .language {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.ap-resume .ap-languages .proficiency {
   font-size: 10px;
   color: var(--muted-text);
 }
 
-.ap-resume .ap-languages .language-item {
-  display: inline-flex;
-  gap: 6px;
-  margin-right: 14px;
+.ap-resume .ap-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.ap-resume .ap-languages .language {
-  font-weight: 600;
+.ap-resume .ap-achievements .achievement-item {
+  position: relative;
+  padding-left: 14px;
+}
+
+.ap-resume .ap-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  background: #d9b2b2;
+}
+
+.ap-resume .ap-achievements .achievement-item h3 {
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.55;
   color: var(--text-color);
 }
 
-/* Single column when only one dual-grid child */
-.ap-resume .ap-dual-grid:has(.ap-section--projects):not(:has(.ap-section--skills)) .ap-section--projects,
-.ap-resume .ap-dual-grid:has(.ap-section--skills):not(:has(.ap-section--projects)) .ap-section--skills {
-  flex: 1 1 100%;
+.ap-resume .ap-achievements .achievement-item .description,
+.ap-resume .ap-achievements .achievement-item .date {
+  font-size: 10px;
+  color: var(--muted-text);
+  margin-top: 2px;
 }
 
 @media print {
@@ -513,6 +612,12 @@
     width: 100%;
     max-width: none;
     box-shadow: none;
+  }
+
+  .ap-resume .ap-deco,
+  .ap-resume .ap-deco--wash {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .ap-resume * {

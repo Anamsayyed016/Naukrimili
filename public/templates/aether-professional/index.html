@@ -11,8 +11,13 @@
 </head>
 <body>
   <div class="resume-container ap-resume">
+    <div class="ap-deco ap-deco--wash ap-deco--wash-tl" aria-hidden="true"></div>
+    <div class="ap-deco ap-deco--wash ap-deco--wash-tr" aria-hidden="true"></div>
+    <div class="ap-deco ap-deco--wash ap-deco--wash-bl" aria-hidden="true"></div>
+    <div class="ap-deco ap-deco--wash ap-deco--wash-br" aria-hidden="true"></div>
     <div class="ap-deco ap-deco--tl" aria-hidden="true"></div>
     <div class="ap-deco ap-deco--tr" aria-hidden="true"></div>
+    <div class="ap-deco ap-deco--bl" aria-hidden="true"></div>
     <div class="ap-deco ap-deco--br" aria-hidden="true"></div>
 
     <header class="ap-header">
@@ -71,66 +76,66 @@
       {{/if}}
 
       <div class="ap-dual-grid">
-        {{#if PROJECTS}}
-        <section class="ap-section ap-section--projects">
-          <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Projects</h2>
-          <div class="projects-list ap-projects">
-            {{PROJECTS}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if SKILLS}}
-        <section class="ap-section ap-section--skills">
-          <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Skills</h2>
-          <div class="ap-skills-board">
-            <div class="skills-list ap-skills-list">
-              {{SKILLS}}
+        <div class="ap-dual-col ap-dual-col--left">
+          {{#if PROJECTS}}
+          <section class="ap-section ap-section--projects">
+            <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Projects</h2>
+            <div class="projects-list ap-projects">
+              {{PROJECTS}}
             </div>
-          </div>
-        </section>
-        {{/if}}
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="ap-section ap-section--education">
+            <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Education</h2>
+            <div class="education-list ap-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="ap-section ap-section--certifications">
+            <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Certifications</h2>
+            <div class="certifications-list ap-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+
+        <div class="ap-dual-col ap-dual-col--right">
+          {{#if SKILLS}}
+          <section class="ap-section ap-section--skills">
+            <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Skills</h2>
+            <div class="ap-skills-board">
+              <div class="skills-list ap-skills-list">
+                {{SKILLS}}
+              </div>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="ap-section ap-section--languages">
+            <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Languages</h2>
+            <div class="languages-list ap-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="ap-section ap-section--achievements">
+            <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Achievements</h2>
+            <div class="achievements-list ap-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
       </div>
-
-      {{#if EDUCATION}}
-      <section class="ap-section ap-section--lower">
-        <h2 class="ap-lower-title">Education</h2>
-        <div class="ap-lower-rule" aria-hidden="true"></div>
-        <div class="education-list ap-lower-content">
-          {{EDUCATION}}
-        </div>
-      </section>
-      {{/if}}
-
-      {{#if CERTIFICATIONS}}
-      <section class="ap-section ap-section--lower">
-        <h2 class="ap-lower-title">Certifications</h2>
-        <div class="ap-lower-rule" aria-hidden="true"></div>
-        <div class="certifications-list ap-lower-content">
-          {{CERTIFICATIONS}}
-        </div>
-      </section>
-      {{/if}}
-
-      {{#if LANGUAGES}}
-      <section class="ap-section ap-section--lower">
-        <h2 class="ap-lower-title">Languages</h2>
-        <div class="ap-lower-rule" aria-hidden="true"></div>
-        <div class="languages-list ap-lower-content ap-languages">
-          {{LANGUAGES}}
-        </div>
-      </section>
-      {{/if}}
-
-      {{#if ACHIEVEMENTS}}
-      <section class="ap-section ap-section--lower">
-        <h2 class="ap-lower-title">Achievements</h2>
-        <div class="ap-lower-rule" aria-hidden="true"></div>
-        <div class="achievements-list ap-lower-content ap-achievements">
-          {{ACHIEVEMENTS}}
-        </div>
-      </section>
-      {{/if}}
     </div>
   </div>
 </body>
