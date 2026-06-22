@@ -718,6 +718,30 @@
         { "id": "frost-aurora", "name": "Frost Aurora", "primary": "#99F6E4", "accent": "#2DD4BF", "text": "#334155" }
       ],
       "defaultColor": "aurora-teal"
+    },
+    {
+      "id": "blush-executive-watercolor",
+      "name": "Blush Executive Watercolor",
+      "slug": "blush-executive-watercolor",
+      "description": "Executive watercolor resume with blush pink palette, cream paper background, circular portrait, timeline experience blocks, expertise accent bars, and balanced two-column layout for ATS-friendly PDF export.",
+      "thumbnail": "/templates/blush-executive-watercolor/thumbnail.svg",
+      "preview": "/templates/blush-executive-watercolor/preview.svg",
+      "html": "/templates/blush-executive-watercolor/index.html",
+      "css": "/templates/blush-executive-watercolor/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Creative", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "blush-watercolor", "name": "Blush Watercolor", "primary": "#D6A79B", "accent": "#F3E3DE", "text": "#111111" },
+        { "id": "rose-executive", "name": "Rose Executive", "primary": "#DFAFA4", "accent": "#F3E3DE", "text": "#111111" },
+        { "id": "dusty-blush", "name": "Dusty Blush", "primary": "#C99588", "accent": "#EBCFC8", "text": "#111111" },
+        { "id": "soft-petal", "name": "Soft Petal", "primary": "#E8B8AD", "accent": "#FFFDFB", "text": "#111111" },
+        { "id": "warm-cream", "name": "Warm Cream", "primary": "#D4A574", "accent": "#F2E2DC", "text": "#1A1A1A" },
+        { "id": "muted-rose", "name": "Muted Rose", "primary": "#B8847A", "accent": "#F3E3DE", "text": "#111111" }
+      ],
+      "defaultColor": "blush-watercolor"
     }
   ],
   "filters": {

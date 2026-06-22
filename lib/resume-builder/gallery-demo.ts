@@ -40,6 +40,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'nordic-creative-executive': `${DEMO_PROFILES_BASE}/editorial-elegant.svg`,
   'executive-redline-elite': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'aurora-executive-glass': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
+  'blush-executive-watercolor': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -237,6 +238,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-teal-300/70',
     hoverOverlay: 'from-teal-50/35',
   },
+  'blush-executive-watercolor': {
+    glow: 'radial-gradient(circle, rgba(214,167,155,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(243,227,222,0.55) 0%, transparent 70%)',
+    borderTint: 'hover:border-rose-300/60',
+    hoverOverlay: 'from-rose-50/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -274,6 +281,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'nordic-creative-executive': { firstName: 'Lena', lastName: 'Holmquist', jobTitle: 'Creative Director & Brand Strategist' },
   'executive-redline-elite': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Chief Operations Officer | Global Logistics Lead' },
   'aurora-executive-glass': { firstName: 'Anya', lastName: 'Petrova', jobTitle: 'Lead Software Architect | AI & Distributed Systems' },
+  'blush-executive-watercolor': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

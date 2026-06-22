@@ -1,0 +1,694 @@
+/* Blush Executive Watercolor — executive document with soft watercolor accents */
+
+.bew-resume {
+  --primary-color: #d6a79b;
+  --accent-color: #f3e3de;
+  --text-color: #111111;
+  --text-muted: #4a4a4a;
+  --bg-base: #fffdfb;
+  --blush-pink: #f3e3de;
+  --watercolor-pink: #ebcfc8;
+  --soft-rose: #dfafa4;
+  --section-border: #d9c3bc;
+  --sidebar-block: #f2e2dc;
+  --max-width: 210mm;
+  --main-width: 548px;
+  --side-width: 214px;
+  --font-display: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.bew-resume,
+.bew-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.bew-resume,
+.resume-container.bew-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0 0 32px;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  line-height: 1.58;
+  color: var(--text-color);
+  background: var(--bg-base) !important;
+  overflow: visible;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Watercolor corner decorations (PDF-safe) ── */
+.bew-resume .bew-wc {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bew-resume .bew-wc--tr {
+  top: 8px;
+  right: 12px;
+  width: 200px;
+  height: 200px;
+  background:
+    radial-gradient(circle at 72% 28%, rgba(235, 207, 200, 0.42) 0%, transparent 52%),
+    radial-gradient(circle at 58% 48%, rgba(223, 175, 164, 0.28) 0%, transparent 48%),
+    radial-gradient(circle at 82% 62%, rgba(243, 227, 222, 0.35) 0%, transparent 55%);
+}
+
+.bew-resume .bew-wc--bl {
+  bottom: 16px;
+  left: 10px;
+  width: 180px;
+  height: 180px;
+  background:
+    radial-gradient(circle at 28% 72%, rgba(235, 207, 200, 0.38) 0%, transparent 54%),
+    radial-gradient(circle at 42% 58%, rgba(214, 167, 155, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 18% 42%, rgba(243, 227, 222, 0.3) 0%, transparent 52%);
+}
+
+/* ── Header ── */
+.bew-resume .bew-header {
+  position: relative;
+  z-index: 1;
+  background: var(--blush-pink);
+  padding: 26px 36px 18px;
+  border-bottom: 1px solid var(--section-border);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bew-resume .bew-header-inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 22px;
+}
+
+.bew-resume .bew-photo {
+  flex-shrink: 0;
+  width: 112px;
+  height: 112px;
+}
+
+.bew-resume .profile-image-wrapper {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 253, 251, 0.95);
+  box-shadow:
+    0 0 0 2px var(--soft-rose),
+    0 8px 22px rgba(214, 167, 155, 0.28);
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bew-resume .profile-image-wrapper--initials {
+  background: linear-gradient(145deg, #fffdfb 0%, var(--blush-pink) 100%);
+}
+
+.bew-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.bew-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.bew-resume .bew-ini-f,
+.bew-resume .bew-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.bew-resume .bew-ini-f::first-letter,
+.bew-resume .bew-ini-l::first-letter {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+.bew-resume .bew-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.bew-resume .candidate-name {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-color);
+  margin-bottom: 6px;
+}
+
+.name-first,
+.name-last {
+  display: inline;
+}
+
+.name-first:empty,
+.name-last:empty,
+.name-space:empty {
+  display: none;
+}
+
+.candidate-name:has(.name-first:not(:empty)) .name-fallback,
+.candidate-name:has(.name-last:not(:empty)) .name-fallback {
+  display: none;
+}
+
+.name-fallback:empty {
+  display: none;
+}
+
+.bew-resume .header-title {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Contact row */
+.bew-resume .bew-contact {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(217, 195, 188, 0.65);
+}
+
+.bew-resume .contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+}
+
+.bew-resume .contact-item {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.bew-resume .contact-item:not(:last-child)::after {
+  content: '|';
+  margin: 0 10px;
+  color: var(--section-border);
+  font-weight: 400;
+}
+
+.bew-resume .contact-label {
+  word-break: break-word;
+}
+
+/* ── Body columns ── */
+.bew-resume .bew-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 22px 36px 0;
+}
+
+.bew-resume .bew-main {
+  flex: 1;
+  min-width: 0;
+  max-width: var(--main-width);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bew-resume .bew-side {
+  width: var(--side-width);
+  min-width: var(--side-width);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Section titles ── */
+.bew-resume .bew-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bew-resume .section-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-color);
+  padding-bottom: 7px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--section-border);
+}
+
+/* ── Summary ── */
+.bew-resume .bew-summary-panel {
+  position: relative;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(243, 227, 222, 0.45) 0%, rgba(255, 253, 251, 0.2) 100%);
+  border: 1px solid rgba(217, 195, 188, 0.45);
+}
+
+.bew-resume .summary-text {
+  font-size: 10.5px;
+  line-height: 1.62;
+  color: var(--text-color);
+  text-align: justify;
+}
+
+/* ── Experience timeline ── */
+.bew-resume .bew-timeline {
+  position: relative;
+  padding-left: 18px;
+}
+
+.bew-resume .bew-timeline::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--section-border);
+}
+
+.bew-resume .bew-timeline .experience-item {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background: var(--sidebar-block);
+  border: 1px solid rgba(217, 195, 188, 0.55);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bew-resume .bew-timeline .experience-item:last-child {
+  margin-bottom: 0;
+}
+
+.bew-resume .bew-timeline .experience-item::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 16px;
+  width: 7px;
+  height: 7px;
+  background: var(--bg-base);
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 0 1px var(--section-border);
+}
+
+.bew-resume .bew-experience .experience-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 10px;
+  margin-bottom: 8px;
+}
+
+.bew-resume .bew-experience .experience-header h3 {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-color);
+  text-transform: none;
+}
+
+.bew-resume .bew-experience .experience-header .company {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.bew-resume .bew-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.bew-resume .bew-experience .description {
+  font-size: 10px;
+  line-height: 1.58;
+  color: var(--text-color);
+}
+
+.bew-resume .bew-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bew-resume .bew-experience .description li {
+  position: relative;
+  padding-left: 12px;
+}
+
+.bew-resume .bew-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 4px;
+  height: 4px;
+  background: var(--primary-color);
+}
+
+/* ── Projects ── */
+.bew-resume .bew-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bew-resume .bew-projects .project-item {
+  padding: 10px 12px;
+  background: rgba(243, 227, 222, 0.35);
+  border: 1px solid rgba(217, 195, 188, 0.5);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bew-resume .bew-projects .project-item h3 {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.bew-resume .bew-projects .project-item .description,
+.bew-resume .bew-projects .project-item .technologies {
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--text-color);
+}
+
+/* ── Skills — expertise rows with accent bar ── */
+.bew-resume .bew-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bew-resume .bew-skills .skill-tag {
+  display: block;
+  position: relative;
+  padding: 5px 8px 5px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.4;
+  background: var(--sidebar-block);
+  border: 1px solid rgba(217, 195, 188, 0.45);
+}
+
+.bew-resume .bew-skills .skill-tag::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-color);
+}
+
+/* ── Education ── */
+.bew-resume .bew-education {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bew-resume .bew-education .education-item {
+  padding: 8px 10px;
+  background: rgba(243, 227, 222, 0.3);
+  border-left: 2px solid var(--watercolor-pink);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bew-resume .bew-education .education-item h3 {
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 2px;
+}
+
+.bew-resume .bew-education .institution {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: block;
+}
+
+.bew-resume .bew-education .year,
+.bew-resume .bew-education .cgpa {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 1px;
+}
+
+/* ── Certifications ── */
+.bew-resume .bew-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bew-resume .bew-certifications .certification-item {
+  padding: 0 0 0 10px;
+  border-left: 2px solid var(--section-border);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bew-resume .bew-certifications .certification-item h3 {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.45;
+}
+
+.bew-resume .bew-certifications .issuer,
+.bew-resume .bew-certifications .year {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  display: block;
+}
+
+/* ── Languages ── */
+.bew-resume .bew-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bew-resume .bew-languages .language-item,
+.bew-resume .bew-languages .psp-language-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  padding: 4px 0;
+  border-bottom: 1px dotted rgba(217, 195, 188, 0.7);
+}
+
+.bew-resume .bew-languages .language-item:last-child,
+.bew-resume .bew-languages .psp-language-item:last-child {
+  border-bottom: none;
+}
+
+.bew-resume .bew-languages .language,
+.bew-resume .bew-languages .psp-language-name {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.bew-resume .bew-languages .proficiency,
+.bew-resume .bew-languages .psp-language-level {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.bew-resume .psp-language-bar-container,
+.bew-resume .psp-skill-bar-container {
+  display: none;
+}
+
+/* ── Achievements ── */
+.bew-resume .bew-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bew-resume .bew-achievements .achievement-item {
+  position: relative;
+  padding-left: 12px;
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--text-color);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bew-resume .bew-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+
+/* ── Interests ── */
+.bew-resume .bew-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bew-resume .bew-interests .hobby-item,
+.bew-resume .bew-interests .hobby-tag,
+.bew-resume .bew-interests > span {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 3px 8px;
+  border: 1px solid var(--section-border);
+  background: rgba(255, 253, 251, 0.8);
+  line-height: 1.35;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bew-resume .bew-body {
+    flex-direction: column;
+    padding: 20px 20px 0;
+  }
+
+  .bew-resume .bew-side {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .bew-resume .bew-header {
+    padding: 22px 20px 16px;
+  }
+
+  .bew-resume .bew-header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Print / PDF */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .bew-resume,
+  .resume-container.bew-resume {
+    width: 794px !important;
+    padding: 0 0 32px !important;
+    background: var(--bg-base) !important;
+    overflow: visible !important;
+  }
+
+  .bew-resume .bew-header {
+    background: var(--blush-pink) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .bew-resume .bew-timeline .experience-item,
+  .bew-resume .bew-summary-panel,
+  .bew-resume .bew-skills .skill-tag,
+  .bew-resume .bew-education .education-item {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .bew-resume .experience-item,
+  .bew-resume .project-item,
+  .bew-resume .education-item,
+  .bew-resume .achievement-item,
+  .bew-resume .certification-item,
+  .bew-resume .bew-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+/* Content-aware vertical packing */
+.resume-container.bew-resume .bew-body,
+.resume-container.bew-resume .bew-main,
+.resume-container.bew-resume .bew-side {
+  min-height: auto !important;
+  height: auto !important;
+  align-items: flex-start !important;
+}
+
+.resume-container.bew-resume .bew-side > section:last-child,
+.resume-container.bew-resume .bew-main > section:last-child {
+  margin-bottom: 0 !important;
+}
