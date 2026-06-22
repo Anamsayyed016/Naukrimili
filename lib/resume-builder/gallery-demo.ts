@@ -41,6 +41,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-redline-elite': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'aurora-executive-glass': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
   'blush-executive-watercolor': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
+  'graphite-orange-executive': `${DEMO_PROFILES_BASE}/executive-graphite.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -244,6 +245,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-rose-300/60',
     hoverOverlay: 'from-rose-50/35',
   },
+  'graphite-orange-executive': {
+    glow: 'radial-gradient(circle, rgba(201,111,53,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(47,59,67,0.28) 0%, transparent 70%)',
+    borderTint: 'hover:border-orange-400/55',
+    hoverOverlay: 'from-orange-50/30',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -282,6 +289,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-redline-elite': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Chief Operations Officer | Global Logistics Lead' },
   'aurora-executive-glass': { firstName: 'Anya', lastName: 'Petrova', jobTitle: 'Lead Software Architect | AI & Distributed Systems' },
   'blush-executive-watercolor': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director' },
+  'graphite-orange-executive': { firstName: 'Eliza', lastName: 'Vance', jobTitle: 'Senior Operations Director | Strategic Growth' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

@@ -1,0 +1,811 @@
+/* Graphite Orange Executive — premium corporate two-column resume */
+
+.goe-resume {
+  --goe-graphite: #2F3B43;
+  --goe-orange: #C96F35;
+  --goe-bg: #F5F3EE;
+  --goe-sidebar: #E8E4DD;
+  --goe-card: #EFECE6;
+  --goe-text: #1F1F1F;
+  --goe-text-secondary: #6B6B6B;
+  --goe-divider: #D8D2C9;
+  --goe-bar-track: #D8D2C9;
+  --goe-side-width: 252px;
+  --goe-max-width: 210mm;
+  --goe-font: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* legacy aliases for shared renderer classes */
+  --primary-color: var(--goe-orange);
+  --accent-color: var(--goe-graphite);
+  --text-color: var(--goe-text);
+  --text-secondary: var(--goe-text-secondary);
+  --text-muted: var(--goe-text-secondary);
+  --divider: var(--goe-divider);
+  --bar-track: var(--goe-bar-track);
+}
+
+.goe-resume,
+.goe-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.goe-resume,
+.resume-container.goe-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--goe-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--goe-font);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--goe-text);
+  background: var(--goe-bg) !important;
+  overflow: visible;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Decorative top-right accent (PDF-safe) ── */
+.goe-resume .goe-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.goe-resume .goe-deco--tr {
+  top: 0;
+  right: 0;
+  width: 220px;
+  height: 160px;
+  background:
+    radial-gradient(ellipse at 85% 15%, rgba(201, 111, 53, 0.22) 0%, transparent 58%),
+    radial-gradient(ellipse at 70% 35%, rgba(232, 228, 221, 0.55) 0%, transparent 62%),
+    linear-gradient(135deg, transparent 40%, rgba(201, 111, 53, 0.06) 55%, transparent 72%);
+  opacity: 0.9;
+}
+
+/* ── Header ── */
+.goe-resume .goe-header {
+  position: relative;
+  z-index: 2;
+  background: var(--goe-bg);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .goe-header-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 32px 18px;
+}
+
+.goe-resume .goe-photo {
+  flex-shrink: 0;
+  width: 118px;
+  height: 118px;
+}
+
+.goe-resume .profile-image-wrapper {
+  width: 118px;
+  height: 118px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 3px solid #FFFFFF;
+  box-shadow:
+    0 4px 18px rgba(47, 59, 67, 0.14),
+    0 0 0 1px var(--goe-divider);
+  background: var(--goe-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.goe-resume .profile-image-wrapper--initials {
+  background: linear-gradient(145deg, #FFFFFF 0%, var(--goe-card) 100%);
+}
+
+.goe-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.goe-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.goe-resume .goe-ini-f,
+.goe-resume .goe-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.goe-resume .goe-ini-f::first-letter,
+.goe-resume .goe-ini-l::first-letter {
+  font-size: 36px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--goe-orange);
+}
+
+.goe-resume .goe-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.goe-resume .candidate-name {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--goe-graphite);
+  margin-bottom: 8px;
+}
+
+.name-first,
+.name-last {
+  display: inline;
+}
+
+.name-first:empty,
+.name-last:empty,
+.name-space:empty {
+  display: none;
+}
+
+.candidate-name:has(.name-first:not(:empty)) .name-fallback,
+.candidate-name:has(.name-last:not(:empty)) .name-fallback {
+  display: none;
+}
+
+.name-fallback:empty {
+  display: none;
+}
+
+.goe-resume .header-title {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--goe-text-secondary);
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+/* ── Contact bar ── */
+.goe-resume .goe-contact-bar {
+  background: var(--goe-graphite);
+  padding: 11px 32px;
+}
+
+.goe-resume .goe-contact-bar .contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+}
+
+.goe-resume .goe-contact-bar .contact-item {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.4;
+}
+
+.goe-resume .goe-contact-bar .contact-item:not(:last-child)::after {
+  content: '|';
+  margin: 0 14px;
+  color: var(--goe-orange);
+  font-weight: 400;
+  opacity: 0.95;
+}
+
+.goe-resume .goe-contact-bar .contact-item::before {
+  display: none;
+}
+
+.goe-resume .contact-label {
+  word-break: break-word;
+}
+
+/* ── Two-column body ── */
+.goe-resume .goe-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--goe-side-width);
+  align-items: stretch;
+  min-height: 0;
+}
+
+.goe-resume .goe-main {
+  padding: 22px 28px 28px 32px;
+  background: var(--goe-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.goe-resume .goe-sidebar {
+  position: relative;
+  background: var(--goe-sidebar);
+  padding: 22px 20px 28px 16px;
+}
+
+.goe-resume .goe-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goe-resume .goe-sidebar-star {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 18px;
+  height: 18px;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232F3B43'%3E%3Cpath d='M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* ── Section headings ── */
+.goe-resume .section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  border: none;
+  padding: 0;
+}
+
+.goe-resume .goe-accent-block {
+  width: 5px;
+  height: 16px;
+  flex-shrink: 0;
+  background: var(--goe-orange);
+  border-radius: 1px;
+}
+
+.goe-resume .goe-heading-text {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--goe-graphite);
+  line-height: 1.3;
+}
+
+.goe-resume .goe-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ── Sidebar cards ── */
+.goe-resume .goe-card {
+  background: var(--goe-card);
+  border-radius: 10px;
+  padding: 14px 14px 16px;
+  box-shadow: 0 2px 10px rgba(47, 59, 67, 0.07);
+  border: 1px solid rgba(216, 210, 201, 0.65);
+}
+
+.goe-resume .goe-card .section-title {
+  margin-bottom: 10px;
+}
+
+.goe-resume .goe-card .goe-heading-text {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+/* ── Summary ── */
+.goe-resume .summary-text {
+  color: var(--goe-text);
+  line-height: 1.65;
+}
+
+/* ── Experience timeline ── */
+.goe-resume .goe-timeline {
+  position: relative;
+  padding-left: 0;
+}
+
+.goe-resume .goe-timeline::before {
+  content: '';
+  position: absolute;
+  left: 76px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--goe-divider);
+}
+
+.goe-resume .goe-timeline .experience-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 68px 16px 1fr;
+  column-gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(216, 210, 201, 0.55);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .goe-timeline .experience-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.goe-resume .goe-timeline .experience-header {
+  display: contents;
+}
+
+.goe-resume .goe-timeline .experience-header .duration {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--goe-text-secondary);
+  text-align: right;
+  line-height: 1.45;
+  padding-top: 2px;
+}
+
+.goe-resume .goe-timeline .experience-item::before {
+  content: '';
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  width: 9px;
+  height: 9px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: var(--goe-bg);
+  border: 2px solid var(--goe-divider);
+  z-index: 1;
+  justify-self: center;
+}
+
+.goe-resume .goe-timeline .experience-header h3 {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--goe-orange);
+  margin-bottom: 2px;
+  line-height: 1.35;
+}
+
+.goe-resume .goe-timeline .experience-header .company {
+  grid-column: 3;
+  grid-row: 2;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--goe-graphite);
+  margin-bottom: 6px;
+}
+
+.goe-resume .goe-timeline .description {
+  grid-column: 3;
+  grid-row: 3;
+  color: var(--goe-text);
+}
+
+.goe-resume .goe-timeline .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.goe-resume .goe-timeline .description li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.58;
+}
+
+.goe-resume .goe-timeline .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  background: var(--goe-orange);
+  border-radius: 1px;
+}
+
+/* ── Projects ── */
+.goe-resume .goe-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goe-resume .goe-projects .project-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .goe-projects .project-item h3 {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--goe-orange);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.goe-resume .goe-projects .project-item .description,
+.goe-resume .goe-projects .project-item .technologies {
+  color: var(--goe-text);
+  line-height: 1.58;
+}
+
+.goe-resume .goe-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.goe-resume .goe-projects .project-item .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.goe-resume .goe-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  background: var(--goe-orange);
+  border-radius: 1px;
+}
+
+.goe-resume .goe-projects .project-item a {
+  color: var(--goe-graphite);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--goe-orange);
+}
+
+/* ── Skills expertise matrix ── */
+.goe-resume .goe-skills-matrix.skills-list,
+.goe-resume .psp-skills-progress .goe-skills-matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 10px;
+}
+
+.goe-resume .psp-skills-progress .psp-skill-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 6px;
+  row-gap: 5px;
+  align-items: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .psp-skills-progress .psp-skill-name {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--goe-text);
+  word-break: break-word;
+}
+
+.goe-resume .psp-skills-progress .psp-skill-item::before {
+  display: none;
+}
+
+.goe-resume .psp-skills-progress .psp-skill-item::after {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  content: '';
+  display: block;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--goe-bar-track);
+}
+
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(1)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 92%, var(--goe-bar-track) 92%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(2)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 88%, var(--goe-bar-track) 88%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(3)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 85%, var(--goe-bar-track) 85%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(4)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 80%, var(--goe-bar-track) 80%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(5)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 90%, var(--goe-bar-track) 90%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(6)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 78%, var(--goe-bar-track) 78%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(7)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 86%, var(--goe-bar-track) 86%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(8)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 82%, var(--goe-bar-track) 82%);
+}
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9)::after {
+  background: linear-gradient(90deg, var(--goe-orange) 0%, var(--goe-orange) 84%, var(--goe-bar-track) 84%);
+}
+
+/* Category-style separator every 4 skills */
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(4n + 1):not(:first-child) {
+  grid-column: 1 / -1;
+  padding-top: 8px;
+  margin-top: 4px;
+  border-top: 1px solid var(--goe-divider);
+}
+
+.goe-resume .psp-skills-progress .psp-skill-item:nth-child(4n + 1):not(:first-child)::before {
+  display: block;
+  grid-column: 1 / -1;
+  grid-row: 0;
+  content: '';
+  height: 0;
+}
+
+/* ── Education ── */
+.goe-resume .goe-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goe-resume .goe-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .goe-education .education-item h3 {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--goe-graphite);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.goe-resume .goe-education .institution {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--goe-text-secondary);
+  display: block;
+}
+
+.goe-resume .goe-education .year,
+.goe-resume .goe-education .cgpa {
+  font-size: 9px;
+  color: var(--goe-text-secondary);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Certifications ── */
+.goe-resume .goe-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goe-resume .goe-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .goe-certifications .certification-item h3 {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--goe-text);
+  line-height: 1.45;
+}
+
+.goe-resume .goe-certifications .issuer,
+.goe-resume .goe-certifications .year {
+  font-size: 9px;
+  color: var(--goe-text-secondary);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Languages progress bars ── */
+.goe-resume .psp-languages-progress .languages-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 10px;
+}
+
+.goe-resume .psp-languages-progress .psp-language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .psp-languages-progress .psp-language-name {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--goe-text);
+}
+
+.goe-resume .psp-languages-progress .psp-language-bar-container {
+  width: 100%;
+  height: 5px;
+  background: var(--goe-bar-track);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.goe-resume .psp-languages-progress .psp-language-bar-fill {
+  height: 100%;
+  background: var(--goe-orange);
+  border-radius: 3px;
+}
+
+.goe-resume .psp-languages-progress .psp-language-percentage {
+  display: none;
+}
+
+/* ── Achievements ── */
+.goe-resume .goe-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goe-resume .goe-achievements .achievement-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.goe-resume .goe-achievements .achievement-item h3 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--goe-graphite);
+  line-height: 1.45;
+}
+
+.goe-resume .goe-achievements .achievement-item .year,
+.goe-resume .goe-achievements .achievement-item .date {
+  font-size: 9px;
+  color: var(--goe-text-secondary);
+  display: block;
+  margin-top: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .goe-resume .goe-body {
+    grid-template-columns: 1fr;
+  }
+
+  .goe-resume .goe-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 20px 16px;
+  }
+
+  .goe-resume .goe-contact-bar {
+    padding: 11px 20px;
+  }
+
+  .goe-resume .goe-main {
+    padding: 18px 20px 22px;
+  }
+
+  .goe-resume .goe-sidebar {
+    padding: 18px 20px 24px;
+  }
+
+  .goe-resume .psp-languages-progress .languages-list,
+  .goe-resume .goe-skills-matrix.skills-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print / PDF */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .goe-resume,
+  .resume-container.goe-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--goe-bg) !important;
+  }
+
+  .goe-resume .goe-contact-bar {
+    background: var(--goe-graphite) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .goe-resume .goe-card {
+    background: var(--goe-card) !important;
+    box-shadow: none !important;
+    border: 1px solid var(--goe-divider) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .goe-resume .goe-sidebar {
+    background: var(--goe-sidebar) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .goe-resume .goe-deco {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .goe-resume .experience-item,
+  .goe-resume .project-item,
+  .goe-resume .education-item,
+  .goe-resume .achievement-item,
+  .goe-resume .certification-item,
+  .goe-resume .goe-section,
+  .goe-resume .psp-skill-item,
+  .goe-resume .psp-language-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.goe-resume .goe-body,
+.resume-container.goe-resume .goe-main,
+.resume-container.goe-resume .goe-sidebar,
+.resume-container.goe-resume .goe-sidebar-inner {
+  min-height: auto !important;
+  height: auto !important;
+  align-items: flex-start !important;
+}

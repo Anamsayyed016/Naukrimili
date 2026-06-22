@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123">
+  <defs>
+    <radialGradient id="pv-glow" cx="88%" cy="8%" r="45%">
+      <stop offset="0%" stop-color="#C96F35" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#C96F35" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="794" height="1123" fill="#F5F3EE"/>
+  <rect width="794" height="1123" fill="url(#pv-glow)"/>
+  <rect x="48" y="40" width="120" height="120" rx="14" fill="#EFECE6" stroke="#D8D2C9" stroke-width="2"/>
+  <text x="192" y="88" font-family="Arial,sans-serif" font-size="38" font-weight="800" fill="#2F3B43" letter-spacing="2">ELIZA VANCE</text>
+  <text x="192" y="124" font-family="Arial,sans-serif" font-size="13" fill="#6B6B6B">Senior Operations Director | Strategic Growth</text>
+  <rect x="0" y="180" width="794" height="44" fill="#2F3B43"/>
+  <text x="48" y="208" font-family="Arial,sans-serif" font-size="11" fill="#FFFFFF">+1 555 0123</text>
+  <text x="168" y="208" font-family="Arial,sans-serif" font-size="11" fill="#C96F35">|</text>
+  <text x="188" y="208" font-family="Arial,sans-serif" font-size="11" fill="#FFFFFF">eliza@email.com</text>
+  <text x="348" y="208" font-family="Arial,sans-serif" font-size="11" fill="#C96F35">|</text>
+  <text x="368" y="208" font-family="Arial,sans-serif" font-size="11" fill="#FFFFFF">linkedin.com/in/eliza</text>
+  <rect x="48" y="248" width="5" height="20" fill="#C96F35"/>
+  <text x="64" y="264" font-family="Arial,sans-serif" font-size="14" font-weight="800" fill="#2F3B43" letter-spacing="1.5">PROFESSIONAL SUMMARY</text>
+  <rect x="48" y="284" width="460" height="3" rx="1" fill="#D8D2C9" opacity="0.6"/>
+  <rect x="48" y="296" width="420" height="3" rx="1" fill="#D8D2C9" opacity="0.45"/>
+  <rect x="48" y="340" width="5" height="20" fill="#C96F35"/>
+  <text x="64" y="356" font-family="Arial,sans-serif" font-size="14" font-weight="800" fill="#2F3B43" letter-spacing="1.5">EXPERIENCE</text>
+  <text x="48" y="400" font-family="Arial,sans-serif" font-size="10" fill="#6B6B6B" text-anchor="end" width="72">Oct 2024</text>
+  <line x1="132" y1="388" x2="132" y2="520" stroke="#D8D2C9" stroke-width="1.5"/>
+  <circle cx="132" cy="396" r="6" fill="#F5F3EE" stroke="#D8D2C9" stroke-width="2"/>
+  <text x="152" y="400" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#C96F35">Senior Operations Director</text>
+  <text x="152" y="424" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#2F3B43">Global Enterprise Corp.</text>
+  <rect x="542" y="248" width="204" height="1123" fill="#E8E4DD"/>
+  <rect x="558" y="264" width="172" height="180" rx="10" fill="#EFECE6" stroke="#D8D2C9"/>
+  <rect x="570" y="278" width="5" height="16" fill="#C96F35"/>
+  <text x="582" y="292" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#2F3B43">SKILLS</text>
+  <rect x="570" y="312" width="68" height="6" rx="3" fill="#C96F35"/>
+  <rect x="642" y="312" width="76" height="6" rx="3" fill="#D8D2C9"/>
+  <rect x="570" y="332" width="60" height="6" rx="3" fill="#C96F35"/>
+  <rect x="636" y="332" width="82" height="6" rx="3" fill="#D8D2C9"/>
+  <rect x="558" y="460" width="172" height="120" rx="10" fill="#EFECE6" stroke="#D8D2C9"/>
+  <rect x="570" y="474" width="5" height="16" fill="#C96F35"/>
+  <text x="582" y="488" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#2F3B43">EDUCATION</text>
+  <text x="570" y="516" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#2F3B43">M.S. Business Administration</text>
+</svg>
