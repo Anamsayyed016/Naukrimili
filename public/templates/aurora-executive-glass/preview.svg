@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123">
+  <defs>
+    <linearGradient id="pv-bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#eef2f7"/>
+    </linearGradient>
+    <filter id="pv-blur"><feGaussianBlur stdDeviation="24"/></filter>
+  </defs>
+  <rect width="794" height="1123" fill="url(#pv-bg)"/>
+  <circle cx="80" cy="120" r="120" fill="#5eead4" opacity="0.2" filter="url(#pv-blur)"/>
+  <circle cx="720" cy="980" r="100" fill="#2dd4bf" opacity="0.16" filter="url(#pv-blur)"/>
+  <rect x="48" y="48" width="698" height="160" rx="24" fill="rgba(255,255,255,0.7)" stroke="#fff" stroke-width="2"/>
+  <circle cx="120" cy="128" r="56" fill="#dffcf6" stroke="#5eead4" stroke-width="4"/>
+  <text x="200" y="108" font-family="Arial,sans-serif" font-size="42" font-weight="800" fill="#1e293b">ANYA PETROVA</text>
+  <text x="200" y="148" font-family="Arial,sans-serif" font-size="18" fill="#64748b">Lead Software Architect</text>
+  <rect x="48" y="232" width="698" height="120" rx="20" fill="rgba(255,255,255,0.65)" stroke="#fff" stroke-width="1.5"/>
+  <text x="72" y="272" font-family="Arial,sans-serif" font-size="26" font-weight="700" fill="#1e293b">PROFESSIONAL SUMMARY</text>
+  <rect x="48" y="376" width="698" height="200" rx="20" fill="rgba(255,255,255,0.65)" stroke="#fff" stroke-width="1.5"/>
+  <text x="72" y="416" font-family="Arial,sans-serif" font-size="26" font-weight="700" fill="#1e293b">EXPERIENCE</text>
+  <rect x="72" y="440" width="650" height="100" rx="14" fill="rgba(255,255,255,0.55)"/>
+  <rect x="48" y="600" width="340" height="280" rx="20" fill="rgba(255,255,255,0.65)" stroke="#fff" stroke-width="1.5"/>
+  <text x="72" y="640" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#1e293b">SKILLS</text>
+  <rect x="406" y="600" width="340" height="280" rx="20" fill="rgba(255,255,255,0.65)" stroke="#fff" stroke-width="1.5"/>
+  <text x="430" y="640" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#1e293b">EDUCATION</text>
+</svg>

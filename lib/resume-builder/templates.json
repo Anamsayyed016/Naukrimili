@@ -694,6 +694,30 @@
         { "id": "executive-scarlet", "name": "Executive Scarlet", "primary": "#9C1723", "accent": "#E8E8E8", "text": "#1F1F1F" }
       ],
       "defaultColor": "redline-elite"
+    },
+    {
+      "id": "aurora-executive-glass",
+      "name": "Aurora Executive Glass",
+      "slug": "aurora-executive-glass",
+      "description": "Glassmorphism executive resume with premium Plus Jakarta Sans typography, glowing portrait, teal aurora accents, card-based sections, skill level indicators, and balanced hybrid layout for ATS-friendly PDF export.",
+      "thumbnail": "/templates/aurora-executive-glass/thumbnail.svg",
+      "preview": "/templates/aurora-executive-glass/preview.svg",
+      "html": "/templates/aurora-executive-glass/index.html",
+      "css": "/templates/aurora-executive-glass/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "aurora-teal", "name": "Aurora Teal", "primary": "#5EEAD4", "accent": "#2DD4BF", "text": "#1E293B" },
+        { "id": "mint-glass", "name": "Mint Glass", "primary": "#6EE7D6", "accent": "#14B8A6", "text": "#1E293B" },
+        { "id": "seafoam-executive", "name": "Seafoam Executive", "primary": "#4FD1C5", "accent": "#0D9488", "text": "#1E293B" },
+        { "id": "cyan-luxe", "name": "Cyan Luxe", "primary": "#67E8F9", "accent": "#06B6D4", "text": "#0F172A" },
+        { "id": "jade-command", "name": "Jade Command", "primary": "#5EEAD4", "accent": "#10B981", "text": "#1E293B" },
+        { "id": "frost-aurora", "name": "Frost Aurora", "primary": "#99F6E4", "accent": "#2DD4BF", "text": "#334155" }
+      ],
+      "defaultColor": "aurora-teal"
     }
   ],
   "filters": {

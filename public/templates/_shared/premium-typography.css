@@ -1,0 +1,144 @@
+/**
+ * Premium Typography System — opt-in for new templates only.
+ *
+ * For PDF/live preview: copy or @include this block at the top of your template
+ * style.css — the export pipeline inlines only style.css (external <link> tags are ignored).
+ * Font: Plus Jakarta Sans — premium SaaS pairing, PDF-safe via Google Fonts link.
+ */
+
+.premium-type {
+  --pt-font-display: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --pt-font-body: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Hierarchy — tuned for 794px A4 canvas + multi-page PDF */
+  --pt-size-name: 58px;
+  --pt-size-title: 21px;
+  --pt-size-section: 30px;
+  --pt-size-subsection: 13px;
+  --pt-size-body: 11.5px;
+  --pt-size-body-lg: 12.5px;
+  --pt-size-meta: 10.5px;
+  --pt-size-caption: 10px;
+
+  /* Weights */
+  --pt-w-name: 800;
+  --pt-w-title: 500;
+  --pt-w-section: 700;
+  --pt-w-subsection: 700;
+  --pt-w-body: 400;
+  --pt-w-emphasis: 600;
+
+  /* Line heights */
+  --pt-lh-name: 1.08;
+  --pt-lh-title: 1.35;
+  --pt-lh-section: 1.2;
+  --pt-lh-body: 1.68;
+  --pt-lh-tight: 1.45;
+
+  /* Letter spacing */
+  --pt-ls-name: -0.03em;
+  --pt-ls-title: 0.01em;
+  --pt-ls-section: -0.02em;
+  --pt-ls-caps: 0.06em;
+  --pt-ls-body: 0.005em;
+
+  font-family: var(--pt-font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Name ── */
+.premium-type .candidate-name {
+  font-family: var(--pt-font-display);
+  font-size: var(--pt-size-name);
+  font-weight: var(--pt-w-name);
+  line-height: var(--pt-lh-name);
+  letter-spacing: var(--pt-ls-name);
+  text-transform: uppercase;
+}
+
+.premium-type .candidate-name .name-first,
+.premium-type .candidate-name .name-last {
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
+
+.premium-type .candidate-name .name-fallback {
+  display: none;
+}
+
+/* ── Professional title ── */
+.premium-type .header-title {
+  font-family: var(--pt-font-body);
+  font-size: var(--pt-size-title);
+  font-weight: var(--pt-w-title);
+  line-height: var(--pt-lh-title);
+  letter-spacing: var(--pt-ls-title);
+}
+
+/* ── Section headers ── */
+.premium-type .section-title {
+  font-family: var(--pt-font-display);
+  font-size: var(--pt-size-section);
+  font-weight: var(--pt-w-section);
+  line-height: var(--pt-lh-section);
+  letter-spacing: var(--pt-ls-section);
+  text-transform: uppercase;
+}
+
+/* ── Body copy ── */
+.premium-type .summary-text {
+  font-size: var(--pt-size-body-lg);
+  font-weight: var(--pt-w-body);
+  line-height: var(--pt-lh-body);
+  letter-spacing: var(--pt-ls-body);
+}
+
+.premium-type .description,
+.premium-type .description li,
+.premium-type .summary-text,
+.premium-type p {
+  font-size: var(--pt-size-body);
+  line-height: var(--pt-lh-body);
+  letter-spacing: var(--pt-ls-body);
+}
+
+/* ── Experience / project role titles ── */
+.premium-type .experience-header h3,
+.premium-type .project-item h3,
+.premium-type .education-item h3,
+.premium-type .certification-item h3 {
+  font-family: var(--pt-font-display);
+  font-size: var(--pt-size-subsection);
+  font-weight: var(--pt-w-subsection);
+  line-height: var(--pt-lh-tight);
+  letter-spacing: 0.01em;
+}
+
+/* ── Meta (dates, locations) ── */
+.premium-type .duration,
+.premium-type .year,
+.premium-type .company,
+.premium-type .institution,
+.premium-type .contact-item,
+.premium-type .contact-label {
+  font-size: var(--pt-size-meta);
+  letter-spacing: 0.01em;
+}
+
+/* ── Print — preserve hierarchy without compression ── */
+@media print {
+  .premium-type .candidate-name {
+    font-size: var(--pt-size-name) !important;
+    line-height: var(--pt-lh-name) !important;
+  }
+
+  .premium-type .section-title {
+    font-size: var(--pt-size-section) !important;
+  }
+
+  .premium-type .header-title {
+    font-size: var(--pt-size-title) !important;
+  }
+}
