@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/nextauth-config";
-
 import { prisma } from "@/lib/prisma";
+import {
+  canEditResume,
+  recordResumeEdit,
+  hasMeaningfulResumeDataChange,
+} from '@/lib/services/payment-service';
 
 export async function GET(
   request: NextRequest,
@@ -82,33 +86,12 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    // Admin bypass: Admins can edit without restrictions
     const isAdmin = session.user.role === 'admin';
-    
-    // Check plan expiry and edit permissions for non-admins (resume edit lock)
-    if (!isAdmin) {
-      const { canEditResume } = await import('@/lib/services/payment-service');
-      
-      const editCheck = await canEditResume(session.user.id);
-      if (!editCheck.allowed) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: editCheck.reason || 'Your plan has expired. Please renew your plan to edit resumes.',
-            isPlanExpired: true,
-            requiresPayment: true,
-            isLocked: editCheck.isLocked || false,
-          },
-          { status: 403 }
-        );
-      }
-    }
 
     const { id } = await params;
     const body = await request.json();
     const { isActive, parsedData, atsScore } = body;
 
-    // Verify resume belongs to user
     const existingResume = await prisma.resume.findFirst({
       where: {
         id: id,
@@ -123,13 +106,35 @@ export async function PUT(
       );
     }
 
+    const nextParsedData = parsedData !== undefined ? parsedData : existingResume.parsedData;
+    const meaningfulChange = hasMeaningfulResumeDataChange(
+      existingResume.parsedData,
+      nextParsedData
+    );
+
+    if (!isAdmin && meaningfulChange) {
+      const editCheck = await canEditResume(session.user.id);
+      if (!editCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: editCheck.reason || 'Your plan has expired. Please renew your plan to edit resumes.',
+            isPlanExpired: true,
+            requiresPayment: true,
+            isLocked: editCheck.isLocked || false,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     // If setting as active, deactivate other resumes
     if (isActive) {
       await prisma.resume.updateMany({
         where: {
           userId: session.user.id,
           isActive: true,
-          id: { not: params.id }
+          id: { not: id }
         },
         data: {
           isActive: false
@@ -138,19 +143,24 @@ export async function PUT(
     }
 
     const updatedResume = await prisma.resume.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         isActive: isActive !== undefined ? isActive : existingResume.isActive,
-        parsedData: parsedData || existingResume.parsedData,
+        parsedData: nextParsedData,
         atsScore: atsScore !== undefined ? atsScore : existingResume.atsScore,
         updatedAt: new Date()
       }
     });
 
+    if (!isAdmin && meaningfulChange) {
+      await recordResumeEdit(session.user.id);
+    }
+
     return NextResponse.json({
       success: true,
       data: updatedResume,
-      message: 'Resume updated successfully'
+      message: 'Resume updated successfully',
+      editQuotaConsumed: meaningfulChange && !isAdmin,
     });
   } catch (_error) {
     console.error('Error updating resume:', error);

@@ -30,7 +30,12 @@ const getIndividualPlansForUI = () => {
       aiResumeUsage: plan.features.aiResumeUsage === -1 ? 'Unlimited' : plan.features.aiResumeUsage,
       atsOptimization: plan.features.atsOptimization,
       maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
-      unlimitedEdits: 'unlimitedEdits' in plan.features ? (plan.features as any).unlimitedEdits : false,
+      editFeatureLabel:
+        key === 'mini_starter'
+          ? '1 Resume Edit After Download'
+          : key === 'starter_premium' || key === 'pro_job_seeker'
+          ? '1 Resume Edit Per Day'
+          : null,
       resumeVersionHistory: 'resumeVersionHistory' in plan.features ? (plan.features as any).resumeVersionHistory : false,
       prioritySupport: 'prioritySupport' in plan.features ? (plan.features as any).prioritySupport : false,
       resumeLockedAfterExpiry: 'resumeLockedAfterExpiry' in plan.features ? (plan.features as any).resumeLockedAfterExpiry : false,
@@ -892,6 +897,7 @@ export default function PricingPage() {
 
           {/* Individual Plans */}
           {activeTab === 'individual' && (
+            <>
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               {INDIVIDUAL_PLANS_UI.map((plan) => (
                 <Card
@@ -942,10 +948,10 @@ export default function PricingPage() {
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                         <span>{plan.features.atsOptimization === 'advanced' ? 'Advanced' : 'Basic'} ATS Optimization</span>
                       </li>
-                      {plan.features.unlimitedEdits && (
+                      {plan.features.editFeatureLabel && (
                         <li className="flex items-start">
                           <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Unlimited edits during validity</span>
+                          <span>{plan.features.editFeatureLabel}</span>
                         </li>
                       )}
                       {plan.features.resumeVersionHistory && (
@@ -999,6 +1005,10 @@ export default function PricingPage() {
                 </Card>
               ))}
             </div>
+            <p className="text-center text-sm text-gray-500 mt-6 max-w-3xl mx-auto">
+              Resume edit limits apply after plan activation and follow your plan usage rules.
+            </p>
+            </>
           )}
 
           {/* Business Plans */}

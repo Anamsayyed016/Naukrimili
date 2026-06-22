@@ -23,7 +23,17 @@ type IndividualPlanUsage = {
   pdfDailyDate?: string;
   pdfDailyCount?: number;
   usedPremiumTemplates?: string[];
+  editDailyDate?: string;
+  editDailyCount?: number;
+  lifetimeEditsUsed?: number;
 };
+
+export const EDIT_LIMIT_MESSAGES = {
+  miniBeforeDownload:
+    'Resume editing unlocks after your first PDF download.',
+  miniEditUsed: 'Your included resume edit has already been used.',
+  dailyLimit: "You have reached today's edit limit. Please try again tomorrow.",
+} as const;
 
 function calendarDayKey(date = new Date()): string {
   const y = date.getFullYear();
@@ -162,6 +172,72 @@ async function isPremiumTemplateId(templateId: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+function getIndividualDailyEditCount(usage: IndividualPlanUsage): number {
+  const today = calendarDayKey();
+  if (usage.editDailyDate !== today) return 0;
+  return usage.editDailyCount ?? 0;
+}
+
+/** Stable compare for resume form payloads — ignores save metadata noise. */
+export function hasMeaningfulResumeDataChange(before: unknown, after: unknown): boolean {
+  const normalize = (value: unknown): string => {
+    if (value == null) return '';
+    if (typeof value !== 'object') return JSON.stringify(value);
+    const record = { ...(value as Record<string, unknown>) };
+    for (const key of ['updatedAt', 'lastSaved', 'savedAt', '_meta']) {
+      delete record[key];
+    }
+    return JSON.stringify(record, Object.keys(record).sort());
+  };
+  return normalize(before) !== normalize(after);
+}
+
+async function recordResumeEditUsage(userId: string, planKey: IndividualPlanKey): Promise<void> {
+  const usage = await getIndividualPlanUsage(userId);
+
+  if (planKey === 'mini_starter') {
+    await setIndividualPlanUsage(userId, {
+      ...usage,
+      lifetimeEditsUsed: (usage.lifetimeEditsUsed ?? 0) + 1,
+    });
+    return;
+  }
+
+  if (planKey === 'starter_premium' || planKey === 'pro_job_seeker') {
+    const today = calendarDayKey();
+    const count =
+      usage.editDailyDate === today ? (usage.editDailyCount ?? 0) + 1 : 1;
+    await setIndividualPlanUsage(userId, {
+      ...usage,
+      editDailyDate: today,
+      editDailyCount: count,
+    });
+  }
+}
+
+/**
+ * Increment edit quota after a confirmed meaningful resume save.
+ * Business subscribers are not metered on individual edit limits.
+ */
+export async function recordResumeEdit(userId: string): Promise<void> {
+  const businessCheck = await checkBusinessSubscription(userId);
+  if (businessCheck.isActive) {
+    return;
+  }
+
+  const validity = await checkIndividualPlanValidity(userId);
+  if (!validity.isValid || !validity.credits?.planName) {
+    return;
+  }
+
+  const planKey = validity.credits.planName as IndividualPlanKey;
+  if (!(planKey in INDIVIDUAL_PLANS)) {
+    return;
+  }
+
+  await recordResumeEditUsage(userId, planKey);
 }
 
 function getIndividualDailyPdfCount(usage: IndividualPlanUsage): number {
@@ -773,41 +849,38 @@ export async function canUseAI(userId: string, feature: 'resume' | 'coverLetter'
 }
 
 /**
- * Check if user can edit resume (enforces unlimited edits and resume locking after expiry)
+ * Check if user can edit resume (plan expiry + per-plan edit limits)
  */
 export async function canEditResume(userId: string): Promise<{
   allowed: boolean;
   reason?: string;
   isLocked?: boolean;
 }> {
+  const businessCheck = await checkBusinessSubscription(userId);
+  if (businessCheck.isActive) {
+    return { allowed: true };
+  }
+
   const validity = await checkIndividualPlanValidity(userId);
-  
+
   if (!validity.isValid || !validity.credits) {
-    // Check business subscription as fallback
-    const businessCheck = await checkBusinessSubscription(userId);
-    if (businessCheck.isActive) {
-      return { allowed: true };
-    }
-    
-    return { 
-      allowed: false, 
+    return {
+      allowed: false,
       reason: 'No active plan. Please purchase a plan to edit resumes.',
-      isLocked: true 
+      isLocked: true,
     };
   }
 
   const credits = validity.credits;
-  const planKey = credits.planName as keyof typeof INDIVIDUAL_PLANS;
-  const plan = planKey ? INDIVIDUAL_PLANS[planKey] : null;
+  const planKey = credits.planName as IndividualPlanKey;
+  const plan = planKey in INDIVIDUAL_PLANS ? INDIVIDUAL_PLANS[planKey] : null;
 
-  // Check if plan has expired
   const now = new Date();
   const validUntil = credits.validUntil ? new Date(credits.validUntil) : null;
   const isExpired = validUntil ? validUntil < now : true;
 
   if (isExpired) {
-    // Check if plan has resumeLockedAfterExpiry flag
-    if (plan && (plan.features as any).resumeLockedAfterExpiry === true) {
+    if (plan && (plan.features as { resumeLockedAfterExpiry?: boolean }).resumeLockedAfterExpiry === true) {
       return {
         allowed: false,
         reason: 'Your plan has expired and resumes are locked. Please renew your plan to continue editing.',
@@ -815,17 +888,46 @@ export async function canEditResume(userId: string): Promise<{
       };
     }
 
-    // Check if plan has unlimitedEdits flag (allows editing even after expiry)
-    if (plan && (plan.features as any).unlimitedEdits === true) {
-      return { allowed: true };
-    }
-
-    // Default: block editing after expiry if no unlimited edits
     return {
       allowed: false,
       reason: 'Your plan has expired. Please renew your plan to edit resumes.',
       isLocked: true,
     };
+  }
+
+  const usage = await getIndividualPlanUsage(userId);
+
+  if (planKey === 'mini_starter') {
+    const { used } = getPdfDownloadQuota(credits as Record<string, unknown>);
+    if (used < 1) {
+      return {
+        allowed: false,
+        reason: EDIT_LIMIT_MESSAGES.miniBeforeDownload,
+        isLocked: true,
+      };
+    }
+
+    if ((usage.lifetimeEditsUsed ?? 0) >= 1) {
+      return {
+        allowed: false,
+        reason: EDIT_LIMIT_MESSAGES.miniEditUsed,
+        isLocked: true,
+      };
+    }
+
+    return { allowed: true };
+  }
+
+  if (planKey === 'starter_premium' || planKey === 'pro_job_seeker') {
+    if (getIndividualDailyEditCount(usage) >= 1) {
+      return {
+        allowed: false,
+        reason: EDIT_LIMIT_MESSAGES.dailyLimit,
+        isLocked: false,
+      };
+    }
+
+    return { allowed: true };
   }
 
   return { allowed: true };
