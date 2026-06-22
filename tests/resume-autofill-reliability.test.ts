@@ -647,4 +647,39 @@ describe('resume preview data binding', () => {
     expect(transformed.summary).toMatch(/growth/i);
     expect(transformed.summary).toMatch(/logistics/i);
   });
+
+  it('syncExperienceEntryAliases clears orphaned bullets when description is empty', async () => {
+    const { syncExperienceEntryAliases } = await import(
+      '@/lib/resume-builder/experience-entry-sync'
+    );
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const html = '<div class="experience-list">{{EXPERIENCE}}</div>';
+
+    const withBullets = injectResumeData(html, {
+      experience: [
+        syncExperienceEntryAliases({
+          title: 'Engineer',
+          company: 'Acme',
+          description: 'Built APIs\nImproved performance',
+        }),
+      ],
+    });
+    expect(withBullets).toContain('<li>');
+    expect(withBullets).toContain('Built APIs');
+
+    const cleared = injectResumeData(html, {
+      experience: [
+        syncExperienceEntryAliases({
+          title: 'Engineer',
+          company: 'Acme',
+          description: '',
+          achievements: ['Built APIs', 'Improved performance'],
+          bullets: ['Built APIs', 'Improved performance'],
+        }),
+      ],
+    });
+    expect(cleared).not.toContain('<li>');
+    expect(cleared).not.toContain('Built APIs');
+    expect(cleared).toContain('Engineer');
+  });
 });

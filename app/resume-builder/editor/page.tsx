@@ -36,6 +36,7 @@ import HobbiesStep from '@/components/resume-builder/steps/HobbiesStep';
 import FinalizeStep from '@/components/resume-builder/steps/FinalizeStep';
 
 import { loadTemplate } from '@/lib/resume-builder/template-loader';
+import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
 import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import type { Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
@@ -64,38 +65,6 @@ const editorFormFont = Plus_Jakarta_Sans({
   weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
-
-/** Import writes canonical + capitalized aliases per entry; edits must keep both in sync. */
-function syncExperienceEntryAliases(entry: Record<string, unknown>): Record<string, unknown> {
-  const title =
-    'title' in entry
-      ? String(entry.title ?? '')
-      : String(entry.position ?? entry.Position ?? '');
-  const company =
-    'company' in entry
-      ? String(entry.company ?? '')
-      : String(entry.Company ?? '');
-  const location =
-    'location' in entry
-      ? String(entry.location ?? '')
-      : String(entry.Location ?? '');
-  const description =
-    'description' in entry
-      ? String(entry.description ?? '')
-      : String(entry.Description ?? '');
-  return {
-    ...entry,
-    title,
-    position: title,
-    Position: title,
-    company,
-    Company: company,
-    location,
-    Location: location,
-    description,
-    Description: description,
-  };
-}
 
 function syncProjectEntryAliases(entry: Record<string, unknown>): Record<string, unknown> {
   const pick = (keys: string[]): string => {
