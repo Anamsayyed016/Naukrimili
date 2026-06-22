@@ -1,0 +1,28 @@
+<svg width="600" height="800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <circle cx="88" cy="88" r="52" fill="none" stroke="#D6D6D6" stroke-width="3"/>
+  <circle cx="88" cy="88" r="48" fill="#ECECEC" stroke="#C91F2E" stroke-width="3"/>
+  <text x="168" y="76" font-family="Arial,sans-serif" font-size="28" font-weight="800" fill="#1F1F1F" letter-spacing="2">JONATHAN REED</text>
+  <text x="480" y="76" font-family="Arial,sans-serif" font-size="36" font-weight="300" fill="#C91F2E">/</text>
+  <text x="168" y="104" font-family="Arial,sans-serif" font-size="11" fill="#5C5C5C" letter-spacing="1.2">CHIEF OPERATIONS OFFICER | GLOBAL LOGISTICS LEAD</text>
+  <line x1="48" y1="128" x2="552" y2="128" stroke="#D6D6D6"/>
+  <text x="48" y="148" font-family="Arial,sans-serif" font-size="10" fill="#5C5C5C">+1 (555) 123-4567  |  jonathan@email.com  |  linkedin.com  |  New York</text>
+  <rect x="48" y="172" width="340" height="28" fill="#ECECEC"/>
+  <polygon points="388,172 408,200 388,200" fill="#C91F2E"/>
+  <text x="60" y="192" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#1F1F1F" letter-spacing="1">/ EXPERIENCE</text>
+  <line x1="60" y1="220" x2="60" y2="320" stroke="#D6D6D6" stroke-width="2"/>
+  <circle cx="60" cy="228" r="6" fill="#C91F2E"/>
+  <text x="76" y="232" font-family="Arial,sans-serif" font-size="11" font-weight="800" fill="#1F1F1F">GRAPHITE BLACK</text>
+  <text x="320" y="232" font-family="Arial,sans-serif" font-size="10" fill="#5C5C5C">2018  Present</text>
+  <text x="76" y="252" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#1F1F1F">Chief Operations Officer</text>
+  <text x="84" y="276" font-family="Arial,sans-serif" font-size="10" fill="#1F1F1F">¶ Reduced operational costs by 25%</text>
+  <line x1="408" y1="172" x2="408" y2="680" stroke="#D6D6D6"/>
+  <rect x="420" y="172" width="156" height="24" fill="#ECECEC"/>
+  <text x="432" y="188" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#1F1F1F">/ CORE SKILLS</text>
+  <rect x="420" y="204" width="72" height="72" fill="#ECECEC" stroke="#D6D6D6"/>
+  <rect x="500" y="204" width="72" height="72" fill="#ECECEC" stroke="#D6D6D6"/>
+  <rect x="420" y="292" width="156" height="22" fill="#ECECEC"/>
+  <polygon points="576,292 592,314 576,314" fill="#C91F2E"/>
+  <text x="432" y="308" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#1F1F1F">/ EDUCATION</text>
+  <text x="300" y="776" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#C91F2E">Executive Redline Elite</text>
+</svg>

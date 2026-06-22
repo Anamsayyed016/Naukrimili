@@ -38,6 +38,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-sidebar-elite': `${DEMO_PROFILES_BASE}/elegant-ivory.svg`,
   'aether-professional': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
   'nordic-creative-executive': `${DEMO_PROFILES_BASE}/editorial-elegant.svg`,
+  'executive-redline-elite': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -223,6 +224,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-stone-400/70',
     hoverOverlay: 'from-stone-200/28',
   },
+  'executive-redline-elite': {
+    glow: 'radial-gradient(circle, rgba(201,31,46,0.38) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(236,236,236,0.65) 0%, transparent 70%)',
+    borderTint: 'hover:border-red-400/60',
+    hoverOverlay: 'from-red-50/30',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -258,6 +265,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-sidebar-elite': { firstName: 'Eliza', lastName: 'Blythe', jobTitle: 'Chief Strategy Officer | Global Operations Leader' },
   'aether-professional': { firstName: 'Jordan', lastName: 'Hayes', jobTitle: 'Senior Product Manager' },
   'nordic-creative-executive': { firstName: 'Lena', lastName: 'Holmquist', jobTitle: 'Creative Director & Brand Strategist' },
+  'executive-redline-elite': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Chief Operations Officer | Global Logistics Lead' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

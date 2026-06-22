@@ -670,6 +670,30 @@
         { "id": "deep-moss", "name": "Deep Moss", "primary": "#3D4535", "accent": "#6B7A58", "text": "#2A2A2A" }
       ],
       "defaultColor": "nordic-sage"
+    },
+    {
+      "id": "executive-redline-elite",
+      "name": "Executive Redline Elite",
+      "slug": "executive-redline-elite",
+      "description": "Monaco-grid executive resume with redline section headers, circular portrait, timeline experience, structured skills matrix, and balanced two-column leadership layout for ATS-friendly PDF export.",
+      "thumbnail": "/templates/executive-redline-elite/thumbnail.svg",
+      "preview": "/templates/executive-redline-elite/preview.svg",
+      "html": "/templates/executive-redline-elite/index.html",
+      "css": "/templates/executive-redline-elite/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "redline-elite", "name": "Redline Elite", "primary": "#C91F2E", "accent": "#ECECEC", "text": "#1F1F1F" },
+        { "id": "crimson-executive", "name": "Crimson Executive", "primary": "#B01825", "accent": "#ECECEC", "text": "#1F1F1F" },
+        { "id": "graphite-red", "name": "Graphite Red", "primary": "#A91B28", "accent": "#D6D6D6", "text": "#1F1F1F" },
+        { "id": "steel-command", "name": "Steel Command", "primary": "#8E1A24", "accent": "#ECECEC", "text": "#1F1F1F" },
+        { "id": "cardinal-edge", "name": "Cardinal Edge", "primary": "#D42B3A", "accent": "#F0F0F0", "text": "#1F1F1F" },
+        { "id": "executive-scarlet", "name": "Executive Scarlet", "primary": "#9C1723", "accent": "#E8E8E8", "text": "#1F1F1F" }
+      ],
+      "defaultColor": "redline-elite"
     }
   ],
   "filters": {

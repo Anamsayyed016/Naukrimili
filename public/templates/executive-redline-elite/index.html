@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ere-resume">
+    <header class="ere-header">
+      <div class="ere-header-top">
+        {{#if PROFILE_IMAGE}}
+        <div class="ere-photo">
+          <span class="ere-photo-ring ere-photo-ring--grey" aria-hidden="true"></span>
+          <span class="ere-photo-ring ere-photo-ring--red" aria-hidden="true"></span>
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="ere-photo">
+          <span class="ere-photo-ring ere-photo-ring--grey" aria-hidden="true"></span>
+          <span class="ere-photo-ring ere-photo-ring--red" aria-hidden="true"></span>
+          <div class="profile-image-wrapper profile-image-wrapper--initials">
+            <span class="profile-initials" aria-hidden="true">
+              <span class="ere-ini-f">{{FIRST_NAME}}</span><span class="ere-ini-l">{{LAST_NAME}}</span>
+            </span>
+          </div>
+        </div>
+        {{/unless}}
+
+        <div class="ere-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+            <span class="ere-name-slash" aria-hidden="true">/</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </div>
+
+      {{#if CONTACT}}
+      <div class="ere-contact-bar">
+        <div class="contact-list">
+          {{CONTACT}}
+        </div>
+      </div>
+      {{/if}}
+    </header>
+
+    <div class="ere-body">
+      <main class="ere-main">
+        {{#if SUMMARY}}
+        <section class="ere-section">
+          <h2 class="ere-heading"><span class="ere-slash">/</span><span class="ere-heading-text">Professional Summary</span></h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="ere-section ere-section--experience">
+          <h2 class="ere-heading"><span class="ere-slash">/</span><span class="ere-heading-text">Experience</span></h2>
+          <div class="experience-list ere-timeline">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ere-section">
+          <h2 class="ere-heading"><span class="ere-slash">/</span><span class="ere-heading-text">Projects</span></h2>
+          <div class="projects-list ere-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="ere-side">
+        {{#if SKILLS}}
+        <section class="ere-section ere-section--skills">
+          <div class="ere-skills-matrix">
+            <h3 class="ere-skill-category"><span class="ere-slash">/</span> Core Skills</h3>
+            <h3 class="ere-skill-category"><span class="ere-slash">/</span> Technical Skills</h3>
+            <h3 class="ere-skill-category"><span class="ere-slash">/</span> Leadership Skills</h3>
+            <div class="skills-list ere-skills-list">
+              {{SKILLS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="ere-section">
+          <h2 class="ere-heading ere-heading--compact"><span class="ere-slash">/</span><span class="ere-heading-text">Education</span></h2>
+          <div class="education-list ere-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="ere-section">
+          <h2 class="ere-heading ere-heading--compact"><span class="ere-slash">/</span><span class="ere-heading-text">Certifications</span></h2>
+          <div class="certifications-list ere-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="ere-section">
+          <h2 class="ere-heading ere-heading--compact"><span class="ere-slash">/</span><span class="ere-heading-text">Achievements</span></h2>
+          <div class="achievements-list ere-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="ere-section">
+          <h2 class="ere-heading ere-heading--compact"><span class="ere-slash">/</span><span class="ere-heading-text">Languages</span></h2>
+          <div class="languages-list ere-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="ere-section">
+          <h2 class="ere-heading ere-heading--compact"><span class="ere-slash">/</span><span class="ere-heading-text">Interests</span></h2>
+          <div class="hobbies-list ere-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
