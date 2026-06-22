@@ -1,0 +1,510 @@
+/* Executive Sidebar Elite — ivory sidebar + copper executive resume */
+
+.ese-resume {
+  --primary-color: #9c6b4f;
+  --accent-color: #d8cfc5;
+  --text-color: #1e1e1e;
+  --muted-text: #5a534d;
+  --sidebar-bg: #f4efe8;
+  --main-bg: #ffffff;
+  --border-color: rgba(156, 107, 79, 0.42);
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --sidebar-width: 240px;
+  --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ese-resume,
+.ese-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ese-resume {
+  width: 794px;
+  max-width: var(--max-width);
+  min-height: auto;
+  margin: 0 auto;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.58;
+  color: var(--text-color);
+  background: var(--main-bg);
+  overflow: visible;
+  box-shadow: 0 14px 44px rgba(30, 30, 30, 0.08);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ese-resume .ese-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  min-height: auto;
+}
+
+/* ── Sidebar ── */
+.ese-resume .ese-sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.ese-resume .ese-photo-block {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.ese-resume .profile-image-wrapper {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #e8dfd4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ese-resume .profile-image-wrapper--initials {
+  background: linear-gradient(180deg, #d8cfc5 0%, #c4a88e 100%);
+}
+
+.ese-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.ese-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+  letter-spacing: 2px;
+}
+
+.ese-resume .ese-ini-f,
+.ese-resume .ese-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.ese-resume .ese-ini-f::first-letter,
+.ese-resume .ese-ini-l::first-letter {
+  font-size: 42px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ese-resume .ese-sidebar-body {
+  padding: 22px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ── Section headings ── */
+.ese-resume .ese-heading {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--text-color);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--primary-color);
+}
+
+.ese-resume .ese-heading--main {
+  font-size: 10.5px;
+  letter-spacing: 1.6px;
+  margin-bottom: 14px;
+}
+
+.ese-resume .ese-section {
+  margin-bottom: 22px;
+}
+
+.ese-resume .ese-section:last-child {
+  margin-bottom: 0;
+}
+
+.ese-resume .ese-section--side {
+  margin-bottom: 0;
+}
+
+/* ── Sidebar contact ── */
+.ese-resume .ese-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ese-resume .ese-contact-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ese-resume .ese-contact-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-color);
+}
+
+.ese-resume .ese-contact-value {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--muted-text);
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ── Sidebar skills (vertical list, no bars) ── */
+.ese-resume .ese-skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ese-resume .ese-skills-list .skill-tag {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-color);
+  line-height: 1.4;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  white-space: normal;
+}
+
+/* ── Sidebar languages ── */
+.ese-resume .ese-languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ese-resume .ese-languages-list .language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ese-resume .ese-languages-list .language {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.ese-resume .ese-languages-list .proficiency {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted-text);
+}
+
+/* ── Sidebar certifications ── */
+.ese-resume .ese-certifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ese-resume .ese-certifications-list .certification-item h3 {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-color);
+  line-height: 1.45;
+}
+
+.ese-resume .ese-certifications-list .issuer,
+.ese-resume .ese-certifications-list .date {
+  display: block;
+  font-size: 9.5px;
+  color: var(--muted-text);
+  margin-top: 2px;
+}
+
+/* ── Main column ── */
+.ese-resume .ese-main {
+  flex: 1;
+  min-width: 0;
+  background: var(--main-bg);
+  padding: 34px 36px 40px 32px;
+}
+
+.ese-resume .ese-header {
+  margin-bottom: 26px;
+}
+
+.ese-resume .candidate-name {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.ese-resume .name-first,
+.ese-resume .name-last {
+  display: inline;
+}
+
+.ese-resume .name-first:empty,
+.ese-resume .name-last:empty,
+.ese-resume .name-space:empty {
+  display: none;
+}
+
+.ese-resume .name-fallback {
+  display: none;
+}
+
+.ese-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.ese-resume .header-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: var(--muted-text);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.ese-resume .ese-header-rule {
+  width: 100%;
+  height: 1px;
+  background: var(--primary-color);
+  opacity: 0.85;
+}
+
+.ese-resume .summary-text {
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--text-color);
+  text-align: left;
+}
+
+/* ── Experience ── */
+.ese-resume .ese-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ese-resume .ese-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ese-resume .ese-experience .experience-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 3px;
+  margin-bottom: 6px;
+}
+
+.ese-resume .ese-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1.35;
+}
+
+.ese-resume .ese-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-text);
+  white-space: nowrap;
+  align-self: start;
+}
+
+.ese-resume .ese-experience .experience-header .company {
+  grid-column: 1 / -1;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--muted-text);
+  font-style: normal;
+}
+
+.ese-resume .ese-experience .description {
+  font-size: 10.5px;
+  line-height: 1.58;
+  color: var(--text-color);
+}
+
+.ese-resume .ese-experience .description ul {
+  margin: 4px 0 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.ese-resume .ese-experience .description ul li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 5px;
+}
+
+.ese-resume .ese-experience .description ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  background: var(--primary-color);
+}
+
+/* ── Projects ── */
+.ese-resume .ese-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ese-resume .ese-projects .project-item h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.ese-resume .ese-projects .project-item .description {
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--text-color);
+}
+
+.ese-resume .ese-projects .technologies {
+  font-size: 10px;
+  color: var(--muted-text);
+  margin-top: 4px;
+}
+
+/* ── Education ── */
+.ese-resume .ese-education {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ese-resume .ese-education .education-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 3px;
+}
+
+.ese-resume .ese-education .education-item h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.ese-resume .ese-education .education-item .year {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-text);
+  white-space: nowrap;
+}
+
+.ese-resume .ese-education .education-item .institution {
+  grid-column: 1 / -1;
+  font-size: 10.5px;
+  color: var(--muted-text);
+}
+
+.ese-resume .ese-education .education-item .cgpa {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  color: var(--muted-text);
+}
+
+/* ── Achievements ── */
+.ese-resume .ese-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ese-resume .ese-achievements .achievement-item {
+  position: relative;
+  padding-left: 14px;
+}
+
+.ese-resume .ese-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  background: var(--primary-color);
+}
+
+.ese-resume .ese-achievements .achievement-item h3 {
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--text-color);
+}
+
+.ese-resume .ese-achievements .achievement-item .description {
+  font-size: 10.5px;
+  color: var(--text-color);
+  margin-top: 2px;
+}
+
+/* ── Print / PDF ── */
+@media print {
+  .ese-resume {
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
+  }
+
+  .ese-resume .ese-sidebar {
+    background: var(--sidebar-bg) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .ese-resume .ese-main {
+    background: var(--main-bg) !important;
+  }
+
+  .ese-resume * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
