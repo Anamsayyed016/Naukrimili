@@ -5,47 +5,12 @@
 
 import { isValidProfileImage } from '@/lib/resume-builder/section-visibility';
 
-const DEMO_PROFILES_BASE = '/resume-builder/demo-profiles';
+/** Shared demo portrait for gallery cards, sample resumes, and template previews only. */
+export const DEFAULT_DEMO_PROFILE_IMAGE =
+  'https://res.cloudinary.com/drot7xb9m/image/upload/v1782134751/naulogoimg_j5uodj.png';
 
-/** Per-template demo portrait assets (gallery / change-template modal only) */
-export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
-  'teal-modern': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
-  'charcoal-premium': `${DEMO_PROFILES_BASE}/charcoal-premium.svg`,
-  'editorial-elegant': `${DEMO_PROFILES_BASE}/editorial-elegant.svg`,
-  'editorial-mauve': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
-  'executive-corporate': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
-  'executive-modern': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
-  'luxury-corporate': `${DEMO_PROFILES_BASE}/luxury-corporate.svg`,
-  'elegant-ivory': `${DEMO_PROFILES_BASE}/elegant-ivory.svg`,
-  'luxe-executive': `${DEMO_PROFILES_BASE}/luxe-executive.svg`,
-  'executive-graphite': `${DEMO_PROFILES_BASE}/executive-graphite.svg`,
-  'royal-copper-executive': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
-  'royal-edge': `${DEMO_PROFILES_BASE}/royal-edge.svg`,
-  'maroon-gold-executive': `${DEMO_PROFILES_BASE}/luxury-corporate.svg`,
-  'ivory-boardroom-executive': `${DEMO_PROFILES_BASE}/elegant-ivory.svg`,
-  'executive-slate-luxe': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
-  'emerald-executive-luxe': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
-  'velvet-ribbon-executive': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
-  'organic-luxe-editorial': `${DEMO_PROFILES_BASE}/editorial-elegant.svg`,
-  'organic-luxe-executive': `${DEMO_PROFILES_BASE}/royal-edge.svg`,
-  'velvet-horizon-executive': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
-  'midnight-prestige-executive': `${DEMO_PROFILES_BASE}/charcoal-premium.svg`,
-  'frosted-glass-executive': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
-  'platinum-executive-edge': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
-  'slate-executive-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
-  'executive-minimal-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
-  'executive-burgundy-diamond': `${DEMO_PROFILES_BASE}/luxury-corporate.svg`,
-  'executive-sidebar-elite': `${DEMO_PROFILES_BASE}/elegant-ivory.svg`,
-  'aether-professional': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
-  'nordic-creative-executive': `${DEMO_PROFILES_BASE}/editorial-elegant.svg`,
-  'executive-redline-elite': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
-  'aurora-executive-glass': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
-  'blush-executive-watercolor': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
-  'graphite-orange-executive': `${DEMO_PROFILES_BASE}/executive-graphite.svg`,
-};
-
-export const GALLERY_DEMO_PROFILE_IMAGE =
-  GALLERY_DEMO_PROFILE_BY_TEMPLATE['teal-modern'];
+/** @deprecated Use DEFAULT_DEMO_PROFILE_IMAGE */
+export const GALLERY_DEMO_PROFILE_IMAGE = DEFAULT_DEMO_PROFILE_IMAGE;
 
 export interface GalleryCardAccent {
   /** Decorative glow behind card (top-right) */
@@ -292,11 +257,8 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'graphite-orange-executive': { firstName: 'Eliza', lastName: 'Vance', jobTitle: 'Senior Operations Director | Strategic Growth' },
 };
 
-export function getGalleryDemoProfileImage(templateId?: string): string {
-  if (templateId && GALLERY_DEMO_PROFILE_BY_TEMPLATE[templateId]) {
-    return GALLERY_DEMO_PROFILE_BY_TEMPLATE[templateId];
-  }
-  return GALLERY_DEMO_PROFILE_IMAGE;
+export function getGalleryDemoProfileImage(_templateId?: string): string {
+  return DEFAULT_DEMO_PROFILE_IMAGE;
 }
 
 export function getGalleryCardAccent(templateId: string): GalleryCardAccent {
@@ -310,6 +272,10 @@ export function getGalleryCardAccent(templateId: string): GalleryCardAccent {
   );
 }
 
+/**
+ * Gallery preview profile resolution:
+ * user upload → DEFAULT_DEMO_PROFILE_IMAGE → (empty; template initials placeholder)
+ */
 export function resolveGalleryProfileImage(
   formData: Record<string, unknown>,
   getString: (keys: string[]) => string,
@@ -484,7 +450,7 @@ export function buildGallerySampleFormData(templateId?: string): Record<string, 
   const persona =
     (templateId && GALLERY_PERSONA_BY_TEMPLATE[templateId]) ||
     GALLERY_PERSONA_BY_TEMPLATE['teal-modern'];
-  const profileImage = getGalleryDemoProfileImage(templateId);
+  const profileImage = DEFAULT_DEMO_PROFILE_IMAGE;
   const sections = GALLERY_RICH_RESUME_SECTIONS;
 
   return {
