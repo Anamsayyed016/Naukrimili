@@ -1,0 +1,522 @@
+/* Aether Professional — blush executive marketplace resume */
+
+.ap-resume {
+  --primary-color: #d9b2b2;
+  --accent-color: #f4f1ec;
+  --text-color: #222222;
+  --muted-text: #5c5c5c;
+  --card-bg: #f4f1ec;
+  --main-bg: #ffffff;
+  --divider-color: #d6d0c8;
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --font-body: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ap-resume,
+.ap-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ap-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--max-width);
+  min-height: auto;
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-color);
+  background: var(--main-bg);
+  overflow: visible;
+  box-shadow: 0 16px 48px rgba(34, 34, 34, 0.07);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Decorative corners ── */
+.ap-resume .ap-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ap-resume .ap-deco--tl {
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 88px;
+  border-radius: 0 0 14px 0;
+  background: var(--primary-color);
+  opacity: 0.92;
+}
+
+.ap-resume .ap-deco--tr {
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-top: 3px solid var(--primary-color);
+  border-right: 3px solid var(--primary-color);
+  border-radius: 0 8px 0 0;
+  opacity: 0.85;
+}
+
+.ap-resume .ap-deco--br {
+  bottom: 22px;
+  right: 22px;
+  width: 40px;
+  height: 40px;
+  border-bottom: 3px solid var(--primary-color);
+  border-right: 3px solid var(--primary-color);
+  border-radius: 0 0 10px 0;
+  opacity: 0.85;
+}
+
+.ap-resume .ap-deco--br::after {
+  content: '✦';
+  position: absolute;
+  right: -2px;
+  bottom: -6px;
+  font-size: 11px;
+  color: var(--primary-color);
+  opacity: 0.75;
+}
+
+/* ── Header ── */
+.ap-resume .ap-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 40px 44px 28px 52px;
+}
+
+.ap-resume .ap-header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.ap-resume .candidate-name {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-color);
+  margin-bottom: 6px;
+}
+
+.ap-resume .name-first,
+.ap-resume .name-last {
+  display: inline;
+}
+
+.ap-resume .name-first:empty,
+.ap-resume .name-last:empty,
+.ap-resume .name-space:empty {
+  display: none;
+}
+
+.ap-resume .name-fallback {
+  display: none;
+}
+
+.ap-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.ap-resume .header-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: var(--muted-text);
+  margin-bottom: 14px;
+}
+
+.ap-resume .ap-contact-row .contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+
+.ap-resume .ap-contact-row .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-text);
+}
+
+.ap-resume .ap-contact-row .contact-item::before {
+  content: '';
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.9;
+}
+
+.ap-resume .ap-contact-row .contact-item:nth-child(1)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9B2B2' stroke-width='2'%3E%3Cpath d='M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z'/%3E%3C/svg%3E");
+}
+
+.ap-resume .ap-contact-row .contact-item:nth-child(2)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9B2B2' stroke-width='2'%3E%3Cpath d='M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z'/%3E%3C/svg%3E");
+}
+
+.ap-resume .ap-contact-row .contact-item:nth-child(3)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9B2B2' stroke-width='2'%3E%3Cpath d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z'/%3E%3Crect x='4' y='9' width='4' height='12'/%3E%3Ccircle cx='6' cy='4' r='2'/%3E%3C/svg%3E");
+}
+
+.ap-resume .ap-contact-row .contact-item:nth-child(4)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9B2B2' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.ap-resume .ap-contact-row .contact-item:nth-child(5)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9B2B2' stroke-width='2'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+}
+
+.ap-resume .ap-contact-row .contact-label {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  color: var(--text-color);
+}
+
+/* ── Profile photo ── */
+.ap-resume .ap-photo {
+  flex-shrink: 0;
+}
+
+.ap-resume .profile-image-wrapper {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--primary-color);
+  background: var(--card-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(217, 178, 178, 0.28);
+}
+
+.ap-resume .profile-image-wrapper--initials {
+  background: linear-gradient(145deg, #f4f1ec 0%, #e8d4d4 100%);
+}
+
+.ap-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.ap-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.ap-resume .ap-ini-f,
+.ap-resume .ap-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.ap-resume .ap-ini-f::first-letter,
+.ap-resume .ap-ini-l::first-letter {
+  font-size: 34px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #9a7a7a;
+}
+
+/* ── Body ── */
+.ap-resume .ap-body {
+  position: relative;
+  z-index: 1;
+  padding: 0 44px 44px 52px;
+}
+
+/* ── Summary card ── */
+.ap-resume .ap-summary-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 22px 26px;
+  margin-bottom: 26px;
+}
+
+.ap-resume .ap-summary-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.ap-resume .summary-text {
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--text-color);
+}
+
+/* ── Section titles with marker ── */
+.ap-resume .ap-section {
+  margin-bottom: 24px;
+}
+
+.ap-resume .ap-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--text-color);
+  margin-bottom: 14px;
+}
+
+.ap-resume .ap-section-marker {
+  width: 6px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--card-bg);
+  border: 1px solid var(--divider-color);
+  flex-shrink: 0;
+}
+
+/* ── Experience ── */
+.ap-resume .ap-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ap-resume .ap-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ap-resume .ap-experience .experience-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 3px;
+  margin-bottom: 6px;
+}
+
+.ap-resume .ap-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  color: var(--text-color);
+}
+
+.ap-resume .ap-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-text);
+  white-space: nowrap;
+}
+
+.ap-resume .ap-experience .experience-header .company {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-color);
+}
+
+.ap-resume .ap-experience .description {
+  font-size: 10.5px;
+  line-height: 1.58;
+  color: var(--text-color);
+}
+
+.ap-resume .ap-experience .description ul {
+  margin: 6px 0 0;
+  padding-left: 16px;
+}
+
+.ap-resume .ap-experience .description ul li {
+  margin-bottom: 4px;
+}
+
+/* ── Two-column projects / skills ── */
+.ap-resume .ap-dual-grid {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 28px;
+  margin-bottom: 8px;
+}
+
+.ap-resume .ap-section--projects,
+.ap-resume .ap-section--skills {
+  flex: 1;
+  min-width: 0;
+}
+
+.ap-resume .ap-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ap-resume .ap-projects .project-item h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.ap-resume .ap-projects .project-item .description {
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--text-color);
+}
+
+.ap-resume .ap-skills-board {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(214, 208, 200, 0.65);
+}
+
+.ap-resume .ap-skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ap-resume .ap-skills-list .skill-tag {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--main-bg);
+  border: 1px solid var(--divider-color);
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-color);
+  line-height: 1.45;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ── Lower stacked sections ── */
+.ap-resume .ap-section--lower {
+  display: grid;
+  grid-template-columns: 120px 1px 1fr;
+  column-gap: 18px;
+  align-items: start;
+  padding-top: 16px;
+  margin-bottom: 12px;
+  border-top: 1px solid var(--divider-color);
+}
+
+.ap-resume .ap-lower-title {
+  grid-column: 1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--text-color);
+  padding-top: 2px;
+}
+
+.ap-resume .ap-lower-rule {
+  grid-column: 2;
+  width: 1px;
+  min-height: 100%;
+  background: var(--divider-color);
+  align-self: stretch;
+}
+
+.ap-resume .ap-lower-content {
+  grid-column: 3;
+  min-width: 0;
+}
+
+.ap-resume .ap-lower-content .education-item,
+.ap-resume .ap-lower-content .certification-item,
+.ap-resume .ap-lower-content .language-item,
+.ap-resume .ap-lower-content .achievement-item {
+  margin-bottom: 8px;
+}
+
+.ap-resume .ap-lower-content .education-item:last-child,
+.ap-resume .ap-lower-content .certification-item:last-child,
+.ap-resume .ap-lower-content .language-item:last-child,
+.ap-resume .ap-lower-content .achievement-item:last-child {
+  margin-bottom: 0;
+}
+
+.ap-resume .ap-lower-content h3 {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.45;
+}
+
+.ap-resume .ap-lower-content .institution,
+.ap-resume .ap-lower-content .issuer,
+.ap-resume .ap-lower-content .year,
+.ap-resume .ap-lower-content .date,
+.ap-resume .ap-lower-content .proficiency {
+  font-size: 10px;
+  color: var(--muted-text);
+}
+
+.ap-resume .ap-languages .language-item {
+  display: inline-flex;
+  gap: 6px;
+  margin-right: 14px;
+}
+
+.ap-resume .ap-languages .language {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Single column when only one dual-grid child */
+.ap-resume .ap-dual-grid:has(.ap-section--projects):not(:has(.ap-section--skills)) .ap-section--projects,
+.ap-resume .ap-dual-grid:has(.ap-section--skills):not(:has(.ap-section--projects)) .ap-section--skills {
+  flex: 1 1 100%;
+}
+
+@media print {
+  .ap-resume {
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
+  }
+
+  .ap-resume * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

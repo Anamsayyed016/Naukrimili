@@ -622,6 +622,30 @@
         { "id": "deep-copper", "name": "Deep Copper", "primary": "#6B4B3E", "accent": "#C99585", "text": "#1E1E1E" }
       ],
       "defaultColor": "sidebar-elite"
+    },
+    {
+      "id": "aether-professional",
+      "name": "Aether Professional",
+      "slug": "aether-professional",
+      "description": "Marketplace-style executive resume with blush corner accents, rounded summary card, experience timeline, projects and skills split layout, and ATS-friendly lower sections.",
+      "thumbnail": "/templates/aether-professional/thumbnail.svg",
+      "preview": "/templates/aether-professional/preview.svg",
+      "html": "/templates/aether-professional/index.html",
+      "css": "/templates/aether-professional/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": false,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "aether-blush", "name": "Aether Blush", "primary": "#D9B2B2", "accent": "#F4F1EC", "text": "#222222" },
+        { "id": "rose-quartz", "name": "Rose Quartz", "primary": "#C9A0A0", "accent": "#F5F0EB", "text": "#222222" },
+        { "id": "mauve-soft", "name": "Mauve Soft", "primary": "#B89898", "accent": "#EDE8E4", "text": "#222222" },
+        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#A88484", "accent": "#F0EBE6", "text": "#222222" },
+        { "id": "warm-stone", "name": "Warm Stone", "primary": "#9A8B8B", "accent": "#F4F1EC", "text": "#222222" },
+        { "id": "slate-blush", "name": "Slate Blush", "primary": "#8E7A7A", "accent": "#E8E4DF", "text": "#222222" }
+      ],
+      "defaultColor": "aether-blush"
     }
   ],
   "filters": {

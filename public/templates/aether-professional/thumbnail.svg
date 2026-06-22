@@ -1,0 +1,22 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="400" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="18" height="56" rx="0" fill="#D9B2B2"/>
+  <path d="M276,14 L292,14 L292,30" fill="none" stroke="#D9B2B2" stroke-width="2.5"/>
+  <path d="M276,374 L292,374 L292,358" fill="none" stroke="#D9B2B2" stroke-width="2.5"/>
+  <text x="24" y="36" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#222222" letter-spacing="1">CANDIDATE</text>
+  <text x="24" y="48" font-family="Arial,sans-serif" font-size="4" fill="#5C5C5C" letter-spacing="0.6">SENIOR PRODUCT MANAGER</text>
+  <circle cx="262" cy="40" r="22" fill="#F4F1EC" stroke="#D9B2B2" stroke-width="1.5"/>
+  <rect x="24" y="58" width="252" height="36" rx="8" fill="#F4F1EC"/>
+  <text x="32" y="72" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#222222" letter-spacing="0.5">PROFESSIONAL SUMMARY</text>
+  <rect x="32" y="76" width="220" height="10" rx="1" fill="#ECE8E2"/>
+  <rect x="8" y="104" width="4" height="14" rx="2" fill="#F4F1EC" stroke="#D6D0C8"/>
+  <text x="18" y="114" font-family="Arial,sans-serif" font-size="4.5" font-weight="700" fill="#222222" letter-spacing="0.5">EXPERIENCE</text>
+  <text x="18" y="126" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#222222">APPLE</text>
+  <text x="248" y="126" font-family="Arial,sans-serif" font-size="3.5" fill="#5C5C5C">2018Present</text>
+  <line x1="18" y1="148" x2="148" y2="148" stroke="#D6D0C8" stroke-width="0.5"/>
+  <line x1="158" y1="148" x2="292" y2="148" stroke="#D6D0C8" stroke-width="0.5"/>
+  <text x="18" y="160" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#222222">PROJECTS</text>
+  <text x="158" y="160" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#222222">SKILLS</text>
+  <rect x="158" y="166" width="134" height="28" rx="6" fill="#F4F1EC"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="600" fill="#D9B2B2">Aether Professional</text>
+</svg>

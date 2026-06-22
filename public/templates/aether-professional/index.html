@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ap-resume">
+    <div class="ap-deco ap-deco--tl" aria-hidden="true"></div>
+    <div class="ap-deco ap-deco--tr" aria-hidden="true"></div>
+    <div class="ap-deco ap-deco--br" aria-hidden="true"></div>
+
+    <header class="ap-header">
+      <div class="ap-header-left">
+        <h1 class="candidate-name">
+          <span class="name-first">{{FIRST_NAME}}</span>
+          <span class="name-space"> </span>
+          <span class="name-last">{{LAST_NAME}}</span>
+          <span class="name-fallback">{{FULL_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <p class="header-title">{{JOB_TITLE}}</p>
+        {{/if}}
+        {{#if CONTACT}}
+        <div class="ap-contact-row">
+          <div class="contact-list">
+            {{CONTACT}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      {{#if PROFILE_IMAGE}}
+      <div class="ap-photo">
+        <div class="profile-image-wrapper">
+          <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+        </div>
+      </div>
+      {{/if}}
+      {{#unless PROFILE_IMAGE}}
+      <div class="ap-photo">
+        <div class="profile-image-wrapper profile-image-wrapper--initials">
+          <span class="profile-initials" aria-hidden="true">
+            <span class="ap-ini-f">{{FIRST_NAME}}</span><span class="ap-ini-l">{{LAST_NAME}}</span>
+          </span>
+        </div>
+      </div>
+      {{/unless}}
+    </header>
+
+    <div class="ap-body">
+      {{#if SUMMARY}}
+      <section class="ap-summary-card">
+        <h2 class="ap-summary-title">Professional Summary</h2>
+        <p class="summary-text">{{SUMMARY}}</p>
+      </section>
+      {{/if}}
+
+      {{#if EXPERIENCE}}
+      <section class="ap-section ap-section--experience">
+        <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Experience</h2>
+        <div class="experience-list ap-experience">
+          {{EXPERIENCE}}
+        </div>
+      </section>
+      {{/if}}
+
+      <div class="ap-dual-grid">
+        {{#if PROJECTS}}
+        <section class="ap-section ap-section--projects">
+          <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Projects</h2>
+          <div class="projects-list ap-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="ap-section ap-section--skills">
+          <h2 class="ap-section-title"><span class="ap-section-marker" aria-hidden="true"></span>Skills</h2>
+          <div class="ap-skills-board">
+            <div class="skills-list ap-skills-list">
+              {{SKILLS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </div>
+
+      {{#if EDUCATION}}
+      <section class="ap-section ap-section--lower">
+        <h2 class="ap-lower-title">Education</h2>
+        <div class="ap-lower-rule" aria-hidden="true"></div>
+        <div class="education-list ap-lower-content">
+          {{EDUCATION}}
+        </div>
+      </section>
+      {{/if}}
+
+      {{#if CERTIFICATIONS}}
+      <section class="ap-section ap-section--lower">
+        <h2 class="ap-lower-title">Certifications</h2>
+        <div class="ap-lower-rule" aria-hidden="true"></div>
+        <div class="certifications-list ap-lower-content">
+          {{CERTIFICATIONS}}
+        </div>
+      </section>
+      {{/if}}
+
+      {{#if LANGUAGES}}
+      <section class="ap-section ap-section--lower">
+        <h2 class="ap-lower-title">Languages</h2>
+        <div class="ap-lower-rule" aria-hidden="true"></div>
+        <div class="languages-list ap-lower-content ap-languages">
+          {{LANGUAGES}}
+        </div>
+      </section>
+      {{/if}}
+
+      {{#if ACHIEVEMENTS}}
+      <section class="ap-section ap-section--lower">
+        <h2 class="ap-lower-title">Achievements</h2>
+        <div class="ap-lower-rule" aria-hidden="true"></div>
+        <div class="achievements-list ap-lower-content ap-achievements">
+          {{ACHIEVEMENTS}}
+        </div>
+      </section>
+      {{/if}}
+    </div>
+  </div>
+</body>
+</html>
