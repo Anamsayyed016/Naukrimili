@@ -28,7 +28,6 @@ const getIndividualPlansForUI = () => {
       templateAccess: plan.features.templateAccess === 'all' ? 'ALL Premium Templates' : `${plan.features.templateCount || plan.features.pdfDownloads} Premium Templates`,
       templateCount: plan.features.templateCount,
       aiResumeUsage: plan.features.aiResumeUsage === -1 ? 'Unlimited' : plan.features.aiResumeUsage,
-      aiCoverLetterUsage: plan.features.aiCoverLetterUsage === -1 ? 'Unlimited' : plan.features.aiCoverLetterUsage,
       atsOptimization: plan.features.atsOptimization,
       maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
       unlimitedEdits: 'unlimitedEdits' in plan.features ? (plan.features as any).unlimitedEdits : false,
@@ -938,10 +937,6 @@ export default function PricingPage() {
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                         <span>{typeof plan.features.aiResumeUsage === 'number' ? `${plan.features.aiResumeUsage} AI Resume Optimization${plan.features.aiResumeUsage === 1 ? '' : 's'}` : 'Unlimited AI Resume Optimization'}</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{typeof plan.features.aiCoverLetterUsage === 'number' ? `${plan.features.aiCoverLetterUsage} AI Cover Letter${plan.features.aiCoverLetterUsage === 1 ? '' : 's'}` : 'Unlimited AI Cover Letters'}</span>
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
