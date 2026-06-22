@@ -1,0 +1,19 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="400" fill="#F8F6F1"/>
+  <ellipse cx="48" cy="56" rx="52" ry="48" fill="#C8CFB2" opacity="0.9"/>
+  <circle cx="52" cy="52" r="28" fill="#E0DCD4" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="92" y="44" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#4A342A" letter-spacing="1">LENA HOLMQUIST</text>
+  <text x="92" y="56" font-family="Arial,sans-serif" font-size="4" fill="#8F6A56" letter-spacing="0.6">CREATIVE DIRECTOR</text>
+  <line x1="24" y1="68" x2="276" y2="68" stroke="#8F6A56" stroke-width="0.6"/>
+  <line x1="24" y1="76" x2="276" y2="76" stroke="#8F6A56" stroke-width="0.6"/>
+  <text x="24" y="86" font-family="Arial,sans-serif" font-size="3.5" fill="#5E534C">phone | email | linkedin</text>
+  <text x="24" y="104" font-family="Arial,sans-serif" font-size="4.5" font-weight="700" fill="#4A342A" letter-spacing="0.5">EXPERIENCE</text>
+  <line x1="24" y1="108" x2="188" y2="108" stroke="#8F6A56" stroke-width="0.4"/>
+  <text x="24" y="118" font-family="Arial,sans-serif" font-size="3.5" fill="#5E534C">2018 - Present | Stockholm</text>
+  <text x="24" y="126" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#2A2A2A">Creative Lead</text>
+  <ellipse cx="248" cy="200" rx="44" ry="42" fill="#DCCFC4" opacity="0.85"/>
+  <text x="200" y="104" font-family="Arial,sans-serif" font-size="4.5" font-weight="700" fill="#4A342A" letter-spacing="0.5">SKILLS</text>
+  <rect x="200" y="110" width="88" height="48" rx="6" fill="rgba(255,255,255,0.6)" stroke="#DCCFC4"/>
+  <ellipse cx="40" cy="360" rx="50" ry="46" fill="#C8CFB2" opacity="0.8"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="600" fill="#8F6A56">Nordic Creative Executive</text>
+</svg>

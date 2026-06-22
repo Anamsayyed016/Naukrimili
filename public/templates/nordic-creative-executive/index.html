@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container nce-resume">
+    <div class="nce-shape nce-shape--tl" aria-hidden="true"></div>
+    <div class="nce-shape nce-shape--mr" aria-hidden="true"></div>
+    <div class="nce-shape nce-shape--bl" aria-hidden="true"></div>
+    <div class="nce-shape nce-shape--br" aria-hidden="true"></div>
+
+    <header class="nce-header">
+      {{#if PROFILE_IMAGE}}
+      <div class="nce-photo">
+        <div class="profile-image-wrapper">
+          <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+        </div>
+      </div>
+      {{/if}}
+      {{#unless PROFILE_IMAGE}}
+      <div class="nce-photo">
+        <div class="profile-image-wrapper profile-image-wrapper--initials">
+          <span class="profile-initials" aria-hidden="true">
+            <span class="nce-ini-f">{{FIRST_NAME}}</span><span class="nce-ini-l">{{LAST_NAME}}</span>
+          </span>
+        </div>
+      </div>
+      {{/unless}}
+
+      <div class="nce-identity">
+        <h1 class="candidate-name">
+          <span class="name-first">{{FIRST_NAME}}</span>
+          <span class="name-space"> </span>
+          <span class="name-last">{{LAST_NAME}}</span>
+          <span class="name-fallback">{{FULL_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <p class="header-title">{{JOB_TITLE}}</p>
+        {{/if}}
+      </div>
+    </header>
+
+    {{#if CONTACT}}
+    <div class="nce-contact-bar">
+      <div class="contact-list">
+        {{CONTACT}}
+      </div>
+    </div>
+    {{/if}}
+
+    <div class="nce-body">
+      <main class="nce-main">
+        {{#if SUMMARY}}
+        <section class="nce-section">
+          <h2 class="nce-heading">Summary</h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="nce-section nce-section--experience">
+          <h2 class="nce-heading">Experience</h2>
+          <div class="experience-list nce-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="nce-section">
+          <h2 class="nce-heading">Projects</h2>
+          <div class="projects-list nce-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="nce-section">
+          <h2 class="nce-heading">Education</h2>
+          <div class="education-list nce-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="nce-section">
+          <h2 class="nce-heading">Certifications</h2>
+          <div class="certifications-list nce-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="nce-side">
+        {{#if SKILLS}}
+        <section class="nce-section nce-section--skills">
+          <h2 class="nce-heading">Skills</h2>
+          <div class="nce-competency-panel">
+            <div class="skills-list nce-skills-list">
+              {{SKILLS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="nce-section">
+          <h2 class="nce-heading">Languages</h2>
+          <div class="languages-list nce-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="nce-section">
+          <h2 class="nce-heading">Achievements</h2>
+          <div class="achievements-list nce-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="nce-section">
+          <h2 class="nce-heading">Interests</h2>
+          <div class="hobbies-list nce-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

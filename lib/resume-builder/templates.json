@@ -646,6 +646,30 @@
         { "id": "slate-blush", "name": "Slate Blush", "primary": "#8E7A7A", "accent": "#E8E4DF", "text": "#222222" }
       ],
       "defaultColor": "aether-blush"
+    },
+    {
+      "id": "nordic-creative-executive",
+      "name": "Nordic Creative Executive",
+      "slug": "nordic-creative-executive",
+      "description": "Scandinavian editorial executive resume with organic sage and beige shapes, circular portrait, copper contact bar, experience-focused layout, and competency-style skills panel.",
+      "thumbnail": "/templates/nordic-creative-executive/thumbnail.svg",
+      "preview": "/templates/nordic-creative-executive/preview.svg",
+      "html": "/templates/nordic-creative-executive/index.html",
+      "css": "/templates/nordic-creative-executive/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Creative", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "nordic-sage", "name": "Nordic Sage", "primary": "#4A342A", "accent": "#8F6A56", "text": "#2A2A2A" },
+        { "id": "forest-executive", "name": "Forest Executive", "primary": "#3D3428", "accent": "#7A8F6A", "text": "#2A2A2A" },
+        { "id": "copper-earth", "name": "Copper Earth", "primary": "#4A342A", "accent": "#9A7358", "text": "#2A2A2A" },
+        { "id": "stone-minimal", "name": "Stone Minimal", "primary": "#3A3A3A", "accent": "#8B7D72", "text": "#2A2A2A" },
+        { "id": "warm-clay", "name": "Warm Clay", "primary": "#5C4030", "accent": "#A67C63", "text": "#2A2A2A" },
+        { "id": "deep-moss", "name": "Deep Moss", "primary": "#3D4535", "accent": "#6B7A58", "text": "#2A2A2A" }
+      ],
+      "defaultColor": "nordic-sage"
     }
   ],
   "filters": {
