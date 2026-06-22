@@ -2,6 +2,78 @@
   "version": "1.0.0",
   "templates": [
     {
+      "id": "platinum-executive-edge",
+      "name": "Platinum Executive Edge",
+      "slug": "platinum-executive-edge",
+      "description": "Modern metallic silver executive layout with geometric corner accents, hexagonal portrait frame, timeline experience, capability skill cards, and ATS-friendly sidebar for premium PDF export.",
+      "thumbnail": "/templates/platinum-executive-edge/thumbnail.svg",
+      "preview": "/templates/platinum-executive-edge/preview.svg",
+      "html": "/templates/platinum-executive-edge/index.html",
+      "css": "/templates/platinum-executive-edge/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "platinum-edge", "name": "Platinum Edge", "primary": "#2F3136", "accent": "#D8A28F", "text": "#1F1F1F" },
+        { "id": "graphite-rose", "name": "Graphite Rose", "primary": "#3A3D42", "accent": "#C99585", "text": "#1F1F1F" },
+        { "id": "steel-copper", "name": "Steel Copper", "primary": "#4A4E54", "accent": "#C4876A", "text": "#1F1F1F" },
+        { "id": "charcoal-champagne", "name": "Charcoal Champagne", "primary": "#2A2C30", "accent": "#C8C4BC", "text": "#1F1F1F" },
+        { "id": "slate-blush", "name": "Slate Blush", "primary": "#5D636B", "accent": "#D8A28F", "text": "#1F1F1F" },
+        { "id": "midnight-silver", "name": "Midnight Silver", "primary": "#1E2024", "accent": "#A8B4C4", "text": "#1F1F1F" }
+      ],
+      "defaultColor": "platinum-edge"
+    },
+    {
+      "id": "slate-executive-pro",
+      "name": "Slate Executive Pro",
+      "slug": "slate-executive-pro",
+      "description": "Modern executive layout with dark charcoal header, slate section bars, vertical experience timeline, stacked skill tags, and ATS-friendly two-column structure with content-aware spacing.",
+      "thumbnail": "/templates/slate-executive-pro/thumbnail.svg",
+      "preview": "/templates/slate-executive-pro/preview.svg",
+      "html": "/templates/slate-executive-pro/index.html",
+      "css": "/templates/slate-executive-pro/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "slate-pro", "name": "Slate Pro", "primary": "#5F6973", "accent": "#1E2328", "text": "#1F1F1F" },
+        { "id": "charcoal-silver", "name": "Charcoal Silver", "primary": "#4A5058", "accent": "#1E2328", "text": "#1F1F1F" },
+        { "id": "graphite-copper", "name": "Graphite Copper", "primary": "#5F6973", "accent": "#2A2E32", "text": "#1F1F1F" },
+        { "id": "steel-slate", "name": "Steel Slate", "primary": "#6B7280", "accent": "#374151", "text": "#1F1F1F" },
+        { "id": "midnight-gray", "name": "Midnight Gray", "primary": "#4B5563", "accent": "#111827", "text": "#1F1F1F" },
+        { "id": "executive-ash", "name": "Executive Ash", "primary": "#787F87", "accent": "#2F3136", "text": "#1F1F1F" }
+      ],
+      "defaultColor": "slate-pro"
+    },
+    {
+      "id": "executive-minimal-pro",
+      "name": "Executive Minimal Pro",
+      "slug": "executive-minimal-pro",
+      "description": "Balanced executive layout with copper-accent header, circular portrait, main-column experience focus, and sidebar expertise board with category pillars and dynamic skills grid.",
+      "thumbnail": "/templates/executive-minimal-pro/thumbnail.svg",
+      "preview": "/templates/executive-minimal-pro/preview.svg",
+      "html": "/templates/executive-minimal-pro/index.html",
+      "css": "/templates/executive-minimal-pro/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "Minimal", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "minimal-pro", "name": "Minimal Pro", "primary": "#222222", "accent": "#B59A7A", "text": "#1F1F1F" },
+        { "id": "graphite-copper", "name": "Graphite Copper", "primary": "#2A2A2A", "accent": "#C4A882", "text": "#1F1F1F" },
+        { "id": "charcoal-bronze", "name": "Charcoal Bronze", "primary": "#333333", "accent": "#A68968", "text": "#1F1F1F" },
+        { "id": "slate-warm", "name": "Slate Warm", "primary": "#3D3D3D", "accent": "#B59A7A", "text": "#1F1F1F" },
+        { "id": "ink-copper", "name": "Ink Copper", "primary": "#1A1A1A", "accent": "#C99585", "text": "#1F1F1F" },
+        { "id": "executive-neutral", "name": "Executive Neutral", "primary": "#444444", "accent": "#B8A088", "text": "#1F1F1F" }
+      ],
+      "defaultColor": "minimal-pro"
+    },
+    {
       "id": "teal-modern",
       "name": "Teal Modern",
       "slug": "teal-modern",
@@ -526,102 +598,6 @@
         { "id": "oxblood-bronze", "name": "Oxblood Bronze", "primary": "#4F1018", "accent": "#B8934A", "text": "#2A2A2A" }
       ],
       "defaultColor": "burgundy-gold"
-    },
-    {
-      "id": "executive-copper",
-      "name": "Executive Copper",
-      "slug": "executive-copper",
-      "description": "Luxury executive layout with warm ivory boardroom palette, copper geometric portrait frame, premium experience cards, skill tiles, and content-aware spacing for ATS-friendly PDF export.",
-      "thumbnail": "/templates/executive-copper/thumbnail.svg",
-      "preview": "/templates/executive-copper/preview.svg",
-      "html": "/templates/executive-copper/index.html",
-      "css": "/templates/executive-copper/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "executive-copper", "name": "Executive Copper", "primary": "#6B4B3E", "accent": "#A67C63", "text": "#1F1F1F" },
-        { "id": "warm-bronze", "name": "Warm Bronze", "primary": "#8B5A3C", "accent": "#B8894A", "text": "#1F1F1F" },
-        { "id": "antique-copper", "name": "Antique Copper", "primary": "#7A4E38", "accent": "#C4876A", "text": "#1F1F1F" },
-        { "id": "espresso-gold", "name": "Espresso Gold", "primary": "#5C4030", "accent": "#C8A58C", "text": "#1F1F1F" },
-        { "id": "rose-copper", "name": "Rose Copper", "primary": "#8E6B5A", "accent": "#C99585", "text": "#1F1F1F" },
-        { "id": "deep-walnut", "name": "Deep Walnut", "primary": "#4A3428", "accent": "#9A7B5B", "text": "#1F1F1F" }
-      ],
-      "defaultColor": "executive-copper"
-    },
-    {
-      "id": "platinum-executive-edge",
-      "name": "Platinum Executive Edge",
-      "slug": "platinum-executive-edge",
-      "description": "Modern metallic silver executive layout with geometric corner accents, hexagonal portrait frame, timeline experience, capability skill cards, and ATS-friendly sidebar for premium PDF export.",
-      "thumbnail": "/templates/platinum-executive-edge/thumbnail.svg",
-      "preview": "/templates/platinum-executive-edge/preview.svg",
-      "html": "/templates/platinum-executive-edge/index.html",
-      "css": "/templates/platinum-executive-edge/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "platinum-edge", "name": "Platinum Edge", "primary": "#2F3136", "accent": "#D8A28F", "text": "#1F1F1F" },
-        { "id": "graphite-rose", "name": "Graphite Rose", "primary": "#3A3D42", "accent": "#C99585", "text": "#1F1F1F" },
-        { "id": "steel-copper", "name": "Steel Copper", "primary": "#4A4E54", "accent": "#C4876A", "text": "#1F1F1F" },
-        { "id": "charcoal-champagne", "name": "Charcoal Champagne", "primary": "#2A2C30", "accent": "#C8C4BC", "text": "#1F1F1F" },
-        { "id": "slate-blush", "name": "Slate Blush", "primary": "#5D636B", "accent": "#D8A28F", "text": "#1F1F1F" },
-        { "id": "midnight-silver", "name": "Midnight Silver", "primary": "#1E2024", "accent": "#A8B4C4", "text": "#1F1F1F" }
-      ],
-      "defaultColor": "platinum-edge"
-    },
-    {
-      "id": "slate-executive-pro",
-      "name": "Slate Executive Pro",
-      "slug": "slate-executive-pro",
-      "description": "Modern executive layout with dark charcoal header, slate section bars, vertical experience timeline, stacked skill tags, and ATS-friendly two-column structure with content-aware spacing.",
-      "thumbnail": "/templates/slate-executive-pro/thumbnail.svg",
-      "preview": "/templates/slate-executive-pro/preview.svg",
-      "html": "/templates/slate-executive-pro/index.html",
-      "css": "/templates/slate-executive-pro/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "slate-pro", "name": "Slate Pro", "primary": "#5F6973", "accent": "#1E2328", "text": "#1F1F1F" },
-        { "id": "charcoal-silver", "name": "Charcoal Silver", "primary": "#4A5058", "accent": "#1E2328", "text": "#1F1F1F" },
-        { "id": "graphite-copper", "name": "Graphite Copper", "primary": "#5F6973", "accent": "#2A2E32", "text": "#1F1F1F" },
-        { "id": "steel-slate", "name": "Steel Slate", "primary": "#6B7280", "accent": "#374151", "text": "#1F1F1F" },
-        { "id": "midnight-gray", "name": "Midnight Gray", "primary": "#4B5563", "accent": "#111827", "text": "#1F1F1F" },
-        { "id": "executive-ash", "name": "Executive Ash", "primary": "#787F87", "accent": "#2F3136", "text": "#1F1F1F" }
-      ],
-      "defaultColor": "slate-pro"
-    },
-    {
-      "id": "executive-minimal-pro",
-      "name": "Executive Minimal Pro",
-      "slug": "executive-minimal-pro",
-      "description": "Balanced executive layout with copper-accent header, circular portrait, main-column experience focus, and sidebar expertise board with category pillars and dynamic skills grid.",
-      "thumbnail": "/templates/executive-minimal-pro/thumbnail.svg",
-      "preview": "/templates/executive-minimal-pro/preview.svg",
-      "html": "/templates/executive-minimal-pro/index.html",
-      "css": "/templates/executive-minimal-pro/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "Minimal", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "minimal-pro", "name": "Minimal Pro", "primary": "#222222", "accent": "#B59A7A", "text": "#1F1F1F" },
-        { "id": "graphite-copper", "name": "Graphite Copper", "primary": "#2A2A2A", "accent": "#C4A882", "text": "#1F1F1F" },
-        { "id": "charcoal-bronze", "name": "Charcoal Bronze", "primary": "#333333", "accent": "#A68968", "text": "#1F1F1F" },
-        { "id": "slate-warm", "name": "Slate Warm", "primary": "#3D3D3D", "accent": "#B59A7A", "text": "#1F1F1F" },
-        { "id": "ink-copper", "name": "Ink Copper", "primary": "#1A1A1A", "accent": "#C99585", "text": "#1F1F1F" },
-        { "id": "executive-neutral", "name": "Executive Neutral", "primary": "#444444", "accent": "#B8A088", "text": "#1F1F1F" }
-      ],
-      "defaultColor": "minimal-pro"
     }
   ],
   "filters": {

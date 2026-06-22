@@ -7,6 +7,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import type { Template, LoadedTemplate, ColorVariant } from './types';
+import { resolveTemplateId } from './template-aliases';
 
 // Lazy load templates data to avoid module initialization issues
 let templatesDataCache: Record<string, unknown> | null = null;
@@ -23,10 +24,11 @@ async function getTemplatesData(): Promise<Record<string, unknown>> {
  */
 export async function loadTemplateMetadata(templateId: string): Promise<Template | null> {
   try {
+    const resolvedId = resolveTemplateId(templateId);
     const templatesData = await getTemplatesData();
-    const template = templatesData.templates.find((t: Template) => t.id === templateId);
+    const template = templatesData.templates.find((t: Template) => t.id === resolvedId);
     if (!template) {
-      console.error(`[loadTemplateMetadata] Template "${templateId}" not found in templates.json`);
+      console.error(`[loadTemplateMetadata] Template "${resolvedId}" not found in templates.json`);
       return null;
     }
     return template;

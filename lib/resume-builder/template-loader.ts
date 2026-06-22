@@ -35,22 +35,24 @@ import {
   appendHobbiesSectionIfMissing,
 } from './section-visibility';
 import { resolveGalleryProfileImage } from './gallery-demo';
+import { resolveTemplateId } from './template-aliases';
 
 /**
  * Load template metadata from JSON
  */
 export async function loadTemplateMetadata(templateId: string): Promise<Template | null> {
   try {
+    const resolvedId = resolveTemplateId(templateId);
     const templatesData = await getTemplatesData();
     if (!templatesData?.templates || !Array.isArray(templatesData.templates)) {
       console.error('[loadTemplateMetadata] templatesData is invalid:', templatesData);
       return null;
     }
     
-    const template = templatesData.templates.find((t: Template) => t.id === templateId);
+    const template = templatesData.templates.find((t: Template) => t.id === resolvedId);
     
     if (!template) {
-      console.error(`[loadTemplateMetadata] Template "${templateId}" not found in templates.json`);
+      console.error(`[loadTemplateMetadata] Template "${resolvedId}" not found in templates.json`);
       console.error('[loadTemplateMetadata] Available templates:', templatesData.templates.map((t: Template) => t.id));
       return null;
     }

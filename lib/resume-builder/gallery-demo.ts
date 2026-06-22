@@ -31,7 +31,6 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'velvet-horizon-executive': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
   'midnight-prestige-executive': `${DEMO_PROFILES_BASE}/charcoal-premium.svg`,
   'frosted-glass-executive': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
-  'executive-copper': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
   'platinum-executive-edge': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'slate-executive-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
   'executive-minimal-pro': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
@@ -185,12 +184,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-sky-300/75',
     hoverOverlay: 'from-sky-100/35',
   },
-  'executive-copper': {
-    glow: 'radial-gradient(circle, rgba(166,124,99,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(107,75,62,0.22) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-600/55',
-    hoverOverlay: 'from-amber-100/28',
-  },
   'platinum-executive-edge': {
     glow: 'radial-gradient(circle, rgba(201,205,211,0.55) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(216,162,143,0.28) 0%, transparent 70%)',
@@ -237,7 +230,6 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'velvet-horizon-executive': { firstName: 'Oliver', lastName: 'Hayes', jobTitle: 'Chief Marketing Officer' },
   'midnight-prestige-executive': { firstName: 'Alexander', lastName: 'Vance', jobTitle: 'Chief Executive Officer | Global Operations' },
   'frosted-glass-executive': { firstName: 'Julian', lastName: 'Pierce', jobTitle: 'Senior Product Strategist | Digital Innovation Leader' },
-  'executive-copper': { firstName: 'Sebastian', lastName: 'Cole', jobTitle: 'Chief Innovation Officer' },
   'platinum-executive-edge': { firstName: 'Marcus', lastName: 'Sterling', jobTitle: 'Senior Technology Innovator & Product Strategist' },
   'slate-executive-pro': { firstName: 'Ethan', lastName: 'Clark', jobTitle: 'Senior Product Manager' },
   'executive-minimal-pro': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Senior Product Manager & Innovation Leader' },
