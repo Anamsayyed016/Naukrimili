@@ -11,11 +11,15 @@
 </head>
 <body>
   <div class="resume-container aeg-resume premium-type">
+    <div class="aeg-glow aeg-glow--tl" aria-hidden="true"></div>
+    <div class="aeg-glow aeg-glow--br" aria-hidden="true"></div>
+
     <header class="aeg-header">
       <div class="aeg-header-accent" aria-hidden="true"></div>
       <div class="aeg-header-inner">
         {{#if PROFILE_IMAGE}}
         <div class="aeg-photo">
+          <div class="aeg-photo-ring" aria-hidden="true"></div>
           <div class="profile-image-wrapper">
             <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
           </div>
@@ -23,6 +27,7 @@
         {{/if}}
         {{#unless PROFILE_IMAGE}}
         <div class="aeg-photo">
+          <div class="aeg-photo-ring" aria-hidden="true"></div>
           <div class="profile-image-wrapper profile-image-wrapper--initials">
             <span class="profile-initials" aria-hidden="true">
               <span class="aeg-ini-f">{{FIRST_NAME}}</span><span class="aeg-ini-l">{{LAST_NAME}}</span>
@@ -54,92 +59,133 @@
     </header>
 
     <div class="aeg-body">
-      <div class="aeg-stack">
+      <main class="aeg-main">
         {{#if SUMMARY}}
-        <section class="aeg-section">
-          <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Professional Summary</span></h2>
-          <p class="summary-text">{{SUMMARY}}</p>
+        <section class="aeg-section aeg-section--summary">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Professional Summary</span>
+          </h2>
+          <div class="aeg-card aeg-card--summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
         </section>
         {{/if}}
 
         {{#if EXPERIENCE}}
         <section class="aeg-section aeg-section--experience">
-          <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Experience</span></h2>
-          <div class="experience-list aeg-experience aeg-timeline">
-            {{EXPERIENCE}}
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Experience</span>
+          </h2>
+          <div class="aeg-card aeg-card--experience">
+            <div class="experience-list aeg-experience aeg-timeline">
+              {{EXPERIENCE}}
+            </div>
           </div>
         </section>
         {{/if}}
 
         {{#if PROJECTS}}
-        <section class="aeg-section">
-          <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Projects</span></h2>
-          <div class="projects-list aeg-projects">
-            {{PROJECTS}}
+        <section class="aeg-section aeg-section--projects">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Projects</span>
+          </h2>
+          <div class="aeg-card aeg-card--projects">
+            <div class="projects-list aeg-projects">
+              {{PROJECTS}}
+            </div>
           </div>
         </section>
         {{/if}}
-      </div>
+      </main>
 
-      <div class="aeg-grid">
-        <div class="aeg-col aeg-col--left">
-          {{#if SKILLS}}
-          <section class="aeg-section aeg-section--skills">
-            <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Skills</span></h2>
+      <aside class="aeg-sidebar">
+        {{#if SKILLS}}
+        <section class="aeg-section aeg-section--skills">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Skills</span>
+          </h2>
+          <div class="aeg-card aeg-card--skills">
             <div class="skills-list aeg-skill-grid">
               {{SKILLS}}
             </div>
-          </section>
-          {{/if}}
+          </div>
+        </section>
+        {{/if}}
 
-          {{#if LANGUAGES}}
-          <section class="aeg-section">
-            <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Languages</span></h2>
-            <div class="languages-list aeg-languages">
-              {{LANGUAGES}}
-            </div>
-          </section>
-          {{/if}}
-
-          {{#if HOBBIES}}
-          <section class="aeg-section">
-            <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Interests</span></h2>
-            <div class="hobbies-list aeg-interests">
-              {{HOBBIES}}
-            </div>
-          </section>
-          {{/if}}
-        </div>
-
-        <div class="aeg-col aeg-col--right">
-          {{#if EDUCATION}}
-          <section class="aeg-section">
-            <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Education</span></h2>
+        {{#if EDUCATION}}
+        <section class="aeg-section aeg-section--education">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Education</span>
+          </h2>
+          <div class="aeg-card aeg-card--education">
             <div class="education-list aeg-education">
               {{EDUCATION}}
             </div>
-          </section>
-          {{/if}}
+          </div>
+        </section>
+        {{/if}}
 
-          {{#if CERTIFICATIONS}}
-          <section class="aeg-section">
-            <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Certifications</span></h2>
+        {{#if CERTIFICATIONS}}
+        <section class="aeg-section aeg-section--certs">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Certifications</span>
+          </h2>
+          <div class="aeg-card aeg-card--certs">
             <div class="certifications-list aeg-certifications">
               {{CERTIFICATIONS}}
             </div>
-          </section>
-          {{/if}}
+          </div>
+        </section>
+        {{/if}}
 
-          {{#if ACHIEVEMENTS}}
-          <section class="aeg-section">
-            <h2 class="section-title"><span class="aeg-heading-accent" aria-hidden="true"></span><span class="aeg-heading-text">Achievements</span></h2>
+        {{#if LANGUAGES}}
+        <section class="aeg-section aeg-section--languages">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Languages</span>
+          </h2>
+          <div class="aeg-card aeg-card--languages">
+            <div class="languages-list aeg-languages">
+              {{LANGUAGES}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="aeg-section aeg-section--achievements">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Achievements</span>
+          </h2>
+          <div class="aeg-card aeg-card--achievements">
             <div class="achievements-list aeg-achievements">
               {{ACHIEVEMENTS}}
             </div>
-          </section>
-          {{/if}}
-        </div>
-      </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="aeg-section aeg-section--interests">
+          <h2 class="section-title">
+            <span class="aeg-heading-accent" aria-hidden="true"></span>
+            <span class="aeg-heading-text">Interests</span>
+          </h2>
+          <div class="aeg-card aeg-card--interests">
+            <div class="hobbies-list aeg-interests">
+              {{HOBBIES}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </aside>
     </div>
   </div>
 </body>
