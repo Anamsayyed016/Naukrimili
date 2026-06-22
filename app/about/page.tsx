@@ -9,9 +9,6 @@ export default function AboutPage() {
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">About Us</h1>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-            At NaukriMili.com, we believe that the right opportunity can change a life, and the right talent can transform a business.
-          </p>
         </div>
       </section>
 
@@ -21,9 +18,12 @@ export default function AboutPage() {
           <Card className="bg-white shadow-lg">
             <CardContent className="p-6 sm:p-8 md:p-12">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center">
-                Welcome to NaukriMili.com
+                Welcome to NaukriMili
               </h2>
               <div className="space-y-4 text-gray-700 text-base md:text-lg leading-relaxed">
+                <p>
+                  At NaukriMili, we believe that the right opportunity can change a life, and the right talent can transform a business.
+                </p>
                 <p>
                   I am <strong>Shoeb Jaffrey</strong>, Founder and Director of NaukriMili.com. My journey in recruitment began more than 20 years ago with Naukri Mili Placement, a recruitment consultancy based in Bhopal. Over the years, we have successfully connected thousands of talented professionals with leading organizations across various industries, gaining deep insight into the challenges faced by both employers and job seekers.
                 </p>
