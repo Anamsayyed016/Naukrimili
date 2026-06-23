@@ -1,0 +1,6 @@
+@import "tailwindcss" source(none);
+
+@source "../../components/dashboard";
+@source "../../components/dashboards";
+@source "../../components/auth";
+@source "..";

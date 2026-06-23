@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* Route-isolated Tailwind scans — utilities load via route layout stylesheets */
+@source not "../components/resume-builder";
+@source not "../app/resume-builder";
+@source not "../components/dashboard";
+@source not "../components/dashboards";
+@source not "../app/dashboard";
+@source not "../components/admin";
+@source not "../app/admin";
+@source not "../app/auth";
+@source not "../components/auth";
+@source not "../app/employer";
+@source not "../components/employer";
+@source not "../app/jobs";
+@source not "../components/jobs";
+
 /* Tailwind v4 Theme Configuration */
 /* CSS: stylelint-disable-next-line at-rule-no-unknown */
 @theme {
@@ -135,26 +150,7 @@ button:not([class*="bg-gradient"]):not([class*="bg-"]):not([style*="background"]
   z-index: 9999;
 }
 
-/* AI Suggestions Dropdown - Ensure visibility and proper stacking */
-.ai-suggestions-dropdown {
-  z-index: 999999 !important;
-  position: fixed !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: block !important;
-  pointer-events: auto !important;
-}
-
-/* Ensure parent containers don't clip the dropdown */
-[class*="relative"]:has(.ai-suggestions-dropdown) {
-  overflow: visible !important;
-}
-
-/* Card containers should allow dropdown overflow */
-.card:has(.ai-suggestions-dropdown),
-[class*="Card"]:has(.ai-suggestions-dropdown) {
-  overflow: visible !important;
-}
+/* AI Suggestions Dropdown — moved to app/resume-builder/resume-builder-scope.css */
 
 /* Smooth scrolling and base HTML styles */
 html {
@@ -260,34 +256,6 @@ body {
   }
 }
 
-/* Sticky positioning for View bar - dynamically calculated based on filters section height */
-#view-sticky-bar {
-  /* Position below filters section using JavaScript calculation */
-  /* Fallback values are set inline, this is just for reference */
-  transition: top 0.2s ease-in-out;
-}
-
-/* Resume Builder Editor - Premium Preview Styling */
-@media (min-width: 1024px) {
-  .resume-editor-preview-desktop {
-    display: flex !important;
-    flex-direction: column !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    width: 100% !important;
-    max-width: 650px !important;
-    height: 100% !important;
-    max-height: calc(100vh - 80px) !important;
-    overflow-y: auto !important;
-  }
-  
-  /* Allow scrolling for nested content */
-  .resume-editor-preview-desktop > div {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
-}
-
 /* Optimize all containers for mobile scroll */
 * {
   -webkit-tap-highlight-color: transparent;
@@ -321,19 +289,5 @@ body {
   /* Optimize touch scrolling for iOS */
   div, section, main, article {
     -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Ensure grid layout works on all devices - fallback for mobile */
-@media (max-width: 639px) {
-  .jobs-grid-container {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.5rem !important;
-  }
-  
-  .jobs-grid-container > * {
-    min-width: 0;
-    max-width: 100%;
   }
 }

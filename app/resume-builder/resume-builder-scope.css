@@ -1,0 +1,38 @@
+/* Resume builder route — scoped rules moved from app/globals.css */
+
+.ai-suggestions-dropdown {
+  z-index: 999999 !important;
+  position: fixed !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  pointer-events: auto !important;
+}
+
+[class*="relative"]:has(.ai-suggestions-dropdown) {
+  overflow: visible !important;
+}
+
+.card:has(.ai-suggestions-dropdown),
+[class*="Card"]:has(.ai-suggestions-dropdown) {
+  overflow: visible !important;
+}
+
+@media (min-width: 1024px) {
+  .resume-editor-preview-desktop {
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    max-width: 650px !important;
+    height: 100% !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto !important;
+  }
+
+  .resume-editor-preview-desktop > div {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
