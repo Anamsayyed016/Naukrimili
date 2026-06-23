@@ -18,7 +18,6 @@ import {
   BarChartIcon,
   Home,
   ChevronDown,
-  Heart,
   Users,
   Share2,
   type LucideIcon,

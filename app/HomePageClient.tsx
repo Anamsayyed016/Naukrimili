@@ -2,11 +2,8 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import JobSearchHero from '@/components/JobSearchHero';
 import type { HomePageCompany, HomePageJob } from '@/components/home/home-types';
-
-const JobSearchHero = dynamic(() => import('@/components/JobSearchHero'), {
-  ssr: true,
-});
 
 const FeaturedJobsSectionLazy = dynamic(
   () => import('@/components/home/FeaturedJobsSection'),

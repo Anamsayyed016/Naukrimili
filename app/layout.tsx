@@ -8,7 +8,7 @@ import SessionProvider from '@/components/SessionProvider';
 import MainNavigation from '@/components/MainNavigation';
 import DeferredToasters from '@/components/DeferredToasters';
 import ThirdPartyScripts from '@/components/analytics/ThirdPartyScripts';
-import RazorpayConsoleFilter from '@/components/analytics/RazorpayConsoleFilter';
+import RazorpayConsoleFilterGate from '@/components/analytics/RazorpayConsoleFilterGate';
 import { ScrollOptimization } from './layout-scroll-optimization';
 
 const Footer = nextDynamic(() => import('@/components/Footer'), { ssr: true });
@@ -96,7 +96,8 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <RazorpayConsoleFilter />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <RazorpayConsoleFilterGate />
 
         {/* Additional SEO Meta Tags */}
         <meta name="geo.region" content="IN, US, GB, AE" />

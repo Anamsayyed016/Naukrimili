@@ -43,7 +43,10 @@ const nextConfig = {
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-dialog',
       '@radix-ui/react-checkbox',
+      '@radix-ui/react-label',
+      '@radix-ui/react-slot',
       'sonner',
+      'next-auth/react',
     ],
   },
   // CRITICAL: Timeout for static page generation to prevent infinite hangs (max 60s per page)
@@ -247,6 +250,15 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=60, stale-while-revalidate=300',
+          },
+        ],
+      },
       {
         source: '/BingSiteAuth.xml',
         headers: [

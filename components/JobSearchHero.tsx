@@ -17,8 +17,6 @@ import {
   X,
   SlidersHorizontal,
   ChevronDown,
-  Map,
-  Target,
   History,
   Clock,
   TrendingUp,
@@ -26,7 +24,6 @@ import {
   ArrowRight,
   Flame
 } from 'lucide-react';
-import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useSearchHistory, type SearchHistoryEntry } from '@/hooks/useSearchHistory';
 import { LazyMotionShell, m } from '@/components/motion/LazyMotionShell';
@@ -268,6 +265,7 @@ export default function JobSearchHero({
       setLocationError(null);
       
       console.log('📍 Starting location detection...');
+      const { getSmartLocation } = await import('@/lib/mobile-geolocation');
       const result = await getSmartLocation();
       
       if (result.success && result.coordinates) {
