@@ -4,12 +4,10 @@
  */
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import io from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 import { useMobileNotifications } from '@/hooks/useMobileNotifications';
 import { safeLength, safeArray } from '@/lib/safe-array-utils';
-
-type Socket = ReturnType<typeof io>;
 
 interface SocketUser {
   userId: string;
@@ -144,7 +142,7 @@ export function useSocket(): UseSocketReturn {
         return baseUrl;
       };
       
-      getSocketUrl().then(socketUrl => {
+      getSocketUrl().then(async (socketUrl) => {
         if (!socketUrl) {
           console.log('⚠️ Skipping socket connection (no socket URL available)');
           return;
@@ -166,6 +164,8 @@ export function useSocket(): UseSocketReturn {
           console.log('⚠️ Skipping socket connection (no socket server configured)');
           return;
         }
+
+        const { default: io } = await import('socket.io-client');
         
         const newSocket = io(socketUrl, {
           path: '/socket.io/', // Explicit socket path for consistency

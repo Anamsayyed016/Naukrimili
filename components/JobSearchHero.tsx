@@ -362,8 +362,10 @@ export default function JobSearchHero({
     }
   }, [filters.query, searchHistoryData]);
 
-  // Hide dropdowns when clicking outside
+  // Hide dropdowns when clicking outside — attach only while a dropdown is open
   useEffect(() => {
+    if (!showSuggestions && !showHistory) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node) &&
           queryInputRef.current && !queryInputRef.current.contains(event.target as Node)) {
@@ -374,7 +376,7 @@ export default function JobSearchHero({
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [showSuggestions, showHistory]);
 
   // Handle suggestion selection
   const handleSuggestionSelect = useCallback((suggestion: {type: string; value: string}) => {
