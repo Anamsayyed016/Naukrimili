@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import React from 'react';
 import nextDynamic from 'next/dynamic';
 
-/** Avoid static prerender failures during production builds on partial deploy trees */
-export const dynamic = 'force-dynamic';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import SessionProvider from '@/components/SessionProvider';

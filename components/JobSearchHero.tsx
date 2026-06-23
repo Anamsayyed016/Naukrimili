@@ -455,6 +455,20 @@ export default function JobSearchHero({
           0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.95; }
           50% { transform: scale(1.15) rotate(8deg); opacity: 1; }
         }
+        @keyframes hero-heading-enter {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hero-search-enter {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-animate-heading {
+          animation: hero-heading-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .hero-animate-search {
+          animation: hero-search-enter 0.6s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
         .hero-career-word {
           background: linear-gradient(105deg, #2563eb 0%, #7c3aed 48%, #06b6d4 100%);
           -webkit-background-clip: text;
@@ -467,6 +481,12 @@ export default function JobSearchHero({
           [class*="animate-[ai-pulse"] {
             animation: none !important;
           }
+          .hero-animate-heading,
+          .hero-animate-search {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
           .hero-career-word {
             filter: none;
           }
@@ -475,13 +495,8 @@ export default function JobSearchHero({
 
       <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-4 lg:py-5 max-w-full" style={{ overflow: 'visible' }}>
         <div className="relative text-center max-w-full lg:max-w-6xl mx-auto">
-          {/* Hero heading */}
-          <m.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-2 sm:mb-3"
-          >
+          {/* Hero heading — CSS entrance (no JS opacity:0) so LCP text is paintable immediately */}
+          <m.div initial={false} className="hero-animate-heading mb-2 sm:mb-3">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-black text-[#0F172A] mb-0 leading-[1.08] tracking-[-0.025em] antialiased [text-rendering:optimizeLegibility]">
               Discover the{' '}
               <span className="hero-career-word">Career</span>{' '}
@@ -490,10 +505,8 @@ export default function JobSearchHero({
           </m.div>
           
           <m.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-full lg:max-w-4xl xl:max-w-5xl mx-auto"
+            initial={false}
+            className="hero-animate-search w-full max-w-full lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
             <div className="relative z-10 flex justify-center -mb-2 sm:-mb-2.5">
               <div className="group/badge inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 backdrop-blur-md border border-[#2563EB]/20 text-[#475569] text-[11px] sm:text-xs font-bold tracking-[0.12em] uppercase shadow-[0_0_0_1px_rgba(124,58,237,0.08),0_1px_2px_0_rgba(15,23,42,0.04),0_4px_16px_-4px_rgba(37,99,235,0.14)] ring-1 ring-inset ring-white/70 transition-[box-shadow,color,border-color] duration-200 hover:border-[#7C3AED]/30 hover:text-[#0F172A] hover:shadow-[0_0_20px_-4px_rgba(37,99,235,0.22),0_2px_16px_-4px_rgba(124,58,237,0.16)]">
