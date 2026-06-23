@@ -27,28 +27,42 @@ export default function HomePageClient({
   const [visibleElements, setVisibleElements] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const elementId = entry.target.getAttribute('data-animate-id');
-            if (elementId) {
-              setVisibleElements(prev => new Set([...prev, elementId]));
-            }
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-      }
-    );
+    let observer: IntersectionObserver | null = null;
+    let idleId: number | undefined;
 
-    const animatedElements = document.querySelectorAll('[data-animate-id]');
-    animatedElements.forEach(el => observer.observe(el));
+    const connectObserver = () => {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const elementId = entry.target.getAttribute('data-animate-id');
+              if (elementId) {
+                setVisibleElements((prev) => new Set([...prev, elementId]));
+              }
+            }
+          });
+        },
+        {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px',
+        }
+      );
+
+      const animatedElements = document.querySelectorAll('[data-animate-id]');
+      animatedElements.forEach((el) => observer?.observe(el));
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(connectObserver, { timeout: 2000 });
+    } else {
+      connectObserver();
+    }
 
     return () => {
-      animatedElements.forEach(el => observer.unobserve(el));
+      if (idleId !== undefined && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      observer?.disconnect();
     };
   }, [featuredJobs, topCompanies]);
 

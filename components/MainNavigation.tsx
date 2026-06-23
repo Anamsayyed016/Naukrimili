@@ -46,6 +46,10 @@ const MessageBell = dynamic(
   { ssr: false }
 );
 const WorkspaceSwitcher = dynamic(() => import('./navigation/WorkspaceSwitcher'), { ssr: false });
+const NavNotificationBellShell = dynamic(() => import('./navigation/NavNotificationBellShell'), {
+  ssr: false,
+});
+const NavMessageBellShell = dynamic(() => import('./navigation/NavMessageBellShell'), { ssr: false });
 
 /** Shared nav surface — clean white with subtle SaaS-style depth on scroll */
 function navShellClass(scrolled: boolean) {
@@ -354,8 +358,17 @@ export default function MainNavigation(_props: MainNavigationProps) {
 
           {/* Desktop actions */}
           <div className="hidden items-center gap-1 md:flex md:gap-2 xl:gap-3">
-            <ComprehensiveNotificationBell />
-            <MessageBell />
+            {isAuthenticated && user ? (
+              <>
+                <ComprehensiveNotificationBell />
+                <MessageBell />
+              </>
+            ) : (
+              <>
+                <NavNotificationBellShell />
+                <NavMessageBellShell />
+              </>
+            )}
             {isAuthenticated && user ? (
               <UnifiedUserProfile variant="desktop" />
             ) : (
