@@ -5,7 +5,7 @@ const ADSENSE_CLIENT = 'ca-pub-8909131989940319';
 
 /**
  * Deferred third-party scripts — analytics, ads, affiliates.
- * Loaded after hydration to reduce TBT/FCP without changing tracking IDs.
+ * GA/AdSense load after page idle; dataLayer stub preserves event queueing.
  */
 export default function ThirdPartyScripts() {
   const gtmId = process.env.NEXT_PUBLIC_GTM_CONTAINER_ID;
@@ -15,6 +15,13 @@ export default function ThirdPartyScripts() {
 
   return (
     <>
+      {/* Tiny stub — queues gtag/dataLayer calls before deferred scripts load */}
+      <Script id="data-layer-stub" strategy="beforeInteractive">
+        {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = gtag;`}
+      </Script>
+
       {gtmId ? (
         <Script id="gtm-loader" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -27,9 +34,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
-      <Script id="google-analytics-init" strategy="afterInteractive">
+      <Script id="google-analytics-init" strategy="lazyOnload">
         {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
@@ -44,7 +51,7 @@ gtag('config', '${GA_MEASUREMENT_ID}', {
 });`}
       </Script>
 
-      <Script id="analytics-event-bridge" strategy="afterInteractive">
+      <Script id="analytics-event-bridge" strategy="lazyOnload">
         {`function trackResumeDownloaded(format) {
   if (typeof gtag !== 'undefined') {
     gtag('event', 'resume_downloaded', {
@@ -86,10 +93,17 @@ window.trackJobApplied = trackJobApplied;`}
       }
     } catch (e) {}
   }
+  function scheduleInit() {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initAdsense, { timeout: 3000 });
+    } else {
+      initAdsense();
+    }
+  }
   if (document.readyState === 'complete') {
-    initAdsense();
+    scheduleInit();
   } else {
-    window.addEventListener('load', initAdsense, { once: true });
+    window.addEventListener('load', scheduleInit, { once: true });
   }
 })();`}
       </Script>
