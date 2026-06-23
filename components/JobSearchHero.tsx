@@ -1,5 +1,6 @@
 'use client';
 
+import './JobSearchHero.css';
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -449,49 +450,6 @@ export default function JobSearchHero({
           backgroundSize: '56px 56px',
         }}
       />
-      {/* Animation keyframes — global so inline style and arbitrary Tailwind classes can reference them */}
-      <style jsx global>{`
-        @keyframes ai-pulse {
-          0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.95; }
-          50% { transform: scale(1.15) rotate(8deg); opacity: 1; }
-        }
-        @keyframes hero-heading-enter {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes hero-search-enter {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .hero-animate-heading {
-          animation: hero-heading-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .hero-animate-search {
-          animation: hero-search-enter 0.6s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .hero-career-word {
-          background: linear-gradient(105deg, #2563eb 0%, #7c3aed 48%, #06b6d4 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0 0 18px rgba(37, 99, 235, 0.28))
-            drop-shadow(0 0 36px rgba(124, 58, 237, 0.14));
-        }
-        @media (prefers-reduced-motion: reduce) {
-          [class*="animate-[ai-pulse"] {
-            animation: none !important;
-          }
-          .hero-animate-heading,
-          .hero-animate-search {
-            animation: none !important;
-            opacity: 1 !important;
-            transform: none !important;
-          }
-          .hero-career-word {
-            filter: none;
-          }
-        }
-      `}</style>
 
       <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-4 lg:py-5 max-w-full" style={{ overflow: 'visible' }}>
         <div className="relative text-center max-w-full lg:max-w-6xl mx-auto">
