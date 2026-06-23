@@ -3,14 +3,13 @@
 import { useEffect } from 'react';
 
 /**
- * Client-side scroll performance optimization
- * Applies smooth scroll behavior and performance hints
+ * Passive scroll listeners only — avoids willChange/MutationObserver overhead
+ * that previously touched every animated node on the page.
  */
 export function ScrollOptimization(): null {
   useEffect(() => {
-    // Add passive event listeners for better scroll performance
     let ticking = false;
-    
+
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
@@ -20,39 +19,14 @@ export function ScrollOptimization(): null {
       ticking = true;
     };
 
-    // Use passive listeners for better performance
     document.addEventListener('touchmove', handleScroll, { passive: true });
     document.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Optimize heavy elements
-    const optimizeElements = () => {
-      // Add GPU acceleration hints to animated elements
-      const animatedElements = document.querySelectorAll('[class*="motion-"], .group, [class*="animate-"]');
-      animatedElements.forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.willChange = 'transform, opacity';
-          el.style.transform = 'translateZ(0)';
-        }
-      });
-    };
-
-    // Run initial optimization
-    optimizeElements();
-
-    // Re-optimize after navigation
-    const observer = new MutationObserver(optimizeElements);
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
 
     return () => {
       document.removeEventListener('touchmove', handleScroll);
       document.removeEventListener('scroll', handleScroll);
-      observer.disconnect();
     };
   }, []);
 
   return null;
 }
-

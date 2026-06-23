@@ -32,6 +32,14 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
+    optimizePackageImports: [
+      'lucide-react',
+      '@heroicons/react/24/outline',
+      '@heroicons/react/24/solid',
+      'recharts',
+      'framer-motion',
+      'date-fns',
+    ],
   },
   // CRITICAL: Timeout for static page generation to prevent infinite hangs (max 60s per page)
   staticPageGenerationTimeout: 60,
@@ -58,12 +66,20 @@ const nextConfig = {
   // Keep Node-native SDKs external (resolved from node_modules at runtime)
   serverExternalPackages: ['razorpay', 'puppeteer', 'puppeteer-core'],
   compiler: {
-    removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? { exclude: ['error', 'warn'] }
+        : false,
   },
   // CRITICAL: Use standalone output for better server deployment
   // This prevents Next.js from trying to optimize static pages during build
   output: 'standalone',
+  poweredByHeader: false,
+  compress: true,
   images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
@@ -255,6 +271,15 @@ const nextConfig = {
             key: 'Content-Type',
             value: 'text/css; charset=utf-8',
           },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/:path*.(svg|jpg|jpeg|png|webp|avif|ico|woff2)',
+        headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',

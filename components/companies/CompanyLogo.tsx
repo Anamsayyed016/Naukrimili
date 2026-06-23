@@ -1,10 +1,12 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Image from 'next/image';
 import {
   getCompanyInitials,
   logoCandidates,
 } from '@/lib/companies/company-utils';
+import { isCloudinaryUrl, optimizeCloudinaryUrl } from '@/lib/image-optimization';
 
 type CompanyLogoProps = {
   name: string;
@@ -31,6 +33,8 @@ export default function CompanyLogo({
   const [exhausted, setExhausted] = useState(false);
 
   const initials = getCompanyInitials(name);
+  const src = candidates[index];
+  const useOptimizedImage = isCloudinaryUrl(src);
 
   if (exhausted || candidates.length === 0 || index >= candidates.length) {
     return (
@@ -51,19 +55,37 @@ export default function CompanyLogo({
 
   return (
     <div className={className}>
-      <img
-        src={candidates[index]}
-        alt={`${name} logo`}
-        className={imgClassName}
-        loading="lazy"
-        onError={() => {
-          if (index + 1 >= candidates.length) {
-            setExhausted(true);
-          } else {
-            setIndex((i) => i + 1);
-          }
-        }}
-      />
+      {useOptimizedImage ? (
+        <Image
+          src={optimizeCloudinaryUrl(src, 128)}
+          alt={`${name} logo`}
+          width={48}
+          height={48}
+          className={imgClassName}
+          loading="lazy"
+          onError={() => {
+            if (index + 1 >= candidates.length) {
+              setExhausted(true);
+            } else {
+              setIndex((i) => i + 1);
+            }
+          }}
+        />
+      ) : (
+        <img
+          src={src}
+          alt={`${name} logo`}
+          className={imgClassName}
+          loading="lazy"
+          onError={() => {
+            if (index + 1 >= candidates.length) {
+              setExhausted(true);
+            } else {
+              setIndex((i) => i + 1);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -8,11 +8,17 @@ import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
 import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
-import { Toaster as ShadcnToaster } from '@/components/ui/toaster';
-import { Toaster as SonnerToaster } from 'sonner';
+import DeferredToasters from '@/components/DeferredToasters';
+import ThirdPartyScripts from '@/components/analytics/ThirdPartyScripts';
+import RazorpayConsoleFilter from '@/components/analytics/RazorpayConsoleFilter';
 import { ScrollOptimization } from './layout-scroll-optimization';
-// Note: getBaseUrl is imported dynamically to prevent SSR hydration issues
-const inter = Inter({ subsets: ['latin'] });
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  adjustFontFallback: true,
+});
 
 // Get canonical base URL - use environment variable directly to avoid SSR/client mismatch
 // This is safe because it's only used in metadata which is server-side only
@@ -88,42 +94,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google Tag Manager - Must be first in <head> */}
-        {process.env.NEXT_PUBLIC_GTM_CONTAINER_ID && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_CONTAINER_ID}');
-              `,
-            }}
-          />
-        )}
-
-        {/* Enhanced Google Analytics 4 with Event Tracking */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q3KBBWYNR9"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-Q3KBBWYNR9', {
-                page_title: document.title,
-                page_location: window.location.href,
-                custom_map: {
-                  'custom_parameter_1': 'resume_builder_opened',
-                  'custom_parameter_2': 'resume_downloaded',
-                  'custom_parameter_3': 'job_applied'
-                }
-              });
-              console.log("✅ Google Analytics Initialized with Enhanced Tracking");
-            `,
-          }}
-        />
+        <RazorpayConsoleFilter />
 
         {/* Additional SEO Meta Tags */}
         <meta name="geo.region" content="IN, US, GB, AE" />
@@ -382,278 +353,9 @@ export default function RootLayout({
           }}
         />
 
-        {/* Enhanced GA4 Event Tracking Functions */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Enhanced tracking functions
-              function trackResumeDownloaded(format) {
-                if (typeof gtag !== 'undefined') {
-                  gtag('event', 'resume_downloaded', {
-                    event_category: 'Resume Builder',
-                    event_label: 'Resume downloaded in ' + format + ' format',
-                    value: 1
-                  });
-                  console.log('✅ Tracked: Resume Downloaded - ' + format);
-                }
-              }
-
-              function trackJobApplied(jobId, jobTitle, company) {
-                if (typeof gtag !== 'undefined') {
-                  gtag('event', 'job_applied', {
-                    event_category: 'Job Application',
-                    event_label: 'Applied to ' + company + ' - ' + jobTitle,
-                    job_id: jobId,
-                    company: company,
-                    job_title: jobTitle,
-                    value: 1
-                  });
-                  console.log('✅ Tracked: Job Applied - ' + company);
-                }
-              }
-
-              // Make functions globally available
-              window.trackResumeDownloaded = trackResumeDownloaded;
-              window.trackJobApplied = trackJobApplied;
-            `,
-          }}
-        />
-
-        {/* ✅ Google Analytics + SEO Installed Successfully */}
-
-        {/* Google AdSense - Auto Ads */}
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8909131989940319"
-            crossOrigin="anonymous"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Initialize AdSense after script loads
-                if (typeof window !== 'undefined') {
-                  window.addEventListener('load', function() {
-                    try {
-                      // Push to adsbygoogle queue for auto ads
-                      if (window.adsbygoogle && window.adsbygoogle.loaded !== true) {
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
-                        console.log('✅ Google AdSense initialized successfully');
-                      }
-                    } catch (e) {
-                      console.warn('⚠️ AdSense initialization warning:', e.message);
-                    }
-                  });
-                  
-                  // Also try immediate initialization if script already loaded
-                  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                    setTimeout(function() {
-                      try {
-                        if (window.adsbygoogle && window.adsbygoogle.loaded !== true) {
-                          (window.adsbygoogle = window.adsbygoogle || []).push({});
-                          console.log('✅ Google AdSense initialized (immediate)');
-                        }
-                      } catch (e) {
-                        // Silent fail - AdSense will initialize automatically
-                      }
-                    }, 100);
-                  }
-                }
-              })();
-            `,
-          }}
-        />
-
-        {/* GoAffPro affiliate tracking — official loader (once, env-gated) */}
-        {process.env.NEXT_PUBLIC_GOAFFPRO_ENABLED === 'true' &&
-          process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID && (
-          <script
-            async
-            type="text/javascript"
-            src={`https://api.goaffpro.com/loader.js?shop=${encodeURIComponent(process.env.NEXT_PUBLIC_GOAFFPRO_SHOP_ID)}`}
-          />
-        )}
-        
-        {/* CRITICAL: Suppress Razorpay console errors BEFORE Razorpay scripts load */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                if (typeof window === 'undefined') return;
-                
-                // Only set up once
-                if (window.__razorpayErrorSuppressionSetup) return;
-                window.__razorpayErrorSuppressionSetup = true;
-                
-                const originalError = console.error;
-                const originalWarn = console.warn;
-                const originalLog = console.log;
-                const originalInfo = console.info;
-                const originalDir = console.dir;
-                const originalTable = console.table;
-                
-                const shouldSuppress = function(message) {
-                  if (!message) return false;
-                  if (typeof message !== 'string') {
-                    try {
-                      message = JSON.stringify(message);
-                    } catch(e) {
-                      message = String(message);
-                    }
-                  }
-                  const msgLower = message.toLowerCase();
-                  
-                  // Comprehensive pattern matching for all Razorpay-related errors
-                  return (
-                    // Localhost port errors
-                    msgLower.includes('localhost:7070') ||
-                    msgLower.includes('localhost:37857') ||
-                    msgLower.includes('localhost:7071') ||
-                    // CORS errors
-                    (msgLower.includes('cors') && (msgLower.includes('razorpay') || msgLower.includes('localhost'))) ||
-                    (msgLower.includes('access to image') && msgLower.includes('localhost')) ||
-                    (msgLower.includes('permission was denied') && msgLower.includes('localhost')) ||
-                    // Unsafe header errors
-                    (msgLower.includes('refused to get unsafe header') && msgLower.includes('x-rtb-fingerprint-id')) ||
-                    (msgLower.includes('refused to get unsafe header') && msgLower.includes('fingerprint')) ||
-                    // Network errors
-                    ((msgLower.includes('failed to load resource') || 
-                      msgLower.includes('net::err_failed') || 
-                      msgLower.includes('net::err_connection_refused') ||
-                      msgLower.includes('get http://localhost')) &&
-                     (msgLower.includes('localhost:7070') || 
-                      msgLower.includes('localhost:37857') || 
-                      msgLower.includes('localhost:7071') ||
-                      msgLower.includes('.png'))) ||
-                    // Permission policy violations
-                    (msgLower.includes('permissions policy violation') && msgLower.includes('accelerometer')) ||
-                    (msgLower.includes('permission policy') && msgLower.includes('accelerometer')) ||
-                    // Service worker errors
-                    (msgLower.includes('serviceworker') && msgLower.includes('must be a dictionary')) ||
-                    (msgLower.includes('service worker') && msgLower.includes('dictionary')) ||
-                    // Razorpay API errors
-                    (msgLower.includes('502') && msgLower.includes('razorpay')) ||
-                    (msgLower.includes('bad gateway') && msgLower.includes('razorpay')) ||
-                    (msgLower.includes('validate/account') && msgLower.includes('razorpay')) ||
-                    // Image loading errors from Razorpay
-                    (msgLower.includes('image') && msgLower.includes('localhost') && (msgLower.includes('7070') || msgLower.includes('37857') || msgLower.includes('7071'))) ||
-                    // Paytm scheme errors (harmless)
-                    (msgLower.includes('failed to launch') && msgLower.includes('paytmmp://')) ||
-                    // v2-entry.modern.js errors (Razorpay internal)
-                    (msgLower.includes('v2-entry.modern.js') && (msgLower.includes('fingerprint') || msgLower.includes('localhost')))
-                  );
-                };
-                
-                const suppressIfNeeded = function(originalFn, args) {
-                  try {
-                    const message = Array.from(args).map(arg => {
-                      if (typeof arg === 'string') return arg;
-                      if (arg && typeof arg === 'object') {
-                        try {
-                          return JSON.stringify(arg);
-                        } catch(e) {
-                          return String(arg);
-                        }
-                      }
-                      return String(arg);
-                    }).join(' ');
-                    if (shouldSuppress(message)) return;
-                    originalFn.apply(console, args);
-                  } catch(e) {
-                    // If suppression fails, still call original
-                    originalFn.apply(console, args);
-                  }
-                };
-                
-                // Override all console methods
-                console.error = function() {
-                  suppressIfNeeded(originalError, arguments);
-                };
-                
-                console.warn = function() {
-                  suppressIfNeeded(originalWarn, arguments);
-                };
-                
-                console.log = function() {
-                  suppressIfNeeded(originalLog, arguments);
-                };
-                
-                console.info = function() {
-                  suppressIfNeeded(originalInfo, arguments);
-                };
-                
-                console.dir = function() {
-                  suppressIfNeeded(originalDir, arguments);
-                };
-                
-                console.table = function() {
-                  suppressIfNeeded(originalTable, arguments);
-                };
-                
-                // Catch global errors with comprehensive message extraction
-                window.addEventListener('error', function(event) {
-                  try {
-                    const message = (
-                      event.message || 
-                      event.error?.toString() || 
-                      event.filename || 
-                      event.target?.src ||
-                      event.target?.href ||
-                      ''
-                    ).toLowerCase();
-                    if (shouldSuppress(message)) {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      event.stopImmediatePropagation();
-                      return false;
-                    }
-                  } catch(e) {
-                    // Ignore errors in error handler
-                  }
-                }, true);
-                
-                window.addEventListener('unhandledrejection', function(event) {
-                  try {
-                    const message = (
-                      event.reason?.toString() || 
-                      event.reason?.message ||
-                      String(event.reason) ||
-                      ''
-                    ).toLowerCase();
-                    if (shouldSuppress(message)) {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      event.stopImmediatePropagation();
-                      return false;
-                    }
-                  } catch(e) {
-                    // Ignore errors in error handler
-                  }
-                }, true);
-                
-                // Also intercept XMLHttpRequest errors
-                if (window.XMLHttpRequest) {
-                  const originalOpen = XMLHttpRequest.prototype.open;
-                  const originalSend = XMLHttpRequest.prototype.send;
-                  
-                  XMLHttpRequest.prototype.open = function(method, url) {
-                    this._url = url;
-                    return originalOpen.apply(this, arguments);
-                  };
-                  
-                  XMLHttpRequest.prototype.send = function() {
-                    if (this._url && shouldSuppress(this._url.toLowerCase())) {
-                      // Suppress the request silently
-                      this.onerror = function() {};
-                      this.onload = function() {};
-                      return;
-                    }
-                    return originalSend.apply(this, arguments);
-                  };
-                }
-              })();
-            `,
-          }}
-        />
       </head>
       <body className={`${inter.className} font-body`}>
+        <ThirdPartyScripts />
         {/* Google Tag Manager (noscript) - Must be first in <body> */}
         {process.env.NEXT_PUBLIC_GTM_CONTAINER_ID && (
           <noscript>
@@ -670,10 +372,7 @@ export default function RootLayout({
           <MainNavigation />
           {children}
           <Footer />
-          {/* Used by legacy shadcn/ui toast hook */}
-          <ShadcnToaster />
-          {/* Used by `sonner` toasts (many pages/components rely on this) */}
-          <SonnerToaster richColors position="top-right" />
+          <DeferredToasters />
         </SessionProvider>
       </body>
     </html>

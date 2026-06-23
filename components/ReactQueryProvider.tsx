@@ -7,8 +7,6 @@
 
 import React, { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -98,15 +96,6 @@ export default function ReactQueryProvider({
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         {children}
-        
-        {/* Development tools - REMOVED to eliminate floating button */}
-        {/* {process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools
-            initialIsOpen={false}
-            position="bottom"
-            buttonPosition="bottom-right"
-          />
-        )} */}
       </QueryClientProvider>
     </ErrorBoundary>
   );
