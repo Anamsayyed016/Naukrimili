@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -32,12 +33,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import UnifiedUserProfile from './UnifiedUserProfile';
-import { ComprehensiveNotificationBell } from './ComprehensiveNotificationBell';
-import { MessageBell } from './MessageBell';
+import { AnimatePresence, useReducedMotion } from 'framer-motion';
+import { LazyMotionShell, m } from '@/components/motion/LazyMotionShell';
 import { useResponsive } from '@/components/ui/use-mobile';
-import WorkspaceSwitcher from './navigation/WorkspaceSwitcher';
+
+const UnifiedUserProfile = dynamic(() => import('./UnifiedUserProfile'), { ssr: false });
+const ComprehensiveNotificationBell = dynamic(
+  () => import('./ComprehensiveNotificationBell').then((mod) => ({ default: mod.ComprehensiveNotificationBell })),
+  { ssr: false }
+);
+const MessageBell = dynamic(
+  () => import('./MessageBell').then((mod) => ({ default: mod.MessageBell })),
+  { ssr: false }
+);
+const WorkspaceSwitcher = dynamic(() => import('./navigation/WorkspaceSwitcher'), { ssr: false });
 
 /** Shared nav surface — clean white with subtle SaaS-style depth on scroll */
 function navShellClass(scrolled: boolean) {
@@ -121,7 +130,7 @@ function DesktopNavLink({
       />
       <span className="relative z-10">{link.title}</span>
       {isActive && (
-        <motion.span
+        <m.span
           layoutId={layoutId}
           className="absolute inset-x-2.5 -bottom-px z-10 h-[2px] rounded-full bg-slate-900/90"
           transition={{ type: 'spring', stiffness: 420, damping: 34 }}
@@ -283,6 +292,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
   }
 
   return (
+    <LazyMotionShell>
     <nav className={cn(navigationFont.className, 'antialiased', navShellClass(scrolled))} style={shellStyle}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3 max-md:gap-2 sm:h-20 lg:h-[5.25rem]">
@@ -402,7 +412,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
                 aria-label="Toggle mobile menu"
                 aria-expanded={isMenuOpen}
               >
-                <motion.div
+                <m.div
                   animate={{ rotate: isMenuOpen ? 90 : 0 }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                 >
@@ -411,7 +421,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
                   ) : (
                     <Menu className="h-3.5 w-3.5 max-md:h-4 max-md:w-4 sm:h-[18px] sm:w-[18px]" />
                   )}
-                </motion.div>
+                </m.div>
               </button>
             </div>
           )}
@@ -419,7 +429,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
 
         <AnimatePresence initial={false}>
           {showMobileChrome && isMenuOpen && (
-            <motion.div
+            <m.div
               key="mobile-menu"
               initial={prefersReducedMotion ? false : { opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -429,7 +439,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
             >
               <div className="space-y-1">
                 {navLinks.map((link, i) => (
-                  <motion.div
+                  <m.div
                     key={link.title}
                     initial={prefersReducedMotion ? false : { opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -440,7 +450,7 @@ export default function MainNavigation(_props: MainNavigationProps) {
                       isActive={isNavActive(pathname, link.href)}
                       onNavigate={closeMenu}
                     />
-                  </motion.div>
+                  </m.div>
                 ))}
 
                 {isAuthenticated && user?.role === 'jobseeker' && (
@@ -544,10 +554,11 @@ export default function MainNavigation(_props: MainNavigationProps) {
                   </div>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
     </nav>
+    </LazyMotionShell>
   );
 }

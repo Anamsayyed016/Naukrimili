@@ -1,9 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+
+const EmployerAnalyticsCharts = dynamic(() => import('./EmployerAnalyticsCharts'), {
+  ssr: false,
+  loading: () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card className="p-6 h-80 animate-pulse bg-gray-50" />
+      <Card className="p-6 h-80 animate-pulse bg-gray-50" />
+    </div>
+  ),
+});
 
 interface AnalyticsData {
   overview: {
@@ -26,8 +36,6 @@ interface AnalyticsData {
     status: string;
   }[];
 }
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 export function EmployerAnalytics() {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -131,40 +139,10 @@ export function EmployerAnalytics() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Views Trend */}
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-4">Views Trend</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data.trending}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="views" stroke="#8884d8" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        {/* Jobs Performance */}
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-4">Job Performance</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.jobsBreakdown.slice(0, 5)}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="title" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="views" fill="#8884d8" />
-                <Bar dataKey="applications" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </div>
+      <EmployerAnalyticsCharts
+        trending={data.trending}
+        jobsBreakdown={data.jobsBreakdown}
+      />
 
       {/* Top Skills */}
       <Card className="p-6">

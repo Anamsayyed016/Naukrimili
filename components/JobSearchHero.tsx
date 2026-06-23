@@ -33,7 +33,7 @@ import {
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useSearchHistory, type SearchHistoryEntry } from '@/hooks/useSearchHistory';
-import { motion } from 'framer-motion';
+import { LazyMotionShell, m } from '@/components/motion/LazyMotionShell';
 
 const JobSearchHeroAdvancedFiltersPanelLazy = dynamic(
   () =>
@@ -433,6 +433,7 @@ export default function JobSearchHero({
   // Manual search only - no auto-redirect
 
   return (
+    <LazyMotionShell>
     <div
       className={`relative isolate overflow-hidden bg-white ${className}`}
       style={{ overflow: 'visible' }}
@@ -482,7 +483,7 @@ export default function JobSearchHero({
       <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-4 lg:py-5 max-w-full" style={{ overflow: 'visible' }}>
         <div className="relative text-center max-w-full lg:max-w-6xl mx-auto">
           {/* Hero heading */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -493,9 +494,9 @@ export default function JobSearchHero({
               <span className="hero-career-word">Career</span>{' '}
               You Deserve
             </h1>
-          </motion.div>
+          </m.div>
           
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
@@ -944,10 +945,11 @@ export default function JobSearchHero({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </div>
+    </LazyMotionShell>
   );
 }
 
@@ -979,7 +981,8 @@ export function JobSearchHeroAdvancedFiltersPanel({
   dynamicConstants,
 }: JobSearchHeroAdvancedFiltersPanelProps) {
   return (
-    <motion.div
+    <LazyMotionShell>
+    <m.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -1112,6 +1115,7 @@ export function JobSearchHeroAdvancedFiltersPanel({
           </div>
         </div>
       </div>
-    </motion.div>
+    </m.div>
+    </LazyMotionShell>
   );
 }
