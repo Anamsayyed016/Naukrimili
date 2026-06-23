@@ -324,6 +324,7 @@ export default function LocationBasedJobSearch() {
                   onClick={detectCurrentLocation}
                   disabled={locationLoading}
                   className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 px-3 text-xs"
+                  aria-label="Detect current location"
                 >
                   {locationLoading ? (
                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>

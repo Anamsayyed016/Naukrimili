@@ -216,8 +216,10 @@ export default function UnlimitedJobSearch({
               >
                 {filter}
                 <button
+                  type="button"
                   onClick={() => removeFilter(filter)}
                   className="ml-1 hover:text-red-600"
+                  aria-label={`Remove ${filter} filter`}
                 >
                   <X className="w-3 h-3" />
                 </button>

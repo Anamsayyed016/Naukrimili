@@ -506,10 +506,12 @@ export default function JobDetailsPage() {
                   </div>
                   
                   <button
+                    type="button"
                     onClick={handleBookmark}
                     className={`p-2 rounded-full transition-colors ${
                       bookmarked ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
                     }`}
+                    aria-label={bookmarked ? 'Remove from saved jobs' : 'Save job'}
                   >
                     <Heart className={`w-5 h-5 ${bookmarked ? 'fill-current' : ''}`} />
                   </button>

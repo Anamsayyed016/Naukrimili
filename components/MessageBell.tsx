@@ -157,6 +157,7 @@ export function MessageBell() {
             variant="ghost" 
             size="sm" 
             className="relative touch-manipulation min-h-[44px] min-w-[44px] p-2"
+            aria-label="Messages"
             style={{ 
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               WebkitFontSmoothing: 'antialiased',
@@ -236,6 +237,7 @@ export function MessageBell() {
                   size="sm"
                   onClick={() => setIsOpen(false)}
                   className="hover:bg-gray-100 rounded-lg"
+                  aria-label="Close messages"
                 >
                   <X className="h-4 w-4" />
                 </Button>

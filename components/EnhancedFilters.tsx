@@ -182,8 +182,10 @@ export default function EnhancedFilters({
               </button>
             )}
             <button
+              type="button"
               onClick={() => setIsExpanded(!isExpanded)}
               className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label={isExpanded ? 'Collapse filters' : 'Expand filters'}
             >
               <ChevronDownIcon 
                 className={`w-4 h-4 text-gray-500 transition-transform ${

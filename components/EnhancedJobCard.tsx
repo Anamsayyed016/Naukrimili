@@ -324,9 +324,11 @@ export default function EnhancedJobCard({
             
             <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 flex-shrink-0">
               <button
+                type="button"
                 onClick={handleBookmark}
                 className={`${jc.bookmark} p-1.5 sm:p-2 ${isBookmarked ? jc.bookmarkActive : ''}`}
                 title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
+                aria-label={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
               >
                 {isBookmarked ? (
                   <StarIconSolid className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -464,9 +466,11 @@ export default function EnhancedJobCard({
 
             {/* Bookmark button */}
             <button
+              type="button"
               onClick={handleBookmark}
               className={`${jc.bookmark} ${isBookmarked ? jc.bookmarkActive : ''}`}
               title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
+              aria-label={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
             >
               {isBookmarked ? (
                 <StarIconSolid className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -584,9 +588,11 @@ export default function EnhancedJobCard({
           )}
           
           <button
+            type="button"
             onClick={handleQuickView}
             className={jc.btnSecondary}
             title="Quick view"
+            aria-label="Quick view"
           >
             <EyeIcon className="w-4 h-4 text-slate-500" />
           </button>

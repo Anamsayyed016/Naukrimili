@@ -648,6 +648,7 @@ export default function JobSearchHero({
                                 }}
                                 className="text-gray-400 hover:text-gray-600 cursor-pointer"
                                 type="button"
+                                aria-label="Close search history"
                               >
                                 <X className="w-3 h-3" />
                               </button>
@@ -752,6 +753,7 @@ export default function JobSearchHero({
                         type="button"
                         onClick={detectCurrentLocation}
                         disabled={isDetectingLocation}
+                        aria-label="Detect current location"
                         className={cn(
                           'absolute right-1.5 top-1/2 -translate-y-1/2 h-8 sm:h-9 px-2.5 sm:px-3',
                           'bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#06B6D4]',
@@ -862,6 +864,7 @@ export default function JobSearchHero({
                         size="sm"
                         onClick={() => setUserLocation(null)}
                         className="text-green-600 hover:text-green-700 hover:bg-green-100 h-6 w-6 sm:h-8 sm:w-8 p-0 rounded-lg"
+                        aria-label="Clear detected location"
                       >
                         <X className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>

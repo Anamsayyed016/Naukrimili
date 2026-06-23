@@ -202,6 +202,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
                     size="sm"
                     onClick={() => setIsOpen(false)}
                     className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full"
+                    aria-label="Close share dialog"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -336,6 +337,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
           variant="outline"
           size="sm"
           className="flex items-center gap-2 bg-white/90 backdrop-blur-sm border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium px-3 py-2 rounded-lg transition-all duration-200 text-sm min-w-[44px] min-h-[44px] touch-target"
+          aria-label="Share job"
         >
           <Share2 className="w-4 h-4 flex-shrink-0" />
           <span className="hidden xs:inline">Share</span>
