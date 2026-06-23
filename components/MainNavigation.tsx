@@ -77,7 +77,8 @@ const ctaClass = cn(
   'active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2'
 );
 
-const NAUKRIMILI_LOGO_SRC = '/brand/nmlogo.jpg';
+const NAUKRIMILI_LOGO_SRC =
+  'https://res.cloudinary.com/drot7xb9m/image/upload/q_auto,f_auto,w_480/v1780573698/nmlogo_jhkny4.jpg';
 
 interface MainNavigationProps {
   brandName?: string;
