@@ -13,11 +13,18 @@ import {
   type BusinessPlanKey,
   type PlanKey,
 } from './razorpay-plans';
-import { findUserCredits, incrementPdfDownloadUsage } from '@/lib/db-direct';
+import {
+  findUserCredits,
+  incrementPdfDownloadUsage,
+  incrementMiniStarterPostEditPdfDownload,
+} from '@/lib/db-direct';
 import { isPaymentBypassAdmin } from '@/lib/auth-utils';
 
 /** Reuses existing Settings table — no schema migration. */
 const INDIVIDUAL_PLAN_USAGE_KEY = 'individual_plan_usage';
+
+/** Mini Starter: 1 plan PDF + 1 post-edit PDF (after lifetimeEditsUsed >= 1). */
+const MINI_STARTER_POST_EDIT_DOWNLOAD_CAP = 2;
 
 type IndividualPlanUsage = {
   pdfDailyDate?: string;
@@ -54,6 +61,62 @@ export function getPdfDownloadQuota(credits: Record<string, unknown>): {
     limit,
     remaining: Math.max(0, limit - used),
   };
+}
+
+function getMiniStarterEffectivePdfCap(planLimit: number, lifetimeEditsUsed: number): number {
+  return lifetimeEditsUsed >= 1 ? MINI_STARTER_POST_EDIT_DOWNLOAD_CAP : planLimit;
+}
+
+/**
+ * Resolves PDF download entitlement including Mini Starter post-edit allowance.
+ * Other individual plans use stored pdfDownloadsLimit only.
+ */
+export async function resolvePdfDownloadEntitlement(
+  userId: string,
+  credits: Record<string, unknown>
+): Promise<{
+  used: number;
+  limit: number;
+  remaining: number;
+  effectiveLimit: number;
+  planKey: string | null;
+}> {
+  const used = Number(credits.pdfDownloads) || 0;
+  const limit = Number(credits.pdfDownloadsLimit) || 0;
+  const planKey = typeof credits.planName === 'string' ? credits.planName : null;
+
+  if (planKey === 'mini_starter') {
+    const usage = await getIndividualPlanUsage(userId);
+    const effectiveLimit = getMiniStarterEffectivePdfCap(limit, usage.lifetimeEditsUsed ?? 0);
+    return {
+      used,
+      limit,
+      remaining: Math.max(0, effectiveLimit - used),
+      effectiveLimit,
+      planKey,
+    };
+  }
+
+  return {
+    used,
+    limit,
+    remaining: Math.max(0, limit - used),
+    effectiveLimit: limit,
+    planKey,
+  };
+}
+
+async function canMiniStarterUsePostEditDownload(
+  userId: string,
+  credits: Record<string, unknown>
+): Promise<boolean> {
+  const used = Number(credits.pdfDownloads) || 0;
+  const limit = Number(credits.pdfDownloadsLimit) || 0;
+  if (limit <= 0 || used < limit) {
+    return false;
+  }
+  const usage = await getIndividualPlanUsage(userId);
+  return (usage.lifetimeEditsUsed ?? 0) >= 1 && used < MINI_STARTER_POST_EDIT_DOWNLOAD_CAP;
 }
 
 export function resolvePlanDisplayName(planKey: string | null | undefined): string {
@@ -766,12 +829,16 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
   const planKey = credits.planName as keyof typeof INDIVIDUAL_PLANS;
   const plan = planKey ? INDIVIDUAL_PLANS[planKey] : null;
 
-  const { used, limit, remaining } = getPdfDownloadQuota(credits);
+  const { used, limit, remaining, effectiveLimit } = await resolvePdfDownloadEntitlement(
+    userId,
+    credits
+  );
   
   console.log(`🔍 [canDownloadResume] Checking download limit for user ${userId}:`, {
     planName: credits.planName,
     pdfDownloads: used,
     pdfDownloadsLimit: limit,
+    effectiveLimit,
     remaining,
     planFeatures: plan?.features,
   });
@@ -783,21 +850,23 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
       remaining: 0,
       downloadLimitReached: true,
       downloadsUsed: used,
-      downloadsAllowed: limit,
+      downloadsAllowed: effectiveLimit,
       planName: resolvePlanDisplayName(String(credits.planName ?? '')),
       planKey: String(credits.planName ?? ''),
     };
   }
 
-  if (used >= limit) {
-    console.log(`❌ [canDownloadResume] Download limit reached for user ${userId}: ${used}/${limit}`);
+  if (remaining <= 0) {
+    console.log(
+      `❌ [canDownloadResume] Download limit reached for user ${userId}: ${used}/${effectiveLimit}`
+    );
     return {
       allowed: false,
-      reason: formatPdfDownloadLimitMessage(String(credits.planName ?? ''), used, limit),
+      reason: formatPdfDownloadLimitMessage(String(credits.planName ?? ''), used, effectiveLimit),
       remaining: 0,
       downloadLimitReached: true,
       downloadsUsed: used,
-      downloadsAllowed: limit,
+      downloadsAllowed: effectiveLimit,
       planName: resolvePlanDisplayName(String(credits.planName ?? '')),
       planKey: String(credits.planName ?? ''),
     };
@@ -1208,17 +1277,42 @@ export async function incrementUsage(userId: string, action: 'resumeDownload' | 
       updateData.aiCoverLetterUsage = { increment: 1 };
       break;
     case 'pdfDownload': {
-      const quota = getPdfDownloadQuota(credits as Record<string, unknown>);
-      if (quota.used >= quota.limit) {
+      const entitlement = await resolvePdfDownloadEntitlement(
+        userId,
+        credits as Record<string, unknown>
+      );
+
+      if (entitlement.remaining <= 0) {
         console.error(
-          `❌ [Payment Service] PDF download limit reached: ${quota.used}/${quota.limit} for user ${userId}`
+          `❌ [Payment Service] PDF download limit reached: ${entitlement.used}/${entitlement.effectiveLimit} for user ${userId}`
         );
         throw new Error(
-          formatPdfDownloadLimitMessage(String(credits.planName ?? ''), quota.used, quota.limit)
+          formatPdfDownloadLimitMessage(
+            String(credits.planName ?? ''),
+            entitlement.used,
+            entitlement.effectiveLimit
+          )
         );
       }
 
-      const incremented = await incrementPdfDownloadUsage(userId);
+      const quota = getPdfDownloadQuota(credits as Record<string, unknown>);
+      let incremented;
+
+      if (quota.used >= quota.limit && credits.planName === 'mini_starter') {
+        if (!(await canMiniStarterUsePostEditDownload(userId, credits as Record<string, unknown>))) {
+          throw new Error(
+            formatPdfDownloadLimitMessage(
+              String(credits.planName ?? ''),
+              entitlement.used,
+              entitlement.effectiveLimit
+            )
+          );
+        }
+        incremented = await incrementMiniStarterPostEditPdfDownload(userId);
+      } else {
+        incremented = await incrementPdfDownloadUsage(userId);
+      }
+
       if (!incremented.success || !incremented.row) {
         console.error(`❌ [Payment Service] Atomic PDF increment failed for user ${userId}`);
         throw new Error('PDF download limit reached');

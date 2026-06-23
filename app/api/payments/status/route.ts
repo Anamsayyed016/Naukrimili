@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
-import { checkIndividualPlanValidity, checkBusinessSubscription, getTemplateEntitlementSummary, canAccessTemplate, getATSOptimizationLevel } from '@/lib/services/payment-service';
+import { checkIndividualPlanValidity, checkBusinessSubscription, getTemplateEntitlementSummary, canAccessTemplate, getATSOptimizationLevel, resolvePdfDownloadEntitlement } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
 import {
   buildGoAffProConversionPayload,
@@ -149,6 +149,7 @@ export async function GET(request: NextRequest) {
             message: 'No active plan',
           });
         }
+        const pdfEntitlement = await resolvePdfDownloadEntitlement(userId, credits as Record<string, unknown>);
         return NextResponse.json({
         planType: 'individual',
         isActive: true,
@@ -156,9 +157,9 @@ export async function GET(request: NextRequest) {
         daysRemaining: individualCheck.daysRemaining,
         credits: {
           resumeDownloads: {
-            used: credits.pdfDownloads,
-            limit: credits.pdfDownloadsLimit,
-            remaining: credits.pdfDownloadsLimit - credits.pdfDownloads,
+            used: pdfEntitlement.used,
+            limit: pdfEntitlement.effectiveLimit,
+            remaining: pdfEntitlement.remaining,
           },
           aiResume: {
             used: credits.aiResumeUsage,
@@ -171,9 +172,9 @@ export async function GET(request: NextRequest) {
             remaining: credits.aiCoverLetterLimit - credits.aiCoverLetterUsage,
           },
           pdfDownloads: {
-            used: credits.pdfDownloads,
-            limit: credits.pdfDownloadsLimit,
-            remaining: credits.pdfDownloadsLimit - credits.pdfDownloads,
+            used: pdfEntitlement.used,
+            limit: pdfEntitlement.effectiveLimit,
+            remaining: pdfEntitlement.remaining,
           },
           docxDownloads: {
             used: credits.docxDownloads,
