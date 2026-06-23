@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { ArrowRight, MapPin, BriefcaseIcon, Briefcase, Building2 } from 'lucide-react';
 import { safeLength } from '@/lib/safe-array-utils';
@@ -10,7 +11,7 @@ export interface TopCompaniesSectionProps {
   topCompanies: HomePageCompany[];
 }
 
-export default function TopCompaniesSection({ topCompanies }: TopCompaniesSectionProps) {
+export default memo(function TopCompaniesSection({ topCompanies }: TopCompaniesSectionProps) {
   return (
     <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -160,4 +161,4 @@ export default function TopCompaniesSection({ topCompanies }: TopCompaniesSectio
       </div>
     </section>
   );
-}
+});

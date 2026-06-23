@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Award, Clock, MapPin, Briefcase } from 'lucide-react';
 import { safeLength } from '@/lib/safe-array-utils';
@@ -12,7 +13,7 @@ export interface FeaturedJobsSectionProps {
   getDelayClass: (index: number) => string;
 }
 
-export default function FeaturedJobsSection({
+export default memo(function FeaturedJobsSection({
   featuredJobs,
   visibleElements,
   getDelayClass,
@@ -126,4 +127,4 @@ export default function FeaturedJobsSection({
       </div>
     </section>
   );
-}
+});
