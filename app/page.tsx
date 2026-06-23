@@ -1,42 +1,18 @@
 import HomePageClient from './HomePageClient';
+import { unstable_cache } from 'next/cache';
+import type { HomePageJob, HomePageCompany } from '@/components/home/home-types';
 // FORCE HASH CHANGE - Build timestamp: 2025-01-19 15:30:00
 
 export const revalidate = 60;
 export const runtime = 'nodejs';
 
-interface HomePageJob {
-  id: number | string;
-  sourceId?: string | null;
-  source?: string;
-  title: string;
-  company: string | null;
-  companyLogo?: string | null;
-  location: string | null;
-  country?: string;
-  salary: string | null;
-  jobType: string | null;
-  experienceLevel?: string | null;
-  isRemote: boolean;
-  isFeatured: boolean;
-  sector?: string | null;
-}
-
-interface Company {
-  id: string;
-  name: string;
-  logo?: string | null;
-  website?: string | null;
-  location?: string | null;
-  industry?: string | null;
-  sector?: string | null;
-  isGlobal?: boolean;
-  jobCount: number;
-}
-
-export default async function HomePage() {
+async function fetchHomepageDataUncached(): Promise<{
+  featuredJobs: HomePageJob[];
+  topCompanies: HomePageCompany[];
+}> {
   // Fetch featured jobs using the API endpoint for better reliability
   let featuredJobs: HomePageJob[] = [];
-  let topCompanies: Company[] = [];
+  let topCompanies: HomePageCompany[] = [];
 
   try {
     // Check if DATABASE_URL is available (skip database calls during build if not)
@@ -655,6 +631,18 @@ export default async function HomePage() {
       ];
     }
   }
+
+  return { featuredJobs: featuredJobs || [], topCompanies: topCompanies || [] };
+}
+
+const getCachedHomepageData = unstable_cache(
+  fetchHomepageDataUncached,
+  ['homepage-featured-companies-v1'],
+  { revalidate: 60, tags: ['homepage'] }
+);
+
+export default async function HomePage() {
+  const { featuredJobs, topCompanies } = await getCachedHomepageData();
 
   return (
     <HomePageClient 

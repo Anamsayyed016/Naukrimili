@@ -39,6 +39,11 @@ const nextConfig = {
       'recharts',
       'framer-motion',
       'date-fns',
+      '@radix-ui/react-select',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-checkbox',
+      'sonner',
     ],
   },
   // CRITICAL: Timeout for static page generation to prevent infinite hangs (max 60s per page)

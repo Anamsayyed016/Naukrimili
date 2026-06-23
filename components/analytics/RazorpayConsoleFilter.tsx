@@ -2,11 +2,11 @@ import Script from 'next/script';
 
 /**
  * Suppresses noisy Razorpay checkout console errors on payment pages.
- * Runs before interactive so filters are active when checkout scripts load.
+ * Runs after hydration so homepage first paint is not blocked.
  */
 export default function RazorpayConsoleFilter() {
   return (
-    <Script id="razorpay-console-filter" strategy="beforeInteractive">
+    <Script id="razorpay-console-filter" strategy="afterInteractive">
       {`(function() {
   if (typeof window === 'undefined') return;
   if (window.__razorpayErrorSuppressionSetup) return;

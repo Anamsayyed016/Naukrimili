@@ -22,5 +22,7 @@ export interface HomePageCompany {
   website?: string | null;
   location?: string | null;
   industry?: string | null;
+  sector?: string | null;
+  isGlobal?: boolean;
   jobCount: number;
 }
