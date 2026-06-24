@@ -5,3 +5,5 @@
 @source "../../components/dashboards";
 @source "../../components/auth";
 @source "..";
+
+html { --nm-route-stylesheet: dashboard; }

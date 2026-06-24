@@ -1,3 +1,4 @@
+import { RouteLayoutStyles } from '@/components/RouteLayoutStyles';
 import './auth-tw.css';
 
 export default function AuthLayout({
@@ -5,5 +6,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <RouteLayoutStyles layoutId="auth">{children}</RouteLayoutStyles>;
 }

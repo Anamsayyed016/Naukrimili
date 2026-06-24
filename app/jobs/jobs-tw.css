@@ -3,3 +3,5 @@
 @source "../../components/jobs";
 @source "../../components/MainNavigation.tsx";
 @source "..";
+
+html { --nm-route-stylesheet: jobs; }

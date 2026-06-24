@@ -1,3 +1,5 @@
+html { --nm-route-stylesheet: jobs; }
+
 /* Jobs listing route — scoped rules moved from app/globals.css */
 
 #view-sticky-bar {

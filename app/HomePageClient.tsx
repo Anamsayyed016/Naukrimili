@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import JobSearchHero from '@/components/JobSearchHero';
+import { removeRouteStylesheetLinks } from '@/lib/route-stylesheet-marker';
 import type { HomePageCompany, HomePageJob } from '@/components/home/home-types';
 
 const FeaturedJobsSectionLazy = dynamic(
@@ -25,6 +26,18 @@ export default function HomePageClient({
   topCompanies
 }: HomePageClientProps) {
   const [visibleElements, setVisibleElements] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const purgeRouteStyles = () => removeRouteStylesheetLinks();
+    purgeRouteStyles();
+    const t0 = window.setTimeout(purgeRouteStyles, 0);
+    const t1 = window.setTimeout(purgeRouteStyles, 100);
+
+    return () => {
+      window.clearTimeout(t0);
+      window.clearTimeout(t1);
+    };
+  }, []);
 
   useEffect(() => {
     let observer: IntersectionObserver | null = null;

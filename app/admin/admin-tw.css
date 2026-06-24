@@ -4,3 +4,5 @@
 @source "../../components/MainNavigation.tsx";
 @source "../../components/auth";
 @source "..";
+
+html { --nm-route-stylesheet: admin; }

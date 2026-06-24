@@ -1,3 +1,4 @@
+import { RouteLayoutStyles } from '@/components/RouteLayoutStyles';
 import './dashboard-tw.css';
 
 export default function DashboardLayout({
@@ -5,5 +6,5 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <RouteLayoutStyles layoutId="dashboard">{children}</RouteLayoutStyles>;
 }

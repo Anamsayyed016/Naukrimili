@@ -1,3 +1,4 @@
+import { RouteLayoutStyles } from '@/components/RouteLayoutStyles';
 import './employer-tw.css';
 
 export default function EmployerLayout({
@@ -5,5 +6,5 @@ export default function EmployerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <RouteLayoutStyles layoutId="employer">{children}</RouteLayoutStyles>;
 }

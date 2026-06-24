@@ -5,3 +5,5 @@
 @source "../../components/jobs";
 @source "../../components/auth";
 @source "..";
+
+html { --nm-route-stylesheet: employer; }

@@ -3,3 +3,5 @@
 @source "../../components/auth";
 @source "../../components/MainNavigation.tsx";
 @source "..";
+
+html { --nm-route-stylesheet: auth; }

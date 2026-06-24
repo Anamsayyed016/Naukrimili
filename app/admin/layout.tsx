@@ -1,3 +1,4 @@
+import { RouteLayoutStyles } from '@/components/RouteLayoutStyles';
 import './admin-tw.css';
 
 export default function AdminLayout({
@@ -5,5 +6,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <RouteLayoutStyles layoutId="admin">{children}</RouteLayoutStyles>;
 }
