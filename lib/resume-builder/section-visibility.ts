@@ -76,11 +76,20 @@ export function hasMeaningfulText(value: unknown): boolean {
   return !isGarbageFieldText(text);
 }
 
+export function isDemoProfileImage(url: unknown): boolean {
+  const value = getStringValue(url);
+  if (!value) return false;
+  if (value.includes('naulogoimg_j5uodj')) return true;
+  if (value.includes('drot7xb9m/image/upload') && value.includes('naulogoimg')) return true;
+  return false;
+}
+
 export function isValidProfileImage(url: unknown): boolean {
   const value = getStringValue(url);
   if (!value) return false;
   // Legacy sample avatars should not count as user-uploaded photos
   if (value.includes('ui-avatars.com')) return false;
+  if (isDemoProfileImage(value)) return false;
   return true;
 }
 
@@ -154,15 +163,28 @@ export function renderContactListHtml(
     .join('');
 }
 
+const PROFILE_IMAGE_FIELD_KEYS = [
+  'profileImage',
+  'photo',
+  'profilePhoto',
+  'Profile Image',
+  'Photo',
+] as const;
+
 export function resolveProfileImageForRender(
   formData: Record<string, unknown>,
-  getString: (keys: string[]) => string
+  _getString?: (keys: string[]) => string
 ): string {
   if (isSectionForcedHidden('profileImage', formData)) {
     return '';
   }
-  const profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);
-  return isValidProfileImage(profileImage) ? profileImage : '';
+  for (const key of PROFILE_IMAGE_FIELD_KEYS) {
+    const value = formData[key];
+    if (isValidProfileImage(value)) {
+      return getStringValue(value);
+    }
+  }
+  return '';
 }
 
 export function filterMeaningfulExperiences(

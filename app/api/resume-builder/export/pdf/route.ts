@@ -17,7 +17,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { generateExportHTML } from '@/lib/resume-builder/resume-export';
 import { checkResumeAccess } from '@/lib/middleware/payment-middleware';
-import { incrementUsage, deductResumeCredits, buildPdfDownloadLimitPayload, checkIndividualPlanValidity } from '@/lib/services/payment-service';
+import { incrementUsage, deductResumeCredits, buildPdfDownloadLimitPayload, checkIndividualPlanValidity, syncMiniStarterEditEntitlement, captureMiniStarterPostDownloadSnapshot } from '@/lib/services/payment-service';
 import { checkBusinessSubscription } from '@/lib/services/payment-service';
 import { isPaymentBypassAdmin } from '@/lib/auth-utils';
 
@@ -63,6 +63,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { templateId, formData, selectedColorId, resumeId, _postPayment } = body;
 
+    if (!templateId || !formData) {
+      return NextResponse.json(
+        { error: 'Missing required fields: templateId and formData' },
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
     // Check template access before allowing download (skip for admins)
     if (!isAdmin && templateId) {
       const { canAccessTemplate } = await import('@/lib/services/payment-service');
@@ -88,6 +100,8 @@ export async function POST(request: NextRequest) {
     // Check payment/credits before allowing download (skip for admins)
     // For post-payment scenarios, add retry logic with delays
     if (!isAdmin) {
+      await syncMiniStarterEditEntitlement(session.user.id, formData);
+
       let accessCheck = await checkResumeAccess(session.user.id, 'download', resumeId);
       
       // If post-payment and access check fails, retry with delays (database might not be updated yet)
@@ -142,18 +156,6 @@ export async function POST(request: NextRequest) {
           }
         );
       }
-    }
-
-    if (!templateId || !formData) {
-      return NextResponse.json(
-        { error: 'Missing required fields: templateId and formData' },
-        { 
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
     }
 
     console.log('📄 [PDF Export] Starting export:', { templateId, hasColor: !!selectedColorId });
@@ -484,6 +486,7 @@ export async function POST(request: NextRequest) {
         } else {
           planType = 'individual';
           await incrementUsage(session.user.id, 'pdfDownload');
+          await captureMiniStarterPostDownloadSnapshot(session.user.id, formData);
           console.log('✅ [PDF Export] Individual plan usage incremented successfully');
         }
       } catch (creditError: any) {

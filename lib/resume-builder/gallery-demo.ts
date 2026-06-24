@@ -3,7 +3,7 @@
  * Never written to form state, export, or live preview defaults.
  */
 
-import { isValidProfileImage } from '@/lib/resume-builder/section-visibility';
+import { resolveProfileImageForRender } from '@/lib/resume-builder/section-visibility';
 
 /** Shared demo portrait for gallery cards, sample resumes, and template previews only. */
 export const DEFAULT_DEMO_PROFILE_IMAGE =
@@ -278,18 +278,12 @@ export function getGalleryCardAccent(templateId: string): GalleryCardAccent {
  */
 export function resolveGalleryProfileImage(
   formData: Record<string, unknown>,
-  getString: (keys: string[]) => string,
+  _getString: (keys: string[]) => string,
   templateId?: string
 ): string {
-  const profileImage = getString([
-    'Profile Image',
-    'Photo',
-    'profileImage',
-    'photo',
-    'profilePhoto',
-  ]);
-  if (isValidProfileImage(profileImage)) {
-    return profileImage;
+  const userImage = resolveProfileImageForRender(formData);
+  if (userImage) {
+    return userImage;
   }
   return getGalleryDemoProfileImage(templateId);
 }

@@ -417,6 +417,14 @@ export default function FinalizeStep({
     setExporting(null);
   };
 
+  /** Same in-app plan picker used when export requires a new purchase or upgrade. */
+  const openPlanSelectionDialog = (format: 'pdf' = 'pdf') => {
+    setShowDownloadLimitDialog(false);
+    setPendingExportFormat(format);
+    setShowPaymentDialog(true);
+    setExporting(null);
+  };
+
   // Transform plans for UI display (centralized from razorpay-plans.ts)
   const INDIVIDUAL_PLANS_UI = Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
     key: key as IndividualPlanKey,
@@ -630,6 +638,17 @@ export default function FinalizeStep({
         // Check payment status FIRST before attempting download (skip for admins)
         console.log('🔍 [Export] Checking payment status...');
         try {
+          // Mini Starter: editor edits live in localStorage — sync edit entitlement before quota check
+          try {
+            await fetch('/api/resume-builder/sync-edit-entitlement', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ formData, templateId }),
+            });
+          } catch (syncError) {
+            console.warn('⚠️ [Export] Edit entitlement sync failed (non-fatal):', syncError);
+          }
+
           const paymentStatusResponse = await fetch('/api/payments/status');
           
           // If API returns 401 (Unauthorized), user needs to login
@@ -674,8 +693,7 @@ export default function FinalizeStep({
                 message: paymentStatus.message
               });
               setPendingExportFormat(format);
-              setShowPaymentDialog(true);
-              setExporting(null);
+              openPlanSelectionDialog(format);
               return;
             }
 
@@ -685,9 +703,7 @@ export default function FinalizeStep({
               console.log('💼 [Export] Business plan check - credits remaining:', creditsRemaining);
               if (creditsRemaining <= 0) {
                 console.log('💳 [Export] Business plan - no credits remaining - showing payment dialog');
-                setPendingExportFormat(format);
-                setShowPaymentDialog(true);
-                setExporting(null);
+                openPlanSelectionDialog(format);
                 return;
               }
             } 
@@ -699,9 +715,7 @@ export default function FinalizeStep({
                   hasCredits: !!paymentStatus.credits,
                   hasPdfDownloads: !!paymentStatus.credits?.pdfDownloads
                 });
-                setPendingExportFormat(format);
-                setShowPaymentDialog(true);
-                setExporting(null);
+                openPlanSelectionDialog(format);
                 return;
               }
               
@@ -725,9 +739,7 @@ export default function FinalizeStep({
             } else {
               // Unknown plan type - show payment dialog for safety
               console.warn('⚠️ [Export] Unknown plan type:', paymentStatus.planType);
-              setPendingExportFormat(format);
-              setShowPaymentDialog(true);
-              setExporting(null);
+              openPlanSelectionDialog(format);
               return;
             }
           } else {
@@ -736,17 +748,13 @@ export default function FinalizeStep({
               status: paymentStatusResponse.status,
               statusText: paymentStatusResponse.statusText
             });
-            setPendingExportFormat(format);
-            setShowPaymentDialog(true);
-            setExporting(null);
+            openPlanSelectionDialog(format);
             return;
           }
         } catch (paymentCheckError) {
           console.error('❌ [Export] Payment status check exception:', paymentCheckError);
           // Show payment dialog if check fails
-          setPendingExportFormat(format);
-          setShowPaymentDialog(true);
-          setExporting(null);
+          openPlanSelectionDialog(format);
           return;
         }
       }
@@ -812,9 +820,7 @@ export default function FinalizeStep({
             status: response.status,
             error 
           });
-          setPendingExportFormat(format);
-          setShowPaymentDialog(true);
-          setExporting(null);
+          openPlanSelectionDialog(format);
           return;
         }
         
@@ -859,9 +865,7 @@ export default function FinalizeStep({
           // Check if it's a payment error
           if (errorData.requiresPayment || errorData.error === 'Unauthorized') {
             console.log('💳 [Export] Invalid content type but payment error detected - showing payment dialog');
-            setPendingExportFormat(format);
-            setShowPaymentDialog(true);
-            setExporting(null);
+            openPlanSelectionDialog(format);
             return;
           }
           throw new Error(errorData.error || errorData.details || 'Invalid response from server');
@@ -970,9 +974,7 @@ export default function FinalizeStep({
       if (isPaymentError) {
         // Payment-related error - show payment dialog instead of fallback
         console.log('💳 [Export] Payment error detected in catch block - showing payment dialog');
-        setPendingExportFormat(format);
-        setShowPaymentDialog(true);
-        setExporting(null);
+        openPlanSelectionDialog(format);
         return;
       }
       
@@ -1881,7 +1883,7 @@ export default function FinalizeStep({
 
       {/* PDF download limit dialog */}
       <Dialog open={showDownloadLimitDialog} onOpenChange={setShowDownloadLimitDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="resume-limit-dialog max-w-md">
           <DialogHeader>
             <DialogTitle>PDF Download Limit Reached</DialogTitle>
             <DialogDescription>
@@ -1903,12 +1905,7 @@ export default function FinalizeStep({
             <Button variant="outline" onClick={() => setShowDownloadLimitDialog(false)}>
               Close
             </Button>
-            <Button
-              onClick={() => {
-                setShowDownloadLimitDialog(false);
-                setShowPaymentDialog(true);
-              }}
-            >
+            <Button onClick={() => openPlanSelectionDialog('pdf')}>
               Upgrade Plan
             </Button>
           </div>

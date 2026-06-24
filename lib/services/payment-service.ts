@@ -33,6 +33,8 @@ type IndividualPlanUsage = {
   editDailyDate?: string;
   editDailyCount?: number;
   lifetimeEditsUsed?: number;
+  /** Mini Starter: normalized formData JSON captured after first PDF download */
+  postDownloadFormSnapshot?: string;
 };
 
 export const EDIT_LIMIT_MESSAGES = {
@@ -301,6 +303,96 @@ export async function recordResumeEdit(userId: string): Promise<void> {
   }
 
   await recordResumeEditUsage(userId, planKey);
+}
+
+function normalizeFormDataSnapshot(formData: unknown): string {
+  if (formData == null) return '';
+  if (typeof formData !== 'object') return JSON.stringify(formData);
+  const record = { ...(formData as Record<string, unknown>) };
+  for (const key of ['updatedAt', 'lastSaved', 'savedAt', '_meta']) {
+    delete record[key];
+  }
+  return JSON.stringify(record, Object.keys(record).sort());
+}
+
+/**
+ * Mini Starter: store resume state right after the first PDF download so we can
+ * detect a meaningful post-download edit before granting the second PDF.
+ */
+export async function captureMiniStarterPostDownloadSnapshot(
+  userId: string,
+  formData: unknown
+): Promise<void> {
+  const validity = await checkIndividualPlanValidity(userId);
+  if (!validity.isValid || !validity.credits) return;
+  if (validity.credits.planName !== 'mini_starter') return;
+
+  const { used } = getPdfDownloadQuota(validity.credits as Record<string, unknown>);
+  if (used !== 1) return;
+
+  const usage = await getIndividualPlanUsage(userId);
+  if (usage.postDownloadFormSnapshot) return;
+
+  await setIndividualPlanUsage(userId, {
+    ...usage,
+    postDownloadFormSnapshot: normalizeFormDataSnapshot(formData),
+  });
+}
+
+/**
+ * Mini Starter: if the user edited after their first PDF (localStorage-only edits
+ * never hit /save), record the included edit so post-edit re-download is allowed.
+ */
+export async function syncMiniStarterEditEntitlement(
+  userId: string,
+  formData: unknown
+): Promise<{ synced: boolean; editRecorded: boolean }> {
+  const validity = await checkIndividualPlanValidity(userId);
+  if (!validity.isValid || !validity.credits?.planName) {
+    return { synced: false, editRecorded: false };
+  }
+  if (validity.credits.planName !== 'mini_starter') {
+    return { synced: false, editRecorded: false };
+  }
+
+  const usage = await getIndividualPlanUsage(userId);
+  if ((usage.lifetimeEditsUsed ?? 0) >= 1) {
+    return { synced: true, editRecorded: false };
+  }
+
+  const { used } = getPdfDownloadQuota(validity.credits as Record<string, unknown>);
+  if (used < 1) {
+    return { synced: false, editRecorded: false };
+  }
+
+  if (!usage.postDownloadFormSnapshot) {
+    if (used >= 1) {
+      await setIndividualPlanUsage(userId, {
+        ...usage,
+        postDownloadFormSnapshot: normalizeFormDataSnapshot(formData),
+      });
+    }
+    return { synced: true, editRecorded: false };
+  }
+
+  let snapshot: unknown;
+  try {
+    snapshot = JSON.parse(usage.postDownloadFormSnapshot);
+  } catch {
+    return { synced: false, editRecorded: false };
+  }
+
+  if (!hasMeaningfulResumeDataChange(snapshot, formData)) {
+    return { synced: true, editRecorded: false };
+  }
+
+  const editCheck = await canEditResume(userId);
+  if (!editCheck.allowed) {
+    return { synced: true, editRecorded: false };
+  }
+
+  await recordResumeEdit(userId);
+  return { synced: true, editRecorded: true };
 }
 
 function getIndividualDailyPdfCount(usage: IndividualPlanUsage): number {

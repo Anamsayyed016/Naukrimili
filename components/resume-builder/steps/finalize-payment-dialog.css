@@ -12,6 +12,22 @@
   overflow: hidden;
 }
 
+/* PDF download limit dialog — solid surface (avoids washed-out inherited transparency) */
+.resume-limit-dialog {
+  background: rgb(255 255 255) !important;
+  opacity: 1 !important;
+  color: rgb(15 23 42);
+}
+
+.resume-limit-dialog [data-radix-dialog-description] {
+  color: rgb(71 85 105);
+}
+
+.resume-limit-dialog > button.absolute {
+  opacity: 1;
+  background: rgb(255 255 255);
+}
+
 /* Radix built-in close (direct child button) — always visible, touch-friendly */
 .resume-payment-dialog > button.absolute {
   z-index: 10;
