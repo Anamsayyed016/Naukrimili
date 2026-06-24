@@ -16,57 +16,12 @@ import {
   triggerGoAffProConversionAfterVerify,
 } from '@/components/payments/GoAffProConversionTrigger';
 import { BackButton } from '@/components/ui/back-button';
-
-// Transform plans for UI display (centralized from razorpay-plans.ts)
-const getIndividualPlansForUI = () => {
-  return Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
-    key: key as IndividualPlanKey,
-    name: plan.name,
-    price: plan.amount / 100, // Convert paise to rupees
-    validity: `${plan.validityDays} Days`,
-    features: {
-      pdfDownloads: plan.features.pdfDownloads,
-      templateAccess: plan.features.templateAccess === 'all' ? 'ALL Premium Templates' : `${plan.features.templateCount || plan.features.pdfDownloads} Premium Templates`,
-      templateCount: plan.features.templateCount,
-      aiResumeUsage: plan.features.aiResumeUsage === -1 ? 'Unlimited' : plan.features.aiResumeUsage,
-      atsOptimization: plan.features.atsOptimization,
-      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
-      editFeatureLabel:
-        key === 'mini_starter'
-          ? '1 Resume Edit After Download'
-          : key === 'starter_premium' || key === 'pro_job_seeker'
-          ? '1 Resume Edit Per Day'
-          : null,
-      resumeVersionHistory: 'resumeVersionHistory' in plan.features ? (plan.features as any).resumeVersionHistory : false,
-      prioritySupport: 'prioritySupport' in plan.features ? (plan.features as any).prioritySupport : false,
-      resumeLockedAfterExpiry: 'resumeLockedAfterExpiry' in plan.features ? (plan.features as any).resumeLockedAfterExpiry : false,
-    },
-    popular: plan.popular || false,
-    bestValue: (plan as any).bestValue || false,
-  }));
-};
-
-const getBusinessPlansForUI = () => {
-  return Object.entries(BUSINESS_PLANS).map(([key, plan]) => ({
-    key: key as BusinessPlanKey,
-    name: plan.name,
-    price: plan.amount / 100, // Convert paise to rupees
-    originalPrice: (plan as any).originalPrice ? (plan as any).originalPrice / 100 : null,
-    validity: plan.durationMonths === 12 ? '1 Year' : `${plan.durationMonths} Months`,
-    features: {
-      resumeCredits: plan.features.resumeCredits,
-      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
-      templateAccess: 'ALL Premium Templates',
-      prioritySupport: plan.features.prioritySupport,
-      maxDownloadsPerCandidate: plan.features.maxDownloadsPerCandidate,
-      unlimitedEdits: (plan.features as any).unlimitedEdits || false,
-      resumeVersionHistory: (plan.features as any).resumeVersionHistory || false,
-      atsOptimization: (plan.features as any).atsOptimization || false,
-    },
-    recommended: (plan as any).recommended || false,
-    popular: (plan as any).popular || false,
-  }));
-};
+import {
+  getIndividualPlansForUI,
+  getBusinessPlansForUI,
+  getIndividualPlanFeatureBullets,
+  getBusinessPlanFeatureBullets,
+} from '@/lib/services/plan-display-ui';
 
 declare global {
   interface Window {
@@ -936,46 +891,12 @@ export default function PricingPage() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.pdfDownloads} PDF Resume Downloads{plan.features.maxDownloadsPerDay ? ` (max ${plan.features.maxDownloadsPerDay}/day)` : ''}</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.templateAccess}</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{typeof plan.features.aiResumeUsage === 'number' ? `${plan.features.aiResumeUsage} AI Resume Optimization${plan.features.aiResumeUsage === 1 ? '' : 's'}` : 'Unlimited AI Resume Optimization'}</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.atsOptimization === 'advanced' ? 'Advanced' : 'Basic'} ATS Optimization</span>
-                      </li>
-                      {plan.features.editFeatureLabel && (
-                        <li className="flex items-start">
+                      {getIndividualPlanFeatureBullets(plan).map((bullet) => (
+                        <li key={bullet} className="flex items-start">
                           <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>{plan.features.editFeatureLabel}</span>
+                          <span>{bullet}</span>
                         </li>
-                      )}
-                      {plan.features.resumeVersionHistory && (
-                        <li className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Resume Version History</span>
-                        </li>
-                      )}
-                      {plan.features.prioritySupport && (
-                        <li className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Priority Support</span>
-                        </li>
-                      )}
-                      {plan.features.resumeLockedAfterExpiry && (
-                        <li className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Resume locked after expiry</span>
-                        </li>
-                      )}
+                      ))}
                     </ul>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-3">
@@ -1059,48 +980,12 @@ export default function PricingPage() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.resumeCredits} Resume Credits</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Max {plan.features.maxDownloadsPerDay} PDF downloads/day</span>
-                      </li>
-                      {plan.features.maxDownloadsPerCandidate && (
-                        <li className="flex items-start">
+                      {getBusinessPlanFeatureBullets(plan).map((bullet) => (
+                        <li key={bullet} className="flex items-start">
                           <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Max {plan.features.maxDownloadsPerCandidate} downloads per candidate</span>
+                          <span>{bullet}</span>
                         </li>
-                      )}
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.templateAccess}</span>
-                      </li>
-                      {plan.features.prioritySupport && (
-                        <li className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Priority Support</span>
-                        </li>
-                      )}
-                      {plan.features.unlimitedEdits && (
-                        <li className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Unlimited resume edits during validity</span>
-                        </li>
-                      )}
-                      {plan.features.resumeVersionHistory && (
-                        <li className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Resume Version History</span>
-                        </li>
-                      )}
-                      {plan.features.atsOptimization === 'advanced' && (
-                        <li className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>Advanced ATS Optimization</span>
-                        </li>
-                      )}
+                      ))}
                     </ul>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-3">

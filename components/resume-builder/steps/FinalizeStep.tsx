@@ -19,6 +19,12 @@ import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building2 } from 'lucide-react';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, PLAN_DISPLAY_NAMES, isAdminPlanBypassResponse, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
+import {
+  getIndividualPlansForUI,
+  getBusinessPlansForUI,
+  getIndividualPlanFeatureBullets,
+  getBusinessPlanFeatureBullets,
+} from '@/lib/services/plan-display-ui';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
 import {
   triggerGoAffProConversionAfterSubscription,
@@ -26,6 +32,9 @@ import {
 } from '@/components/payments/GoAffProConversionTrigger';
 import './finalize-payment-dialog.css';
 import { PDF_PAGINATION_PRINT_CSS } from '@/lib/resume-builder/pdf-pagination-overrides';
+
+const INDIVIDUAL_PLANS_UI = getIndividualPlansForUI();
+const BUSINESS_PLANS_UI = getBusinessPlansForUI();
 
 declare global {
   interface Window {
@@ -424,47 +433,6 @@ export default function FinalizeStep({
     setShowPaymentDialog(true);
     setExporting(null);
   };
-
-  // Transform plans for UI display (centralized from razorpay-plans.ts)
-  const INDIVIDUAL_PLANS_UI = Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
-    key: key as IndividualPlanKey,
-    name: plan.name,
-    price: plan.amount / 100, // Convert paise to rupees
-    validity: `${plan.validityDays} Days`,
-    features: {
-      pdfDownloads: plan.features.pdfDownloads,
-      templateAccess: plan.features.templateAccess === 'all' ? 'ALL Premium Templates' : `${plan.features.templateCount || plan.features.pdfDownloads} Premium Templates`,
-      aiResumeUsage: plan.features.aiResumeUsage === -1 ? 'Unlimited' : plan.features.aiResumeUsage,
-      aiCoverLetterUsage: plan.features.aiCoverLetterUsage === -1 ? 'Unlimited' : plan.features.aiCoverLetterUsage,
-      atsOptimization: plan.features.atsOptimization,
-      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
-      unlimitedEdits: 'unlimitedEdits' in plan.features ? plan.features.unlimitedEdits : false,
-      resumeVersionHistory: 'resumeVersionHistory' in plan.features ? plan.features.resumeVersionHistory : false,
-      prioritySupport: 'prioritySupport' in plan.features ? plan.features.prioritySupport : false,
-    },
-    popular: plan.popular || false,
-    bestValue: (plan as any).bestValue || false,
-  }));
-
-  const BUSINESS_PLANS_UI = Object.entries(BUSINESS_PLANS).map(([key, plan]) => ({
-    key: key as BusinessPlanKey,
-    name: plan.name,
-    price: plan.amount / 100, // Convert paise to rupees
-    originalPrice: (plan as any).originalPrice ? (plan as any).originalPrice / 100 : null,
-    validity: plan.durationMonths === 12 ? '1 Year' : `${plan.durationMonths} Months`,
-    features: {
-      resumeCredits: plan.features.resumeCredits,
-      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
-      templateAccess: 'ALL Premium Templates',
-      prioritySupport: plan.features.prioritySupport,
-      maxDownloadsPerCandidate: plan.features.maxDownloadsPerCandidate,
-      unlimitedEdits: (plan.features as any).unlimitedEdits || false,
-      resumeVersionHistory: (plan.features as any).resumeVersionHistory || false,
-      atsOptimization: (plan.features as any).atsOptimization || false,
-    },
-    recommended: (plan as any).recommended || false,
-    popular: (plan as any).popular || false,
-  }));
 
   // Calculate ATS score
   useEffect(() => {
@@ -2020,44 +1988,12 @@ export default function FinalizeStep({
                   </div>
                 </div>
                 <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    {plan.features.pdfDownloads} PDF Resume Downloads{plan.features.maxDownloadsPerDay ? ` (max ${plan.features.maxDownloadsPerDay}/day)` : ''}
-                  </li>
-                  <li className="flex items-center text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    {plan.features.templateAccess}
-                  </li>
-                  <li className="flex items-center text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    {typeof plan.features.aiResumeUsage === 'number' ? `${plan.features.aiResumeUsage} AI Resume Optimization${plan.features.aiResumeUsage === 1 ? '' : 's'}` : 'Unlimited AI Resume Optimization'}
-                  </li>
-                  <li className="flex items-center text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    {typeof plan.features.aiCoverLetterUsage === 'number' ? `${plan.features.aiCoverLetterUsage} AI Cover Letter${plan.features.aiCoverLetterUsage === 1 ? '' : 's'}` : 'Unlimited AI Cover Letters'}
-                  </li>
-                  <li className="flex items-center text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    {plan.features.atsOptimization === 'advanced' ? 'Advanced' : 'Basic'} ATS Optimization
-                  </li>
-                  {plan.features.unlimitedEdits && (
-                    <li className="flex items-center text-sm text-gray-700">
+                  {getIndividualPlanFeatureBullets(plan).map((bullet) => (
+                    <li key={bullet} className="flex items-center text-sm text-gray-700">
                       <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      Unlimited edits during validity
+                      {bullet}
                     </li>
-                  )}
-                  {plan.features.resumeVersionHistory && (
-                    <li className="flex items-center text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      Resume Version History
-                    </li>
-                  )}
-                  {plan.features.prioritySupport && (
-                    <li className="flex items-center text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      Priority Support
-                    </li>
-                  )}
+                  ))}
                 </ul>
                 <CouponCheckoutBox
                   planKey={plan.key}
@@ -2131,48 +2067,12 @@ export default function FinalizeStep({
                     </div>
                   </div>
                   <ul className="space-y-2 mb-6">
-                    <li className="flex items-center text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      {plan.features.resumeCredits} Resume Credits
-                    </li>
-                    <li className="flex items-center text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      Max {plan.features.maxDownloadsPerDay} PDF downloads/day
-                    </li>
-                    {plan.features.maxDownloadsPerCandidate && (
-                      <li className="flex items-center text-sm text-gray-700">
+                    {getBusinessPlanFeatureBullets(plan).map((bullet) => (
+                      <li key={bullet} className="flex items-center text-sm text-gray-700">
                         <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                        Max {plan.features.maxDownloadsPerCandidate} downloads per candidate
+                        {bullet}
                       </li>
-                    )}
-                    <li className="flex items-center text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      {plan.features.templateAccess}
-                    </li>
-                    {plan.features.prioritySupport && (
-                      <li className="flex items-center text-sm text-gray-700">
-                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                        Priority Support
-                      </li>
-                    )}
-                    {plan.features.unlimitedEdits && (
-                      <li className="flex items-center text-sm text-gray-700">
-                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                        Unlimited resume edits during validity
-                      </li>
-                    )}
-                    {plan.features.resumeVersionHistory && (
-                      <li className="flex items-center text-sm text-gray-700">
-                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                        Resume Version History
-                      </li>
-                    )}
-                    {plan.features.atsOptimization === 'advanced' && (
-                      <li className="flex items-center text-sm text-gray-700">
-                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                        Advanced ATS Optimization
-                      </li>
-                    )}
+                    ))}
                   </ul>
                   <CouponCheckoutBox
                     planKey={plan.key}
