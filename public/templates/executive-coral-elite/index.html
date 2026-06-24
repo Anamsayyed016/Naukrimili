@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ece-resume">
+    <div class="ece-deco ece-deco--wash ece-deco--wash-tl" aria-hidden="true"></div>
+    <div class="ece-deco ece-deco--wash ece-deco--wash-tr" aria-hidden="true"></div>
+    <div class="ece-deco ece-deco--wash ece-deco--wash-bl" aria-hidden="true"></div>
+    <div class="ece-deco ece-deco--geo ece-deco--geo-tl" aria-hidden="true"></div>
+    <div class="ece-deco ece-deco--geo ece-deco--geo-tr" aria-hidden="true"></div>
+    <div class="ece-deco ece-deco--geo ece-deco--geo-bl" aria-hidden="true"></div>
+
+    <header class="ece-header">
+      <div class="ece-header-top">
+        {{#if PROFILE_IMAGE}}
+        <div class="ece-photo">
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="ece-photo">
+          <div class="profile-image-wrapper profile-image-wrapper--initials">
+            <span class="profile-initials" aria-hidden="true">
+              <span class="ece-ini-f">{{FIRST_NAME}}</span><span class="ece-ini-l">{{LAST_NAME}}</span>
+            </span>
+          </div>
+        </div>
+        {{/unless}}
+
+        <div class="ece-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </div>
+
+      {{#if CONTACT}}
+      <div class="ece-contact-bar">
+        <div class="contact-list">
+          {{CONTACT}}
+        </div>
+      </div>
+      <div class="ece-contact-divider" aria-hidden="true"></div>
+      {{/if}}
+    </header>
+
+    <div class="ece-body">
+      <main class="ece-main">
+        {{#if SUMMARY}}
+        <section class="ece-section ece-section--summary">
+          <h2 class="ece-section-title">Professional Summary</h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="ece-section ece-section--experience">
+          <h2 class="ece-section-title">Professional Experience</h2>
+          <div class="experience-list ece-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ece-section ece-section--projects">
+          <h2 class="ece-section-title">Featured Projects</h2>
+          <div class="projects-list ece-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="ece-sidebar">
+        <div class="ece-sidebar-inner">
+          {{#if SKILLS}}
+          <section class="ece-section ece-section--skills">
+            <h2 class="ece-sidebar-title">Expertise Clusters</h2>
+            <div class="skills-list ece-skills-pills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="ece-section ece-section--education">
+            <h2 class="ece-sidebar-title">Education</h2>
+            <div class="education-list ece-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="ece-section ece-section--certs">
+            <h2 class="ece-sidebar-title">Certifications</h2>
+            <div class="certifications-list ece-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="ece-section ece-section--languages psp-languages-progress">
+            <h2 class="ece-sidebar-title">Languages</h2>
+            <div class="languages-list ece-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="ece-section ece-section--achievements">
+            <h2 class="ece-sidebar-title">Key Achievements</h2>
+            <div class="achievements-list ece-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

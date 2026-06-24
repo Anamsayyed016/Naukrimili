@@ -1,0 +1,740 @@
+/* Executive Coral Elite — luxury corporate two-column executive resume */
+
+.ece-resume {
+  --ece-navy: #1F2D3D;
+  --ece-secondary: #F3F4F6;
+  --ece-coral: #F4B39A;
+  --ece-bg: #FFFFFF;
+  --ece-sidebar: #F7F7F9;
+  --ece-text: #111827;
+  --ece-muted: #6B7280;
+  --ece-divider: #E5E7EB;
+  --ece-bar-track: #E5E7EB;
+  --ece-pill-bg: #FFFFFF;
+  --ece-side-width: 248px;
+  --ece-max-width: 210mm;
+  --ece-font: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Color picker aliases */
+  --primary-color: var(--ece-navy);
+  --accent-color: var(--ece-coral);
+  --text-color: var(--ece-text);
+}
+
+.ece-resume,
+.ece-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ece-resume,
+.resume-container.ece-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--ece-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--ece-font);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--ece-text);
+  background: var(--ece-bg) !important;
+  overflow: visible;
+  box-shadow: 0 14px 40px rgba(31, 45, 61, 0.08);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+  isolation: isolate;
+}
+
+/* ── Decorative coral accents (PDF-safe) ── */
+.ece-resume .ece-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ece-resume .ece-deco--wash {
+  border-radius: 0;
+}
+
+.ece-resume .ece-deco--wash-tl {
+  top: 0;
+  left: 0;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle at 0% 0%, rgba(244, 179, 154, 0.2) 0%, transparent 68%);
+}
+
+.ece-resume .ece-deco--wash-tr {
+  top: 0;
+  right: 0;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle at 100% 0%, rgba(244, 179, 154, 0.16) 0%, transparent 70%);
+}
+
+.ece-resume .ece-deco--wash-bl {
+  bottom: 0;
+  left: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle at 0% 100%, rgba(244, 179, 154, 0.14) 0%, transparent 72%);
+}
+
+.ece-resume .ece-deco--geo {
+  background: var(--ece-coral);
+  opacity: 0.55;
+}
+
+.ece-resume .ece-deco--geo-tl {
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 80px;
+  border-radius: 0 0 14px 0;
+}
+
+.ece-resume .ece-deco--geo-tr {
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-top: 3px solid var(--ece-coral);
+  border-right: 3px solid var(--ece-coral);
+  border-radius: 0 10px 0 0;
+  background: transparent;
+  opacity: 0.7;
+}
+
+.ece-resume .ece-deco--geo-bl {
+  bottom: 22px;
+  left: 22px;
+  width: 34px;
+  height: 34px;
+  border-bottom: 3px solid var(--ece-coral);
+  border-left: 3px solid var(--ece-coral);
+  border-radius: 0 0 0 10px;
+  background: transparent;
+  opacity: 0.65;
+}
+
+/* ── Header ── */
+.ece-resume .ece-header {
+  position: relative;
+  z-index: 2;
+  background: var(--ece-bg);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ece-resume .ece-header-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 26px;
+  padding: 32px 36px 20px 40px;
+}
+
+.ece-resume .ece-photo {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+}
+
+.ece-resume .profile-image-wrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #FFFFFF;
+  box-shadow:
+    0 4px 20px rgba(31, 45, 61, 0.12),
+    0 0 0 1px var(--ece-divider);
+  background: var(--ece-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ece-resume .profile-image-wrapper--initials {
+  background: linear-gradient(145deg, #FFFFFF 0%, var(--ece-secondary) 100%);
+}
+
+.ece-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.ece-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ece-resume .ece-ini-f,
+.ece-resume .ece-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.ece-resume .ece-ini-f::first-letter,
+.ece-resume .ece-ini-l::first-letter {
+  font-size: 38px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ece-navy);
+}
+
+.ece-resume .ece-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.ece-resume .candidate-name {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ece-navy);
+  margin-bottom: 8px;
+}
+
+.ece-resume .name-first,
+.ece-resume .name-last {
+  display: inline;
+}
+
+.ece-resume .name-first:empty,
+.ece-resume .name-last:empty,
+.ece-resume .name-space:empty {
+  display: none;
+}
+
+.ece-resume .name-fallback {
+  display: none;
+}
+
+.ece-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.ece-resume .header-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ece-muted);
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+/* ── Contact bar ── */
+.ece-resume .ece-contact-bar {
+  background: var(--ece-navy);
+  padding: 11px 36px;
+}
+
+.ece-resume .ece-contact-bar .contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+}
+
+.ece-resume .ece-contact-bar .contact-item {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.94);
+  line-height: 1.4;
+}
+
+.ece-resume .ece-contact-bar .contact-item:not(:last-child)::after {
+  content: '|';
+  margin: 0 14px;
+  color: var(--ece-coral);
+  font-weight: 400;
+  opacity: 0.95;
+}
+
+.ece-resume .ece-contact-bar .contact-item::before {
+  display: none;
+}
+
+.ece-resume .contact-label {
+  word-break: break-word;
+}
+
+.ece-resume .ece-contact-divider {
+  height: 1px;
+  background: var(--ece-divider);
+  margin: 0;
+}
+
+/* ── Two-column body ── */
+.ece-resume .ece-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ece-side-width);
+  align-items: stretch;
+  min-height: 0;
+}
+
+.ece-resume .ece-main {
+  padding: 24px 30px 32px 36px;
+  background: var(--ece-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ece-resume .ece-sidebar {
+  background: var(--ece-sidebar);
+  padding: 24px 20px 32px 18px;
+  box-shadow: inset 1px 0 0 var(--ece-divider);
+}
+
+.ece-resume .ece-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Main section headings ── */
+.ece-resume .ece-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ece-navy);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ece-coral);
+  line-height: 1.3;
+}
+
+.ece-resume .ece-sidebar-title {
+  display: inline-block;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  background: var(--ece-navy);
+  padding: 5px 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.ece-resume .ece-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ── Summary ── */
+.ece-resume .summary-text {
+  color: var(--ece-text);
+  line-height: 1.68;
+  text-align: justify;
+}
+
+/* ── Experience ── */
+.ece-resume .ece-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ece-resume .ece-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.ece-resume .ece-experience .experience-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.ece-resume .ece-experience .experience-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 4px;
+  margin-bottom: 8px;
+}
+
+.ece-resume .ece-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ece-navy);
+  line-height: 1.35;
+}
+
+.ece-resume .ece-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--ece-muted);
+  white-space: nowrap;
+  align-self: start;
+}
+
+.ece-resume .ece-experience .experience-header .company {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--ece-muted);
+  font-style: normal;
+}
+
+.ece-resume .ece-experience .description {
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--ece-text);
+}
+
+.ece-resume .ece-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ece-resume .ece-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.58;
+}
+
+.ece-resume .ece-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  background: var(--ece-coral);
+  border-radius: 50%;
+}
+
+/* ── Projects ── */
+.ece-resume .ece-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ece-resume .ece-projects .project-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ece-resume .ece-projects .project-item h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ece-navy);
+  margin-bottom: 5px;
+  line-height: 1.35;
+}
+
+.ece-resume .ece-projects .project-item .description,
+.ece-resume .ece-projects .project-item .technologies {
+  color: var(--ece-text);
+  line-height: 1.58;
+  font-size: 10.5px;
+}
+
+.ece-resume .ece-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.ece-resume .ece-projects .project-item .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.ece-resume .ece-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  background: var(--ece-coral);
+  border-radius: 50%;
+}
+
+/* ── Skills expertise pills ── */
+.ece-resume .ece-skills-pills.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ece-resume .ece-skills-pills .skill-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--ece-text);
+  background: var(--ece-pill-bg);
+  border: 1px solid var(--ece-divider);
+  border-radius: 6px;
+  padding: 4px 9px;
+  line-height: 1.35;
+  white-space: normal;
+  box-shadow: 0 1px 3px rgba(31, 45, 61, 0.05);
+}
+
+/* ── Sidebar education ── */
+.ece-resume .ece-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ece-resume .ece-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ece-resume .ece-education .education-item h3 {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ece-navy);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.ece-resume .ece-education .institution {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--ece-muted);
+  display: block;
+}
+
+.ece-resume .ece-education .year,
+.ece-resume .ece-education .cgpa {
+  font-size: 9px;
+  color: var(--ece-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Certifications ── */
+.ece-resume .ece-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ece-resume .ece-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ece-resume .ece-certifications .certification-item h3 {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ece-text);
+  line-height: 1.45;
+}
+
+.ece-resume .ece-certifications .issuer,
+.ece-resume .ece-certifications .date,
+.ece-resume .ece-certifications .year {
+  font-size: 9px;
+  color: var(--ece-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Languages progress bars ── */
+.ece-resume .psp-languages-progress .languages-list,
+.ece-resume .ece-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ece-resume .psp-languages-progress .psp-language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ece-resume .psp-languages-progress .psp-language-name {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--ece-text);
+}
+
+.ece-resume .psp-languages-progress .psp-language-bar-container {
+  width: 100%;
+  height: 5px;
+  background: var(--ece-bar-track);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ece-resume .psp-languages-progress .psp-language-bar-fill {
+  height: 100%;
+  background: var(--ece-navy);
+  border-radius: 3px;
+}
+
+.ece-resume .psp-languages-progress .psp-language-percentage {
+  display: none;
+}
+
+/* ── Achievements ── */
+.ece-resume .ece-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ece-resume .ece-achievements .achievement-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-left: 0;
+}
+
+.ece-resume .ece-achievements .achievement-item h3 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ece-navy);
+  line-height: 1.45;
+}
+
+.ece-resume .ece-achievements .achievement-item .description {
+  font-size: 9.5px;
+  color: var(--ece-text);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.ece-resume .ece-achievements .achievement-item .year,
+.ece-resume .ece-achievements .achievement-item .date {
+  font-size: 9px;
+  color: var(--ece-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ece-resume .ece-body {
+    grid-template-columns: 1fr;
+  }
+
+  .ece-resume .ece-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 20px 16px;
+  }
+
+  .ece-resume .ece-contact-bar {
+    padding: 11px 20px;
+  }
+
+  .ece-resume .ece-main {
+    padding: 18px 20px 24px;
+  }
+
+  .ece-resume .ece-sidebar {
+    padding: 18px 20px 28px;
+  }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume,
+  .resume-container.ece-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--ece-bg) !important;
+    box-shadow: none !important;
+  }
+
+  .ece-resume .ece-contact-bar {
+    background: var(--ece-navy) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .ece-sidebar {
+    background: var(--ece-sidebar) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .ece-sidebar-title {
+    background: var(--ece-navy) !important;
+    color: #FFFFFF !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .ece-deco {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .experience-item,
+  .ece-resume .project-item,
+  .ece-resume .education-item,
+  .ece-resume .achievement-item,
+  .ece-resume .certification-item,
+  .ece-resume .ece-section,
+  .ece-resume .psp-language-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.ece-resume .ece-body,
+.resume-container.ece-resume .ece-main,
+.resume-container.ece-resume .ece-sidebar,
+.resume-container.ece-resume .ece-sidebar-inner {
+  min-height: auto !important;
+  height: auto !important;
+  align-items: flex-start !important;
+}

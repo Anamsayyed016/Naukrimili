@@ -766,6 +766,30 @@
         { "id": "boardroom-orange", "name": "Boardroom Orange", "primary": "#CE7A45", "accent": "#252F36", "text": "#1F1F1F" }
       ],
       "defaultColor": "graphite-orange"
+    },
+    {
+      "id": "executive-coral-elite",
+      "name": "Executive Coral Elite",
+      "slug": "executive-coral-elite",
+      "description": "Luxury executive resume with deep navy and soft coral accents, circular portrait header, navy contact bar, expertise cluster skill pills, language proficiency bars, and light executive sidebar for ATS-friendly PDF export.",
+      "thumbnail": "/templates/executive-coral-elite/thumbnail.svg",
+      "preview": "/templates/executive-coral-elite/preview.svg",
+      "html": "/templates/executive-coral-elite/index.html",
+      "css": "/templates/executive-coral-elite/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "coral-elite", "name": "Coral Elite", "primary": "#1F2D3D", "accent": "#F4B39A", "text": "#111827" },
+        { "id": "navy-slate", "name": "Navy Slate", "primary": "#1A2530", "accent": "#E8A88C", "text": "#111827" },
+        { "id": "executive-dusk", "name": "Executive Dusk", "primary": "#243447", "accent": "#F0B8A0", "text": "#111827" },
+        { "id": "warm-peach", "name": "Warm Peach", "primary": "#2C3E50", "accent": "#F8C4AB", "text": "#1A1A1A" },
+        { "id": "boardroom-navy", "name": "Boardroom Navy", "primary": "#172430", "accent": "#D9A088", "text": "#111827" },
+        { "id": "soft-coral", "name": "Soft Coral", "primary": "#1F2D3D", "accent": "#FFD4C2", "text": "#111827" }
+      ],
+      "defaultColor": "coral-elite"
     }
   ],
   "filters": {

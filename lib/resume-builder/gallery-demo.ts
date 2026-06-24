@@ -216,6 +216,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-orange-400/55',
     hoverOverlay: 'from-orange-50/30',
   },
+  'executive-coral-elite': {
+    glow: 'radial-gradient(circle, rgba(244,179,154,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(31,45,61,0.28) 0%, transparent 70%)',
+    borderTint: 'hover:border-orange-300/55',
+    hoverOverlay: 'from-orange-50/30',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -255,6 +261,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'aurora-executive-glass': { firstName: 'Anya', lastName: 'Petrova', jobTitle: 'Lead Software Architect | AI & Distributed Systems' },
   'blush-executive-watercolor': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director' },
   'graphite-orange-executive': { firstName: 'Eliza', lastName: 'Vance', jobTitle: 'Senior Operations Director | Strategic Growth' },
+  'executive-coral-elite': { firstName: 'Arianna', lastName: 'Lynch', jobTitle: 'Senior Operations Manager | Growth Strategist' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
