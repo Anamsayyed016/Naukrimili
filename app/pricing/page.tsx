@@ -15,6 +15,7 @@ import {
   triggerGoAffProConversionAfterSubscription,
   triggerGoAffProConversionAfterVerify,
 } from '@/components/payments/GoAffProConversionTrigger';
+import { BackButton } from '@/components/ui/back-button';
 
 // Transform plans for UI display (centralized from razorpay-plans.ts)
 const getIndividualPlansForUI = () => {
@@ -859,6 +860,9 @@ export default function PricingPage() {
               </div>
             </div>
           )}
+          <div className="mb-4">
+            <BackButton fallbackUrl="/" label="Back" variant="ghost" />
+          </div>
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
