@@ -838,6 +838,30 @@
         { "id": "boardroom-navy", "name": "Boardroom Navy", "primary": "#0F1E2A", "accent": "#C48B63", "text": "#1A1A1A" }
       ],
       "defaultColor": "navy-copper"
+    },
+    {
+      "id": "soft-coral-executive",
+      "name": "Soft Coral Executive",
+      "slug": "soft-coral-executive",
+      "description": "Modern executive resume with white premium canvas, soft coral decorative accents, circular portrait header, five-column contact strip, and clean 65/35 experience sidebar layout for ATS-friendly PDF export.",
+      "thumbnail": "/templates/soft-coral-executive/thumbnail.svg",
+      "preview": "/templates/soft-coral-executive/preview.svg",
+      "html": "/templates/soft-coral-executive/index.html",
+      "css": "/templates/soft-coral-executive/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "soft-coral", "name": "Soft Coral", "primary": "#111111", "accent": "#FF5A3D", "text": "#111111" },
+        { "id": "warm-beige", "name": "Warm Beige", "primary": "#111111", "accent": "#F8C6B4", "text": "#1A1A1A" },
+        { "id": "coral-blush", "name": "Coral Blush", "primary": "#111111", "accent": "#E85A45", "text": "#111111" },
+        { "id": "executive-white", "name": "Executive White", "primary": "#000000", "accent": "#FF5A3D", "text": "#111111" },
+        { "id": "sand-executive", "name": "Sand Executive", "primary": "#1A1A1A", "accent": "#EDE7E1", "text": "#111111" },
+        { "id": "peach-accent", "name": "Peach Accent", "primary": "#111111", "accent": "#F8C6B4", "text": "#222222" }
+      ],
+      "defaultColor": "soft-coral"
     }
   ],
   "filters": {

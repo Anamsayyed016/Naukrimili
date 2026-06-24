@@ -1,0 +1,731 @@
+/* Soft Coral Executive — modern premium executive resume */
+
+.sce-resume {
+  --sce-bg: #FFFFFF;
+  --sce-text: #111111;
+  --sce-text-dark: #000000;
+  --sce-title: #222222;
+  --sce-muted: #555555;
+  --sce-divider: #D9D9D9;
+  --sce-beige: #EDE7E1;
+  --sce-coral-soft: #F8C6B4;
+  --sce-coral: #FF5A3D;
+  --sce-warm-gray: #D8D0C8;
+  --sce-max-width: 210mm;
+  --sce-font-head: 'Montserrat', 'Segoe UI', sans-serif;
+  --sce-font-body: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --primary-color: var(--sce-text);
+  --accent-color: var(--sce-coral);
+  --text-color: var(--sce-text);
+}
+
+.sce-resume,
+.sce-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.sce-resume,
+.resume-container.sce-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--sce-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 28px 32px 36px;
+  font-family: var(--sce-font-body);
+  font-size: 10.5px;
+  line-height: 1.62;
+  color: var(--sce-text);
+  background: var(--sce-bg) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Decorative shapes (behind content, PDF-safe) ── */
+.sce-resume .sce-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sce-resume .sce-deco--tr-circle {
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--sce-beige);
+  opacity: 0.95;
+}
+
+.sce-resume .sce-deco--tr-ring {
+  top: 8px;
+  right: 8px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 3px solid var(--sce-coral);
+  opacity: 0.85;
+  background: transparent;
+}
+
+.sce-resume .sce-deco--left-circles {
+  top: 42%;
+  left: -40px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(248, 198, 180, 0.14) 0%, rgba(248, 198, 180, 0.08) 55%, transparent 72%);
+  box-shadow: 36px 20px 0 rgba(248, 198, 180, 0.12);
+}
+
+.sce-resume .sce-deco--br-wave {
+  bottom: -20px;
+  right: -10px;
+  width: 180px;
+  height: 120px;
+  opacity: 0.9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 120'%3E%3Cpath d='M0,80 Q60,20 120,70 T180,40' fill='none' stroke='%23FF5A3D' stroke-width='3' opacity='0.55'/%3E%3Cellipse cx='140' cy='90' rx='50' ry='28' fill='%23EDE7E1' opacity='0.7'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom right;
+}
+
+.sce-resume .sce-deco--bl-blob {
+  bottom: 40px;
+  left: -30px;
+  width: 120px;
+  height: 90px;
+  border-radius: 50% 40% 60% 50%;
+  background: var(--sce-beige);
+  opacity: 0.55;
+}
+
+/* ── Header ── */
+.sce-resume .sce-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.sce-resume .sce-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--sce-divider);
+}
+
+.sce-resume .sce-photo {
+  position: relative;
+  flex-shrink: 0;
+  width: 130px;
+  height: 130px;
+}
+
+.sce-resume .sce-photo::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: var(--sce-beige);
+  opacity: 0.65;
+  z-index: 0;
+}
+
+.sce-resume .profile-image-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid var(--sce-bg);
+  box-shadow: 0 0 0 3px var(--sce-coral-soft);
+  background: var(--sce-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sce-resume .profile-image-wrapper--initials {
+  background: linear-gradient(145deg, #FFFFFF 0%, var(--sce-beige) 100%);
+}
+
+.sce-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.sce-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.sce-resume .sce-ini-f,
+.sce-resume .sce-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.sce-resume .sce-ini-f::first-letter,
+.sce-resume .sce-ini-l::first-letter {
+  font-family: var(--sce-font-head);
+  font-size: 40px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--sce-text-dark);
+}
+
+.sce-resume .sce-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.sce-resume .candidate-name {
+  font-family: var(--sce-font-head);
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sce-text-dark);
+  margin-bottom: 10px;
+}
+
+.sce-resume .name-first,
+.sce-resume .name-last {
+  display: inline;
+}
+
+.sce-resume .name-first:empty,
+.sce-resume .name-last:empty,
+.sce-resume .name-space:empty {
+  display: none;
+}
+
+.sce-resume .name-fallback {
+  display: none;
+}
+
+.sce-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.sce-resume .header-title {
+  font-family: var(--sce-font-head);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sce-title);
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+/* ── Contact bar ── */
+.sce-resume .sce-contact-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  border-bottom: 1px solid var(--sce-divider);
+  margin-bottom: 22px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.sce-resume .sce-contact-col {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-right: 1px solid var(--sce-divider);
+}
+
+.sce-resume .sce-contact-col:last-child {
+  border-right: none;
+}
+
+.sce-resume .sce-contact-label {
+  font-family: var(--sce-font-head);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sce-muted);
+}
+
+.sce-resume .sce-contact-value {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--sce-text);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* ── Body 65 / 35 ── */
+.sce-resume .sce-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 65fr 35fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.sce-resume .sce-main {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.sce-resume .sce-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-left: 4px;
+  border-left: 1px solid var(--sce-divider);
+}
+
+/* ── Section titles ── */
+.sce-resume .sce-section-title {
+  font-family: var(--sce-font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sce-text);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--sce-divider);
+  line-height: 1.3;
+}
+
+.sce-resume .sce-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ── Summary ── */
+.sce-resume .summary-text {
+  font-size: 10px;
+  line-height: 1.65;
+  color: var(--sce-text);
+}
+
+/* ── Experience ── */
+.sce-resume .sce-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sce-resume .sce-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--sce-divider);
+}
+
+.sce-resume .sce-experience .experience-item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.sce-resume .sce-experience .experience-header {
+  margin-bottom: 6px;
+}
+
+.sce-resume .sce-experience .experience-header h3 {
+  font-family: var(--sce-font-head);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sce-text);
+  line-height: 1.35;
+  display: inline;
+}
+
+.sce-resume .sce-experience .experience-header h3::after {
+  content: ' | ';
+  font-weight: 400;
+  color: var(--sce-muted);
+}
+
+.sce-resume .sce-experience .experience-header .company {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sce-text);
+  font-style: normal;
+  display: inline;
+}
+
+.sce-resume .sce-experience .experience-header .duration {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--sce-muted);
+  margin-top: 4px;
+}
+
+.sce-resume .sce-experience .description {
+  font-size: 10px;
+  line-height: 1.62;
+  color: var(--sce-text);
+}
+
+.sce-resume .sce-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sce-resume .sce-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.58;
+}
+
+.sce-resume .sce-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  background: var(--sce-warm-gray);
+  border-radius: 50%;
+}
+
+/* ── Projects ── */
+.sce-resume .sce-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sce-resume .sce-projects .project-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--sce-divider);
+}
+
+.sce-resume .sce-projects .project-item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.sce-resume .sce-projects .project-item h3 {
+  font-family: var(--sce-font-head);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--sce-text);
+  margin-bottom: 5px;
+  line-height: 1.35;
+}
+
+.sce-resume .sce-projects .project-item .description,
+.sce-resume .sce-projects .project-item .technologies {
+  font-size: 10px;
+  line-height: 1.58;
+  color: var(--sce-text);
+}
+
+.sce-resume .sce-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.sce-resume .sce-projects .project-item .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.sce-resume .sce-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  background: var(--sce-warm-gray);
+  border-radius: 50%;
+}
+
+/* ── Skills two-column plain ── */
+.sce-resume .sce-skills-grid.skills-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 14px;
+}
+
+.sce-resume .sce-skills-grid .skill-tag {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--sce-text);
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  line-height: 1.45;
+  white-space: normal;
+  box-shadow: none;
+}
+
+/* ── Education ── */
+.sce-resume .sce-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sce-resume .sce-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.sce-resume .sce-education .education-item h3 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sce-text);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.sce-resume .sce-education .institution {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--sce-muted);
+  display: block;
+}
+
+.sce-resume .sce-education .year,
+.sce-resume .sce-education .cgpa {
+  font-size: 9px;
+  color: var(--sce-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Certifications ── */
+.sce-resume .sce-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sce-resume .sce-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.sce-resume .sce-certifications .certification-item h3 {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--sce-text);
+  line-height: 1.45;
+}
+
+.sce-resume .sce-certifications .issuer,
+.sce-resume .sce-certifications .date,
+.sce-resume .sce-certifications .year {
+  font-size: 9px;
+  color: var(--sce-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Languages text format ── */
+.sce-resume .sce-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sce-resume .sce-languages .language-item {
+  font-size: 9.5px;
+  line-height: 1.45;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.sce-resume .sce-languages .language {
+  font-weight: 600;
+  color: var(--sce-text);
+}
+
+.sce-resume .sce-languages .proficiency {
+  font-weight: 400;
+  color: var(--sce-muted);
+}
+
+.sce-resume .sce-languages .language-item .proficiency::before {
+  content: ' \2014 ';
+  color: var(--sce-muted);
+}
+
+/* ── Achievements ── */
+.sce-resume .sce-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sce-resume .sce-achievements .achievement-item {
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-left: 14px;
+}
+
+.sce-resume .sce-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  background: var(--sce-warm-gray);
+  border-radius: 50%;
+}
+
+.sce-resume .sce-achievements .achievement-item h3 {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--sce-text);
+  line-height: 1.45;
+}
+
+.sce-resume .sce-achievements .achievement-item .description {
+  font-size: 9.5px;
+  color: var(--sce-muted);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.sce-resume .sce-achievements .achievement-item .year,
+.sce-resume .sce-achievements .achievement-item .date {
+  font-size: 9px;
+  color: var(--sce-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sce-resume {
+    padding: 18px;
+  }
+
+  .sce-resume .sce-body {
+    grid-template-columns: 1fr;
+  }
+
+  .sce-resume .sce-sidebar {
+    border-left: none;
+    border-top: 1px solid var(--sce-divider);
+    padding-left: 0;
+    padding-top: 18px;
+  }
+
+  .sce-resume .sce-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sce-resume .sce-contact-bar {
+    flex-direction: column;
+  }
+
+  .sce-resume .sce-contact-col {
+    border-right: none;
+    border-bottom: 1px solid var(--sce-divider);
+  }
+
+  .sce-resume .candidate-name {
+    font-size: 28px;
+  }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .sce-resume,
+  .resume-container.sce-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--sce-bg) !important;
+    padding: 24px 28px 32px !important;
+  }
+
+  .sce-resume .sce-deco {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .sce-resume .profile-image-wrapper {
+    box-shadow: 0 0 0 3px var(--sce-coral-soft) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .sce-resume .experience-item,
+  .sce-resume .project-item,
+  .sce-resume .education-item,
+  .sce-resume .achievement-item,
+  .sce-resume .certification-item,
+  .sce-resume .sce-section,
+  .sce-resume .language-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.sce-resume .sce-body,
+.resume-container.sce-resume .sce-main,
+.resume-container.sce-resume .sce-sidebar {
+  min-height: auto !important;
+  height: auto !important;
+  align-items: flex-start !important;
+}
