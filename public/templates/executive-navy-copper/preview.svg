@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#FAF8F5"/>
+  <rect x="0" y="0" width="800" height="190" fill="#162534"/>
+  <rect x="0" y="42" width="180" height="180" fill="#FFFFFF"/>
+  <rect x="8" y="50" width="164" height="164" fill="#C8C8C8"/>
+  <rect x="748" y="0" width="24" height="68" fill="#C48B63"/>
+  <polygon points="748,68 772,68 760,88" fill="#C48B63"/>
+  <text x="210" y="88" font-family="Arial,sans-serif" font-size="44" font-weight="800" fill="#FFFFFF" letter-spacing="3">JONATHAN CLARK</text>
+  <text x="210" y="122" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#F0F0F0" letter-spacing="2">SENIOR DATA STRATEGIST</text>
+  <line x1="210" y1="138" x2="760" y2="138" stroke="#C48B63" stroke-width="1.5"/>
+  <text x="210" y="162" font-family="Arial,sans-serif" font-size="11" fill="#FFFFFF">jonathan.clark@email.com</text>
+  <text x="480" y="162" font-family="Arial,sans-serif" font-size="11" fill="#FFFFFF">+1 (212) 555-0198</text>
+  <text x="210" y="180" font-family="Arial,sans-serif" font-size="11" fill="#FFFFFF">New York, NY</text>
+  <text x="480" y="180" font-family="Arial,sans-serif" font-size="11" fill="#FFFFFF">linkedin.com/in/jonathanclark</text>
+  <rect x="40" y="228" width="10" height="10" fill="#142331"/>
+  <text x="58" y="238" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#111111" letter-spacing="2">EXPERIENCE</text>
+  <line x1="200" y1="232" x2="540" y2="232" stroke="#C48B63" stroke-width="1.2"/>
+  <text x="40" y="268" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1A1A1A">Senior Data Strategist</text>
+  <text x="400" y="268" font-family="Arial,sans-serif" font-size="11" fill="#555555">2020 - Present</text>
+  <text x="40" y="288" font-family="Arial,sans-serif" font-size="11" fill="#555555">Enterprise Analytics Group | New York, NY</text>
+  <rect x="48" y="308" width="5" height="5" fill="#C48B63"/>
+  <rect x="60" y="306" width="420" height="6" rx="2" fill="#D8D0C8" opacity="0.6"/>
+  <rect x="48" y="324" width="5" height="5" fill="#C48B63"/>
+  <rect x="60" y="322" width="400" height="6" rx="2" fill="#D8D0C8" opacity="0.5"/>
+  <line x1="40" y1="350" x2="540" y2="350" stroke="#D8D0C8"/>
+  <rect x="40" y="378" width="10" height="10" fill="#142331"/>
+  <text x="58" y="388" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#111111" letter-spacing="2">PROJECTS</text>
+  <line x1="180" y1="382" x2="540" y2="382" stroke="#C48B63" stroke-width="1.2"/>
+  <line x1="560" y1="210" x2="560" y2="920" stroke="#D8D0C8"/>
+  <rect x="576" y="228" width="10" height="10" fill="#C48B63"/>
+  <text x="594" y="238" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#111111" letter-spacing="1.5">SUMMARY</text>
+  <line x1="680" y1="232" x2="760" y2="232" stroke="#C48B63"/>
+  <rect x="576" y="300" width="10" height="10" fill="#C48B63"/>
+  <text x="594" y="310" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#111111" letter-spacing="1.5">SKILLS</text>
+  <line x1="660" y1="304" x2="760" y2="304" stroke="#C48B63"/>
+  <text x="580" y="336" font-family="Arial,sans-serif" font-size="10" fill="#1A1A1A">Data Strategy</text>
+  <text x="680" y="336" font-family="Arial,sans-serif" font-size="10" fill="#1A1A1A">Analytics</text>
+  <text x="580" y="354" font-family="Arial,sans-serif" font-size="10" fill="#1A1A1A">Leadership</text>
+  <text x="680" y="354" font-family="Arial,sans-serif" font-size="10" fill="#1A1A1A">Python</text>
+  <rect x="576" y="390" width="10" height="10" fill="#C48B63"/>
+  <text x="594" y="400" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#111111" letter-spacing="1.5">EDUCATION</text>
+  <line x1="680" y1="394" x2="760" y2="394" stroke="#C48B63"/>
+  <text x="580" y="424" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#1A1A1A">M.S. Data Science</text>
+  <text x="580" y="440" font-family="Arial,sans-serif" font-size="9" fill="#555555">Columbia University</text>
+  <text x="400" y="968" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#C48B63">Executive Navy Copper</text>
+</svg>
