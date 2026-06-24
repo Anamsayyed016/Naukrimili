@@ -790,6 +790,30 @@
         { "id": "soft-coral", "name": "Soft Coral", "primary": "#243445", "accent": "#FFE6DE", "text": "#243445" }
       ],
       "defaultColor": "coral-elite"
+    },
+    {
+      "id": "fashion-editorial-premium",
+      "name": "Editorial Mauve Executive",
+      "slug": "fashion-editorial-premium",
+      "description": "Fashion editorial luxury resume with split mauve header card, arch portrait panel, serif executive name, divider-style skills sidebar, and magazine-quality editorial formatting for ATS-friendly PDF export.",
+      "thumbnail": "/templates/fashion-editorial-premium/thumbnail.svg",
+      "preview": "/templates/fashion-editorial-premium/preview.svg",
+      "html": "/templates/fashion-editorial-premium/index.html",
+      "css": "/templates/fashion-editorial-premium/style.css",
+      "categories": ["Premium", "Creative", "Executive", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "editorial-mauve", "name": "Editorial Mauve", "primary": "#9B7E87", "accent": "#C5B6A7", "text": "#1D1D1D" },
+        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#A8878F", "accent": "#C9B8AD", "text": "#1D1D1D" },
+        { "id": "warm-taupe", "name": "Warm Taupe", "primary": "#8E7A6E", "accent": "#C5B6A7", "text": "#1D1D1D" },
+        { "id": "soft-plum", "name": "Soft Plum", "primary": "#8B7389", "accent": "#BFAFA5", "text": "#1D1D1D" },
+        { "id": "sandstone", "name": "Sandstone", "primary": "#9A8578", "accent": "#D4C4B5", "text": "#1D1D1D" },
+        { "id": "evening-mauve", "name": "Evening Mauve", "primary": "#7A6570", "accent": "#C5B6A7", "text": "#1D1D1D" }
+      ],
+      "defaultColor": "editorial-mauve"
     }
   ],
   "filters": {

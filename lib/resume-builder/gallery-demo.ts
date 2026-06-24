@@ -222,6 +222,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-orange-300/60',
     hoverOverlay: 'from-orange-50/35',
   },
+  'fashion-editorial-premium': {
+    glow: 'radial-gradient(circle, rgba(155,126,135,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(243,217,210,0.55) 0%, transparent 70%)',
+    borderTint: 'hover:border-rose-300/55',
+    hoverOverlay: 'from-rose-50/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -262,6 +268,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'blush-executive-watercolor': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director' },
   'graphite-orange-executive': { firstName: 'Eliza', lastName: 'Vance', jobTitle: 'Senior Operations Director | Strategic Growth' },
   'executive-coral-elite': { firstName: 'Arianna', lastName: 'Lynch', jobTitle: 'Senior Operations Manager | Growth Strategist' },
+  'fashion-editorial-premium': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Creative Director | Fashion & Retail Innovator' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

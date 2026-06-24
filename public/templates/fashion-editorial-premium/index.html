@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container fep-resume">
+    <header class="fep-header-card">
+      <div class="fep-header-left">
+        <div class="fep-arch-deco" aria-hidden="true"></div>
+        {{#if PROFILE_IMAGE}}
+        <div class="fep-photo">
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="fep-photo">
+          <div class="profile-image-wrapper profile-image-wrapper--initials">
+            <span class="profile-initials" aria-hidden="true">
+              <span class="fep-ini-f">{{FIRST_NAME}}</span><span class="fep-ini-l">{{LAST_NAME}}</span>
+            </span>
+          </div>
+        </div>
+        {{/unless}}
+      </div>
+
+      <div class="fep-header-right">
+        <h1 class="candidate-name">
+          <span class="name-first">{{FIRST_NAME}}</span>
+          <span class="name-space"> </span>
+          <span class="name-last">{{LAST_NAME}}</span>
+          <span class="name-fallback">{{FULL_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <p class="header-title">{{JOB_TITLE}}</p>
+        {{/if}}
+        {{#if CONTACT}}
+        <div class="fep-header-contact">
+          <div class="contact-list">
+            {{CONTACT}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+    </header>
+
+    <div class="fep-body">
+      <main class="fep-main">
+        {{#if SUMMARY}}
+        <section class="fep-section">
+          <h2 class="fep-section-title">Professional Summary</h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="fep-section">
+          <h2 class="fep-section-title">Experience</h2>
+          <div class="experience-list fep-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="fep-section">
+          <h2 class="fep-section-title">Projects</h2>
+          <div class="projects-list fep-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="fep-sidebar">
+        <div class="fep-sidebar-arch" aria-hidden="true"></div>
+        <div class="fep-sidebar-inner">
+          {{#if SKILLS}}
+          <section class="fep-section fep-section--side">
+            <h2 class="fep-sidebar-title">Skills</h2>
+            <div class="skills-list fep-skills-list">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="fep-section fep-section--side">
+            <h2 class="fep-sidebar-title">Education</h2>
+            <div class="education-list fep-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="fep-section fep-section--side">
+            <h2 class="fep-sidebar-title">Certifications</h2>
+            <div class="certifications-list fep-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="fep-section fep-section--side">
+            <h2 class="fep-sidebar-title">Languages</h2>
+            <div class="languages-list fep-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="fep-section fep-section--side">
+            <h2 class="fep-sidebar-title">Achievements</h2>
+            <div class="achievements-list fep-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

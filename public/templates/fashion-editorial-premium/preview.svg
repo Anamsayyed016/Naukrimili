@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#F8F5EE"/>
+  <rect x="36" y="40" width="728" height="240" rx="20" fill="#C5B6A7"/>
+  <rect x="360" y="40" width="404" height="240" fill="#9B7E87"/>
+  <rect x="360" y="40" width="404" height="240" rx="20" fill="#9B7E87" clip-path="inset(0 0 0 0 round 0 20 20 0)"/>
+  <rect x="430" y="72" width="200" height="176" rx="12" fill="#B8A99A"/>
+  <path d="M80 220 Q80 120 140 120 Q200 120 200 220" fill="none" stroke="#FFF8F4" stroke-width="2.5" opacity="0.55"/>
+  <path d="M110 220 Q110 150 140 150 Q170 150 170 220" fill="none" stroke="#FFF8F4" stroke-width="2" opacity="0.45"/>
+  <path d="M140 220 Q140 175 140 175" fill="none" stroke="#FFF8F4" stroke-width="1.8" opacity="0.35"/>
+  <text x="390" y="118" font-family="Georgia,serif" font-size="52" font-weight="700" fill="#FFF8F4" letter-spacing="3">ALEXANDER</text>
+  <text x="390" y="172" font-family="Georgia,serif" font-size="52" font-weight="700" fill="#FFF8F4" letter-spacing="3">REED</text>
+  <text x="390" y="208" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#F9EDE8" letter-spacing="2">CREATIVE DIRECTOR | FASHION &amp; RETAIL INNOVATOR</text>
+  <text x="390" y="238" font-family="Arial,sans-serif" font-size="11" fill="#F9EDE8">+1 (212) 555-0198</text>
+  <text x="540" y="238" font-family="Arial,sans-serif" font-size="11" fill="#F9EDE8">alexander.reed@email.com</text>
+  <text x="390" y="258" font-family="Arial,sans-serif" font-size="11" fill="#F9EDE8">linkedin.com/in/alexanderreed</text>
+  <text x="600" y="258" font-family="Arial,sans-serif" font-size="11" fill="#F9EDE8">alexanderreed.com</text>
+  <text x="56" y="330" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#1D1D1D" letter-spacing="2">PROFESSIONAL SUMMARY</text>
+  <line x1="56" y1="342" x2="500" y2="342" stroke="#E8D7D0" stroke-width="1.5"/>
+  <rect x="56" y="358" width="480" height="8" rx="2" fill="#DCC7C0" opacity="0.5"/>
+  <rect x="56" y="374" width="460" height="8" rx="2" fill="#DCC7C0" opacity="0.4"/>
+  <rect x="56" y="390" width="440" height="8" rx="2" fill="#DCC7C0" opacity="0.35"/>
+  <text x="56" y="440" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#1D1D1D" letter-spacing="2">EXPERIENCE</text>
+  <line x1="56" y1="452" x2="500" y2="452" stroke="#E8D7D0" stroke-width="1.5"/>
+  <text x="56" y="482" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1D1D1D">Creative Director</text>
+  <text x="400" y="482" font-family="Arial,sans-serif" font-size="11" fill="#5C5C5C">2020 - Present</text>
+  <text x="56" y="504" font-family="Arial,sans-serif" font-size="11" fill="#5C5C5C">Maison Luxe | New York, NY</text>
+  <rect x="56" y="518" width="4" height="4" fill="#9B7E87"/>
+  <rect x="68" y="516" width="380" height="6" rx="2" fill="#DCC7C0" opacity="0.45"/>
+  <rect x="56" y="532" width="4" height="4" fill="#9B7E87"/>
+  <rect x="68" y="530" width="360" height="6" rx="2" fill="#DCC7C0" opacity="0.4"/>
+  <text x="56" y="580" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#1D1D1D" letter-spacing="2">PROJECTS</text>
+  <line x1="56" y1="592" x2="500" y2="592" stroke="#E8D7D0" stroke-width="1.5"/>
+  <text x="56" y="620" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#1D1D1D">Global Brand Relaunch</text>
+  <rect x="540" y="308" width="224" height="640" rx="22" fill="#F3D9D2"/>
+  <path d="M680 320 Q680 420 620 420 Q560 420 560 320" fill="none" stroke="#9B7E87" stroke-width="2.5" opacity="0.1"/>
+  <path d="M650 320 Q650 390 620 390 Q590 390 590 320" fill="none" stroke="#9B7E87" stroke-width="2" opacity="0.08"/>
+  <text x="564" y="348" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1D1D1D" letter-spacing="1.5">SKILLS</text>
+  <line x1="564" y1="372" x2="740" y2="372" stroke="#DCC7C0"/>
+  <text x="564" y="396" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="#1D1D1D" letter-spacing="1.2">CREATIVE DIRECTION</text>
+  <line x1="564" y1="404" x2="740" y2="404" stroke="#DCC7C0"/>
+  <text x="564" y="428" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="#1D1D1D" letter-spacing="1.2">BRANDING</text>
+  <line x1="564" y1="436" x2="740" y2="436" stroke="#DCC7C0"/>
+  <text x="564" y="460" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="#1D1D1D" letter-spacing="1.2">USER INTERFACE DESIGN</text>
+  <line x1="564" y1="468" x2="740" y2="468" stroke="#DCC7C0"/>
+  <text x="564" y="492" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="#1D1D1D" letter-spacing="1.2">FASHION STYLING</text>
+  <line x1="564" y1="500" x2="740" y2="500" stroke="#DCC7C0"/>
+  <text x="564" y="524" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="#1D1D1D" letter-spacing="1.2">RETAIL STRATEGY</text>
+  <text x="564" y="560" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1D1D1D" letter-spacing="1.5">EDUCATION</text>
+  <text x="564" y="586" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#1D1D1D">M.F.A., Fashion Design</text>
+  <text x="564" y="604" font-family="Arial,sans-serif" font-size="10" fill="#5C5C5C">Parsons School of Design</text>
+  <text x="564" y="640" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1D1D1D" letter-spacing="1.5">LANGUAGES</text>
+  <text x="564" y="666" font-family="Arial,sans-serif" font-size="10" fill="#1D1D1D">English - Professional</text>
+  <text x="564" y="684" font-family="Arial,sans-serif" font-size="10" fill="#1D1D1D">Hindi - Native</text>
+  <text x="400" y="968" text-anchor="middle" font-family="Georgia,serif" font-size="20" font-weight="600" fill="#9B7E87">Editorial Mauve Executive</text>
+</svg>

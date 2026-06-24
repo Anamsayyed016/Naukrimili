@@ -1,0 +1,710 @@
+/* Editorial Mauve Executive — fashion editorial premium resume */
+
+.fep-resume {
+  --fep-bg: #F8F5EE;
+  --fep-header-left: #C5B6A7;
+  --fep-header-right: #9B7E87;
+  --fep-sidebar: #F3D9D2;
+  --fep-text: #1D1D1D;
+  --fep-muted: #5C5C5C;
+  --fep-border: #DCC7C0;
+  --fep-deco-line: #E8D7D0;
+  --fep-name: #FFF8F4;
+  --fep-title: #F9EDE8;
+  --fep-side-width: 248px;
+  --fep-max-width: 210mm;
+  --fep-font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --fep-font-sans: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --primary-color: var(--fep-header-right);
+  --accent-color: var(--fep-header-left);
+  --text-color: var(--fep-text);
+}
+
+.fep-resume,
+.fep-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.fep-resume,
+.resume-container.fep-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--fep-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 22px 22px 28px;
+  font-family: var(--fep-font-sans);
+  font-size: 11px;
+  line-height: 1.62;
+  color: var(--fep-text);
+  background: var(--fep-bg) !important;
+  overflow: visible;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header card ── */
+.fep-resume .fep-header-card {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 32px rgba(29, 29, 29, 0.08);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.fep-resume .fep-header-left {
+  position: relative;
+  background: var(--fep-header-left);
+  padding: 22px 20px 22px 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  min-height: 220px;
+  overflow: hidden;
+}
+
+/* Arch line pattern behind portrait */
+.fep-resume .fep-arch-deco {
+  position: absolute;
+  left: 8px;
+  bottom: 18px;
+  width: 120px;
+  height: 180px;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 180'%3E%3Cg fill='none' stroke='%23FFF8F4' stroke-width='1.4' opacity='0.9'%3E%3Cpath d='M10 180 Q10 90 60 90 Q110 90 110 180'/%3E%3Cpath d='M22 180 Q22 100 60 100 Q98 100 98 180'/%3E%3Cpath d='M34 180 Q34 110 60 110 Q86 110 86 180'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fep-resume .fep-photo {
+  position: relative;
+  z-index: 1;
+  width: 168px;
+  height: 196px;
+  flex-shrink: 0;
+}
+
+.fep-resume .profile-image-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px 14px 10px 10px;
+  overflow: hidden;
+  background: rgba(255, 248, 244, 0.35);
+  box-shadow: 0 8px 24px rgba(29, 29, 29, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fep-resume .profile-image-wrapper--initials {
+  background: linear-gradient(180deg, rgba(255, 248, 244, 0.5) 0%, rgba(155, 126, 135, 0.25) 100%);
+}
+
+.fep-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.fep-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.fep-resume .fep-ini-f,
+.fep-resume .fep-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.fep-resume .fep-ini-f::first-letter,
+.fep-resume .fep-ini-l::first-letter {
+  font-family: var(--fep-font-serif);
+  font-size: 44px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--fep-name);
+}
+
+.fep-resume .fep-header-right {
+  background: var(--fep-header-right);
+  padding: 28px 30px 26px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.fep-resume .candidate-name {
+  font-family: var(--fep-font-serif);
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fep-name);
+  margin-bottom: 10px;
+}
+
+.fep-resume .name-first,
+.fep-resume .name-last {
+  display: inline;
+}
+
+.fep-resume .name-first:empty,
+.fep-resume .name-last:empty,
+.fep-resume .name-space:empty {
+  display: none;
+}
+
+.fep-resume .name-fallback {
+  display: none;
+}
+
+.fep-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.fep-resume .header-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fep-title);
+  line-height: 1.55;
+  margin-bottom: 18px;
+  max-width: 100%;
+}
+
+.fep-resume .fep-header-contact .contact-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+}
+
+.fep-resume .fep-header-contact .contact-item {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: rgba(255, 248, 244, 0.92);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.fep-resume .fep-header-contact .contact-item::before {
+  display: none;
+}
+
+.fep-resume .contact-label {
+  color: inherit;
+}
+
+/* ── Body layout ── */
+.fep-resume .fep-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--fep-side-width);
+  gap: 20px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.fep-resume .fep-main {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-right: 6px;
+}
+
+.fep-resume .fep-sidebar {
+  position: relative;
+  background: var(--fep-sidebar);
+  border-radius: 20px;
+  padding: 22px 18px 26px;
+  box-shadow: 0 8px 22px rgba(29, 29, 29, 0.06);
+  overflow: hidden;
+  align-self: stretch;
+}
+
+.fep-resume .fep-sidebar-arch {
+  position: absolute;
+  top: -20px;
+  right: -30px;
+  width: 180px;
+  height: 220px;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 220'%3E%3Cg fill='none' stroke='%239B7E87' stroke-width='2'%3E%3Cpath d='M20 220 Q20 110 90 110 Q160 110 160 220'/%3E%3Cpath d='M40 220 Q40 130 90 130 Q140 130 140 220'/%3E%3Cpath d='M60 220 Q60 150 90 150 Q120 150 120 220'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fep-resume .fep-sidebar-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Section headings ── */
+.fep-resume .fep-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fep-text);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--fep-deco-line);
+  line-height: 1.3;
+}
+
+.fep-resume .fep-sidebar-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fep-text);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.fep-resume .fep-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.fep-resume .fep-section--side {
+  margin-bottom: 0;
+}
+
+/* ── Summary ── */
+.fep-resume .summary-text {
+  font-size: 11px;
+  line-height: 1.68;
+  color: var(--fep-text);
+  text-align: left;
+}
+
+/* ── Experience ── */
+.fep-resume .fep-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.fep-resume .fep-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--fep-deco-line);
+}
+
+.fep-resume .fep-experience .experience-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.fep-resume .fep-experience .experience-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 10px;
+  row-gap: 3px;
+  margin-bottom: 7px;
+}
+
+.fep-resume .fep-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--fep-text);
+  line-height: 1.35;
+}
+
+.fep-resume .fep-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--fep-muted);
+  white-space: nowrap;
+  align-self: start;
+}
+
+.fep-resume .fep-experience .experience-header .company {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--fep-muted);
+  font-style: normal;
+}
+
+.fep-resume .fep-experience .description {
+  font-size: 10.5px;
+  line-height: 1.62;
+  color: var(--fep-text);
+}
+
+.fep-resume .fep-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fep-resume .fep-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.58;
+}
+
+.fep-resume .fep-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  background: var(--fep-header-right);
+  border-radius: 50%;
+}
+
+/* ── Projects ── */
+.fep-resume .fep-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fep-resume .fep-projects .project-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.fep-resume .fep-projects .project-item h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--fep-text);
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.fep-resume .fep-projects .project-item .description,
+.fep-resume .fep-projects .project-item .technologies {
+  font-size: 10.5px;
+  line-height: 1.58;
+  color: var(--fep-text);
+}
+
+.fep-resume .fep-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.fep-resume .fep-projects .project-item .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.fep-resume .fep-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  background: var(--fep-header-right);
+  border-radius: 50%;
+}
+
+/* ── Skills — editorial divider rows ── */
+.fep-resume .fep-skills-list.skills-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.fep-resume .fep-skills-list .skill-tag {
+  display: block;
+  width: 100%;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fep-text);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--fep-border);
+  border-radius: 0;
+  padding: 9px 0;
+  line-height: 1.4;
+  white-space: normal;
+  box-shadow: none;
+}
+
+.fep-resume .fep-skills-list .skill-tag:first-child {
+  border-top: 1px solid var(--fep-border);
+}
+
+/* ── Education ── */
+.fep-resume .fep-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fep-resume .fep-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.fep-resume .fep-education .education-item h3 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--fep-text);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.fep-resume .fep-education .institution {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--fep-muted);
+  display: block;
+}
+
+.fep-resume .fep-education .year,
+.fep-resume .fep-education .cgpa {
+  font-size: 9px;
+  color: var(--fep-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Certifications ── */
+.fep-resume .fep-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fep-resume .fep-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--fep-deco-line);
+}
+
+.fep-resume .fep-certifications .certification-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.fep-resume .fep-certifications .certification-item h3 {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--fep-text);
+  line-height: 1.45;
+}
+
+.fep-resume .fep-certifications .issuer,
+.fep-resume .fep-certifications .date,
+.fep-resume .fep-certifications .year {
+  font-size: 9px;
+  color: var(--fep-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Languages — editorial text style ── */
+.fep-resume .fep-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fep-resume .fep-languages .language-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  font-size: 9.5px;
+  line-height: 1.5;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.fep-resume .fep-languages .language {
+  font-weight: 600;
+  color: var(--fep-text);
+}
+
+.fep-resume .fep-languages .language-item .proficiency {
+  font-weight: 400;
+  color: var(--fep-muted);
+}
+
+.fep-resume .fep-languages .language-item .proficiency::before {
+  content: ' \2014 ';
+  color: var(--fep-muted);
+}
+
+.fep-resume .fep-languages .language-item .language:only-child {
+  font-weight: 500;
+}
+
+/* ── Achievements ── */
+.fep-resume .fep-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fep-resume .fep-achievements .achievement-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--fep-deco-line);
+}
+
+.fep-resume .fep-achievements .achievement-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.fep-resume .fep-achievements .achievement-item h3 {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--fep-text);
+  line-height: 1.45;
+}
+
+.fep-resume .fep-achievements .achievement-item .description {
+  font-size: 9.5px;
+  color: var(--fep-muted);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.fep-resume .fep-achievements .achievement-item .year,
+.fep-resume .fep-achievements .achievement-item .date {
+  font-size: 9px;
+  color: var(--fep-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .fep-resume {
+    padding: 16px;
+  }
+
+  .fep-resume .fep-header-card {
+    grid-template-columns: 1fr;
+  }
+
+  .fep-resume .fep-header-left {
+    min-height: 200px;
+    justify-content: center;
+  }
+
+  .fep-resume .fep-header-contact .contact-list {
+    grid-template-columns: 1fr;
+  }
+
+  .fep-resume .fep-body {
+    grid-template-columns: 1fr;
+  }
+
+  .fep-resume .candidate-name {
+    font-size: 30px;
+  }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .fep-resume,
+  .resume-container.fep-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--fep-bg) !important;
+    padding: 18px !important;
+  }
+
+  .fep-resume .fep-header-left {
+    background: var(--fep-header-left) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .fep-resume .fep-header-right {
+    background: var(--fep-header-right) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .fep-resume .fep-sidebar {
+    background: var(--fep-sidebar) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .fep-resume .fep-arch-deco,
+  .fep-resume .fep-sidebar-arch {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .fep-resume .experience-item,
+  .fep-resume .project-item,
+  .fep-resume .education-item,
+  .fep-resume .achievement-item,
+  .fep-resume .certification-item,
+  .fep-resume .fep-section,
+  .fep-resume .language-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.fep-resume .fep-body,
+.resume-container.fep-resume .fep-main,
+.resume-container.fep-resume .fep-sidebar,
+.resume-container.fep-resume .fep-sidebar-inner {
+  min-height: auto !important;
+  height: auto !important;
+  align-items: flex-start !important;
+}
