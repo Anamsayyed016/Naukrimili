@@ -640,11 +640,23 @@ export default function FinalizeStep({
         try {
           // Mini Starter: editor edits live in localStorage — sync edit entitlement before quota check
           try {
-            await fetch('/api/resume-builder/sync-edit-entitlement', {
+            const syncResponse = await fetch('/api/resume-builder/sync-edit-entitlement', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ formData, templateId }),
             });
+            if (!syncResponse.ok) {
+              console.warn(
+                '⚠️ [Export] Edit entitlement sync failed:',
+                syncResponse.status,
+                await syncResponse.text().catch(() => '')
+              );
+            } else {
+              const syncResult = await syncResponse.json().catch(() => ({}));
+              if (syncResult.editRecorded) {
+                console.log('✅ [Export] Mini Starter post-download edit entitlement recorded');
+              }
+            }
           } catch (syncError) {
             console.warn('⚠️ [Export] Edit entitlement sync failed (non-fatal):', syncError);
           }

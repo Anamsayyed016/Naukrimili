@@ -485,7 +485,7 @@ export async function POST(request: NextRequest) {
           console.log('✅ [PDF Export] Business plan credits deducted successfully');
         } else {
           planType = 'individual';
-          await incrementUsage(session.user.id, 'pdfDownload');
+          await incrementUsage(session.user.id, 'pdfDownload', { formData });
           await captureMiniStarterPostDownloadSnapshot(session.user.id, formData);
           console.log('✅ [PDF Export] Individual plan usage incremented successfully');
         }

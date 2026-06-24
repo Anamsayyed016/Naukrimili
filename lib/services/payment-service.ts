@@ -35,6 +35,8 @@ type IndividualPlanUsage = {
   lifetimeEditsUsed?: number;
   /** Mini Starter: normalized formData JSON captured after first PDF download */
   postDownloadFormSnapshot?: string;
+  /** True when snapshot was taken at first PDF download (not sync backfill) */
+  snapshotFromFirstPdf?: boolean;
 };
 
 export const EDIT_LIMIT_MESSAGES = {
@@ -315,6 +317,64 @@ function normalizeFormDataSnapshot(formData: unknown): string {
   return JSON.stringify(record, Object.keys(record).sort());
 }
 
+async function persistMiniStarterPostDownloadSnapshot(
+  userId: string,
+  formData: unknown
+): Promise<void> {
+  if (formData == null || typeof formData !== 'object') return;
+
+  const usage = await getIndividualPlanUsage(userId);
+  if (usage.postDownloadFormSnapshot && usage.snapshotFromFirstPdf) return;
+
+  await setIndividualPlanUsage(userId, {
+    ...usage,
+    postDownloadFormSnapshot: normalizeFormDataSnapshot(formData),
+    snapshotFromFirstPdf: true,
+  });
+}
+
+async function getPrismaBuilderResumeBaseline(userId: string): Promise<unknown | null> {
+  try {
+    const resume = await prisma.resume.findFirst({
+      where: { userId, isBuilder: true, isActive: true },
+      orderBy: { updatedAt: 'desc' },
+      select: { builderData: true, parsedData: true },
+    });
+    const data = resume?.builderData ?? resume?.parsedData;
+    return data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+function parsePostDownloadSnapshot(usage: IndividualPlanUsage): unknown | null {
+  if (!usage.postDownloadFormSnapshot) return null;
+  try {
+    return JSON.parse(usage.postDownloadFormSnapshot);
+  } catch {
+    return null;
+  }
+}
+
+async function resolveMiniStarterEditBaselines(
+  userId: string,
+  usage: IndividualPlanUsage
+): Promise<unknown[]> {
+  const baselines: unknown[] = [];
+  const snapshot = parsePostDownloadSnapshot(usage);
+  if (snapshot) baselines.push(snapshot);
+
+  const prismaBaseline = await getPrismaBuilderResumeBaseline(userId);
+  if (prismaBaseline) baselines.push(prismaBaseline);
+
+  return baselines;
+}
+
+function hasMiniStarterFormEdit(baselines: unknown[], formData: unknown): boolean {
+  if (!formData || typeof formData !== 'object') return false;
+  return baselines.some((baseline) => hasMeaningfulResumeDataChange(baseline, formData));
+}
+
 /**
  * Mini Starter: store resume state right after the first PDF download so we can
  * detect a meaningful post-download edit before granting the second PDF.
@@ -323,20 +383,13 @@ export async function captureMiniStarterPostDownloadSnapshot(
   userId: string,
   formData: unknown
 ): Promise<void> {
-  const validity = await checkIndividualPlanValidity(userId);
-  if (!validity.isValid || !validity.credits) return;
-  if (validity.credits.planName !== 'mini_starter') return;
+  const credits = await findUserCredits(userId);
+  if (!credits || credits.planName !== 'mini_starter') return;
 
-  const { used } = getPdfDownloadQuota(validity.credits as Record<string, unknown>);
-  if (used !== 1) return;
+  const used = Number(credits.pdfDownloads) || 0;
+  if (used < 1) return;
 
-  const usage = await getIndividualPlanUsage(userId);
-  if (usage.postDownloadFormSnapshot) return;
-
-  await setIndividualPlanUsage(userId, {
-    ...usage,
-    postDownloadFormSnapshot: normalizeFormDataSnapshot(formData),
-  });
+  await persistMiniStarterPostDownloadSnapshot(userId, formData);
 }
 
 /**
@@ -365,24 +418,12 @@ export async function syncMiniStarterEditEntitlement(
     return { synced: false, editRecorded: false };
   }
 
-  if (!usage.postDownloadFormSnapshot) {
-    if (used >= 1) {
-      await setIndividualPlanUsage(userId, {
-        ...usage,
-        postDownloadFormSnapshot: normalizeFormDataSnapshot(formData),
-      });
-    }
+  const baselines = await resolveMiniStarterEditBaselines(userId, usage);
+  if (baselines.length === 0) {
     return { synced: true, editRecorded: false };
   }
 
-  let snapshot: unknown;
-  try {
-    snapshot = JSON.parse(usage.postDownloadFormSnapshot);
-  } catch {
-    return { synced: false, editRecorded: false };
-  }
-
-  if (!hasMeaningfulResumeDataChange(snapshot, formData)) {
+  if (!hasMiniStarterFormEdit(baselines, formData)) {
     return { synced: true, editRecorded: false };
   }
 
@@ -925,13 +966,17 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
     userId,
     credits
   );
-  
+  const usageForLog = await getIndividualPlanUsage(userId);
+
   console.log(`🔍 [canDownloadResume] Checking download limit for user ${userId}:`, {
     planName: credits.planName,
+    planType: credits.planType,
     pdfDownloads: used,
     pdfDownloadsLimit: limit,
     effectiveLimit,
     remaining,
+    lifetimeEditsUsed: usageForLog.lifetimeEditsUsed ?? 0,
+    hasPostDownloadSnapshot: Boolean(usageForLog.postDownloadFormSnapshot),
     planFeatures: plan?.features,
   });
   
@@ -1312,7 +1357,11 @@ export async function getATSOptimizationLevel(userId: string): Promise<'basic' |
  * Extended to handle daily limit tracking via date-based reset
  * Uses direct DB connection first (bypasses Prisma auth issues), falls back to Prisma
  */
-export async function incrementUsage(userId: string, action: 'resumeDownload' | 'aiResume' | 'aiCoverLetter' | 'pdfDownload' | 'docxDownload') {
+export async function incrementUsage(
+  userId: string,
+  action: 'resumeDownload' | 'aiResume' | 'aiCoverLetter' | 'pdfDownload' | 'docxDownload',
+  options?: { formData?: unknown }
+) {
   if (
     isAiPaymentBypassEnabled() &&
     (action === 'aiResume' || action === 'aiCoverLetter')
@@ -1417,6 +1466,15 @@ export async function incrementUsage(userId: string, action: 'resumeDownload' | 
       console.log(
         `✅ [Payment Service] Incremented PDF download via DB: ${Number(incremented.row.pdfDownloads)}/${Number(incremented.row.pdfDownloadsLimit)} for user ${userId}`
       );
+
+      if (
+        options?.formData &&
+        incremented.row.planName === 'mini_starter' &&
+        Number(incremented.row.pdfDownloads) === 1
+      ) {
+        await persistMiniStarterPostDownloadSnapshot(userId, options.formData);
+      }
+
       return incremented.row;
     }
     case 'docxDownload':
