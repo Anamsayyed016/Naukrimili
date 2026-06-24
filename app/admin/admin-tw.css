@@ -1,5 +1,6 @@
 @import "tailwindcss" source(none);
 
 @source "../../components/admin";
+@source "../../components/MainNavigation.tsx";
 @source "../../components/auth";
 @source "..";
