@@ -886,6 +886,30 @@
         { "id": "charcoal-rosewood", "name": "Charcoal Rosewood", "primary": "#1F1A17", "accent": "#B99892", "text": "#6E6258" }
       ],
       "defaultColor": "rosewood"
+    },
+    {
+      "id": "cascade-flow",
+      "name": "Cascade Flow",
+      "slug": "cascade-flow",
+      "description": "Modern product designer resume with white premium canvas, flowing coral and beige decorative shapes, rounded hero header card with capsule contact bar, 65/35 layout with organic beige sidebar, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/cascade-flow/thumbnail.svg",
+      "preview": "/templates/cascade-flow/preview.svg",
+      "html": "/templates/cascade-flow/index.html",
+      "css": "/templates/cascade-flow/style.css",
+      "categories": ["Premium", "Modern", "Executive", "Creative", "Professional", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "soft-coral", "name": "Soft Coral", "primary": "#111111", "accent": "#F3B7A7", "text": "#1E1E1E" },
+        { "id": "soft-peach", "name": "Soft Peach", "primary": "#111111", "accent": "#F6D7CC", "text": "#1E1E1E" },
+        { "id": "warm-beige", "name": "Warm Beige", "primary": "#1E1E1E", "accent": "#F5EEE8", "text": "#1E1E1E" },
+        { "id": "light-sand", "name": "Light Sand", "primary": "#111111", "accent": "#F8F5F1", "text": "#1E1E1E" },
+        { "id": "modern-white", "name": "Modern White", "primary": "#000000", "accent": "#F3B7A7", "text": "#1E1E1E" },
+        { "id": "coral-blush", "name": "Coral Blush", "primary": "#111111", "accent": "#E8A898", "text": "#333333" }
+      ],
+      "defaultColor": "soft-coral"
     }
   ],
   "filters": {

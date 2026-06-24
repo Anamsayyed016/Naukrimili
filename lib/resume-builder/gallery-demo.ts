@@ -246,6 +246,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-rose-200/55',
     hoverOverlay: 'from-rose-50/35',
   },
+  'cascade-flow': {
+    glow: 'radial-gradient(circle, rgba(243,183,167,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(245,238,232,0.55) 0%, transparent 70%)',
+    borderTint: 'hover:border-orange-200/55',
+    hoverOverlay: 'from-orange-50/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -290,6 +296,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-navy-copper': { firstName: 'Jonathan', lastName: 'Clark', jobTitle: 'Senior Data Strategist' },
   'soft-coral-executive': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director & Strategist' },
   'rosewood-modern': { firstName: 'Elias', lastName: 'Vance', jobTitle: 'Global Brand Strategist & Marketing Director' },
+  'cascade-flow': { firstName: 'Eliza', lastName: 'Chen', jobTitle: 'Senior Product Designer | AI Innovation' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
