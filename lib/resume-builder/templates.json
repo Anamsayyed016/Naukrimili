@@ -782,12 +782,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "coral-elite", "name": "Coral Elite", "primary": "#1F2D3D", "accent": "#F4B39A", "text": "#111827" },
-        { "id": "navy-slate", "name": "Navy Slate", "primary": "#1A2530", "accent": "#E8A88C", "text": "#111827" },
-        { "id": "executive-dusk", "name": "Executive Dusk", "primary": "#243447", "accent": "#F0B8A0", "text": "#111827" },
-        { "id": "warm-peach", "name": "Warm Peach", "primary": "#2C3E50", "accent": "#F8C4AB", "text": "#1A1A1A" },
-        { "id": "boardroom-navy", "name": "Boardroom Navy", "primary": "#172430", "accent": "#D9A088", "text": "#111827" },
-        { "id": "soft-coral", "name": "Soft Coral", "primary": "#1F2D3D", "accent": "#FFD4C2", "text": "#111827" }
+        { "id": "coral-elite", "name": "Coral Elite", "primary": "#243445", "accent": "#F3A693", "text": "#243445" },
+        { "id": "navy-slate", "name": "Navy Slate", "primary": "#1E2F3E", "accent": "#E8957E", "text": "#243445" },
+        { "id": "executive-dusk", "name": "Executive Dusk", "primary": "#2A3D50", "accent": "#F0B8A0", "text": "#243445" },
+        { "id": "warm-peach", "name": "Warm Peach", "primary": "#243445", "accent": "#F7C7B8", "text": "#243445" },
+        { "id": "boardroom-navy", "name": "Boardroom Navy", "primary": "#1A2836", "accent": "#D9A088", "text": "#243445" },
+        { "id": "soft-coral", "name": "Soft Coral", "primary": "#243445", "accent": "#FFE6DE", "text": "#243445" }
       ],
       "defaultColor": "coral-elite"
     }

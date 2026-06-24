@@ -1,72 +1,72 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
   <defs>
     <radialGradient id="ece-preview-glow" cx="12%" cy="6%" r="45%">
-      <stop offset="0%" stop-color="#F4B39A" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#F4B39A" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#F3A693" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#F3A693" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect width="800" height="1000" fill="#FFFFFF"/>
   <rect width="800" height="1000" fill="url(#ece-preview-glow)"/>
-  <rect x="0" y="0" width="56" height="170" fill="#F4B39A" opacity="0.5"/>
+  <rect x="0" y="0" width="56" height="170" fill="#F3A693" opacity="0.5"/>
   <circle cx="130" cy="130" r="78" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="3"/>
   <circle cx="130" cy="130" r="68" fill="#E5E7EB" opacity="0.45"/>
-  <text x="250" y="108" font-family="Arial,sans-serif" font-size="42" font-weight="700" fill="#1F2D3D" letter-spacing="3">ARIANNA LYNCH</text>
+  <text x="250" y="108" font-family="Arial,sans-serif" font-size="42" font-weight="700" fill="#243445" letter-spacing="3">ARIANNA LYNCH</text>
   <text x="250" y="148" font-family="Arial,sans-serif" font-size="14" font-weight="600" fill="#6B7280" letter-spacing="2">SENIOR OPERATIONS MANAGER | GROWTH STRATEGIST</text>
-  <rect x="0" y="228" width="800" height="48" fill="#1F2D3D"/>
+  <rect x="0" y="228" width="800" height="48" fill="#243445"/>
   <text x="48" y="258" font-family="Arial,sans-serif" font-size="12" fill="#FFFFFF">arianna.lynch@email.com</text>
-  <text x="268" y="258" font-family="Arial,sans-serif" font-size="12" fill="#F4B39A">|</text>
+  <text x="268" y="258" font-family="Arial,sans-serif" font-size="12" fill="#F3A693">|</text>
   <text x="292" y="258" font-family="Arial,sans-serif" font-size="12" fill="#FFFFFF">+1 (415) 555-0198</text>
-  <text x="448" y="258" font-family="Arial,sans-serif" font-size="12" fill="#F4B39A">|</text>
+  <text x="448" y="258" font-family="Arial,sans-serif" font-size="12" fill="#F3A693">|</text>
   <text x="472" y="258" font-family="Arial,sans-serif" font-size="12" fill="#FFFFFF">San Francisco, CA</text>
-  <text x="628" y="258" font-family="Arial,sans-serif" font-size="12" fill="#F4B39A">|</text>
+  <text x="628" y="258" font-family="Arial,sans-serif" font-size="12" fill="#F3A693">|</text>
   <text x="652" y="258" font-family="Arial,sans-serif" font-size="12" fill="#FFFFFF">linkedin.com/in/arianna</text>
   <line x1="0" y1="276" x2="800" y2="276" stroke="#E5E7EB"/>
-  <text x="48" y="328" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#1F2D3D" letter-spacing="2">PROFESSIONAL SUMMARY</text>
-  <line x1="48" y1="340" x2="500" y2="340" stroke="#F4B39A" stroke-width="3"/>
+  <text x="48" y="328" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#243445" letter-spacing="2">PROFESSIONAL SUMMARY</text>
+  <line x1="48" y1="340" x2="500" y2="340" stroke="#F3A693" stroke-width="3"/>
   <rect x="48" y="358" width="500" height="8" rx="2" fill="#E5E7EB" opacity="0.75"/>
   <rect x="48" y="374" width="480" height="8" rx="2" fill="#E5E7EB" opacity="0.55"/>
   <rect x="48" y="390" width="460" height="8" rx="2" fill="#E5E7EB" opacity="0.4"/>
   <rect x="48" y="406" width="440" height="8" rx="2" fill="#E5E7EB" opacity="0.35"/>
-  <text x="48" y="462" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#1F2D3D" letter-spacing="2">PROFESSIONAL EXPERIENCE</text>
-  <line x1="48" y1="474" x2="500" y2="474" stroke="#F4B39A" stroke-width="3"/>
-  <text x="48" y="508" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#1F2D3D">Operations Manager</text>
+  <text x="48" y="462" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#243445" letter-spacing="2">PROFESSIONAL EXPERIENCE</text>
+  <line x1="48" y1="474" x2="500" y2="474" stroke="#F3A693" stroke-width="3"/>
+  <text x="48" y="508" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#243445">Operations Manager</text>
   <text x="420" y="508" font-family="Arial,sans-serif" font-size="13" fill="#6B7280">2021 - Present</text>
   <text x="48" y="532" font-family="Arial,sans-serif" font-size="13" fill="#6B7280">TechScale, Inc. | San Francisco, CA</text>
-  <circle cx="58" cy="558" r="4" fill="#F4B39A"/>
+  <circle cx="58" cy="558" r="4" fill="#F3A693"/>
   <rect x="72" y="552" width="380" height="6" rx="2" fill="#E5E7EB"/>
-  <circle cx="58" cy="578" r="4" fill="#F4B39A"/>
+  <circle cx="58" cy="578" r="4" fill="#F3A693"/>
   <rect x="72" y="572" width="350" height="6" rx="2" fill="#E5E7EB"/>
-  <circle cx="58" cy="598" r="4" fill="#F4B39A"/>
+  <circle cx="58" cy="598" r="4" fill="#F3A693"/>
   <rect x="72" y="592" width="320" height="6" rx="2" fill="#E5E7EB"/>
-  <text x="48" y="648" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#1F2D3D" letter-spacing="2">FEATURED PROJECTS</text>
-  <line x1="48" y1="660" x2="500" y2="660" stroke="#F4B39A" stroke-width="3"/>
-  <text x="48" y="692" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#1F2D3D">Enterprise Platform Rollout</text>
-  <circle cx="58" cy="718" r="4" fill="#F4B39A"/>
+  <text x="48" y="648" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#243445" letter-spacing="2">FEATURED PROJECTS</text>
+  <line x1="48" y1="660" x2="500" y2="660" stroke="#F3A693" stroke-width="3"/>
+  <text x="48" y="692" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#243445">Enterprise Platform Rollout</text>
+  <circle cx="58" cy="718" r="4" fill="#F3A693"/>
   <rect x="72" y="712" width="360" height="6" rx="2" fill="#E5E7EB"/>
-  <rect x="528" y="288" width="224" height="680" fill="#F7F7F9"/>
-  <rect x="552" y="312" width="140" height="28" rx="14" fill="#1F2D3D"/>
+  <rect x="528" y="288" width="224" height="680" fill="#F4F4F6"/>
+  <rect x="552" y="312" width="140" height="28" rx="14" fill="#243445"/>
   <text x="568" y="330" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" letter-spacing="1">EXPERTISE CLUSTERS</text>
   <rect x="552" y="356" width="88" height="26" rx="6" fill="#FFFFFF" stroke="#E5E7EB"/>
   <rect x="648" y="356" width="80" height="26" rx="6" fill="#FFFFFF" stroke="#E5E7EB"/>
   <rect x="552" y="392" width="96" height="26" rx="6" fill="#FFFFFF" stroke="#E5E7EB"/>
   <rect x="656" y="392" width="72" height="26" rx="6" fill="#FFFFFF" stroke="#E5E7EB"/>
   <rect x="552" y="428" width="104" height="26" rx="6" fill="#FFFFFF" stroke="#E5E7EB"/>
-  <rect x="552" y="480" width="108" height="28" rx="14" fill="#1F2D3D"/>
+  <rect x="552" y="480" width="108" height="28" rx="14" fill="#243445"/>
   <text x="568" y="498" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">EDUCATION</text>
-  <text x="552" y="532" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1F2D3D">M.B.A., Business Administration</text>
+  <text x="552" y="532" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#243445">M.B.A., Business Administration</text>
   <text x="552" y="552" font-family="Arial,sans-serif" font-size="11" fill="#6B7280">Stanford Graduate School of Business</text>
-  <rect x="552" y="580" width="108" height="28" rx="14" fill="#1F2D3D"/>
+  <rect x="552" y="580" width="108" height="28" rx="14" fill="#243445"/>
   <text x="568" y="598" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">LANGUAGES</text>
   <text x="552" y="632" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#111827">English</text>
   <rect x="552" y="640" width="176" height="6" rx="3" fill="#E5E7EB"/>
-  <rect x="552" y="640" width="158" height="6" rx="3" fill="#1F2D3D"/>
+  <rect x="552" y="640" width="158" height="6" rx="3" fill="#243445"/>
   <text x="552" y="668" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#111827">Spanish</text>
   <rect x="552" y="676" width="176" height="6" rx="3" fill="#E5E7EB"/>
-  <rect x="552" y="676" width="118" height="6" rx="3" fill="#1F2D3D"/>
-  <rect x="552" y="708" width="140" height="28" rx="14" fill="#1F2D3D"/>
+  <rect x="552" y="676" width="118" height="6" rx="3" fill="#243445"/>
+  <rect x="552" y="708" width="140" height="28" rx="14" fill="#243445"/>
   <text x="568" y="726" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">KEY ACHIEVEMENTS</text>
-  <text x="552" y="758" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#1F2D3D">Operations Excellence Award</text>
+  <text x="552" y="758" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#243445">Operations Excellence Award</text>
   <text x="552" y="776" font-family="Arial,sans-serif" font-size="10" fill="#6B7280">TechScale, Inc. | 2023</text>
-  <rect x="720" y="48" width="48" height="48" fill="none" stroke="#F4B39A" stroke-width="3" opacity="0.65"/>
-  <text x="400" y="968" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#F4B39A">Executive Coral Elite</text>
+  <rect x="720" y="48" width="48" height="48" fill="none" stroke="#F3A693" stroke-width="3" opacity="0.65"/>
+  <text x="400" y="968" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#F3A693">Executive Coral Elite</text>
 </svg>

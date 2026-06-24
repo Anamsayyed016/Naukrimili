@@ -1,17 +1,21 @@
-/* Executive Coral Elite — luxury corporate two-column executive resume */
+/* Executive Coral Elite — luxury premium executive resume */
 
 .ece-resume {
-  --ece-navy: #1F2D3D;
-  --ece-secondary: #F3F4F6;
-  --ece-coral: #F4B39A;
+  --ece-navy: #243445;
+  --ece-coral: #F3A693;
+  --ece-peach: #F7C7B8;
+  --ece-blush: #FDE9E2;
+  --ece-glow: #FFE6DE;
+  --ece-secondary: #F4F4F6;
   --ece-bg: #FFFFFF;
-  --ece-sidebar: #F7F7F9;
-  --ece-text: #111827;
-  --ece-muted: #6B7280;
-  --ece-divider: #E5E7EB;
-  --ece-bar-track: #E5E7EB;
-  --ece-pill-bg: #FFFFFF;
-  --ece-side-width: 248px;
+  --ece-sidebar: #F4F4F6;
+  --ece-text: #243445;
+  --ece-muted: #5C6B7A;
+  --ece-divider: #E7E7EA;
+  --ece-bar-track: #E7E7EA;
+  --ece-pill-bg: #FFF1EC;
+  --ece-pill-border: #F3A693;
+  --ece-side-width: 252px;
   --ece-max-width: 210mm;
   --ece-font: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 
@@ -37,95 +41,121 @@
   margin: 0 auto;
   padding: 0;
   font-family: var(--ece-font);
-  font-size: 10.5px;
-  line-height: 1.6;
+  font-size: 11px;
+  line-height: 1.62;
   color: var(--ece-text);
   background: var(--ece-bg) !important;
   overflow: visible;
-  box-shadow: 0 14px 40px rgba(31, 45, 61, 0.08);
+  box-shadow:
+    0 20px 50px rgba(36, 52, 69, 0.1),
+    0 4px 16px rgba(243, 166, 147, 0.08);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
   -webkit-font-smoothing: antialiased;
   isolation: isolate;
 }
 
-/* ── Decorative coral accents (PDF-safe) ── */
+/* ── Decorative premium accents (PDF-safe) ── */
 .ece-resume .ece-deco {
   position: absolute;
   pointer-events: none;
   z-index: 0;
 }
 
-.ece-resume .ece-deco--wash {
-  border-radius: 0;
-}
-
+/* Soft coral washes */
 .ece-resume .ece-deco--wash-tl {
   top: 0;
   left: 0;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle at 0% 0%, rgba(244, 179, 154, 0.2) 0%, transparent 68%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(
+    circle at 0% 0%,
+    rgba(253, 233, 226, 0.95) 0%,
+    rgba(247, 199, 184, 0.45) 35%,
+    transparent 72%
+  );
 }
 
 .ece-resume .ece-deco--wash-tr {
   top: 0;
   right: 0;
-  width: 130px;
-  height: 130px;
-  background: radial-gradient(circle at 100% 0%, rgba(244, 179, 154, 0.16) 0%, transparent 70%);
+  width: 280px;
+  height: 220px;
+  background:
+    radial-gradient(ellipse at 90% 5%, rgba(243, 166, 147, 0.42) 0%, transparent 58%),
+    radial-gradient(ellipse at 75% 25%, rgba(255, 230, 222, 0.55) 0%, transparent 62%);
 }
 
 .ece-resume .ece-deco--wash-bl {
   bottom: 0;
   left: 0;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle at 0% 100%, rgba(244, 179, 154, 0.14) 0%, transparent 72%);
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(
+    circle at 0% 100%,
+    rgba(247, 199, 184, 0.35) 0%,
+    rgba(255, 230, 222, 0.2) 40%,
+    transparent 70%
+  );
 }
 
-.ece-resume .ece-deco--geo {
-  background: var(--ece-coral);
-  opacity: 0.55;
-}
-
+/* Top-left coral corner shape */
 .ece-resume .ece-deco--geo-tl {
   top: 0;
   left: 0;
-  width: 28px;
-  height: 80px;
-  border-radius: 0 0 14px 0;
+  width: 32px;
+  height: 96px;
+  border-radius: 0 0 18px 0;
+  background: linear-gradient(180deg, var(--ece-coral) 0%, var(--ece-peach) 100%);
+  opacity: 0.72;
 }
 
+/* Top-right abstract accent */
 .ece-resume .ece-deco--geo-tr {
-  top: 18px;
-  right: 18px;
-  width: 36px;
-  height: 36px;
+  top: 14px;
+  right: 14px;
+  width: 52px;
+  height: 52px;
   border-top: 3px solid var(--ece-coral);
-  border-right: 3px solid var(--ece-coral);
-  border-radius: 0 10px 0 0;
+  border-right: 3px solid var(--ece-peach);
+  border-radius: 0 14px 0 0;
   background: transparent;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
+/* Bottom-left soft semi-circle */
 .ece-resume .ece-deco--geo-bl {
-  bottom: 22px;
-  left: 22px;
-  width: 34px;
-  height: 34px;
-  border-bottom: 3px solid var(--ece-coral);
-  border-left: 3px solid var(--ece-coral);
-  border-radius: 0 0 0 10px;
-  background: transparent;
-  opacity: 0.65;
+  bottom: 28px;
+  left: 24px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(243, 166, 147, 0.38) 0%,
+    rgba(247, 199, 184, 0.18) 55%,
+    transparent 72%
+  );
+  opacity: 0.9;
+}
+
+/* Bottom-right architectural pattern */
+.ece-resume .ece-deco--pattern-br {
+  bottom: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23243445' stroke-width='1.2'%3E%3Cpath d='M0 100h120M0 80h120M0 60h120M0 40h120M0 20h120M20 0v120M40 0v120M60 0v120M80 0v120M100 0v120'/%3E%3Cpath d='M0 0l120 120M120 0L0 120'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px 60px;
+  background-repeat: repeat;
 }
 
 /* ── Header ── */
 .ece-resume .ece-header {
   position: relative;
   z-index: 2;
-  background: var(--ece-bg);
+  background: linear-gradient(180deg, var(--ece-glow) 0%, var(--ece-bg) 42%);
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -134,33 +164,49 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 26px;
-  padding: 32px 36px 20px 40px;
+  gap: 28px;
+  padding: 34px 38px 22px 42px;
 }
 
 .ece-resume .ece-photo {
+  position: relative;
   flex-shrink: 0;
-  width: 120px;
-  height: 120px;
+  width: 128px;
+  height: 128px;
+}
+
+/* Subtle coral glow behind profile */
+.ece-resume .ece-photo::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(243, 166, 147, 0.38) 0%,
+    rgba(255, 230, 222, 0.22) 45%,
+    transparent 72%
+  );
+  z-index: 0;
 }
 
 .ece-resume .profile-image-wrapper {
-  width: 120px;
-  height: 120px;
+  position: relative;
+  z-index: 1;
+  width: 128px;
+  height: 128px;
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid #FFFFFF;
-  box-shadow:
-    0 4px 20px rgba(31, 45, 61, 0.12),
-    0 0 0 1px var(--ece-divider);
-  background: var(--ece-secondary);
+  background: linear-gradient(135deg, var(--ece-blush) 0%, var(--ece-peach) 100%);
+  box-shadow: 0 10px 30px rgba(243, 166, 147, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ece-resume .profile-image-wrapper--initials {
-  background: linear-gradient(145deg, #FFFFFF 0%, var(--ece-secondary) 100%);
+  background: linear-gradient(135deg, var(--ece-blush) 0%, var(--ece-peach) 100%);
 }
 
 .ece-resume .profile-image {
@@ -187,7 +233,7 @@
 
 .ece-resume .ece-ini-f::first-letter,
 .ece-resume .ece-ini-l::first-letter {
-  font-size: 38px;
+  font-size: 40px;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--ece-navy);
@@ -199,13 +245,13 @@
 }
 
 .ece-resume .candidate-name {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0.08em;
+  line-height: 1.06;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ece-navy);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .ece-resume .name-first,
@@ -228,9 +274,9 @@
 }
 
 .ece-resume .header-title {
-  font-size: 10.5px;
+  font-size: 11.5px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ece-muted);
   line-height: 1.5;
@@ -239,8 +285,9 @@
 
 /* ── Contact bar ── */
 .ece-resume .ece-contact-bar {
-  background: var(--ece-navy);
-  padding: 11px 36px;
+  background: linear-gradient(90deg, var(--ece-navy) 0%, #2d4154 100%);
+  padding: 12px 38px;
+  box-shadow: 0 4px 14px rgba(36, 52, 69, 0.15);
 }
 
 .ece-resume .ece-contact-bar .contact-list {
@@ -253,9 +300,9 @@
 .ece-resume .ece-contact-bar .contact-item {
   display: inline-flex;
   align-items: center;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.94);
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.4;
 }
 
@@ -264,7 +311,7 @@
   margin: 0 14px;
   color: var(--ece-coral);
   font-weight: 400;
-  opacity: 0.95;
+  opacity: 1;
 }
 
 .ece-resume .ece-contact-bar .contact-item::before {
@@ -277,7 +324,7 @@
 
 .ece-resume .ece-contact-divider {
   height: 1px;
-  background: var(--ece-divider);
+  background: linear-gradient(90deg, var(--ece-coral) 0%, var(--ece-peach) 50%, var(--ece-divider) 100%);
   margin: 0;
 }
 
@@ -292,50 +339,66 @@
 }
 
 .ece-resume .ece-main {
-  padding: 24px 30px 32px 36px;
+  padding: 26px 32px 36px 38px;
   background: var(--ece-bg);
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
 }
 
 .ece-resume .ece-sidebar {
   background: var(--ece-sidebar);
-  padding: 24px 20px 32px 18px;
-  box-shadow: inset 1px 0 0 var(--ece-divider);
+  margin: 20px 18px 24px 0;
+  padding: 22px 20px 28px;
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  align-self: stretch;
 }
 
 .ece-resume .ece-sidebar-inner {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 /* ── Main section headings ── */
 .ece-resume .ece-section-title {
-  font-size: 12px;
+  position: relative;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ece-navy);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--ece-coral);
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border: none;
   line-height: 1.3;
+}
+
+.ece-resume .ece-section-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ece-coral) 0%, var(--ece-peach) 100%);
 }
 
 .ece-resume .ece-sidebar-title {
   display: inline-block;
-  font-size: 8.5px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #FFFFFF;
-  background: var(--ece-navy);
-  padding: 5px 10px;
+  background: linear-gradient(135deg, var(--ece-navy) 0%, #2f4558 100%);
+  padding: 6px 12px;
   border-radius: 999px;
   margin-bottom: 12px;
   line-height: 1.3;
+  box-shadow: 0 3px 10px rgba(36, 52, 69, 0.12);
 }
 
 .ece-resume .ece-section {
@@ -346,7 +409,8 @@
 /* ── Summary ── */
 .ece-resume .summary-text {
   color: var(--ece-text);
-  line-height: 1.68;
+  font-size: 11px;
+  line-height: 1.7;
   text-align: justify;
 }
 
@@ -354,14 +418,14 @@
 .ece-resume .ece-experience {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .ece-resume .ece-experience .experience-item {
   page-break-inside: avoid;
   break-inside: avoid;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(231, 231, 234, 0.9);
 }
 
 .ece-resume .ece-experience .experience-item:last-child {
@@ -380,7 +444,7 @@
 .ece-resume .ece-experience .experience-header h3 {
   grid-column: 1;
   grid-row: 1;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ece-navy);
   line-height: 1.35;
@@ -389,9 +453,9 @@
 .ece-resume .ece-experience .experience-header .duration {
   grid-column: 2;
   grid-row: 1;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 600;
-  color: var(--ece-muted);
+  color: var(--ece-coral);
   white-space: nowrap;
   align-self: start;
 }
@@ -406,8 +470,8 @@
 }
 
 .ece-resume .ece-experience .description {
-  font-size: 10.5px;
-  line-height: 1.6;
+  font-size: 11px;
+  line-height: 1.62;
   color: var(--ece-text);
 }
 
@@ -417,13 +481,13 @@
   margin: 4px 0 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .ece-resume .ece-experience .description li {
   position: relative;
-  padding-left: 14px;
-  line-height: 1.58;
+  padding-left: 16px;
+  line-height: 1.6;
 }
 
 .ece-resume .ece-experience .description li::before {
@@ -431,9 +495,9 @@
   position: absolute;
   left: 0;
   top: 0.55em;
-  width: 5px;
-  height: 5px;
-  background: var(--ece-coral);
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, var(--ece-coral) 0%, var(--ece-peach) 100%);
   border-radius: 50%;
 }
 
@@ -441,27 +505,31 @@
 .ece-resume .ece-projects {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .ece-resume .ece-projects .project-item {
   page-break-inside: avoid;
   break-inside: avoid;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 241, 236, 0.55) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(243, 166, 147, 0.2);
 }
 
 .ece-resume .ece-projects .project-item h3 {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--ece-navy);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   line-height: 1.35;
 }
 
 .ece-resume .ece-projects .project-item .description,
 .ece-resume .ece-projects .project-item .technologies {
   color: var(--ece-text);
-  line-height: 1.58;
-  font-size: 10.5px;
+  line-height: 1.6;
+  font-size: 11px;
 }
 
 .ece-resume .ece-projects .project-item .description ul {
@@ -472,7 +540,7 @@
 
 .ece-resume .ece-projects .project-item .description li {
   position: relative;
-  padding-left: 14px;
+  padding-left: 16px;
   margin-bottom: 4px;
 }
 
@@ -481,9 +549,9 @@
   position: absolute;
   left: 0;
   top: 0.55em;
-  width: 5px;
-  height: 5px;
-  background: var(--ece-coral);
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, var(--ece-coral) 0%, var(--ece-peach) 100%);
   border-radius: 50%;
 }
 
@@ -491,21 +559,27 @@
 .ece-resume .ece-skills-pills.skills-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 7px;
 }
 
 .ece-resume .ece-skills-pills .skill-tag {
   display: inline-block;
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--ece-text);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--ece-navy);
   background: var(--ece-pill-bg);
-  border: 1px solid var(--ece-divider);
-  border-radius: 6px;
-  padding: 4px 9px;
+  border: 1px solid var(--ece-pill-border);
+  border-radius: 999px;
+  padding: 5px 11px;
   line-height: 1.35;
   white-space: normal;
-  box-shadow: 0 1px 3px rgba(31, 45, 61, 0.05);
+  box-shadow: 0 2px 6px rgba(243, 166, 147, 0.12);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.ece-resume .ece-skills-pills .skill-tag:hover {
+  background: #FFE8DF;
+  border-color: #E8957E;
 }
 
 /* ── Sidebar education ── */
@@ -518,6 +592,8 @@
 .ece-resume .ece-education .education-item {
   page-break-inside: avoid;
   break-inside: avoid;
+  padding-left: 12px;
+  border-left: 3px solid var(--ece-peach);
 }
 
 .ece-resume .ece-education .education-item h3 {
@@ -547,18 +623,22 @@
 .ece-resume .ece-certifications {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .ece-resume .ece-certifications .certification-item {
   page-break-inside: avoid;
   break-inside: avoid;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(231, 231, 234, 0.9);
 }
 
 .ece-resume .ece-certifications .certification-item h3 {
   font-size: 10px;
   font-weight: 600;
-  color: var(--ece-text);
+  color: var(--ece-navy);
   line-height: 1.45;
 }
 
@@ -576,52 +656,68 @@
 .ece-resume .ece-languages {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .ece-resume .psp-languages-progress .psp-language-item {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
 .ece-resume .psp-languages-progress .psp-language-name {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 600;
-  color: var(--ece-text);
+  color: var(--ece-navy);
 }
 
 .ece-resume .psp-languages-progress .psp-language-bar-container {
   width: 100%;
-  height: 5px;
+  height: 6px;
   background: var(--ece-bar-track);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .ece-resume .psp-languages-progress .psp-language-bar-fill {
   height: 100%;
-  background: var(--ece-navy);
-  border-radius: 3px;
+  background: linear-gradient(90deg, var(--ece-coral) 0%, var(--ece-peach) 100%);
+  border-radius: 4px;
 }
 
 .ece-resume .psp-languages-progress .psp-language-percentage {
   display: none;
 }
 
-/* ── Achievements ── */
+/* ── Achievements with coral markers ── */
 .ece-resume .ece-achievements {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .ece-resume .ece-achievements .achievement-item {
+  position: relative;
   page-break-inside: avoid;
   break-inside: avoid;
-  padding-left: 0;
+  padding: 10px 12px 10px 22px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 241, 236, 0.65) 0%, rgba(255, 255, 255, 0.85) 100%);
+  border: 1px solid rgba(243, 166, 147, 0.22);
+}
+
+.ece-resume .ece-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 14px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ece-coral) 0%, var(--ece-peach) 100%);
+  box-shadow: 0 0 0 3px rgba(243, 166, 147, 0.2);
 }
 
 .ece-resume .ece-achievements .achievement-item h3 {
@@ -641,9 +737,10 @@
 .ece-resume .ece-achievements .achievement-item .year,
 .ece-resume .ece-achievements .achievement-item .date {
   font-size: 9px;
-  color: var(--ece-muted);
+  font-weight: 600;
+  color: var(--ece-coral);
   display: block;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 /* ── Responsive ── */
@@ -667,7 +764,12 @@
   }
 
   .ece-resume .ece-sidebar {
+    margin: 0 16px 20px;
     padding: 18px 20px 28px;
+  }
+
+  .ece-resume .candidate-name {
+    font-size: 28px;
   }
 }
 
@@ -694,26 +796,60 @@
     box-shadow: none !important;
   }
 
+  .ece-resume .ece-header {
+    background: linear-gradient(180deg, var(--ece-glow) 0%, var(--ece-bg) 42%) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .ece-resume .ece-contact-bar {
-    background: var(--ece-navy) !important;
+    background: linear-gradient(90deg, var(--ece-navy) 0%, #2d4154 100%) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   .ece-resume .ece-sidebar {
     background: var(--ece-sidebar) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   .ece-resume .ece-sidebar-title {
-    background: var(--ece-navy) !important;
+    background: linear-gradient(135deg, var(--ece-navy) 0%, #2f4558 100%) !important;
     color: #FFFFFF !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .ece-resume .ece-deco {
+  .ece-resume .ece-section-title::after {
+    background: linear-gradient(90deg, var(--ece-coral) 0%, var(--ece-peach) 100%) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .profile-image-wrapper {
+    background: linear-gradient(135deg, var(--ece-blush) 0%, var(--ece-peach) 100%) !important;
+    box-shadow: 0 10px 30px rgba(243, 166, 147, 0.25) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .ece-skills-pills .skill-tag {
+    background: var(--ece-pill-bg) !important;
+    border-color: var(--ece-pill-border) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .psp-languages-progress .psp-language-bar-fill {
+    background: linear-gradient(90deg, var(--ece-coral) 0%, var(--ece-peach) 100%) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ece-resume .ece-deco,
+  .ece-resume .ece-photo::before {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

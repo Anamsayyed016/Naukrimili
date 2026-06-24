@@ -217,10 +217,10 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     hoverOverlay: 'from-orange-50/30',
   },
   'executive-coral-elite': {
-    glow: 'radial-gradient(circle, rgba(244,179,154,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(31,45,61,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-orange-300/55',
-    hoverOverlay: 'from-orange-50/30',
+    glow: 'radial-gradient(circle, rgba(243,166,147,0.45) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(255,230,222,0.55) 0%, transparent 70%)',
+    borderTint: 'hover:border-orange-300/60',
+    hoverOverlay: 'from-orange-50/35',
   },
 };
 
