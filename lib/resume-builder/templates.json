@@ -862,6 +862,30 @@
         { "id": "peach-accent", "name": "Peach Accent", "primary": "#111111", "accent": "#F8C6B4", "text": "#222222" }
       ],
       "defaultColor": "soft-coral"
+    },
+    {
+      "id": "rosewood-modern",
+      "name": "Rosewood Modern",
+      "slug": "rosewood-modern",
+      "description": "Luxury executive resume with soft beige page background, rosewood decorative accents, circular portrait with double-ring frame, Playfair Display serif name, 68/35 two-column layout with cream sidebar, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/rosewood-modern/thumbnail.svg",
+      "preview": "/templates/rosewood-modern/preview.svg",
+      "html": "/templates/rosewood-modern/index.html",
+      "css": "/templates/rosewood-modern/style.css",
+      "categories": ["Premium", "Executive", "Professional", "Corporate", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "rosewood", "name": "Rosewood", "primary": "#2A2420", "accent": "#B99892", "text": "#1F1A17" },
+        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#2A2420", "accent": "#D8C0BA", "text": "#1F1A17" },
+        { "id": "warm-taupe", "name": "Warm Taupe", "primary": "#2A2420", "accent": "#B7A399", "text": "#1F1A17" },
+        { "id": "soft-beige", "name": "Soft Beige", "primary": "#1F1A17", "accent": "#EFE6DD", "text": "#1F1A17" },
+        { "id": "executive-cream", "name": "Executive Cream", "primary": "#2A2420", "accent": "#FFFDF9", "text": "#1F1A17" },
+        { "id": "charcoal-rosewood", "name": "Charcoal Rosewood", "primary": "#1F1A17", "accent": "#B99892", "text": "#6E6258" }
+      ],
+      "defaultColor": "rosewood"
     }
   ],
   "filters": {
