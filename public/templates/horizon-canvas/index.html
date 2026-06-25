@@ -56,81 +56,87 @@
       </div>
     </header>
 
-    {{#if SUMMARY}}
-    <section class="hc-summary">
-      <div class="hc-summary-badge">
-        <span class="hc-summary-badge-text">Professional Summary</span>
-      </div>
-      <p class="summary-text">{{SUMMARY}}</p>
-    </section>
-    {{/if}}
+    <div class="hc-body">
+      <main class="hc-main">
+        {{#if EXPERIENCE}}
+        <section class="hc-section">
+          <h2 class="hc-section-title">Experience</h2>
+          <div class="experience-list hc-timeline hc-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
 
-    {{#if EXPERIENCE}}
-    <section class="hc-section">
-      <h2 class="hc-section-title">Experience</h2>
-      <div class="experience-list hc-timeline hc-experience">
-        {{EXPERIENCE}}
-      </div>
-    </section>
-    {{/if}}
+        {{#if PROJECTS}}
+        <section class="hc-section">
+          <h2 class="hc-section-title">Projects</h2>
+          <div class="projects-list hc-timeline hc-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
 
-    {{#if PROJECTS}}
-    <section class="hc-section">
-      <h2 class="hc-section-title">Projects</h2>
-      <div class="projects-list hc-timeline hc-projects">
-        {{PROJECTS}}
-      </div>
-    </section>
-    {{/if}}
+      <aside class="hc-sidebar">
+        {{#if SUMMARY}}
+        <section class="hc-summary">
+          <div class="hc-summary-badge">
+            <span class="hc-summary-badge-text">Professional Summary</span>
+          </div>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
 
-    {{#if EDUCATION}}
-    <section class="hc-section">
-      <h2 class="hc-section-title">Education</h2>
-      <div class="education-list hc-timeline hc-education">
-        {{EDUCATION}}
-      </div>
-    </section>
-    {{/if}}
+        {{#if SKILLS}}
+        <section class="hc-section hc-skills-section">
+          <h2 class="hc-section-title">Skills</h2>
+          <div class="hc-skills-wrap">
+            <div class="hc-skills-deco hc-skills-deco--sage" aria-hidden="true"></div>
+            <div class="hc-skills-deco hc-skills-deco--peach" aria-hidden="true"></div>
+            <div class="skills-list hc-skills">
+              {{SKILLS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
 
-    {{#if SKILLS}}
-    <section class="hc-section hc-skills-section">
-      <h2 class="hc-section-title">Skills</h2>
-      <div class="hc-skills-wrap">
-        <div class="hc-skills-deco hc-skills-deco--sage" aria-hidden="true"></div>
-        <div class="hc-skills-deco hc-skills-deco--peach" aria-hidden="true"></div>
-        <div class="skills-list hc-skills">
-          {{SKILLS}}
-        </div>
-      </div>
-    </section>
-    {{/if}}
+        {{#if EDUCATION}}
+        <section class="hc-section">
+          <h2 class="hc-section-title">Education</h2>
+          <div class="education-list hc-timeline hc-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
 
-    {{#if CERTIFICATIONS}}
-    <section class="hc-section">
-      <h2 class="hc-section-title">Certifications</h2>
-      <div class="certifications-list hc-certifications">
-        {{CERTIFICATIONS}}
-      </div>
-    </section>
-    {{/if}}
+        {{#if CERTIFICATIONS}}
+        <section class="hc-section">
+          <h2 class="hc-section-title">Certifications</h2>
+          <div class="certifications-list hc-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
 
-    {{#if LANGUAGES}}
-    <section class="hc-section">
-      <h2 class="hc-section-title">Languages</h2>
-      <div class="languages-list hc-languages">
-        {{LANGUAGES}}
-      </div>
-    </section>
-    {{/if}}
+        {{#if LANGUAGES}}
+        <section class="hc-section">
+          <h2 class="hc-section-title">Languages</h2>
+          <div class="languages-list hc-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
 
-    {{#if ACHIEVEMENTS}}
-    <section class="hc-section">
-      <h2 class="hc-section-title">Achievements</h2>
-      <div class="achievements-list hc-achievements">
-        {{ACHIEVEMENTS}}
-      </div>
-    </section>
-    {{/if}}
+        {{#if ACHIEVEMENTS}}
+        <section class="hc-section">
+          <h2 class="hc-section-title">Achievements</h2>
+          <div class="achievements-list hc-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
   </div>
 </body>
 </html>
