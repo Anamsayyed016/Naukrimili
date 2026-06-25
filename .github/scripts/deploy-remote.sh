@@ -159,21 +159,18 @@ if [ -d ".next/standalone" ]; then
       mkdir -p ".next/standalone/.next"
       
       # Copy static files to standalone directory (required for standalone mode)
-      if [ ! -d ".next/standalone/.next/static" ]; then
-        echo "   Copying static files to standalone directory..."
-        cp -r ".next/static" ".next/standalone/.next/static" || {
-          echo "⚠️  Failed to copy static files to standalone directory"
-          echo "   Trying symlink instead..."
-          ln -sf "$(pwd)/.next/static" ".next/standalone/.next/static" || {
-            echo "❌ Failed to create symlink for static files"
-            exit 1
-          }
-          echo "✅ Created symlink for static files"
+      rm -rf ".next/standalone/.next/static" 2>/dev/null || true
+      echo "   Copying static files to standalone directory..."
+      cp -r ".next/static" ".next/standalone/.next/static" || {
+        echo "⚠️  Failed to copy static files to standalone directory"
+        echo "   Trying symlink instead..."
+        ln -sf "$(pwd)/.next/static" ".next/standalone/.next/static" || {
+          echo "❌ Failed to create symlink for static files"
+          exit 1
         }
-        echo "✅ Static files copied to standalone directory"
-      else
-        echo "✅ Static files already exist in standalone directory"
-      fi
+        echo "✅ Created symlink for static files"
+      }
+      echo "✅ Static files copied to standalone directory"
       
       # Verify static files in standalone directory
       STANDALONE_STATIC_COUNT=$(find ".next/standalone/.next/static" -type f 2>/dev/null | wc -l)
@@ -557,6 +554,10 @@ else
   echo "⚠️  prisma/schema.prisma not found, skipping migrations"
 fi
 
+# Purge stale ISR / fetch cache from any prior deploy artifacts
+echo "🧹 Purging stale Next.js cache directories..."
+rm -rf .next/cache .next/standalone/.next/cache 2>/dev/null || true
+
 # Start PM2 in temp folder to test
 echo "🧪 Testing application in temp folder..."
 
@@ -692,6 +693,8 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     pm2 delete "$ACTUAL_PM2_NAME" 2>/dev/null || true
     pm2 delete naukrimili-test 2>/dev/null || true
     pm2 delete jobportal-test 2>/dev/null || true
+    pm2 delete naukrimili 2>/dev/null || true
+    sleep 1
     
     if [ -d "$PROD_DEPLOY/.next" ]; then
       echo "💾 Backing up current version..."
@@ -708,6 +711,9 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     
     # Start production PM2
     cd "$PROD_DEPLOY"
+
+    echo "🧹 Purging production Next.js cache before restart..."
+    rm -rf .next/cache .next/standalone/.next/cache 2>/dev/null || true
     
     # Verify ecosystem.config.cjs exists
     if [ ! -f ecosystem.config.cjs ]; then
@@ -817,6 +823,58 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     fi
     
     if [ "$HEALTH_CHECK_PASSED" = "true" ]; then
+      echo "🔄 Invalidating homepage ISR cache..."
+      REVALIDATE_SECRET=""
+      if [ -f .env ]; then
+        REVALIDATE_SECRET=$(grep -E '^REVALIDATE_SECRET=' .env 2>/dev/null | cut -d= -f2- | tr -d '"' | tr -d "'" || true)
+        if [ -z "$REVALIDATE_SECRET" ]; then
+          REVALIDATE_SECRET=$(grep -E '^NEXTAUTH_SECRET=' .env 2>/dev/null | cut -d= -f2- | tr -d '"' | tr -d "'" || true)
+        fi
+      fi
+      if [ -n "$REVALIDATE_SECRET" ]; then
+        REVALIDATE_OK=0
+        for attempt in 1 2 3 4 5; do
+          if curl -f -s -X POST "http://127.0.0.1:3000/api/revalidate" \
+            -H "x-revalidate-secret: $REVALIDATE_SECRET" > /dev/null 2>&1; then
+            REVALIDATE_OK=1
+            echo "✅ Homepage ISR cache invalidated"
+            break
+          fi
+          echo "   Revalidate attempt $attempt/5..."
+          sleep 2
+        done
+        [ "$REVALIDATE_OK" = "1" ] || echo "⚠️  Homepage revalidation did not confirm (non-fatal)"
+      else
+        echo "⚠️  REVALIDATE_SECRET / NEXTAUTH_SECRET not found — skipped API revalidation"
+      fi
+
+      echo "🔍 Verifying homepage asset hashes..."
+      HOME_HTML=$(curl -fsS http://127.0.0.1:3000/ 2>/dev/null || true)
+      PRICE_HTML=$(curl -fsS http://127.0.0.1:3000/pricing 2>/dev/null || true)
+      HOME_CSS=$(echo "$HOME_HTML" | grep -oE '/_next/static/css/[a-f0-9]+\.css' | head -1 || true)
+      PRICE_CSS=$(echo "$PRICE_HTML" | grep -oE '/_next/static/css/[a-f0-9]+\.css' | head -1 || true)
+      HOME_BUILD=$(echo "$HOME_HTML" | grep -oE 'build_[0-9]+' | head -1 || true)
+      PRICE_BUILD=$(echo "$PRICE_HTML" | grep -oE 'build_[0-9]+' | head -1 || true)
+      if [ -n "$HOME_CSS" ] && [ -n "$PRICE_CSS" ] && [ "$HOME_CSS" = "$PRICE_CSS" ]; then
+        echo "✅ Homepage globals CSS matches pricing: $HOME_CSS"
+      else
+        echo "⚠️  Homepage CSS ($HOME_CSS) differs from pricing ($PRICE_CSS)"
+      fi
+      if [ -n "$HOME_BUILD" ] && [ -n "$PRICE_BUILD" ] && [ "$HOME_BUILD" = "$PRICE_BUILD" ]; then
+        echo "✅ Homepage build marker matches pricing: $HOME_BUILD"
+      else
+        echo "⚠️  Homepage build ($HOME_BUILD) differs from pricing ($PRICE_BUILD)"
+      fi
+      if [ -n "$HOME_CSS" ]; then
+        CSS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$HOME_CSS" 2>/dev/null || echo "000")
+        if [ "$CSS_STATUS" = "200" ]; then
+          echo "✅ Homepage primary CSS loads: $HOME_CSS"
+        else
+          echo "❌ Homepage primary CSS returned HTTP $CSS_STATUS: $HOME_CSS"
+          exit 1
+        fi
+      fi
+
       echo "✅ Production deployment successful"
       # Clean old backups (keep last 3)
       cd "$BACKUP_FOLDER"

@@ -1,0 +1,1 @@
+html{--nm-route-stylesheet:jobs}#view-sticky-bar{transition:top .2s ease-in-out}@media (max-width:639px){.jobs-grid-container{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.5rem!important}.jobs-grid-container>*{min-width:0;max-width:100%}}
