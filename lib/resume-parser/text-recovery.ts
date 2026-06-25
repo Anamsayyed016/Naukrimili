@@ -1305,7 +1305,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     else if (!company && !ROLE_MARKERS.test(cleaned) && cleaned.length <= 80) company = cleaned;
   }
 
-  // Location: look for "City, ST/Country" in first 3 lines
+  // Location: look for "City, ST/Country" in header lines
   for (const h of headerLines) {
     const loc = h.match(/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/);
     if (loc) {
@@ -1314,8 +1314,29 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     }
   }
 
-  // Description / bullets — everything after the header/date
-  const descStart = (dateLineIdx >= 0 ? dateLineIdx + 1 : headerEnd);
+  // Lines immediately after the date line are often location (before bullets/description).
+  const bodyStart = dateLineIdx >= 0 ? dateLineIdx + 1 : headerEnd;
+  let descStart = bodyStart;
+  for (let i = bodyStart; i < chunkLines.length; i++) {
+    const l = chunkLines[i].trim();
+    if (!l) continue;
+    const locOnLine = l.match(
+      /\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/
+    );
+    if (locOnLine && !location) {
+      location = locOnLine[0];
+      descStart = i + 1;
+      continue;
+    }
+    if (!location && l.length <= 40 && /^(remote|hybrid|on-?site|work from home|wfh)$/i.test(l)) {
+      location = l;
+      descStart = i + 1;
+      continue;
+    }
+    break;
+  }
+
+  // Description / bullets — everything after header/date/location
   for (let i = descStart; i < chunkLines.length; i++) {
     const l = chunkLines[i].trim();
     if (!l) continue;
@@ -1401,6 +1422,11 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
     }
 
     if (current) {
+      // Standalone passing year on its own line (e.g. MBA / University / 2008)
+      if (/^(19|20)\d{2}$/.test(line.trim())) {
+        if (!current.year) current.year = line.trim();
+        continue;
+      }
       // GPA / CGPA
       const gpaMatch = line.match(/(?:gpa|cgpa)[:\s]*([0-9.]+(?:\s*\/\s*[0-9.]+)?)/i);
       if (gpaMatch) current.gpa = gpaMatch[1].trim();

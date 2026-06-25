@@ -7,6 +7,7 @@ import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import {
   mergeOrphanExperienceEntries,
   mergeOrphanEducationEntries,
+  collectExperienceBodyFields,
 } from '@/lib/resume-parser/import-sanitize';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
 
@@ -250,13 +251,43 @@ type EduLike = ExtractedResumeData['education'][number];
 type ProjectLike = NonNullable<ExtractedResumeData['projects']>[number];
 type CertLike = NonNullable<ExtractedResumeData['certifications']>[number];
 
+function resolveExperienceContent(
+  parser: Record<string, unknown>,
+  recovered: Record<string, unknown>
+): { description: string; achievements: string[] } {
+  const parserBody = collectExperienceBodyFields(parser);
+  const recoveredBody = collectExperienceBodyFields(recovered);
+  const pDesc = parserBody.description;
+  const rDesc = recoveredBody.description;
+  const pAch = parserBody.achievements;
+  const rAch = recoveredBody.achievements;
+
+  let description = pDesc;
+  if (!pDesc && rDesc) description = rDesc;
+  else if (rDesc) description = preferRecoveredWording(rDesc, pDesc);
+
+  let achievements = pAch;
+  if (!pAch.length && rAch.length) achievements = rAch;
+  else if (rAch.length) achievements = preferRecoveredStringList(rAch, pAch);
+
+  if (!description && achievements.length) {
+    description = achievements.join('\n');
+  }
+
+  return { description, achievements };
+}
+
 function applyExperienceWording(parser: ExpLike, recovered: ExpLike): ExpLike {
   const parserLoc = String(parser.location || '').trim();
   const recoveredLoc = String(recovered.location || '').trim();
+  const content = resolveExperienceContent(
+    parser as unknown as Record<string, unknown>,
+    recovered as unknown as Record<string, unknown>
+  );
   return {
     ...parser,
-    description: preferRecoveredWording(recovered.description, parser.description),
-    achievements: preferRecoveredStringList(recovered.achievements, parser.achievements),
+    description: content.description,
+    achievements: content.achievements,
     location: parserLoc || recoveredLoc || parser.location,
   };
 }
@@ -307,9 +338,15 @@ function applyEducationStructuralMerge(
   );
   const degree = preferNonemptyField(parser.degree || parser.Degree, recovered.degree);
   const field = preferNonemptyField(parser.field || parser.Field, recovered.field);
+  const recoveredYear = String(
+    (recovered as { endDate?: string }).endDate ||
+      (recovered as { year?: string }).year ||
+      (recovered as { Year?: string }).Year ||
+      ''
+  ).trim();
   const endDate = preferNonemptyField(
-    parser.endDate || parser.year || parser.end_date,
-    (recovered as { endDate?: string }).endDate
+    parser.endDate || parser.year || parser.end_date || parser.Year,
+    recoveredYear
   );
   const startDate = preferNonemptyField(parser.startDate || parser.start_date, recovered.startDate);
   return {
@@ -321,7 +358,7 @@ function applyEducationStructuralMerge(
     Degree: degree,
     field,
     Field: field,
-    year: endDate || parser.year,
+    year: endDate || parser.year || parser.Year,
     endDate,
     end_date: endDate,
     startDate,
@@ -331,6 +368,30 @@ function applyEducationStructuralMerge(
       (parser as { description?: string }).description
     ),
   };
+}
+
+/** Backfill missing description/location on parser rows from best recovered match. */
+function fillMissingExperienceFromRecovered(
+  parserList: Record<string, unknown>[],
+  recoveredList: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  return parserList.map((item) => {
+    const body = collectExperienceBodyFields(item);
+    const hasDesc = !!body.description.trim();
+    const hasBullets = body.achievements.length > 0;
+    const hasLoc = !!String(item.location || '').trim();
+    if (hasDesc && hasBullets && hasLoc) return item;
+
+    const idx = findBestRecoveredMatchIndex(
+      item,
+      recoveredList,
+      new Set<number>(),
+      experienceMatchScore,
+      (a, b) => experienceMatchScore(a, b) >= 40
+    );
+    if (idx < 0) return item;
+    return applyExperienceStructuralMerge(item, recoveredList[idx]);
+  });
 }
 
 function applyProjectWording(parser: ProjectLike, recovered: ProjectLike): ProjectLike {
@@ -462,17 +523,22 @@ export function applyRecoveredWordingToProfile(
   const parserExp = (Array.isArray(out.experience) ? out.experience : []) as Record<string, unknown>[];
   const recExp = (recovered.experience || []) as unknown as Record<string, unknown>[];
   out.experience = mergeOrphanExperienceEntries(
-    mergeListWithRecoveredWording(
-      parserExp,
-      recExp,
-      experienceSectionMatch,
-      experienceMatchScore,
-      (p, r) => applyExperienceStructuralMerge(p, r),
-      false
-    ) as Record<string, unknown>[]
+    fillMissingExperienceFromRecovered(
+      mergeListWithRecoveredWording(
+        parserExp,
+        recExp,
+        experienceSectionMatch,
+        experienceMatchScore,
+        (p, r) => applyExperienceStructuralMerge(p, r),
+        false
+      ) as Record<string, unknown>[],
+      recExp
+    )
   );
 
-  const parserEdu = (Array.isArray(out.education) ? out.education : []) as Record<string, unknown>[];
+  const parserEdu = mergeOrphanEducationEntries(
+    (Array.isArray(out.education) ? out.education : []) as Record<string, unknown>[]
+  );
   const recEdu = (recovered.education || []) as unknown as Record<string, unknown>[];
   out.education = mergeOrphanEducationEntries(
     mergeListWithRecoveredWording(

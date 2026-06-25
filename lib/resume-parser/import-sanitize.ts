@@ -896,6 +896,12 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
       !desc &&
       achievements.length === 0 &&
       (hasDates || !!location);
+    const isDescriptionOnlyOrphan =
+      !company &&
+      !position &&
+      !hasDates &&
+      !location &&
+      (!!desc || achievements.length > 0);
 
     if ((isDateOrLocationOnly || isPresentOnly) && out.length > 0) {
       const prev = { ...out[out.length - 1] };
@@ -909,6 +915,19 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
       }
       if (location && !sanitizeFieldText(prev.location, 120)) prev.location = location;
       if (exp.current === true) prev.current = true;
+      out[out.length - 1] = prev;
+      continue;
+    }
+    if (isDescriptionOnlyOrphan && out.length > 0) {
+      const prev = { ...out[out.length - 1] };
+      const prevDesc = sanitizeFieldText(prev.description, 4000);
+      const mergedDesc = [prevDesc, desc, ...achievements].filter(Boolean).join('\n').trim();
+      if (mergedDesc) prev.description = mergedDesc;
+      const prevAch = Array.isArray(prev.achievements) ? [...prev.achievements] : [];
+      prev.achievements = [...prevAch, ...achievements];
+      if (desc && !achievements.length) {
+        prev.achievements = [...prevAch, ...desc.split('\n').map((l) => l.trim()).filter(Boolean)];
+      }
       out[out.length - 1] = prev;
       continue;
     }
@@ -937,8 +956,10 @@ export function mergeOrphanEducationEntries<T extends EducationLike>(entries: T[
     const degree = sanitizeFieldText(edu.degree, 160);
     const year = sanitizeFieldText(edu.endDate || edu.year, 40);
     const isPartial = (!institution && !!degree) || (!!institution && !degree);
+    const isYearOnly =
+      !institution && !degree && !!year && /^(19|20)\d{2}$/.test(year);
 
-    if (isPartial && out.length > 0) {
+    if ((isPartial || isYearOnly) && out.length > 0) {
       const prev = { ...out[out.length - 1] };
       const prevInst = sanitizeFieldText(prev.institution, 160);
       const prevDeg = sanitizeFieldText(prev.degree, 160);
@@ -957,6 +978,39 @@ export function mergeOrphanEducationEntries<T extends EducationLike>(entries: T[
     out.push({ ...edu });
   }
   return out;
+}
+
+/** Collect description + bullet text from common parser field aliases. */
+export function collectExperienceBodyFields(exp: Record<string, unknown>): {
+  description: string;
+  achievements: string[];
+} {
+  const achievements: string[] = [];
+  for (const key of ['achievements', 'bullets', 'highlights', 'responsibilities', 'duties']) {
+    const val = exp[key];
+    if (Array.isArray(val)) {
+      for (const item of val) {
+        if (typeof item === 'string' && item.trim()) achievements.push(item.trim());
+        else if (item && typeof item === 'object') {
+          const rec = item as Record<string, unknown>;
+          const s = String(rec.title ?? rec.description ?? rec.text ?? '').trim();
+          if (s) achievements.push(s);
+        }
+      }
+    } else if (typeof val === 'string' && val.trim()) {
+      achievements.push(val.trim());
+    }
+  }
+  const description = String(
+    exp.description ??
+      exp.Description ??
+      exp.summary ??
+      exp.Summary ??
+      exp.responsibilities ??
+      exp.duties ??
+      ''
+  ).trim();
+  return { description, achievements };
 }
 
 /** Reject random text blocks that lack employment structure. */

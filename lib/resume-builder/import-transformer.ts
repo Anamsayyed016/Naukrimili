@@ -55,6 +55,8 @@ import {
   isExperienceBlurbFragment,
   isPlausiblePersonName,
   isValidatedContactName,
+  collectExperienceBodyFields,
+  mergeOrphanEducationEntries,
 } from '@/lib/resume-parser/import-sanitize';
 import {
   classifyResumeTextFragment,
@@ -1111,7 +1113,7 @@ function transformExperienceArray(experiences: unknown): any[] {
     .map((exp) => {
       const position = String(exp.position || exp.title || '');
       const company = String(exp.company || '');
-      const location = String(exp.location || '');
+      const location = String(exp.location || exp.Location || '');
 
       const startMonth = toMonthInput(exp.startDate);
       const endRaw = exp.endDate || '';
@@ -1119,32 +1121,19 @@ function transformExperienceArray(experiences: unknown): any[] {
         exp.current === true ||
         !endRaw ||
         /^(present|current|now|ongoing)$/i.test(String(endRaw));
-      // For <input type="month"> we cannot use "Present" — leave blank when current,
-      // the checkbox conveys the state. Templates read `current` and render "Present".
       const endMonth = isCurrent ? '' : toMonthInput(endRaw);
 
-      // Build the canonical bullet list. Priority:
-      //   1. parser-provided achievements[]
-      //   2. bullets split from the raw description
-      const rawDesc = String(exp.description ?? '');
-      const parserBullets: string[] = Array.isArray(exp.achievements)
-        ? (exp.achievements as unknown[])
-            .map((a) => {
-              if (typeof a === 'string') return a;
-              const rec = a as Record<string, unknown>;
-              return String(rec?.title ?? rec?.description ?? rec?.text ?? '');
-            })
-            .map((s) => cleanString(s))
-            .filter(Boolean)
-        : [];
+      const body = collectExperienceBodyFields(exp);
+      let rawDesc = body.description;
+      const parserBullets: string[] = body.achievements.map((s) => cleanString(s)).filter(Boolean);
+      if (!rawDesc && parserBullets.length) {
+        rawDesc = parserBullets.join('\n');
+      }
       const descBullets = splitBullets(rawDesc);
       const bullets = dedupeStrings(
         parserBullets.length > 0 ? parserBullets : descBullets
       );
 
-      // Description field for templates that don't render bullets: full
-      // multi-line cleaned text. Templates that DO render bullets read
-      // `achievements[]` / `bullets[]` instead.
       const description =
         cleanMultiline(rawDesc) ||
         (bullets.length ? bullets.map((b) => `• ${b}`).join('\n') : '');
@@ -1202,7 +1191,11 @@ function transformExperienceArray(experiences: unknown): any[] {
 function transformEducationArray(education: unknown): any[] {
   if (!Array.isArray(education)) return [];
 
-  const mapped = education
+  const merged = mergeOrphanEducationEntries(
+    education.filter((e) => e != null) as Record<string, unknown>[]
+  );
+
+  const mapped = merged
     .map((edu) => sanitizeEducationEntry((edu ?? {}) as Record<string, unknown>))
     .filter((edu): edu is Record<string, unknown> => edu != null)
     .map((edu) => {
@@ -1212,7 +1205,7 @@ function transformEducationArray(education: unknown): any[] {
       const gpa = String(edu.gpa || '');
 
       // Year MUST be a bare 4-digit string — EducationStep uses <input type="number">
-      const year = extractYear(edu.year || edu.endDate);
+      const year = extractYear(edu.year || edu.Year || edu.endDate || edu.end_date || edu.startDate);
       const startDate = toMonthInput(edu.startDate);
       const endDate = toMonthInput(edu.endDate || edu.year);
 

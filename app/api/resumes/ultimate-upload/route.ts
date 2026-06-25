@@ -1635,7 +1635,19 @@ export async function POST(request: NextRequest) {
           ? (startDate ? `${startDate} - Present` : 'Present')
           : (exp.duration || computeDuration(startDate, endDate));
 
-        const rawDescription = exp.description || exp.summary || '';
+        const rawDescription =
+          exp.description ||
+          exp.summary ||
+          (Array.isArray(exp.achievements) && exp.achievements.length
+            ? exp.achievements
+                .map((a: unknown) =>
+                  typeof a === 'string' ? a : String((a as any)?.title ?? (a as any)?.description ?? '')
+                )
+                .filter(Boolean)
+                .join('\n')
+            : '') ||
+          exp.responsibilities ||
+          '';
         // Bullet-split the description BEFORE cleanString flattens it.
         const splitBullets = (text: string): string[] =>
           text
@@ -1688,7 +1700,7 @@ export async function POST(request: NextRequest) {
         const degree = edu.degree || edu.qualification || '';
         const field = edu.field || edu.major || '';
         const startDate = edu.start_date || edu.startDate || '';
-        const endDate = edu.year || edu.end_date || edu.endDate || '';
+        const endDate = edu.year || edu.Year || edu.end_date || edu.endDate || edu.startDate || '';
         const gpa = edu.gpa || '';
         const description = edu.description || '';
         const location = edu.location || '';

@@ -96,6 +96,49 @@ describe('prefer-recovered-wording', () => {
     expect(matching).toBe(true);
   });
 
+  it('applyRecoveredWordingToProfile backfills missing description from recovered text', () => {
+    const profile = {
+      experience: [
+        {
+          company: 'Globex Inc',
+          position: 'Business Analyst',
+          startDate: '2021',
+          description: '',
+          achievements: [],
+          location: '',
+        },
+      ],
+    };
+    const recovered: ExtractedResumeData = {
+      fullName: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+      skills: [],
+      experience: [
+        {
+          company: 'Globex',
+          position: 'Business Analyst',
+          startDate: '2021',
+          endDate: '',
+          current: false,
+          location: 'Pune, MH',
+          description: 'Managed GST filing\nPrepared reports\nVendor reconciliation',
+          achievements: ['Managed GST filing', 'Prepared reports', 'Vendor reconciliation'],
+        },
+      ],
+      education: [],
+      confidence: 0,
+      rawText: '',
+    };
+    const out = applyRecoveredWordingToProfile(profile, recovered);
+    const exp = (out.experience as any[])[0];
+    expect(exp.description).toContain('Managed GST filing');
+    expect(exp.achievements).toContain('Prepared reports');
+    expect(exp.location).toBe('Pune, MH');
+  });
+
   it('applyRecoveredWordingToProfile backfills missing experience title from recovered text', () => {
     const profile = {
       experience: [
