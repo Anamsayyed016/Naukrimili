@@ -108,23 +108,25 @@ export function experienceSectionMatch(a: Record<string, unknown>, b: Record<str
   return sharesCompany || sharesPosition;
 }
 
+function educationInstitutionSlug(rec: Record<string, unknown>): string {
+  return String(rec.institution || rec.school || rec.Institution || rec.School || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function educationDegreeSlug(rec: Record<string, unknown>): string {
+  return String(rec.degree || rec.Degree || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
 export function educationSectionMatch(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
-  const ai = String(a.institution || a.school || a.Institution || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-  const bi = String(b.institution || b.school || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-  const ad = String(a.degree || a.Degree || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-  const bd = String(b.degree || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+  const ai = educationInstitutionSlug(a);
+  const bi = educationInstitutionSlug(b);
+  const ad = educationDegreeSlug(a);
+  const bd = educationDegreeSlug(b);
   const sharesInst = ai.length >= 4 && bi.length >= 4 && (ai.includes(bi) || bi.includes(ai));
   const sharesDegree = ad.length >= 3 && bd.length >= 3 && (ad.includes(bd) || bd.includes(ad));
   return sharesInst || sharesDegree;

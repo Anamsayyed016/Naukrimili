@@ -4,6 +4,7 @@ import {
   shouldPreferRecoveredWording,
   mergeParserWithRecoveredWording,
   applyRecoveredWordingToProfile,
+  educationSectionMatch,
 } from '@/lib/resume-parser/prefer-recovered-wording';
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 
@@ -70,6 +71,13 @@ describe('prefer-recovered-wording', () => {
     expect(merged.experience[0].startDate).toBe('2020-01');
     expect(merged.experience[0].description).toContain('Built REST APIs');
     expect(merged.experience[0].achievements).toContain('Reduced deployment time by 40%');
+  });
+
+  it('educationSectionMatch treats capitalized fields symmetrically', () => {
+    const parser = { Institution: 'State University', Degree: 'Bachelor of Science' };
+    const recovered = { Institution: 'State University', Degree: 'Bachelor of Science' };
+    expect(educationSectionMatch(parser, recovered)).toBe(true);
+    expect(educationSectionMatch(recovered, parser)).toBe(true);
   });
 
   it('applyRecoveredWordingToProfile does not duplicate experience rows', () => {
