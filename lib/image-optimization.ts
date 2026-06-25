@@ -4,8 +4,8 @@
  */
 export const CLOUDINARY_UPLOAD_HOST = 'res.cloudinary.com';
 
-export function isCloudinaryUrl(url: string): boolean {
-  return url.includes(CLOUDINARY_UPLOAD_HOST);
+export function isCloudinaryUrl(url: string | null | undefined): boolean {
+  return typeof url === 'string' && url.includes(CLOUDINARY_UPLOAD_HOST);
 }
 
 /** Apply auto format/quality when URL is Cloudinary and not already transformed. */

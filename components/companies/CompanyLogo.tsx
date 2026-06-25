@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import {
   getCompanyInitials,
@@ -32,9 +32,12 @@ export default function CompanyLogo({
   const [index, setIndex] = useState(0);
   const [exhausted, setExhausted] = useState(false);
 
+  useEffect(() => {
+    setIndex(0);
+    setExhausted(false);
+  }, [logo, website]);
+
   const initials = getCompanyInitials(name);
-  const src = candidates[index];
-  const useOptimizedImage = isCloudinaryUrl(src);
 
   if (exhausted || candidates.length === 0 || index >= candidates.length) {
     return (
@@ -52,6 +55,26 @@ export default function CompanyLogo({
       </div>
     );
   }
+
+  const src = candidates[index];
+  if (!src) {
+    return (
+      <div
+        className={className}
+        title={name}
+        aria-label={`${name} logo`}
+      >
+        <span
+          className={`${initialsClassName} select-none`}
+          aria-hidden
+        >
+          {initials}
+        </span>
+      </div>
+    );
+  }
+
+  const useOptimizedImage = isCloudinaryUrl(src);
 
   return (
     <div className={className}>
