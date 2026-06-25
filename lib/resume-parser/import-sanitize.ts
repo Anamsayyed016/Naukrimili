@@ -857,6 +857,66 @@ export function isExperienceBlurbFragment(text: string): boolean {
   return false;
 }
 
+type ExperienceLike = {
+  company?: string;
+  position?: string;
+  startDate?: string;
+  endDate?: string;
+  start_date?: string;
+  end_date?: string;
+  location?: string;
+  description?: string;
+  achievements?: string[];
+  current?: boolean;
+};
+
+/** Merge date/location-only stubs into the preceding experience entry. */
+export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: T[]): T[] {
+  if (entries.length < 2) return entries;
+  const out: T[] = [];
+  for (const exp of entries) {
+    const company = sanitizeFieldText(exp.company, 120);
+    const position = sanitizeFieldText(exp.position, 120);
+    const startDate = sanitizeFieldText(exp.startDate || exp.start_date, 40);
+    const endDate = sanitizeFieldText(exp.endDate || exp.end_date, 40);
+    const desc = sanitizeFieldText(exp.description, 2000);
+    const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
+    const location = sanitizeFieldText(exp.location, 120);
+    const hasDates = !!(startDate || endDate);
+    const endOnly = sanitizeFieldText(exp.endDate || exp.end_date, 40);
+    const isPresentOnly =
+      !company &&
+      !position &&
+      !desc &&
+      achievements.length === 0 &&
+      /^(present|current|now|ongoing)$/i.test(endOnly);
+    const isDateOrLocationOnly =
+      !company &&
+      !position &&
+      !desc &&
+      achievements.length === 0 &&
+      (hasDates || !!location);
+
+    if ((isDateOrLocationOnly || isPresentOnly) && out.length > 0) {
+      const prev = { ...out[out.length - 1] };
+      if (startDate && !sanitizeFieldText(prev.startDate || prev.start_date, 40)) {
+        prev.startDate = startDate;
+        prev.start_date = startDate;
+      }
+      if (endDate && !sanitizeFieldText(prev.endDate || prev.end_date, 40)) {
+        prev.endDate = endDate;
+        prev.end_date = endDate;
+      }
+      if (location && !sanitizeFieldText(prev.location, 120)) prev.location = location;
+      if (exp.current === true) prev.current = true;
+      out[out.length - 1] = prev;
+      continue;
+    }
+    out.push({ ...exp });
+  }
+  return out;
+}
+
 /** Reject random text blocks that lack employment structure. */
 export function isValidExperienceEntry(exp: {
   company?: string;

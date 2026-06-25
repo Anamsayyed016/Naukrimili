@@ -21,6 +21,7 @@ import {
   isLikelyJobTitle,
   isLikelyCompanyName,
   isValidExperienceEntry,
+  mergeOrphanExperienceEntries,
   pickBestNameFromCandidates,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
@@ -223,6 +224,11 @@ const COMPANY_MARKERS = /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|gmbh|co\.?|comp
 const ROLE_MARKERS = /\b(?:engineer|developer|architect|manager|director|lead|head|consultant|analyst|designer|administrator|administrator|specialist|coordinator|associate|executive|officer|programmer|intern|trainee|founder|owner|ceo|cto|cfo|coo|vp|president|principal|scientist|researcher)\b/i;
 
 const DATE_RANGE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})\s*[-–—to]+\s*((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2}|present|current|now|ongoing)/i;
+
+function isExperienceBulletLine(line: string): boolean {
+  const t = line.trim();
+  return /^[•\-\*\u2022\u2023\u25aa\u25cf\u2013\u2014]\s+/.test(t) || /^[oO]\s+/.test(t);
+}
 const SINGLE_DATE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})/;
 
 /**
@@ -1151,7 +1157,8 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
     const line = lines[i];
     if (!line.trim()) continue;
     const hasDateRange = DATE_RANGE_REGEX.test(line);
-    const hasRoleMarker = ROLE_MARKERS.test(line) && line.length < 100;
+    const hasRoleMarker =
+      ROLE_MARKERS.test(line) && line.length < 100 && !isExperienceBulletLine(line);
 
     if (hasDateRange || hasRoleMarker) {
       // CRITICAL: many resumes place "Company" / "Role" on the lines ABOVE the date range.
@@ -1221,7 +1228,7 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
     const exp = parseExperienceChunk(chunk);
     if ((exp.position || exp.company) && isValidExperienceEntry(exp)) out.push(exp);
   }
-  return out;
+  return mergeOrphanExperienceEntries(out);
 }
 
 function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experience'][0] {

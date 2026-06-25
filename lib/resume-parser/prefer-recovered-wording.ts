@@ -4,6 +4,7 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { mergeOrphanExperienceEntries } from '@/lib/resume-parser/import-sanitize';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
 
 const MIN_WORDING_LENGTH = 3;
@@ -98,6 +99,12 @@ function slugWords(s: unknown): string[] {
     .filter((w) => w.length >= 3);
 }
 
+function experienceStartDateKey(rec: Record<string, unknown>): string {
+  const raw = String(rec.startDate || rec.start_date || '').trim();
+  const m = raw.match(/(19|20)\d{2}/);
+  return m ? m[0] : '';
+}
+
 export function experienceSectionMatch(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
   const ac = slugWords(a.company || a.organization);
   const bc = slugWords(b.company || b.organization);
@@ -105,7 +112,24 @@ export function experienceSectionMatch(a: Record<string, unknown>, b: Record<str
   const bp = slugWords(b.position || b.job_title || b.title || b.role);
   const sharesCompany = ac.length > 0 && bc.length > 0 && ac.some((w) => bc.includes(w));
   const sharesPosition = ap.length > 0 && bp.length > 0 && ap.some((w) => bp.includes(w));
-  return sharesCompany || sharesPosition;
+  const aHasBoth = ac.length > 0 && ap.length > 0;
+  const bHasBoth = bc.length > 0 && bp.length > 0;
+  const aStart = experienceStartDateKey(a);
+  const bStart = experienceStartDateKey(b);
+  const sharesStartYear = aStart.length > 0 && bStart.length > 0 && aStart === bStart;
+
+  if (aHasBoth && bHasBoth) {
+    if (sharesCompany && sharesPosition) return true;
+    if (sharesStartYear && (sharesCompany || sharesPosition)) return true;
+    return false;
+  }
+
+  if (sharesCompany && sharesPosition) return true;
+  if (sharesCompany && (!ap.length || !bp.length)) return true;
+  if (sharesPosition && (!ac.length || !bc.length)) return true;
+  if (sharesStartYear && sharesCompany) return true;
+
+  return false;
 }
 
 function educationInstitutionSlug(rec: Record<string, unknown>): string {
@@ -166,10 +190,13 @@ type ProjectLike = NonNullable<ExtractedResumeData['projects']>[number];
 type CertLike = NonNullable<ExtractedResumeData['certifications']>[number];
 
 function applyExperienceWording(parser: ExpLike, recovered: ExpLike): ExpLike {
+  const parserLoc = String(parser.location || '').trim();
+  const recoveredLoc = String(recovered.location || '').trim();
   return {
     ...parser,
     description: preferRecoveredWording(recovered.description, parser.description),
     achievements: preferRecoveredStringList(recovered.achievements, parser.achievements),
+    location: parserLoc || recoveredLoc || parser.location,
   };
 }
 
@@ -280,19 +307,22 @@ export function applyRecoveredWordingToProfile(
 
   const parserExp = (Array.isArray(out.experience) ? out.experience : []) as Record<string, unknown>[];
   const recExp = (recovered.experience || []) as unknown as Record<string, unknown>[];
-  out.experience = mergeListWithRecoveredWording(
-    parserExp,
-    recExp,
-    experienceSectionMatch,
-    (p, r) => {
-      const merged = applyExperienceWording(p as unknown as ExpLike, r as unknown as ExpLike);
-      return {
-        ...p,
-        description: merged.description,
-        achievements: merged.achievements,
-      };
-    },
-    false
+  out.experience = mergeOrphanExperienceEntries(
+    mergeListWithRecoveredWording(
+      parserExp,
+      recExp,
+      experienceSectionMatch,
+      (p, r) => {
+        const merged = applyExperienceWording(p as unknown as ExpLike, r as unknown as ExpLike);
+        return {
+          ...p,
+          description: merged.description,
+          achievements: merged.achievements,
+          location: merged.location,
+        };
+      },
+      false
+    ) as Record<string, unknown>[]
   );
 
   const parserEdu = (Array.isArray(out.education) ? out.education : []) as Record<string, unknown>[];

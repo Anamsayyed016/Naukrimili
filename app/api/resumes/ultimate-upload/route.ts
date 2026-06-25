@@ -36,7 +36,7 @@ import {
   splitMergedProjectEntries,
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
-import { applyRecoveredWordingToProfile } from '@/lib/resume-parser/prefer-recovered-wording';
+import { applyRecoveredWordingToProfile, experienceSectionMatch, educationSectionMatch } from '@/lib/resume-parser/prefer-recovered-wording';
 import { prepareResumeTextForParsing } from '@/lib/resume-parser/resume-document-analysis';
 import {
   logFullUploadProvenance,
@@ -1232,22 +1232,8 @@ export async function POST(request: NextRequest) {
         if (recoveredExp.length > 0) {
           const existingExp = parsedData.experience || [];
 
-          const slug = (s: unknown): string =>
-            String(s || '')
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, ' ')
-              .trim();
-          const wordsOf = (s: unknown): string[] =>
-            slug(s).split(/\s+/).filter((w) => w.length >= 3);
-          const matchExp = (a: any, b: any): boolean => {
-            const ac = wordsOf(a.company || a.organization);
-            const bc = wordsOf(b.company || b.organization);
-            const ap = wordsOf(a.position || a.job_title || a.title || a.role);
-            const bp = wordsOf(b.position || b.job_title || b.title || b.role);
-            const sharesCompany = ac.length && bc.length && ac.some((w) => bc.includes(w));
-            const sharesPosition = ap.length && bp.length && ap.some((w) => bp.includes(w));
-            return sharesCompany || sharesPosition;
-          };
+          const matchExp = (a: Record<string, unknown>, b: Record<string, unknown>): boolean =>
+            experienceSectionMatch(a, b);
 
           // Detect Affinda "stub" entries — only a position string filled in,
           // no company / no dates / no description. These are useless and
@@ -1413,20 +1399,8 @@ export async function POST(request: NextRequest) {
         }
         const recoveredEdu = recovered.education || [];
         if (recoveredEdu.length > 0) {
-          const eduSlug = (s: unknown): string =>
-            String(s || '')
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, ' ')
-              .trim();
-          const matchEdu = (a: Record<string, unknown>, b: { institution?: string; degree?: string }): boolean => {
-            const ai = eduSlug(a.institution || a.school || a.Institution);
-            const bi = eduSlug(b.institution);
-            const ad = eduSlug(a.degree || a.Degree);
-            const bd = eduSlug(b.degree);
-            const sharesInst = ai.length >= 4 && bi.length >= 4 && (ai.includes(bi) || bi.includes(ai));
-            const sharesDegree = ad.length >= 3 && bd.length >= 3 && (ad.includes(bd) || bd.includes(ad));
-            return sharesInst || sharesDegree;
-          };
+          const matchEdu = (a: Record<string, unknown>, b: Record<string, unknown>): boolean =>
+            educationSectionMatch(a, b);
 
           const existingEdu = (parsedData.education || []) as Array<Record<string, unknown>>;
           if (existingEdu.length === 0) {

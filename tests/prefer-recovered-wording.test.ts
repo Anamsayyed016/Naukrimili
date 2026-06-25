@@ -5,7 +5,9 @@ import {
   mergeParserWithRecoveredWording,
   applyRecoveredWordingToProfile,
   educationSectionMatch,
+  experienceSectionMatch,
 } from '@/lib/resume-parser/prefer-recovered-wording';
+import { mergeOrphanExperienceEntries } from '@/lib/resume-parser/import-sanitize';
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 
 describe('prefer-recovered-wording', () => {
@@ -78,6 +80,40 @@ describe('prefer-recovered-wording', () => {
     const recovered = { Institution: 'State University', Degree: 'Bachelor of Science' };
     expect(educationSectionMatch(parser, recovered)).toBe(true);
     expect(educationSectionMatch(recovered, parser)).toBe(true);
+  });
+
+  it('experienceSectionMatch requires company and role when both sides have both', () => {
+    const sameCompanyDifferentRole = experienceSectionMatch(
+      { company: 'Acme Corp', position: 'Software Engineer', startDate: '2020' },
+      { company: 'Acme Corp', position: 'Product Manager', startDate: '2020' }
+    );
+    expect(sameCompanyDifferentRole).toBe(false);
+
+    const matching = experienceSectionMatch(
+      { company: 'Acme Corp', position: 'Software Engineer', startDate: '2020' },
+      { company: 'Acme', position: 'Engineer', startDate: '2020' }
+    );
+    expect(matching).toBe(true);
+  });
+
+  it('mergeOrphanExperienceEntries folds date-only rows into previous job', () => {
+    const merged = mergeOrphanExperienceEntries([
+      {
+        company: 'Globex',
+        position: 'Analyst',
+        description: '• Prepared reports',
+        achievements: [],
+      },
+      {
+        startDate: '2021',
+        endDate: '2023',
+        location: 'New York, NY',
+      },
+    ]);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].startDate).toBe('2021');
+    expect(merged[0].endDate).toBe('2023');
+    expect(merged[0].location).toBe('New York, NY');
   });
 
   it('applyRecoveredWordingToProfile does not duplicate experience rows', () => {
