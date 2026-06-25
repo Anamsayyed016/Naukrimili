@@ -348,6 +348,8 @@ jobs:
             if [ -n "${DATABASE_URL:-}" ]; then
               echo "🗄️  Syncing schema (skip migrate on existing DB — P3005)..."
               npx prisma@6.18.0 db push --schema=prisma/schema.prisma --skip-generate 2>&1 | tail -10 || echo "⚠️  db push warning (non-fatal)"
+              echo "🌱 Seeding privacy policy (StaticContent upsert)..."
+              npm run db:seed:privacy 2>&1 | tail -15 || node scripts/seed-static-content.js 2>&1 | tail -15
             fi
           fi
           
@@ -426,6 +428,14 @@ jobs:
           EOF
           
           echo "✅ Deployment complete - zero downtime achieved!"
+
+      - name: Seed privacy policy (StaticContent)
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "export DATABASE_URL='${DATABASE_URL}'; cd ${DEPLOY_FOLDER} && npm run db:seed:privacy" || {
+            echo "⚠️  npm script failed, retrying with node scripts/seed-static-content.js"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "export DATABASE_URL='${DATABASE_URL}'; cd ${DEPLOY_FOLDER} && node scripts/seed-static-content.js"
+          }
 
       - name: Post-deployment verification
         run: |

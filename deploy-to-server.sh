@@ -43,6 +43,16 @@ else
     exit 1
 fi
 
+# Step 3b: Seed privacy policy (idempotent upsert)
+echo -e "${YELLOW}🌱 Step 3b: Seeding privacy policy...${NC}"
+npm run db:seed:privacy
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Privacy policy seeded${NC}"
+else
+    echo -e "${RED}❌ Privacy policy seed failed${NC}"
+    exit 1
+fi
+
 # Step 4: Build application
 echo -e "${YELLOW}🏗️  Step 4: Building application...${NC}"
 export NODE_ENV=production

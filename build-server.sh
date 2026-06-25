@@ -41,6 +41,12 @@ else
     npx prisma generate
 fi
 
+# Seed privacy policy (idempotent upsert — ensures StaticContent key=privacy exists)
+if [ -n "${DATABASE_URL:-}" ]; then
+    echo "🌱 Seeding privacy policy..."
+    npm run db:seed:privacy || node scripts/seed-static-content.js || echo "⚠️  Privacy seed skipped (non-fatal)"
+fi
+
 # Verify Prisma client was generated
 if [ ! -d "node_modules/.prisma" ] && [ ! -d "node_modules/@prisma/client" ]; then
     echo "❌ ERROR: Prisma client generation failed - required directories not found"
