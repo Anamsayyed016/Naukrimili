@@ -22,6 +22,7 @@ import {
   isLikelyCompanyName,
   isValidExperienceEntry,
   mergeOrphanExperienceEntries,
+  mergeOrphanEducationEntries,
   pickBestNameFromCandidates,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
@@ -1290,10 +1291,18 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
       continue;
     }
 
+    const locOnLine = cleaned.match(
+      /\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/
+    );
+    if (locOnLine) {
+      if (!location) location = locOnLine[0];
+      continue;
+    }
+
     if (!position && ROLE_MARKERS.test(cleaned)) position = cleaned;
     else if (!company && COMPANY_MARKERS.test(cleaned)) company = cleaned;
-    else if (!position) position = cleaned;
-    else if (!company) company = cleaned;
+    else if (!position && !COMPANY_MARKERS.test(cleaned) && cleaned.length <= 80) position = cleaned;
+    else if (!company && !ROLE_MARKERS.test(cleaned) && cleaned.length <= 80) company = cleaned;
   }
 
   // Location: look for "City, ST/Country" in first 3 lines
@@ -1403,15 +1412,17 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
   }
   flush();
 
-  return entries.map((e) => ({
-    institution: e.institution,
-    degree: e.degree,
-    field: e.field,
-    startDate: e.startDate,
-    endDate: e.year ? e.year : e.endDate,
-    gpa: e.gpa,
-    description: '',
-  }));
+  return mergeOrphanEducationEntries(
+    entries.map((e) => ({
+      institution: e.institution,
+      degree: e.degree,
+      field: e.field,
+      startDate: e.startDate,
+      endDate: e.year ? e.year : e.endDate,
+      gpa: e.gpa,
+      description: '',
+    }))
+  );
 }
 
 /**

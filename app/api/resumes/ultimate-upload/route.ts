@@ -36,7 +36,16 @@ import {
   splitMergedProjectEntries,
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
-import { applyRecoveredWordingToProfile, experienceSectionMatch, educationSectionMatch } from '@/lib/resume-parser/prefer-recovered-wording';
+import {
+  applyRecoveredWordingToProfile,
+  experienceSectionMatch,
+  educationSectionMatch,
+  findBestRecoveredMatchIndex,
+  experienceMatchScore,
+  educationMatchScore,
+  preferRecoveredWording,
+  preferRecoveredStringList,
+} from '@/lib/resume-parser/prefer-recovered-wording';
 import { prepareResumeTextForParsing } from '@/lib/resume-parser/resume-document-analysis';
 import {
   logFullUploadProvenance,
@@ -1232,9 +1241,6 @@ export async function POST(request: NextRequest) {
         if (recoveredExp.length > 0) {
           const existingExp = parsedData.experience || [];
 
-          const matchExp = (a: Record<string, unknown>, b: Record<string, unknown>): boolean =>
-            experienceSectionMatch(a, b);
-
           // Detect Affinda "stub" entries — only a position string filled in,
           // no company / no dates / no description. These are useless and
           // text-recovery's richer entries should win outright.
@@ -1259,7 +1265,13 @@ export async function POST(request: NextRequest) {
             const merged: any[] = [];
             const usedRec = new Set<number>();
             for (const exp of existingExp) {
-              const matchIdx = recoveredExp.findIndex((r, i) => !usedRec.has(i) && matchExp(exp, r));
+              const matchIdx = findBestRecoveredMatchIndex(
+                exp as Record<string, unknown>,
+                recoveredExp as unknown as Record<string, unknown>[],
+                usedRec,
+                experienceMatchScore,
+                experienceSectionMatch
+              );
               const m = matchIdx >= 0 ? recoveredExp[matchIdx] : recoveredExp[merged.length];
               if (matchIdx >= 0) usedRec.add(matchIdx);
               else if (merged.length < recoveredExp.length) usedRec.add(merged.length);
@@ -1318,7 +1330,13 @@ export async function POST(request: NextRequest) {
             const usedRecoveryIdx = new Set<number>();
             parsedData.experience = existingExp
               .map((exp: any) => {
-              const matchIdx = recoveredExp.findIndex((r, i) => !usedRecoveryIdx.has(i) && matchExp(exp, r));
+              const matchIdx = findBestRecoveredMatchIndex(
+                exp as Record<string, unknown>,
+                recoveredExp as unknown as Record<string, unknown>[],
+                usedRecoveryIdx,
+                experienceMatchScore,
+                experienceSectionMatch
+              );
               const match = matchIdx >= 0 ? recoveredExp[matchIdx] : null;
               if (match) usedRecoveryIdx.add(matchIdx);
 
@@ -1351,22 +1369,42 @@ export async function POST(request: NextRequest) {
               const hasDesc = !!(exp.description && String(exp.description).trim());
               const hasAchievements = Array.isArray(exp.achievements) && exp.achievements.length > 0;
               const hasCompany = !!(exp.company && String(exp.company).trim());
+              const hasPosition = !!(exp.position || exp.title || exp.role || exp.job_title);
               const hasStart = !!(exp.start_date || exp.startDate);
               const hasEnd = !!(exp.end_date || exp.endDate);
 
               return {
                 ...exp,
                 company: hasCompany ? exp.company : (match?.company || exp.company || ''),
-                position: exp.position || match?.position || exp.title || exp.role || exp.job_title || '',
-                job_title: exp.job_title || exp.position || match?.position || '',
+                position:
+                  (hasPosition ? exp.position || exp.title || exp.role || exp.job_title : '') ||
+                  match?.position ||
+                  exp.title ||
+                  exp.role ||
+                  exp.job_title ||
+                  '',
+                job_title:
+                  exp.job_title ||
+                  exp.position ||
+                  match?.position ||
+                  exp.title ||
+                  exp.role ||
+                  '',
                 startDate: hasStart ? (exp.start_date || exp.startDate) : (match?.startDate || ''),
                 start_date: hasStart ? (exp.start_date || exp.startDate) : (match?.startDate || ''),
                 endDate: hasEnd ? (exp.end_date || exp.endDate) : (match?.endDate || ''),
                 end_date: hasEnd ? (exp.end_date || exp.endDate) : (match?.endDate || ''),
-                description: hasDesc ? exp.description : (match?.description || ''),
-                achievements: hasAchievements
-                  ? exp.achievements
-                  : (match?.achievements && match.achievements.length > 0 ? match.achievements : []),
+                description: match
+                  ? preferRecoveredWording(match.description, hasDesc ? exp.description : '')
+                  : exp.description || '',
+                achievements: match
+                  ? preferRecoveredStringList(
+                      match.achievements,
+                      hasAchievements ? exp.achievements : []
+                    )
+                  : hasAchievements
+                    ? exp.achievements
+                    : [],
                 current:
                   exp.current === true ||
                   match?.current === true ||
@@ -1399,9 +1437,6 @@ export async function POST(request: NextRequest) {
         }
         const recoveredEdu = recovered.education || [];
         if (recoveredEdu.length > 0) {
-          const matchEdu = (a: Record<string, unknown>, b: Record<string, unknown>): boolean =>
-            educationSectionMatch(a, b);
-
           const existingEdu = (parsedData.education || []) as Array<Record<string, unknown>>;
           if (existingEdu.length === 0) {
             parsedData.education = recoveredEdu.map((edu) => ({
@@ -1421,7 +1456,13 @@ export async function POST(request: NextRequest) {
           } else {
             const usedRec = new Set<number>();
             const enrichedEdu = existingEdu.map((edu) => {
-              const matchIdx = recoveredEdu.findIndex((r, i) => !usedRec.has(i) && matchEdu(edu, r));
+              const matchIdx = findBestRecoveredMatchIndex(
+                edu,
+                recoveredEdu as unknown as Record<string, unknown>[],
+                usedRec,
+                educationMatchScore,
+                educationSectionMatch
+              );
               const m = matchIdx >= 0 ? recoveredEdu[matchIdx] : null;
               if (matchIdx >= 0) usedRec.add(matchIdx);
               const institution =

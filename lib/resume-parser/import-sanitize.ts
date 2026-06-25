@@ -917,6 +917,48 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
   return out;
 }
 
+type EducationLike = {
+  institution?: string;
+  degree?: string;
+  field?: string;
+  year?: string;
+  endDate?: string;
+  startDate?: string;
+  gpa?: string;
+  description?: string;
+};
+
+/** Merge degree-only / institution-only stubs into adjacent education entry. */
+export function mergeOrphanEducationEntries<T extends EducationLike>(entries: T[]): T[] {
+  if (entries.length < 2) return entries;
+  const out: T[] = [];
+  for (const edu of entries) {
+    const institution = sanitizeFieldText(edu.institution, 160);
+    const degree = sanitizeFieldText(edu.degree, 160);
+    const year = sanitizeFieldText(edu.endDate || edu.year, 40);
+    const isPartial = (!institution && !!degree) || (!!institution && !degree);
+
+    if (isPartial && out.length > 0) {
+      const prev = { ...out[out.length - 1] };
+      const prevInst = sanitizeFieldText(prev.institution, 160);
+      const prevDeg = sanitizeFieldText(prev.degree, 160);
+      if (!prevInst && institution) prev.institution = institution;
+      if (!prevDeg && degree) prev.degree = degree;
+      if (!sanitizeFieldText(prev.field, 120) && edu.field) prev.field = edu.field;
+      if (year && !sanitizeFieldText(prev.endDate || prev.year, 40)) {
+        prev.endDate = year;
+        prev.year = year;
+      }
+      if (sanitizeFieldText(prev.institution, 160) || sanitizeFieldText(prev.degree, 160)) {
+        out[out.length - 1] = prev;
+        continue;
+      }
+    }
+    out.push({ ...edu });
+  }
+  return out;
+}
+
 /** Reject random text blocks that lack employment structure. */
 export function isValidExperienceEntry(exp: {
   company?: string;

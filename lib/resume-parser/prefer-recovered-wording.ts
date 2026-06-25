@@ -1,10 +1,13 @@
 /**
  * Prefer verbatim text-recovery wording over AI/parser paraphrases on matched sections.
- * Structural fields (company, titles, dates, institutions) are never changed here.
+ * Structural fields are backfilled from recovered text when the parser left them empty.
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
-import { mergeOrphanExperienceEntries } from '@/lib/resume-parser/import-sanitize';
+import {
+  mergeOrphanExperienceEntries,
+  mergeOrphanEducationEntries,
+} from '@/lib/resume-parser/import-sanitize';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
 
 const MIN_WORDING_LENGTH = 3;
@@ -105,31 +108,61 @@ function experienceStartDateKey(rec: Record<string, unknown>): string {
   return m ? m[0] : '';
 }
 
-export function experienceSectionMatch(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+function experienceLocationSlug(rec: Record<string, unknown>): string {
+  return String(rec.location || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function preferNonemptyField(parserVal: unknown, recoveredVal: unknown): string {
+  const p = String(parserVal ?? '').trim();
+  if (p) return p;
+  return String(recoveredVal ?? '').trim();
+}
+
+/** Deterministic match score: company (40) + designation (30) + start year (20) + location (10). */
+export function experienceMatchScore(a: Record<string, unknown>, b: Record<string, unknown>): number {
   const ac = slugWords(a.company || a.organization);
   const bc = slugWords(b.company || b.organization);
   const ap = slugWords(a.position || a.job_title || a.title || a.role);
   const bp = slugWords(b.position || b.job_title || b.title || b.role);
   const sharesCompany = ac.length > 0 && bc.length > 0 && ac.some((w) => bc.includes(w));
   const sharesPosition = ap.length > 0 && bp.length > 0 && ap.some((w) => bp.includes(w));
+
+  // Never match on designation alone.
+  if (!sharesCompany && sharesPosition) return 0;
+
+  let score = 0;
+  if (sharesCompany) score += 40;
+  if (sharesPosition) score += 30;
+  if (
+    experienceStartDateKey(a).length > 0 &&
+    experienceStartDateKey(a) === experienceStartDateKey(b)
+  ) {
+    score += 20;
+  }
+  const al = experienceLocationSlug(a);
+  const bl = experienceLocationSlug(b);
+  if (al.length >= 3 && bl.length >= 3 && (al.includes(bl) || bl.includes(al))) {
+    score += 10;
+  }
+  return score;
+}
+
+export function experienceSectionMatch(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+  const score = experienceMatchScore(a, b);
+  if (score < 40) return false;
+
+  const ac = slugWords(a.company || a.organization);
+  const bc = slugWords(b.company || b.organization);
+  const ap = slugWords(a.position || a.job_title || a.title || a.role);
+  const bp = slugWords(b.position || b.job_title || b.title || b.role);
   const aHasBoth = ac.length > 0 && ap.length > 0;
   const bHasBoth = bc.length > 0 && bp.length > 0;
-  const aStart = experienceStartDateKey(a);
-  const bStart = experienceStartDateKey(b);
-  const sharesStartYear = aStart.length > 0 && bStart.length > 0 && aStart === bStart;
 
-  if (aHasBoth && bHasBoth) {
-    if (sharesCompany && sharesPosition) return true;
-    if (sharesStartYear && (sharesCompany || sharesPosition)) return true;
-    return false;
-  }
-
-  if (sharesCompany && sharesPosition) return true;
-  if (sharesCompany && (!ap.length || !bp.length)) return true;
-  if (sharesPosition && (!ac.length || !bc.length)) return true;
-  if (sharesStartYear && sharesCompany) return true;
-
-  return false;
+  if (aHasBoth && bHasBoth) return score >= 70;
+  return score >= 40;
 }
 
 function educationInstitutionSlug(rec: Record<string, unknown>): string {
@@ -146,14 +179,42 @@ function educationDegreeSlug(rec: Record<string, unknown>): string {
     .trim();
 }
 
-export function educationSectionMatch(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+function educationYearKey(rec: Record<string, unknown>): string {
+  const raw = String(rec.endDate || rec.year || rec.end_date || '').trim();
+  const m = raw.match(/(19|20)\d{2}/);
+  return m ? m[0] : '';
+}
+
+export function educationMatchScore(a: Record<string, unknown>, b: Record<string, unknown>): number {
   const ai = educationInstitutionSlug(a);
   const bi = educationInstitutionSlug(b);
   const ad = educationDegreeSlug(a);
   const bd = educationDegreeSlug(b);
   const sharesInst = ai.length >= 4 && bi.length >= 4 && (ai.includes(bi) || bi.includes(ai));
   const sharesDegree = ad.length >= 3 && bd.length >= 3 && (ad.includes(bd) || bd.includes(ad));
-  return sharesInst || sharesDegree;
+
+  if (ai.length >= 4 && bi.length >= 4 && !sharesInst) return 0;
+
+  let score = 0;
+  if (sharesInst) score += 40;
+  if (sharesDegree) score += 30;
+  if (educationYearKey(a) && educationYearKey(a) === educationYearKey(b)) score += 20;
+  return score;
+}
+
+export function educationSectionMatch(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+  const score = educationMatchScore(a, b);
+  const ai = educationInstitutionSlug(a);
+  const bi = educationInstitutionSlug(b);
+  const ad = educationDegreeSlug(a);
+  const bd = educationDegreeSlug(b);
+  const bothHaveInst = ai.length >= 4 && bi.length >= 4;
+  const bothHaveDeg = ad.length >= 3 && bd.length >= 3;
+
+  if (bothHaveInst && bothHaveDeg) return score >= 70;
+  if (bothHaveInst) return score >= 40;
+  if (bothHaveDeg) return score >= 30;
+  return false;
 }
 
 export function projectSectionMatch(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
@@ -200,10 +261,75 @@ function applyExperienceWording(parser: ExpLike, recovered: ExpLike): ExpLike {
   };
 }
 
-function applyEducationWording(parser: EduLike, recovered: EduLike): EduLike {
+function applyExperienceStructuralMerge(
+  parser: Record<string, unknown>,
+  recovered: Record<string, unknown>
+): Record<string, unknown> {
+  const wording = applyExperienceWording(
+    parser as unknown as ExpLike,
+    recovered as unknown as ExpLike
+  );
+  const position = preferNonemptyField(
+    parser.position || parser.title || parser.role || parser.job_title,
+    recovered.position
+  );
+  const company = preferNonemptyField(parser.company || parser.organization, recovered.company);
+  const startDate = preferNonemptyField(parser.startDate || parser.start_date, recovered.startDate);
+  const endDate = preferNonemptyField(parser.endDate || parser.end_date, recovered.endDate);
   return {
     ...parser,
-    description: preferRecoveredWording(recovered.description, parser.description),
+    company,
+    organization: company,
+    position,
+    title: position,
+    job_title: position,
+    location: preferNonemptyField(parser.location, wording.location || recovered.location),
+    startDate,
+    start_date: startDate,
+    endDate,
+    end_date: endDate,
+    current:
+      parser.current === true ||
+      recovered.current === true ||
+      (!endDate && (parser.current || recovered.current)),
+    description: wording.description,
+    achievements: wording.achievements,
+  };
+}
+
+function applyEducationStructuralMerge(
+  parser: Record<string, unknown>,
+  recovered: Record<string, unknown>
+): Record<string, unknown> {
+  const institution = preferNonemptyField(
+    parser.institution || parser.school || parser.Institution,
+    recovered.institution
+  );
+  const degree = preferNonemptyField(parser.degree || parser.Degree, recovered.degree);
+  const field = preferNonemptyField(parser.field || parser.Field, recovered.field);
+  const endDate = preferNonemptyField(
+    parser.endDate || parser.year || parser.end_date,
+    (recovered as { endDate?: string }).endDate
+  );
+  const startDate = preferNonemptyField(parser.startDate || parser.start_date, recovered.startDate);
+  return {
+    ...parser,
+    institution,
+    school: institution,
+    Institution: institution,
+    degree,
+    Degree: degree,
+    field,
+    Field: field,
+    year: endDate || parser.year,
+    endDate,
+    end_date: endDate,
+    startDate,
+    gpa: preferNonemptyField(parser.gpa || parser.GPA, recovered.gpa),
+    description: preferRecoveredWording(
+      (recovered as { description?: string }).description,
+      (parser as { description?: string }).description
+    ),
   };
 }
 
@@ -224,11 +350,35 @@ function applyCertWording(parser: CertLike, recovered: CertLike): CertLike {
   } as CertLike;
 }
 
+/** Pick the highest-scoring unused recovered row — never match by array index alone. */
+export function findBestRecoveredMatchIndex<T extends Record<string, unknown>>(
+  item: T,
+  recoveredList: T[],
+  usedRec: Set<number>,
+  scoreFn: (a: T, b: T) => number,
+  matchFn: (a: T, b: T) => boolean
+): number {
+  let bestIdx = -1;
+  let bestScore = 0;
+  for (let i = 0; i < recoveredList.length; i++) {
+    if (usedRec.has(i)) continue;
+    const candidate = recoveredList[i];
+    if (!matchFn(item, candidate)) continue;
+    const score = scoreFn(item, candidate);
+    if (score > bestScore) {
+      bestScore = score;
+      bestIdx = i;
+    }
+  }
+  return bestIdx;
+}
+
 function mergeListWithRecoveredWording<T extends Record<string, unknown>>(
   parserList: T[],
   recoveredList: T[],
   matchFn: (a: T, b: T) => boolean,
-  applyWording: (parser: T, recovered: T) => T,
+  scoreFn: (a: T, b: T) => number,
+  applyMerge: (parser: T, recovered: T) => T,
   appendUnmatched = true
 ): T[] {
   if (!recoveredList.length) return parserList;
@@ -236,10 +386,10 @@ function mergeListWithRecoveredWording<T extends Record<string, unknown>>(
 
   const usedRec = new Set<number>();
   const merged = parserList.map((item) => {
-    const idx = recoveredList.findIndex((r, i) => !usedRec.has(i) && matchFn(item, r));
+    const idx = findBestRecoveredMatchIndex(item, recoveredList, usedRec, scoreFn, matchFn);
     if (idx < 0) return item;
     usedRec.add(idx);
-    return applyWording(item, recoveredList[idx]);
+    return applyMerge(item, recoveredList[idx]);
   });
 
   if (appendUnmatched) {
@@ -271,24 +421,28 @@ export function mergeParserWithRecoveredWording(
       parserExp as unknown as Record<string, unknown>[],
       recExp as unknown as Record<string, unknown>[],
       experienceSectionMatch,
-      (p, r) => applyExperienceWording(p as ExpLike, r as ExpLike) as unknown as Record<string, unknown>
+      experienceMatchScore,
+      (p, r) => applyExperienceStructuralMerge(p, r) as unknown as Record<string, unknown>
     ) as unknown as ExpLike[],
     education: mergeListWithRecoveredWording(
       parserEdu as unknown as Record<string, unknown>[],
       recEdu as unknown as Record<string, unknown>[],
       educationSectionMatch,
-      (p, r) => applyEducationWording(p as EduLike, r as EduLike) as unknown as Record<string, unknown>
+      educationMatchScore,
+      (p, r) => applyEducationStructuralMerge(p, r) as unknown as Record<string, unknown>
     ) as unknown as EduLike[],
     projects: mergeListWithRecoveredWording(
       parserProj as unknown as Record<string, unknown>[],
       recProj as unknown as Record<string, unknown>[],
       projectSectionMatch,
+      () => 50,
       (p, r) => applyProjectWording(p as ProjectLike, r as ProjectLike) as unknown as Record<string, unknown>
     ) as unknown as ProjectLike[],
     certifications: mergeListWithRecoveredWording(
       parserCerts as unknown as Record<string, unknown>[],
       recCerts as unknown as Record<string, unknown>[],
       certificationSectionMatch,
+      () => 50,
       (p, r) => applyCertWording(p as CertLike, r as CertLike) as unknown as Record<string, unknown>
     ) as unknown as CertLike[],
     achievements: preferRecoveredStringList(recovered.achievements, parser.achievements),
@@ -312,33 +466,23 @@ export function applyRecoveredWordingToProfile(
       parserExp,
       recExp,
       experienceSectionMatch,
-      (p, r) => {
-        const merged = applyExperienceWording(p as unknown as ExpLike, r as unknown as ExpLike);
-        return {
-          ...p,
-          description: merged.description,
-          achievements: merged.achievements,
-          location: merged.location,
-        };
-      },
+      experienceMatchScore,
+      (p, r) => applyExperienceStructuralMerge(p, r),
       false
     ) as Record<string, unknown>[]
   );
 
   const parserEdu = (Array.isArray(out.education) ? out.education : []) as Record<string, unknown>[];
   const recEdu = (recovered.education || []) as unknown as Record<string, unknown>[];
-  out.education = mergeListWithRecoveredWording(
-    parserEdu,
-    recEdu,
-    educationSectionMatch,
-    (p, r) => ({
-      ...p,
-      description: preferRecoveredWording(
-        (r as { description?: string }).description,
-        (p as { description?: string }).description
-      ),
-    }),
-    false
+  out.education = mergeOrphanEducationEntries(
+    mergeListWithRecoveredWording(
+      parserEdu,
+      recEdu,
+      educationSectionMatch,
+      educationMatchScore,
+      (p, r) => applyEducationStructuralMerge(p, r),
+      false
+    ) as Record<string, unknown>[]
   );
 
   const parserProj = (Array.isArray(out.projects) ? out.projects : []) as Record<string, unknown>[];
@@ -347,6 +491,7 @@ export function applyRecoveredWordingToProfile(
     parserProj,
     recProj,
     projectSectionMatch,
+    () => 50,
     (p, r) => {
       const desc = preferRecoveredWording(
         (r as { description?: string }).description,
@@ -367,6 +512,7 @@ export function applyRecoveredWordingToProfile(
     parserCerts,
     recCerts,
     certificationSectionMatch,
+    () => 50,
     (p, r) => {
       const recDesc = (r as { description?: string }).description;
       const parserDesc = (p as { description?: string }).description;

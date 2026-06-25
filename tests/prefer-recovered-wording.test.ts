@@ -96,6 +96,45 @@ describe('prefer-recovered-wording', () => {
     expect(matching).toBe(true);
   });
 
+  it('applyRecoveredWordingToProfile backfills missing experience title from recovered text', () => {
+    const profile = {
+      experience: [
+        {
+          company: 'Globex Inc',
+          position: '',
+          startDate: '2021',
+          description: 'AI summary without bullets.',
+          achievements: [],
+        },
+      ],
+    };
+    const recovered: ExtractedResumeData = {
+      fullName: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+      skills: [],
+      experience: [
+        {
+          company: 'Globex',
+          position: 'Business Analyst',
+          startDate: '2021',
+          endDate: '',
+          current: false,
+          description: '• Prepared monthly financial reports',
+          achievements: ['Prepared monthly financial reports'],
+        },
+      ],
+      education: [],
+      confidence: 0,
+      rawText: '',
+    };
+    const out = applyRecoveredWordingToProfile(profile, recovered);
+    expect((out.experience as any[])[0].position).toBe('Business Analyst');
+    expect((out.experience as any[])[0].description).toContain('Prepared monthly financial reports');
+  });
+
   it('mergeOrphanExperienceEntries folds date-only rows into previous job', () => {
     const merged = mergeOrphanExperienceEntries([
       {
