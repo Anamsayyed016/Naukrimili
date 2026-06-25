@@ -252,6 +252,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-orange-200/55',
     hoverOverlay: 'from-orange-50/35',
   },
+  'horizon-canvas': {
+    glow: 'radial-gradient(circle, rgba(165,162,125,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(232,179,149,0.45) 0%, transparent 70%)',
+    borderTint: 'hover:border-stone-300/55',
+    hoverOverlay: 'from-amber-50/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -297,6 +303,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'soft-coral-executive': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director & Strategist' },
   'rosewood-modern': { firstName: 'Elias', lastName: 'Vance', jobTitle: 'Global Brand Strategist & Marketing Director' },
   'cascade-flow': { firstName: 'Eliza', lastName: 'Chen', jobTitle: 'Senior Product Designer | AI Innovation' },
+  'horizon-canvas': { firstName: 'Horizon', lastName: 'Canvas', jobTitle: 'Creative Director | Editorial Design & Brand Strategy' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

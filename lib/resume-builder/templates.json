@@ -910,6 +910,30 @@
         { "id": "coral-blush", "name": "Coral Blush", "primary": "#111111", "accent": "#E8A898", "text": "#333333" }
       ],
       "defaultColor": "soft-coral"
+    },
+    {
+      "id": "horizon-canvas",
+      "name": "Horizon Canvas",
+      "slug": "horizon-canvas",
+      "description": "Modern editorial luxury resume with warm ivory canvas, large serif name typography, summary capsule badge, timeline floating cards with sage and peach layered accents, and three-column skills container for ATS-friendly PDF export.",
+      "thumbnail": "/templates/horizon-canvas/thumbnail.svg",
+      "preview": "/templates/horizon-canvas/preview.svg",
+      "html": "/templates/horizon-canvas/index.html",
+      "css": "/templates/horizon-canvas/style.css",
+      "categories": ["Premium", "Creative", "Executive", "Modern", "Professional", "With Photo", "ATS"],
+      "layout": "One Column",
+      "hasSidebar": false,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "warm-ivory", "name": "Warm Ivory", "primary": "#222222", "accent": "#A5A27D", "text": "#1D1D1D" },
+        { "id": "muted-sage", "name": "Muted Sage", "primary": "#1D1D1D", "accent": "#A5A27D", "text": "#5F5A55" },
+        { "id": "warm-peach", "name": "Warm Peach", "primary": "#222222", "accent": "#E8B395", "text": "#1D1D1D" },
+        { "id": "editorial-cream", "name": "Editorial Cream", "primary": "#1D1D1D", "accent": "#F7F3EC", "text": "#1D1D1D" },
+        { "id": "charcoal-editorial", "name": "Charcoal Editorial", "primary": "#111111", "accent": "#A5A27D", "text": "#1D1D1D" },
+        { "id": "peach-accent", "name": "Peach Accent", "primary": "#222222", "accent": "#E8B395", "text": "#5F5A55" }
+      ],
+      "defaultColor": "warm-ivory"
     }
   ],
   "filters": {

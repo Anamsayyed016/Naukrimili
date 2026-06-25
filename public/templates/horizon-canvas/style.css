@@ -1,0 +1,662 @@
+/* Horizon Canvas — modern editorial luxury resume */
+
+.hc-resume {
+  --hc-bg: #F7F3EC;
+  --hc-card: #FFFFFF;
+  --hc-text: #1D1D1D;
+  --hc-text-name: #222222;
+  --hc-muted: #5F5A55;
+  --hc-divider: #CFC8BE;
+  --hc-peach: #E8B395;
+  --hc-sage: #A5A27D;
+  --hc-shadow: rgba(0, 0, 0, 0.1);
+  --hc-timeline: 92px;
+  --hc-max-width: 210mm;
+  --hc-font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --hc-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --primary-color: var(--hc-text);
+  --accent-color: var(--hc-sage);
+  --text-color: var(--hc-text);
+}
+
+.hc-resume,
+.hc-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.hc-resume,
+.resume-container.hc-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--hc-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 36px 44px 40px;
+  font-family: var(--hc-font-sans);
+  font-size: 10.5px;
+  line-height: 1.65;
+  color: var(--hc-text);
+  background: var(--hc-bg) !important;
+  overflow: visible;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+.hc-resume .hc-header {
+  margin-bottom: 28px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.hc-resume .hc-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+.hc-resume .hc-photo {
+  flex-shrink: 0;
+  width: 148px;
+  height: 148px;
+}
+
+.hc-resume .profile-image-wrapper {
+  width: 148px;
+  height: 148px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--hc-card);
+  box-shadow: 0 6px 24px var(--hc-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hc-resume .profile-image-wrapper--initials {
+  background: linear-gradient(145deg, #FFFFFF 0%, var(--hc-bg) 100%);
+}
+
+.hc-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.hc-resume .profile-initials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.hc-resume .hc-ini-f,
+.hc-resume .hc-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: block;
+}
+
+.hc-resume .hc-ini-f::first-letter,
+.hc-resume .hc-ini-l::first-letter {
+  font-family: var(--hc-font-serif);
+  font-size: 42px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--hc-text-name);
+}
+
+.hc-resume .hc-identity {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.hc-resume .candidate-name {
+  font-family: var(--hc-font-serif);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hc-text-name);
+  margin-bottom: 16px;
+}
+
+.hc-resume .name-first,
+.hc-resume .name-last {
+  display: block;
+}
+
+.hc-resume .name-fallback {
+  display: none;
+}
+
+.hc-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: block;
+}
+
+.hc-resume .hc-contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hc-divider);
+}
+
+.hc-resume .hc-contact-item {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--hc-muted);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.hc-resume .hc-contact-item:not(:last-child)::after {
+  content: ' | ';
+  color: var(--hc-divider);
+  font-weight: 400;
+  padding: 0 10px;
+}
+
+/* ── Professional Summary badge ── */
+.hc-resume .hc-summary {
+  display: grid;
+  grid-template-columns: 168px 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 32px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.hc-resume .hc-summary-badge {
+  background: var(--hc-bg);
+  border-radius: 999px;
+  padding: 14px 20px;
+  box-shadow: 0 4px 16px var(--hc-shadow);
+  border: 1px solid rgba(207, 200, 190, 0.6);
+  text-align: center;
+}
+
+.hc-resume .hc-summary-badge-text {
+  font-family: var(--hc-font-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hc-text);
+  line-height: 1.35;
+  display: block;
+}
+
+.hc-resume .hc-summary .summary-text {
+  font-size: 10.5px;
+  line-height: 1.72;
+  color: var(--hc-text);
+  padding-top: 6px;
+}
+
+/* ── Section titles ── */
+.hc-resume .hc-section {
+  margin-bottom: 28px;
+}
+
+.hc-resume .hc-section-title {
+  font-family: var(--hc-font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--hc-text);
+  margin-bottom: 18px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+/* ── Timeline + floating cards ── */
+.hc-resume .hc-timeline .experience-item,
+.hc-resume .hc-timeline .project-item,
+.hc-resume .hc-timeline .education-item {
+  position: relative;
+  padding-left: calc(var(--hc-timeline) + 24px);
+  margin-bottom: 26px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.hc-resume .hc-timeline .experience-item:last-child,
+.hc-resume .hc-timeline .project-item:last-child,
+.hc-resume .hc-timeline .education-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Layered accent blocks behind cards */
+.hc-resume .hc-timeline .experience-item::before,
+.hc-resume .hc-timeline .project-item::before,
+.hc-resume .hc-timeline .education-item::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 52%;
+  height: 36px;
+  background: var(--hc-sage);
+  opacity: 0.55;
+  z-index: 0;
+  border-radius: 2px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.hc-resume .hc-timeline .experience-item::after,
+.hc-resume .hc-timeline .project-item::after,
+.hc-resume .hc-timeline .education-item::after {
+  content: '';
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  width: 48%;
+  height: 32px;
+  background: var(--hc-peach);
+  opacity: 0.5;
+  z-index: 0;
+  border-radius: 2px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Timeline year (left column) */
+.hc-resume .hc-experience .experience-header .duration,
+.hc-resume .hc-education .education-item .year {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: var(--hc-timeline);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--hc-muted);
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* Floating white card */
+.hc-resume .hc-experience .experience-header,
+.hc-resume .hc-experience .description,
+.hc-resume .hc-projects .project-item h3,
+.hc-resume .hc-projects .project-item .description,
+.hc-resume .hc-projects .project-item .technologies,
+.hc-resume .hc-education .education-item h3,
+.hc-resume .hc-education .education-item .institution,
+.hc-resume .hc-education .education-item .cgpa {
+  position: relative;
+  z-index: 1;
+  background: var(--hc-card);
+}
+
+.hc-resume .hc-experience .experience-header {
+  padding: 16px 20px 8px;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 4px 20px var(--hc-shadow);
+}
+
+.hc-resume .hc-experience .description {
+  padding: 4px 20px 16px;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  margin-top: -1px;
+}
+
+.hc-resume .hc-experience .experience-header h3 {
+  font-family: var(--hc-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--hc-text);
+  line-height: 1.35;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.hc-resume .hc-experience .experience-header .company {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--hc-muted);
+  display: block;
+  font-style: normal;
+}
+
+.hc-resume .hc-experience .experience-header .duration {
+  background: transparent;
+  box-shadow: none;
+}
+
+.hc-resume .hc-experience .description {
+  font-size: 10px;
+  line-height: 1.62;
+  color: var(--hc-text);
+}
+
+.hc-resume .hc-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hc-resume .hc-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.58;
+}
+
+.hc-resume .hc-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  background: var(--hc-sage);
+  border-radius: 50%;
+}
+
+/* Projects timeline cards */
+.hc-resume .hc-projects .project-item {
+  padding-top: 0;
+}
+
+.hc-resume .hc-projects .project-item h3 {
+  padding: 16px 20px 6px;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 4px 20px var(--hc-shadow);
+  font-family: var(--hc-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--hc-text);
+  line-height: 1.35;
+}
+
+.hc-resume .hc-projects .project-item .description,
+.hc-resume .hc-projects .project-item .technologies {
+  padding: 4px 20px 16px;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--hc-text);
+}
+
+.hc-resume .hc-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.hc-resume .hc-projects .project-item .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.hc-resume .hc-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  background: var(--hc-peach);
+  border-radius: 50%;
+}
+
+/* Education timeline cards */
+.hc-resume .hc-education .education-item h3 {
+  padding: 16px 20px 4px;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 4px 20px var(--hc-shadow);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--hc-text);
+  line-height: 1.4;
+}
+
+.hc-resume .hc-education .education-item .institution,
+.hc-resume .hc-education .education-item .cgpa {
+  padding: 2px 20px 16px;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--hc-muted);
+  display: block;
+}
+
+.hc-resume .hc-education .education-item .year {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ── Skills curved container ── */
+.hc-resume .hc-skills-section {
+  margin-top: 8px;
+}
+
+.hc-resume .hc-skills-wrap {
+  position: relative;
+  background: var(--hc-card);
+  border-radius: 28px 28px 12px 12px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 6px 28px var(--hc-shadow);
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.hc-resume .hc-skills-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 2px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.hc-resume .hc-skills-deco--sage {
+  top: 8px;
+  left: 24px;
+  width: 120px;
+  height: 8px;
+  background: var(--hc-sage);
+  opacity: 0.45;
+}
+
+.hc-resume .hc-skills-deco--peach {
+  top: 18px;
+  left: 48px;
+  width: 100px;
+  height: 6px;
+  background: var(--hc-peach);
+  opacity: 0.5;
+}
+
+.hc-resume .hc-skills.skills-list {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 20px;
+}
+
+.hc-resume .hc-skills .skill-tag {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 400;
+  color: var(--hc-text);
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1.55;
+  white-space: normal;
+  box-shadow: none;
+}
+
+/* ── Certifications ── */
+.hc-resume .hc-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hc-resume .hc-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  background: var(--hc-card);
+  padding: 12px 16px;
+  border-radius: 4px;
+  box-shadow: 0 3px 14px var(--hc-shadow);
+}
+
+.hc-resume .hc-certifications .certification-item h3 {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--hc-text);
+}
+
+.hc-resume .hc-certifications .issuer,
+.hc-resume .hc-certifications .date {
+  font-size: 9px;
+  color: var(--hc-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Languages ── */
+.hc-resume .hc-languages {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+}
+
+.hc-resume .hc-languages .language-item {
+  font-size: 9.5px;
+  color: var(--hc-text);
+}
+
+.hc-resume .hc-languages .proficiency::before {
+  content: ' - ';
+  color: var(--hc-muted);
+}
+
+/* ── Achievements ── */
+.hc-resume .hc-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hc-resume .hc-achievements .achievement-item {
+  background: var(--hc-card);
+  padding: 12px 16px;
+  border-radius: 4px;
+  box-shadow: 0 3px 14px var(--hc-shadow);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.hc-resume .hc-achievements .achievement-item h3 {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--hc-text);
+}
+
+.hc-resume .hc-achievements .achievement-item .description,
+.hc-resume .hc-achievements .achievement-item .date {
+  font-size: 9px;
+  color: var(--hc-muted);
+  margin-top: 2px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hc-resume {
+    padding: 24px 20px;
+  }
+
+  .hc-resume .hc-header-row {
+    flex-direction: column;
+  }
+
+  .hc-resume .hc-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .hc-resume .hc-skills.skills-list {
+    grid-template-columns: 1fr;
+  }
+
+  .hc-resume .candidate-name {
+    font-size: 38px;
+  }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .hc-resume,
+  .resume-container.hc-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--hc-bg) !important;
+    padding: 32px 40px 36px !important;
+  }
+
+  .hc-resume .hc-timeline .experience-item::before,
+  .hc-resume .hc-timeline .experience-item::after,
+  .hc-resume .hc-timeline .project-item::before,
+  .hc-resume .hc-timeline .project-item::after,
+  .hc-resume .hc-timeline .education-item::before,
+  .hc-resume .hc-timeline .education-item::after,
+  .hc-resume .hc-skills-deco {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .hc-resume .experience-item,
+  .hc-resume .project-item,
+  .hc-resume .education-item,
+  .hc-resume .achievement-item,
+  .hc-resume .certification-item,
+  .hc-resume .hc-section,
+  .hc-resume .hc-summary,
+  .hc-resume .language-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.hc-resume .hc-section,
+.resume-container.hc-resume .hc-summary {
+  min-height: auto !important;
+  height: auto !important;
+}

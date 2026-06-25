@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#F7F3EC"/>
+  <rect x="20" y="24" width="52" height="52" rx="4" fill="#E8E8E8" stroke="#CFC8BE" stroke-width="0.5"/>
+  <text x="84" y="38" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#222222" letter-spacing="1">HORIZON</text>
+  <text x="84" y="54" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#222222" letter-spacing="1">CANVAS</text>
+  <line x1="84" y1="60" x2="280" y2="60" stroke="#CFC8BE"/>
+  <text x="84" y="70" font-family="Arial,sans-serif" font-size="2.8" fill="#5F5A55">phone | email | linkedin</text>
+  <rect x="20" y="82" width="72" height="22" rx="11" fill="#F7F3EC" stroke="#CFC8BE" stroke-width="0.5"/>
+  <text x="26" y="96" font-family="Georgia,serif" font-size="3.5" font-weight="600" fill="#1D1D1D">PROFESSIONAL</text>
+  <text x="26" y="102" font-family="Georgia,serif" font-size="3.5" font-weight="600" fill="#1D1D1D">SUMMARY</text>
+  <rect x="100" y="84" width="180" height="3" rx="1" fill="#CFC8BE" opacity="0.5"/>
+  <rect x="100" y="92" width="170" height="3" rx="1" fill="#CFC8BE" opacity="0.4"/>
+  <text x="20" y="128" font-family="Georgia,serif" font-size="6" font-weight="600" fill="#1D1D1D">Experience</text>
+  <text x="20" y="148" font-family="Arial,sans-serif" font-size="3.2" fill="#5F5A55">2020-26</text>
+  <rect x="52" y="138" width="52" height="10" fill="#A5A27D" opacity="0.5"/>
+  <rect x="58" y="144" width="48" height="8" fill="#E8B395" opacity="0.45"/>
+  <rect x="48" y="136" width="228" height="36" rx="2" fill="#FFFFFF" stroke="#CFC8BE" stroke-width="0.3"/>
+  <text x="54" y="150" font-family="Arial,sans-serif" font-size="3.5" font-weight="700" fill="#1D1D1D">Company Name</text>
+  <text x="54" y="158" font-family="Arial,sans-serif" font-size="3" fill="#5F5A55">Role | Location</text>
+  <text x="20" y="188" font-family="Georgia,serif" font-size="6" font-weight="600" fill="#1D1D1D">Skills</text>
+  <rect x="20" y="196" width="260" height="72" rx="12" fill="#FFFFFF" stroke="#CFC8BE" stroke-width="0.3"/>
+  <rect x="28" y="202" width="40" height="3" fill="#A5A27D" opacity="0.5"/>
+  <rect x="36" y="208" width="32" height="2" fill="#E8B395" opacity="0.5"/>
+  <text x="28" y="224" font-family="Arial,sans-serif" font-size="3" font-weight="700" fill="#1D1D1D">Design</text>
+  <text x="108" y="224" font-family="Arial,sans-serif" font-size="3" font-weight="700" fill="#1D1D1D">Strategy</text>
+  <text x="188" y="224" font-family="Arial,sans-serif" font-size="3" font-weight="700" fill="#1D1D1D">Tools</text>
+  <text x="28" y="234" font-family="Arial,sans-serif" font-size="2.8" fill="#1D1D1D">UI Design</text>
+  <text x="108" y="234" font-family="Arial,sans-serif" font-size="2.8" fill="#1D1D1D">Branding</text>
+  <text x="188" y="234" font-family="Arial,sans-serif" font-size="2.8" fill="#1D1D1D">Figma</text>
+  <text x="150" y="388" text-anchor="middle" font-family="Georgia,serif" font-size="8" font-weight="600" fill="#A5A27D" letter-spacing="1.5">HORIZON CANVAS</text>
+</svg>
