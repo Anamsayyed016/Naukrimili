@@ -90,6 +90,28 @@ jobs:
           echo "✅ ALL SECRETS VALIDATED"
           echo "════════════════════════════════════════════════════════════"
 
+  seed_privacy_policy:
+    name: "🌱 Seed Privacy Policy"
+    runs-on: ubuntu-latest
+    needs: validate_secrets
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Run privacy policy seeder
+        run: |
+          npm ci --legacy-peer-deps --ignore-scripts
+          npx prisma@6.18.0 generate --schema=prisma/schema.prisma
+          npm run db:seed:privacy
+
   build:
     name: "🔨 Build Application"
     runs-on: ubuntu-latest
@@ -429,13 +451,16 @@ jobs:
           
           echo "✅ Deployment complete - zero downtime achieved!"
 
+      - name: Checkout (privacy seeder)
+        uses: actions/checkout@v4
+
       - name: Seed privacy policy (StaticContent)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "export DATABASE_URL='${DATABASE_URL}'; cd ${DEPLOY_FOLDER} && npm run db:seed:privacy" || {
-            echo "⚠️  npm script failed, retrying with node scripts/seed-static-content.js"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "export DATABASE_URL='${DATABASE_URL}'; cd ${DEPLOY_FOLDER} && node scripts/seed-static-content.js"
-          }
+          npm ci --legacy-peer-deps --ignore-scripts
+          npx prisma@6.18.0 generate --schema=prisma/schema.prisma
+          npm run db:seed:privacy
 
       - name: Post-deployment verification
         run: |

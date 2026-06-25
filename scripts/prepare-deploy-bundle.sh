@@ -35,6 +35,7 @@ done
 [ -d prisma ] && cp -a prisma "$BUNDLE_DIR/"
 [ -f .env.example ] && cp .env.example "$BUNDLE_DIR/"
 mkdir -p "$BUNDLE_DIR/scripts"
+[ -f scripts/seed-static-content.js ] && cp scripts/seed-static-content.js "$BUNDLE_DIR/scripts/"
 [ -f scripts/sync-env-to-standalone.cjs ] && cp scripts/sync-env-to-standalone.cjs "$BUNDLE_DIR/scripts/"
 [ -f scripts/ensure-production-database-env.sh ] && cp scripts/ensure-production-database-env.sh "$BUNDLE_DIR/scripts/"
 
