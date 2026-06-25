@@ -934,6 +934,30 @@
         { "id": "peach-accent", "name": "Peach Accent", "primary": "#222222", "accent": "#E8B395", "text": "#5F5A55" }
       ],
       "defaultColor": "warm-ivory"
+    },
+    {
+      "id": "lumen-studio",
+      "name": "Lumen Studio",
+      "slug": "lumen-studio",
+      "description": "Scandinavian editorial luxury resume with muted sage and mint palette, rounded hero header with circular portrait, 35/65 two-column layout with soft sidebar, vertical experience timeline with sage dots, and white floating cards for ATS-friendly PDF export.",
+      "thumbnail": "/templates/lumen-studio/thumbnail.svg",
+      "preview": "/templates/lumen-studio/preview.svg",
+      "html": "/templates/lumen-studio/index.html",
+      "css": "/templates/lumen-studio/style.css",
+      "categories": ["Premium", "Modern", "Executive", "Creative", "Professional", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "scandi-sage", "name": "Scandi Sage", "primary": "#2D2D2D", "accent": "#8AA59B", "text": "#4F4F4F" },
+        { "id": "muted-mint", "name": "Muted Mint", "primary": "#2D2D2D", "accent": "#D8E2DF", "text": "#4F4F4F" },
+        { "id": "soft-sand", "name": "Soft Sand", "primary": "#2D2D2D", "accent": "#C9B89D", "text": "#4F4F4F" },
+        { "id": "cool-slate", "name": "Cool Slate", "primary": "#2D2D2D", "accent": "#8AA59B", "text": "#6B6B6B" },
+        { "id": "forest-mist", "name": "Forest Mist", "primary": "#1F1F1F", "accent": "#8AA59B", "text": "#4F4F4F" },
+        { "id": "editorial-ivory", "name": "Editorial Ivory", "primary": "#2D2D2D", "accent": "#F2F4F1", "text": "#4F4F4F" }
+      ],
+      "defaultColor": "scandi-sage"
     }
   ],
   "filters": {

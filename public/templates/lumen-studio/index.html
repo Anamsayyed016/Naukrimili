@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ls-resume">
+    <div class="ls-deco ls-deco--tl" aria-hidden="true"></div>
+    <div class="ls-deco ls-deco--tr" aria-hidden="true"></div>
+    <div class="ls-deco ls-deco--bl" aria-hidden="true"></div>
+    <div class="ls-deco ls-deco--br" aria-hidden="true"></div>
+    <div class="ls-deco ls-deco--rings" aria-hidden="true"></div>
+
+    <header class="ls-hero">
+      <div class="ls-hero-inner">
+        <div class="ls-hero-row">
+          {{#if PROFILE_IMAGE}}
+          <div class="ls-photo">
+            <div class="ls-photo-ring ls-photo-ring--outer" aria-hidden="true"></div>
+            <div class="ls-photo-ring ls-photo-ring--inner" aria-hidden="true"></div>
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="ls-photo">
+            <div class="ls-photo-ring ls-photo-ring--outer" aria-hidden="true"></div>
+            <div class="ls-photo-ring ls-photo-ring--inner" aria-hidden="true"></div>
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="ls-ini-f">{{FIRST_NAME}}</span><span class="ls-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+
+          <div class="ls-identity">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+            <div class="ls-contact">
+              {{#if PHONE}}<span class="ls-contact-item">{{PHONE}}</span>{{/if}}
+              {{#if EMAIL}}<span class="ls-contact-item">{{EMAIL}}</span>{{/if}}
+              {{#if LINKEDIN}}<span class="ls-contact-item">{{LINKEDIN}}</span>{{/if}}
+              {{#if PORTFOLIO}}<span class="ls-contact-item">{{PORTFOLIO}}</span>{{/if}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ls-body">
+      <aside class="ls-sidebar">
+        {{#if SUMMARY}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Professional Summary</h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Education</h2>
+          <div class="education-list ls-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Skills</h2>
+          <div class="skills-list ls-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="ls-main">
+        {{#if EXPERIENCE}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Experience</h2>
+          <div class="experience-list ls-timeline ls-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Projects</h2>
+          <div class="projects-list ls-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Certifications</h2>
+          <div class="certifications-list ls-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Languages</h2>
+          <div class="languages-list ls-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="ls-section">
+          <h2 class="ls-section-title">Achievements</h2>
+          <div class="achievements-list ls-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>
