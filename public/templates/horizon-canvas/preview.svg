@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
-  <rect width="800" height="1000" fill="#F7F3EC"/>
+  <rect width="800" height="1000" fill="#F8F4EC"/>
   <rect x="56" y="48" width="148" height="148" rx="8" fill="#E8E8E8"/>
   <text x="232" y="88" font-family="Georgia,serif" font-size="48" font-weight="700" fill="#222222" letter-spacing="3">HORIZON</text>
   <text x="232" y="138" font-family="Georgia,serif" font-size="48" font-weight="700" fill="#222222" letter-spacing="3">CANVAS</text>
-  <line x1="232" y1="158" x2="720" y2="158" stroke="#CFC8BE"/>
+  <line x1="232" y1="158" x2="720" y2="158" stroke="#D7CABC"/>
   <text x="232" y="182" font-family="Arial,sans-serif" font-size="11" fill="#5F5A55">+1 (415) 555-0142 | horizon@email.com | linkedin.com/in/horizon | horizoncanvas.com</text>
-  <rect x="56" y="220" width="168" height="56" rx="28" fill="#F7F3EC" stroke="#CFC8BE"/>
+  <rect x="56" y="220" width="168" height="56" rx="28" fill="#EFE5DA" stroke="#D7CABC"/>
   <text x="72" y="248" font-family="Georgia,serif" font-size="12" font-weight="600" fill="#1D1D1D" letter-spacing="2">PROFESSIONAL</text>
   <text x="72" y="264" font-family="Georgia,serif" font-size="12" font-weight="600" fill="#1D1D1D" letter-spacing="2">SUMMARY</text>
   <rect x="248" y="228" width="480" height="8" rx="2" fill="#CFC8BE" opacity="0.45"/>
@@ -13,9 +13,9 @@
   <rect x="248" y="260" width="440" height="8" rx="2" fill="#CFC8BE" opacity="0.32"/>
   <text x="56" y="320" font-family="Georgia,serif" font-size="22" font-weight="600" fill="#1D1D1D">Experience</text>
   <text x="56" y="368" font-family="Arial,sans-serif" font-size="11" font-weight="500" fill="#5F5A55">2020-2026</text>
-  <rect x="520" y="348" width="200" height="28" fill="#A5A27D" opacity="0.5"/>
-  <rect x="540" y="362" width="180" height="24" fill="#E8B395" opacity="0.45"/>
-  <rect x="172" y="340" width="556" height="88" rx="4" fill="#FFFFFF" filter="url(#hcShadow)"/>
+  <rect x="520" y="348" width="200" height="28" fill="#A8A487" opacity="0.5"/>
+  <rect x="540" y="362" width="180" height="24" fill="#E7B494" opacity="0.45"/>
+  <rect x="172" y="340" width="556" height="88" rx="18" fill="#FFFFFF" filter="url(#hcShadow)"/>
   <defs>
     <filter id="hcShadow" x="-4%" y="-8%" width="108%" height="120%">
       <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.10"/>
@@ -23,9 +23,9 @@
   </defs>
   <text x="188" y="372" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#1D1D1D">Studio Meridian</text>
   <text x="188" y="392" font-family="Arial,sans-serif" font-size="11" fill="#5F5A55">Creative Director | San Francisco, CA</text>
-  <circle cx="196" cy="412" r="3" fill="#A5A27D"/>
+  <circle cx="196" cy="412" r="3" fill="#A8A487"/>
   <rect x="208" y="408" width="400" height="6" rx="2" fill="#CFC8BE" opacity="0.4"/>
-  <circle cx="196" cy="428" r="3" fill="#A5A27D"/>
+  <circle cx="196" cy="428" r="3" fill="#A8A487"/>
   <rect x="208" y="424" width="380" height="6" rx="2" fill="#CFC8BE" opacity="0.35"/>
   <text x="56" y="480" font-family="Georgia,serif" font-size="22" font-weight="600" fill="#1D1D1D">Education</text>
   <text x="56" y="528" font-family="Arial,sans-serif" font-size="11" fill="#5F5A55">2016</text>
@@ -34,8 +34,8 @@
   <text x="188" y="554" font-family="Arial,sans-serif" font-size="11" fill="#5F5A55">Rhode Island School of Design</text>
   <text x="56" y="600" font-family="Georgia,serif" font-size="22" font-weight="600" fill="#1D1D1D">Skills</text>
   <rect x="56" y="616" width="688" height="120" rx="24" fill="#FFFFFF" stroke="#CFC8BE" stroke-width="0.5"/>
-  <rect x="72" y="628" width="100" height="6" fill="#A5A27D" opacity="0.45"/>
-  <rect x="88" y="640" width="80" height="4" fill="#E8B395" opacity="0.5"/>
+  <rect x="72" y="628" width="100" height="6" fill="#A8A487" opacity="0.45"/>
+  <rect x="88" y="640" width="80" height="4" fill="#E7B494" opacity="0.5"/>
   <text x="72" y="672" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#1D1D1D">Design</text>
   <text x="280" y="672" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#1D1D1D">Strategy</text>
   <text x="488" y="672" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#1D1D1D">Tools</text>
