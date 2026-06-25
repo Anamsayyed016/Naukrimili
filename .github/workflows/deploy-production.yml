@@ -90,28 +90,6 @@ jobs:
           echo "✅ ALL SECRETS VALIDATED"
           echo "════════════════════════════════════════════════════════════"
 
-  seed_privacy_policy:
-    name: "🌱 Seed Privacy Policy"
-    runs-on: ubuntu-latest
-    needs: validate_secrets
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Run privacy policy seeder
-        run: |
-          npm ci --legacy-peer-deps --ignore-scripts
-          npx prisma@6.18.0 generate --schema=prisma/schema.prisma
-          npm run db:seed:privacy
-
   build:
     name: "🔨 Build Application"
     runs-on: ubuntu-latest
@@ -370,8 +348,6 @@ jobs:
             if [ -n "${DATABASE_URL:-}" ]; then
               echo "🗄️  Syncing schema (skip migrate on existing DB — P3005)..."
               npx prisma@6.18.0 db push --schema=prisma/schema.prisma --skip-generate 2>&1 | tail -10 || echo "⚠️  db push warning (non-fatal)"
-              echo "🌱 Seeding privacy policy (StaticContent upsert)..."
-              npm run db:seed:privacy 2>&1 | tail -15 || node scripts/seed-static-content.js 2>&1 | tail -15
             fi
           fi
           
@@ -450,17 +426,6 @@ jobs:
           EOF
           
           echo "✅ Deployment complete - zero downtime achieved!"
-
-      - name: Checkout (privacy seeder)
-        uses: actions/checkout@v4
-
-      - name: Seed privacy policy (StaticContent)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          npm ci --legacy-peer-deps --ignore-scripts
-          npx prisma@6.18.0 generate --schema=prisma/schema.prisma
-          npm run db:seed:privacy
 
       - name: Post-deployment verification
         run: |
