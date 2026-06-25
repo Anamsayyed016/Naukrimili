@@ -73,6 +73,7 @@ import {
   extractAdditionalResumeDataFromText,
   truncateSummaryAtSectionBoundary,
 } from '@/lib/resume-parser/text-recovery';
+import { applyRecoveredWordingToProfile } from '@/lib/resume-parser/prefer-recovered-wording';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
@@ -613,6 +614,9 @@ export function transformImportDataToBuilder(
     : enrichIdentityFromText(mergedBase, textParsed, recovered);
   mergedImport = applyTextRecoveryWhenSparse(mergedImport);
   mergedImport = relocateMisplacedEducationEntries(mergedImport);
+  if (textParsed && effectiveRawText.length >= 80) {
+    mergedImport = applyRecoveredWordingToProfile(mergedImport, textParsed);
+  }
   const { data: repairedImport } = validateAndRepairResumeExtraction(mergedImport);
   mergedImport = repairedImport;
 

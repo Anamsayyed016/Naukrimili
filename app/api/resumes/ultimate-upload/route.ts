@@ -36,6 +36,7 @@ import {
   splitMergedProjectEntries,
   logRawProjects,
 } from '@/lib/resume-parser/import-sanitize';
+import { applyRecoveredWordingToProfile } from '@/lib/resume-parser/prefer-recovered-wording';
 import { prepareResumeTextForParsing } from '@/lib/resume-parser/resume-document-analysis';
 import {
   logFullUploadProvenance,
@@ -1489,21 +1490,8 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        if (Array.isArray(recovered.achievements) && recovered.achievements.length > 0) {
-          const existingAch = new Set(
-            (parsedData.achievements || [])
-              .map((a: unknown) => String(typeof a === 'string' ? a : (a as { title?: string })?.title || '').toLowerCase())
-              .filter(Boolean)
-          );
-          const mergedAch = [...(parsedData.achievements || [])];
-          for (const a of recovered.achievements) {
-            const key = String(a || '').trim().toLowerCase();
-            if (!key || existingAch.has(key)) continue;
-            existingAch.add(key);
-            mergedAch.push(a);
-          }
-          parsedData.achievements = mergedAch;
-        }
+        // Verbatim wording from uploaded resume wins on matched sections (structure stays from AI).
+        parsedData = applyRecoveredWordingToProfile(parsedData, recovered);
 
         // Re-normalize after augmentation (handles language object → string flattening, etc.)
         parsedData = normalizeUploadProfile(parsedData);

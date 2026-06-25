@@ -15,6 +15,7 @@ import {
   isSuspectSummary,
 } from '@/lib/resume-parser/map-to-upload-profile';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
+import { mergeParserWithRecoveredWording } from '@/lib/resume-parser/prefer-recovered-wording';
 import type { ParserTimeBudget, UploadPipelineTiming } from '@/lib/resume-parser/upload-pipeline-trace';
 import {
   deriveDisplayNameFromEmail,
@@ -491,7 +492,7 @@ function emptyExtractedResumeData(): ExtractedResumeData {
   };
 }
 
-/** Fill parser gaps from section-aware text extraction (never overwrites populated fields). */
+/** Merge parser structure with verbatim text-recovery wording on matched sections. */
 export function mergeTextRecoveryIntoExtracted(
   base: ExtractedResumeData,
   rawText: string
@@ -499,7 +500,7 @@ export function mergeTextRecoveryIntoExtracted(
   const text = (rawText || '').trim();
   if (text.length < 30) return base;
   const recovered = extractResumeFromText(text);
-  return mergeResumeData(base, recovered);
+  return mergeParserWithRecoveredWording(base, recovered);
 }
 
 export type DocumentParserResult = {
