@@ -264,6 +264,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-emerald-200/55',
     hoverOverlay: 'from-emerald-50/35',
   },
+  'soft-sage-professional': {
+    glow: 'radial-gradient(circle, rgba(111,175,157,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(205,230,223,0.55) 0%, transparent 70%)',
+    borderTint: 'hover:border-teal-200/55',
+    hoverOverlay: 'from-teal-50/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -311,6 +317,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'cascade-flow': { firstName: 'Eliza', lastName: 'Chen', jobTitle: 'Senior Product Designer | AI Innovation' },
   'horizon-canvas': { firstName: 'Horizon', lastName: 'Canvas', jobTitle: 'Creative Director | Editorial Design & Brand Strategy' },
   'lumen-studio': { firstName: 'Lumen', lastName: 'Studio', jobTitle: 'Creative Director | Scandinavian Editorial Design & Brand Strategy' },
+  'soft-sage-professional': { firstName: 'Eliza', lastName: 'Chen', jobTitle: 'Global Operations Strategist | Enterprise Leadership & Digital Transformation' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

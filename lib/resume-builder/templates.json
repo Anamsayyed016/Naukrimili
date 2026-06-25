@@ -958,6 +958,30 @@
         { "id": "editorial-ivory", "name": "Editorial Ivory", "primary": "#2D2D2D", "accent": "#F2F4F1", "text": "#4F4F4F" }
       ],
       "defaultColor": "scandi-sage"
+    },
+    {
+      "id": "soft-sage-professional",
+      "name": "Soft Sage Professional",
+      "slug": "soft-sage-professional",
+      "description": "Modern executive two-column resume with fresh soft sage palette, horizontal header with rounded portrait, 68/32 layout, timeline experience cards, stacked sidebar skill panels, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/soft-sage-professional/thumbnail.svg",
+      "preview": "/templates/soft-sage-professional/preview.svg",
+      "html": "/templates/soft-sage-professional/index.html",
+      "css": "/templates/soft-sage-professional/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "soft-sage", "name": "Soft Sage", "primary": "#1F2937", "accent": "#6FAF9D", "text": "#4B5563" },
+        { "id": "mint-mist", "name": "Mint Mist", "primary": "#1F2937", "accent": "#9CCBC0", "text": "#4B5563" },
+        { "id": "forest-slate", "name": "Forest Slate", "primary": "#111827", "accent": "#5A9A88", "text": "#374151" },
+        { "id": "cool-jade", "name": "Cool Jade", "primary": "#1F2937", "accent": "#4D9B8A", "text": "#4B5563" },
+        { "id": "alpine-green", "name": "Alpine Green", "primary": "#1F2937", "accent": "#6FAF9D", "text": "#6B7280" },
+        { "id": "graphite-sage", "name": "Graphite Sage", "primary": "#111827", "accent": "#6FAF9D", "text": "#4B5563" }
+      ],
+      "defaultColor": "soft-sage"
     }
   ],
   "filters": {

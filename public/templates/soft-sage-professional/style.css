@@ -1,0 +1,776 @@
+/* Soft Sage Professional — executive two-column resume */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #F8FBFA;
+}
+
+.ssp-resume {
+  --primary-color: #1F2937;
+  --accent-color: #6FAF9D;
+  --text-color: #4B5563;
+
+  --ssp-bg: #F8FBFA;
+  --ssp-card: #FFFFFF;
+  --ssp-sidebar: #EEF6F3;
+  --ssp-heading: var(--primary-color);
+  --ssp-text: var(--text-color);
+  --ssp-muted: #6B7280;
+  --ssp-accent: #6FAF9D;
+  --ssp-accent-secondary: #9CCBC0;
+  --ssp-highlight: #CDE6DF;
+  --ssp-border: #D9E7E2;
+  --ssp-divider: #BFD8D1;
+  --ssp-shadow: 0 6px 20px rgba(31, 41, 55, 0.05);
+  --ssp-col-gap: 28px;
+  --ssp-max-width: 210mm;
+  --ssp-font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --ssp-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ssp-resume,
+.ssp-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+}
+
+.ssp-resume,
+.resume-container.ssp-resume {
+  position: relative;
+  width: 794px;
+  max-width: 100%;
+  min-height: auto;
+  margin: 0 auto;
+  padding: 34px 38px 42px;
+  font-family: var(--ssp-font-sans);
+  font-size: 14px;
+  line-height: 1.62;
+  color: var(--ssp-text);
+  background: var(--ssp-bg) !important;
+  overflow-x: hidden;
+  overflow-y: visible;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Decorative background (below 10% opacity) ── */
+.ssp-resume .ssp-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.ssp-resume .ssp-deco--circle-tl {
+  top: -80px;
+  left: -70px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 55% 45%, rgba(111, 175, 157, 0.09) 0%, transparent 68%);
+}
+
+.ssp-resume .ssp-deco--circle-tr {
+  top: 20px;
+  right: 18px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(205, 230, 223, 0.55);
+  opacity: 0.45;
+}
+
+.ssp-resume .ssp-deco--arc-bl {
+  bottom: 60px;
+  left: -40px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 1px solid rgba(111, 175, 157, 0.12);
+  background: transparent;
+  opacity: 0.7;
+}
+
+.ssp-resume .ssp-deco--leaf-br {
+  bottom: -20px;
+  right: -10px;
+  width: 180px;
+  height: 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 120'%3E%3Cpath d='M10 90 Q60 20 170 40 Q120 80 10 90Z' fill='%236FAF9D' opacity='0.07'/%3E%3Cpath d='M30 100 Q80 50 160 65' fill='none' stroke='%239CCBC0' stroke-width='1' opacity='0.18'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.9;
+}
+
+.ssp-resume .ssp-deco--panel {
+  top: 140px;
+  right: 32%;
+  width: 120px;
+  height: 88px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(205, 230, 223, 0.35) 0%, rgba(238, 246, 243, 0.2) 100%);
+  transform: rotate(-8deg);
+  opacity: 0.5;
+}
+
+.ssp-resume > :not(.ssp-deco) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Hero header ── */
+.ssp-resume .ssp-hero {
+  margin-bottom: 28px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ssp-resume .ssp-hero-inner {
+  background: var(--ssp-card);
+  border-radius: 18px;
+  padding: 26px 30px 22px;
+  border: 1px solid var(--ssp-border);
+  box-shadow: var(--ssp-shadow);
+}
+
+.ssp-resume .ssp-hero-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 26px;
+  margin-bottom: 18px;
+}
+
+.ssp-resume .ssp-photo {
+  flex-shrink: 0;
+}
+
+.ssp-resume .ssp-photo .profile-image-wrapper {
+  width: 118px;
+  height: 132px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--ssp-highlight);
+  border: 2px solid var(--ssp-accent-secondary);
+  box-shadow: 0 8px 22px rgba(31, 41, 55, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ssp-resume .profile-image-wrapper--initials {
+  background: linear-gradient(160deg, #FFFFFF 0%, var(--ssp-highlight) 100%);
+}
+
+.ssp-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.ssp-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ssp-resume .ssp-ini-f,
+.ssp-resume .ssp-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.ssp-resume .ssp-ini-f::first-letter,
+.ssp-resume .ssp-ini-l::first-letter {
+  font-family: var(--ssp-font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ssp-heading);
+}
+
+.ssp-resume .ssp-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.ssp-resume .candidate-name {
+  font-family: var(--ssp-font-serif);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: 0.015em;
+  color: var(--ssp-heading);
+  margin-bottom: 6px;
+}
+
+.ssp-resume .name-first,
+.ssp-resume .name-last {
+  display: inline;
+}
+
+.ssp-resume .name-space {
+  display: inline;
+}
+
+.ssp-resume .name-fallback {
+  display: none;
+}
+
+.ssp-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: block;
+}
+
+.ssp-resume .header-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ssp-muted);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+}
+
+.ssp-resume .ssp-contact-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--ssp-divider);
+}
+
+.ssp-resume .ssp-contact-item {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ssp-muted);
+  line-height: 1.5;
+  padding: 0 14px;
+}
+
+.ssp-resume .ssp-contact-item:first-child {
+  padding-left: 0;
+}
+
+.ssp-resume .ssp-contact-item:not(:first-child) {
+  border-left: 1px solid var(--ssp-divider);
+}
+
+/* ── Two-column body (68% / 32%) ── */
+.ssp-resume .ssp-body {
+  display: grid;
+  grid-template-columns: 68fr 32fr;
+  gap: var(--ssp-col-gap);
+  align-items: start;
+}
+
+.ssp-resume .ssp-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.ssp-resume .ssp-section {
+  margin-bottom: 24px;
+}
+
+.ssp-resume .ssp-section:last-child {
+  margin-bottom: 0;
+}
+
+.ssp-resume .ssp-section-title {
+  font-family: var(--ssp-font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ssp-heading);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ssp-accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Main column cards ── */
+.ssp-resume .ssp-card {
+  background: var(--ssp-card);
+  border-radius: 14px;
+  border: 1px solid var(--ssp-border);
+  box-shadow: var(--ssp-shadow);
+  padding: 18px 20px;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.ssp-resume .ssp-card--summary .summary-text {
+  font-size: 14px;
+  line-height: 1.68;
+  color: var(--ssp-text);
+}
+
+/* ── Experience timeline ── */
+.ssp-resume .ssp-experience {
+  position: relative;
+}
+
+.ssp-resume .ssp-experience .experience-item {
+  display: grid;
+  grid-template-columns: 72px 14px 1fr;
+  column-gap: 12px;
+  margin-bottom: 18px;
+  position: relative;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.ssp-resume .ssp-experience .experience-item:last-child {
+  margin-bottom: 0;
+}
+
+.ssp-resume .ssp-experience .experience-header {
+  display: contents;
+}
+
+.ssp-resume .ssp-experience .experience-header .duration {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ssp-accent);
+  line-height: 1.45;
+  text-align: left;
+  align-self: start;
+  padding-top: 14px;
+}
+
+.ssp-resume .ssp-experience .experience-item::before {
+  content: '';
+  grid-column: 2;
+  grid-row: 1;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  margin-top: 16px;
+  justify-self: center;
+  align-self: start;
+  box-shadow: 0 0 0 3px var(--ssp-card), 0 0 0 4px rgba(111, 175, 157, 0.28);
+  z-index: 2;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.ssp-resume .ssp-experience .experience-item:not(:last-child) .experience-header::after {
+  content: '';
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: 1px;
+  background: var(--ssp-divider);
+  justify-self: center;
+  margin-top: 28px;
+  min-height: calc(100% + 18px);
+  z-index: 1;
+}
+
+.ssp-resume .ssp-experience .experience-header h3 {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ssp-heading);
+  line-height: 1.35;
+  background: var(--ssp-card);
+  padding: 14px 16px 4px;
+  border-radius: 12px 12px 0 0;
+  border: 1px solid var(--ssp-border);
+  border-bottom: none;
+  box-shadow: var(--ssp-shadow);
+}
+
+.ssp-resume .ssp-experience .experience-header .company {
+  grid-column: 3;
+  grid-row: 2;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ssp-muted);
+  line-height: 1.45;
+  background: var(--ssp-card);
+  padding: 0 16px 8px;
+  border-left: 1px solid var(--ssp-border);
+  border-right: 1px solid var(--ssp-border);
+}
+
+.ssp-resume .ssp-experience .description {
+  grid-column: 3;
+  grid-row: 3;
+  background: var(--ssp-card);
+  padding: 0 16px 14px;
+  border-radius: 0 0 12px 12px;
+  border: 1px solid var(--ssp-border);
+  border-top: none;
+  box-shadow: var(--ssp-shadow);
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--ssp-text);
+}
+
+.ssp-resume .ssp-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ssp-resume .ssp-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 13px;
+  line-height: 1.58;
+}
+
+.ssp-resume .ssp-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-color);
+}
+
+/* ── Projects ── */
+.ssp-resume .ssp-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ssp-resume .ssp-projects .project-item {
+  background: var(--ssp-card);
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--ssp-border);
+  box-shadow: var(--ssp-shadow);
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.ssp-resume .ssp-projects .project-item h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ssp-heading);
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.ssp-resume .ssp-projects .project-item .description,
+.ssp-resume .ssp-projects .project-item .technologies {
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--ssp-text);
+  margin-top: 4px;
+}
+
+.ssp-resume .ssp-projects .project-item a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 12px;
+}
+
+/* ── Education (main column) ── */
+.ssp-resume .ssp-education {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ssp-resume .ssp-education .education-item {
+  background: var(--ssp-card);
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--ssp-border);
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.ssp-resume .ssp-education .education-item h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ssp-heading);
+  line-height: 1.4;
+}
+
+.ssp-resume .ssp-education .education-item .institution,
+.ssp-resume .ssp-education .education-item .year,
+.ssp-resume .ssp-education .education-item .field,
+.ssp-resume .ssp-education .education-item .cgpa {
+  font-size: 12px;
+  color: var(--ssp-muted);
+  display: block;
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+/* ── Sidebar stacked cards ── */
+.ssp-resume .ssp-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.ssp-resume .ssp-side-card {
+  background: var(--ssp-sidebar);
+  border-radius: 12px;
+  border: 1px solid var(--ssp-border);
+  padding: 16px 16px 14px;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.ssp-resume .ssp-side-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ssp-heading);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ssp-divider);
+}
+
+/* ── Skills ── */
+.ssp-resume .ssp-skills.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ssp-resume .ssp-skills .skill-tag {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ssp-text);
+  line-height: 1.5;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* ── Certifications ── */
+.ssp-resume .ssp-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ssp-resume .ssp-certifications .certification-item h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ssp-heading);
+  line-height: 1.45;
+}
+
+.ssp-resume .ssp-certifications .issuer,
+.ssp-resume .ssp-certifications .date {
+  font-size: 11px;
+  color: var(--ssp-muted);
+  display: block;
+  margin-top: 2px;
+  line-height: 1.45;
+}
+
+/* ── Achievements ── */
+.ssp-resume .ssp-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ssp-resume .ssp-achievements .achievement-item h3 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ssp-text);
+  line-height: 1.5;
+  position: relative;
+  padding-left: 14px;
+}
+
+.ssp-resume .ssp-achievements .achievement-item h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--accent-color);
+  transform: rotate(45deg);
+  opacity: 0.85;
+}
+
+.ssp-resume .ssp-achievements .achievement-item .description,
+.ssp-resume .ssp-achievements .achievement-item .date {
+  font-size: 11px;
+  color: var(--ssp-muted);
+  margin-top: 2px;
+  line-height: 1.45;
+}
+
+/* ── Languages ── */
+.ssp-resume .ssp-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ssp-resume .ssp-languages .language-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.ssp-resume .ssp-languages .language {
+  font-weight: 600;
+  color: var(--ssp-heading);
+}
+
+.ssp-resume .ssp-languages .proficiency {
+  font-weight: 400;
+  color: var(--ssp-muted);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ssp-resume {
+    padding: 22px 18px 28px;
+  }
+
+  .ssp-resume .ssp-body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .ssp-resume .ssp-hero-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ssp-resume .candidate-name {
+    font-size: 40px;
+  }
+
+  .ssp-resume .ssp-experience .experience-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .ssp-resume .ssp-experience .experience-header .duration,
+  .ssp-resume .ssp-experience .experience-header h3,
+  .ssp-resume .ssp-experience .experience-header .company,
+  .ssp-resume .ssp-experience .description {
+    grid-column: 1;
+  }
+
+  .ssp-resume .ssp-experience .experience-item::before,
+  .ssp-resume .ssp-experience .experience-item::after {
+    display: none;
+  }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--ssp-bg) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ssp-resume,
+  .resume-container.ssp-resume {
+    width: 794px !important;
+    max-width: 794px !important;
+    overflow: visible !important;
+    background: var(--ssp-bg) !important;
+    padding: 30px 34px 38px !important;
+  }
+
+  .ssp-resume .ssp-body {
+    display: grid !important;
+    grid-template-columns: 68fr 32fr !important;
+    gap: 28px !important;
+  }
+
+  .ssp-resume .ssp-hero-inner,
+  .ssp-resume .ssp-card,
+  .ssp-resume .ssp-side-card,
+  .ssp-resume .ssp-experience .experience-header h3,
+  .ssp-resume .ssp-experience .experience-header .company,
+  .ssp-resume .ssp-experience .description,
+  .ssp-resume .ssp-projects .project-item,
+  .ssp-resume .ssp-education .education-item,
+  .ssp-resume .ssp-experience .experience-item::before,
+  .ssp-resume .ssp-deco {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ssp-resume .ssp-hero,
+  .ssp-resume .ssp-section-title,
+  .ssp-resume h1 {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .ssp-resume .experience-item,
+  .ssp-resume .project-item,
+  .ssp-resume .education-item,
+  .ssp-resume .ssp-side-card {
+    page-break-inside: auto;
+    break-inside: auto;
+    overflow: visible !important;
+  }
+
+  .ssp-resume .experience-item .description,
+  .ssp-resume .experience-item li {
+    page-break-inside: auto;
+    break-inside: auto;
+    orphans: 2;
+    widows: 2;
+  }
+}
+
+.resume-container.ssp-resume .ssp-section,
+.resume-container.ssp-resume .ssp-card--summary .summary-text {
+  min-height: auto !important;
+  height: auto !important;
+}
