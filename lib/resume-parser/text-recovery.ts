@@ -223,7 +223,8 @@ const DEGREE_PATTERNS = [
   /\bssc\b/i,
 ];
 
-const COMPANY_MARKERS = /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|gmbh|co\.?|company|technologies|solutions|systems|labs|studios|consulting|consultancy|industries|group|enterprises|services|associates|partners|llp)\b/i;
+const COMPANY_MARKERS =
+  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|systems|consulting|services|company|co\.?)\b/i;
 const ROLE_MARKERS = /\b(?:engineer|developer|architect|manager|director|lead|head|consultant|analyst|designer|administrator|administrator|specialist|coordinator|associate|executive|officer|programmer|intern|trainee|founder|owner|ceo|cto|cfo|coo|vp|president|principal|scientist|researcher)\b/i;
 
 const DATE_RANGE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})\s*[-–—to]+\s*((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2}|present|current|now|ongoing)/i;

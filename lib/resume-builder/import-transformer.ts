@@ -58,6 +58,8 @@ import {
   collectExperienceBodyFields,
   mergeOrphanEducationEntries,
   reconcileExperienceHeaderFields,
+  finalizeExperienceListForBuilder,
+  finalizeEducationListForBuilder,
 } from '@/lib/resume-parser/import-sanitize';
 import {
   classifyResumeTextFragment,
@@ -622,6 +624,16 @@ export function transformImportDataToBuilder(
   }
   const { data: repairedImport } = validateAndRepairResumeExtraction(mergedImport);
   mergedImport = repairedImport;
+  if (Array.isArray(mergedImport.experience)) {
+    mergedImport.experience = finalizeExperienceListForBuilder(
+      mergedImport.experience as Record<string, unknown>[]
+    );
+  }
+  if (Array.isArray(mergedImport.education)) {
+    mergedImport.education = finalizeEducationListForBuilder(
+      mergedImport.education as Record<string, unknown>[]
+    );
+  }
 
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};

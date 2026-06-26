@@ -9,6 +9,8 @@ import {
   mergeOrphanEducationEntries,
   collectExperienceBodyFields,
   reconcileExperienceHeaderFields,
+  finalizeExperienceListForBuilder,
+  finalizeEducationListForBuilder,
 } from '@/lib/resume-parser/import-sanitize';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
 
@@ -394,7 +396,9 @@ function fillMissingExperienceFromRecovered(
     const hasDesc = !!body.description.trim();
     const hasBullets = body.achievements.length > 0;
     const hasLoc = !!String(item.location || item.Location || '').trim();
-    if (hasCompany && hasDesc && hasBullets && hasLoc) return reconcileExperienceHeaderFields(item);
+    if (hasCompany && (hasDesc || hasBullets) && hasLoc) {
+      return reconcileExperienceHeaderFields(item);
+    }
 
     const idx = findBestRecoveredMatchIndex(
       item,
@@ -515,7 +519,7 @@ export function mergeParserWithRecoveredWording(
   const parserCerts = (parser.certifications || []).map((c) => ({ ...c }));
   const recCerts = recovered.certifications || [];
 
-  return {
+  const merged = {
     ...parser,
     experience: mergeListWithRecoveredWording(
       parserExp as unknown as Record<string, unknown>[],
@@ -549,6 +553,15 @@ export function mergeParserWithRecoveredWording(
     rawText: (recovered.rawText || '').length > (parser.rawText || '').length
       ? recovered.rawText
       : parser.rawText,
+  };
+  return {
+    ...merged,
+    experience: finalizeExperienceListForBuilder(
+      (merged.experience || []) as unknown as Record<string, unknown>[]
+    ) as unknown as ExpLike[],
+    education: finalizeEducationListForBuilder(
+      (merged.education || []) as unknown as Record<string, unknown>[]
+    ) as unknown as EduLike[],
   };
 }
 
@@ -633,6 +646,13 @@ export function applyRecoveredWordingToProfile(
   out.achievements = preferRecoveredStringList(
     recovered.achievements,
     out.achievements
+  );
+
+  out.experience = finalizeExperienceListForBuilder(
+    (out.experience as Record<string, unknown>[]) || []
+  );
+  out.education = finalizeEducationListForBuilder(
+    (out.education as Record<string, unknown>[]) || []
   );
 
   return out;

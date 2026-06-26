@@ -182,6 +182,27 @@ describe('prefer-recovered-wording', () => {
     expect((out.experience as any[])[0].description).toContain('Prepared monthly financial reports');
   });
 
+  it('reconcileExperienceHeaderFields moves Food Processor from company slot to title', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'Food Processor',
+      position: '',
+      location: '',
+    });
+    expect(reconciled.company).toBe('');
+    expect(reconciled.position || reconciled.title).toBe('Food Processor');
+  });
+
+  it('reconcileExperienceHeaderFields swaps title and company when reversed', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'Food Processor',
+      position: 'Pranav Food Processors India Pvt Ltd',
+      location: 'Bhopal',
+    });
+    expect(reconciled.position || reconciled.title).toBe('Food Processor');
+    expect(String(reconciled.company)).toContain('Pranav Food Processors');
+    expect(reconciled.location).toBe('Bhopal');
+  });
+
   it('reconcileExperienceHeaderFields maps title, company, and city layout', () => {
     const reconciled = reconcileExperienceHeaderFields({
       position: 'Food Processor',

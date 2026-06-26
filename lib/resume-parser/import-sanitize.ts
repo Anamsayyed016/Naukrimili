@@ -872,13 +872,24 @@ type ExperienceLike = {
 
 /** Company-name heuristics for header reconciliation (mapping layer only). */
 const COMPANY_NAME_HINT_RE =
-  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?|private|limited|gmbh|llp|group|enterprises|solutions|technologies|processors?|industries|services|company|co\.?)\b/i;
+  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|systems|consulting|services|company|co\.?)\b/i;
+
+const JOB_TITLE_HINT_RE =
+  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder)\b/i;
 
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
   if (!t) return false;
   if (COMPANY_NAME_HINT_RE.test(t)) return true;
   return t.length >= 22 && /\s/.test(t);
+}
+
+export function looksLikeJobTitleLine(text: string): boolean {
+  const t = sanitizeFieldText(text, 120);
+  if (!t) return false;
+  if (looksLikeCompanyNameLine(t)) return false;
+  if (JOB_TITLE_HINT_RE.test(t)) return true;
+  return t.split(/\s+/).length <= 4 && t.length <= 48;
 }
 
 export function looksLikeStandaloneLocationLine(text: string): boolean {
@@ -910,6 +921,30 @@ export function reconcileExperienceHeaderFields(
     120
   );
   let location = sanitizeFieldText(exp.location || exp.Location, 120);
+
+  // Company slot holds a job title (e.g. "Food Processor") — never keep as company.
+  if (company && looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) {
+    if (!position) {
+      position = company;
+      company = '';
+    } else if (looksLikeCompanyNameLine(position)) {
+      const hold = company;
+      company = position;
+      position = hold;
+    }
+  }
+
+  // Title slot holds a company name (e.g. "Pranav Food Processors India Pvt Ltd").
+  if (position && looksLikeCompanyNameLine(position) && !looksLikeJobTitleLine(position)) {
+    if (!company) {
+      company = position;
+      position = '';
+    } else if (looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) {
+      const hold = company;
+      company = position;
+      position = hold;
+    }
+  }
 
   if (location && looksLikeCompanyNameLine(location) && !company) {
     company = location;
@@ -1157,6 +1192,34 @@ export function collectExperienceBodyFields(exp: Record<string, unknown>): {
       ''
   ).trim();
   return { description, achievements };
+}
+
+/** Final binding pass before Builder state — orphan merge + semantic header reconciliation. */
+export function finalizeExperienceListForBuilder(
+  entries: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  if (!Array.isArray(entries) || entries.length === 0) return [];
+  const merged = mergeOrphanExperienceEntries(entries as ExperienceLike[]) as Record<
+    string,
+    unknown
+  >[];
+  const mergedTwice = mergeOrphanExperienceEntries(merged as ExperienceLike[]) as Record<
+    string,
+    unknown
+  >[];
+  return mergedTwice.map((e) => reconcileExperienceHeaderFields(e));
+}
+
+/** Final education binding — keep degree / institution / year on one object. */
+export function finalizeEducationListForBuilder(
+  entries: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  if (!Array.isArray(entries) || entries.length === 0) return [];
+  const merged = mergeOrphanEducationEntries(entries as EducationLike[]) as Record<
+    string,
+    unknown
+  >[];
+  return mergeOrphanEducationEntries(merged as EducationLike[]) as Record<string, unknown>[];
 }
 
 /** Reject random text blocks that lack employment structure. */
