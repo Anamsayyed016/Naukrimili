@@ -8,6 +8,7 @@ import {
   mergeOrphanExperienceEntries,
   mergeOrphanEducationEntries,
   collectExperienceBodyFields,
+  reconcileExperienceHeaderFields,
 } from '@/lib/resume-parser/import-sanitize';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
 
@@ -304,10 +305,17 @@ function applyExperienceStructuralMerge(
     parser.position || parser.title || parser.role || parser.job_title,
     recovered.position
   );
-  const company = preferNonemptyField(parser.company || parser.organization, recovered.company);
+  const company = preferNonemptyField(
+    parser.company ||
+      parser.Company ||
+      parser.organization ||
+      parser.Organization ||
+      parser.employer,
+    recovered.company || (recovered as { organization?: string }).organization
+  );
   const startDate = preferNonemptyField(parser.startDate || parser.start_date, recovered.startDate);
   const endDate = preferNonemptyField(parser.endDate || parser.end_date, recovered.endDate);
-  return {
+  return reconcileExperienceHeaderFields({
     ...parser,
     company,
     organization: company,
@@ -325,7 +333,7 @@ function applyExperienceStructuralMerge(
       (!endDate && (parser.current || recovered.current)),
     description: wording.description,
     achievements: wording.achievements,
-  };
+  });
 }
 
 function applyEducationStructuralMerge(
@@ -344,11 +352,17 @@ function applyEducationStructuralMerge(
       (recovered as { Year?: string }).Year ||
       ''
   ).trim();
-  const endDate = preferNonemptyField(
-    parser.endDate || parser.year || parser.end_date || parser.Year,
-    recoveredYear
-  );
+  const parserYear = String(
+    parser.endDate || parser.year || parser.end_date || parser.Year || ''
+  ).trim();
+  const endDate = preferNonemptyField(parserYear, recoveredYear);
   const startDate = preferNonemptyField(parser.startDate || parser.start_date, recovered.startDate);
+  const parserDesc = String((parser as { description?: string }).description ?? '').trim();
+  const recoveredDesc = String((recovered as { description?: string }).description ?? '').trim();
+  const description =
+    !parserDesc && recoveredDesc
+      ? recoveredDesc
+      : preferRecoveredWording(recoveredDesc, parserDesc);
   return {
     ...parser,
     institution,
@@ -363,24 +377,24 @@ function applyEducationStructuralMerge(
     end_date: endDate,
     startDate,
     gpa: preferNonemptyField(parser.gpa || parser.GPA, recovered.gpa),
-    description: preferRecoveredWording(
-      (recovered as { description?: string }).description,
-      (parser as { description?: string }).description
-    ),
+    description,
   };
 }
 
-/** Backfill missing description/location on parser rows from best recovered match. */
+/** Backfill missing company, description, location from best recovered match. */
 function fillMissingExperienceFromRecovered(
   parserList: Record<string, unknown>[],
   recoveredList: Record<string, unknown>[]
 ): Record<string, unknown>[] {
   return parserList.map((item) => {
     const body = collectExperienceBodyFields(item);
+    const hasCompany = !!String(
+      item.company || item.Company || item.organization || item.Organization || ''
+    ).trim();
     const hasDesc = !!body.description.trim();
     const hasBullets = body.achievements.length > 0;
-    const hasLoc = !!String(item.location || '').trim();
-    if (hasDesc && hasBullets && hasLoc) return item;
+    const hasLoc = !!String(item.location || item.Location || '').trim();
+    if (hasCompany && hasDesc && hasBullets && hasLoc) return reconcileExperienceHeaderFields(item);
 
     const idx = findBestRecoveredMatchIndex(
       item,
@@ -389,8 +403,33 @@ function fillMissingExperienceFromRecovered(
       experienceMatchScore,
       (a, b) => experienceMatchScore(a, b) >= 40
     );
-    if (idx < 0) return item;
+    if (idx < 0) return reconcileExperienceHeaderFields(item);
     return applyExperienceStructuralMerge(item, recoveredList[idx]);
+  });
+}
+
+function fillMissingEducationFromRecovered(
+  parserList: Record<string, unknown>[],
+  recoveredList: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  return parserList.map((item) => {
+    const hasInst = !!String(item.institution || item.school || item.Institution || '').trim();
+    const hasDeg = !!String(item.degree || item.Degree || '').trim();
+    const hasYear = !!String(
+      item.year || item.endDate || item.end_date || item.Year || ''
+    ).trim();
+    const hasField = !!String(item.field || item.Field || '').trim();
+    if (hasInst && hasDeg && hasYear && hasField) return item;
+
+    const idx = findBestRecoveredMatchIndex(
+      item,
+      recoveredList,
+      new Set<number>(),
+      educationMatchScore,
+      (a, b) => educationMatchScore(a, b) >= 30
+    );
+    if (idx < 0) return item;
+    return applyEducationStructuralMerge(item, recoveredList[idx]);
   });
 }
 
@@ -541,14 +580,17 @@ export function applyRecoveredWordingToProfile(
   );
   const recEdu = (recovered.education || []) as unknown as Record<string, unknown>[];
   out.education = mergeOrphanEducationEntries(
-    mergeListWithRecoveredWording(
-      parserEdu,
-      recEdu,
-      educationSectionMatch,
-      educationMatchScore,
-      (p, r) => applyEducationStructuralMerge(p, r),
-      false
-    ) as Record<string, unknown>[]
+    fillMissingEducationFromRecovered(
+      mergeListWithRecoveredWording(
+        parserEdu,
+        recEdu,
+        educationSectionMatch,
+        educationMatchScore,
+        (p, r) => applyEducationStructuralMerge(p, r),
+        false
+      ) as Record<string, unknown>[],
+      recEdu
+    )
   );
 
   const parserProj = (Array.isArray(out.projects) ? out.projects : []) as Record<string, unknown>[];

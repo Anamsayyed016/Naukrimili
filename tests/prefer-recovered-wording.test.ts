@@ -8,6 +8,10 @@ import {
   experienceSectionMatch,
 } from '@/lib/resume-parser/prefer-recovered-wording';
 import { mergeOrphanExperienceEntries } from '@/lib/resume-parser/import-sanitize';
+import {
+  reconcileExperienceHeaderFields,
+  mergeOrphanExperienceEntries,
+} from '@/lib/resume-parser/import-sanitize';
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 
 describe('prefer-recovered-wording', () => {
@@ -176,6 +180,20 @@ describe('prefer-recovered-wording', () => {
     const out = applyRecoveredWordingToProfile(profile, recovered);
     expect((out.experience as any[])[0].position).toBe('Business Analyst');
     expect((out.experience as any[])[0].description).toContain('Prepared monthly financial reports');
+  });
+
+  it('reconcileExperienceHeaderFields maps title, company, and city layout', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      position: 'Food Processor',
+      company: 'Pranav Food Processors India Pvt Ltd',
+      location: 'Bhopal',
+      description: 'Managed GST filing\nPrepared reports',
+      achievements: ['Managed GST filing', 'Prepared reports'],
+    });
+    expect(reconciled.position || reconciled.title).toBe('Food Processor');
+    expect(reconciled.company).toContain('Pranav Food Processors');
+    expect(reconciled.location).toBe('Bhopal');
+    expect(String(reconciled.description)).toContain('Managed GST filing');
   });
 
   it('mergeOrphanExperienceEntries folds date-only rows into previous job', () => {

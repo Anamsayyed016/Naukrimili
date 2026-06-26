@@ -870,9 +870,129 @@ type ExperienceLike = {
   current?: boolean;
 };
 
+/** Company-name heuristics for header reconciliation (mapping layer only). */
+const COMPANY_NAME_HINT_RE =
+  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?|private|limited|gmbh|llp|group|enterprises|solutions|technologies|processors?|industries|services|company|co\.?)\b/i;
+
+export function looksLikeCompanyNameLine(text: string): boolean {
+  const t = sanitizeFieldText(text, 160);
+  if (!t) return false;
+  if (COMPANY_NAME_HINT_RE.test(t)) return true;
+  return t.length >= 22 && /\s/.test(t);
+}
+
+export function looksLikeStandaloneLocationLine(text: string): boolean {
+  const t = sanitizeFieldText(text, 80);
+  if (!t || t.length > 60) return false;
+  if (/\b(19|20)\d{2}\b/.test(t)) return false;
+  if (looksLikeCompanyNameLine(t)) return false;
+  if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(t)) {
+    return true;
+  }
+  if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}$/.test(t) && !/\d/.test(t)) return true;
+  if (/^(remote|hybrid|on-?site|work from home|wfh)$/i.test(t)) return true;
+  return false;
+}
+
+/**
+ * Fix swapped/misplaced title, company, and location before Builder mapping.
+ * Example: title=Food Processor, company=Pranav Food Processors India Pvt Ltd, location=Bhopal
+ */
+export function reconcileExperienceHeaderFields(
+  exp: Record<string, unknown>
+): Record<string, unknown> {
+  let company = sanitizeFieldText(
+    exp.company || exp.Company || exp.organization || exp.Organization || exp.employer,
+    160
+  );
+  let position = sanitizeFieldText(
+    exp.position || exp.Position || exp.title || exp.job_title || exp.role,
+    120
+  );
+  let location = sanitizeFieldText(exp.location || exp.Location, 120);
+
+  if (location && looksLikeCompanyNameLine(location) && !company) {
+    company = location;
+    location = '';
+  }
+
+  if (company && looksLikeStandaloneLocationLine(company) && !location) {
+    location = company;
+    company = '';
+  }
+
+  if (company && !position && !looksLikeCompanyNameLine(company) && company.length <= 60) {
+    position = company;
+    company = '';
+  }
+
+  if (position && looksLikeCompanyNameLine(position) && (!company || !looksLikeCompanyNameLine(company))) {
+    if (company && !looksLikeCompanyNameLine(company)) {
+      const titleHold = company;
+      company = position;
+      position = titleHold;
+    } else if (!company) {
+      company = position;
+      position = '';
+    }
+  }
+
+  const body = collectExperienceBodyFields(exp);
+  return {
+    ...exp,
+    company,
+    Company: company,
+    organization: company,
+    position,
+    title: position,
+    job_title: position,
+    location,
+    Location: location,
+    description: body.description || exp.description || exp.Description,
+    achievements: body.achievements.length > 0 ? body.achievements : exp.achievements,
+  };
+}
+
+function isExperienceDateOnlyStub(exp: ExperienceLike): boolean {
+  const company = sanitizeFieldText(exp.company, 120);
+  const position = sanitizeFieldText(exp.position, 120);
+  const desc = sanitizeFieldText(exp.description, 2000);
+  const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
+  const startDate = sanitizeFieldText(exp.startDate || exp.start_date, 40);
+  const endDate = sanitizeFieldText(exp.endDate || exp.end_date, 40);
+  return (
+    !company &&
+    !position &&
+    !desc &&
+    achievements.length === 0 &&
+    !!(startDate || endDate || exp.current)
+  );
+}
+
+function mergeDateStubIntoEntry<T extends ExperienceLike>(target: T, stub: ExperienceLike): T {
+  const out = { ...target };
+  const stubStart = sanitizeFieldText(stub.startDate || stub.start_date, 40);
+  const stubEnd = sanitizeFieldText(stub.endDate || stub.end_date, 40);
+  if (stubStart && !sanitizeFieldText(out.startDate || out.start_date, 40)) {
+    out.startDate = stubStart;
+    out.start_date = stubStart;
+  }
+  if (stubEnd && !sanitizeFieldText(out.endDate || out.end_date, 40)) {
+    out.endDate = stubEnd;
+    out.end_date = stubEnd;
+  }
+  if (stub.current === true) out.current = true;
+  const stubLoc = sanitizeFieldText(stub.location, 120);
+  if (stubLoc && !sanitizeFieldText(out.location, 120)) out.location = stubLoc;
+  return out;
+}
+
 /** Merge date/location-only stubs into the preceding experience entry. */
 export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: T[]): T[] {
-  if (entries.length < 2) return entries;
+  if (entries.length === 0) return entries;
+  if (entries.length === 1) {
+    return [reconcileExperienceHeaderFields(entries[0] as Record<string, unknown>) as T];
+  }
   const out: T[] = [];
   for (const exp of entries) {
     const company = sanitizeFieldText(exp.company, 120);
@@ -933,7 +1053,31 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
     }
     out.push({ ...exp });
   }
-  return out;
+
+  // Forward-merge: date-only stub before the next real entry (common OCR layout).
+  const forward: T[] = [];
+  let pendingDate: T | null = null;
+  for (const exp of out) {
+    if (isExperienceDateOnlyStub(exp)) {
+      pendingDate = exp;
+      continue;
+    }
+    if (pendingDate) {
+      forward.push(reconcileExperienceHeaderFields(mergeDateStubIntoEntry(exp, pendingDate)) as T);
+      pendingDate = null;
+      continue;
+    }
+    forward.push(exp);
+  }
+  if (pendingDate && forward.length > 0) {
+    forward[0] = reconcileExperienceHeaderFields(
+      mergeDateStubIntoEntry(forward[0], pendingDate)
+    ) as T;
+  } else if (pendingDate) {
+    forward.push(pendingDate);
+  }
+
+  return forward.map((e) => reconcileExperienceHeaderFields(e as Record<string, unknown>) as T);
 }
 
 type EducationLike = {
@@ -958,8 +1102,10 @@ export function mergeOrphanEducationEntries<T extends EducationLike>(entries: T[
     const isPartial = (!institution && !!degree) || (!!institution && !degree);
     const isYearOnly =
       !institution && !degree && !!year && /^(19|20)\d{2}$/.test(year);
+    const isFieldOnly =
+      !institution && !degree && !year && !!sanitizeFieldText(edu.field, 120);
 
-    if ((isPartial || isYearOnly) && out.length > 0) {
+    if ((isPartial || isYearOnly || isFieldOnly) && out.length > 0) {
       const prev = { ...out[out.length - 1] };
       const prevInst = sanitizeFieldText(prev.institution, 160);
       const prevDeg = sanitizeFieldText(prev.degree, 160);

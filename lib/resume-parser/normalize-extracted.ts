@@ -701,10 +701,10 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
         endDateRaw.toLowerCase() === 'present';
       return {
         ...exp,
-        company: cleanString(exp.company || exp.Company || exp.organization),
+        company: cleanString(exp.company || exp.Company || exp.organization || exp.Organization),
         position: cleanString(exp.position || exp.Position || exp.job_title || exp.title || exp.role),
+        location: cleanString(exp.location || exp.Location),
         startDate,
-        // SINGLE source of truth for "Present" — empty endDate + current=true.
         endDate: isCurrent ? '' : endDateRaw,
         current: isCurrent,
         description: cleanMultiline(exp.description || exp.Description),
@@ -714,7 +714,11 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
                 cleanString(
                   typeof a === 'string'
                     ? a
-                    : String((a as Record<string, unknown> | null)?.title ?? (a as Record<string, unknown> | null)?.description ?? '')
+                    : String(
+                        (a as Record<string, unknown> | null)?.title ??
+                          (a as Record<string, unknown> | null)?.description ??
+                          ''
+                      )
                 )
               )
               .filter(Boolean)

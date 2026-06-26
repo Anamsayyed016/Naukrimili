@@ -23,6 +23,8 @@ import {
   isValidExperienceEntry,
   mergeOrphanExperienceEntries,
   mergeOrphanEducationEntries,
+  looksLikeCompanyNameLine,
+  looksLikeStandaloneLocationLine,
   pickBestNameFromCandidates,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
@@ -1183,14 +1185,20 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
 
         const prev1 = i - 1 >= 0 ? lines[i - 1] : '';
         const prev2 = i - 2 >= 0 ? lines[i - 2] : '';
+        const prev3 = i - 3 >= 0 ? lines[i - 3] : '';
 
         if (isGoodHeaderLine(prev1)) start = i - 1;
         if (isGoodHeaderLine(prev2) && (ROLE_MARKERS.test(prev1) || COMPANY_MARKERS.test(prev1) || prev1.length <= 60)) {
-          // Pull in two-line headers like:
-          //   Company
-          //   Title
-          //   2022 - 2024
           start = i - 2;
+        }
+        if (
+          isGoodHeaderLine(prev3) &&
+          isGoodHeaderLine(prev2) &&
+          isGoodHeaderLine(prev1) &&
+          (looksLikeCompanyNameLine(prev2) || looksLikeCompanyNameLine(prev1))
+        ) {
+          // Title / Company / Location / Date layouts (e.g. Food Processor / Pranav... / Bhopal / Jan 2023)
+          start = i - 3;
         }
 
         // Don't cross a blank line boundary.
@@ -1278,18 +1286,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
       .replace(/[|·•]+/g, ' ')
       .replace(/\s+at\s+/i, ' @ ')
       .trim();
-
-    // "Role @ Company" or "Role, Company"
-    const split = cleaned.match(/^(.+?)\s*(?:@|,|\u2013|\u2014| - )\s*(.+)$/);
-    if (split) {
-      const left = split[1].trim();
-      const right = split[2].trim();
-      if (!position && (ROLE_MARKERS.test(left) || !COMPANY_MARKERS.test(left))) position = left;
-      else if (!position) position = right;
-      if (!company && (COMPANY_MARKERS.test(right) || !ROLE_MARKERS.test(right))) company = right;
-      else if (!company) company = left;
-      continue;
-    }
+    if (!cleaned || DATE_RANGE_REGEX.test(cleaned)) continue;
 
     const locOnLine = cleaned.match(
       /\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/
@@ -1298,11 +1295,33 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
       if (!location) location = locOnLine[0];
       continue;
     }
+    if (looksLikeStandaloneLocationLine(cleaned)) {
+      if (!location) location = cleaned;
+      continue;
+    }
+    if (looksLikeCompanyNameLine(cleaned)) {
+      if (!company) company = cleaned;
+      continue;
+    }
+
+    // "Role @ Company" or "Role, Company"
+    const split = cleaned.match(/^(.+?)\s*(?:@|,|\u2013|\u2014| - )\s*(.+)$/);
+    if (split) {
+      const left = split[1].trim();
+      const right = split[2].trim();
+      if (!position && (ROLE_MARKERS.test(left) || !looksLikeCompanyNameLine(left))) {
+        position = left;
+      } else if (!position) position = right;
+      if (!company && (looksLikeCompanyNameLine(right) || !ROLE_MARKERS.test(right))) {
+        company = right;
+      } else if (!company) company = left;
+      continue;
+    }
 
     if (!position && ROLE_MARKERS.test(cleaned)) position = cleaned;
-    else if (!company && COMPANY_MARKERS.test(cleaned)) company = cleaned;
-    else if (!position && !COMPANY_MARKERS.test(cleaned) && cleaned.length <= 80) position = cleaned;
-    else if (!company && !ROLE_MARKERS.test(cleaned) && cleaned.length <= 80) company = cleaned;
+    else if (!company && looksLikeCompanyNameLine(cleaned)) company = cleaned;
+    else if (!position && cleaned.length <= 80) position = cleaned;
+    else if (!company && cleaned.length <= 120) company = cleaned;
   }
 
   // Location: look for "City, ST/Country" in header lines
@@ -1377,7 +1396,9 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const hasDegree = DEGREE_PATTERNS.some((p) => p.test(line));
-    const hasInstitution = /\b(university|college|institute|school|academy)\b/i.test(line);
+    const hasInstitution =
+      /\b(university|college|institute|school|academy|iim|iit|nit)\b/i.test(line) ||
+      (line.length >= 10 && /[A-Z]/.test(line) && /\s/.test(line) && !DEGREE_PATTERNS.some((p) => p.test(line)));
     const yearMatch = line.match(/(19|20)\d{2}/g);
 
     if (hasDegree) {
@@ -1431,8 +1452,12 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
       const gpaMatch = line.match(/(?:gpa|cgpa)[:\s]*([0-9.]+(?:\s*\/\s*[0-9.]+)?)/i);
       if (gpaMatch) current.gpa = gpaMatch[1].trim();
       else if (yearMatch && !current.year) current.year = yearMatch[yearMatch.length - 1];
-      else if (!current.field && /\b(major|field|specialization)\b/i.test(line)) {
-        current.field = line.replace(/^.*?(major|field|specialization)[:\s]*/i, '').trim();
+      else if (!current.field && line.length >= 3 && line.length <= 100 && !gpaMatch) {
+        if (!current.institution && line.length >= 12) {
+          current.institution = line.replace(/,?\s*(?:19|20)\d{2}.*$/, '').trim();
+        } else if (!current.field) {
+          current.field = line.replace(/^.*?(major|field|specialization)[:\s]*/i, '').trim();
+        }
       }
     }
   }

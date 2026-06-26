@@ -57,6 +57,7 @@ import {
   isValidatedContactName,
   collectExperienceBodyFields,
   mergeOrphanEducationEntries,
+  reconcileExperienceHeaderFields,
 } from '@/lib/resume-parser/import-sanitize';
 import {
   classifyResumeTextFragment,
@@ -1110,6 +1111,7 @@ function transformExperienceArray(experiences: unknown): any[] {
   const mapped = experiences
     .map((exp) => sanitizeExperienceEntry((exp ?? {}) as Record<string, unknown>))
     .filter((exp): exp is Record<string, unknown> => exp != null)
+    .map((exp) => reconcileExperienceHeaderFields(exp))
     .map((exp) => {
       const position = String(exp.position || exp.title || '');
       const company = String(exp.company || '');
