@@ -1144,13 +1144,14 @@ function transformExperienceArray(experiences: unknown): any[] {
         rawDesc = parserBullets.join('\n');
       }
       const descBullets = splitBullets(rawDesc);
-      const bullets = dedupeStrings(
-        parserBullets.length > 0 ? parserBullets : descBullets
-      );
-
+      const bullets = dedupeStrings([...parserBullets, ...descBullets]);
+      const fromBullets = bullets.join('\n');
+      const cleanedDesc = cleanMultiline(rawDesc);
+      const cleanedFromBullets = cleanMultiline(fromBullets);
       const description =
-        cleanMultiline(rawDesc) ||
-        (bullets.length ? bullets.map((b) => `• ${b}`).join('\n') : '');
+        cleanedDesc.length >= cleanedFromBullets.length
+          ? cleanedDesc || cleanedFromBullets
+          : cleanedFromBullets || cleanedDesc;
 
       // SINGLE source of truth for the "Present" indicator: the `current` flag.
       // Duration is a presentation string; endDate stays empty when current so

@@ -11,6 +11,7 @@ import {
   reconcileExperienceHeaderFields,
   finalizeExperienceListForBuilder,
   finalizeEducationListForBuilder,
+  unionExperienceBodyFields,
 } from '@/lib/resume-parser/import-sanitize';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
 
@@ -37,6 +38,10 @@ export function shouldPreferRecoveredWording(recovered: unknown, ai: unknown): b
   const a = String(ai ?? '').trim();
   if (!a) return true;
   if (r === a) return true;
+  const rLines = r.split('\n').filter((l) => l.trim()).length;
+  const aLines = a.split('\n').filter((l) => l.trim()).length;
+  if (rLines > aLines) return true;
+  if (r.length > a.length * 1.08) return true;
   return wordingQuality(r) >= wordingQuality(a) * 0.85;
 }
 
@@ -81,7 +86,7 @@ export function preferRecoveredStringList(recovered: unknown, ai: unknown): stri
 
   const recJoin = recList.join('\n');
   const aiJoin = aiList.join('\n');
-  if (shouldPreferRecoveredWording(recJoin, aiJoin)) return recList;
+  if (shouldPreferRecoveredWording(recJoin, aiJoin) || recList.length > aiList.length) return recList;
 
   const usedRec = new Set<number>();
   const merged = aiList.map((aiItem) => {
@@ -260,24 +265,7 @@ function resolveExperienceContent(
 ): { description: string; achievements: string[] } {
   const parserBody = collectExperienceBodyFields(parser);
   const recoveredBody = collectExperienceBodyFields(recovered);
-  const pDesc = parserBody.description;
-  const rDesc = recoveredBody.description;
-  const pAch = parserBody.achievements;
-  const rAch = recoveredBody.achievements;
-
-  let description = pDesc;
-  if (!pDesc && rDesc) description = rDesc;
-  else if (rDesc) description = preferRecoveredWording(rDesc, pDesc);
-
-  let achievements = pAch;
-  if (!pAch.length && rAch.length) achievements = rAch;
-  else if (rAch.length) achievements = preferRecoveredStringList(rAch, pAch);
-
-  if (!description && achievements.length) {
-    description = achievements.join('\n');
-  }
-
-  return { description, achievements };
+  return unionExperienceBodyFields(parserBody, recoveredBody);
 }
 
 function applyExperienceWording(parser: ExpLike, recovered: ExpLike): ExpLike {
@@ -383,23 +371,12 @@ function applyEducationStructuralMerge(
   };
 }
 
-/** Backfill missing company, description, location from best recovered match. */
+/** Union recovered experience bodies onto every matched row (never drop lines). */
 function fillMissingExperienceFromRecovered(
   parserList: Record<string, unknown>[],
   recoveredList: Record<string, unknown>[]
 ): Record<string, unknown>[] {
   return parserList.map((item) => {
-    const body = collectExperienceBodyFields(item);
-    const hasCompany = !!String(
-      item.company || item.Company || item.organization || item.Organization || ''
-    ).trim();
-    const hasDesc = !!body.description.trim();
-    const hasBullets = body.achievements.length > 0;
-    const hasLoc = !!String(item.location || item.Location || '').trim();
-    if (hasCompany && (hasDesc || hasBullets) && hasLoc) {
-      return reconcileExperienceHeaderFields(item);
-    }
-
     const idx = findBestRecoveredMatchIndex(
       item,
       recoveredList,
@@ -407,8 +384,8 @@ function fillMissingExperienceFromRecovered(
       experienceMatchScore,
       (a, b) => experienceMatchScore(a, b) >= 40
     );
-    if (idx < 0) return reconcileExperienceHeaderFields(item);
-    return applyExperienceStructuralMerge(item, recoveredList[idx]);
+    if (idx >= 0) return applyExperienceStructuralMerge(item, recoveredList[idx]);
+    return reconcileExperienceHeaderFields(item);
   });
 }
 

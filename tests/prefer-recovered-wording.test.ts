@@ -11,6 +11,7 @@ import { mergeOrphanExperienceEntries } from '@/lib/resume-parser/import-sanitiz
 import {
   reconcileExperienceHeaderFields,
   mergeOrphanExperienceEntries,
+  unionExperienceBodyFields,
 } from '@/lib/resume-parser/import-sanitize';
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 
@@ -98,6 +99,22 @@ describe('prefer-recovered-wording', () => {
       { company: 'Acme', position: 'Engineer', startDate: '2020' }
     );
     expect(matching).toBe(true);
+  });
+
+  it('unionExperienceBodyFields preserves all bullet lines from both sources', () => {
+    const merged = unionExperienceBodyFields(
+      {
+        description: 'Developed REST APIs',
+        achievements: ['Developed REST APIs'],
+      },
+      {
+        description: 'Developed REST APIs\nOptimized SQL queries\nReduced response time by 40%',
+        achievements: ['Optimized SQL queries', 'Reduced response time by 40%'],
+      }
+    );
+    expect(merged.achievements).toHaveLength(3);
+    expect(merged.description).toContain('Optimized SQL queries');
+    expect(merged.description).toContain('Reduced response time by 40%');
   });
 
   it('applyRecoveredWordingToProfile backfills missing description from recovered text', () => {

@@ -122,7 +122,7 @@ export function dedupeStrings(items: string[], caseInsensitive = true): string[]
 export function splitBullets(text: string): string[] {
   if (!text) return [];
   return text
-    .split(/\n|•|·|▪|‣|\u2023|\u25aa|(?:\s*[-–—]\s+)/)
+    .split(/\n|•|·|▪|‣|\u2023|\u25aa|(?:\s*[-–—]\s+)|(?=\d+[\.\)]\s+)/)
     .map((s) => cleanString(s.replace(/^[\s\-–—*•·]+/, '')))
     // Keep short but meaningful bullets ("Led team", "ATS scoring") — drop
     // single-char fragments (split artifacts). Three chars is the realistic

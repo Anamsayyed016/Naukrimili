@@ -3,7 +3,7 @@
  * Rejects parser fallbacks and merged blobs; splits names for contact fields.
  */
 
-import { cleanString } from './normalize-extracted';
+import { cleanString, cleanMultiline } from './normalize-extracted';
 import {
   isClassifiedPersonName,
   isEmailOrDomainFragment,
@@ -43,6 +43,14 @@ export function isGarbageResumeText(value: unknown): boolean {
 export function sanitizeFieldText(value: unknown, maxLen = 500): string {
   if (isGarbageResumeText(value)) return '';
   const s = cleanString(value);
+  if (!s) return '';
+  return s.length > maxLen ? s.slice(0, maxLen).trim() : s;
+}
+
+/** Preserve newlines for experience/education descriptions (mapping layer). */
+export function sanitizeMultilineFieldText(value: unknown, maxLen = 4000): string {
+  if (isGarbageResumeText(value)) return '';
+  const s = cleanMultiline(value);
   if (!s) return '';
   return s.length > maxLen ? s.slice(0, maxLen).trim() : s;
 }
@@ -1034,7 +1042,7 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
     const position = sanitizeFieldText(exp.position, 120);
     const startDate = sanitizeFieldText(exp.startDate || exp.start_date, 40);
     const endDate = sanitizeFieldText(exp.endDate || exp.end_date, 40);
-    const desc = sanitizeFieldText(exp.description, 2000);
+    const desc = sanitizeMultilineFieldText(exp.description, 4000);
     const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
     const location = sanitizeFieldText(exp.location, 120);
     const hasDates = !!(startDate || endDate);
@@ -1075,7 +1083,7 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
     }
     if (isDescriptionOnlyOrphan && out.length > 0) {
       const prev = { ...out[out.length - 1] };
-      const prevDesc = sanitizeFieldText(prev.description, 4000);
+      const prevDesc = sanitizeMultilineFieldText(prev.description, 8000);
       const mergedDesc = [prevDesc, desc, ...achievements].filter(Boolean).join('\n').trim();
       if (mergedDesc) prev.description = mergedDesc;
       const prevAch = Array.isArray(prev.achievements) ? [...prev.achievements] : [];
@@ -1194,6 +1202,35 @@ export function collectExperienceBodyFields(exp: Record<string, unknown>): {
   return { description, achievements };
 }
 
+/** Union experience body text — never drop bullets or description lines from either source. */
+export function unionExperienceBodyFields(
+  primary: { description: string; achievements: string[] },
+  secondary: { description: string; achievements: string[] }
+): { description: string; achievements: string[] } {
+  const achievements = [...primary.achievements];
+  const seen = new Set(achievements.map((a) => a.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 48)));
+  for (const item of secondary.achievements) {
+    const key = item.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 48);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    achievements.push(item);
+  }
+
+  let description = sanitizeMultilineFieldText(primary.description, 8000);
+  const secondaryDesc = sanitizeMultilineFieldText(secondary.description, 8000);
+  if (!description) description = secondaryDesc;
+  else if (secondaryDesc.length > description.length) description = secondaryDesc;
+  else if (secondaryDesc && !description.includes(secondaryDesc.slice(0, Math.min(48, secondaryDesc.length)))) {
+    description = sanitizeMultilineFieldText(`${description}\n${secondaryDesc}`, 8000);
+  }
+
+  if (!description && achievements.length > 0) {
+    description = achievements.join('\n');
+  }
+
+  return { description, achievements };
+}
+
 /** Final binding pass before Builder state — orphan merge + semantic header reconciliation. */
 export function finalizeExperienceListForBuilder(
   entries: Record<string, unknown>[]
@@ -1271,7 +1308,7 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
   ) {
     position = '';
   }
-  const description = sanitizeFieldText(exp.description || exp.Description, 2000);
+  const description = sanitizeMultilineFieldText(exp.description || exp.Description, 4000);
   if (!company && !position && !description) return null;
   if (isGarbageResumeText(company) && isGarbageResumeText(position)) return null;
   if (!isValidExperienceEntry({ company, position, startDate: String(exp.startDate || ''), endDate: String(exp.endDate || ''), description })) {
@@ -1313,7 +1350,7 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
     institution,
     degree,
     field,
-    description: sanitizeFieldText(edu.description || edu.Description, 500),
+    description: sanitizeMultilineFieldText(edu.description || edu.Description, 2000),
     location: sanitizeFieldText(edu.location || edu.Location, 120),
     year: edu.year || edu.endDate || '',
     startDate: edu.startDate || edu.start_date || '',

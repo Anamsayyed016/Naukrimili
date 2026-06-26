@@ -1360,8 +1360,8 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
   for (let i = descStart; i < chunkLines.length; i++) {
     const l = chunkLines[i].trim();
     if (!l) continue;
-    if (/^[•\-\*\u2022\u2023\u25aa]\s+/.test(l) || /^o\s+/i.test(l)) {
-      bullets.push(l.replace(/^[•\-\*\u2022\u2023\u25aa]\s+|^o\s+/i, '').trim());
+    if (/^[•\-\*\u2022\u2023\u25aa]\s+/.test(l) || /^o\s+/i.test(l) || /^\d+[\.\)]\s+/.test(l)) {
+      bullets.push(l.replace(/^[•\-\*\u2022\u2023\u25aa]\s+|^o\s+/i, '').replace(/^\d+[\.\)]\s+/, '').trim());
     } else {
       descLines.push(l);
     }
