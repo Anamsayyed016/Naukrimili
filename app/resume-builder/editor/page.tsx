@@ -147,6 +147,19 @@ function importSectionCounts(data: Record<string, unknown>) {
   };
 }
 
+/** Saved editor / upload payload already in ExperienceStep shape — do not re-transform. */
+function isBuilderFormSnapshot(parsed: Record<string, unknown>): boolean {
+  if (parsed._userEdited === true) return true;
+  const experience = parsed.experience;
+  if (!Array.isArray(experience) || experience.length === 0) return false;
+  return experience.some(
+    (entry) =>
+      entry &&
+      typeof entry === 'object' &&
+      ('title' in entry || 'startDate' in entry || 'company' in entry)
+  );
+}
+
 /** API / upload page already produced builder form data — skip second sanitize pass. */
 function isBuilderReadyImportPayload(parsed: Record<string, unknown>): boolean {
   if (parsed._imported === true) return true;
@@ -210,6 +223,8 @@ export default function ResumeEditorPage() {
   const [saving, setSaving] = useState(false);
   /** Prevents import/localStorage from overwriting in-memory edits on colorParam / URL changes. */
   const formHydratedForTemplateRef = useRef<string | null>(null);
+  /** After first manual edit, autofill / re-import must never overwrite form state. */
+  const userHasEditedRef = useRef(false);
 
   // Load template on mount
   useEffect(() => {
@@ -429,7 +444,7 @@ export default function ResumeEditorPage() {
                   parsed.summary.length >= 120 &&
                   /(experience|education|skills|employment)/i.test(parsed.summary));
               const shouldRehydrate =
-                parsed._imported === true || (sparseSections && hasRecoverySource);
+                !isBuilderFormSnapshot(parsed) && sparseSections && hasRecoverySource;
               if (shouldRehydrate) {
                 const { transformImportDataToBuilder } = await import(
                   '@/lib/resume-builder/import-transformer'
@@ -511,9 +526,10 @@ export default function ResumeEditorPage() {
   // Update form data — single source of truth; sync derived contact fields for preview
   const updateFormData = useCallback(
     (updates: Record<string, any> | ((prev: Record<string, any>) => Record<string, any>)) => {
+    userHasEditedRef.current = true;
     setFormData((prev) => {
       const patch = typeof updates === 'function' ? updates(prev) : updates;
-      const next = { ...prev, ...patch };
+      const next = { ...prev, ...patch, _userEdited: true };
 
       if ('firstName' in patch || 'lastName' in patch) {
         const fn = String(next.firstName ?? '').trim();
@@ -570,10 +586,33 @@ export default function ResumeEditorPage() {
         next.Education = list;
       }
 
-      const clearKeys = ['linkedin', 'phone', 'email', 'location', 'portfolio', 'summary', 'jobTitle'] as const;
+      if ('jobTitle' in patch) {
+        const jt = patch.jobTitle == null ? '' : String(patch.jobTitle);
+        next.jobTitle = jt;
+        next.title = jt;
+      } else if ('title' in patch && !('jobTitle' in patch)) {
+        const t = patch.title == null ? '' : String(patch.title);
+        next.title = t;
+        next.jobTitle = t;
+      }
+
+      const clearKeys = [
+        'linkedin',
+        'phone',
+        'email',
+        'location',
+        'portfolio',
+        'summary',
+        'jobTitle',
+        'title',
+      ] as const;
       for (const key of clearKeys) {
         if (key in patch && (patch[key] === '' || patch[key] == null)) {
           next[key] = '';
+          if (key === 'jobTitle' || key === 'title') {
+            next.jobTitle = '';
+            next.title = '';
+          }
         }
       }
 

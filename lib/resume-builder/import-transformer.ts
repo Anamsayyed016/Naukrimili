@@ -56,6 +56,7 @@ import {
   isPlausiblePersonName,
   isValidatedContactName,
   collectExperienceBodyFields,
+  unionExperienceBodyFields,
   mergeOrphanEducationEntries,
   reconcileExperienceHeaderFields,
   finalizeExperienceListForBuilder,
@@ -1138,8 +1139,12 @@ function transformExperienceArray(experiences: unknown): any[] {
       const endMonth = isCurrent ? '' : toMonthInput(endRaw);
 
       const body = collectExperienceBodyFields(exp);
-      let rawDesc = body.description;
-      const parserBullets: string[] = body.achievements.map((s) => cleanString(s)).filter(Boolean);
+      const united = unionExperienceBodyFields(
+        { description: body.description, achievements: [] },
+        { description: '', achievements: body.achievements }
+      );
+      let rawDesc = united.description;
+      const parserBullets: string[] = united.achievements.map((s) => cleanString(s)).filter(Boolean);
       if (!rawDesc && parserBullets.length) {
         rawDesc = parserBullets.join('\n');
       }
@@ -1149,9 +1154,9 @@ function transformExperienceArray(experiences: unknown): any[] {
       const cleanedDesc = cleanMultiline(rawDesc);
       const cleanedFromBullets = cleanMultiline(fromBullets);
       const description =
-        cleanedDesc.length >= cleanedFromBullets.length
-          ? cleanedDesc || cleanedFromBullets
-          : cleanedFromBullets || cleanedDesc;
+        cleanedFromBullets.length > cleanedDesc.length
+          ? cleanedFromBullets || cleanedDesc
+          : cleanedDesc || cleanedFromBullets;
 
       // SINGLE source of truth for the "Present" indicator: the `current` flag.
       // Duration is a presentation string; endDate stays empty when current so

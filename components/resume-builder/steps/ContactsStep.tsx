@@ -198,7 +198,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
             <Input
               id="jobTitle"
               placeholder="Software Engineer"
-              value={formData.jobTitle || formData.title || ''}
+              value={typeof formData.jobTitle === 'string' ? formData.jobTitle : ''}
               onChange={(e) => handleChange('jobTitle', e.target.value)}
               onFocus={() => setFocused('jobTitle')}
               onBlur={() => setFocused('')}
@@ -221,13 +221,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
               />
             )}
             <TitleSuggestionChips
-              value={
-                typeof formData.jobTitle === 'string'
-                  ? formData.jobTitle
-                  : typeof formData.title === 'string'
-                    ? formData.title
-                    : ''
-              }
+              value={typeof formData.jobTitle === 'string' ? formData.jobTitle : ''}
               onApply={(title) => handleChange('jobTitle', title)}
               formData={formData}
               section="contacts"

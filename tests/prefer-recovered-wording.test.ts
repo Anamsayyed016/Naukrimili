@@ -7,13 +7,12 @@ import {
   educationSectionMatch,
   experienceSectionMatch,
 } from '@/lib/resume-parser/prefer-recovered-wording';
-import { mergeOrphanExperienceEntries } from '@/lib/resume-parser/import-sanitize';
 import {
-  reconcileExperienceHeaderFields,
   mergeOrphanExperienceEntries,
+  reconcileExperienceHeaderFields,
   unionExperienceBodyFields,
 } from '@/lib/resume-parser/import-sanitize';
-import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 
 describe('prefer-recovered-wording', () => {
   it('prefers recovered description when AI paraphrased shorter', () => {
@@ -290,5 +289,48 @@ describe('prefer-recovered-wording', () => {
     const out = applyRecoveredWordingToProfile(profile, recovered);
     expect(out.experience).toHaveLength(1);
     expect((out.experience as any[])[0].description).toContain('Prepared monthly financial reports');
+  });
+
+  it('applyRecoveredWordingToProfile backfills company on later experiences by title and year', () => {
+    const profile = {
+      experience: [
+        { company: 'Alpha Corp', position: 'Engineer', startDate: '2018', description: '', achievements: [] },
+        { company: 'Beta LLC', position: 'Senior Engineer', startDate: '2020', description: '', achievements: [] },
+        { company: '', position: 'Team Lead', startDate: '2022', description: 'Led migration', achievements: [] },
+        { company: '', position: 'Architect', startDate: '2024', description: 'Designed platform', achievements: [] },
+      ],
+    };
+    const recovered: ExtractedResumeData = {
+      fullName: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+      skills: [],
+      experience: [
+        { company: 'Alpha Corp', position: 'Engineer', startDate: '2018', endDate: '2020', current: false, description: '', achievements: [] },
+        { company: 'Beta LLC', position: 'Senior Engineer', startDate: '2020', endDate: '2022', current: false, description: '', achievements: [] },
+        { company: 'Gamma Systems', position: 'Team Lead', startDate: '2022', endDate: '2024', current: false, description: 'Led migration', achievements: [] },
+        { company: 'Delta Tech', position: 'Architect', startDate: '2024', endDate: '', current: true, description: 'Designed platform', achievements: [] },
+      ],
+      education: [],
+      confidence: 0,
+      rawText: '',
+    };
+    const out = applyRecoveredWordingToProfile(profile, recovered);
+    const exp = out.experience as any[];
+    expect(exp).toHaveLength(4);
+    expect(exp[2].company).toBe('Gamma Systems');
+    expect(exp[3].company).toBe('Delta Tech');
+  });
+
+  it('reconcileExperienceHeaderFields keeps short company names in company slot', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'TCS',
+      position: 'Developer',
+      location: '',
+    });
+    expect(reconciled.company).toBe('TCS');
+    expect(reconciled.position || reconciled.title).toBe('Developer');
   });
 });

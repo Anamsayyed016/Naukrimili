@@ -964,7 +964,7 @@ export function reconcileExperienceHeaderFields(
     company = '';
   }
 
-  if (company && !position && !looksLikeCompanyNameLine(company) && company.length <= 60) {
+  if (company && !position && looksLikeJobTitleLine(company) && company.length <= 60) {
     position = company;
     company = '';
   }
@@ -1042,7 +1042,7 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
     const position = sanitizeFieldText(exp.position, 120);
     const startDate = sanitizeFieldText(exp.startDate || exp.start_date, 40);
     const endDate = sanitizeFieldText(exp.endDate || exp.end_date, 40);
-    const desc = sanitizeMultilineFieldText(exp.description, 4000);
+    const desc = sanitizeMultilineFieldText(exp.description, 8000);
     const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
     const location = sanitizeFieldText(exp.location, 120);
     const hasDates = !!(startDate || endDate);
@@ -1308,7 +1308,7 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
   ) {
     position = '';
   }
-  const description = sanitizeMultilineFieldText(exp.description || exp.Description, 4000);
+  const description = sanitizeMultilineFieldText(exp.description || exp.Description, 8000);
   if (!company && !position && !description) return null;
   if (isGarbageResumeText(company) && isGarbageResumeText(position)) return null;
   if (!isValidExperienceEntry({ company, position, startDate: String(exp.startDate || ''), endDate: String(exp.endDate || ''), description })) {

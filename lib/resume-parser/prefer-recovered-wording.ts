@@ -371,21 +371,77 @@ function applyEducationStructuralMerge(
   };
 }
 
+/** Score parser rows missing company against recovered rows (title + year proximity). */
+function experienceHeaderBackfillScore(
+  parser: Record<string, unknown>,
+  recovered: Record<string, unknown>
+): number {
+  const parserCompany = String(
+    parser.company || parser.Company || parser.organization || parser.Organization || ''
+  ).trim();
+  if (parserCompany) return 0;
+
+  const recCompany = String(
+    recovered.company || recovered.Company || recovered.organization || recovered.Organization || ''
+  ).trim();
+  if (!recCompany) return 0;
+
+  const ap = slugWords(parser.position || parser.title || parser.job_title);
+  const bp = slugWords(recovered.position || recovered.title || recovered.job_title);
+  const sharesPosition = ap.length > 0 && bp.length > 0 && ap.some((w) => bp.includes(w));
+  if (!sharesPosition) return 0;
+
+  let score = 35;
+  if (
+    experienceStartDateKey(parser).length > 0 &&
+    experienceStartDateKey(parser) === experienceStartDateKey(recovered)
+  ) {
+    score += 25;
+  }
+  const al = experienceLocationSlug(parser);
+  const bl = experienceLocationSlug(recovered);
+  if (al.length >= 3 && bl.length >= 3 && (al.includes(bl) || bl.includes(al))) {
+    score += 15;
+  }
+  return score;
+}
+
 /** Union recovered experience bodies onto every matched row (never drop lines). */
 function fillMissingExperienceFromRecovered(
   parserList: Record<string, unknown>[],
-  recoveredList: Record<string, unknown>[]
+  recoveredList: Record<string, unknown>[],
+  usedRec: Set<number> = new Set<number>()
 ): Record<string, unknown>[] {
   return parserList.map((item) => {
-    const idx = findBestRecoveredMatchIndex(
-      item,
+    const reconciled = reconcileExperienceHeaderFields(item);
+
+    let idx = findBestRecoveredMatchIndex(
+      reconciled,
       recoveredList,
-      new Set<number>(),
+      usedRec,
       experienceMatchScore,
-      (a, b) => experienceMatchScore(a, b) >= 40
+      experienceSectionMatch
     );
-    if (idx >= 0) return applyExperienceStructuralMerge(item, recoveredList[idx]);
-    return reconcileExperienceHeaderFields(item);
+
+    if (idx < 0) {
+      let bestIdx = -1;
+      let bestScore = 0;
+      for (let i = 0; i < recoveredList.length; i++) {
+        if (usedRec.has(i)) continue;
+        const score = experienceHeaderBackfillScore(reconciled, recoveredList[i]);
+        if (score >= 35 && score > bestScore) {
+          bestScore = score;
+          bestIdx = i;
+        }
+      }
+      idx = bestIdx;
+    }
+
+    if (idx >= 0) {
+      usedRec.add(idx);
+      return applyExperienceStructuralMerge(reconciled, recoveredList[idx]);
+    }
+    return reconciled;
   });
 }
 
@@ -460,12 +516,12 @@ function mergeListWithRecoveredWording<T extends Record<string, unknown>>(
   matchFn: (a: T, b: T) => boolean,
   scoreFn: (a: T, b: T) => number,
   applyMerge: (parser: T, recovered: T) => T,
-  appendUnmatched = true
+  appendUnmatched = true,
+  usedRec: Set<number> = new Set<number>()
 ): T[] {
   if (!recoveredList.length) return parserList;
   if (!parserList.length) return recoveredList;
 
-  const usedRec = new Set<number>();
   const merged = parserList.map((item) => {
     const idx = findBestRecoveredMatchIndex(item, recoveredList, usedRec, scoreFn, matchFn);
     if (idx < 0) return item;
@@ -551,6 +607,7 @@ export function applyRecoveredWordingToProfile(
 
   const parserExp = (Array.isArray(out.experience) ? out.experience : []) as Record<string, unknown>[];
   const recExp = (recovered.experience || []) as unknown as Record<string, unknown>[];
+  const usedRec = new Set<number>();
   out.experience = mergeOrphanExperienceEntries(
     fillMissingExperienceFromRecovered(
       mergeListWithRecoveredWording(
@@ -559,9 +616,11 @@ export function applyRecoveredWordingToProfile(
         experienceSectionMatch,
         experienceMatchScore,
         (p, r) => applyExperienceStructuralMerge(p, r),
-        false
+        false,
+        usedRec
       ) as Record<string, unknown>[],
-      recExp
+      recExp,
+      usedRec
     )
   );
 
