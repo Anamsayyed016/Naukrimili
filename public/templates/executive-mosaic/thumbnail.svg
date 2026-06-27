@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#FAF7F2"/>
+  <rect x="14" y="18" width="272" height="72" rx="14" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.5"/>
+  <circle cx="52" cy="54" r="26" fill="#E8E1D8" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="92" y="44" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#2E2E2E" letter-spacing="0.8">ALEXANDER</text>
+  <text x="92" y="56" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#2E2E2E" letter-spacing="0.8">REED</text>
+  <text x="92" y="66" font-family="Arial,sans-serif" font-size="2.6" fill="#5A5A5A" letter-spacing="0.4">GLOBAL PRODUCT STRATEGIST</text>
+  <rect x="14" y="78" width="272" height="12" rx="0" fill="#2E2E2E"/>
+  <text x="22" y="86" font-family="Arial,sans-serif" font-size="2" fill="#FFFFFF">phone | location | email</text>
+  <rect x="14" y="100" width="178" height="148" rx="12" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.4"/>
+  <path d="M178 100 A12 12 0 0 1 192 112 L192 100 Z" fill="#C96B7C"/>
+  <path d="M14 236 A12 12 0 0 1 26 248 L14 248 Z" fill="#C96B7C"/>
+  <path d="M178 236 A12 12 0 0 0 192 248 L192 236 Z" fill="#2E2E2E"/>
+  <text x="22" y="116" font-family="Arial,sans-serif" font-size="2.8" font-weight="700" fill="#2E2E2E" letter-spacing="0.6">EXPERIENCE</text>
+  <text x="22" y="128" font-family="Arial,sans-serif" font-size="2.6" font-weight="700" fill="#2E2E2E">Amazon Seattle, WA</text>
+  <text x="22" y="136" font-family="Arial,sans-serif" font-size="2.4" fill="#C96B7C">Product Strategy Director</text>
+  <line x1="22" y1="142" x2="182" y2="142" stroke="#E6DDD2" stroke-width="0.3"/>
+  <text x="22" y="150" font-family="Arial,sans-serif" font-size="2.2" fill="#5A5A5A">" Led global product roadmap</text>
+  <text x="22" y="156" font-family="Arial,sans-serif" font-size="2.2" fill="#5A5A5A">" Drove $50M revenue growth</text>
+  <rect x="14" y="256" width="178" height="118" rx="12" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.4"/>
+  <path d="M178 256 A12 12 0 0 1 192 268 L192 256 Z" fill="#C96B7C"/>
+  <path d="M178 362 A12 12 0 0 0 192 374 L192 362 Z" fill="#2E2E2E"/>
+  <text x="22" y="272" font-family="Arial,sans-serif" font-size="2.8" font-weight="700" fill="#2E2E2E" letter-spacing="0.6">CORE COMPETENCIES</text>
+  <rect x="22" y="278" width="78" height="28" rx="6" fill="#2E2E2E"/>
+  <rect x="104" y="278" width="78" height="28" rx="6" fill="#D4CCC3"/>
+  <rect x="22" y="310" width="78" height="28" rx="6" fill="#D4CCC3"/>
+  <rect x="104" y="310" width="78" height="28" rx="6" fill="#E8E1D8"/>
+  <text x="28" y="292" font-family="Arial,sans-serif" font-size="2" fill="#FFFFFF">Leadership</text>
+  <text x="110" y="292" font-family="Arial,sans-serif" font-size="2" fill="#2E2E2E">Strategy</text>
+  <rect x="200" y="100" width="86" height="52" rx="12" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.4"/>
+  <path d="M272 100 A12 12 0 0 1 286 112 L286 100 Z" fill="#C96B7C"/>
+  <path d="M272 140 A12 12 0 0 0 286 152 L286 140 Z" fill="#2E2E2E"/>
+  <text x="208" y="116" font-family="Arial,sans-serif" font-size="2.8" font-weight="700" fill="#2E2E2E" letter-spacing="0.5">SUMMARY</text>
+  <rect x="200" y="160" width="86" height="44" rx="12" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.4"/>
+  <path d="M272 160 A12 12 0 0 1 286 172 L286 160 Z" fill="#C96B7C"/>
+  <text x="208" y="176" font-family="Arial,sans-serif" font-size="2.8" font-weight="700" fill="#2E2E2E" letter-spacing="0.5">EDUCATION</text>
+  <rect x="200" y="212" width="86" height="44" rx="12" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.4"/>
+  <path d="M272 212 A12 12 0 0 1 286 224 L286 212 Z" fill="#C96B7C"/>
+  <text x="208" y="228" font-family="Arial,sans-serif" font-size="2.8" font-weight="700" fill="#2E2E2E" letter-spacing="0.5">CERTIFICATIONS</text>
+  <rect x="200" y="264" width="86" height="44" rx="12" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.4"/>
+  <path d="M272 264 A12 12 0 0 1 286 276 L286 264 Z" fill="#C96B7C"/>
+  <text x="208" y="280" font-family="Arial,sans-serif" font-size="2.8" font-weight="700" fill="#2E2E2E" letter-spacing="0.5">ACHIEVEMENTS</text>
+  <rect x="200" y="316" width="86" height="44" rx="12" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="0.4"/>
+  <path d="M272 316 A12 12 0 0 1 286 328 L286 316 Z" fill="#C96B7C"/>
+  <path d="M272 356 A12 12 0 0 0 286 368 L286 356 Z" fill="#2E2E2E"/>
+  <text x="208" y="332" font-family="Arial,sans-serif" font-size="2.8" font-weight="700" fill="#2E2E2E" letter-spacing="0.5">LANGUAGES</text>
+  <text x="150" y="388" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="600" fill="#C96B7C" letter-spacing="1.2">EXECUTIVE MOSAIC</text>
+</svg>

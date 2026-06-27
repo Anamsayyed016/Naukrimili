@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#FAF7F2"/>
+  <rect x="36" y="48" width="728" height="192" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <circle cx="138" cy="144" r="68" fill="#E8E1D8" stroke="#FFFFFF" stroke-width="5"/>
+  <text x="248" y="118" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#2E2E2E" letter-spacing="2">ALEXANDER</text>
+  <text x="248" y="152" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#2E2E2E" letter-spacing="2">REED</text>
+  <text x="248" y="176" font-family="Arial,sans-serif" font-size="7" fill="#5A5A5A" letter-spacing="1.2">GLOBAL PRODUCT STRATEGIST</text>
+  <rect x="36" y="208" width="728" height="32" fill="#2E2E2E"/>
+  <text x="58" y="228" font-family="Arial,sans-serif" font-size="5.5" fill="#FFFFFF">+1 555 0123  |  Seattle, WA  |  alex@email.com  |  portfolio.com</text>
+  <rect x="36" y="268" width="476" height="396" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <path d="M476 268 A36 36 0 0 1 512 304 L512 268 Z" fill="#C96B7C"/>
+  <path d="M36 628 A36 36 0 0 1 72 664 L36 664 Z" fill="#C96B7C"/>
+  <path d="M476 628 A36 36 0 0 0 512 664 L512 628 Z" fill="#2E2E2E"/>
+  <text x="58" y="308" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2E2E2E" letter-spacing="1.6">EXPERIENCE</text>
+  <text x="58" y="340" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2E2E2E">Amazon Seattle, WA</text>
+  <text x="58" y="360" font-family="Arial,sans-serif" font-size="6.5" fill="#C96B7C">Product Strategy Director | 2021Present</text>
+  <text x="58" y="388" font-family="Arial,sans-serif" font-size="6" fill="#5A5A5A">" Led global product roadmap across 12 markets</text>
+  <text x="58" y="406" font-family="Arial,sans-serif" font-size="6" fill="#5A5A5A">" Drove $50M revenue growth through strategic initiatives</text>
+  <text x="58" y="424" font-family="Arial,sans-serif" font-size="6" fill="#5A5A5A">" Built cross-functional teams of 40+ product managers</text>
+  <line x1="58" y1="448" x2="490" y2="448" stroke="#E6DDD2" stroke-width="0.6"/>
+  <text x="58" y="472" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2E2E2E">Microsoft Redmond, WA</text>
+  <text x="58" y="492" font-family="Arial,sans-serif" font-size="6.5" fill="#C96B7C">Senior Product Manager | 20182021</text>
+  <rect x="36" y="684" width="476" height="268" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <path d="M476 684 A36 36 0 0 1 512 720 L512 684 Z" fill="#C96B7C"/>
+  <path d="M476 916 A36 36 0 0 0 512 952 L512 916 Z" fill="#2E2E2E"/>
+  <text x="58" y="724" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2E2E2E" letter-spacing="1.6">CORE COMPETENCIES</text>
+  <rect x="58" y="744" width="208" height="74" rx="14" fill="#2E2E2E"/>
+  <rect x="282" y="744" width="208" height="74" rx="14" fill="#D4CCC3"/>
+  <rect x="58" y="830" width="208" height="74" rx="14" fill="#D4CCC3"/>
+  <rect x="282" y="830" width="208" height="74" rx="14" fill="#E8E1D8"/>
+  <text x="72" y="776" font-family="Arial,sans-serif" font-size="6" fill="#FFFFFF">Leadership &amp; Operations</text>
+  <text x="296" y="776" font-family="Arial,sans-serif" font-size="6" fill="#2E2E2E">Strategy</text>
+  <text x="72" y="862" font-family="Arial,sans-serif" font-size="6" fill="#2E2E2E">Technology</text>
+  <text x="296" y="862" font-family="Arial,sans-serif" font-size="6" fill="#2E2E2E">Technical Proficiency</text>
+  <rect x="532" y="268" width="232" height="138" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <path d="M728 268 A36 36 0 0 1 764 304 L764 268 Z" fill="#C96B7C"/>
+  <path d="M728 372 A36 36 0 0 0 764 408 L764 372 Z" fill="#2E2E2E"/>
+  <text x="554" y="308" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2E2E2E" letter-spacing="1.4">SUMMARY</text>
+  <text x="554" y="332" font-family="Arial,sans-serif" font-size="5.8" fill="#5A5A5A">Results-driven executive with 15+ years</text>
+  <text x="554" y="346" font-family="Arial,sans-serif" font-size="5.8" fill="#5A5A5A">leading product strategy at scale.</text>
+  <rect x="532" y="422" width="232" height="118" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <path d="M728 422 A36 36 0 0 1 764 458 L764 422 Z" fill="#C96B7C"/>
+  <text x="554" y="462" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2E2E2E" letter-spacing="1.4">EDUCATION</text>
+  <rect x="532" y="556" width="232" height="118" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <path d="M728 556 A36 36 0 0 1 764 592 L764 556 Z" fill="#C96B7C"/>
+  <path d="M728 652 A36 36 0 0 0 764 688 L764 652 Z" fill="#2E2E2E"/>
+  <text x="554" y="596" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2E2E2E" letter-spacing="1.4">CERTIFICATIONS</text>
+  <rect x="532" y="690" width="232" height="118" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <path d="M728 690 A36 36 0 0 1 764 726 L764 690 Z" fill="#C96B7C"/>
+  <text x="554" y="730" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2E2E2E" letter-spacing="1.4">ACHIEVEMENTS</text>
+  <rect x="532" y="824" width="232" height="128" rx="36" fill="#FFFDFC" stroke="#E6DDD2" stroke-width="1"/>
+  <path d="M728 824 A36 36 0 0 1 764 860 L764 824 Z" fill="#C96B7C"/>
+  <path d="M728 920 A36 36 0 0 0 764 956 L764 920 Z" fill="#2E2E2E"/>
+  <text x="554" y="864" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2E2E2E" letter-spacing="1.4">LANGUAGES</text>
+  <text x="400" y="972" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="600" fill="#C96B7C" letter-spacing="3">EXECUTIVE MOSAIC</text>
+</svg>

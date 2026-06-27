@@ -982,6 +982,30 @@
         { "id": "graphite-sage", "name": "Graphite Sage", "primary": "#111827", "accent": "#6FAF9D", "text": "#4B5563" }
       ],
       "defaultColor": "soft-sage"
+    },
+    {
+      "id": "executive-mosaic",
+      "name": "Executive Mosaic",
+      "slug": "executive-mosaic",
+      "description": "Premium card-based executive resume with warm ivory palette, Playfair Display typography, charcoal contact bar, muted rose accents, quarter-circle corner decorations, 65/35 two-column layout, core competencies grid, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/executive-mosaic/thumbnail.svg",
+      "preview": "/templates/executive-mosaic/preview.svg",
+      "html": "/templates/executive-mosaic/index.html",
+      "css": "/templates/executive-mosaic/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "mosaic-executive", "name": "Mosaic Executive", "primary": "#2E2E2E", "accent": "#C96B7C", "text": "#5A5A5A" },
+        { "id": "graphite-rose", "name": "Graphite Rose", "primary": "#1A1A1A", "accent": "#B85C6C", "text": "#5A5A5A" },
+        { "id": "warm-charcoal", "name": "Warm Charcoal", "primary": "#3D3D3D", "accent": "#D4788A", "text": "#6B6B6B" },
+        { "id": "stone-executive", "name": "Stone Executive", "primary": "#2E2E2E", "accent": "#A67B85", "text": "#5A5A5A" },
+        { "id": "deep-mosaic", "name": "Deep Mosaic", "primary": "#1F1F1F", "accent": "#C96B7C", "text": "#4A4A4A" },
+        { "id": "blush-executive", "name": "Blush Executive", "primary": "#2E2E2E", "accent": "#E08B9A", "text": "#5A5A5A" }
+      ],
+      "defaultColor": "mosaic-executive"
     }
   ],
   "filters": {
