@@ -1102,6 +1102,30 @@
         { "id": "stone-editorial", "name": "Stone Editorial", "primary": "#9A9088", "accent": "#AEB8A6", "text": "#5A5A5A" }
       ],
       "defaultColor": "prism-cinnamon"
+    },
+    {
+      "id": "monarch-edge",
+      "name": "Monarch Edge",
+      "slug": "monarch-edge",
+      "description": "Luxury editorial executive resume with warm ivory palette, Playfair Display typography, framed portrait header, terracotta architectural accents, experience ribbon styling, categorized skills, and achievement medal badges for ATS-friendly PDF export.",
+      "thumbnail": "/templates/monarch-edge/thumbnail.svg",
+      "preview": "/templates/monarch-edge/preview.svg",
+      "html": "/templates/monarch-edge/index.html",
+      "css": "/templates/monarch-edge/style.css",
+      "categories": ["Premium", "Executive", "Modern", "Professional", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "monarch-terracotta", "name": "Monarch Terracotta", "primary": "#B56B4F", "accent": "#8A8E72", "text": "#666666" },
+        { "id": "olive-executive", "name": "Olive Executive", "primary": "#8A8E72", "accent": "#B56B4F", "text": "#666666" },
+        { "id": "warm-ivory", "name": "Warm Ivory", "primary": "#C4A090", "accent": "#8A8E72", "text": "#555555" },
+        { "id": "charcoal-luxe", "name": "Charcoal Luxe", "primary": "#2F2F2F", "accent": "#B56B4F", "text": "#666666" },
+        { "id": "earth-editorial", "name": "Earth Editorial", "primary": "#A07868", "accent": "#8A8E72", "text": "#666666" },
+        { "id": "sand-monarch", "name": "Sand Monarch", "primary": "#B89078", "accent": "#9A9E86", "text": "#5A5A5A" }
+      ],
+      "defaultColor": "monarch-terracotta"
     }
   ],
   "filters": {

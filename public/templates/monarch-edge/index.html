@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container mge-resume">
+    <div class="mge-deco mge-deco--corner-tr" aria-hidden="true"></div>
+    <div class="mge-deco mge-deco--ribbon-bl" aria-hidden="true"></div>
+    <div class="mge-deco mge-deco--dots-br" aria-hidden="true"></div>
+
+    <header class="mge-header">
+      <p class="mge-edition-label">Monarch Edge</p>
+      <div class="mge-header-row">
+        {{#if PROFILE_IMAGE}}
+        <div class="mge-photo">
+          <div class="mge-photo-arch" aria-hidden="true"></div>
+          <div class="mge-photo-ring mge-photo-ring--outer" aria-hidden="true"></div>
+          <div class="mge-photo-ring mge-photo-ring--inner" aria-hidden="true"></div>
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="mge-photo">
+          <div class="mge-photo-arch" aria-hidden="true"></div>
+          <div class="mge-photo-ring mge-photo-ring--outer" aria-hidden="true"></div>
+          <div class="mge-photo-ring mge-photo-ring--inner" aria-hidden="true"></div>
+          <div class="profile-image-wrapper profile-image-wrapper--initials">
+            <span class="profile-initials" aria-hidden="true">
+              <span class="mge-ini-f">{{FIRST_NAME}}</span><span class="mge-ini-l">{{LAST_NAME}}</span>
+            </span>
+          </div>
+        </div>
+        {{/unless}}
+
+        <div class="mge-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="mge-contact-row">
+        {{#if LOCATION}}<div class="mge-contact-item"><span class="mge-contact-icon mge-contact-icon--location" aria-hidden="true"></span><span class="mge-contact-text">{{LOCATION}}</span></div>{{/if}}
+        {{#if PHONE}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--phone" aria-hidden="true"></span><span class="mge-contact-text">{{PHONE}}</span></div>{{/if}}
+        {{#if EMAIL}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--email" aria-hidden="true"></span><span class="mge-contact-text">{{EMAIL}}</span></div>{{/if}}
+        {{#if LINKEDIN}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--web" aria-hidden="true"></span><span class="mge-contact-text">{{LINKEDIN}}</span></div>{{/if}}
+        {{#if PORTFOLIO}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--web" aria-hidden="true"></span><span class="mge-contact-text">{{PORTFOLIO}}</span></div>{{/if}}
+      </div>
+
+      <div class="mge-header-divider" aria-hidden="true"></div>
+    </header>
+
+    <div class="mge-body">
+      <main class="mge-main">
+        {{#if SUMMARY}}
+        <section class="mge-section">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--summary" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Professional Summary</h2>
+          </div>
+          <div class="mge-card mge-card--ivory">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="mge-section mge-section--experience">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--experience" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Experience</h2>
+          </div>
+          <div class="mge-experience-wrap">
+            <div class="mge-experience-ribbon" aria-hidden="true"></div>
+            <div class="experience-list mge-experience">
+              {{EXPERIENCE}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="mge-section">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--projects" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Projects</h2>
+          </div>
+          <div class="mge-card mge-card--projects">
+            <div class="mge-projects-dots" aria-hidden="true"></div>
+            <div class="projects-list mge-projects">
+              {{PROJECTS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="mge-sidebar">
+        {{#if SKILLS}}
+        <section class="mge-side-section">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--skills" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Skills</h2>
+          </div>
+          <div class="mge-skill-groups">
+            <h3 class="mge-skill-group">Design &amp; Branding</h3>
+            <h3 class="mge-skill-group">Strategy &amp; Leadership</h3>
+            <h3 class="mge-skill-group">Digital &amp; Innovation</h3>
+          </div>
+          <div class="skills-list mge-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="mge-side-section">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--education" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Education</h2>
+          </div>
+          <div class="education-list mge-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="mge-side-section">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--certifications" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Certifications</h2>
+          </div>
+          <div class="certifications-list mge-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="mge-side-section">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--languages" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Languages</h2>
+          </div>
+          <div class="languages-list mge-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="mge-side-section">
+          <div class="mge-section-head">
+            <span class="mge-section-icon mge-section-icon--achievements" aria-hidden="true"></span>
+            <h2 class="mge-section-title">Achievements</h2>
+          </div>
+          <div class="achievements-list mge-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+
+    <footer class="mge-footer" aria-hidden="true">Monarch Edge</footer>
+  </div>
+</body>
+</html>
