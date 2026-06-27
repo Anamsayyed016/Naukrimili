@@ -4,25 +4,25 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #FCFBF9;
+  background: #FAFAF8;
 }
 
 .pe-resume {
-  --primary-color: #C07C63;
-  --accent-color: #AEB8A6;
+  --primary-color: #B87A62;
+  --accent-color: #98A892;
   --text-color: #666666;
 
-  --pe-bg: #FCFBF9;
-  --pe-linen: #EFE8DD;
-  --pe-sage: #AEB8A6;
-  --pe-cinnamon: #C07C63;
-  --pe-stone: #D8D7D3;
+  --pe-bg: #FAFAF8;
+  --pe-linen: #F0EBE3;
+  --pe-sage: #98A892;
+  --pe-cinnamon: #B87A62;
+  --pe-stone: #D4CEC6;
   --pe-charcoal: #252525;
   --pe-text: var(--text-color);
   --pe-muted: #666666;
-  --pe-border: #E8E3DD;
+  --pe-border: #E2DDD6;
   --pe-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --pe-bar-track: #E8E3DD;
+  --pe-bar-track: #E2DDD6;
   --pe-bar-fill: #252525;
   --pe-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --pe-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -89,8 +89,8 @@ body {
   right: 10px;
   width: 28px;
   height: 28px;
-  border-top: 1px solid rgba(192, 124, 99, 0.35);
-  border-right: 1px solid rgba(192, 124, 99, 0.35);
+  border-top: 1px solid rgba(184, 122, 98, 0.35);
+  border-right: 1px solid rgba(184, 122, 98, 0.35);
 }
 
 .pe-resume .pe-deco--sage-bl {
@@ -277,9 +277,9 @@ body {
   align-self: stretch;
   background: linear-gradient(
     180deg,
-    rgba(192, 124, 99, 0.45) 0%,
-    rgba(174, 184, 166, 0.55) 45%,
-    rgba(216, 215, 211, 0.65) 100%
+    rgba(184, 122, 98, 0.45) 0%,
+    rgba(152, 168, 146, 0.55) 45%,
+    rgba(212, 206, 198, 0.65) 100%
   );
 }
 

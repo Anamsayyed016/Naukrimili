@@ -1,19 +1,19 @@
 /* Rosewood Modern — luxury executive premium resume */
 
 .rwm-page {
-  --rwm-page-bg: #F7F2EB;
-  --rwm-card-bg: #FFFDF9;
+  --rwm-page-bg: #F3EBE0;
+  --rwm-card-bg: #FFFCF6;
   --rwm-text: #1F1A17;
   --rwm-text-name: #2A2420;
   --rwm-text-title: #5C5148;
   --rwm-text-secondary: #6E6258;
   --rwm-section-title: #222222;
-  --rwm-rosewood: #B99892;
-  --rwm-dusty-rose: #D8C0BA;
-  --rwm-taupe: #B7A399;
-  --rwm-beige: #EFE6DD;
-  --rwm-sidebar-bg: #FAF6F1;
-  --rwm-divider: #D6CCC4;
+  --rwm-rosewood: #8E5E56;
+  --rwm-dusty-rose: #C4A098;
+  --rwm-taupe: #A89288;
+  --rwm-beige: #E5D6C8;
+  --rwm-sidebar-bg: #FAF4EA;
+  --rwm-divider: #D4C8BC;
   --rwm-max-width: 210mm;
   --rwm-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --rwm-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;

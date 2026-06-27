@@ -4,24 +4,24 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #FAF8F4;
+  background: #F4F6F2;
 }
 
 .nf-resume {
-  --primary-color: #C4A090;
-  --accent-color: #B9C7B3;
+  --primary-color: #8FA386;
+  --accent-color: #A8B5A0;
   --text-color: #666666;
 
-  --nf-bg: #FAF8F4;
-  --nf-card: #FFFDFC;
-  --nf-sand: #EADCCB;
-  --nf-sage: #B9C7B3;
-  --nf-stone: #7C7F82;
-  --nf-brown: #2B2B2B;
+  --nf-bg: #F4F6F2;
+  --nf-card: #FCFCFA;
+  --nf-sand: #E0DDD6;
+  --nf-sage: #8FA386;
+  --nf-stone: #6B7268;
+  --nf-brown: #3A3F36;
   --nf-text: var(--text-color);
   --nf-muted: #666666;
   --nf-terracotta: var(--primary-color);
-  --nf-border: #E7E1D9;
+  --nf-border: #D8DED4;
   --nf-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
   --nf-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --nf-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -73,7 +73,7 @@ body {
   right: -30px;
   width: 200px;
   height: 140px;
-  border: 28px solid rgba(234, 220, 203, 0.35);
+  border: 28px solid rgba(212, 218, 208, 0.35);
   border-bottom: none;
   border-radius: 200px 200px 0 0;
   opacity: 0.7;
@@ -84,7 +84,7 @@ body {
   left: -40px;
   width: 180px;
   height: 120px;
-  border: 22px solid rgba(185, 199, 179, 0.28);
+  border: 22px solid rgba(168, 181, 160, 0.28);
   border-top: none;
   border-radius: 0 0 180px 180px;
   opacity: 0.65;
@@ -96,7 +96,7 @@ body {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: rgba(234, 220, 203, 0.22);
+  background: rgba(212, 218, 208, 0.22);
 }
 
 .nf-resume .nf-deco--block-br {
@@ -105,7 +105,7 @@ body {
   width: 64px;
   height: 48px;
   border-radius: 12px;
-  background: rgba(185, 199, 179, 0.2);
+  background: rgba(168, 181, 160, 0.2);
   transform: rotate(8deg);
 }
 
@@ -155,7 +155,7 @@ body {
   width: 72px;
   height: 56px;
   border-radius: 14px;
-  background: rgba(185, 199, 179, 0.35);
+  background: rgba(168, 181, 160, 0.35);
   transform: rotate(-6deg);
 }
 
@@ -402,7 +402,7 @@ body {
   background: linear-gradient(
     180deg,
     var(--nf-terracotta) 0%,
-    rgba(196, 160, 144, 0.45) 100%
+    rgba(143, 163, 134, 0.45) 100%
   );
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;

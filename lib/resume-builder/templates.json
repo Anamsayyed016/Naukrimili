@@ -878,12 +878,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "rosewood", "name": "Rosewood", "primary": "#2A2420", "accent": "#B99892", "text": "#1F1A17" },
-        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#2A2420", "accent": "#D8C0BA", "text": "#1F1A17" },
-        { "id": "warm-taupe", "name": "Warm Taupe", "primary": "#2A2420", "accent": "#B7A399", "text": "#1F1A17" },
-        { "id": "soft-beige", "name": "Soft Beige", "primary": "#1F1A17", "accent": "#EFE6DD", "text": "#1F1A17" },
-        { "id": "executive-cream", "name": "Executive Cream", "primary": "#2A2420", "accent": "#FFFDF9", "text": "#1F1A17" },
-        { "id": "charcoal-rosewood", "name": "Charcoal Rosewood", "primary": "#1F1A17", "accent": "#B99892", "text": "#6E6258" }
+        { "id": "rosewood", "name": "Rosewood", "primary": "#2A2420", "accent": "#8E5E56", "text": "#1F1A17" },
+        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#2A2420", "accent": "#C4A098", "text": "#1F1A17" },
+        { "id": "warm-taupe", "name": "Warm Taupe", "primary": "#2A2420", "accent": "#A89288", "text": "#1F1A17" },
+        { "id": "soft-beige", "name": "Soft Beige", "primary": "#1F1A17", "accent": "#E5D6C8", "text": "#1F1A17" },
+        { "id": "executive-cream", "name": "Executive Cream", "primary": "#2A2420", "accent": "#FFFCF6", "text": "#1F1A17" },
+        { "id": "charcoal-rosewood", "name": "Charcoal Rosewood", "primary": "#1F1A17", "accent": "#8E5E56", "text": "#6E6258" }
       ],
       "defaultColor": "rosewood"
     },
@@ -902,12 +902,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "soft-coral", "name": "Soft Coral", "primary": "#111111", "accent": "#F3B7A7", "text": "#1E1E1E" },
-        { "id": "soft-peach", "name": "Soft Peach", "primary": "#111111", "accent": "#F6D7CC", "text": "#1E1E1E" },
-        { "id": "warm-beige", "name": "Warm Beige", "primary": "#1E1E1E", "accent": "#F5EEE8", "text": "#1E1E1E" },
-        { "id": "light-sand", "name": "Light Sand", "primary": "#111111", "accent": "#F8F5F1", "text": "#1E1E1E" },
-        { "id": "modern-white", "name": "Modern White", "primary": "#000000", "accent": "#F3B7A7", "text": "#1E1E1E" },
-        { "id": "coral-blush", "name": "Coral Blush", "primary": "#111111", "accent": "#E8A898", "text": "#333333" }
+        { "id": "soft-coral", "name": "Soft Coral", "primary": "#111111", "accent": "#E8A090", "text": "#1E1E1E" },
+        { "id": "soft-peach", "name": "Soft Peach", "primary": "#111111", "accent": "#EFC4B8", "text": "#1E1E1E" },
+        { "id": "warm-beige", "name": "Warm Beige", "primary": "#1E1E1E", "accent": "#F6EBE3", "text": "#1E1E1E" },
+        { "id": "light-sand", "name": "Light Sand", "primary": "#111111", "accent": "#FAF7F4", "text": "#1E1E1E" },
+        { "id": "modern-white", "name": "Modern White", "primary": "#000000", "accent": "#E8A090", "text": "#1E1E1E" },
+        { "id": "coral-blush", "name": "Coral Blush", "primary": "#111111", "accent": "#D89080", "text": "#333333" }
       ],
       "defaultColor": "soft-coral"
     },
@@ -1011,7 +1011,7 @@
       "id": "executive-timeline",
       "name": "Executive Timeline",
       "slug": "executive-timeline",
-      "description": "Premium executive resume with warm ivory palette, Playfair Display typography, vertical olive timeline, terracotta accents, circular section icons, grouped skills sidebar, language dot ratings, and ATS-friendly PDF export.",
+      "description": "Premium executive resume with cool corporate palette, Playfair Display typography, vertical steel blue timeline, navy slate accents, circular section icons, grouped skills sidebar, language dot ratings, and ATS-friendly PDF export.",
       "thumbnail": "/templates/executive-timeline/thumbnail.svg",
       "preview": "/templates/executive-timeline/preview.svg",
       "html": "/templates/executive-timeline/index.html",
@@ -1022,12 +1022,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "timeline-executive", "name": "Timeline Executive", "primary": "#9A9B85", "accent": "#C97861", "text": "#666666" },
-        { "id": "warm-terracotta", "name": "Warm Terracotta", "primary": "#8E8F78", "accent": "#B86A55", "text": "#5A5A5A" },
-        { "id": "olive-classic", "name": "Olive Classic", "primary": "#7A7B68", "accent": "#C97861", "text": "#666666" },
-        { "id": "sand-executive", "name": "Sand Executive", "primary": "#A89F8E", "accent": "#D4896E", "text": "#6B6B6B" },
-        { "id": "earth-tone", "name": "Earth Tone", "primary": "#8B8374", "accent": "#BF6E58", "text": "#555555" },
-        { "id": "soft-sienna", "name": "Soft Sienna", "primary": "#9A9B85", "accent": "#D48A72", "text": "#666666" }
+        { "id": "timeline-executive", "name": "Timeline Executive", "primary": "#4A6282", "accent": "#5B7594", "text": "#555555" },
+        { "id": "steel-blue", "name": "Steel Blue", "primary": "#3D5570", "accent": "#4A6282", "text": "#555555" },
+        { "id": "navy-slate", "name": "Navy Slate", "primary": "#1E2A38", "accent": "#5B7594", "text": "#555555" },
+        { "id": "cool-gray", "name": "Cool Gray", "primary": "#6B8099", "accent": "#4A6282", "text": "#666666" },
+        { "id": "ice-corporate", "name": "Ice Corporate", "primary": "#5B7594", "accent": "#D4DCE6", "text": "#555555" },
+        { "id": "graphite-blue", "name": "Graphite Blue", "primary": "#1E2A38", "accent": "#6B8099", "text": "#555555" }
       ],
       "defaultColor": "timeline-executive"
     },
@@ -1035,7 +1035,7 @@
       "id": "nordic-fusion",
       "name": "Nordic Fusion",
       "slug": "nordic-fusion",
-      "description": "Scandinavian premium resume with warm sand header, Playfair Display typography, arch graphics, sand summary card, terracotta experience accents, layered project cards, dusty sage achievement panels, and ATS-friendly PDF export.",
+      "description": "Scandinavian premium resume with sage green header, Playfair Display typography, arch graphics, stone summary card, sage experience accents, layered project cards, dusty green achievement panels, and ATS-friendly PDF export.",
       "thumbnail": "/templates/nordic-fusion/thumbnail.svg",
       "preview": "/templates/nordic-fusion/preview.svg",
       "html": "/templates/nordic-fusion/index.html",
@@ -1046,14 +1046,14 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "fusion-sand", "name": "Fusion Sand", "primary": "#C4A090", "accent": "#B9C7B3", "text": "#666666" },
-        { "id": "warm-minimal", "name": "Warm Minimal", "primary": "#B89585", "accent": "#A8B8A0", "text": "#5A5A5A" },
-        { "id": "scandi-sage", "name": "Scandi Sage", "primary": "#A89080", "accent": "#B9C7B3", "text": "#666666" },
-        { "id": "soft-stone", "name": "Soft Stone", "primary": "#9A9088", "accent": "#C5D0BE", "text": "#666666" },
-        { "id": "ivory-executive", "name": "Ivory Executive", "primary": "#C9A898", "accent": "#B0BFA8", "text": "#555555" },
-        { "id": "muted-earth", "name": "Muted Earth", "primary": "#B08878", "accent": "#A8B5A0", "text": "#666666" }
+        { "id": "fusion-sage", "name": "Fusion Sage", "primary": "#8FA386", "accent": "#A8B5A0", "text": "#666666" },
+        { "id": "dusty-green", "name": "Dusty Green", "primary": "#6B7268", "accent": "#8FA386", "text": "#555555" },
+        { "id": "scandi-sage", "name": "Scandi Sage", "primary": "#8FA386", "accent": "#D8DED4", "text": "#666666" },
+        { "id": "fog-gray", "name": "Fog Gray", "primary": "#6B7268", "accent": "#E0DDD6", "text": "#666666" },
+        { "id": "stone-white", "name": "Stone White", "primary": "#3A3F36", "accent": "#FCFCFA", "text": "#555555" },
+        { "id": "warm-sand", "name": "Warm Sand", "primary": "#8FA386", "accent": "#E0DDD6", "text": "#666666" }
       ],
-      "defaultColor": "fusion-sand"
+      "defaultColor": "fusion-sage"
     },
     {
       "id": "modern-edge",
@@ -1094,12 +1094,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "prism-cinnamon", "name": "Prism Cinnamon", "primary": "#C07C63", "accent": "#AEB8A6", "text": "#666666" },
-        { "id": "scandi-sage", "name": "Scandi Sage", "primary": "#AEB8A6", "accent": "#C07C63", "text": "#666666" },
-        { "id": "soft-linen", "name": "Soft Linen", "primary": "#B89080", "accent": "#AEB8A6", "text": "#555555" },
-        { "id": "pearl-minimal", "name": "Pearl Minimal", "primary": "#C07C63", "accent": "#D8D7D3", "text": "#666666" },
-        { "id": "dusty-earth", "name": "Dusty Earth", "primary": "#B07868", "accent": "#9AAA92", "text": "#666666" },
-        { "id": "stone-editorial", "name": "Stone Editorial", "primary": "#9A9088", "accent": "#AEB8A6", "text": "#5A5A5A" }
+        { "id": "prism-cinnamon", "name": "Prism Cinnamon", "primary": "#B87A62", "accent": "#98A892", "text": "#666666" },
+        { "id": "scandi-sage", "name": "Scandi Sage", "primary": "#98A892", "accent": "#B87A62", "text": "#666666" },
+        { "id": "soft-linen", "name": "Soft Linen", "primary": "#B89080", "accent": "#98A892", "text": "#555555" },
+        { "id": "pearl-minimal", "name": "Pearl Minimal", "primary": "#B87A62", "accent": "#D4CEC6", "text": "#666666" },
+        { "id": "dusty-earth", "name": "Dusty Earth", "primary": "#A87060", "accent": "#8A9684", "text": "#666666" },
+        { "id": "stone-editorial", "name": "Stone Editorial", "primary": "#9A9088", "accent": "#98A892", "text": "#5A5A5A" }
       ],
       "defaultColor": "prism-cinnamon"
     },
@@ -1118,12 +1118,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "monarch-terracotta", "name": "Monarch Terracotta", "primary": "#B56B4F", "accent": "#8A8E72", "text": "#666666" },
-        { "id": "olive-executive", "name": "Olive Executive", "primary": "#8A8E72", "accent": "#B56B4F", "text": "#666666" },
-        { "id": "warm-ivory", "name": "Warm Ivory", "primary": "#C4A090", "accent": "#8A8E72", "text": "#555555" },
-        { "id": "charcoal-luxe", "name": "Charcoal Luxe", "primary": "#2F2F2F", "accent": "#B56B4F", "text": "#666666" },
-        { "id": "earth-editorial", "name": "Earth Editorial", "primary": "#A07868", "accent": "#8A8E72", "text": "#666666" },
-        { "id": "sand-monarch", "name": "Sand Monarch", "primary": "#B89078", "accent": "#9A9E86", "text": "#5A5A5A" }
+        { "id": "monarch-terracotta", "name": "Monarch Terracotta", "primary": "#A05840", "accent": "#6F7458", "text": "#666666" },
+        { "id": "olive-executive", "name": "Olive Executive", "primary": "#6F7458", "accent": "#A05840", "text": "#666666" },
+        { "id": "warm-ivory", "name": "Warm Ivory", "primary": "#B89078", "accent": "#6F7458", "text": "#555555" },
+        { "id": "charcoal-luxe", "name": "Charcoal Luxe", "primary": "#3A342E", "accent": "#A05840", "text": "#666666" },
+        { "id": "earth-editorial", "name": "Earth Editorial", "primary": "#907060", "accent": "#6F7458", "text": "#666666" },
+        { "id": "champagne-monarch", "name": "Champagne Monarch", "primary": "#B89078", "accent": "#EDE3D0", "text": "#5A5A5A" }
       ],
       "defaultColor": "monarch-terracotta"
     },
@@ -1131,7 +1131,7 @@
       "id": "sterling-executive",
       "name": "Sterling Executive",
       "slug": "sterling-executive",
-      "description": "Luxury editorial executive resume with architectural background shapes, Playfair Display typography, warm sand palette, circular portrait frame, soft summary card, terracotta timeline accent, pill-based skills, and ATS-friendly PDF export.",
+      "description": "Luxury editorial executive resume with architectural background shapes, Playfair Display typography, slate blue corporate palette, circular portrait frame, soft summary card, steel timeline accent, pill-based skills, and ATS-friendly PDF export.",
       "thumbnail": "/templates/sterling-executive/thumbnail.svg",
       "preview": "/templates/sterling-executive/preview.svg",
       "html": "/templates/sterling-executive/index.html",
@@ -1142,14 +1142,14 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "sterling-clay", "name": "Sterling Clay", "primary": "#C78F72", "accent": "#B9775B", "text": "#666666" },
-        { "id": "warm-sand", "name": "Warm Sand", "primary": "#B9775B", "accent": "#C78F72", "text": "#666666" },
-        { "id": "soft-stone", "name": "Soft Stone", "primary": "#D6CEC2", "accent": "#C78F72", "text": "#555555" },
-        { "id": "terracotta-luxe", "name": "Terracotta Luxe", "primary": "#B9775B", "accent": "#D6CEC2", "text": "#666666" },
-        { "id": "beige-executive", "name": "Beige Executive", "primary": "#C4A890", "accent": "#B9775B", "text": "#666666" },
-        { "id": "charcoal-warm", "name": "Charcoal Warm", "primary": "#2D2D2D", "accent": "#C78F72", "text": "#5A5A5A" }
+        { "id": "sterling-slate", "name": "Sterling Slate", "primary": "#5B7A96", "accent": "#4A6780", "text": "#555555" },
+        { "id": "soft-silver", "name": "Soft Silver", "primary": "#4A6780", "accent": "#B8C8D8", "text": "#555555" },
+        { "id": "ice-gray", "name": "Ice Gray", "primary": "#2E3A47", "accent": "#5B7A96", "text": "#555555" },
+        { "id": "graphite-blue", "name": "Graphite Blue", "primary": "#2E3A47", "accent": "#D8E2EC", "text": "#555555" },
+        { "id": "corporate-steel", "name": "Corporate Steel", "primary": "#5B7A96", "accent": "#E4EBF2", "text": "#555555" },
+        { "id": "charcoal-cool", "name": "Charcoal Cool", "primary": "#2E3A47", "accent": "#5B7A96", "text": "#5C6B78" }
       ],
-      "defaultColor": "sterling-clay"
+      "defaultColor": "sterling-slate"
     },
     {
       "id": "executive-slate",
@@ -1166,12 +1166,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "slate-blue-gray", "name": "Slate Blue Gray", "primary": "#7C93A8", "accent": "#6F8FA4", "text": "#555555" },
-        { "id": "accent-blue", "name": "Accent Blue", "primary": "#6F8FA4", "accent": "#7C93A8", "text": "#555555" },
-        { "id": "soft-slate", "name": "Soft Slate", "primary": "#E6ECF2", "accent": "#7C93A8", "text": "#555555" },
-        { "id": "corporate-charcoal", "name": "Corporate Charcoal", "primary": "#252525", "accent": "#7C93A8", "text": "#666666" },
-        { "id": "mint-accent", "name": "Mint Accent", "primary": "#DDEEDB", "accent": "#7C93A8", "text": "#555555" },
-        { "id": "lavender-slate", "name": "Lavender Slate", "primary": "#E8E2F3", "accent": "#6F8FA4", "text": "#555555" }
+        { "id": "slate-blue-gray", "name": "Slate Blue Gray", "primary": "#68829A", "accent": "#556F84", "text": "#555555" },
+        { "id": "accent-blue", "name": "Accent Blue", "primary": "#556F84", "accent": "#68829A", "text": "#555555" },
+        { "id": "soft-slate", "name": "Soft Slate", "primary": "#DCE4EC", "accent": "#68829A", "text": "#555555" },
+        { "id": "corporate-charcoal", "name": "Corporate Charcoal", "primary": "#2A3440", "accent": "#68829A", "text": "#666666" },
+        { "id": "ice-silver", "name": "Ice Silver", "primary": "#D4DEE8", "accent": "#68829A", "text": "#555555" },
+        { "id": "graphite-slate", "name": "Graphite Slate", "primary": "#2A3440", "accent": "#556F84", "text": "#555555" }
       ],
       "defaultColor": "slate-blue-gray"
     }
