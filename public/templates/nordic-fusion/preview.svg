@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#FAF8F4"/>
+  <rect x="36" y="40" width="728" height="190" rx="28" fill="#EADCCB"/>
+  <path d="M580 40 Q680 40 720 120" fill="none" stroke="rgba(255,253,252,0.55)" stroke-width="16"/>
+  <rect x="620" y="68" width="88" height="64" rx="12" fill="rgba(185,199,179,0.38)" transform="rotate(-6 664 100)"/>
+  <circle cx="640" cy="130" r="32" fill="rgba(255,253,252,0.5)"/>
+  <circle cx="138" cy="135" r="58" fill="#FFFDFC" stroke="#FFFFFF" stroke-width="5"/>
+  <text x="232" y="118" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#2B2B2B" letter-spacing="2">ALEXANDER</text>
+  <text x="232" y="152" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#2B2B2B" letter-spacing="2">CHEN</text>
+  <text x="232" y="178" font-family="Arial,sans-serif" font-size="7" fill="#7C7F82" letter-spacing="1.2">SENIOR PRODUCT DESIGNER</text>
+  <text x="232" y="198" font-family="Arial,sans-serif" font-size="5.5" fill="#666666">+1 555 0123 ù alex@email.com ù linkedin.com/in/alex</text>
+  <rect x="36" y="252" width="500" height="110" rx="24" fill="#EADCCB"/>
+  <text x="56" y="288" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#2B2B2B">Professional Summary</text>
+  <text x="56" y="312" font-family="Arial,sans-serif" font-size="6" fill="#666666">Scandinavian-inspired product designer with 10+ years crafting</text>
+  <text x="56" y="326" font-family="Arial,sans-serif" font-size="6" fill="#666666">premium digital experiences for global brands.</text>
+  <text x="36" y="388" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#2B2B2B">Experience</text>
+  <rect x="40" y="400" width="5" height="80" rx="2.5" fill="#C4A090"/>
+  <text x="56" y="416" font-family="Arial,sans-serif" font-size="6.5" font-weight="700" fill="#2B2B2B">Lead Product Designer</text>
+  <text x="56" y="432" font-family="Arial,sans-serif" font-size="6" fill="#666666">Studio Nord  2021  Present</text>
+  <text x="56" y="452" font-family="Arial,sans-serif" font-size="5.5" fill="#666666">" Led design system for 12 product teams</text>
+  <text x="36" y="508" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#2B2B2B">Projects</text>
+  <rect x="36" y="524" width="236" height="88" rx="16" fill="#FFFDFC" stroke="#E7E1D9" stroke-width="0.8"/>
+  <rect x="44" y="604" width="220" height="8" rx="4" fill="#E7E1D9" opacity="0.45"/>
+  <rect x="288" y="524" width="236" height="88" rx="16" fill="#FFFDFC" stroke="#E7E1D9" stroke-width="0.8"/>
+  <rect x="556" y="252" width="208" height="700" rx="0" fill="none"/>
+  <text x="572" y="284" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2B2B2B" letter-spacing="1">SKILLS</text>
+  <line x1="572" y1="292" x2="748" y2="292" stroke="#E7E1D9" stroke-width="0.8"/>
+  <text x="572" y="312" font-family="Arial,sans-serif" font-size="5.5" fill="#7C7F82" letter-spacing="0.8">DESIGN TOOLS</text>
+  <text x="572" y="328" font-family="Arial,sans-serif" font-size="5" fill="#666666">Figma ù Sketch ù Adobe XD</text>
+  <text x="572" y="380" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2B2B2B" letter-spacing="1">EDUCATION</text>
+  <rect x="572" y="520" width="184" height="72" rx="14" fill="#B9C7B3"/>
+  <text x="588" y="552" font-family="Arial,sans-serif" font-size="6" font-weight="600" fill="#2B2B2B">Design Excellence Award 2023</text>
+  <path d="M60 920 Q0 880 0 1000 L120 1000 Z" fill="rgba(185,199,179,0.2)"/>
+  <circle cx="680" cy="880" r="60" fill="rgba(234,220,203,0.22)"/>
+  <text x="400" y="972" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="600" fill="#7C7F82" letter-spacing="3">NORDIC FUSION</text>
+</svg>

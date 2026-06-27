@@ -1030,6 +1030,30 @@
         { "id": "soft-sienna", "name": "Soft Sienna", "primary": "#9A9B85", "accent": "#D48A72", "text": "#666666" }
       ],
       "defaultColor": "timeline-executive"
+    },
+    {
+      "id": "nordic-fusion",
+      "name": "Nordic Fusion",
+      "slug": "nordic-fusion",
+      "description": "Scandinavian premium resume with warm sand header, Playfair Display typography, arch graphics, sand summary card, terracotta experience accents, layered project cards, dusty sage achievement panels, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/nordic-fusion/thumbnail.svg",
+      "preview": "/templates/nordic-fusion/preview.svg",
+      "html": "/templates/nordic-fusion/index.html",
+      "css": "/templates/nordic-fusion/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "fusion-sand", "name": "Fusion Sand", "primary": "#C4A090", "accent": "#B9C7B3", "text": "#666666" },
+        { "id": "warm-minimal", "name": "Warm Minimal", "primary": "#B89585", "accent": "#A8B8A0", "text": "#5A5A5A" },
+        { "id": "scandi-sage", "name": "Scandi Sage", "primary": "#A89080", "accent": "#B9C7B3", "text": "#666666" },
+        { "id": "soft-stone", "name": "Soft Stone", "primary": "#9A9088", "accent": "#C5D0BE", "text": "#666666" },
+        { "id": "ivory-executive", "name": "Ivory Executive", "primary": "#C9A898", "accent": "#B0BFA8", "text": "#555555" },
+        { "id": "muted-earth", "name": "Muted Earth", "primary": "#B08878", "accent": "#A8B5A0", "text": "#666666" }
+      ],
+      "defaultColor": "fusion-sand"
     }
   ],
   "filters": {

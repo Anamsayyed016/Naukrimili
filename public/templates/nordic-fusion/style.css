@@ -1,0 +1,795 @@
+/* Nordic Fusion — Scandinavian premium two-column resume */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #FAF8F4;
+}
+
+.nf-resume {
+  --primary-color: #C4A090;
+  --accent-color: #B9C7B3;
+  --text-color: #666666;
+
+  --nf-bg: #FAF8F4;
+  --nf-card: #FFFDFC;
+  --nf-sand: #EADCCB;
+  --nf-sage: #B9C7B3;
+  --nf-stone: #7C7F82;
+  --nf-brown: #2B2B2B;
+  --nf-text: var(--text-color);
+  --nf-muted: #666666;
+  --nf-terracotta: var(--primary-color);
+  --nf-border: #E7E1D9;
+  --nf-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  --nf-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --nf-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.nf-resume,
+.nf-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+}
+
+.nf-resume,
+.resume-container.nf-resume {
+  position: relative;
+  width: 794px;
+  max-width: 100%;
+  min-height: auto;
+  margin: 0 auto;
+  padding: 28px 34px 40px;
+  font-family: var(--nf-font-sans);
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--nf-text);
+  background: var(--nf-bg) !important;
+  overflow-x: hidden;
+  overflow-y: visible;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Background decorations ── */
+.nf-resume .nf-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.nf-resume .nf-deco--arch-tr {
+  top: 120px;
+  right: -30px;
+  width: 200px;
+  height: 140px;
+  border: 28px solid rgba(234, 220, 203, 0.35);
+  border-bottom: none;
+  border-radius: 200px 200px 0 0;
+  opacity: 0.7;
+}
+
+.nf-resume .nf-deco--arch-bl {
+  bottom: 40px;
+  left: -40px;
+  width: 180px;
+  height: 120px;
+  border: 22px solid rgba(185, 199, 179, 0.28);
+  border-top: none;
+  border-radius: 0 0 180px 180px;
+  opacity: 0.65;
+}
+
+.nf-resume .nf-deco--circle-br {
+  bottom: 80px;
+  right: 40px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(234, 220, 203, 0.22);
+}
+
+.nf-resume .nf-deco--block-br {
+  bottom: 24px;
+  right: 120px;
+  width: 64px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(185, 199, 179, 0.2);
+  transform: rotate(8deg);
+}
+
+.nf-resume > :not(.nf-deco) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Header banner ── */
+.nf-resume .nf-header {
+  margin-bottom: 24px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nf-resume .nf-header-banner {
+  position: relative;
+  min-height: 190px;
+  background: var(--nf-sand);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--nf-shadow);
+}
+
+.nf-resume .nf-header-shapes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.nf-resume .nf-shape--arch {
+  position: absolute;
+  top: -20px;
+  right: 60px;
+  width: 160px;
+  height: 110px;
+  border: 20px solid rgba(255, 253, 252, 0.45);
+  border-bottom: none;
+  border-radius: 160px 160px 0 0;
+}
+
+.nf-resume .nf-shape--rect {
+  position: absolute;
+  top: 30px;
+  right: 20px;
+  width: 72px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(185, 199, 179, 0.35);
+  transform: rotate(-6deg);
+}
+
+.nf-resume .nf-shape--circle {
+  position: absolute;
+  bottom: 20px;
+  right: 140px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 253, 252, 0.5);
+}
+
+.nf-resume .nf-header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 28px;
+  padding: 32px 32px 28px;
+  min-height: 190px;
+}
+
+.nf-resume .nf-photo {
+  flex-shrink: 0;
+}
+
+.nf-resume .nf-photo .profile-image-wrapper {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--nf-card);
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nf-resume .profile-image-wrapper--initials {
+  background: linear-gradient(160deg, #FFFFFF 0%, var(--nf-border) 100%);
+}
+
+.nf-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.nf-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.nf-resume .nf-ini-f,
+.nf-resume .nf-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.nf-resume .nf-ini-f::first-letter,
+.nf-resume .nf-ini-l::first-letter {
+  font-family: var(--nf-font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--nf-brown);
+}
+
+.nf-resume .nf-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.nf-resume .candidate-name {
+  font-family: var(--nf-font-serif);
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--nf-brown);
+  margin-bottom: 8px;
+}
+
+.nf-resume .name-first,
+.nf-resume .name-last {
+  display: inline;
+}
+
+.nf-resume .name-space {
+  display: inline;
+}
+
+.nf-resume .name-fallback {
+  display: none;
+}
+
+.nf-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: block;
+}
+
+.nf-resume .header-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nf-stone);
+  line-height: 1.45;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.nf-resume .nf-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+}
+
+.nf-resume .nf-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--nf-muted);
+  line-height: 1.5;
+}
+
+.nf-resume .nf-contact-dot {
+  color: var(--nf-stone);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 8px;
+  opacity: 0.6;
+}
+
+.nf-resume .nf-contact-item:first-child .nf-contact-dot {
+  display: none;
+}
+
+.nf-resume .nf-contact-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  background-size: 11px 11px;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.75;
+}
+
+.nf-resume .nf-contact-icon--phone {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Cpath d='M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-contact-icon--email {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Cpath d='M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-contact-icon--web {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-contact-icon--location {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+}
+
+/* ── Two-column body (68% / 32%) ── */
+.nf-resume .nf-body {
+  display: grid;
+  grid-template-columns: 68fr 32fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.nf-resume .nf-main,
+.nf-resume .nf-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+/* ── Section titles ── */
+.nf-resume .nf-section-title {
+  font-family: var(--nf-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--nf-brown);
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+
+.nf-resume .nf-section-title--main {
+  font-size: 15px;
+  margin-bottom: 16px;
+}
+
+/* ── Summary card ── */
+.nf-resume .nf-summary-card {
+  background: var(--nf-sand);
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: var(--nf-shadow);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nf-resume .nf-summary-card .summary-text {
+  font-size: 13.5px;
+  line-height: 1.72;
+  color: var(--nf-text);
+}
+
+/* ── Experience with curved accent ── */
+.nf-resume .nf-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.nf-resume .nf-experience .experience-item {
+  position: relative;
+  padding-left: 18px;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.nf-resume .nf-experience .experience-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(
+    180deg,
+    var(--nf-terracotta) 0%,
+    rgba(196, 160, 144, 0.45) 100%
+  );
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.nf-resume .nf-experience .experience-header {
+  margin-bottom: 8px;
+}
+
+.nf-resume .nf-experience .experience-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--nf-brown);
+  line-height: 1.35;
+  margin-bottom: 3px;
+}
+
+.nf-resume .nf-experience .experience-header .company {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--nf-muted);
+  line-height: 1.45;
+  display: inline;
+}
+
+.nf-resume .nf-experience .experience-header .duration {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--nf-muted);
+}
+
+.nf-resume .nf-experience .experience-header .company + .duration::before {
+  content: ' — ';
+  color: var(--nf-stone);
+}
+
+.nf-resume .nf-experience .description {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--nf-text);
+}
+
+.nf-resume .nf-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nf-resume .nf-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.nf-resume .nf-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--nf-stone);
+}
+
+/* ── Projects grid (2 per row, layered cards) ── */
+.nf-resume .nf-projects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.nf-resume .nf-projects .project-item {
+  position: relative;
+  background: var(--nf-card);
+  border-radius: 16px;
+  border: 1px solid var(--nf-border);
+  padding: 16px 18px 18px;
+  box-shadow: var(--nf-shadow);
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.nf-resume .nf-projects .project-item::before,
+.nf-resume .nf-projects .project-item::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 6px;
+  border-radius: 0 0 12px 12px;
+  background: var(--nf-border);
+  z-index: -1;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.nf-resume .nf-projects .project-item::before {
+  bottom: -5px;
+  opacity: 0.55;
+}
+
+.nf-resume .nf-projects .project-item::after {
+  bottom: -10px;
+  left: 14px;
+  right: 14px;
+  opacity: 0.35;
+}
+
+.nf-resume .nf-projects .project-item h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nf-brown);
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+
+.nf-resume .nf-projects .project-item .description,
+.nf-resume .nf-projects .project-item .technologies {
+  font-size: 12px;
+  line-height: 1.58;
+  color: var(--nf-text);
+  margin-top: 4px;
+}
+
+/* ── Sidebar sections ── */
+.nf-resume .nf-side-section {
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.nf-resume .nf-side-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--nf-border);
+}
+
+.nf-resume .nf-side-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--nf-border);
+  background-color: var(--nf-card);
+  background-size: 13px 13px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.nf-resume .nf-side-icon--skills {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-side-icon--education {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Cpath d='M22 10v6M2 10l10-5 10 5-10 5z'/%3E%3Cpath d='M6 12v5c0 2 6 3 6 3s6-1 6-3v-5'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-side-icon--certifications {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Ccircle cx='12' cy='8' r='6'/%3E%3Cpath d='M15.477 12.89L17 22l-5-3-5 3 1.523-9.11'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-side-icon--languages {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-side-icon--achievements {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Cpath d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/%3E%3Cpath d='M4 22h16'/%3E%3Cpath d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22'/%3E%3Cpath d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22'/%3E%3Cpath d='M18 2H6v7a6 6 0 0 0 12 0V2z'/%3E%3C/svg%3E");
+}
+
+.nf-resume .nf-side-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nf-brown);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Skills ── */
+.nf-resume .nf-skills-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.nf-resume .nf-skill-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--nf-stone);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nf-resume .nf-skills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+}
+
+.nf-resume .nf-skills .skill-tag {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--nf-text);
+  line-height: 1.5;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ── Education ── */
+.nf-resume .nf-education .education-item {
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nf-resume .nf-education .education-item:last-child {
+  margin-bottom: 0;
+}
+
+.nf-resume .nf-education .education-item h3 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--nf-brown);
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.nf-resume .nf-education .education-item .institution {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--nf-text);
+  display: block;
+}
+
+.nf-resume .nf-education .education-item .year {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--nf-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Certifications ── */
+.nf-resume .nf-certifications .certification-item {
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nf-resume .nf-certifications .certification-item:last-child {
+  margin-bottom: 0;
+}
+
+.nf-resume .nf-certifications .certification-item h3 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nf-brown);
+  line-height: 1.45;
+}
+
+.nf-resume .nf-certifications .certification-item .issuer,
+.nf-resume .nf-certifications .certification-item .date {
+  font-size: 11px;
+  color: var(--nf-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Languages (two-column) ── */
+.nf-resume .nf-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nf-resume .nf-languages .language-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nf-resume .nf-languages .language {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--nf-brown);
+  flex: 1;
+}
+
+.nf-resume .nf-languages .proficiency {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--nf-muted);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Achievements (sage cards) ── */
+.nf-resume .nf-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nf-resume .nf-achievements .achievement-item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 4px 12px;
+  align-items: start;
+  background: var(--nf-sage);
+  border-radius: 14px;
+  padding: 14px 16px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.nf-resume .nf-achievements .achievement-item::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(255, 253, 252, 0.65);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C7F82' stroke-width='2'%3E%3Ccircle cx='12' cy='8' r='6'/%3E%3Cpath d='M15.477 12.89L17 22l-5-3-5 3 1.523-9.11'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.nf-resume .nf-achievements .achievement-item h3 {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nf-brown);
+  line-height: 1.5;
+}
+
+.nf-resume .nf-achievements .achievement-item .description {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 11px;
+  color: var(--nf-muted);
+  line-height: 1.5;
+}
+
+.nf-resume .nf-achievements .achievement-item .date {
+  grid-column: 2;
+  grid-row: 3;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--nf-stone);
+}
+
+/* ── Print ── */
+@media print {
+  html,
+  body {
+    background: #FFFFFF !important;
+  }
+
+  .nf-resume,
+  .resume-container.nf-resume {
+    width: 100%;
+    max-width: 100%;
+    padding: 24px;
+  }
+
+  .nf-resume .nf-header-banner,
+  .nf-resume .nf-summary-card,
+  .nf-resume .nf-projects .project-item,
+  .nf-resume .nf-achievements .achievement-item {
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
