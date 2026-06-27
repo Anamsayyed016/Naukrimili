@@ -1054,6 +1054,30 @@
         { "id": "muted-earth", "name": "Muted Earth", "primary": "#B08878", "accent": "#A8B5A0", "text": "#666666" }
       ],
       "defaultColor": "fusion-sand"
+    },
+    {
+      "id": "modern-edge",
+      "name": "Modern Edge",
+      "slug": "modern-edge",
+      "description": "Premium executive resume with soft lavender-to-sage gradient header, Playfair Display typography, circular portrait, icon section headers with horizontal dividers, timeline experience, rounded sidebar cards, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/modern-edge/thumbnail.svg",
+      "preview": "/templates/modern-edge/preview.svg",
+      "html": "/templates/modern-edge/index.html",
+      "css": "/templates/modern-edge/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "modern-edge-plum", "name": "Modern Edge Plum", "primary": "#8D617B", "accent": "#8F6C86", "text": "#666666" },
+        { "id": "lavender-sage", "name": "Lavender Sage", "primary": "#8F6C86", "accent": "#C7D4BE", "text": "#666666" },
+        { "id": "soft-pearl", "name": "Soft Pearl", "primary": "#9A7A8E", "accent": "#F3F1F4", "text": "#555555" },
+        { "id": "muted-executive", "name": "Muted Executive", "primary": "#7D5569", "accent": "#B5C4AD", "text": "#666666" },
+        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#9E7088", "accent": "#C7D4BE", "text": "#666666" },
+        { "id": "sage-minimal", "name": "Sage Minimal", "primary": "#8D617B", "accent": "#A8B89E", "text": "#5A5A5A" }
+      ],
+      "defaultColor": "modern-edge-plum"
     }
   ],
   "filters": {
