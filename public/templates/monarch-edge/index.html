@@ -16,6 +16,13 @@
     <div class="mge-deco mge-deco--dots-br" aria-hidden="true"></div>
 
     <header class="mge-header">
+      <div class="mge-header-bg" aria-hidden="true">
+        <span class="mge-header-shape mge-header-shape--arch-tl"></span>
+        <span class="mge-header-shape mge-header-shape--arch-tl-inner"></span>
+        <span class="mge-header-shape mge-header-shape--circle-tr"></span>
+        <span class="mge-header-shape mge-header-shape--rect-tr"></span>
+      </div>
+
       <p class="mge-edition-label">Monarch Edge</p>
       <div class="mge-header-row">
         {{#if PROFILE_IMAGE}}
@@ -54,12 +61,14 @@
         </div>
       </div>
 
-      <div class="mge-contact-row">
-        {{#if LOCATION}}<div class="mge-contact-item"><span class="mge-contact-icon mge-contact-icon--location" aria-hidden="true"></span><span class="mge-contact-text">{{LOCATION}}</span></div>{{/if}}
-        {{#if PHONE}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--phone" aria-hidden="true"></span><span class="mge-contact-text">{{PHONE}}</span></div>{{/if}}
-        {{#if EMAIL}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--email" aria-hidden="true"></span><span class="mge-contact-text">{{EMAIL}}</span></div>{{/if}}
-        {{#if LINKEDIN}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--web" aria-hidden="true"></span><span class="mge-contact-text">{{LINKEDIN}}</span></div>{{/if}}
-        {{#if PORTFOLIO}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--web" aria-hidden="true"></span><span class="mge-contact-text">{{PORTFOLIO}}</span></div>{{/if}}
+      <div class="mge-contact-bar">
+        <div class="mge-contact-row">
+          {{#if EMAIL}}<div class="mge-contact-item"><span class="mge-contact-icon mge-contact-icon--email" aria-hidden="true"></span><span class="mge-contact-text">{{EMAIL}}</span></div>{{/if}}
+          {{#if PHONE}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--phone" aria-hidden="true"></span><span class="mge-contact-text">{{PHONE}}</span></div>{{/if}}
+          {{#if LINKEDIN}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--web" aria-hidden="true"></span><span class="mge-contact-text">{{LINKEDIN}}</span></div>{{/if}}
+          {{#if LOCATION}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--location" aria-hidden="true"></span><span class="mge-contact-text">{{LOCATION}}</span></div>{{/if}}
+          {{#if PORTFOLIO}}<div class="mge-contact-item"><span class="mge-contact-sep" aria-hidden="true"></span><span class="mge-contact-icon mge-contact-icon--web" aria-hidden="true"></span><span class="mge-contact-text">{{PORTFOLIO}}</span></div>{{/if}}
+        </div>
       </div>
 
       <div class="mge-header-divider" aria-hidden="true"></div>
@@ -129,7 +138,7 @@
         {{/if}}
 
         {{#if EDUCATION}}
-        <section class="mge-side-section">
+        <section class="mge-side-section mge-side-section--education">
           <div class="mge-section-head">
             <span class="mge-section-icon mge-section-icon--education" aria-hidden="true"></span>
             <h2 class="mge-section-title">Education</h2>
@@ -141,7 +150,7 @@
         {{/if}}
 
         {{#if CERTIFICATIONS}}
-        <section class="mge-side-section">
+        <section class="mge-side-section mge-side-section--certifications">
           <div class="mge-section-head">
             <span class="mge-section-icon mge-section-icon--certifications" aria-hidden="true"></span>
             <h2 class="mge-section-title">Certifications</h2>
@@ -153,7 +162,7 @@
         {{/if}}
 
         {{#if LANGUAGES}}
-        <section class="mge-side-section">
+        <section class="mge-side-section mge-side-section--languages">
           <div class="mge-section-head">
             <span class="mge-section-icon mge-section-icon--languages" aria-hidden="true"></span>
             <h2 class="mge-section-title">Languages</h2>
@@ -165,13 +174,15 @@
         {{/if}}
 
         {{#if ACHIEVEMENTS}}
-        <section class="mge-side-section">
+        <section class="mge-side-section mge-side-section--achievements">
           <div class="mge-section-head">
             <span class="mge-section-icon mge-section-icon--achievements" aria-hidden="true"></span>
             <h2 class="mge-section-title">Achievements</h2>
           </div>
-          <div class="achievements-list mge-achievements">
-            {{ACHIEVEMENTS}}
+          <div class="mge-card mge-card--achievements">
+            <div class="achievements-list mge-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
           </div>
         </section>
         {{/if}}

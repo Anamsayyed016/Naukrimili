@@ -359,7 +359,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'nordic-fusion': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Product Designer | Scandinavian Design & UX Leadership' },
   'modern-edge': { firstName: 'Liam', lastName: 'Nguyen', jobTitle: 'Senior Product Designer | Product Strategy & UX Leadership' },
   'prism-edition': { firstName: 'Canela', lastName: 'Name', jobTitle: 'Senior Product Designer | Scandinavian Editorial Design' },
-  'monarch-edge': { firstName: 'Isabelle', lastName: 'Moreau', jobTitle: 'Creative Director & Strategic Brand Lead' },
+  'monarch-edge': { firstName: 'Arthur', lastName: 'Sterling', jobTitle: 'Chief Product Strategist | Design Leader' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
