@@ -4,27 +4,32 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #F2F6FA;
+  background: #F0F4F8;
 }
 
 .exsl-resume {
-  --primary-color: #68829A;
-  --accent-color: #556F84;
-  --text-color: #555555;
+  --primary-color: #4A6882;
+  --accent-color: #5B7594;
+  --text-color: #4A5568;
 
-  --exsl-bg: #F2F6FA;
+  --exsl-bg: #F0F4F8;
   --exsl-white: #FFFFFF;
-  --exsl-slate: #DCE4EC;
-  --exsl-blue-gray: #68829A;
-  --exsl-accent-blue: #556F84;
-  --exsl-beige: #E4EBF2;
-  --exsl-mint: #D4DEE8;
-  --exsl-lavender: #D8E0EA;
-  --exsl-border: #C8D4E0;
-  --exsl-charcoal: #2A3440;
+  --exsl-slate: #C8D4E0;
+  --exsl-blue-gray: #4A6882;
+  --exsl-steel: #5B7594;
+  --exsl-accent-blue: #3D5670;
+  --exsl-ice: #E4EEF8;
+  --exsl-ice-light: #EDF4FA;
+  --exsl-ice-mid: #D8E6F2;
+  --exsl-ice-deep: #C5D8EA;
+  --exsl-beige: #EDF4FA;
+  --exsl-mint: #E0EBF5;
+  --exsl-lavender: #D8E6F2;
+  --exsl-border: #B0BEC8;
+  --exsl-charcoal: #1E2A38;
   --exsl-text: var(--text-color);
-  --exsl-muted: #5C6B78;
-  --exsl-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --exsl-muted: #5A6878;
+  --exsl-shadow: 0 2px 8px rgba(30, 50, 70, 0.06);
   --exsl-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --exsl-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -66,6 +71,10 @@ body {
   margin-bottom: 22px;
   page-break-inside: avoid;
   break-inside: avoid;
+  background: linear-gradient(135deg, #2F4558 0%, #3D5670 48%, #4A6882 100%);
+  border-radius: 10px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .exsl-resume .exsl-header-row {
@@ -86,8 +95,9 @@ body {
   height: 108px;
   border-radius: 14px;
   overflow: hidden;
-  background: var(--exsl-slate);
-  box-shadow: var(--exsl-shadow);
+  background: var(--exsl-ice-light);
+  box-shadow: 0 2px 12px rgba(15, 30, 50, 0.22);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,7 +135,7 @@ body {
   font-size: 32px;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--exsl-charcoal);
+  color: #FFFFFF;
 }
 
 .exsl-resume .exsl-identity {
@@ -138,7 +148,7 @@ body {
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: 0.02em;
-  color: var(--exsl-charcoal);
+  color: #FFFFFF;
   margin-bottom: 8px;
   text-transform: uppercase;
 }
@@ -161,13 +171,13 @@ body {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--exsl-muted);
+  color: rgba(220, 230, 240, 0.92);
   line-height: 1.45;
 }
 
 .exsl-resume .exsl-header-divider {
   height: 1px;
-  background: var(--exsl-border);
+  background: rgba(255, 255, 255, 0.28);
   margin-bottom: 12px;
 }
 
@@ -184,14 +194,14 @@ body {
   gap: 7px;
   font-size: 11.5px;
   font-weight: 500;
-  color: var(--exsl-charcoal);
+  color: rgba(255, 255, 255, 0.94);
   line-height: 1.4;
 }
 
 .exsl-resume .exsl-contact-sep {
   width: 1px;
   height: 12px;
-  background: var(--exsl-border);
+  background: rgba(255, 255, 255, 0.32);
   margin: 0 14px;
   flex-shrink: 0;
 }
@@ -211,19 +221,19 @@ body {
 }
 
 .exsl-resume .exsl-contact-icon--phone {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2368829A' stroke-width='1.8'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D0DCE8' stroke-width='1.8'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-contact-icon--email {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2368829A' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D0DCE8' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-contact-icon--web {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2368829A' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D0DCE8' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-contact-icon--location {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2368829A' stroke-width='1.8'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D0DCE8' stroke-width='1.8'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
 }
 
 /* ── Two-column body (65% / 35%) ── */
@@ -240,6 +250,10 @@ body {
   flex-direction: column;
   gap: 22px;
   min-width: 0;
+  background: rgba(237, 244, 250, 0.65);
+  border-radius: 10px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .exsl-resume .exsl-section,
@@ -259,7 +273,7 @@ body {
   width: 26px;
   height: 26px;
   border-radius: 6px;
-  background: var(--exsl-white);
+  background: var(--exsl-ice-light);
   border: 1px solid var(--exsl-border);
   flex-shrink: 0;
   background-size: 14px 14px;
@@ -270,35 +284,35 @@ body {
 }
 
 .exsl-resume .exsl-section-icon--summary {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-icon--experience {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Crect x='2' y='7' width='20' height='14' rx='2'/%3E%3Cpath d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Crect x='2' y='7' width='20' height='14' rx='2'/%3E%3Cpath d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-icon--projects {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-icon--skills {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-icon--education {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M22 10v6M2 10l10-5 10 5-10 5z'/%3E%3Cpath d='M6 12v5c3 3 9 3 12 0v-5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Cpath d='M22 10v6M2 10l10-5 10 5-10 5z'/%3E%3Cpath d='M6 12v5c3 3 9 3 12 0v-5'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-icon--certifications {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M4 4h16v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V4z'/%3E%3Cpath d='M8 16v4l4-2 4 2v-4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Cpath d='M4 4h16v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V4z'/%3E%3Cpath d='M8 16v4l4-2 4 2v-4'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-icon--achievements {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/%3E%3Cpath d='M4 22h16'/%3E%3Cpath d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22'/%3E%3Cpath d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22'/%3E%3Cpath d='M18 2H6v7a6 6 0 0 0 12 0V2z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Cpath d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/%3E%3Cpath d='M4 22h16'/%3E%3Cpath d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22'/%3E%3Cpath d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22'/%3E%3Cpath d='M18 2H6v7a6 6 0 0 0 12 0V2z'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-icon--languages {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A6882' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
 }
 
 .exsl-resume .exsl-section-title {
@@ -307,14 +321,14 @@ body {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--exsl-charcoal);
+  color: var(--exsl-blue-gray);
 }
 
 .exsl-resume .exsl-side-rule {
   display: block;
   height: 1.5px;
-  background: var(--exsl-blue-gray);
-  opacity: 0.45;
+  background: var(--exsl-steel);
+  opacity: 0.55;
   margin-bottom: 12px;
   border-radius: 1px;
 }
@@ -341,9 +355,11 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--exsl-blue-gray);
+  bottom: 0;
+  right: auto;
+  width: 4px;
+  height: auto;
+  background: var(--exsl-steel);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -366,8 +382,8 @@ body {
 .exsl-resume .exsl-timeline-line {
   width: 2px;
   border-radius: 2px;
-  background: var(--exsl-blue-gray);
-  opacity: 0.55;
+  background: var(--exsl-steel);
+  opacity: 0.85;
   min-height: 100%;
   justify-self: center;
   -webkit-print-color-adjust: exact;
@@ -384,7 +400,7 @@ body {
   page-break-inside: auto;
   break-inside: auto;
   padding-bottom: 18px;
-  border-bottom: 1px solid rgba(216, 222, 229, 0.65);
+  border-bottom: 1px solid rgba(176, 190, 200, 0.65);
 }
 
 .exsl-resume .exsl-experience .experience-item:last-child {
@@ -461,7 +477,7 @@ body {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--exsl-blue-gray);
+  background: var(--exsl-steel);
 }
 
 /* ── Projects ── */
@@ -472,9 +488,10 @@ body {
 }
 
 .exsl-resume .exsl-projects .project-item {
-  background: var(--exsl-beige);
-  border-radius: 12px;
-  border: 1px solid rgba(216, 222, 229, 0.55);
+  background: var(--exsl-white);
+  border-radius: 10px;
+  border: 1px solid var(--exsl-border);
+  border-left: 3px solid var(--exsl-steel);
   padding: 16px 18px;
   page-break-inside: auto;
   break-inside: auto;
@@ -548,7 +565,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--exsl-charcoal);
+  color: var(--exsl-blue-gray);
   line-height: 1.4;
 }
 
@@ -561,30 +578,30 @@ body {
 .exsl-resume .exsl-skills .skill-tag {
   display: inline-block;
   font-size: 10.5px;
-  font-weight: 500;
-  color: var(--exsl-charcoal);
+  font-weight: 600;
+  color: var(--exsl-blue-gray);
   line-height: 1.35;
   padding: 5px 11px;
   border-radius: 999px;
-  border: none;
+  border: 1px solid rgba(74, 104, 130, 0.18);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
 
 .exsl-resume .exsl-skills .skill-tag:nth-child(4n + 1) {
-  background: var(--exsl-slate);
+  background: var(--exsl-ice-light);
 }
 
 .exsl-resume .exsl-skills .skill-tag:nth-child(4n + 2) {
-  background: var(--exsl-beige);
+  background: var(--exsl-ice);
 }
 
 .exsl-resume .exsl-skills .skill-tag:nth-child(4n + 3) {
-  background: var(--exsl-mint);
+  background: var(--exsl-ice-mid);
 }
 
 .exsl-resume .exsl-skills .skill-tag:nth-child(4n + 4) {
-  background: var(--exsl-lavender);
+  background: var(--exsl-ice-deep);
 }
 
 /* ── Education ── */
@@ -592,6 +609,9 @@ body {
   margin-bottom: 14px;
   page-break-inside: avoid;
   break-inside: avoid;
+  background: var(--exsl-white);
+  border: 1px solid var(--exsl-border);
+  border-radius: 8px;
 }
 
 .exsl-resume .exsl-education .education-item:last-child {
@@ -657,9 +677,10 @@ body {
 
 /* ── Achievements ── */
 .exsl-resume .exsl-card--achievements {
-  background: var(--exsl-slate);
+  background: var(--exsl-white);
   border: 1px solid var(--exsl-border);
-  border-radius: 12px;
+  border-left: 3px solid var(--exsl-steel);
+  border-radius: 10px;
   padding: 14px 16px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
@@ -686,7 +707,7 @@ body {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--exsl-blue-gray);
+  background: var(--exsl-steel);
 }
 
 .exsl-resume .exsl-achievements .achievement-item h3 {
@@ -718,11 +739,12 @@ body {
 .exsl-resume .exsl-languages .language-item .language {
   display: inline-block;
   font-size: 10.5px;
-  font-weight: 500;
-  color: var(--exsl-charcoal);
+  font-weight: 600;
+  color: var(--exsl-blue-gray);
   line-height: 1.35;
   padding: 5px 11px;
-  background: var(--exsl-slate);
+  background: var(--exsl-ice-light);
+  border: 1px solid rgba(74, 104, 130, 0.18);
   border-radius: 999px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;

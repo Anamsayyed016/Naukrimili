@@ -307,16 +307,16 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     hoverOverlay: 'from-amber-50/35',
   },
   'sterling-executive': {
-    glow: 'radial-gradient(circle, rgba(91,122,150,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(184,200,216,0.45) 0%, transparent 70%)',
-    borderTint: 'hover:border-blue-200/55',
-    hoverOverlay: 'from-slate-50/35',
+    glow: 'radial-gradient(circle, rgba(181,107,69,0.44) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(237,227,208,0.55) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-300/55',
+    hoverOverlay: 'from-amber-50/40',
   },
   'executive-slate': {
-    glow: 'radial-gradient(circle, rgba(104,130,154,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(220,228,236,0.5) 0%, transparent 70%)',
-    borderTint: 'hover:border-slate-300/55',
-    hoverOverlay: 'from-slate-50/35',
+    glow: 'radial-gradient(circle, rgba(47,69,88,0.48) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(91,117,148,0.38) 0%, transparent 70%)',
+    borderTint: 'hover:border-blue-300/55',
+    hoverOverlay: 'from-blue-50/40',
   },
 };
 

@@ -4,26 +4,30 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #F6F9FC;
+  background: #F9F4EC;
 }
 
 .stex-resume {
-  --primary-color: #5B7A96;
-  --accent-color: #4A6780;
-  --text-color: #555555;
+  --primary-color: #7A8068;
+  --accent-color: #8E7358;
+  --text-color: #5A5048;
 
-  --stex-bg: #F6F9FC;
-  --stex-sand: #E4EBF2;
-  --stex-beige: #EEF3F8;
-  --stex-clay: #5B7A96;
-  --stex-terracotta: #4A6780;
-  --stex-stone: #B8C8D8;
-  --stex-gray: #D8E2EC;
-  --stex-charcoal: #2E3A47;
+  --stex-bg: #F9F4EC;
+  --stex-sand: #EDE3D0;
+  --stex-beige: #F5EDE0;
+  --stex-cream: #FAF6EF;
+  --stex-champagne: #EDE3D0;
+  --stex-olive: #7A8068;
+  --stex-bronze: #8E7358;
+  --stex-terracotta: #B56B45;
+  --stex-clay: #8E7358;
+  --stex-stone: #D4C4AA;
+  --stex-gray: #EDE5D6;
+  --stex-charcoal: #4A3F35;
   --stex-text: var(--text-color);
-  --stex-muted: #5C6B78;
-  --stex-border: #C8D4E0;
-  --stex-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --stex-muted: #6E6258;
+  --stex-border: #C9B89A;
+  --stex-shadow: 0 4px 20px rgba(142, 115, 88, 0.14);
   --stex-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --stex-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -74,7 +78,7 @@ body {
   left: -24px;
   width: 180px;
   height: 120px;
-  border: 14px solid rgba(184, 200, 216, 0.45);
+  border: 14px solid rgba(212, 196, 170, 0.45);
   border-bottom: none;
   border-radius: 180px 180px 0 0;
 }
@@ -84,7 +88,7 @@ body {
   left: 12px;
   width: 130px;
   height: 88px;
-  border: 10px solid rgba(228, 235, 242, 0.55);
+  border: 10px solid rgba(237, 227, 208, 0.65);
   border-bottom: none;
   border-radius: 130px 130px 0 0;
 }
@@ -95,7 +99,7 @@ body {
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background: rgba(91, 122, 150, 0.18);
+  background: rgba(181, 107, 69, 0.16);
 }
 
 .stex-resume .stex-deco--fold {
@@ -103,7 +107,7 @@ body {
   left: 80px;
   width: 200px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(184, 200, 216, 0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(201, 184, 154, 0.4), transparent);
   transform: rotate(-18deg);
   transform-origin: left center;
 }
@@ -118,6 +122,10 @@ body {
   margin-bottom: 24px;
   page-break-inside: avoid;
   break-inside: avoid;
+  background: linear-gradient(135deg, rgba(249, 244, 236, 0.98) 0%, rgba(237, 227, 208, 0.55) 100%);
+  border-radius: 12px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .stex-resume .stex-header-row {
@@ -145,7 +153,7 @@ body {
   left: -5px;
   width: calc(100% + 10px);
   height: calc(100% + 10px);
-  border: 2px solid rgba(184, 200, 216, 0.85);
+  border: 2px solid rgba(201, 184, 154, 0.85);
 }
 
 .stex-resume .stex-photo-ring--inner {
@@ -290,19 +298,19 @@ body {
 }
 
 .stex-resume .stex-contact-icon--phone {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B7A96' stroke-width='1.8'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A8068' stroke-width='1.8'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
 }
 
 .stex-resume .stex-contact-icon--email {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B7A96' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A8068' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
 }
 
 .stex-resume .stex-contact-icon--web {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B7A96' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A8068' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
 }
 
 .stex-resume .stex-contact-icon--location {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B7A96' stroke-width='1.8'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A8068' stroke-width='1.8'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
 }
 
 .stex-resume .stex-header-divider {
@@ -346,8 +354,8 @@ body {
 .stex-resume .stex-section-rule {
   display: block;
   height: 1.5px;
-  background: var(--stex-clay);
-  opacity: 0.55;
+  background: var(--stex-olive);
+  opacity: 0.65;
   margin-bottom: 14px;
   border-radius: 1px;
 }
@@ -401,8 +409,8 @@ body {
 .stex-resume .stex-timeline-accent {
   width: 3px;
   border-radius: 2px;
-  background: var(--stex-terracotta);
-  opacity: 0.75;
+  background: var(--stex-olive);
+  opacity: 0.8;
   min-height: 100%;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
@@ -413,12 +421,14 @@ body {
   page-break-inside: auto;
   break-inside: auto;
   padding-bottom: 18px;
-  border-bottom: 1px solid var(--stex-border);
+  background: rgba(245, 237, 224, 0.72);
+  border: 1px solid rgba(201, 184, 154, 0.55);
+  border-radius: 10px;
 }
 
 .stex-resume .stex-experience .experience-item:last-child {
   margin-bottom: 0;
-  padding-bottom: 0;
+  padding-bottom: 18px;
   border-bottom: none;
 }
 
@@ -480,7 +490,7 @@ body {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--stex-clay);
+  background: var(--stex-olive);
 }
 
 /* ── Projects ── */
@@ -489,7 +499,7 @@ body {
   page-break-inside: auto;
   break-inside: auto;
   padding-bottom: 14px;
-  border-bottom: 1px solid rgba(200, 212, 224, 0.7);
+  border-bottom: 1px solid rgba(201, 184, 154, 0.55);
 }
 
 .stex-resume .stex-projects .project-item:last-child {
@@ -563,12 +573,12 @@ body {
 .stex-resume .stex-skills .skill-tag {
   display: inline-block;
   font-size: 11px;
-  font-weight: 500;
-  color: var(--stex-charcoal);
+  font-weight: 600;
+  color: var(--stex-olive);
   line-height: 1.4;
   padding: 6px 12px;
-  background: var(--stex-beige);
-  border: 1px solid var(--stex-border);
+  background: var(--stex-champagne);
+  border: 1px solid rgba(122, 128, 104, 0.28);
   border-radius: 999px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
@@ -579,6 +589,9 @@ body {
   margin-bottom: 14px;
   page-break-inside: avoid;
   break-inside: avoid;
+  background: var(--stex-cream);
+  border: 1px solid var(--stex-border);
+  border-radius: 10px;
 }
 
 .stex-resume .stex-education .education-item:last-child {
@@ -625,7 +638,7 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background-color: var(--stex-terracotta);
+  background-color: var(--stex-olive);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.6'%3E%3Ccircle cx='12' cy='8' r='5'/%3E%3Cpath d='M8.21 13.89 7 21l5-3 5 3-1.21-7.11'/%3E%3C/svg%3E");
   background-size: 11px 11px;
   background-repeat: no-repeat;
@@ -665,7 +678,7 @@ body {
   flex-direction: column;
   gap: 1px;
   padding: 6px 0;
-  border-bottom: 1px solid rgba(200, 212, 224, 0.5);
+  border-bottom: 1px solid rgba(201, 184, 154, 0.45);
 }
 
 .stex-resume .stex-languages .language-item .language {

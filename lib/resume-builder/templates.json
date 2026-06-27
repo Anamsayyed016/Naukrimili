@@ -1131,7 +1131,7 @@
       "id": "sterling-executive",
       "name": "Sterling Executive",
       "slug": "sterling-executive",
-      "description": "Luxury editorial executive resume with architectural background shapes, Playfair Display typography, slate blue corporate palette, circular portrait frame, soft summary card, steel timeline accent, pill-based skills, and ATS-friendly PDF export.",
+      "description": "Luxury editorial executive resume with warm ivory and champagne palette, Playfair Display typography, muted olive timeline, bronze-bordered experience cards, champagne skill pills, and ATS-friendly PDF export.",
       "thumbnail": "/templates/sterling-executive/thumbnail.svg",
       "preview": "/templates/sterling-executive/preview.svg",
       "html": "/templates/sterling-executive/index.html",
@@ -1142,20 +1142,20 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "sterling-slate", "name": "Sterling Slate", "primary": "#5B7A96", "accent": "#4A6780", "text": "#555555" },
-        { "id": "soft-silver", "name": "Soft Silver", "primary": "#4A6780", "accent": "#B8C8D8", "text": "#555555" },
-        { "id": "ice-gray", "name": "Ice Gray", "primary": "#2E3A47", "accent": "#5B7A96", "text": "#555555" },
-        { "id": "graphite-blue", "name": "Graphite Blue", "primary": "#2E3A47", "accent": "#D8E2EC", "text": "#555555" },
-        { "id": "corporate-steel", "name": "Corporate Steel", "primary": "#5B7A96", "accent": "#E4EBF2", "text": "#555555" },
-        { "id": "charcoal-cool", "name": "Charcoal Cool", "primary": "#2E3A47", "accent": "#5B7A96", "text": "#5C6B78" }
+        { "id": "sterling-ivory", "name": "Sterling Ivory", "primary": "#7A8068", "accent": "#8E7358", "text": "#5A5048" },
+        { "id": "champagne-luxe", "name": "Champagne Luxe", "primary": "#8E7358", "accent": "#EDE3D0", "text": "#5A5048" },
+        { "id": "muted-olive", "name": "Muted Olive", "primary": "#7A8068", "accent": "#B56B45", "text": "#5A5048" },
+        { "id": "warm-bronze", "name": "Warm Bronze", "primary": "#4A3F35", "accent": "#8E7358", "text": "#5A5048" },
+        { "id": "terracotta-edge", "name": "Terracotta Edge", "primary": "#B56B45", "accent": "#7A8068", "text": "#5A5048" },
+        { "id": "dark-bronze", "name": "Dark Bronze", "primary": "#4A3F35", "accent": "#B56B45", "text": "#6E6258" }
       ],
-      "defaultColor": "sterling-slate"
+      "defaultColor": "sterling-ivory"
     },
     {
       "id": "executive-slate",
       "name": "Executive Slate",
       "slug": "executive-slate",
-      "description": "Premium corporate executive resume with Playfair Display typography, soft blue-gray palette, rounded portrait header, accent summary card, editorial experience timeline, beige project cards, categorized skill pills, outlined certifications, and ATS-friendly PDF export.",
+      "description": "Technology executive resume with slate gradient header, steel blue timeline, ice-blue skill pills, white cards with left accent strips, cool sidebar panel, and ATS-friendly PDF export.",
       "thumbnail": "/templates/executive-slate/thumbnail.svg",
       "preview": "/templates/executive-slate/preview.svg",
       "html": "/templates/executive-slate/index.html",
@@ -1166,12 +1166,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        { "id": "slate-blue-gray", "name": "Slate Blue Gray", "primary": "#68829A", "accent": "#556F84", "text": "#555555" },
-        { "id": "accent-blue", "name": "Accent Blue", "primary": "#556F84", "accent": "#68829A", "text": "#555555" },
-        { "id": "soft-slate", "name": "Soft Slate", "primary": "#DCE4EC", "accent": "#68829A", "text": "#555555" },
-        { "id": "corporate-charcoal", "name": "Corporate Charcoal", "primary": "#2A3440", "accent": "#68829A", "text": "#666666" },
-        { "id": "ice-silver", "name": "Ice Silver", "primary": "#D4DEE8", "accent": "#68829A", "text": "#555555" },
-        { "id": "graphite-slate", "name": "Graphite Slate", "primary": "#2A3440", "accent": "#556F84", "text": "#555555" }
+        { "id": "slate-blue-gray", "name": "Slate Blue Gray", "primary": "#4A6882", "accent": "#5B7594", "text": "#4A5568" },
+        { "id": "steel-blue", "name": "Steel Blue", "primary": "#5B7594", "accent": "#4A6882", "text": "#4A5568" },
+        { "id": "ice-tech", "name": "Ice Tech", "primary": "#EDF4FA", "accent": "#4A6882", "text": "#4A5568" },
+        { "id": "graphite-slate", "name": "Graphite Slate", "primary": "#1E2A38", "accent": "#5B7594", "text": "#4A5568" },
+        { "id": "cool-white", "name": "Cool White", "primary": "#1E2A38", "accent": "#E4EEF8", "text": "#4A5568" },
+        { "id": "enterprise-steel", "name": "Enterprise Steel", "primary": "#3D5670", "accent": "#5B7594", "text": "#5A6878" }
       ],
       "defaultColor": "slate-blue-gray"
     }
