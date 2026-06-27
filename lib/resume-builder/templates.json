@@ -1174,6 +1174,30 @@
         { "id": "enterprise-steel", "name": "Enterprise Steel", "primary": "#3D5670", "accent": "#5B7594", "text": "#5A6878" }
       ],
       "defaultColor": "slate-blue-gray"
+    },
+    {
+      "id": "verdant-scandi-executive",
+      "name": "Verdant Executive",
+      "slug": "verdant-scandi-executive",
+      "description": "Modern Scandinavian executive resume with deep forest green and muted sage palette, Playfair Display typography, circular portrait, premium timeline with mustard accents, pale moss project cards, forest-bordered skill tags, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/verdant-scandi-executive/thumbnail.svg",
+      "preview": "/templates/verdant-scandi-executive/preview.svg",
+      "html": "/templates/verdant-scandi-executive/index.html",
+      "css": "/templates/verdant-scandi-executive/style.css",
+      "categories": ["Premium", "Executive", "Modern", "Professional", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "forest-verdant", "name": "Forest Verdant", "primary": "#355C4D", "accent": "#AFC7B5", "text": "#2F3133" },
+        { "id": "muted-sage", "name": "Muted Sage", "primary": "#AFC7B5", "accent": "#355C4D", "text": "#2F3133" },
+        { "id": "mustard-gold", "name": "Mustard Gold", "primary": "#355C4D", "accent": "#D8B15A", "text": "#2F3133" },
+        { "id": "pale-moss", "name": "Pale Moss", "primary": "#355C4D", "accent": "#EEF4EF", "text": "#2F3133" },
+        { "id": "mist-white", "name": "Mist White", "primary": "#2F3133", "accent": "#FAFAF8", "text": "#2F3133" },
+        { "id": "olive-charcoal", "name": "Olive Charcoal", "primary": "#2F3133", "accent": "#355C4D", "text": "#5C6360" }
+      ],
+      "defaultColor": "forest-verdant"
     }
   ],
   "filters": {

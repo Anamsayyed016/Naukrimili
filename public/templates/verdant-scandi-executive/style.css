@@ -1,0 +1,809 @@
+/* Verdant Executive — Modern Scandinavian Executive resume */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #FAFAF8;
+}
+
+.vse-resume {
+  --primary-color: #355C4D;
+  --accent-color: #AFC7B5;
+  --text-color: #2F3133;
+
+  --vse-surface: #FAFAF8;
+  --vse-card: #EEF4EF;
+  --vse-forest: #355C4D;
+  --vse-sage: #AFC7B5;
+  --vse-gold: #D8B15A;
+  --vse-border: #D6DDD6;
+  --vse-charcoal: #2F3133;
+  --vse-text: var(--text-color);
+  --vse-muted: #5C6360;
+  --vse-white: #FFFFFF;
+  --vse-shadow: 0 4px 18px rgba(53, 92, 77, 0.08);
+  --vse-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --vse-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --vse-timeline-date: 74px;
+  --vse-timeline-rail: 22px;
+}
+
+.vse-resume,
+.vse-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+}
+
+.vse-resume,
+.resume-container.vse-resume {
+  position: relative;
+  width: 794px;
+  max-width: 100%;
+  min-height: auto;
+  margin: 0 auto;
+  padding: 34px 38px 42px;
+  font-family: var(--vse-font-sans);
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--vse-text);
+  background: var(--vse-surface) !important;
+  overflow-x: hidden;
+  overflow-y: visible;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Frame & decorations ── */
+.vse-resume .vse-frame {
+  position: absolute;
+  inset: 14px 16px;
+  border: 1px solid var(--vse-border);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vse-resume .vse-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-deco--corner-tl {
+  top: 10px;
+  left: 12px;
+  width: 28px;
+  height: 28px;
+  border-top: 2px solid rgba(53, 92, 77, 0.35);
+  border-left: 2px solid rgba(53, 92, 77, 0.35);
+}
+
+.vse-resume .vse-deco--corner-br {
+  bottom: 10px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-bottom: 2px solid rgba(53, 92, 77, 0.35);
+  border-right: 2px solid rgba(53, 92, 77, 0.35);
+}
+
+.vse-resume .vse-deco--leaf-tr {
+  top: 48px;
+  right: 36px;
+  width: 64px;
+  height: 64px;
+  border-radius: 0 64px 0 64px;
+  background: rgba(175, 199, 181, 0.22);
+  transform: rotate(12deg);
+}
+
+.vse-resume .vse-deco--leaf-bl {
+  bottom: 80px;
+  left: 28px;
+  width: 48px;
+  height: 48px;
+  border-radius: 48px 0 48px 0;
+  background: rgba(175, 199, 181, 0.16);
+  transform: rotate(-18deg);
+}
+
+.vse-resume .vse-deco--geo-br {
+  bottom: 120px;
+  right: 48px;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid rgba(216, 177, 90, 0.35);
+  border-radius: 50%;
+}
+
+.vse-resume > :not(.vse-deco):not(.vse-frame) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Header ── */
+.vse-resume .vse-header {
+  margin-bottom: 26px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.vse-resume .vse-header-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.vse-resume .vse-photo {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.vse-resume .vse-photo-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border-radius: 50%;
+  border: 2px solid rgba(216, 177, 90, 0.45);
+  pointer-events: none;
+}
+
+.vse-resume .vse-photo .profile-image-wrapper {
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--vse-card);
+  box-shadow: var(--vse-shadow);
+  border: 3px solid var(--vse-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vse-resume .profile-image-wrapper--initials {
+  background: linear-gradient(160deg, #FFFFFF 0%, var(--vse-card) 100%);
+}
+
+.vse-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.vse-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.vse-resume .vse-ini-f,
+.vse-resume .vse-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.vse-resume .vse-ini-f::first-letter,
+.vse-resume .vse-ini-l::first-letter {
+  font-family: var(--vse-font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--vse-forest);
+}
+
+.vse-resume .vse-identity {
+  min-width: 0;
+}
+
+.vse-resume .candidate-name {
+  font-family: var(--vse-font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+  color: var(--vse-charcoal);
+  margin-bottom: 8px;
+}
+
+.vse-resume .name-first,
+.vse-resume .name-last {
+  display: inline;
+}
+
+.vse-resume .name-fallback {
+  display: none;
+}
+
+.vse-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.vse-resume .header-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vse-muted);
+  line-height: 1.45;
+}
+
+.vse-resume .vse-contact-bar {
+  background: var(--vse-white);
+  border: 1px solid var(--vse-border);
+  border-radius: 999px;
+  padding: 10px 20px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+}
+
+.vse-resume .vse-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--vse-charcoal);
+  line-height: 1.4;
+}
+
+.vse-resume .vse-contact-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--vse-border);
+  margin: 0 14px;
+  flex-shrink: 0;
+}
+
+.vse-resume .vse-contact-item:first-child .vse-contact-sep {
+  display: none;
+}
+
+.vse-resume .vse-contact-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  background-size: 13px 13px;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.78;
+}
+
+.vse-resume .vse-contact-icon--phone {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D8B15A' stroke-width='1.8'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
+}
+
+.vse-resume .vse-contact-icon--email {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D8B15A' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
+}
+
+.vse-resume .vse-contact-icon--web {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D8B15A' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.vse-resume .vse-contact-icon--location {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D8B15A' stroke-width='1.8'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+}
+
+/* ── Two-column body (65% / 35%) ── */
+.vse-resume .vse-body {
+  display: grid;
+  grid-template-columns: 65fr 35fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.vse-resume .vse-main,
+.vse-resume .vse-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.vse-resume .vse-section,
+.vse-resume .vse-side-section {
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.vse-resume .vse-section-title {
+  font-family: var(--vse-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vse-forest);
+  margin-bottom: 12px;
+}
+
+/* ── Main cards ── */
+.vse-resume .vse-card {
+  border-radius: 16px;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.vse-resume .vse-card--summary {
+  background: var(--vse-white);
+  border: 1px solid var(--vse-border);
+  box-shadow: var(--vse-shadow);
+  padding: 20px 22px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .summary-text {
+  font-size: 13px;
+  line-height: 1.68;
+  color: var(--vse-text);
+}
+
+/* ── Experience timeline ── */
+.vse-resume .vse-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.vse-resume .vse-experience.vse-timeline::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--vse-timeline-date) + var(--vse-timeline-rail) / 2 - 0.75px);
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--vse-forest);
+  opacity: 0.75;
+}
+
+.vse-resume .vse-timeline .experience-item {
+  display: grid;
+  grid-template-columns: var(--vse-timeline-date) var(--vse-timeline-rail) 1fr;
+  gap: 0 10px;
+  align-items: start;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.vse-resume .vse-timeline .experience-item::before {
+  content: '';
+  grid-column: 2;
+  grid-row: 1;
+  width: 10px;
+  height: 10px;
+  margin-top: 4px;
+  justify-self: center;
+  border-radius: 50%;
+  background: var(--vse-gold);
+  border: 2px solid var(--vse-forest);
+  z-index: 2;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-timeline .experience-header {
+  display: contents;
+}
+
+.vse-resume .vse-timeline .experience-header .duration {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--vse-muted);
+  line-height: 1.45;
+  text-align: right;
+  padding-right: 4px;
+  align-self: start;
+}
+
+.vse-resume .vse-timeline .experience-header h3 {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--vse-charcoal);
+  line-height: 1.35;
+}
+
+.vse-resume .vse-timeline .experience-header .company {
+  grid-column: 3;
+  grid-row: 2;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vse-forest);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.vse-resume .vse-timeline .experience-item .description {
+  grid-column: 3;
+  grid-row: 3;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--vse-text);
+}
+
+.vse-resume .vse-timeline .experience-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vse-resume .vse-timeline .experience-item .description li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.vse-resume .vse-timeline .experience-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--vse-gold);
+}
+
+/* ── Projects ── */
+.vse-resume .vse-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vse-resume .vse-projects .project-item {
+  position: relative;
+  background: var(--vse-card);
+  border-radius: 16px;
+  border: 1px solid var(--vse-border);
+  box-shadow: var(--vse-shadow);
+  padding: 18px 20px 18px 22px;
+  overflow: hidden;
+  page-break-inside: auto;
+  break-inside: auto;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-projects .project-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--vse-forest);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-projects .project-item h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--vse-charcoal);
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.vse-resume .vse-projects .project-item .technologies {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--vse-forest);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.vse-resume .vse-projects .project-item .description {
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: var(--vse-text);
+}
+
+.vse-resume .vse-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vse-resume .vse-projects .project-item .description li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.58;
+}
+
+.vse-resume .vse-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--vse-forest);
+}
+
+/* ── Sidebar cards ── */
+.vse-resume .vse-side-card {
+  background: var(--vse-white);
+  border: 1px solid var(--vse-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--vse-shadow);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-side-card-head {
+  background: var(--vse-card);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--vse-border);
+}
+
+.vse-resume .vse-side-card-head .vse-section-title {
+  margin-bottom: 0;
+}
+
+.vse-resume .vse-side-card-body {
+  padding: 14px 16px 16px;
+}
+
+/* ── Skills tags ── */
+.vse-resume .vse-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vse-resume .vse-skills .skill-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vse-forest);
+  line-height: 1.35;
+  padding: 6px 12px;
+  background: var(--vse-white);
+  border: 1.5px solid var(--vse-forest);
+  border-radius: 999px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ── Education ── */
+.vse-resume .vse-education .education-item {
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--vse-border);
+}
+
+.vse-resume .vse-education .education-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.vse-resume .vse-education .education-item h3 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--vse-charcoal);
+  line-height: 1.4;
+}
+
+.vse-resume .vse-education .education-item .institution {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--vse-forest);
+  line-height: 1.45;
+}
+
+.vse-resume .vse-education .education-item .year {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--vse-muted);
+  margin-top: 2px;
+}
+
+/* ── Certifications ── */
+.vse-resume .vse-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vse-resume .vse-certifications .certification-item {
+  background: var(--vse-surface);
+  border: 1px solid var(--vse-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-certifications .certification-item h3 {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--vse-charcoal);
+  line-height: 1.45;
+}
+
+.vse-resume .vse-certifications .certification-item .issuer,
+.vse-resume .vse-certifications .certification-item .date {
+  display: block;
+  font-size: 10.5px;
+  color: var(--vse-muted);
+  line-height: 1.45;
+}
+
+/* ── Achievements ── */
+.vse-resume .vse-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vse-resume .vse-achievements .achievement-item {
+  position: relative;
+  padding-left: 28px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.vse-resume .vse-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--vse-gold);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.6'%3E%3Ccircle cx='12' cy='8' r='5'/%3E%3Cpath d='M8.21 13.89 7 21l5-3 5 3-1.21-7.11'/%3E%3C/svg%3E");
+  background-size: 12px 12px;
+  background-repeat: no-repeat;
+  background-position: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.vse-resume .vse-achievements .achievement-item h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vse-charcoal);
+  line-height: 1.5;
+}
+
+.vse-resume .vse-achievements .achievement-item .description,
+.vse-resume .vse-achievements .achievement-item .date {
+  font-size: 11px;
+  color: var(--vse-muted);
+  line-height: 1.45;
+}
+
+/* ── Languages progress bars ── */
+.vse-resume .psp-languages-progress .languages-list,
+.vse-resume .vse-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vse-resume .psp-languages-progress .psp-language-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 6px;
+}
+
+.vse-resume .psp-languages-progress .psp-language-name {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vse-charcoal);
+}
+
+.vse-resume .psp-languages-progress .psp-language-percentage {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--vse-forest);
+}
+
+.vse-resume .psp-languages-progress .psp-language-bar-container {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--vse-border);
+  overflow: hidden;
+}
+
+.vse-resume .psp-languages-progress .psp-language-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--vse-forest);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ── Print ── */
+@media print {
+  html,
+  body {
+    background: #FFFFFF;
+  }
+
+  .vse-resume,
+  .resume-container.vse-resume {
+    width: 100%;
+    padding: 24px 28px 32px;
+    background: var(--vse-surface) !important;
+  }
+
+  .vse-resume .vse-card--summary,
+  .vse-resume .vse-projects .project-item,
+  .vse-resume .vse-side-card,
+  .vse-resume .vse-skills .skill-tag,
+  .vse-resume .vse-timeline .experience-item::before,
+  .vse-resume .vse-achievements .achievement-item::before,
+  .vse-resume .psp-languages-progress .psp-language-bar-fill,
+  .vse-resume .vse-projects .project-item::before {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .vse-resume .vse-card--summary,
+  .vse-resume .vse-projects .project-item,
+  .vse-resume .vse-side-card,
+  .vse-resume .vse-photo .profile-image-wrapper {
+    box-shadow: none;
+  }
+}

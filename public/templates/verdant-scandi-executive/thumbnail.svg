@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#FAFAF8"/>
+  <rect x="10" y="10" width="280" height="380" fill="none" stroke="#D6DDD6" stroke-width="0.6"/>
+  <rect x="10" y="10" width="18" height="18" fill="none" stroke="rgba(53,92,77,0.35)" stroke-width="1.2"/>
+  <rect x="272" y="372" width="18" height="18" fill="none" stroke="rgba(53,92,77,0.35)" stroke-width="1.2"/>
+  <circle cx="42" cy="48" r="26" fill="#EEF4EF" stroke="#D6DDD6" stroke-width="0.6"/>
+  <circle cx="42" cy="48" r="30" fill="none" stroke="rgba(216,177,90,0.45)" stroke-width="0.8"/>
+  <text x="78" y="42" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#2F3133">ELENA</text>
+  <text x="78" y="52" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#2F3133">NORDSTROM</text>
+  <text x="78" y="60" font-family="Arial,sans-serif" font-size="2" fill="#5C6360" letter-spacing="0.3">EXECUTIVE DIRECTOR</text>
+  <rect x="14" y="68" width="272" height="14" rx="7" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.4"/>
+  <text x="14" y="96" font-family="Arial,sans-serif" font-size="2.4" font-weight="600" fill="#355C4D" letter-spacing="0.4">PROFESSIONAL SUMMARY</text>
+  <rect x="14" y="100" width="188" height="30" rx="8" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.3"/>
+  <line x1="22" y1="138" x2="22" y2="178" stroke="#355C4D" stroke-width="1.2" opacity="0.75"/>
+  <circle cx="22" cy="146" r="3" fill="#D8B15A" stroke="#355C4D" stroke-width="0.8"/>
+  <rect x="30" y="142" width="80" height="2" fill="#2F3133"/>
+  <rect x="30" y="148" width="60" height="1.5" fill="#355C4D"/>
+  <rect x="14" y="186" width="188" height="24" rx="8" fill="#EEF4EF" stroke="#D6DDD6" stroke-width="0.3"/>
+  <rect x="14" y="186" width="4" height="24" rx="2" fill="#355C4D"/>
+  <rect x="208" y="100" width="78" height="110" rx="8" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.3"/>
+  <rect x="208" y="100" width="78" height="16" rx="8" fill="#EEF4EF"/>
+  <text x="214" y="110" font-family="Arial,sans-serif" font-size="2.2" font-weight="600" fill="#355C4D" letter-spacing="0.3">SKILLS</text>
+  <rect x="214" y="122" width="32" height="10" rx="5" fill="#FFFFFF" stroke="#355C4D" stroke-width="0.5"/>
+  <rect x="250" y="122" width="28" height="10" rx="5" fill="#FFFFFF" stroke="#355C4D" stroke-width="0.5"/>
+  <rect x="208" y="218" width="78" height="52" rx="8" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.3"/>
+  <rect x="208" y="218" width="78" height="14" rx="8" fill="#EEF4EF"/>
+  <rect x="214" y="240" width="66" height="4" rx="2" fill="#D6DDD6"/>
+  <rect x="214" y="240" width="48" height="4" rx="2" fill="#355C4D"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="600" fill="#355C4D" letter-spacing="1.2">VERDANT EXECUTIVE</text>
+</svg>

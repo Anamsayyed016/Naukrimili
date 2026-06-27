@@ -318,6 +318,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-blue-300/55',
     hoverOverlay: 'from-blue-50/40',
   },
+  'verdant-scandi-executive': {
+    glow: 'radial-gradient(circle, rgba(53,92,77,0.46) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(216,177,90,0.32) 0%, transparent 70%)',
+    borderTint: 'hover:border-emerald-300/55',
+    hoverOverlay: 'from-emerald-50/40',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -374,6 +380,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'monarch-edge': { firstName: 'Arthur', lastName: 'Sterling', jobTitle: 'Chief Product Strategist | Design Leader' },
   'sterling-executive': { firstName: 'Arthur', lastName: 'Sterling', jobTitle: 'Chief Product Strategist | Design Leader' },
   'executive-slate': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Principal Product Designer | Creative Director' },
+  'verdant-scandi-executive': { firstName: 'Elena', lastName: 'Nordstrom', jobTitle: 'Executive Director | Scandinavian Strategy & Innovation' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

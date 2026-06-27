@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="780" viewBox="0 0 600 780">
+  <rect width="600" height="780" fill="#FAFAF8"/>
+  <rect x="20" y="20" width="560" height="740" fill="none" stroke="#D6DDD6" stroke-width="1"/>
+  <rect x="20" y="20" width="32" height="32" fill="none" stroke="rgba(53,92,77,0.35)" stroke-width="2"/>
+  <rect x="548" y="728" width="32" height="32" fill="none" stroke="rgba(53,92,77,0.35)" stroke-width="2"/>
+  <circle cx="84" cy="96" r="52" fill="#EEF4EF" stroke="#D6DDD6" stroke-width="1"/>
+  <circle cx="84" cy="96" r="58" fill="none" stroke="rgba(216,177,90,0.45)" stroke-width="1.5"/>
+  <text x="156" y="88" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#2F3133">ELENA NORDSTROM</text>
+  <text x="156" y="108" font-family="Arial,sans-serif" font-size="8" fill="#5C6360" letter-spacing="1.2">EXECUTIVE DIRECTOR | SCANDINAVIAN STRATEGY</text>
+  <rect x="28" y="132" width="544" height="28" rx="14" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.6"/>
+  <text x="28" y="182" font-family="Arial,sans-serif" font-size="8" font-weight="600" fill="#355C4D" letter-spacing="1.4">PROFESSIONAL SUMMARY</text>
+  <rect x="28" y="190" width="376" height="56" rx="12" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.6"/>
+  <line x1="44" y1="262" x2="44" y2="360" stroke="#355C4D" stroke-width="2" opacity="0.75"/>
+  <circle cx="44" cy="272" r="5" fill="#D8B15A" stroke="#355C4D" stroke-width="1.2"/>
+  <text x="56" y="270" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#2F3133">Senior Strategy Lead</text>
+  <text x="56" y="284" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#355C4D" letter-spacing="0.6">NORDIC CONSULTING GROUP</text>
+  <rect x="28" y="372" width="376" height="48" rx="12" fill="#EEF4EF" stroke="#D6DDD6" stroke-width="0.5"/>
+  <rect x="28" y="372" width="6" height="48" rx="3" fill="#355C4D"/>
+  <rect x="420" y="190" width="152" height="120" rx="12" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.6"/>
+  <rect x="420" y="190" width="152" height="28" rx="12" fill="#EEF4EF"/>
+  <text x="432" y="208" font-family="Arial,sans-serif" font-size="7" font-weight="600" fill="#355C4D" letter-spacing="1">CORE SKILLS</text>
+  <rect x="432" y="228" width="58" height="18" rx="9" fill="#FFFFFF" stroke="#355C4D" stroke-width="0.8"/>
+  <rect x="496" y="228" width="52" height="18" rx="9" fill="#FFFFFF" stroke="#355C4D" stroke-width="0.8"/>
+  <rect x="420" y="322" width="152" height="98" rx="12" fill="#FFFFFF" stroke="#D6DDD6" stroke-width="0.6"/>
+  <rect x="420" y="322" width="152" height="28" rx="12" fill="#EEF4EF"/>
+  <rect x="432" y="362" width="128" height="5" rx="2.5" fill="#D6DDD6"/>
+  <rect x="432" y="362" width="96" height="5" rx="2.5" fill="#355C4D"/>
+  <text x="300" y="760" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="600" fill="#355C4D" letter-spacing="2.4">VERDANT EXECUTIVE</text>
+</svg>
