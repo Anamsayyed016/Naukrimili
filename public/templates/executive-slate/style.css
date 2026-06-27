@@ -1,0 +1,765 @@
+/* Executive Slate — premium corporate executive resume */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #F7F8FA;
+}
+
+.exsl-resume {
+  --primary-color: #7C93A8;
+  --accent-color: #6F8FA4;
+  --text-color: #555555;
+
+  --exsl-bg: #F7F8FA;
+  --exsl-white: #FFFFFF;
+  --exsl-slate: #E6ECF2;
+  --exsl-blue-gray: #7C93A8;
+  --exsl-accent-blue: #6F8FA4;
+  --exsl-beige: #F4EFE8;
+  --exsl-mint: #DDEEDB;
+  --exsl-lavender: #E8E2F3;
+  --exsl-border: #D8DEE5;
+  --exsl-charcoal: #252525;
+  --exsl-text: var(--text-color);
+  --exsl-muted: #6B7280;
+  --exsl-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --exsl-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --exsl-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.exsl-resume,
+.exsl-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+}
+
+.exsl-resume,
+.resume-container.exsl-resume {
+  position: relative;
+  width: 794px;
+  max-width: 100%;
+  min-height: auto;
+  margin: 0 auto;
+  padding: 32px 36px 40px;
+  font-family: var(--exsl-font-sans);
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--exsl-text);
+  background: var(--exsl-bg) !important;
+  overflow-x: hidden;
+  overflow-y: visible;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+.exsl-resume .exsl-header {
+  margin-bottom: 22px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.exsl-resume .exsl-header-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.exsl-resume .exsl-photo {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.exsl-resume .exsl-photo .profile-image-wrapper {
+  width: 108px;
+  height: 108px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--exsl-slate);
+  box-shadow: var(--exsl-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exsl-resume .profile-image-wrapper--initials {
+  background: linear-gradient(160deg, #FFFFFF 0%, var(--exsl-slate) 100%);
+}
+
+.exsl-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.exsl-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.exsl-resume .exsl-ini-f,
+.exsl-resume .exsl-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.exsl-resume .exsl-ini-f::first-letter,
+.exsl-resume .exsl-ini-l::first-letter {
+  font-family: var(--exsl-font-serif);
+  font-size: 32px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--exsl-charcoal);
+}
+
+.exsl-resume .exsl-identity {
+  min-width: 0;
+}
+
+.exsl-resume .candidate-name {
+  font-family: var(--exsl-font-serif);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+  color: var(--exsl-charcoal);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.exsl-resume .name-first,
+.exsl-resume .name-last {
+  display: inline;
+}
+
+.exsl-resume .name-fallback {
+  display: none;
+}
+
+.exsl-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.exsl-resume .header-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--exsl-muted);
+  line-height: 1.45;
+}
+
+.exsl-resume .exsl-header-divider {
+  height: 1px;
+  background: var(--exsl-border);
+  margin-bottom: 12px;
+}
+
+.exsl-resume .exsl-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+}
+
+.exsl-resume .exsl-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--exsl-charcoal);
+  line-height: 1.4;
+}
+
+.exsl-resume .exsl-contact-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--exsl-border);
+  margin: 0 14px;
+  flex-shrink: 0;
+}
+
+.exsl-resume .exsl-contact-item:first-child .exsl-contact-sep {
+  display: none;
+}
+
+.exsl-resume .exsl-contact-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  background-size: 13px 13px;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.72;
+}
+
+.exsl-resume .exsl-contact-icon--phone {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C93A8' stroke-width='1.8'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-contact-icon--email {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C93A8' stroke-width='1.8'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-contact-icon--web {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C93A8' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-contact-icon--location {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C93A8' stroke-width='1.8'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+}
+
+/* ── Two-column body (65% / 35%) ── */
+.exsl-resume .exsl-body {
+  display: grid;
+  grid-template-columns: 65fr 35fr;
+  gap: 26px;
+  align-items: start;
+}
+
+.exsl-resume .exsl-main,
+.exsl-resume .exsl-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.exsl-resume .exsl-section,
+.exsl-resume .exsl-side-section {
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.exsl-resume .exsl-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.exsl-resume .exsl-section-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--exsl-white);
+  border: 1px solid var(--exsl-border);
+  flex-shrink: 0;
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+  background-position: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-section-icon--summary {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-icon--experience {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Crect x='2' y='7' width='20' height='14' rx='2'/%3E%3Cpath d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-icon--projects {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-icon--skills {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-icon--education {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M22 10v6M2 10l10-5 10 5-10 5z'/%3E%3Cpath d='M6 12v5c3 3 9 3 12 0v-5'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-icon--certifications {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M4 4h16v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V4z'/%3E%3Cpath d='M8 16v4l4-2 4 2v-4'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-icon--achievements {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Cpath d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/%3E%3Cpath d='M4 22h16'/%3E%3Cpath d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22'/%3E%3Cpath d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22'/%3E%3Cpath d='M18 2H6v7a6 6 0 0 0 12 0V2z'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-icon--languages {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.exsl-resume .exsl-section-title {
+  font-family: var(--exsl-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--exsl-charcoal);
+}
+
+.exsl-resume .exsl-side-rule {
+  display: block;
+  height: 1.5px;
+  background: var(--exsl-blue-gray);
+  opacity: 0.45;
+  margin-bottom: 12px;
+  border-radius: 1px;
+}
+
+/* ── Summary card ── */
+.exsl-resume .exsl-card {
+  border-radius: 14px;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.exsl-resume .exsl-card--summary {
+  position: relative;
+  background: var(--exsl-white);
+  box-shadow: var(--exsl-shadow);
+  border: 1px solid var(--exsl-border);
+  padding: 20px 22px 18px;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--exsl-blue-gray);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .summary-text {
+  font-size: 13px;
+  line-height: 1.68;
+  color: var(--exsl-text);
+}
+
+/* ── Experience timeline ── */
+.exsl-resume .exsl-timeline-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 0 16px;
+  align-items: stretch;
+}
+
+.exsl-resume .exsl-timeline-line {
+  width: 2px;
+  border-radius: 2px;
+  background: var(--exsl-blue-gray);
+  opacity: 0.55;
+  min-height: 100%;
+  justify-self: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.exsl-resume .exsl-experience .experience-item {
+  page-break-inside: auto;
+  break-inside: auto;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(216, 222, 229, 0.65);
+}
+
+.exsl-resume .exsl-experience .experience-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.exsl-resume .exsl-experience .experience-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  margin-bottom: 4px;
+}
+
+.exsl-resume .exsl-experience .experience-header h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--exsl-charcoal);
+  line-height: 1.35;
+  display: inline;
+}
+
+.exsl-resume .exsl-experience .experience-header h3::after {
+  content: ' | ';
+  font-weight: 400;
+  color: var(--exsl-muted);
+}
+
+.exsl-resume .exsl-experience .experience-header .company {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--exsl-charcoal);
+  line-height: 1.35;
+  display: inline;
+}
+
+.exsl-resume .exsl-experience .experience-header .duration {
+  flex-basis: 100%;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--exsl-muted);
+  display: block;
+  margin-top: 3px;
+}
+
+.exsl-resume .exsl-experience .description {
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--exsl-text);
+}
+
+.exsl-resume .exsl-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.exsl-resume .exsl-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.exsl-resume .exsl-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--exsl-blue-gray);
+}
+
+/* ── Projects ── */
+.exsl-resume .exsl-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exsl-resume .exsl-projects .project-item {
+  background: var(--exsl-beige);
+  border-radius: 12px;
+  border: 1px solid rgba(216, 222, 229, 0.55);
+  padding: 16px 18px;
+  page-break-inside: auto;
+  break-inside: auto;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-projects .project-item h3 {
+  display: inline;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--exsl-charcoal);
+  line-height: 1.35;
+}
+
+.exsl-resume .exsl-projects .project-item .technologies {
+  display: inline;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--exsl-charcoal);
+}
+
+.exsl-resume .exsl-projects .project-item .technologies::before {
+  content: ': ';
+  font-weight: 700;
+}
+
+.exsl-resume .exsl-projects .project-item .description {
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: var(--exsl-text);
+  margin-top: 6px;
+}
+
+.exsl-resume .exsl-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exsl-resume .exsl-projects .project-item .description li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.58;
+}
+
+.exsl-resume .exsl-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--exsl-accent-blue);
+}
+
+/* ── Skills ── */
+.exsl-resume .exsl-skill-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.exsl-resume .exsl-skill-group {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--exsl-charcoal);
+  line-height: 1.4;
+}
+
+.exsl-resume .exsl-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.exsl-resume .exsl-skills .skill-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--exsl-charcoal);
+  line-height: 1.35;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: none;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-skills .skill-tag:nth-child(4n + 1) {
+  background: var(--exsl-slate);
+}
+
+.exsl-resume .exsl-skills .skill-tag:nth-child(4n + 2) {
+  background: var(--exsl-beige);
+}
+
+.exsl-resume .exsl-skills .skill-tag:nth-child(4n + 3) {
+  background: var(--exsl-mint);
+}
+
+.exsl-resume .exsl-skills .skill-tag:nth-child(4n + 4) {
+  background: var(--exsl-lavender);
+}
+
+/* ── Education ── */
+.exsl-resume .exsl-education .education-item {
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.exsl-resume .exsl-education .education-item:last-child {
+  margin-bottom: 0;
+}
+
+.exsl-resume .exsl-education .education-item h3 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--exsl-charcoal);
+  line-height: 1.4;
+}
+
+.exsl-resume .exsl-education .education-item .institution {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--exsl-text);
+  line-height: 1.45;
+}
+
+.exsl-resume .exsl-education .education-item .year {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--exsl-muted);
+  margin-top: 2px;
+}
+
+/* ── Certifications ── */
+.exsl-resume .exsl-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exsl-resume .exsl-certifications .certification-item {
+  text-align: center;
+  background: var(--exsl-white);
+  border: 1px solid var(--exsl-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-certifications .certification-item h3 {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--exsl-charcoal);
+  line-height: 1.45;
+}
+
+.exsl-resume .exsl-certifications .certification-item .issuer,
+.exsl-resume .exsl-certifications .certification-item .date {
+  display: block;
+  font-size: 10.5px;
+  color: var(--exsl-muted);
+  line-height: 1.45;
+}
+
+/* ── Achievements ── */
+.exsl-resume .exsl-card--achievements {
+  background: var(--exsl-slate);
+  border: 1px solid var(--exsl-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exsl-resume .exsl-achievements .achievement-item {
+  position: relative;
+  padding-left: 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.exsl-resume .exsl-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--exsl-blue-gray);
+}
+
+.exsl-resume .exsl-achievements .achievement-item h3 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--exsl-charcoal);
+  line-height: 1.5;
+}
+
+.exsl-resume .exsl-achievements .achievement-item .description,
+.exsl-resume .exsl-achievements .achievement-item .date {
+  font-size: 11px;
+  color: var(--exsl-muted);
+  line-height: 1.45;
+}
+
+/* ── Languages ── */
+.exsl-resume .exsl-languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.exsl-resume .exsl-languages .language-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.exsl-resume .exsl-languages .language-item .language {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--exsl-charcoal);
+  line-height: 1.35;
+  padding: 5px 11px;
+  background: var(--exsl-slate);
+  border-radius: 999px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.exsl-resume .exsl-languages .language-item .proficiency {
+  display: none;
+}
+
+/* ── Print ── */
+@media print {
+  html,
+  body {
+    background: #FFFFFF;
+  }
+
+  .exsl-resume,
+  .resume-container.exsl-resume {
+    width: 100%;
+    padding: 24px 28px 32px;
+    background: var(--exsl-bg) !important;
+  }
+
+  .exsl-resume .exsl-card--summary,
+  .exsl-resume .exsl-card--achievements,
+  .exsl-resume .exsl-projects .project-item,
+  .exsl-resume .exsl-skills .skill-tag,
+  .exsl-resume .exsl-languages .language-item .language,
+  .exsl-resume .exsl-certifications .certification-item,
+  .exsl-resume .exsl-timeline-line,
+  .exsl-resume .exsl-card-accent {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .exsl-resume .exsl-card--summary,
+  .exsl-resume .exsl-photo .profile-image-wrapper {
+    box-shadow: none;
+  }
+}

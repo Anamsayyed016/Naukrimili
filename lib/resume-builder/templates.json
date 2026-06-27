@@ -1150,6 +1150,30 @@
         { "id": "charcoal-warm", "name": "Charcoal Warm", "primary": "#2D2D2D", "accent": "#C78F72", "text": "#5A5A5A" }
       ],
       "defaultColor": "sterling-clay"
+    },
+    {
+      "id": "executive-slate",
+      "name": "Executive Slate",
+      "slug": "executive-slate",
+      "description": "Premium corporate executive resume with Playfair Display typography, soft blue-gray palette, rounded portrait header, accent summary card, editorial experience timeline, beige project cards, categorized skill pills, outlined certifications, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/executive-slate/thumbnail.svg",
+      "preview": "/templates/executive-slate/preview.svg",
+      "html": "/templates/executive-slate/index.html",
+      "css": "/templates/executive-slate/style.css",
+      "categories": ["Premium", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "slate-blue-gray", "name": "Slate Blue Gray", "primary": "#7C93A8", "accent": "#6F8FA4", "text": "#555555" },
+        { "id": "accent-blue", "name": "Accent Blue", "primary": "#6F8FA4", "accent": "#7C93A8", "text": "#555555" },
+        { "id": "soft-slate", "name": "Soft Slate", "primary": "#E6ECF2", "accent": "#7C93A8", "text": "#555555" },
+        { "id": "corporate-charcoal", "name": "Corporate Charcoal", "primary": "#252525", "accent": "#7C93A8", "text": "#666666" },
+        { "id": "mint-accent", "name": "Mint Accent", "primary": "#DDEEDB", "accent": "#7C93A8", "text": "#555555" },
+        { "id": "lavender-slate", "name": "Lavender Slate", "primary": "#E8E2F3", "accent": "#6F8FA4", "text": "#555555" }
+      ],
+      "defaultColor": "slate-blue-gray"
     }
   ],
   "filters": {

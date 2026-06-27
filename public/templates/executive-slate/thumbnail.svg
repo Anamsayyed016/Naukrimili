@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#F7F8FA"/>
+  <rect x="14" y="14" width="36" height="36" rx="6" fill="#E6ECF2" stroke="#D8DEE5" stroke-width="0.5"/>
+  <text x="58" y="28" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#252525">ALEXANDER</text>
+  <text x="58" y="38" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#252525">CHEN</text>
+  <text x="58" y="46" font-family="Arial,sans-serif" font-size="2" fill="#6B7280" letter-spacing="0.3">PRINCIPAL PRODUCT DESIGNER</text>
+  <line x1="14" y1="56" x2="286" y2="56" stroke="#D8DEE5" stroke-width="0.4"/>
+  <circle cx="22" cy="64" r="1.5" fill="#7C93A8"/>
+  <circle cx="80" cy="64" r="1.5" fill="#7C93A8"/>
+  <circle cx="140" cy="64" r="1.5" fill="#7C93A8"/>
+  <rect x="14" y="72" width="188" height="4" rx="1" fill="#7C93A8"/>
+  <rect x="14" y="76" width="188" height="28" rx="6" fill="#FFFFFF" stroke="#D8DEE5" stroke-width="0.3"/>
+  <line x1="22" y1="112" x2="22" y2="168" stroke="#7C93A8" stroke-width="1" opacity="0.55"/>
+  <text x="30" y="118" font-family="Arial,sans-serif" font-size="2.4" font-weight="700" fill="#252525" letter-spacing="0.4">EXPERIENCE</text>
+  <rect x="30" y="124" width="80" height="2" fill="#252525" opacity="0.8"/>
+  <rect x="30" y="130" width="50" height="1.5" fill="#6B7280"/>
+  <rect x="30" y="136" width="160" height="1" fill="#555555" opacity="0.4"/>
+  <rect x="30" y="140" width="150" height="1" fill="#555555" opacity="0.4"/>
+  <rect x="14" y="176" width="188" height="22" rx="5" fill="#F4EFE8" stroke="#D8DEE5" stroke-width="0.3"/>
+  <rect x="208" y="72" width="78" height="126" fill="none"/>
+  <text x="214" y="84" font-family="Arial,sans-serif" font-size="2.4" font-weight="700" fill="#252525" letter-spacing="0.4">COMPETENCIES</text>
+  <line x1="214" y1="88" x2="286" y2="88" stroke="#7C93A8" stroke-width="0.8" opacity="0.45"/>
+  <rect x="214" y="94" width="30" height="9" rx="4.5" fill="#E6ECF2"/>
+  <rect x="248" y="94" width="28" height="9" rx="4.5" fill="#F4EFE8"/>
+  <rect x="214" y="106" width="32" height="9" rx="4.5" fill="#DDEEDB"/>
+  <rect x="250" y="106" width="26" height="9" rx="4.5" fill="#E8E2F3"/>
+  <rect x="214" y="124" width="72" height="18" rx="4" fill="#FFFFFF" stroke="#D8DEE5" stroke-width="0.3"/>
+  <rect x="214" y="148" width="72" height="24" rx="5" fill="#E6ECF2" stroke="#D8DEE5" stroke-width="0.3"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="600" fill="#7C93A8" letter-spacing="1.2">EXECUTIVE SLATE</text>
+</svg>
