@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#FAF8F4"/>
+  <path d="M680 0 Q800 80 800 240 L800 0 Z" fill="#FFFDFC" stroke="#E7DDD3" stroke-width="1"/>
+  <circle cx="128" cy="140" r="72" fill="rgba(201,120,97,0.14)"/>
+  <rect x="192" y="112" width="44" height="58" rx="6" fill="rgba(154,155,133,0.22)" transform="rotate(-6 214 141)"/>
+  <circle cx="138" cy="154" r="58" fill="#E8E1D8" stroke="#FFFFFF" stroke-width="5"/>
+  <text x="232" y="124" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#2C201C" letter-spacing="2">KATHERINE</text>
+  <text x="232" y="158" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#2C201C" letter-spacing="2">REED</text>
+  <text x="232" y="184" font-family="Arial,sans-serif" font-size="7" fill="#C97861" letter-spacing="1.4">CHIEF STRATEGY OFFICER</text>
+  <line x1="232" y1="200" x2="740" y2="200" stroke="#D9CEC4" stroke-width="0.8"/>
+  <text x="232" y="218" font-family="Arial,sans-serif" font-size="5.5" fill="#666666">email@example.com  |  +1 555 0123  |  portfolio.com  |  Seattle, WA</text>
+  <rect x="48" y="248" width="488" height="700" rx="0" fill="none"/>
+  <circle cx="88" cy="284" r="18" fill="none" stroke="#9A9B85" stroke-width="1.5"/>
+  <text x="118" y="290" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2C201C" letter-spacing="1.4">EXPERIENCE</text>
+  <line x1="118" y1="296" x2="500" y2="296" stroke="#D9CEC4" stroke-width="0.6"/>
+  <line x1="154" y1="312" x2="154" y2="520" stroke="#9A9B85" stroke-width="1.2" opacity="0.55"/>
+  <text x="72" y="332" font-family="Arial,sans-serif" font-size="6" fill="#666666" text-anchor="end">2021  2022</text>
+  <circle cx="154" cy="326" r="7" fill="#FFFDFC" stroke="#9A9B85" stroke-width="1.5"/>
+  <text x="176" y="328" font-family="Arial,sans-serif" font-size="6.5" font-weight="700" fill="#2C201C">AMAZON SEATTLE, WA</text>
+  <text x="176" y="346" font-family="Arial,sans-serif" font-size="6" fill="#2C201C">PRODUCT STRATEGY DIRECTOR</text>
+  <text x="176" y="366" font-family="Arial,sans-serif" font-size="5.5" fill="#666666">" Led global product roadmap across 12 markets</text>
+  <text x="176" y="382" font-family="Arial,sans-serif" font-size="5.5" fill="#666666">" Drove $50M revenue growth through strategic initiatives</text>
+  <circle cx="88" cy="448" r="18" fill="none" stroke="#9A9B85" stroke-width="1.5"/>
+  <text x="118" y="454" font-family="Arial,sans-serif" font-size="7.5" font-weight="700" fill="#2C201C" letter-spacing="1.4">PROJECTS</text>
+  <rect x="552" y="248" width="200" height="700" rx="0" fill="none"/>
+  <rect x="560" y="256" width="184" height="130" rx="16" fill="#FFFDFC" stroke="#E7DDD3" stroke-width="0.8"/>
+  <circle cx="580" cy="284" r="16" fill="none" stroke="#9A9B85" stroke-width="1.2"/>
+  <text x="606" y="290" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2C201C" letter-spacing="1.2">SKILLS</text>
+  <text x="572" y="316" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#2C201C">EXECUTIVE LEADERSHIP</text>
+  <text x="572" y="332" font-family="Arial,sans-serif" font-size="5" fill="#666666">" Strategic Planning</text>
+  <rect x="560" y="398" width="184" height="100" rx="16" fill="#FFFDFC" stroke="#E7DDD3" stroke-width="0.8"/>
+  <circle cx="580" cy="426" r="16" fill="none" stroke="#9A9B85" stroke-width="1.2"/>
+  <text x="606" y="432" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2C201C" letter-spacing="1.2">LANGUAGES</text>
+  <text x="572" y="458" font-family="Arial,sans-serif" font-size="5.5" fill="#2C201C">English</text>
+  <text x="680" y="458" font-family="Arial,sans-serif" font-size="5" fill="#C97861">Ï Ï Ï Ï Ï</text>
+  <rect x="560" y="510" width="184" height="120" rx="16" fill="#FFFDFC" stroke="#E7DDD3" stroke-width="0.8"/>
+  <circle cx="580" cy="538" r="16" fill="none" stroke="#9A9B85" stroke-width="1.2"/>
+  <text x="606" y="544" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2C201C" letter-spacing="1.2">ACHIEVEMENTS</text>
+  <circle cx="576" cy="572" r="12" fill="#C97861"/>
+  <text x="596" y="576" font-family="Arial,sans-serif" font-size="5.5" fill="#2C201C">Top Executive Award 2023</text>
+  <text x="400" y="972" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="600" fill="#C97861" letter-spacing="3">EXECUTIVE TIMELINE</text>
+</svg>

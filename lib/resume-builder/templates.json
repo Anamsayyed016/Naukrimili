@@ -1006,6 +1006,30 @@
         { "id": "blush-executive", "name": "Blush Executive", "primary": "#2E2E2E", "accent": "#E08B9A", "text": "#5A5A5A" }
       ],
       "defaultColor": "mosaic-executive"
+    },
+    {
+      "id": "executive-timeline",
+      "name": "Executive Timeline",
+      "slug": "executive-timeline",
+      "description": "Premium executive resume with warm ivory palette, Playfair Display typography, vertical olive timeline, terracotta accents, circular section icons, grouped skills sidebar, language dot ratings, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/executive-timeline/thumbnail.svg",
+      "preview": "/templates/executive-timeline/preview.svg",
+      "html": "/templates/executive-timeline/index.html",
+      "css": "/templates/executive-timeline/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "timeline-executive", "name": "Timeline Executive", "primary": "#9A9B85", "accent": "#C97861", "text": "#666666" },
+        { "id": "warm-terracotta", "name": "Warm Terracotta", "primary": "#8E8F78", "accent": "#B86A55", "text": "#5A5A5A" },
+        { "id": "olive-classic", "name": "Olive Classic", "primary": "#7A7B68", "accent": "#C97861", "text": "#666666" },
+        { "id": "sand-executive", "name": "Sand Executive", "primary": "#A89F8E", "accent": "#D4896E", "text": "#6B6B6B" },
+        { "id": "earth-tone", "name": "Earth Tone", "primary": "#8B8374", "accent": "#BF6E58", "text": "#555555" },
+        { "id": "soft-sienna", "name": "Soft Sienna", "primary": "#9A9B85", "accent": "#D48A72", "text": "#666666" }
+      ],
+      "defaultColor": "timeline-executive"
     }
   ],
   "filters": {

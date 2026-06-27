@@ -276,6 +276,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-rose-200/55',
     hoverOverlay: 'from-rose-50/35',
   },
+  'executive-timeline': {
+    glow: 'radial-gradient(circle, rgba(201,120,97,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(154,155,133,0.45) 0%, transparent 70%)',
+    borderTint: 'hover:border-orange-200/55',
+    hoverOverlay: 'from-orange-50/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -325,6 +331,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'lumen-studio': { firstName: 'Lumen', lastName: 'Studio', jobTitle: 'Creative Director | Scandinavian Editorial Design & Brand Strategy' },
   'soft-sage-professional': { firstName: 'Eliza', lastName: 'Chen', jobTitle: 'Global Operations Strategist | Enterprise Leadership & Digital Transformation' },
   'executive-mosaic': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Global Product Strategist | Enterprise Leadership & Digital Transformation' },
+  'executive-timeline': { firstName: 'Katherine', lastName: 'Reed', jobTitle: 'Chief Strategy Officer | Fashion Retail Innovator' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
