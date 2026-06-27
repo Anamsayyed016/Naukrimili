@@ -618,6 +618,8 @@ function resolveTextRecoveryAutofill(
 export type DocumentParserAutofillOptions = {
   budget?: ParserTimeBudget;
   timing?: UploadPipelineTiming;
+  /** When true, skip Eden/Apilayer and use text recovery only (duplicate-call guard). */
+  skipExternalParsers?: boolean;
 };
 
 /** Document parsers + text recovery — independent of OpenAI/Gemini quota. */
@@ -630,6 +632,11 @@ export async function resolveDocumentParserAutofill(
 ): Promise<(DocumentParserResult & { data: ExtractedResumeData }) | null> {
   const budget = options?.budget;
   const timing = options?.timing;
+
+  if (options?.skipExternalParsers) {
+    console.warn('[resume-merge] Skipping Eden/Apilayer — document autofill already attempted this request');
+    return resolveTextRecoveryAutofill(affindaData, extractedText);
+  }
 
   if (budget && !budget.shouldRunNextParser(8000)) {
     console.warn('[resume-merge] Parser budget low — skipping Eden/Apilayer, using text recovery');

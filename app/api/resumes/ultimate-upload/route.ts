@@ -54,6 +54,7 @@ import {
   UploadPipelineTiming,
   ParserTimeBudget,
   getUploadParserBudgetMs,
+  uploadStageDebug,
 } from '@/lib/resume-parser/upload-pipeline-trace';
 import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/resume-parser/text-recovery';
 
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
   });
 
   try {
+    const pipelineStartMs = Date.now();
     const uploadTiming = new UploadPipelineTiming();
     const parserBudget = new ParserTimeBudget(getUploadParserBudgetMs());
     log('upload timeout chain', {
@@ -180,6 +182,11 @@ export async function POST(request: NextRequest) {
       fileSizeBytes: file.size,
       fileSizeMb: (file.size / (1024 * 1024)).toFixed(3),
       contentLength,
+    });
+    uploadStageDebug(REQ, 'UPLOAD', 'file received', {
+      fileName: file.name,
+      fileSizeBytes: file.size,
+      fileType: file.type,
     });
 
     // Check file size
@@ -263,6 +270,7 @@ export async function POST(request: NextRequest) {
     let extractedText: string;
     let ocrApplied = false;
     const textExtractionStart = Date.now();
+    uploadStageDebug(REQ, 'PDF', 'extraction started', { fileSizeBytes: file.size });
     try {
       extractedText = await extractTextFromFile(file, bytes);
       
@@ -314,6 +322,7 @@ export async function POST(request: NextRequest) {
           });
         } else {
         const ocrStart = Date.now();
+        uploadStageDebug(REQ, 'OCR', 'started', { fileSizeBytes: fileBuffer.length });
         console.warn('⚠️ Low-quality PDF text — attempting OCR recovery...');
         console.log('   - Text starts with:', extractedText.substring(0, 100));
         
@@ -360,6 +369,10 @@ export async function POST(request: NextRequest) {
           });
         }
         uploadTiming.record('ocrMs', Date.now() - ocrStart);
+        uploadStageDebug(REQ, 'OCR', 'completed', {
+          durationMs: Date.now() - ocrStart,
+          applied: ocrApplied,
+        });
         }
       } else if (file.type === 'application/pdf' && layoutSignals.scannedLikely) {
         warn('[OCR] skipped: ocr_disabled', {
@@ -411,6 +424,11 @@ export async function POST(request: NextRequest) {
     }
 
     uploadTiming.record('textExtractionMs', Date.now() - textExtractionStart);
+    uploadStageDebug(REQ, 'PDF', 'extraction completed', {
+      durationMs: Date.now() - textExtractionStart,
+      textLength: extractedText?.length ?? 0,
+      ocrApplied,
+    });
 
     const rawPdfText = extractedText;
 
@@ -468,14 +486,74 @@ export async function POST(request: NextRequest) {
       let usedAffindaPrimary = false;
       let usedDocumentParser = false;
       let lastAffindaResult: ExtractedResumeData | null = null;
+      let documentAutofillAttempted = false;
+      let documentAutofillCache: Awaited<
+        ReturnType<typeof resolveDocumentParserAutofill>
+      > | undefined;
+
+      const applyDocAutofill = (
+        docAutofill: NonNullable<Awaited<ReturnType<typeof resolveDocumentParserAutofill>>>
+      ): void => {
+        provenanceAffinda = docAutofill.affindaData;
+        provenanceEden = docAutofill.edenData || null;
+        parsedData = mapExtractedToUploadProfile(docAutofill.data, {
+          aiProvider: docAutofill.provider,
+        });
+        aiSuccess = true;
+        aiProvider = docAutofill.provider;
+        usedDocumentParser = true;
+      };
+
+      /** Runs Eden/Apilayer/text-recovery once per request — retries reuse cache or text-only recovery. */
+      const runDocumentAutofill = async (): Promise<
+        Awaited<ReturnType<typeof resolveDocumentParserAutofill>>
+      > => {
+        if (documentAutofillAttempted) {
+          uploadStageDebug(REQ, 'DOC-AUTOFILL', 'skipped duplicate', {
+            hadResult: documentAutofillCache != null,
+          });
+          if (documentAutofillCache !== undefined) {
+            return documentAutofillCache;
+          }
+          return resolveDocumentParserAutofill(
+            lastAffindaResult,
+            fileBuffer,
+            file.name,
+            extractedText,
+            { budget: parserBudget, timing: uploadTiming, skipExternalParsers: true }
+          );
+        }
+        documentAutofillAttempted = true;
+        const docStart = Date.now();
+        uploadStageDebug(REQ, 'DOC-AUTOFILL', 'started', { fileSizeBytes: file.size });
+        const result = await resolveDocumentParserAutofill(
+          lastAffindaResult,
+          fileBuffer,
+          file.name,
+          extractedText,
+          { budget: parserBudget, timing: uploadTiming }
+        );
+        documentAutofillCache = result;
+        uploadStageDebug(REQ, 'DOC-AUTOFILL', 'completed', {
+          durationMs: Date.now() - docStart,
+          accepted: !!result,
+          provider: result?.provider,
+        });
+        return result;
+      };
 
       if (isAffindaEnabled()) {
         try {
           console.log('🚀 Affinda enabled — trying document parse first...');
+          uploadStageDebug(REQ, 'AFFINDA', 'request started', { fileSizeBytes: file.size });
           const affindaParser = new AffindaResumeParser();
           const affindaResult = await uploadTiming.measure('affindaMs', () =>
             affindaParser.parseResume(fileBuffer, file.name)
           );
+          uploadStageDebug(REQ, 'AFFINDA', 'response received', {
+            durationMs: uploadTiming.stages.affindaMs,
+            confidence: affindaResult.confidence,
+          });
           lastAffindaResult = affindaResult;
 
           if (affindaResult.rawText && affindaResult.rawText.length > extractedText.length) {
@@ -555,22 +633,9 @@ export async function POST(request: NextRequest) {
       if (!usedAffindaPrimary) {
         try {
           console.log('🌿 Trying Eden/ApiLayer/Affinda document parsers (no OpenAI required)...');
-          const docAutofill = await resolveDocumentParserAutofill(
-            lastAffindaResult,
-            fileBuffer,
-            file.name,
-            extractedText,
-            { budget: parserBudget, timing: uploadTiming }
-          );
+          const docAutofill = await runDocumentAutofill();
           if (docAutofill) {
-            provenanceAffinda = docAutofill.affindaData;
-            provenanceEden = docAutofill.edenData || null;
-            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
-              aiProvider: docAutofill.provider,
-            });
-            aiSuccess = true;
-            aiProvider = docAutofill.provider;
-            usedDocumentParser = true;
+            applyDocAutofill(docAutofill);
             console.log('✅ Document parser autofill accepted:', docAutofill.provider);
             console.log('   - Name:', parsedData.fullName || 'MISSING');
             console.log('   - Experience:', parsedData.experience?.length ?? 0);
@@ -592,25 +657,15 @@ export async function POST(request: NextRequest) {
           budgetMs: parserBudget.budgetMs,
         });
         hybridSkippedReason = 'parser_budget_exceeded';
-        const docAutofill = await resolveDocumentParserAutofill(
-          lastAffindaResult,
-          fileBuffer,
-          file.name,
-          extractedText,
-          { budget: parserBudget, timing: uploadTiming }
-        );
+        const docAutofill = await runDocumentAutofill();
         if (docAutofill) {
-          provenanceAffinda = docAutofill.affindaData;
-          provenanceEden = docAutofill.edenData || null;
-          parsedData = mapExtractedToUploadProfile(docAutofill.data, {
-            aiProvider: docAutofill.provider,
-          });
-          aiSuccess = true;
-          aiProvider = docAutofill.provider;
-          usedDocumentParser = true;
+          applyDocAutofill(docAutofill);
         }
       } else {
       const aiExtractionStart = Date.now();
+      uploadStageDebug(REQ, 'AI', 'extraction started', {
+        remainingBudgetMs: parserBudget.remainingMs(),
+      });
       try {
         // Try HybridResumeAI when document parsers did not produce enough data
         console.log('🚀 Attempting HybridResumeAI extraction with REAL AI...');
@@ -663,22 +718,9 @@ export async function POST(request: NextRequest) {
 
         const tryDocumentParserAfterHybridReject = async (reason: string): Promise<boolean> => {
           console.warn(`⚠️ Hybrid rejected (${reason}) — trying document + text parsers`);
-          const docAutofill = await resolveDocumentParserAutofill(
-            lastAffindaResult,
-            fileBuffer,
-            file.name,
-            extractedText,
-            { budget: parserBudget, timing: uploadTiming }
-          );
+          const docAutofill = await runDocumentAutofill();
           if (docAutofill && hasMinimalAutofillPayload(docAutofill.data)) {
-            provenanceAffinda = docAutofill.affindaData;
-            provenanceEden = docAutofill.edenData || null;
-            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
-              aiProvider: docAutofill.provider,
-            });
-            aiSuccess = true;
-            aiProvider = docAutofill.provider;
-            usedDocumentParser = true;
+            applyDocAutofill(docAutofill);
             console.log('✅ Recovered autofill via document parsers after Hybrid rejection');
             return true;
           }
@@ -841,22 +883,9 @@ export async function POST(request: NextRequest) {
       if (!usedDocumentParser) {
         try {
           console.log('🌿 Hybrid failed — retrying Eden/Affinda + text recovery...');
-          const docAutofill = await resolveDocumentParserAutofill(
-            lastAffindaResult,
-            fileBuffer,
-            file.name,
-            extractedText,
-            { budget: parserBudget, timing: uploadTiming }
-          );
+          const docAutofill = await runDocumentAutofill();
           if (docAutofill) {
-            provenanceAffinda = docAutofill.affindaData;
-            provenanceEden = docAutofill.edenData || null;
-            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
-              aiProvider: docAutofill.provider,
-            });
-            aiSuccess = true;
-            aiProvider = docAutofill.provider;
-            usedDocumentParser = true;
+            applyDocAutofill(docAutofill);
             console.log('✅ Document parser autofill recovered after Hybrid failure');
           }
         } catch (docRetryError) {
@@ -914,59 +943,65 @@ export async function POST(request: NextRequest) {
         console.error('   4. Extracted text is causing parsing errors');
         console.error('═══════════════════════════════════════════════════════');
         console.warn('⚠️ Falling back to Affinda...');
-        
-        // Try Affinda Resume Parser (Tier 3)
+
+        // Reuse primary Affinda result when available — avoids a duplicate ~55s API call.
         try {
-          console.log('🔄 Attempting Affinda Resume Parser extraction...');
-          const affindaParser = new AffindaResumeParser();
-          
-          if (affindaParser.isAvailable()) {
-            const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
-            console.log('📦 Affinda returned result');
-            
-            if (affindaResult && isUsableExtraction(affindaResult)) {
-              console.log('📊 Affinda result received:', {
-                name: affindaResult.fullName || 'NOT FOUND',
-                email: affindaResult.email || 'NOT FOUND',
-                phone: affindaResult.phone || 'NOT FOUND',
-                skillsCount: (affindaResult.skills || []).length,
-                experienceCount: (affindaResult.experience || []).length,
-                educationCount: (affindaResult.education || []).length,
-              });
-              
-              parsedData = mapExtractedToUploadProfile(affindaResult, {
-                aiProvider: 'affinda',
-              });
-              aiSuccess = true;
-              aiProvider = 'affinda';
-              console.log('✅ Affinda parsing successful');
-              console.log('   - Confidence:', parsedData.confidence, '%');
-              console.log('   - Skills:', parsedData.skills.length);
-              console.log('   - Experience:', parsedData.experience.length);
-              console.log('   - Education:', parsedData.education.length);
-            } else {
-              throw new Error('Affinda returned incomplete data');
-            }
+          if (lastAffindaResult && isUsableExtraction(lastAffindaResult)) {
+            console.log('♻️ Reusing cached Affinda result from primary parse');
+            parsedData = mapExtractedToUploadProfile(lastAffindaResult, {
+              aiProvider: 'affinda',
+            });
+            aiSuccess = true;
+            aiProvider = 'affinda';
+            console.log('✅ Affinda parsing successful (cached)');
+            console.log('   - Confidence:', parsedData.confidence, '%');
+            console.log('   - Skills:', parsedData.skills.length);
+            console.log('   - Experience:', parsedData.experience.length);
+            console.log('   - Education:', parsedData.education.length);
+          } else if (lastAffindaResult) {
+            throw new Error('Cached Affinda result unusable — skipping duplicate parse');
           } else {
-            console.log('⚠️ Affinda not available (no API key), skipping to basic extraction');
-            throw new Error('Affinda not configured');
+            console.log('🔄 Attempting Affinda Resume Parser extraction...');
+            const affindaParser = new AffindaResumeParser();
+
+            if (affindaParser.isAvailable()) {
+              const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
+              lastAffindaResult = affindaResult;
+              console.log('📦 Affinda returned result');
+
+              if (affindaResult && isUsableExtraction(affindaResult)) {
+                console.log('📊 Affinda result received:', {
+                  name: affindaResult.fullName || 'NOT FOUND',
+                  email: affindaResult.email || 'NOT FOUND',
+                  phone: affindaResult.phone || 'NOT FOUND',
+                  skillsCount: (affindaResult.skills || []).length,
+                  experienceCount: (affindaResult.experience || []).length,
+                  educationCount: (affindaResult.education || []).length,
+                });
+
+                parsedData = mapExtractedToUploadProfile(affindaResult, {
+                  aiProvider: 'affinda',
+                });
+                aiSuccess = true;
+                aiProvider = 'affinda';
+                console.log('✅ Affinda parsing successful');
+                console.log('   - Confidence:', parsedData.confidence, '%');
+                console.log('   - Skills:', parsedData.skills.length);
+                console.log('   - Experience:', parsedData.experience.length);
+                console.log('   - Education:', parsedData.education.length);
+              } else {
+                throw new Error('Affinda returned incomplete data');
+              }
+            } else {
+              console.log('⚠️ Affinda not available (no API key), skipping to basic extraction');
+              throw new Error('Affinda not configured');
+            }
           }
         } catch (affindaError) {
           console.error('❌ Affinda also failed, using basic extraction:', affindaError);
-          const docAutofill = await resolveDocumentParserAutofill(
-            lastAffindaResult,
-            fileBuffer,
-            file.name,
-            extractedText,
-            { budget: parserBudget, timing: uploadTiming }
-          );
+          const docAutofill = await runDocumentAutofill();
           if (docAutofill) {
-            provenanceAffinda = docAutofill.affindaData;
-            provenanceEden = docAutofill.edenData || null;
-            parsedData = mapExtractedToUploadProfile(docAutofill.data, {
-              aiProvider: docAutofill.provider,
-            });
-            aiProvider = docAutofill.provider;
+            applyDocAutofill(docAutofill);
           } else {
             parsedData = await parseResumeBasic(extractedText, session);
             aiProvider = 'basic';
@@ -976,6 +1011,11 @@ export async function POST(request: NextRequest) {
       }
     }
       uploadTiming.record('aiExtractionMs', Date.now() - aiExtractionStart);
+      uploadStageDebug(REQ, 'AI', 'extraction completed', {
+        durationMs: Date.now() - aiExtractionStart,
+        aiProvider,
+        aiSuccess,
+      });
       }
     }
     }
@@ -1932,6 +1972,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Save resume to database with storage metadata
+    uploadStageDebug(REQ, 'DB', 'save started');
+    const dbSaveStart = Date.now();
     const resume = await prisma.resume.create({
       data: {
         userId: user.id,
@@ -1950,6 +1992,7 @@ export async function POST(request: NextRequest) {
     });
 
     console.log(`✅ Ultimate resume upload completed: ${resume.id}`);
+    uploadStageDebug(REQ, 'DB', 'saved', { durationMs: Date.now() - dbSaveStart, resumeId: resume.id });
 
     // Fetch job recommendations based on uploaded resume
     let recommendations = [];
@@ -2037,6 +2080,13 @@ export async function POST(request: NextRequest) {
       console.error('⚠️ Failed to fetch recommendations (non-critical):', recError);
       // Don't fail the upload if recommendations fail
     }
+
+    uploadStageDebug(REQ, 'TOTAL', 'pipeline finished', {
+      durationMs: Date.now() - pipelineStartMs,
+      fileSizeBytes: file.size,
+      aiProvider,
+      ...uploadTiming.stages,
+    });
 
     return NextResponse.json({ 
       success: true, 

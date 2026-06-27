@@ -188,3 +188,24 @@ export function getUploadParserBudgetMs(): number {
   const parsed = parseInt(process.env.UPLOAD_PARSER_BUDGET_MS || '75000', 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 75000;
 }
+
+function isUploadPipelineDebugEnabled(): boolean {
+  const v = process.env.UPLOAD_PIPELINE_DEBUG;
+  return v === '1' || v === 'true';
+}
+
+/** Removable stage logs — enable with UPLOAD_PIPELINE_DEBUG=1 */
+export function uploadStageDebug(
+  reqId: string,
+  stage: string,
+  event: string,
+  extra?: Record<string, unknown>
+): void {
+  if (!isUploadPipelineDebugEnabled()) return;
+  const mem = process.memoryUsage();
+  console.log(`[UPLOAD][${reqId}] ${stage} ${event}`, {
+    ts: new Date().toISOString(),
+    heapUsedMb: +(mem.heapUsed / 1024 / 1024).toFixed(2),
+    ...extra,
+  });
+}
