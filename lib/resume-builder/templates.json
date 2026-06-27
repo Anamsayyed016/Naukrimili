@@ -1078,6 +1078,30 @@
         { "id": "sage-minimal", "name": "Sage Minimal", "primary": "#8D617B", "accent": "#A8B89E", "text": "#5A5A5A" }
       ],
       "defaultColor": "modern-edge-plum"
+    },
+    {
+      "id": "prism-edition",
+      "name": "Prism Edition",
+      "slug": "prism-edition",
+      "description": "Scandinavian editorial premium resume with pearl white canvas, Playfair Display typography, square portrait header, soft linen summary card, minimalist vertical timeline, horizontal skill bars, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/prism-edition/thumbnail.svg",
+      "preview": "/templates/prism-edition/preview.svg",
+      "html": "/templates/prism-edition/index.html",
+      "css": "/templates/prism-edition/style.css",
+      "categories": ["Premium", "Modern", "Minimal", "Professional", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "prism-cinnamon", "name": "Prism Cinnamon", "primary": "#C07C63", "accent": "#AEB8A6", "text": "#666666" },
+        { "id": "scandi-sage", "name": "Scandi Sage", "primary": "#AEB8A6", "accent": "#C07C63", "text": "#666666" },
+        { "id": "soft-linen", "name": "Soft Linen", "primary": "#B89080", "accent": "#AEB8A6", "text": "#555555" },
+        { "id": "pearl-minimal", "name": "Pearl Minimal", "primary": "#C07C63", "accent": "#D8D7D3", "text": "#666666" },
+        { "id": "dusty-earth", "name": "Dusty Earth", "primary": "#B07868", "accent": "#9AAA92", "text": "#666666" },
+        { "id": "stone-editorial", "name": "Stone Editorial", "primary": "#9A9088", "accent": "#AEB8A6", "text": "#5A5A5A" }
+      ],
+      "defaultColor": "prism-cinnamon"
     }
   ],
   "filters": {

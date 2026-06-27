@@ -294,6 +294,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-purple-200/55',
     hoverOverlay: 'from-purple-50/35',
   },
+  'prism-edition': {
+    glow: 'radial-gradient(circle, rgba(192,124,99,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(174,184,166,0.45) 0%, transparent 70%)',
+    borderTint: 'hover:border-orange-200/55',
+    hoverOverlay: 'from-stone-50/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -346,6 +352,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-timeline': { firstName: 'Katherine', lastName: 'Reed', jobTitle: 'Chief Strategy Officer | Fashion Retail Innovator' },
   'nordic-fusion': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Product Designer | Scandinavian Design & UX Leadership' },
   'modern-edge': { firstName: 'Liam', lastName: 'Nguyen', jobTitle: 'Senior Product Designer | Product Strategy & UX Leadership' },
+  'prism-edition': { firstName: 'Canela', lastName: 'Name', jobTitle: 'Senior Product Designer | Scandinavian Editorial Design' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
