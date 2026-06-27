@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container stex-resume">
+    <div class="stex-deco stex-deco--arch-tl" aria-hidden="true"></div>
+    <div class="stex-deco stex-deco--arch-tl-inner" aria-hidden="true"></div>
+    <div class="stex-deco stex-deco--circle-tr" aria-hidden="true"></div>
+    <div class="stex-deco stex-deco--fold" aria-hidden="true"></div>
+
+    <header class="stex-header">
+      <div class="stex-header-row">
+        {{#if PROFILE_IMAGE}}
+        <div class="stex-photo">
+          <div class="stex-photo-ring stex-photo-ring--outer" aria-hidden="true"></div>
+          <div class="stex-photo-ring stex-photo-ring--inner" aria-hidden="true"></div>
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="stex-photo">
+          <div class="stex-photo-ring stex-photo-ring--outer" aria-hidden="true"></div>
+          <div class="stex-photo-ring stex-photo-ring--inner" aria-hidden="true"></div>
+          <div class="profile-image-wrapper profile-image-wrapper--initials">
+            <span class="profile-initials" aria-hidden="true">
+              <span class="stex-ini-f">{{FIRST_NAME}}</span><span class="stex-ini-l">{{LAST_NAME}}</span>
+            </span>
+          </div>
+        </div>
+        {{/unless}}
+
+        <div class="stex-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="stex-contact-bar">
+        <div class="stex-contact-row">
+          {{#if EMAIL}}<div class="stex-contact-item"><span class="stex-contact-icon stex-contact-icon--email" aria-hidden="true"></span><span class="stex-contact-text">{{EMAIL}}</span></div>{{/if}}
+          {{#if PHONE}}<div class="stex-contact-item"><span class="stex-contact-sep" aria-hidden="true"></span><span class="stex-contact-icon stex-contact-icon--phone" aria-hidden="true"></span><span class="stex-contact-text">{{PHONE}}</span></div>{{/if}}
+          {{#if LINKEDIN}}<div class="stex-contact-item"><span class="stex-contact-sep" aria-hidden="true"></span><span class="stex-contact-icon stex-contact-icon--web" aria-hidden="true"></span><span class="stex-contact-text">{{LINKEDIN}}</span></div>{{/if}}
+          {{#if LOCATION}}<div class="stex-contact-item"><span class="stex-contact-sep" aria-hidden="true"></span><span class="stex-contact-icon stex-contact-icon--location" aria-hidden="true"></span><span class="stex-contact-text">{{LOCATION}}</span></div>{{/if}}
+          {{#if PORTFOLIO}}<div class="stex-contact-item"><span class="stex-contact-sep" aria-hidden="true"></span><span class="stex-contact-icon stex-contact-icon--web" aria-hidden="true"></span><span class="stex-contact-text">{{PORTFOLIO}}</span></div>{{/if}}
+        </div>
+      </div>
+
+      <div class="stex-header-divider" aria-hidden="true"></div>
+    </header>
+
+    <div class="stex-body">
+      <main class="stex-main">
+        {{#if SUMMARY}}
+        <section class="stex-section">
+          <h2 class="stex-section-title">Professional Summary</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="stex-card stex-card--summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="stex-section">
+          <h2 class="stex-section-title">Experience</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="stex-timeline-wrap">
+            <div class="stex-timeline-accent" aria-hidden="true"></div>
+            <div class="experience-list stex-experience">
+              {{EXPERIENCE}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="stex-section">
+          <h2 class="stex-section-title">Projects</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="stex-card stex-card--projects">
+            <div class="projects-list stex-projects">
+              {{PROJECTS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="stex-sidebar">
+        {{#if SKILLS}}
+        <section class="stex-side-section">
+          <h2 class="stex-section-title">Skills</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="skills-list stex-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="stex-side-section">
+          <h2 class="stex-section-title">Education</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="education-list stex-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="stex-side-section">
+          <h2 class="stex-section-title">Certifications</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="certifications-list stex-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="stex-side-section">
+          <h2 class="stex-section-title">Languages</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="languages-list stex-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="stex-side-section">
+          <h2 class="stex-section-title">Achievements</h2>
+          <span class="stex-section-rule" aria-hidden="true"></span>
+          <div class="stex-card stex-card--achievements">
+            <div class="achievements-list stex-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

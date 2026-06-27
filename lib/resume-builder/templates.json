@@ -1126,6 +1126,30 @@
         { "id": "sand-monarch", "name": "Sand Monarch", "primary": "#B89078", "accent": "#9A9E86", "text": "#5A5A5A" }
       ],
       "defaultColor": "monarch-terracotta"
+    },
+    {
+      "id": "sterling-executive",
+      "name": "Sterling Executive",
+      "slug": "sterling-executive",
+      "description": "Luxury editorial executive resume with architectural background shapes, Playfair Display typography, warm sand palette, circular portrait frame, soft summary card, terracotta timeline accent, pill-based skills, and ATS-friendly PDF export.",
+      "thumbnail": "/templates/sterling-executive/thumbnail.svg",
+      "preview": "/templates/sterling-executive/preview.svg",
+      "html": "/templates/sterling-executive/index.html",
+      "css": "/templates/sterling-executive/style.css",
+      "categories": ["Premium", "Executive", "Modern", "Professional", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "sterling-clay", "name": "Sterling Clay", "primary": "#C78F72", "accent": "#B9775B", "text": "#666666" },
+        { "id": "warm-sand", "name": "Warm Sand", "primary": "#B9775B", "accent": "#C78F72", "text": "#666666" },
+        { "id": "soft-stone", "name": "Soft Stone", "primary": "#D6CEC2", "accent": "#C78F72", "text": "#555555" },
+        { "id": "terracotta-luxe", "name": "Terracotta Luxe", "primary": "#B9775B", "accent": "#D6CEC2", "text": "#666666" },
+        { "id": "beige-executive", "name": "Beige Executive", "primary": "#C4A890", "accent": "#B9775B", "text": "#666666" },
+        { "id": "charcoal-warm", "name": "Charcoal Warm", "primary": "#2D2D2D", "accent": "#C78F72", "text": "#5A5A5A" }
+      ],
+      "defaultColor": "sterling-clay"
     }
   ],
   "filters": {
