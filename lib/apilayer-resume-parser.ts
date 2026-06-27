@@ -81,11 +81,24 @@ export class ApilayerResumeParser {
           signal: controller.signal,
         });
 
-        if (response.status === 429 && attempt < attempts) {
-          const retryAfter = parseInt(response.headers.get('retry-after') || '2', 10);
-          console.warn(`[apilayer] Rate limited (429), retrying in ${retryAfter}s (attempt ${attempt}/${attempts})`);
-          await sleep(retryAfter * 1000);
-          continue;
+        if (response.status === 429) {
+          const retryAfterSec = parseApilayerRetryAfterSeconds(
+            response.headers.get('retry-after')
+          );
+          if (retryAfterSec != null && attempt < attempts) {
+            console.warn(
+              `[apilayer] Rate limited (429), retrying in ${retryAfterSec}s (attempt ${attempt}/${attempts})`
+            );
+            await sleep(retryAfterSec * 1000);
+            continue;
+          }
+          const rawRetry = response.headers.get('retry-after');
+          console.warn(
+            `[apilayer] Rate limited (429), failing fast (retry-after: ${rawRetry ?? 'none'})`
+          );
+          throw new Error(
+            `ApiLayer API error: 429 - rate limited${rawRetry ? ` (retry-after: ${rawRetry})` : ''}`
+          );
         }
 
         if (!response.ok) {
@@ -323,6 +336,34 @@ function calculateApilayerConfidence(data: {
   if (data.experience > 0) score += 20;
   if (data.education > 0) score += 10;
   return Math.min(score, 100);
+}
+
+/** Max wait before retry during upload — ApiLayer may return multi-day retry-after on quota exhaustion. */
+const APILAYER_MAX_RETRY_WAIT_SEC = 3;
+
+/**
+ * Parse Retry-After for ApiLayer. Returns seconds to wait, or null when backoff is too long
+ * (caller should fail fast so the upload pipeline can continue to other parsers).
+ */
+export function parseApilayerRetryAfterSeconds(
+  headerValue: string | null,
+  maxWaitSec = APILAYER_MAX_RETRY_WAIT_SEC
+): number | null {
+  if (!headerValue?.trim()) return null;
+
+  const trimmed = headerValue.trim();
+  const asInt = parseInt(trimmed, 10);
+  if (Number.isFinite(asInt) && asInt > 0) {
+    return asInt <= maxWaitSec ? asInt : null;
+  }
+
+  const dateMs = Date.parse(trimmed);
+  if (Number.isFinite(dateMs)) {
+    const sec = Math.ceil((dateMs - Date.now()) / 1000);
+    return sec > 0 && sec <= maxWaitSec ? sec : null;
+  }
+
+  return null;
 }
 
 function logApilayerRateLimitHeaders(headers: Headers): void {

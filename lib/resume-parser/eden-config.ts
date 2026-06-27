@@ -11,7 +11,8 @@ export interface EdenConfig {
 
 const DEFAULT_API_URL = 'https://api.edenai.run/v2/ocr/resume_parser';
 /** Try multiple Eden resume engines — hireability alone often returns empty on some PDFs. */
-const DEFAULT_PROVIDERS = ['hireability', 'affinda', 'sovren'];
+/** sovren removed — Eden API no longer exposes ocr.resume_parser/sovren (400 Invalid request). */
+const DEFAULT_PROVIDERS = ['hireability', 'affinda'];
 
 export function getEdenConfig(): EdenConfig | null {
   const apiKey = process.env.EDEN_AI_API_KEY?.trim();

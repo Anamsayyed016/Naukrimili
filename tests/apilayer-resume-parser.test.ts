@@ -1,5 +1,25 @@
-import { transformApilayerPayload } from '@/lib/apilayer-resume-parser';
+import {
+  parseApilayerRetryAfterSeconds,
+  transformApilayerPayload,
+} from '@/lib/apilayer-resume-parser';
 import { hasMinimalAutofillPayload } from '@/lib/resume-parser/map-to-upload-profile';
+
+describe('parseApilayerRetryAfterSeconds', () => {
+  it('accepts short numeric retry-after values', () => {
+    expect(parseApilayerRetryAfterSeconds('2')).toBe(2);
+    expect(parseApilayerRetryAfterSeconds('3')).toBe(3);
+  });
+
+  it('rejects multi-day quota reset retry-after (fail fast)', () => {
+    expect(parseApilayerRetryAfterSeconds('277393')).toBeNull();
+    expect(parseApilayerRetryAfterSeconds('86400')).toBeNull();
+  });
+
+  it('returns null for missing or invalid values', () => {
+    expect(parseApilayerRetryAfterSeconds(null)).toBeNull();
+    expect(parseApilayerRetryAfterSeconds('')).toBeNull();
+  });
+});
 
 describe('transformApilayerPayload', () => {
   it('maps ApiLayer sample response to ExtractedResumeData', () => {
