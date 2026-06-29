@@ -34,6 +34,7 @@ import {
   coalesceFormDataForTemplateRender,
   appendHobbiesSectionIfMissing,
 } from './section-visibility';
+import { balanceTwoColumnTemplateSections } from './column-section-balance';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { resolveTemplateId } from './template-aliases';
 
@@ -524,7 +525,12 @@ export function injectResumeData(
     '{{HOBBIES}}': renderHobbies(hobbiesData as Array<string | Record<string, unknown>>),
   };
 
-  let result = processHandlebarsConditionals(htmlTemplate, placeholders, data);
+  const balancedTemplate = balanceTwoColumnTemplateSections(htmlTemplate, {
+    placeholders,
+    formData: data,
+  });
+
+  let result = processHandlebarsConditionals(balancedTemplate, placeholders, data);
 
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {
@@ -547,7 +553,7 @@ export function injectResumeData(
 
   result = appendHobbiesSectionIfMissing(
     result,
-    htmlTemplate,
+    balancedTemplate,
     placeholders['{{HOBBIES}}'] || '',
     data
   );
