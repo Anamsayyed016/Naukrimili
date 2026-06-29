@@ -2,10 +2,11 @@ import Script from 'next/script';
 
 const GA_MEASUREMENT_ID = 'G-Q3KBBWYNR9';
 const ADSENSE_CLIENT = 'ca-pub-8909131989940319';
+const META_PIXEL_ID = '1035238572315429';
 
 /**
  * Deferred third-party scripts — analytics, ads, affiliates.
- * GA/AdSense load after page idle; dataLayer stub preserves event queueing.
+ * GA/AdSense/Meta Pixel load after page idle; dataLayer stub preserves event queueing.
  */
 export default function ThirdPartyScripts() {
   const gtmId = process.env.NEXT_PUBLIC_GTM_CONTAINER_ID;
@@ -117,6 +118,19 @@ window.trackJobApplied = trackJobApplied;`}
           strategy="lazyOnload"
         />
       ) : null}
+
+      <Script id="meta-pixel-init" strategy="lazyOnload">
+        {`!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');`}
+      </Script>
     </>
   );
 }

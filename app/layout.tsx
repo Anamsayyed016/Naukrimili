@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import React from 'react';
+import React, { Suspense } from 'react';
 import nextDynamic from 'next/dynamic';
 
 import { Inter } from 'next/font/google';
@@ -8,6 +8,7 @@ import SessionProvider from '@/components/SessionProvider';
 import MainNavigation from '@/components/MainNavigation';
 import DeferredToasters from '@/components/DeferredToasters';
 import ThirdPartyScripts from '@/components/analytics/ThirdPartyScripts';
+import MetaPixelPageView from '@/components/analytics/MetaPixelPageView';
 import RazorpayConsoleFilterGate from '@/components/analytics/RazorpayConsoleFilterGate';
 import { ScrollOptimization } from './layout-scroll-optimization';
 
@@ -99,6 +100,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+        <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <RazorpayConsoleFilterGate />
 
         {/* Additional SEO Meta Tags */}
@@ -372,6 +374,18 @@ export default function RootLayout({
             />
           </noscript>
         )}
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
+            src="https://www.facebook.com/tr?id=1035238572315429&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
+        <Suspense fallback={null}>
+          <MetaPixelPageView />
+        </Suspense>
         <SessionProvider>
           <ScrollOptimization />
           <MainNavigation />
