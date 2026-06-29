@@ -550,6 +550,63 @@ describe('resume preview data binding', () => {
     expect(coalesced.skills).toEqual(expect.arrayContaining(['Tally']));
   });
 
+  it('coalesceBuilderImportPayload does not re-sanitize _imported payload on second pass', async () => {
+    const { coalesceBuilderImportPayload } = await import(
+      '@/lib/resume-builder/import-transformer'
+    );
+    const alreadyImported = {
+      firstName: 'Anam',
+      lastName: 'Sayyed',
+      email: 'anam@example.com',
+      experience: [
+        {
+          company: 'Infosys',
+          position: 'Auditor',
+          title: 'Auditor',
+          description: 'Led statutory audits across multiple clients',
+        },
+        {
+          company: 'Deloitte',
+          position: 'Senior Associate',
+          title: 'Senior Associate',
+          description: 'Compliance and risk reviews',
+        },
+        {
+          company: 'KPMG',
+          position: 'Analyst',
+          title: 'Analyst',
+          description: 'Financial analysis and reporting',
+        },
+      ],
+      education: [{ institution: 'DU', degree: 'MBA', year: '2018' }],
+      skills: ['Tally', 'GST'],
+      _imported: true,
+    };
+    const secondPass = coalesceBuilderImportPayload(alreadyImported);
+    expect(secondPass.experience).toHaveLength(3);
+    expect(secondPass.experience[0].company).toMatch(/Infosys/i);
+  });
+
+  it('coalesceBuilderImportPayload prefers parent experience when builderFormData experience is empty placeholders', async () => {
+    const { coalesceBuilderImportPayload } = await import(
+      '@/lib/resume-builder/import-transformer'
+    );
+    const coalesced = coalesceBuilderImportPayload({
+      firstName: 'Anam',
+      email: 'anam@example.com',
+      experience: [{ company: 'Acme Corp', position: 'Engineer', description: 'Built APIs' }],
+      builderFormData: {
+        firstName: 'Anam',
+        email: 'anam@example.com',
+        experience: [{}],
+        education: [],
+        skills: [],
+      },
+    });
+    expect(coalesced.experience).toHaveLength(1);
+    expect(coalesced.experience[0].company).toMatch(/Acme/i);
+  });
+
   it('recovers sections from summary bleed when parser arrays are empty (_apiFinalized)', () => {
     const summary = [
       'Software developer with internship experience.',

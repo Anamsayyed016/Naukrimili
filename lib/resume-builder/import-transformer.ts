@@ -62,6 +62,7 @@ import {
   finalizeExperienceListForBuilder,
   finalizeEducationListForBuilder,
 } from '@/lib/resume-parser/import-sanitize';
+import { filterMeaningfulExperiences } from './section-visibility';
 import {
   classifyResumeTextFragment,
   emptyAdditionalResumeData,
@@ -116,7 +117,14 @@ function mergeBuilderFormWithParent(
   const pick = (canonical: string, aliases: string[]): unknown[] => {
     const fromBuilder = out[canonical];
     if (Array.isArray(fromBuilder) && fromBuilder.length > 0) {
-      return fromBuilder;
+      if (canonical === 'experience') {
+        const meaningful = filterMeaningfulExperiences(
+          fromBuilder as Array<Record<string, unknown>>
+        );
+        if (meaningful.length > 0) return fromBuilder;
+      } else {
+        return fromBuilder;
+      }
     }
     return firstNonEmptyArray(parent, [canonical, ...aliases]);
   };
@@ -200,6 +208,19 @@ export function coalesceBuilderImportPayload(
       rawText: merged.rawText ?? parent.rawText ?? parsed.rawText,
     });
   }
+
+  // Upload / editor already coalesced this payload — do not re-run full sanitize (drops experience).
+  if (parsed._imported === true) {
+    const out = { ...(parsed as Record<string, any>) };
+    delete out.builderFormData;
+    if (Array.isArray(out.experience) && out.experience.length > 0) {
+      out.experience = finalizeExperienceListForBuilder(
+        out.experience as Record<string, unknown>[]
+      );
+    }
+    return applySummaryHygieneToBuilderForm(out);
+  }
+
   return transformImportDataToBuilder(parsed);
 }
 
