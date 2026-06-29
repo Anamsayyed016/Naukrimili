@@ -1025,7 +1025,7 @@ export default function FinalizeStep({
               width: 794px !important;
               max-width: 794px !important;
               box-shadow: none !important;
-              margin: 0 auto !important;
+              margin: 0 !important;
             }
 
             [style*="background"],

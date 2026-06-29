@@ -398,12 +398,13 @@ export async function POST(request: NextRequest) {
       (container.style as any).scale = '1';
       (container.style as any).zoom = '1';
       
-      // Force A4 width (794px) - same as View Full Resume - NO SCALING
+      // Force A4 width (794px) — full bleed, no auto-centering gutter on wider print canvas
       container.style.width = '794px';
       container.style.maxWidth = '794px';
       container.style.minWidth = '794px';
-      container.style.marginLeft = 'auto';
-      container.style.marginRight = 'auto';
+      container.style.marginLeft = '0';
+      container.style.marginRight = '0';
+      container.style.margin = '0';
       container.style.transformOrigin = 'top center';
       container.style.transform = 'none'; // Explicitly remove any transforms
       
@@ -414,12 +415,22 @@ export async function POST(request: NextRequest) {
       bodyElement.style.minHeight = 'auto';
       bodyElement.style.maxHeight = 'none';
       bodyElement.style.transform = 'none';
+      bodyElement.style.width = '794px';
+      bodyElement.style.maxWidth = '794px';
+      bodyElement.style.minWidth = '794px';
+      bodyElement.style.margin = '0';
+      bodyElement.style.padding = '0';
       (bodyElement.style as any).scale = '1';
       (bodyElement.style as any).zoom = '1';
       
-      // Ensure html element also has no scaling
+      // Ensure html element also has no scaling and matches A4 width
       const htmlElement = document.documentElement;
       htmlElement.style.transform = 'none';
+      htmlElement.style.width = '794px';
+      htmlElement.style.maxWidth = '794px';
+      htmlElement.style.minWidth = '794px';
+      htmlElement.style.margin = '0';
+      htmlElement.style.padding = '0';
       (htmlElement.style as any).scale = '1';
       (htmlElement.style as any).zoom = '1';
       
@@ -437,8 +448,9 @@ export async function POST(request: NextRequest) {
     // Wait for layout to stabilize
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    // Print media for page.pdf() — template @media print fixes + export pagination
-    await page.emulateMediaType('print');
+    // Screen media matches Live Preview (iframe never uses print CSS). Template @media print
+    // width:100% rules were shifting layout vs preview and leaving side gutters on the PDF canvas.
+    await page.emulateMediaType('screen');
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Generate PDF with ATS-friendly settings (A4 format)
@@ -454,7 +466,7 @@ export async function POST(request: NextRequest) {
           bottom: '0',
           left: '0',
         },
-        preferCSSPageSize: true, // Use CSS @page size to match View Full Resume exactly
+        preferCSSPageSize: false, // Avoid mm/px mismatch scaling vs 794px locked layout
         displayHeaderFooter: false,
         timeout: 30000,
         scale: 1, // 100% scale - NO SCALING to match View Full Resume exactly

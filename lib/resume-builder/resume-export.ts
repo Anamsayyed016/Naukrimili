@@ -126,7 +126,9 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         html {
           margin: 0 !important;
           padding: 0 !important;
-          width: 100% !important;
+          width: 794px !important;
+          max-width: 794px !important;
+          min-width: 794px !important;
           height: auto !important;
           background-color: #ffffff !important;
         }
@@ -138,7 +140,9 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           margin: 0 !important;
           padding: 0 !important;
           background: white !important;
-          width: 100% !important;
+          width: 794px !important;
+          max-width: 794px !important;
+          min-width: 794px !important;
           height: auto !important;
           min-height: auto !important;
           overflow-x: hidden !important;
@@ -155,7 +159,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           min-height: auto !important;
           height: auto !important;
           max-height: none !important;
-          margin: 0 auto !important;
+          margin: 0 !important;
           box-sizing: border-box !important;
           position: relative !important;
           overflow: visible !important;

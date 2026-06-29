@@ -261,6 +261,27 @@ body {
 
 /* Reinforce when Puppeteer emulateMediaType('print') — beats template @media print min-heights */
 @media print {
+  /* Match Live Preview: lock page shell to A4 width — prevents side gutters when body is 100% */
+  html,
+  body {
+    width: 794px !important;
+    max-width: 794px !important;
+    min-width: 794px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .resume-container,
+  .resume-container[class*='-'],
+  .resume-container[class*='-resume'] {
+    width: 794px !important;
+    max-width: 794px !important;
+    min-width: 794px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
   .resume-container,
   .resume-container[class*='-'],
   .resume-container .resume-wrapper,
