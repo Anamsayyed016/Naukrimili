@@ -78,12 +78,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-amber-300/70',
     hoverOverlay: 'from-amber-100/28',
   },
-  'executive-graphite': {
-    glow: 'radial-gradient(circle, rgba(184,135,74,0.45) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(44,50,56,0.22) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-500/50',
-    hoverOverlay: 'from-slate-800/20',
-  },
   'royal-copper-executive': {
     glow: 'radial-gradient(circle, rgba(200,120,64,0.48) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(42,46,50,0.2) 0%, transparent 70%)',
@@ -95,12 +89,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     glowSecondary: 'radial-gradient(circle, rgba(12,13,18,0.45) 0%, transparent 70%)',
     borderTint: 'hover:border-purple-400/60',
     hoverOverlay: 'from-purple-900/25',
-  },
-  'maroon-gold-executive': {
-    glow: 'radial-gradient(circle, rgba(107,15,26,0.45) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(201,162,39,0.35) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-500/60',
-    hoverOverlay: 'from-red-950/20',
   },
   'ivory-boardroom-executive': {
     glow: 'radial-gradient(circle, rgba(15,35,65,0.35) 0%, transparent 70%)',
@@ -339,10 +327,8 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'luxury-corporate': { firstName: 'Michael', lastName: 'Reed', jobTitle: 'Senior Marketing Manager' },
   'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
-  'executive-graphite': { firstName: 'Adrienne', lastName: 'Moreau', jobTitle: 'Chief Strategy Officer' },
   'royal-copper-executive': { firstName: 'Isabella', lastName: 'Chen', jobTitle: 'Chief Operating Officer' },
   'royal-edge': { firstName: 'Victoria', lastName: 'Ashford', jobTitle: 'Chief Executive Officer' },
-  'maroon-gold-executive': { firstName: 'Arthur', lastName: 'Vance', jobTitle: 'Senior Executive Strategist' },
   'ivory-boardroom-executive': { firstName: 'Arthur', lastName: 'Vance', jobTitle: 'Senior Executive Strategist' },
   'executive-slate-luxe': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Operations Executive' },
   'emerald-executive-luxe': { firstName: 'Eliza', lastName: 'Reed', jobTitle: 'Senior Executive Leader' },
