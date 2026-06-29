@@ -547,7 +547,7 @@ export function injectResumeData(
 
   result = appendHobbiesSectionIfMissing(
     result,
-    balancedTemplate,
+    htmlTemplate,
     placeholders['{{HOBBIES}}'] || '',
     data
   );
