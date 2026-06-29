@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import io, { Socket } from 'socket.io-client';
+import { isSocketClientEnabled } from '@/lib/socket-client';
 import { 
   Search, 
   Filter, 
@@ -259,6 +260,7 @@ export default function EmployerJobsPage() {
 
   // Initialize Socket.io connection for real-time updates
   useEffect(() => {
+    if (!isSocketClientEnabled()) return;
     if (!session?.user?.id || status === 'loading') return;
     
     // Initialize socket connection

@@ -8,6 +8,7 @@ import type { Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 import { useMobileNotifications } from '@/hooks/useMobileNotifications';
 import { safeLength, safeArray } from '@/lib/safe-array-utils';
+import { isSocketClientEnabled } from '@/lib/socket-client';
 
 interface SocketUser {
   userId: string;
@@ -128,6 +129,10 @@ export function useSocket(): UseSocketReturn {
     }
     
     if (status === 'authenticated' && session?.user) {
+      if (!isSocketClientEnabled()) {
+        return;
+      }
+
       console.log('🔌 Initializing socket connection for:', session.user.email);
 
       // Create socket connection with authentication
@@ -151,12 +156,9 @@ export function useSocket(): UseSocketReturn {
         console.log('🔌 Connecting to socket server:', socketUrl);
         
         // Skip socket connection only if we detect we're in a standalone build (no socket server available)
-        // In production, always attempt connection (server.cjs initializes socket server)
         const isStandalone = typeof window !== 'undefined' && 
                             window.location.href.includes('/standalone');
         
-        // Only skip in development if explicitly configured to skip
-        // In production, server.cjs always initializes socket server, so always attempt connection
         const isDevelopment = process.env.NODE_ENV === 'development';
         const shouldSkip = isStandalone || (isDevelopment && process.env.NEXT_PUBLIC_SKIP_SOCKET === 'true');
         

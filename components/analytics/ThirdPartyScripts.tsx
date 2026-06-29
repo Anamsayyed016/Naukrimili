@@ -78,36 +78,13 @@ window.trackResumeDownloaded = trackResumeDownloaded;
 window.trackJobApplied = trackJobApplied;`}
       </Script>
 
+      {/* Auto ads: client on script src is sufficient — do not call adsbygoogle.push({}) */}
       <Script
         id="adsense-loader"
         src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
         strategy="lazyOnload"
         crossOrigin="anonymous"
       />
-      <Script id="adsense-init" strategy="lazyOnload">
-        {`(function() {
-  function initAdsense() {
-    try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      if (window.adsbygoogle.loaded !== true) {
-        window.adsbygoogle.push({});
-      }
-    } catch (e) {}
-  }
-  function scheduleInit() {
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(initAdsense, { timeout: 3000 });
-    } else {
-      initAdsense();
-    }
-  }
-  if (document.readyState === 'complete') {
-    scheduleInit();
-  } else {
-    window.addEventListener('load', scheduleInit, { once: true });
-  }
-})();`}
-      </Script>
 
       {goAffProEnabled ? (
         <Script
