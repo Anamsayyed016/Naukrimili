@@ -153,18 +153,10 @@ export default function ResumeUploadPage() {
         });
         
         void (async () => {
-          const apiBuilderFormData = parsed.builderFormData;
-          let builderReady: Record<string, unknown>;
-
-          if (apiBuilderFormData && typeof apiBuilderFormData === 'object') {
-            builderReady = { ...apiBuilderFormData };
-            console.log('♻️ Reusing API builderFormData (skipping duplicate transform)');
-          } else {
-            const { transformImportDataToBuilder } = await import(
-              '@/lib/resume-builder/import-transformer'
-            );
-            builderReady = transformImportDataToBuilder(parsed);
-          }
+          const { coalesceBuilderImportPayload } = await import(
+            '@/lib/resume-builder/import-transformer'
+          );
+          const builderReady = coalesceBuilderImportPayload(parsed);
 
           const dataToStore = {
             ...builderReady,

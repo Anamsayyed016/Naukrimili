@@ -523,6 +523,33 @@ describe('resume preview data binding', () => {
     expect(transformed.skills.length).toBeGreaterThan(0);
   });
 
+  it('coalesceBuilderImportPayload preserves parent experience without full re-sanitize drop', async () => {
+    const { coalesceBuilderImportPayload } = await import(
+      '@/lib/resume-builder/import-transformer'
+    );
+    const coalesced = coalesceBuilderImportPayload({
+      firstName: 'Anam',
+      lastName: 'Sayyed',
+      email: 'anam@example.com',
+      experience: [
+        { company: 'Infosys', position: 'Auditor', description: 'Led statutory audits' },
+        { company: 'Deloitte', position: 'Senior Associate', description: 'Compliance reviews' },
+      ],
+      builderFormData: {
+        firstName: 'Anam',
+        lastName: 'Sayyed',
+        email: 'anam@example.com',
+        experience: [],
+        education: [{ institution: 'DU', degree: 'MBA', year: '2018' }],
+        skills: ['Tally'],
+        _imported: true,
+      },
+    });
+    expect(coalesced.experience).toHaveLength(2);
+    expect(coalesced.education).toHaveLength(1);
+    expect(coalesced.skills).toEqual(expect.arrayContaining(['Tally']));
+  });
+
   it('recovers sections from summary bleed when parser arrays are empty (_apiFinalized)', () => {
     const summary = [
       'Software developer with internship experience.',

@@ -25,11 +25,6 @@ function loadGalleryPreviewFormData(): Record<string, unknown> {
   if (importRaw) {
     try {
       const parsed = JSON.parse(importRaw) as Record<string, unknown>;
-      const nested = parsed.builderFormData;
-      if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
-        const { builderFormData: _nested, ...rest } = parsed;
-        return { ...rest, ...(nested as Record<string, unknown>) };
-      }
       return parsed;
     } catch {
       // fall through
@@ -69,7 +64,14 @@ export default function TemplateSelectionPage() {
   }, []);
 
   useEffect(() => {
-    setPreviewFormData(loadGalleryPreviewFormData());
+    void import('@/lib/resume-builder/import-transformer').then(
+      ({ coalesceBuilderImportPayload }) => {
+        const raw = loadGalleryPreviewFormData();
+        if (Object.keys(raw).length > 0) {
+          setPreviewFormData(coalesceBuilderImportPayload(raw));
+        }
+      }
+    );
   }, [source]);
 
   // Template filters state

@@ -177,6 +177,32 @@ function applySummaryHygieneToBuilderForm(formData: Record<string, any>): Record
   };
 }
 
+/**
+ * Resolve API/upload payload into builder form state.
+ * When the API nests `builderFormData` with empty section arrays, parent profile
+ * arrays (e.g. `experience` from ultimate-upload) are preserved via merge.
+ */
+export function coalesceBuilderImportPayload(
+  parsed: Record<string, unknown>
+): Record<string, any> {
+  const nested = parsed.builderFormData;
+  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+    const { builderFormData: _nested, ...parent } = parsed;
+    const merged = mergeBuilderFormWithParent(parent, nested as Record<string, any>);
+    if (Array.isArray(merged.experience) && merged.experience.length > 0) {
+      merged.experience = finalizeExperienceListForBuilder(
+        merged.experience as Record<string, unknown>[]
+      );
+    }
+    return applySummaryHygieneToBuilderForm({
+      ...merged,
+      _imported: merged._imported ?? parent._imported ?? true,
+      rawText: merged.rawText ?? parent.rawText ?? parsed.rawText,
+    });
+  }
+  return transformImportDataToBuilder(parsed);
+}
+
 function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unknown[] {
   for (const key of keys) {
     const value = data[key];

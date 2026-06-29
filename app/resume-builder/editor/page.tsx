@@ -181,15 +181,6 @@ function isBuilderReadyImportPayload(parsed: Record<string, unknown>): boolean {
   return hasContact && hasSections;
 }
 
-function resolveBuilderImportPayload(parsed: Record<string, unknown>): Record<string, unknown> {
-  const nested = parsed.builderFormData;
-  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
-    const { builderFormData: _nested, ...rest } = parsed;
-    return { ...rest, ...(nested as Record<string, unknown>) };
-  }
-  return { ...parsed };
-}
-
 const STEPS: Step[] = [
   { id: 'contacts', label: 'Contacts' },
   { id: 'experience', label: 'Experience' },
@@ -356,6 +347,7 @@ export default function ResumeEditorPage() {
 
               const {
                 transformImportDataToBuilder,
+                coalesceBuilderImportPayload,
                 validateTransformedData,
                 hasImportableContent,
               } = await import('@/lib/resume-builder/import-transformer');
@@ -364,8 +356,8 @@ export default function ResumeEditorPage() {
               let formPayload: Record<string, unknown>;
 
               if (builderReady) {
-                formPayload = resolveBuilderImportPayload(parsed);
-                devResumeImportLog('using builder-ready payload (skipped re-transform)', {
+                formPayload = coalesceBuilderImportPayload(parsed);
+                devResumeImportLog('using builder-ready payload (coalesced)', {
                   ...importSectionCounts(formPayload),
                 });
               } else {
