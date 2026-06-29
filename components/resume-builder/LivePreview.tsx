@@ -18,6 +18,7 @@ import { motion } from 'framer-motion';
 import { Maximize2, Minus, Plus } from 'lucide-react';
 import type { LoadedTemplate, Template } from '@/lib/resume-builder/types';
 import { resolveColorVariant } from '@/lib/resume-builder/color-theme';
+import { PREVIEW_VERTICAL_PACK_CSS } from '@/lib/resume-builder/preview-vertical-pack';
 import { SHARED_A4_SHELL_CSS } from '@/lib/resume-builder/shared-preview-shell';
 import { cn } from '@/lib/utils';
 import {
@@ -447,6 +448,8 @@ export default function LivePreview({
                 }
 
                 ${SHARED_A4_SHELL_CSS}
+
+                ${PREVIEW_VERTICAL_PACK_CSS}
 
                 /* Preview-only: prevent transform/zoom drift on the shell */
                 body {
