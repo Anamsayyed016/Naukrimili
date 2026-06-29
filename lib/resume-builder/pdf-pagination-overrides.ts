@@ -48,6 +48,10 @@ body {
 .resume-container [class*='col-side'],
 .resume-container [class*='col-left'],
 .resume-container [class*='col-right'],
+.resume-container [class*='-main'],
+.resume-container [class*='-sidebar'],
+.resume-container main[class*='-'],
+.resume-container aside[class*='-'],
 .resume-container .re-body,
 .resume-container .eel-body,
 .resume-container .vre-body,
@@ -83,6 +87,40 @@ body {
   overflow: visible !important;
   page-break-inside: auto !important;
   break-inside: auto !important;
+}
+
+/*
+ * Two-column PDF flow — flex column shells (exsl-main, stex-sidebar, etc.) treat each
+ * section as an atomic flex item; Chromium moves the whole section to the next page
+ * and leaves blank space in the opposite column. Block flow allows natural splits.
+ */
+.resume-container [class*='-body'] > *,
+.resume-container [class*='-main'],
+.resume-container [class*='-sidebar'],
+.resume-container main[class*='-'],
+.resume-container aside[class*='-'] {
+  display: block !important;
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Timeline rails — min-height:100% + stretch locks the experience column on one page */
+.resume-container [class*='-timeline-wrap'],
+.resume-container [class*='timeline-wrap'] {
+  align-items: start !important;
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+}
+
+.resume-container [class*='-timeline-line'],
+.resume-container [class*='timeline-line'] {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
 }
 
 /* Trailing sections — collapse bottom gap before page edge */
@@ -166,6 +204,7 @@ body {
 .resume-container .section,
 .resume-container .content-section,
 .resume-container .sidebar-section,
+.resume-container [class*='-side-section'],
 .resume-container .re-section,
 .resume-container .eel-section,
 .resume-container .vhe-section,
@@ -196,15 +235,27 @@ body {
   widows: 2;
 }
 
-/* Section titles — keep with following content */
+/* Section titles — keep with following content (first line/item only; section body may split) */
 .resume-container h2,
 .resume-container .section-title,
 .resume-container .sidebar-section-title,
-.resume-container [class*='-heading'] {
+.resume-container [class*='-section-title'],
+.resume-container [class*='-section-head'] {
   page-break-inside: avoid !important;
   break-inside: avoid !important;
   page-break-after: avoid !important;
   break-after: avoid-page !important;
+}
+
+/* Beat template-level break-inside:avoid on sidebar cards (education, certs, etc.) */
+.resume-container [class*='-education'] .education-item,
+.resume-container [class*='-certifications'] .certification-item,
+.resume-container [class*='-achievements'] .achievement-item,
+.resume-container [class*='-projects'] .project-item,
+.resume-container [class*='-languages'] .language-item,
+.resume-container [class*='-skills'] .skill-tag {
+  page-break-inside: auto !important;
+  break-inside: auto !important;
 }
 
 /* Job / role title only — first content line stays attached; body may split */
