@@ -18,8 +18,6 @@ import { motion } from 'framer-motion';
 import { Maximize2, Minus, Plus } from 'lucide-react';
 import type { LoadedTemplate, Template } from '@/lib/resume-builder/types';
 import { resolveColorVariant } from '@/lib/resume-builder/color-theme';
-import { PREVIEW_VERTICAL_PACK_CSS } from '@/lib/resume-builder/preview-vertical-pack';
-import { SHARED_A4_SHELL_CSS } from '@/lib/resume-builder/shared-preview-shell';
 import { cn } from '@/lib/utils';
 import {
   A4_WIDTH_PX,
@@ -447,25 +445,49 @@ export default function LivePreview({
                   print-color-adjust: exact !important;
                 }
 
-                ${SHARED_A4_SHELL_CSS}
-
-                ${PREVIEW_VERTICAL_PACK_CSS}
-
-                /* Preview-only: prevent transform/zoom drift on the shell */
+                html {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  width: 100% !important;
+                  height: 100% !important;
+                }
+                
                 body {
-                  scale: 1 !important;
-                  zoom: 1 !important;
-                }
-
-                .resume-container {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+                  -webkit-font-smoothing: antialiased;
+                  -moz-osx-font-smoothing: grayscale;
+                  margin: 0 !important;
+                  padding: 0 !important;
                   background: white !important;
-                  transform-origin: top center !important;
+                  width: 100% !important;
+                  height: auto !important;
+                  overflow-x: hidden !important;
+                  overflow-y: visible !important;
+                  transform: none !important;
                   scale: 1 !important;
                   zoom: 1 !important;
                 }
-
+                
+                /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
+                /* EXACTLY matches View Full Resume - no scaling, no transforms */
+                .resume-container {
+                  width: 794px !important;
+                  max-width: 794px !important;
+                  min-width: 794px !important;
+                  margin: 0 auto !important;
+                  background: white !important;
+                  box-sizing: border-box !important;
+                  position: relative !important;
+                  transform-origin: top center !important;
+                  transform: none !important; /* Explicitly no transforms to match View Full Resume */
+                  scale: 1 !important; /* Explicitly set scale to 1 to prevent any scaling */
+                  zoom: 1 !important; /* Prevent browser zoom */
+                }
+                
+                /* CRITICAL: Remove any scaling from parent elements or wrapper divs */
                 body > *,
                 html > * {
+                  transform: none !important;
                   scale: 1 !important;
                   zoom: 1 !important;
                 }
