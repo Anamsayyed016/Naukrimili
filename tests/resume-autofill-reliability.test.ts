@@ -810,3 +810,109 @@ describe('resume preview data binding', () => {
     ).toBe(true);
   });
 });
+
+describe('experience boundary and pipeline hygiene', () => {
+  it('keeps separate experience entries with distinct descriptions', () => {
+    const text = [
+      'Anam Khan',
+      'anam@example.com',
+      '',
+      'Experience',
+      'Infosys Limited',
+      'Software Engineer',
+      'Jan 2020 - Dec 2022',
+      'Built REST APIs for billing platform.',
+      'Reduced deployment time by 40%.',
+      '',
+      'Deloitte India',
+      'Senior Consultant',
+      'Jan 2023 - Present',
+      'Led compliance audits for enterprise clients.',
+      'Managed team of 8 analysts.',
+    ].join('\n');
+
+    const parsed = extractResumeFromText(text);
+    expect(parsed.experience.length).toBeGreaterThanOrEqual(2);
+    const infosys = parsed.experience.find((e) => /infosys/i.test(String(e.company || '')));
+    const deloitte = parsed.experience.find((e) => /deloitte/i.test(String(e.company || '')));
+    expect(infosys?.description || '').toMatch(/billing|REST/i);
+    expect(infosys?.description || '').not.toMatch(/compliance audits/i);
+    expect(deloitte?.description || '').toMatch(/compliance|analysts/i);
+    expect(deloitte?.description || '').not.toMatch(/billing platform/i);
+  });
+
+  it('strips AI meta commentary from experience descriptions', async () => {
+    const { pruneExperienceBodyFields } = await import('@/lib/resume-parser/import-sanitize');
+    const cleaned = pruneExperienceBodyFields(
+      'This version keeps all of your original content intact.\nManaged warehouse operations.',
+      ['Increased throughput by 20%']
+    );
+    expect(cleaned.description).not.toMatch(/this version keeps/i);
+    expect(cleaned.description).toMatch(/warehouse/i);
+    expect(cleaned.achievements[0]).toMatch(/throughput/i);
+  });
+
+  it('caps skills at 20 highest-confidence entries', async () => {
+    const { normalizeSkillsList } = await import('@/lib/resume-parser/import-sanitize');
+    const noisy = [
+      'React',
+      'JavaScript',
+      'TypeScript',
+      'Node.js',
+      'Python',
+      'Django',
+      'PostgreSQL',
+      'MongoDB',
+      'AWS',
+      'Docker',
+      'Kubernetes',
+      'Git',
+      'HTML',
+      'CSS',
+      'SQL',
+      'Redis',
+      'GraphQL',
+      'Bhopal',
+      'Managed team operations daily',
+      'Infosys Limited',
+      'Randomword',
+      'Anotherphrase here',
+      'Excel',
+      'Tableau',
+      'Jira',
+    ];
+    const skills = normalizeSkillsList(noisy);
+    expect(skills.length).toBeLessThanOrEqual(20);
+    expect(skills).toEqual(expect.arrayContaining(['React', 'JavaScript', 'Python']));
+    expect(skills.some((s) => /bhopal|infosys|managed team/i.test(s))).toBe(false);
+  });
+
+  it('transformImportDataToBuilder preserves multiple experiences through the pipeline', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      experience: [
+        {
+          company: 'Google',
+          position: 'Software Engineer',
+          startDate: '2020-01',
+          endDate: '2022-12',
+          description: 'Built search features.',
+        },
+        {
+          company: 'Microsoft',
+          position: 'Senior Engineer',
+          startDate: '2023-01',
+          current: true,
+          description: 'Led Azure tooling.',
+        },
+      ],
+      skills: ['React', 'Python'],
+      _apiFinalized: true,
+    });
+    expect(transformed.experience).toHaveLength(2);
+    expect(transformed.experience[0].company).toMatch(/Google/i);
+    expect(transformed.experience[1].company).toMatch(/Microsoft/i);
+    expect(transformed.experience[0].description).toMatch(/search/i);
+    expect(transformed.experience[1].description).toMatch(/Azure/i);
+  });
+});

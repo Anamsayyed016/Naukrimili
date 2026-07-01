@@ -154,35 +154,80 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
 
   const placedResponsibility = new Set<number>();
   if (responsibilityLines.length && repairedExperience.length) {
-    for (const line of responsibilityLines) {
-      let idx = repairedExperience.findIndex((raw, i) => {
-        if (placedResponsibility.has(i)) return false;
-        const exp = raw as Record<string, unknown>;
-        const company = cleanString(exp.company || exp.Company || exp.organization);
-        const title = cleanString(exp.position || exp.title || exp.role);
-        if (!company || !title) return false;
-        const desc = String(exp.description || '').trim();
-        const ach = Array.isArray(exp.achievements) ? exp.achievements.length : 0;
-        return !desc && ach === 0;
-      });
-      if (idx < 0) {
-        idx = repairedExperience.findIndex((raw) => {
-          const exp = raw as Record<string, unknown>;
-          return !!cleanString(exp.company || exp.Company || exp.organization);
-        });
+    const scoreResponsibilityTarget = (raw: unknown, line: string): number => {
+      if (!raw || typeof raw !== 'object') return 0;
+      const exp = raw as Record<string, unknown>;
+      const company = cleanString(exp.company || exp.Company || exp.organization).toLowerCase();
+      const title = cleanString(exp.position || exp.title || exp.role).toLowerCase();
+      const desc = String(exp.description || '').toLowerCase();
+      const ach = Array.isArray(exp.achievements)
+        ? (exp.achievements as unknown[]).map((a) => String(a)).join(' ').toLowerCase()
+        : '';
+      const body = `${desc} ${ach}`.trim();
+      const lineLower = line.toLowerCase();
+      let score = 0;
+      if (!body) score += 18;
+      if (company && lineLower.includes(company.split(/\s+/)[0])) score += 22;
+      if (title) {
+        for (const w of title.split(/\s+/).filter((w) => w.length >= 4)) {
+          if (lineLower.includes(w)) score += 10;
+        }
       }
-      if (idx < 0) {
+      for (const w of lineLower.split(/\s+/).filter((w) => w.length >= 5)) {
+        if (body.includes(w)) score += 6;
+      }
+      return score;
+    };
+
+    for (const line of responsibilityLines) {
+      let bestIdx = -1;
+      let bestScore = 0;
+      for (let i = 0; i < repairedExperience.length; i++) {
+        if (placedResponsibility.has(i)) continue;
+        const score = scoreResponsibilityTarget(repairedExperience[i], line);
+        if (score > bestScore) {
+          bestScore = score;
+          bestIdx = i;
+        }
+      }
+      if (bestIdx < 0 || bestScore < 18) {
+        let idx = repairedExperience.findIndex((raw, i) => {
+          if (placedResponsibility.has(i)) return false;
+          const exp = raw as Record<string, unknown>;
+          const company = cleanString(exp.company || exp.Company || exp.organization);
+          const title = cleanString(exp.position || exp.title || exp.role);
+          if (!company || !title) return false;
+          const desc = String(exp.description || '').trim();
+          const ach = Array.isArray(exp.achievements) ? exp.achievements.length : 0;
+          return !desc && ach === 0;
+        });
+        if (idx < 0) {
+          idx = repairedExperience.findIndex((raw) => {
+            const exp = raw as Record<string, unknown>;
+            return !!cleanString(exp.company || exp.Company || exp.organization);
+          });
+        }
+        bestIdx = idx;
+      }
+      if (bestIdx < 0) {
         keptAchievements.push(line);
         report.repairs.push(`Kept unplaced responsibility in achievements: ${line.slice(0, 60)}`);
         continue;
       }
-      placedResponsibility.add(idx);
-      const target = repairedExperience[idx] as Record<string, unknown>;
-      const deduped = dedupeExperienceBodyLines(line, [line]);
+      placedResponsibility.add(bestIdx);
+      const target = repairedExperience[bestIdx] as Record<string, unknown>;
+      const existingDesc = String(target.description || '').trim();
+      const existingAch = Array.isArray(target.achievements)
+        ? (target.achievements as unknown[]).map((a) => String(a))
+        : [];
+      const deduped = dedupeExperienceBodyLines(
+        existingDesc ? `${existingDesc}\n${line}` : line,
+        [...existingAch, line]
+      );
       target.description = deduped.description;
       target.Description = deduped.description;
       target.achievements = deduped.achievements;
-      report.repairs.push(`Attached responsibility to experience ${idx + 1}: ${line.slice(0, 60)}`);
+      report.repairs.push(`Attached responsibility to experience ${bestIdx + 1}: ${line.slice(0, 60)}`);
     }
     achievements = keptAchievements;
   }

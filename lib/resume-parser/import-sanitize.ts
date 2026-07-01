@@ -3,6 +3,7 @@
  * Rejects parser fallbacks and merged blobs; splits names for contact fields.
  */
 
+import { stripAiCommentaryFromJobDescription } from '@/lib/jobs/clean-job-description';
 import { cleanString, cleanMultiline, isSectionLabel } from './normalize-extracted';
 import {
   classifyResumeTextFragment,
@@ -417,6 +418,33 @@ export function isResumeSectionHeadingLine(line: string): boolean {
   return false;
 }
 
+/** Strip parser/AI artefacts from a single resume body line. */
+function stripParserArtifactLine(line: string): string {
+  const t = line.trim();
+  if (!t) return '';
+  if (/^```/.test(t) || /^```\s*json/i.test(t)) return '';
+  if (/^\{[\s"]/.test(t) || /^\[[\s"]/.test(t)) return '';
+  if (/^"?(company|position|description|experience|achievements|skills)"?\s*:/i.test(t)) return '';
+  if (/^(here is|below is|the following is|as an ai|as a language model)/i.test(t)) return '';
+  return line;
+}
+
+/** Remove AI meta-commentary, markdown fences, and JSON prompt bleed from experience bodies. */
+export function stripResumeBodyNoise(text: string): string {
+  const stripped = stripAiCommentaryFromJobDescription(text);
+  const lines = stripped.split('\n');
+  const kept: string[] = [];
+  for (const raw of lines) {
+    const cleaned = stripParserArtifactLine(raw);
+    if (!cleaned.trim()) {
+      if (kept.length > 0 && kept[kept.length - 1] !== '') kept.push('');
+      continue;
+    }
+    kept.push(cleaned);
+  }
+  return kept.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 /** Strip section bleed and misplaced lines from experience description / bullets. */
 export function pruneExperienceBodyFields(
   description: string,
@@ -424,7 +452,7 @@ export function pruneExperienceBodyFields(
 ): { description: string; achievements: string[] } {
   const keptAchievements: string[] = [];
   for (const raw of achievements) {
-    const line = String(raw || '').trim();
+    const line = stripResumeBodyNoise(String(raw || '').trim());
     if (!line) continue;
     if (isResumeSectionHeadingLine(line)) break;
     if (isLikelyEducationLine(line) || isLikelyCertificationLine(line)) continue;
@@ -433,7 +461,7 @@ export function pruneExperienceBodyFields(
   }
 
   const descLines: string[] = [];
-  for (const rawLine of String(description || '').split('\n')) {
+  for (const rawLine of stripResumeBodyNoise(String(description || '')).split('\n')) {
     const line = rawLine.trim();
     if (!line) {
       if (descLines.length > 0) descLines.push('');
@@ -486,6 +514,7 @@ export function sanitizeSkillEntry(skill: unknown): string {
   const skillWords = s.split(/\s+/).filter(Boolean).length;
   if (classified.kind === 'SECTION_HEADER') return '';
   if (classified.kind === 'EDUCATION' || classified.kind === 'CERTIFICATION') return '';
+  if (classified.kind === 'LOCATION') return '';
   if (classified.kind === 'COMPANY_NAME' && skillWords >= 2) return '';
   if (classified.kind === 'DESIGNATION' && skillWords >= 2) return '';
   if (classified.kind === 'PERSON_NAME' && skillWords >= 2 && isClassifiedPersonName(s, 70)) {
@@ -597,6 +626,7 @@ const LANGUAGE_SKILL_RE =
   /^(english|hindi|tamil|telugu|bengali|marathi|gujarati|kannada|malayalam|punjabi|urdu|french|spanish|german|arabic|mandarin|cantonese)(?:\s*\(.*\))?$/i;
 
 export const SKILL_CONFIDENCE_THRESHOLD = 40;
+export const MAX_RESUME_SKILLS = 20;
 
 export function canonicalizeSkillName(skill: string): string {
   const cleaned = skill.trim().replace(/\s+/g, ' ');
@@ -628,11 +658,15 @@ export function scoreSkillConfidence(skill: string): number {
   if (isLikelyEducationLine(cleaned)) return 8;
   if (isLikelyCompanyNameFragment(cleaned)) return 5;
   if (isLikelyJobTitleFragment(cleaned) && cleaned.split(/\s+/).length <= 4) return 12;
+  const words = lower.split(/\s+/).filter(Boolean);
+  const classified = classifyResumeTextFragment(cleaned);
+  if (classified.kind === 'LOCATION') return 4;
+  if (classified.kind === 'COMPANY_NAME') return 6;
+  if (classified.kind === 'DESIGNATION' && words.length >= 2) return 10;
 
   if (SOFT_SKILL_PHRASES.has(lower)) return 48;
   if (SKILL_CANONICAL_ALIASES[lower]) return 96;
 
-  const words = lower.split(/\s+/).filter(Boolean);
   if (words.length > 5 || cleaned.length > 52) return 18;
   if (words.length >= 3 && /\b(and|with|using|including|responsible|developed|managed)\b/i.test(lower)) {
     return 15;
@@ -687,7 +721,8 @@ export function normalizeSkillsList(
 
   return [...ranked.values()]
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
-    .map((entry) => entry.name);
+    .map((entry) => entry.name)
+    .slice(0, MAX_RESUME_SKILLS);
 }
 
 /**
@@ -1655,7 +1690,19 @@ function looksLikeSeparateEmploymentBlock(exp: ExperienceLike): boolean {
   const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
   const combined = [desc, ...achievements.map((a) => String(a))].filter(Boolean).join('\n');
   if (!combined) return false;
-  return employmentBlockSignalsInText(combined) >= 2;
+  if (employmentBlockSignalsInText(combined) >= 2) return true;
+  const firstLine = combined.split('\n').map((l) => l.trim()).find(Boolean) || '';
+  if (firstLine && looksLikeCompanyNameLine(firstLine) && combined.split('\n').filter((l) => l.trim()).length >= 2) {
+    return true;
+  }
+  if (
+    firstLine &&
+    (looksLikeJobTitleLine(firstLine) || /^(self[- ]?employed|freelance|confidential|independent contractor)$/i.test(firstLine)) &&
+    combined.split('\n').some((l) => EXPERIENCE_DATE_RANGE_RE.test(l))
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function experiencesAreExactDuplicates(a: ExperienceLike, b: ExperienceLike): boolean {

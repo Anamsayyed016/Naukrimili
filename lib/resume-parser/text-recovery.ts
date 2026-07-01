@@ -235,7 +235,26 @@ const DATE_RANGE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})\s*[-–—to]
 
 function isExperienceBulletLine(line: string): boolean {
   const t = line.trim();
-  return /^[•\-\*\u2022\u2023\u25aa\u25cf\u2013\u2014]\s+/.test(t) || /^[oO]\s+/.test(t);
+  return /^[•\-\*\u2022\u2023\u25aa\u25cf\u2013\u2014]\s+/.test(t) || /^[oO]\s+/.test(t) || /^\d+[\.\)]\s+/.test(t);
+}
+
+/** True when a line inside an experience body marks the start of the next job block. */
+function isNextJobBoundaryLine(line: string, nextLine?: string): boolean {
+  const l = line.trim();
+  const n = (nextLine || '').trim();
+  if (!l || isExperienceBulletLine(l)) return false;
+  if (DATE_RANGE_REGEX.test(l)) return true;
+  if (looksLikeCompanyNameLine(l) && n && DATE_RANGE_REGEX.test(n)) return true;
+  if (looksLikeJobTitleLine(l) && n && DATE_RANGE_REGEX.test(n)) return true;
+  if (
+    looksLikeJobTitleLine(l) &&
+    l.length < 90 &&
+    (/\s@\s/.test(l) || /\s[-–—]\s+/.test(l))
+  ) {
+    return true;
+  }
+  if (/^(self[- ]?employed|freelance|confidential|independent contractor)$/i.test(l)) return true;
+  return false;
 }
 const SINGLE_DATE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})/;
 
@@ -1172,7 +1191,10 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
     }
     const hasDateRange = DATE_RANGE_REGEX.test(line);
     const hasRoleMarker =
-      ROLE_MARKERS.test(line) && line.length < 100 && !isExperienceBulletLine(line);
+      ROLE_MARKERS.test(line) &&
+      line.length < 100 &&
+      !isExperienceBulletLine(line) &&
+      looksLikeJobTitleLine(line);
 
     if (hasDateRange || hasRoleMarker) {
       // CRITICAL: many resumes place "Company" / "Role" on the lines ABOVE the date range.
@@ -1386,12 +1408,19 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     const l = chunkLines[i].trim();
     if (!l) continue;
     if (isResumeSectionHeadingLine(l)) break;
+    if (i > descStart && isNextJobBoundaryLine(l, chunkLines[i + 1])) break;
     if (
       i > descStart &&
-      (DATE_RANGE_REGEX.test(l) ||
-        (looksLikeCompanyNameLine(l) &&
-          i + 1 < chunkLines.length &&
-          DATE_RANGE_REGEX.test(chunkLines[i + 1])))
+      DATE_RANGE_REGEX.test(l) &&
+      !isExperienceBulletLine(l)
+    ) {
+      break;
+    }
+    if (
+      i > descStart &&
+      looksLikeCompanyNameLine(l) &&
+      i + 1 < chunkLines.length &&
+      DATE_RANGE_REGEX.test(chunkLines[i + 1])
     ) {
       break;
     }
