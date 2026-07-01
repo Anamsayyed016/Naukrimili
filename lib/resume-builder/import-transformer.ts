@@ -61,6 +61,8 @@ import {
   reconcileExperienceHeaderFields,
   finalizeExperienceListForBuilder,
   finalizeEducationListForBuilder,
+  dedupeExperienceBodyLines,
+  dedupeAdjacentExperienceEntries,
 } from '@/lib/resume-parser/import-sanitize';
 import { filterMeaningfulExperiences } from './section-visibility';
 import {
@@ -1197,13 +1199,9 @@ function transformExperienceArray(experiences: unknown): any[] {
       }
       const descBullets = splitBullets(rawDesc);
       const bullets = dedupeStrings([...parserBullets, ...descBullets]);
-      const fromBullets = bullets.join('\n');
-      const cleanedDesc = cleanMultiline(rawDesc);
-      const cleanedFromBullets = cleanMultiline(fromBullets);
-      const description =
-        cleanedFromBullets.length > cleanedDesc.length
-          ? cleanedFromBullets || cleanedDesc
-          : cleanedDesc || cleanedFromBullets;
+      const dedupedBody = dedupeExperienceBodyLines(cleanMultiline(rawDesc), bullets);
+      const description = dedupedBody.description;
+      const finalBullets = dedupedBody.achievements;
 
       // SINGLE source of truth for the "Present" indicator: the `current` flag.
       // Duration is a presentation string; endDate stays empty when current so
@@ -1221,8 +1219,8 @@ function transformExperienceArray(experiences: unknown): any[] {
         endDate: endMonth, // '' when current
         description,
         current: isCurrent,
-        achievements: bullets,
-        bullets,
+        achievements: finalBullets,
+        bullets: finalBullets,
         // Template aliases (capitalized)
         Position: position,
         Company: company,
@@ -1232,25 +1230,78 @@ function transformExperienceArray(experiences: unknown): any[] {
       };
     });
 
-  // Dedupe by company|title|startDate
+  // Dedupe by company|title|startDate|endDate, and identical rows when dates are missing.
   const seen = new Set<string>();
+  const seenHeaderBody = new Set<string>();
   const unique = mapped.filter((e) => {
     const company = String(e.company || '').trim();
     const title = String(e.title || '').trim();
     const start = String(e.startDate || '').trim();
     const end = String(e.endDate || '').trim();
+    const bodyKey = String(e.description || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .slice(0, 120);
+    const headerBodyKey = `${company}|${title}|${bodyKey}`.toLowerCase();
 
-    // If dates are missing, do NOT dedupe — preserve separate entries.
-    if (!start && !end) return true;
+    if (bodyKey && seenHeaderBody.has(headerBodyKey)) return false;
+
+    if (!start && !end) {
+      if (bodyKey) seenHeaderBody.add(headerBodyKey);
+      return true;
+    }
 
     const key = `${company}|${title}|${start || '?'}|${end || '?'}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
+    if (bodyKey) seenHeaderBody.add(headerBodyKey);
     return true;
   });
 
+  const deduped = dedupeAdjacentExperienceEntries(
+    unique.map((e) => ({
+      company: e.company,
+      position: e.title,
+      title: e.title,
+      location: e.location,
+      startDate: e.startDate,
+      endDate: e.endDate,
+      current: e.current,
+      description: e.description,
+      achievements: e.achievements,
+    }))
+  ).map((exp) => ({
+    title: String(exp.position || exp.title || ''),
+    company: String(exp.company || ''),
+    location: String(exp.location || ''),
+    startDate: String(exp.startDate || ''),
+    endDate: String(exp.endDate || ''),
+    description: String(exp.description || ''),
+    current: exp.current === true,
+    achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
+    bullets: Array.isArray(exp.achievements) ? exp.achievements : [],
+    Position: String(exp.position || exp.title || ''),
+    Company: String(exp.company || ''),
+    Location: String(exp.location || ''),
+    Description: String(exp.description || ''),
+    Duration: (() => {
+      const isCurrent =
+        exp.current === true ||
+        !exp.endDate ||
+        /^(present|current|now|ongoing)$/i.test(String(exp.endDate || ''));
+      const startMonth = String(exp.startDate || '');
+      const endMonth = isCurrent ? '' : String(exp.endDate || '');
+      return isCurrent
+        ? startMonth
+          ? `${startMonth} - Present`
+          : 'Present'
+        : computeDuration(startMonth, endMonth);
+    })(),
+  }));
+
   // Most recent first (by startDate desc, then current first)
-  const sorted = unique.sort(compareByRecent);
+  const sorted = deduped.sort(compareByRecent);
 
   return sorted;
 }

@@ -944,6 +944,8 @@ export function isExperienceBlurbFragment(text: string): boolean {
 type ExperienceLike = {
   company?: string;
   position?: string;
+  title?: string;
+  job_title?: string;
   startDate?: string;
   endDate?: string;
   start_date?: string;
@@ -973,12 +975,13 @@ export function looksLikeJobTitleLine(text: string): boolean {
   if (!t) return false;
   if (looksLikeCompanyNameLine(t)) return false;
   if (JOB_TITLE_HINT_RE.test(t)) return true;
-  return t.split(/\s+/).length <= 4 && t.length <= 48;
+  return false;
 }
 
 export function looksLikeStandaloneLocationLine(text: string): boolean {
   const t = sanitizeFieldText(text, 80);
   if (!t || t.length > 60) return false;
+  if (looksLikeJobTitleLine(t)) return false;
   if (/\b(19|20)\d{2}\b/.test(t)) return false;
   if (looksLikeCompanyNameLine(t)) return false;
   if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(t)) {
@@ -1005,6 +1008,11 @@ export function reconcileExperienceHeaderFields(
     120
   );
   let location = sanitizeFieldText(exp.location || exp.Location, 120);
+
+  if (location && looksLikeJobTitleLine(location) && !position) {
+    position = location;
+    location = '';
+  }
 
   // Company slot holds a job title (e.g. "Food Processor") — never keep as company.
   if (company && looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) {
@@ -1068,6 +1076,7 @@ export function reconcileExperienceHeaderFields(
         ? (exp.achievements as unknown[]).map((a) => String(a)).filter(Boolean)
         : []
   );
+  const deduped = dedupeExperienceBodyLines(pruned.description, pruned.achievements);
   return {
     ...exp,
     company,
@@ -1078,9 +1087,9 @@ export function reconcileExperienceHeaderFields(
     job_title: position,
     location,
     Location: location,
-    description: pruned.description,
-    Description: pruned.description,
-    achievements: pruned.achievements,
+    description: deduped.description,
+    Description: deduped.description,
+    achievements: deduped.achievements,
   };
 }
 
@@ -1170,6 +1179,10 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
       continue;
     }
     if (isDescriptionOnlyOrphan && out.length > 0) {
+      if (looksLikeSeparateEmploymentBlock(exp)) {
+        out.push({ ...exp });
+        continue;
+      }
       const prev = { ...out[out.length - 1] };
       const prevDesc = sanitizeMultilineFieldText(prev.description, 8000);
       const mergedDesc = [prevDesc, desc, ...achievements].filter(Boolean).join('\n').trim();
@@ -1319,6 +1332,159 @@ export function unionExperienceBodyFields(
   return { description, achievements };
 }
 
+const EXPERIENCE_DATE_RANGE_RE =
+  /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})\s*[-–—to]+\s*((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2}|present|current|now|ongoing)/i;
+
+function experienceFingerprintPart(value: unknown): string {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function experienceBodyLineKey(line: string): string {
+  return line.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 96);
+}
+
+/** Remove repeated bullets/sentences inside one experience without rewriting content. */
+export function dedupeExperienceBodyLines(
+  description: string,
+  achievements: string[]
+): { description: string; achievements: string[] } {
+  const seen = new Set<string>();
+  const keptAchievements: string[] = [];
+  for (const raw of achievements) {
+    const line = String(raw || '').trim();
+    if (!line) continue;
+    const key = experienceBodyLineKey(line);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    keptAchievements.push(line);
+  }
+
+  const descLines: string[] = [];
+  for (const rawLine of String(description || '').split('\n')) {
+    const line = rawLine.trim();
+    if (!line) {
+      if (descLines.length > 0 && descLines[descLines.length - 1] !== '') descLines.push('');
+      continue;
+    }
+    const key = experienceBodyLineKey(line);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    descLines.push(line);
+  }
+
+  let finalDescription = descLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (!finalDescription && keptAchievements.length > 0) {
+    finalDescription = keptAchievements.join('\n');
+  }
+
+  return { description: finalDescription, achievements: keptAchievements };
+}
+
+function experienceEntryFingerprint(exp: ExperienceLike): string {
+  const company = experienceFingerprintPart(
+    sanitizeFieldText(exp.company || exp.Company || exp.organization, 120)
+  );
+  const position = experienceFingerprintPart(
+    sanitizeFieldText(exp.position || exp.Position || exp.title || exp.job_title, 120)
+  );
+  const start = experienceFingerprintPart(sanitizeFieldText(exp.startDate || exp.start_date, 40));
+  const end = experienceFingerprintPart(sanitizeFieldText(exp.endDate || exp.end_date, 40));
+  return `${company}|${position}|${start}|${end}`;
+}
+
+function experienceBodyFingerprint(exp: ExperienceLike): string {
+  const body = collectExperienceBodyFields(exp as Record<string, unknown>);
+  return [body.description, ...body.achievements]
+    .join('\n')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .slice(0, 160);
+}
+
+function employmentBlockSignalsInText(text: string): number {
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  let signals = 0;
+  for (const line of lines) {
+    if (EXPERIENCE_DATE_RANGE_RE.test(line)) signals += 2;
+    if (looksLikeCompanyNameLine(line)) signals += 1;
+    if (looksLikeJobTitleLine(line)) signals += 1;
+  }
+  return signals;
+}
+
+/** True when a headerless block likely belongs to a separate job, not the previous entry. */
+function looksLikeSeparateEmploymentBlock(exp: ExperienceLike): boolean {
+  const desc = sanitizeMultilineFieldText(exp.description, 1200);
+  const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
+  const combined = [desc, ...achievements.map((a) => String(a))].filter(Boolean).join('\n');
+  if (!combined) return false;
+  return employmentBlockSignalsInText(combined) >= 2;
+}
+
+function experiencesAreExactDuplicates(a: ExperienceLike, b: ExperienceLike): boolean {
+  const fpA = experienceEntryFingerprint(a);
+  const fpB = experienceEntryFingerprint(b);
+  const hasHeader = fpA.replace(/\|/g, '').length > 0 && fpB.replace(/\|/g, '').length > 0;
+  if (hasHeader && fpA === fpB) return true;
+
+  const companyA = experienceFingerprintPart(a.company);
+  const companyB = experienceFingerprintPart(b.company);
+  const positionA = experienceFingerprintPart(a.position || a.title);
+  const positionB = experienceFingerprintPart(b.position || b.title);
+  if (!companyA || companyA !== companyB) return false;
+  if (positionA !== positionB) return false;
+
+  const bodyA = experienceBodyFingerprint(a);
+  const bodyB = experienceBodyFingerprint(b);
+  return bodyA.length >= 12 && bodyA === bodyB;
+}
+
+function mergeDuplicateExperienceEntries<T extends ExperienceLike>(target: T, duplicate: T): T {
+  const targetBody = collectExperienceBodyFields(target as Record<string, unknown>);
+  const dupBody = collectExperienceBodyFields(duplicate as Record<string, unknown>);
+  const united = unionExperienceBodyFields(targetBody, dupBody);
+  const deduped = dedupeExperienceBodyLines(united.description, united.achievements);
+  return reconcileExperienceHeaderFields({
+    ...(target as Record<string, unknown>),
+    description: deduped.description,
+    achievements: deduped.achievements,
+  }) as T;
+}
+
+/** Collapse adjacent identical experience rows; dedupe bullets inside each row. */
+export function dedupeAdjacentExperienceEntries<T extends ExperienceLike>(entries: T[]): T[] {
+  if (entries.length === 0) return entries;
+  const out: T[] = [];
+
+  for (const raw of entries) {
+    const exp = reconcileExperienceHeaderFields(raw as Record<string, unknown>) as T;
+    const body = collectExperienceBodyFields(exp as Record<string, unknown>);
+    const dedupedBody = dedupeExperienceBodyLines(body.description, body.achievements);
+    const cleaned = {
+      ...exp,
+      description: dedupedBody.description,
+      achievements: dedupedBody.achievements,
+    } as T;
+
+    const prev = out[out.length - 1];
+    if (prev && experiencesAreExactDuplicates(prev, cleaned)) {
+      out[out.length - 1] = mergeDuplicateExperienceEntries(prev, cleaned);
+      continue;
+    }
+    out.push(cleaned);
+  }
+
+  return out;
+}
+
 /** Final binding pass before Builder state — orphan merge + semantic header reconciliation. */
 export function finalizeExperienceListForBuilder(
   entries: Record<string, unknown>[]
@@ -1332,7 +1498,11 @@ export function finalizeExperienceListForBuilder(
     string,
     unknown
   >[];
-  return mergedTwice.map((e) => reconcileExperienceHeaderFields(e));
+  const deduped = dedupeAdjacentExperienceEntries(mergedTwice as ExperienceLike[]) as Record<
+    string,
+    unknown
+  >[];
+  return deduped.map((e) => reconcileExperienceHeaderFields(e));
 }
 
 /** Final education binding — keep degree / institution / year on one object. */
@@ -1407,8 +1577,9 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
       ).filter(Boolean)
     : [];
   const pruned = pruneExperienceBodyFields(description, rawAchievements);
-  const finalDescription = pruned.description;
-  const finalAchievements = pruned.achievements;
+  const deduped = dedupeExperienceBodyLines(pruned.description, pruned.achievements);
+  const finalDescription = deduped.description;
+  const finalAchievements = deduped.achievements;
 
   if (
     !isValidExperienceEntry({

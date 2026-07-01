@@ -28,6 +28,7 @@ import {
   pickBestNameFromCandidates,
   isResumeSectionHeadingLine,
   sanitizeSkillEntry,
+  looksLikeJobTitleLine,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1186,10 +1187,14 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
           if (t.length > 120) return false;
           if (DATE_RANGE_REGEX.test(t)) return false;
           if (isAnyHeadingLine(t)) return false;
-          // Avoid pulling pure bullet lines into the header.
           if (/^[•\-\*\u2022\u2023\u25aa]\s+/.test(t) || /^o\s+/i.test(t)) return false;
-          // Prefer likely company/role lines; fall back to "short text" if present.
-          return ROLE_MARKERS.test(t) || COMPANY_MARKERS.test(t) || t.length <= 80;
+          return (
+            looksLikeJobTitleLine(t) ||
+            looksLikeCompanyNameLine(t) ||
+            looksLikeStandaloneLocationLine(t) ||
+            ROLE_MARKERS.test(t) ||
+            COMPANY_MARKERS.test(t)
+          );
         };
 
         const prev1 = i - 1 >= 0 ? lines[i - 1] : '';
@@ -1197,14 +1202,21 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
         const prev3 = i - 3 >= 0 ? lines[i - 3] : '';
 
         if (isGoodHeaderLine(prev1)) start = i - 1;
-        if (isGoodHeaderLine(prev2) && (ROLE_MARKERS.test(prev1) || COMPANY_MARKERS.test(prev1) || prev1.length <= 60)) {
+        if (
+          isGoodHeaderLine(prev2) &&
+          (looksLikeJobTitleLine(prev2) ||
+            looksLikeCompanyNameLine(prev2) ||
+            ROLE_MARKERS.test(prev2) ||
+            COMPANY_MARKERS.test(prev2))
+        ) {
           start = i - 2;
         }
         if (
           isGoodHeaderLine(prev3) &&
           isGoodHeaderLine(prev2) &&
           isGoodHeaderLine(prev1) &&
-          (looksLikeCompanyNameLine(prev2) || looksLikeCompanyNameLine(prev1))
+          (looksLikeCompanyNameLine(prev2) || looksLikeCompanyNameLine(prev1)) &&
+          (looksLikeJobTitleLine(prev3) || looksLikeJobTitleLine(prev2) || ROLE_MARKERS.test(prev3))
         ) {
           // Title / Company / Location / Date layouts (e.g. Food Processor / Pranav... / Bhopal / Jan 2023)
           start = i - 3;
@@ -1304,6 +1316,10 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
       if (!location) location = locOnLine[0];
       continue;
     }
+    if (looksLikeJobTitleLine(cleaned)) {
+      if (!position) position = cleaned;
+      continue;
+    }
     if (looksLikeStandaloneLocationLine(cleaned)) {
       if (!location) location = cleaned;
       continue;
@@ -1329,7 +1345,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
 
     if (!position && ROLE_MARKERS.test(cleaned)) position = cleaned;
     else if (!company && looksLikeCompanyNameLine(cleaned)) company = cleaned;
-    else if (!position && cleaned.length <= 80) position = cleaned;
+    else if (!position && looksLikeJobTitleLine(cleaned)) position = cleaned;
     else if (!company && cleaned.length <= 120) company = cleaned;
   }
 
@@ -1364,11 +1380,20 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     break;
   }
 
-  // Description / bullets — everything after header/date/location
+  // Lines after header/date/location — stop if the next job block begins inside this chunk.
   for (let i = descStart; i < chunkLines.length; i++) {
     const l = chunkLines[i].trim();
     if (!l) continue;
     if (isResumeSectionHeadingLine(l)) break;
+    if (
+      i > descStart &&
+      (DATE_RANGE_REGEX.test(l) ||
+        (looksLikeCompanyNameLine(l) &&
+          i + 1 < chunkLines.length &&
+          DATE_RANGE_REGEX.test(chunkLines[i + 1])))
+    ) {
+      break;
+    }
     if (/^[•\-\*\u2022\u2023\u25aa]\s+/.test(l) || /^o\s+/i.test(l) || /^\d+[\.\)]\s+/.test(l)) {
       bullets.push(l.replace(/^[•\-\*\u2022\u2023\u25aa]\s+|^o\s+/i, '').replace(/^\d+[\.\)]\s+/, '').trim());
     } else {
@@ -1376,7 +1401,8 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     }
   }
 
-  const description = [...descLines, ...bullets].join('\n').trim();
+  const description =
+    descLines.length > 0 ? descLines.join('\n').trim() : bullets.join('\n').trim();
 
   return {
     company,

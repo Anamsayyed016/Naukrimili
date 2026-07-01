@@ -98,4 +98,30 @@ describe('resume extraction intelligence', () => {
     expect(parsed.skills.length).toBeGreaterThan(0);
     expect(parsed.certifications.some((c) => /AWS/i.test(String(c.name || '')))).toBe(true);
   });
+
+  it('splits multi-job experience without bleeding descriptions or mis-assigning titles', () => {
+    const text = [
+      'John Doe',
+      'john@test.com',
+      'EXPERIENCE',
+      'Engineer',
+      'Acme Corp',
+      'Jan 2020 - Dec 2021',
+      'Shipped billing module',
+      'Senior Engineer',
+      'Beta LLC',
+      'Jan 2022 - Present',
+      'Owned payments platform',
+    ].join('\n');
+
+    const parsed = extractResumeFromText(text);
+    expect(parsed.experience.length).toBe(2);
+    expect(parsed.experience[0]?.company).toMatch(/Acme/i);
+    expect(parsed.experience[0]?.position).toMatch(/Engineer/i);
+    expect(String(parsed.experience[0]?.description || '')).toMatch(/billing/i);
+    expect(parsed.experience[1]?.company).toMatch(/Beta/i);
+    expect(parsed.experience[1]?.position).toMatch(/Senior Engineer/i);
+    expect(String(parsed.experience[1]?.description || '')).toMatch(/payments/i);
+    expect(String(parsed.experience[1]?.description || '')).not.toMatch(/billing/i);
+  });
 });
