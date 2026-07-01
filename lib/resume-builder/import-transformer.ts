@@ -1353,7 +1353,7 @@ function transformExperienceArray(experiences: unknown): any[] {
           : 'Present'
         : computeDuration(startMonth, endMonth),
     };
-  }));
+  });
 
   // Most recent first (by startDate desc, then current first)
   const sorted = deduped.sort(compareByRecent);
