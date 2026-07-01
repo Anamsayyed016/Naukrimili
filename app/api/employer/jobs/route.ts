@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireEmployerAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { stripAiCommentaryFromJobDescription } from "@/lib/jobs/clean-job-description";
 
 export async function GET(request: NextRequest) {
   try {
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
         company: companyName || company.name,
         location,
         country,
-        description,
+        description: stripAiCommentaryFromJobDescription(description),
         requirements: JSON.stringify([]),
         applyUrl,
         salary,

@@ -13,6 +13,7 @@ import {
   getJobPostingSuggestions,
   isEmployerJobPostingContext,
 } from '@/lib/jobs/job-role-suggestion-engine';
+import { stripAiCommentaryFromJobDescription } from '@/lib/jobs/clean-job-description';
 
 export const SUGGESTION_LIMIT_DEFAULT = 6;
 export const SUGGESTION_LIMIT_SUMMARY = 8;
@@ -549,16 +550,23 @@ export function finalizeSuggestionResponse(
     context
   );
 
+  const cleanedAi =
+    field === 'description' && context.suggestionDomain === 'job-posting'
+      ? rankedAi
+          .map((s) => stripAiCommentaryFromJobDescription(s))
+          .filter((s) => s.trim().length > 0)
+      : rankedAi;
+
   const dedupeOpts = { allowJobPostingText: context.suggestionDomain === 'job-posting' };
 
   const merged = context.regenerate
-    ? mergeSuggestionSets(rankedAi, det, allExclude, limit, dedupeOpts)
-    : mergeSuggestionSets(det, rankedAi, allExclude, limit, dedupeOpts);
+    ? mergeSuggestionSets(cleanedAi, det, allExclude, limit, dedupeOpts)
+    : mergeSuggestionSets(det, cleanedAi, allExclude, limit, dedupeOpts);
 
   if (merged.length >= Math.min(3, limit)) return merged;
 
   return dedupeSuggestions(
-    [...rankedAi, ...det, ...aiSuggestions],
+    [...cleanedAi, ...det, ...aiSuggestions],
     allExclude,
     limit,
     dedupeOpts

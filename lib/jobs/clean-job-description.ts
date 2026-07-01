@@ -91,6 +91,101 @@ export function normalizeJobDescriptionLineEndings(
   return String(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 }
 
+/** Lines that are AI meta-commentary, not employer job description content. */
+const AI_COMMENTARY_LINE = [
+  /^this version\b/i,
+  /^this (?:updated |revised |improved |enhanced )?version\b/i,
+  /^here is (?:the |an )?(?:improved |updated |revised )?/i,
+  /^here'?s (?:the |an )?(?:improved |updated |revised )?/i,
+  /^below is\b/i,
+  /^the following (?:is |are )?/i,
+  /^i have rewritten\b/i,
+  /^i'?ve rewritten\b/i,
+  /^improved job description\b/i,
+  /^updated job description\b/i,
+  /^revised job description\b/i,
+  /^enhanced job description\b/i,
+  /^job description:\s*$/i,
+  /^changes made\b/i,
+  /^summary:\s*$/i,
+  /^explanation:\s*$/i,
+  /^note:\s/i,
+  /^notes:\s/i,
+  /^---+\s*$/,
+  /^\*\*improved/i,
+  /^\*\*updated/i,
+];
+
+const AI_COMMENTARY_SENTENCE =
+  /(?:this version keeps all of your original content intact|keeps all of your original content intact|original content intact|as requested|i have (?:rewritten|improved|updated)|i'?ve (?:rewritten|improved|updated)|here is the improved|below is the (?:improved|updated|revised))/i;
+
+function isAiCommentaryLine(line: string): boolean {
+  const t = line.trim();
+  if (!t) return false;
+  return AI_COMMENTARY_LINE.some((pattern) => pattern.test(t));
+}
+
+function isAiCommentarySentence(sentence: string): boolean {
+  const t = sentence.trim();
+  if (!t) return false;
+  if (AI_COMMENTARY_SENTENCE.test(t)) return true;
+  return isAiCommentaryLine(t);
+}
+
+function stripLeadingMetaSentences(text: string): string {
+  let remaining = text.trimStart();
+  for (let i = 0; i < 6; i++) {
+    const match = remaining.match(/^[\s\S]*?[.!?](?:\s+|$)/);
+    if (!match) break;
+    const sentence = match[0].trim();
+    if (!sentence || !isAiCommentarySentence(sentence)) break;
+    remaining = remaining.slice(match[0].length).trimStart();
+  }
+  return remaining;
+}
+
+/**
+ * Remove AI-generated preamble/commentary from job descriptions.
+ * Keeps employer paragraphs, bullets, numbering, and blank lines.
+ */
+export function stripAiCommentaryFromJobDescription(
+  raw: string | null | undefined
+): string {
+  if (raw == null) return '';
+  let text = normalizeJobDescriptionLineEndings(raw);
+  if (!text.trim()) return '';
+
+  const lines = text.split('\n');
+  const kept: string[] = [];
+  let bodyStarted = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      if (bodyStarted) kept.push('');
+      continue;
+    }
+    if (!bodyStarted && isAiCommentaryLine(trimmed)) continue;
+    bodyStarted = true;
+    kept.push(line);
+  }
+
+  text = kept.join('\n').trim();
+  text = stripLeadingMetaSentences(text);
+
+  // Drop a trailing AI note block after a blank line
+  const blocks = text.split(/\n{2,}/);
+  if (blocks.length > 1) {
+    const last = blocks[blocks.length - 1].trim();
+    if (isAiCommentaryLine(last) || isAiCommentarySentence(last)) {
+      blocks.pop();
+      text = blocks.join('\n\n').trim();
+    }
+  }
+
+  return text.trim();
+}
+
 function readDescriptionFromRawJson(rawJson: unknown): string | null {
   if (!rawJson || typeof rawJson !== 'object' || Array.isArray(rawJson)) {
     return null;
@@ -113,10 +208,9 @@ export function formatJobDescriptionForDetail(job: {
 
   if (source === 'manual' || source === 'employer') {
     const fromRawJson = readDescriptionFromRawJson(job.rawJson);
-    if (fromRawJson && fromRawJson.length > column.length) {
-      return normalizeJobDescriptionLineEndings(fromRawJson);
-    }
-    return column;
+    const base =
+      fromRawJson && fromRawJson.length > column.length ? fromRawJson : column;
+    return stripAiCommentaryFromJobDescription(base);
   }
 
   return cleanJobDescription(job.description);

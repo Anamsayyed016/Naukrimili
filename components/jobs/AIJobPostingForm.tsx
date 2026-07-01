@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { ef } from '@/lib/employer-form-ui';
 import { EmployerAiSuggestionCards } from '@/components/employer/EmployerAiSuggestionCards';
+import { stripAiCommentaryFromJobDescription } from '@/lib/jobs/clean-job-description';
 import { cn } from '@/lib/utils';
 
 interface JobFormData {
@@ -599,7 +600,19 @@ export default function AIJobPostingForm() {
 
     const currentValue = formData[field];
     const lineSeparator = field === 'description' ? '\n\n' : '\n';
-    const nextValue = appendTextFieldSuggestion(currentValue, value, lineSeparator);
+    const suggestionText =
+      field === 'description'
+        ? stripAiCommentaryFromJobDescription(value)
+        : value.trim();
+    if (!suggestionText) {
+      toast.info('Suggestion contained only AI commentary and was skipped');
+      return;
+    }
+    const nextValue = appendTextFieldSuggestion(
+      currentValue,
+      suggestionText,
+      lineSeparator
+    );
     if (nextValue === null) {
       toast.info('This suggestion is already added');
       return;

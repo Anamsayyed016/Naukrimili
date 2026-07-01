@@ -3,6 +3,7 @@ import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { jobNotificationEmailService } from '@/lib/job-notification-emails';
 import { jobCacheService } from '@/lib/job-cache-service';
+import { stripAiCommentaryFromJobDescription } from '@/lib/jobs/clean-job-description';
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
         company: company.name,
         location: body.location,
         country: body.country || 'IN',
-        description: body.description,
+        description: stripAiCommentaryFromJobDescription(body.description),
         requirements: body.requirements ? JSON.stringify([body.requirements]) : JSON.stringify([]),
         salary: salaryDisplay,
         salaryMin,

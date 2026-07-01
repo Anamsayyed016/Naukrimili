@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { stripAiCommentaryFromJobDescription } from "@/lib/jobs/clean-job-description";
 
 export async function GET(
   request: NextRequest,
@@ -153,8 +154,8 @@ export async function PUT(
       console.log('  ✓ country:', body.country);
     }
     if (body.description !== undefined) {
-      updateData.description = body.description;
-      console.log('  ✓ description length:', body.description?.length);
+      updateData.description = stripAiCommentaryFromJobDescription(body.description);
+      console.log('  ✓ description length:', updateData.description?.length);
     }
     if (body.requirements !== undefined) {
       updateData.requirements = Array.isArray(body.requirements) 

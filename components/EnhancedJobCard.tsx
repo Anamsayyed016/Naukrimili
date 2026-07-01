@@ -25,6 +25,7 @@ import {
 } from '@/lib/job-navigation-state';
 import {
   normalizeJobDescriptionLineEndings,
+  stripAiCommentaryFromJobDescription,
   getJobDescriptionPreview,
 } from '@/lib/jobs/clean-job-description';
 import {
@@ -141,12 +142,14 @@ export function JobDescriptionView({
   description: string;
   className?: string;
 }) {
-  const text = normalizeJobDescriptionLineEndings(description);
+  const text = stripAiCommentaryFromJobDescription(
+    normalizeJobDescriptionLineEndings(description)
+  );
   if (!text) return null;
 
   return (
     <div
-      className={`text-sm sm:text-base text-slate-600/95 leading-[1.75] tracking-normal break-words whitespace-pre-wrap min-w-0 max-w-full overflow-visible ${className}`}
+      className={`job-description-body w-full min-w-0 max-w-full h-auto text-sm sm:text-base text-slate-600/95 leading-[1.75] tracking-normal whitespace-pre-wrap [overflow-wrap:anywhere] overflow-x-visible overflow-y-visible ${className}`}
     >
       {text}
     </div>
