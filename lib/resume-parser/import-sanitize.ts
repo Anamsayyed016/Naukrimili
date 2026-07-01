@@ -4,7 +4,7 @@
  */
 
 import { stripAiCommentaryFromJobDescription } from '@/lib/jobs/clean-job-description';
-import { cleanString, cleanMultiline, isSectionLabel } from './normalize-extracted';
+import { cleanString, cleanMultiline, isSectionLabel, normalizeDate, isPlausibleResumeYear } from './normalize-extracted';
 import {
   classifyResumeTextFragment,
   isClassifiedPersonName,
@@ -1191,13 +1191,35 @@ type ExperienceLike = {
 const COMPANY_NAME_HINT_RE =
   /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|systems|consulting|services|company|co\.?)\b/i;
 
+const WELL_KNOWN_EMPLOYER_RE =
+  /^(?:google|microsoft|amazon|apple|meta|facebook|netflix|uber|airbnb|stripe|salesforce|oracle|ibm|accenture|deloitte|pwc|kpmg|ey|ernst|infosys|tcs|tata consultancy services|wipro|hcl|cognizant|capgemini|tech mahindra|larsen|flipkart|swiggy|zomato|startup)$/i;
+
+const SPECIAL_EMPLOYER_RE =
+  /^(?:self[- ]?employed|freelance|freelancer|confidential|independent contractor|contract(?:or)?|government(?: of)?)$/i;
+
+/** Normalize and validate employment dates — returns '' when confidence is low. */
+export function sanitizeExperienceDateValue(value: unknown): string {
+  const raw = String(value ?? '').trim();
+  if (!raw) return '';
+  const norm = normalizeDate(value);
+  if (!norm) return '';
+  if (/^present$/i.test(norm)) return 'Present';
+  const yearMatch = norm.match(/\b((?:19|20)\d{2})\b/);
+  if (yearMatch && !isPlausibleResumeYear(parseInt(yearMatch[1], 10), raw)) return '';
+  return norm;
+}
+
 const JOB_TITLE_HINT_RE =
   /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder)\b/i;
 
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
   if (!t) return false;
+  if (SPECIAL_EMPLOYER_RE.test(t)) return true;
+  if (/^government\b/i.test(t)) return true;
   if (COMPANY_NAME_HINT_RE.test(t)) return true;
+  const core = t.replace(/\s+(limited|ltd\.?|inc\.?|pvt\.?\s*ltd\.?)$/i, '').trim();
+  if (WELL_KNOWN_EMPLOYER_RE.test(core)) return true;
   return t.length >= 22 && /\s/.test(t);
 }
 
@@ -1340,7 +1362,49 @@ export function reconcileExperienceHeaderFields(
         ? (exp.achievements as unknown[]).map((a) => String(a)).filter(Boolean)
         : []
   );
-  const deduped = dedupeExperienceBodyLines(pruned.description, pruned.achievements);
+  let deduped = dedupeExperienceBodyLines(pruned.description, pruned.achievements);
+
+  if (!company && position && SPECIAL_EMPLOYER_RE.test(position)) {
+    company = position;
+  }
+
+  if (!company && position) {
+    const headerCandidates = [
+      sanitizeFieldText(exp.companyName || exp.CompanyName, 160),
+      sanitizeFieldText(exp.employer || exp.Employer, 160),
+    ].filter(Boolean);
+    for (const candidate of headerCandidates) {
+      if (looksLikeCompanyNameLine(candidate) && candidate !== position) {
+        company = candidate;
+        break;
+      }
+    }
+  }
+
+  if (!company && deduped.description) {
+    const descLines = deduped.description.split('\n').map((l) => l.trim()).filter(Boolean);
+    for (const line of descLines.slice(0, 2)) {
+      if (looksLikeCompanyNameLine(line) && !looksLikeJobTitleLine(line) && line !== position) {
+        company = line;
+        if (descLines.length > 1) {
+          const remaining = descLines.filter((l) => l !== line).join('\n').trim();
+          deduped = dedupeExperienceBodyLines(remaining, deduped.achievements);
+        }
+        break;
+      }
+    }
+  }
+
+  const startDate = sanitizeExperienceDateValue(exp.startDate || exp.start_date);
+  const endDateRaw = sanitizeExperienceDateValue(exp.endDate || exp.end_date);
+  const endDate = /^present$/i.test(endDateRaw) ? '' : endDateRaw;
+  const isCurrent =
+    exp.current === true ||
+    /^present$/i.test(endDateRaw) ||
+    /^(present|current|now|ongoing|running|till date)$/i.test(
+      String(exp.endDate || exp.end_date || '').trim()
+    );
+
   return {
     ...exp,
     company,
@@ -1351,6 +1415,11 @@ export function reconcileExperienceHeaderFields(
     job_title: position,
     location,
     Location: location,
+    startDate,
+    start_date: startDate,
+    endDate: isCurrent ? '' : endDate,
+    end_date: isCurrent ? '' : endDate,
+    current: isCurrent,
     description: deduped.description,
     Description: deduped.description,
     achievements: deduped.achievements,

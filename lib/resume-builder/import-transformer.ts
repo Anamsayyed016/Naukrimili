@@ -1200,6 +1200,17 @@ function cleanHobbies(hobbies: unknown): string[] {
   return out;
 }
 
+function inferEmploymentType(position: string, company: string): string {
+  const p = position.toLowerCase();
+  const c = company.toLowerCase();
+  if (/intern(ship)?/.test(p)) return 'Internship';
+  if (/freelance|contractor|contract/.test(p) || /freelance|contractor/.test(c)) return 'Freelance';
+  if (/self[- ]?employed/.test(c) || /self[- ]?employed/.test(p)) return 'Self-employed';
+  if (/confidential/.test(c)) return 'Confidential';
+  if (/^government\b/.test(c)) return 'Government';
+  return '';
+}
+
 function transformExperienceArray(experiences: unknown): any[] {
   if (!Array.isArray(experiences)) return [];
 
@@ -1207,18 +1218,17 @@ function transformExperienceArray(experiences: unknown): any[] {
     .map((exp) => sanitizeExperienceEntry((exp ?? {}) as Record<string, unknown>))
     .filter((exp): exp is Record<string, unknown> => exp != null)
     .map((exp) => reconcileExperienceHeaderFields(exp))
-    .map((exp) => {
+    .map((exp, index) => {
       const position = String(exp.position || exp.title || '');
       const company = String(exp.company || '');
       const location = String(exp.location || exp.Location || '');
 
       const startMonth = toMonthInput(exp.startDate);
-      const endRaw = exp.endDate || '';
+      const endRawStr = String(exp.endDate || '').trim();
       const isCurrent =
         exp.current === true ||
-        !endRaw ||
-        /^(present|current|now|ongoing)$/i.test(String(endRaw));
-      const endMonth = isCurrent ? '' : toMonthInput(endRaw);
+        /^(present|current|now|ongoing|running|till date)$/i.test(endRawStr);
+      const endMonth = isCurrent ? '' : toMonthInput(endRawStr);
 
       const body = collectExperienceBodyFields(exp);
       const united = unionExperienceBodyFields(
@@ -1236,32 +1246,36 @@ function transformExperienceArray(experiences: unknown): any[] {
       const description = dedupedBody.description;
       const finalBullets = dedupedBody.achievements;
 
-      // SINGLE source of truth for the "Present" indicator: the `current` flag.
-      // Duration is a presentation string; endDate stays empty when current so
-      // no template path renders "Present" twice.
       const duration = isCurrent
         ? (startMonth ? `${startMonth} - Present` : 'Present')
         : computeDuration(startMonth, endMonth);
 
+      const employmentType = inferEmploymentType(position, company);
+      const stableId = `exp-${index}-${company.slice(0, 12)}-${position.slice(0, 12)}-${startMonth}`.replace(/\s+/g, '-').toLowerCase();
+
       return {
-        // ExperienceStep canonical
+        id: stableId,
         title: position,
+        designation: position,
         company,
         location,
         startDate: startMonth,
-        endDate: endMonth, // '' when current
+        endDate: endMonth,
         description,
         current: isCurrent,
+        isCurrent,
+        employmentType,
         achievements: finalBullets,
         bullets: finalBullets,
-        // Template aliases (capitalized)
+        bulletPoints: finalBullets,
         Position: position,
         Company: company,
         Location: location,
         Description: description,
         Duration: duration,
       };
-    });
+    })
+    .filter((e) => String(e.company || '').trim() || String(e.title || '').trim());
 
   // Dedupe by company|title|startDate|endDate, and identical rows when dates are missing.
   const seen = new Set<string>();
@@ -1304,33 +1318,41 @@ function transformExperienceArray(experiences: unknown): any[] {
       description: e.description,
       achievements: e.achievements,
     }))
-  ).map((exp) => ({
-    title: String(exp.position || exp.title || ''),
-    company: String(exp.company || ''),
-    location: String(exp.location || ''),
-    startDate: String(exp.startDate || ''),
-    endDate: String(exp.endDate || ''),
-    description: String(exp.description || ''),
-    current: exp.current === true,
-    achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
-    bullets: Array.isArray(exp.achievements) ? exp.achievements : [],
-    Position: String(exp.position || exp.title || ''),
-    Company: String(exp.company || ''),
-    Location: String(exp.location || ''),
-    Description: String(exp.description || ''),
-    Duration: (() => {
-      const isCurrent =
-        exp.current === true ||
-        !exp.endDate ||
-        /^(present|current|now|ongoing)$/i.test(String(exp.endDate || ''));
-      const startMonth = String(exp.startDate || '');
-      const endMonth = isCurrent ? '' : String(exp.endDate || '');
-      return isCurrent
+  ).map((exp) => {
+    const endRawStr = String(exp.endDate || '').trim();
+    const isCurrent =
+      exp.current === true ||
+      /^(present|current|now|ongoing|running|till date)$/i.test(endRawStr);
+    const title = String(exp.position || exp.title || '');
+    const company = String(exp.company || '');
+    const startMonth = String(exp.startDate || '');
+    const endMonth = isCurrent ? '' : String(exp.endDate || '');
+    const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
+    return {
+      id: `exp-${company.slice(0, 12)}-${title.slice(0, 12)}-${startMonth}`.replace(/\s+/g, '-').toLowerCase(),
+      title,
+      designation: title,
+      company,
+      location: String(exp.location || ''),
+      startDate: startMonth,
+      endDate: endMonth,
+      description: String(exp.description || ''),
+      current: isCurrent,
+      isCurrent,
+      employmentType: inferEmploymentType(title, company),
+      achievements,
+      bullets: achievements,
+      bulletPoints: achievements,
+      Position: title,
+      Company: company,
+      Location: String(exp.location || ''),
+      Description: String(exp.description || ''),
+      Duration: isCurrent
         ? startMonth
           ? `${startMonth} - Present`
           : 'Present'
-        : computeDuration(startMonth, endMonth);
-    })(),
+        : computeDuration(startMonth, endMonth),
+    };
   }));
 
   // Most recent first (by startDate desc, then current first)

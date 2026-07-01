@@ -73,20 +73,50 @@ export function cleanMultiline(value: unknown): string {
 }
 
 /** Normalize dates to YYYY-MM or YYYY when possible */
+export function isPlausibleResumeYear(year: number, rawHint?: string): boolean {
+  if (!Number.isFinite(year) || year < 1000) return false;
+  const now = new Date().getFullYear();
+  const raw = String(rawHint || '');
+
+  if (raw && new RegExp(`\\b${year}\\b`).test(raw)) {
+    return year >= 1950 && year <= now + 1;
+  }
+
+  if (year < 1965 || year > now + 1) return false;
+  if (year === 1900 || year === 0) return false;
+  if (year === 1970 && !/\b1970\b/.test(raw)) return false;
+
+  return true;
+}
+
 export function normalizeDate(value: unknown): string {
   const raw = cleanString(value);
   if (!raw) return '';
 
-  const lower = raw.toLowerCase();
-  if (['present', 'current', 'now', 'ongoing'].includes(lower)) {
+  const lower = raw.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (['present', 'current', 'now', 'ongoing', 'running', 'till date', 'till-date'].includes(lower)) {
     return 'Present';
   }
 
   const iso = raw.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);
-  if (iso) return `${iso[1]}-${iso[2]}`;
+  if (iso) {
+    const y = parseInt(iso[1], 10);
+    if (!isPlausibleResumeYear(y, raw)) return '';
+    return `${iso[1]}-${iso[2]}`;
+  }
 
-  const monthYear = raw.match(/([A-Za-z]{3,9})\s+(\d{4})/);
+  const slashMonthYear = raw.match(/\b(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})\b/);
+  if (slashMonthYear) {
+    const y = parseInt(slashMonthYear[2], 10);
+    if (!isPlausibleResumeYear(y, raw)) return '';
+    const m = String(Math.max(1, Math.min(12, parseInt(slashMonthYear[1], 10)))).padStart(2, '0');
+    return `${slashMonthYear[2]}-${m}`;
+  }
+
+  const monthYear = raw.match(/([A-Za-z]{3,9})\.?\s+((?:19|20)\d{2})/);
   if (monthYear) {
+    const y = parseInt(monthYear[2], 10);
+    if (!isPlausibleResumeYear(y, raw)) return '';
     const months: Record<string, string> = {
       jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
       jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
@@ -95,10 +125,14 @@ export function normalizeDate(value: unknown): string {
     if (months[key]) return `${monthYear[2]}-${months[key]}`;
   }
 
-  const yearOnly = raw.match(/\b(19|20)\d{2}\b/);
-  if (yearOnly) return yearOnly[0];
+  const yearOnly = raw.match(/\b((?:19|20)\d{2})\b/);
+  if (yearOnly) {
+    const y = parseInt(yearOnly[1], 10);
+    if (!isPlausibleResumeYear(y, raw)) return '';
+    return yearOnly[1];
+  }
 
-  return raw;
+  return '';
 }
 
 export function dedupeStrings(items: string[], caseInsensitive = true): string[] {

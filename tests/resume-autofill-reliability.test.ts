@@ -915,4 +915,50 @@ describe('experience boundary and pipeline hygiene', () => {
     expect(transformed.experience[0].description).toMatch(/search/i);
     expect(transformed.experience[1].description).toMatch(/Azure/i);
   });
+
+  it('rejects invented epoch dates and empty end date does not imply current job', async () => {
+    const { sanitizeExperienceDateValue } = await import('@/lib/resume-parser/import-sanitize');
+    expect(sanitizeExperienceDateValue('1970-01-01')).toBe('');
+    expect(sanitizeExperienceDateValue('Jan 2020')).toBe('2020-01');
+    expect(sanitizeExperienceDateValue('1900')).toBe('');
+
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      experience: [
+        {
+          company: 'Infosys',
+          position: 'Developer',
+          startDate: '2018-06',
+          endDate: '',
+          description: 'Built APIs',
+        },
+      ],
+      _apiFinalized: true,
+    });
+    expect(transformed.experience[0].current).toBe(false);
+    expect(transformed.experience[0].isCurrent).toBe(false);
+  });
+
+  it('recognizes short employer names like Infosys and TCS in text recovery', () => {
+    const text = [
+      'Jane Doe',
+      'jane@example.com',
+      '',
+      'Experience',
+      'Infosys',
+      'Software Engineer',
+      'Jan 2020 - Dec 2022',
+      'Built microservices.',
+      '',
+      'TCS',
+      'Senior Developer',
+      'Jan 2023 - Present',
+      'Led migration project.',
+    ].join('\n');
+
+    const parsed = extractResumeFromText(text);
+    expect(parsed.experience.length).toBeGreaterThanOrEqual(2);
+    expect(parsed.experience.some((e) => /infosys/i.test(String(e.company || '')))).toBe(true);
+    expect(parsed.experience.some((e) => /\btcs\b/i.test(String(e.company || '')))).toBe(true);
+  });
 });

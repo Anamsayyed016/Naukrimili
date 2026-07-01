@@ -30,6 +30,7 @@ import {
   sanitizeSkillEntry,
   looksLikeJobTitleLine,
   normalizeSkillsList,
+  sanitizeExperienceDateValue,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1300,13 +1301,19 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     if (DATE_RANGE_REGEX.test(chunkLines[i])) {
       dateLineIdx = i;
       const m = chunkLines[i].match(DATE_RANGE_REGEX)!;
-      startDate = m[1].trim();
+      startDate = sanitizeExperienceDateValue(m[1].trim());
       const endRaw = m[2].trim();
-      if (/^(present|current|now|ongoing)$/i.test(endRaw)) {
+      if (/^(present|current|now|ongoing|running|till date)$/i.test(endRaw)) {
         current = true;
         endDate = '';
       } else {
-        endDate = endRaw;
+        const normalizedEnd = sanitizeExperienceDateValue(endRaw);
+        if (/^present$/i.test(normalizedEnd)) {
+          current = true;
+          endDate = '';
+        } else {
+          endDate = normalizedEnd;
+        }
       }
       break;
     }
