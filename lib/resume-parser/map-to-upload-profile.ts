@@ -28,7 +28,7 @@ export function mapExtractedToUploadProfile(
     portfolio: extracted.portfolio || '',
     skills: extracted.skills || [],
     experience: (extracted.experience || []).map((exp) => ({
-      company: exp.company || '',
+      company: exp.company || (exp as { organization?: string }).organization || (exp as { employer?: string }).employer || '',
       position: exp.position || '',
       job_title: exp.position || '',
       startDate: exp.startDate || '',

@@ -766,4 +766,47 @@ describe('resume preview data binding', () => {
     expect(cleared).not.toContain('Built APIs');
     expect(cleared).toContain('Engineer');
   });
+
+  it('reconcileExperienceHeaderFields recovers company from organization when company slot holds title', async () => {
+    const { reconcileExperienceHeaderFields } = await import('@/lib/resume-parser/import-sanitize');
+    const fixed = reconcileExperienceHeaderFields({
+      company: 'Software Engineer',
+      organization: 'Google Inc',
+      position: '',
+      startDate: '2020-01',
+      endDate: '2022-12',
+    });
+    expect(fixed.company).toMatch(/Google/i);
+    expect(fixed.position || fixed.title).toMatch(/Software Engineer/i);
+  });
+
+  it('coalesceBuilderImportPayload prefers parent experience when builder rows lack company names', async () => {
+    const { coalesceBuilderImportPayload } = await import(
+      '@/lib/resume-builder/import-transformer'
+    );
+    const coalesced = coalesceBuilderImportPayload({
+      firstName: 'Jane',
+      email: 'jane@test.com',
+      experience: [
+        { company: 'Infosys', position: 'Auditor', description: 'Led audits' },
+        { company: 'Deloitte', position: 'Senior Associate', description: 'Compliance' },
+        { company: 'KPMG', position: 'Analyst', description: 'Reporting' },
+      ],
+      builderFormData: {
+        firstName: 'Jane',
+        email: 'jane@test.com',
+        experience: [
+          { title: 'Auditor', company: '', description: 'Led audits' },
+          { title: 'Senior Associate', company: '', description: 'Compliance' },
+          { title: 'Analyst', company: '', description: 'Reporting' },
+        ],
+        skills: ['Excel'],
+        _imported: true,
+      },
+    });
+    expect(coalesced.experience).toHaveLength(3);
+    expect(
+      coalesced.experience.every((e: { company?: string }) => !!String(e.company || '').trim())
+    ).toBe(true);
+  });
 });

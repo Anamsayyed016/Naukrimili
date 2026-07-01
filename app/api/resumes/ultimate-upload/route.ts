@@ -790,7 +790,7 @@ export async function POST(request: NextRequest) {
               ? exp.current
               : /present|current|now|ongoing/i.test(`${endDateRaw} ${exp.duration || ''}`);
             return {
-              company: exp.company || '',
+              company: exp.company || exp.organization || exp.employer || '',
               position: exp.role || exp.position || '',
               job_title: exp.role || exp.position || '',
               location: exp.location || '',

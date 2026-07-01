@@ -64,7 +64,7 @@ import {
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
 } from '@/lib/resume-parser/import-sanitize';
-import { filterMeaningfulExperiences } from './section-visibility';
+import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
   classifyResumeTextFragment,
   emptyAdditionalResumeData,
@@ -109,6 +109,23 @@ function trimSummaryForStructuredSections(
   return truncateSummaryAtSectionBoundary(text).slice(0, 4000);
 }
 
+/** Count experiences that have a company/employer field populated. */
+function countExperiencesWithCompany(list: unknown[]): number {
+  if (!Array.isArray(list)) return 0;
+  return list.filter((entry) => {
+    if (!entry || typeof entry !== 'object') return false;
+    const exp = entry as Record<string, unknown>;
+    return hasMeaningfulText(
+      exp.company ||
+        exp.Company ||
+        exp.organization ||
+        exp.Organization ||
+        exp.employer ||
+        exp.Employer
+    );
+  }).length;
+}
+
 /** When API nests builderFormData, parent profile arrays may still hold parser output. */
 function mergeBuilderFormWithParent(
   parent: Record<string, unknown>,
@@ -123,7 +140,22 @@ function mergeBuilderFormWithParent(
         const meaningful = filterMeaningfulExperiences(
           fromBuilder as Array<Record<string, unknown>>
         );
-        if (meaningful.length > 0) return fromBuilder;
+        if (meaningful.length > 0) {
+          const parentList = firstNonEmptyArray(parent, [canonical, ...aliases]);
+          const builderCompanies = countExperiencesWithCompany(fromBuilder as unknown[]);
+          const parentCompanies = countExperiencesWithCompany(parentList);
+          const builderMissingCompany = builderCompanies < meaningful.length;
+          if (
+            parentList.length > (fromBuilder as unknown[]).length ||
+            parentCompanies > builderCompanies ||
+            (builderMissingCompany &&
+              parentCompanies > 0 &&
+              parentList.length >= meaningful.length)
+          ) {
+            return parentList;
+          }
+          return fromBuilder;
+        }
       } else {
         return fromBuilder;
       }

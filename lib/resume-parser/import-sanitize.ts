@@ -999,15 +999,35 @@ export function looksLikeStandaloneLocationLine(text: string): boolean {
 export function reconcileExperienceHeaderFields(
   exp: Record<string, unknown>
 ): Record<string, unknown> {
-  let company = sanitizeFieldText(
-    exp.company || exp.Company || exp.organization || exp.Organization || exp.employer,
+  const slotCompany = sanitizeFieldText(exp.company || exp.Company, 160);
+  const slotOrg = sanitizeFieldText(
+    exp.organization ||
+      exp.Organization ||
+      exp.employer ||
+      exp.Employer ||
+      exp.companyName ||
+      exp.CompanyName,
     160
   );
+
+  let company = slotCompany || slotOrg;
   let position = sanitizeFieldText(
     exp.position || exp.Position || exp.title || exp.job_title || exp.role,
     120
   );
   let location = sanitizeFieldText(exp.location || exp.Location, 120);
+
+  if (
+    slotCompany &&
+    slotOrg &&
+    slotCompany !== slotOrg &&
+    looksLikeJobTitleLine(slotCompany) &&
+    !looksLikeCompanyNameLine(slotCompany) &&
+    !looksLikeJobTitleLine(slotOrg)
+  ) {
+    company = slotOrg;
+    if (!position) position = slotCompany;
+  }
 
   if (location && looksLikeJobTitleLine(location) && !position) {
     position = location;
@@ -1066,6 +1086,19 @@ export function reconcileExperienceHeaderFields(
 
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) company = '';
   if (isResumeSectionHeadingLine(position) || isLikelyEducationLine(position)) position = '';
+
+  if (!company) {
+    const orgFallback = slotOrg || sanitizeFieldText(exp.employer || exp.Employer, 160);
+    if (
+      orgFallback &&
+      orgFallback !== position &&
+      !looksLikeJobTitleLine(orgFallback) &&
+      !isResumeSectionHeadingLine(orgFallback) &&
+      !isLikelyEducationLine(orgFallback)
+    ) {
+      company = orgFallback;
+    }
+  }
 
   const body = collectExperienceBodyFields(exp);
   const pruned = pruneExperienceBodyFields(

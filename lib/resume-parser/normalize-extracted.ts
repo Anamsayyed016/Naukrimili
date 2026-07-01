@@ -705,7 +705,14 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
         endDateRaw.toLowerCase() === 'present';
       return {
         ...exp,
-        company: cleanString(exp.company || exp.Company || exp.organization || exp.Organization),
+        company: cleanString(
+          exp.company ||
+            exp.Company ||
+            exp.organization ||
+            exp.Organization ||
+            exp.employer ||
+            exp.Employer
+        ),
         position: cleanString(exp.position || exp.Position || exp.job_title || exp.title || exp.role),
         location: cleanString(exp.location || exp.Location),
         startDate,
