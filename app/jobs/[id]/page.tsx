@@ -464,16 +464,18 @@ export default function JobDetailsPage() {
                       {job.title}
                     </CardTitle>
                     
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-gray-600 mb-4">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-gray-600 mb-4">
+                      <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto max-w-full">
                         <Building2 className="w-4 h-4 flex-shrink-0" />
-                        <span className="font-medium truncate">{job.company}</span>
+                        <span className="font-medium min-w-0 max-sm:[overflow-wrap:anywhere] sm:truncate">
+                          {job.company}
+                        </span>
                       </div>
                       {job.location && (
-                        <div className="flex items-start gap-2 min-w-0 max-w-full">
+                        <div className="flex items-start gap-2 min-w-0 w-full sm:flex-1 sm:min-w-0 max-w-full">
                           <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
                           <span
-                            className="whitespace-pre-line break-words text-sm sm:text-base leading-snug"
+                            className="min-w-0 flex-1 whitespace-pre-line [overflow-wrap:anywhere] text-sm sm:text-base leading-snug"
                             title={normalizeJobLocationText(job.location)}
                           >
                             {formatJobDetailLocation(job.location)}
@@ -528,7 +530,9 @@ export default function JobDetailsPage() {
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-emerald-700 font-semibold uppercase tracking-wider mb-1">Salary</p>
-                        <p className="font-extrabold text-emerald-900 text-sm truncate">{formatJobSalary(job)}</p>
+                        <p className="font-extrabold text-emerald-900 text-sm [overflow-wrap:anywhere] leading-snug">
+                          {formatJobSalary(job)}
+                        </p>
                       </div>
                     </div>
                   ) : null}
@@ -540,7 +544,9 @@ export default function JobDetailsPage() {
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-blue-600 font-semibold uppercase tracking-wider mb-1">Type</p>
-                        <p className="font-extrabold text-blue-900 text-sm sm:text-base uppercase tracking-wide truncate">{job.jobType.replace(/-/g, ' ')}</p>
+                        <p className="font-extrabold text-blue-900 text-sm sm:text-base uppercase tracking-wide [overflow-wrap:anywhere] leading-snug">
+                          {job.jobType.replace(/-/g, ' ')}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -552,7 +558,9 @@ export default function JobDetailsPage() {
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-purple-600 font-semibold uppercase tracking-wider mb-1">Experience</p>
-                        <p className="font-extrabold text-purple-900 text-sm sm:text-base uppercase tracking-wide truncate">{job.experienceLevel}</p>
+                        <p className="font-extrabold text-purple-900 text-sm sm:text-base uppercase tracking-wide [overflow-wrap:anywhere] leading-snug">
+                          {job.experienceLevel}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -564,7 +572,9 @@ export default function JobDetailsPage() {
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-orange-600 font-semibold uppercase tracking-wider mb-1">Posted</p>
-                        <p className="font-extrabold text-orange-900 text-sm truncate">{new Date(job.postedAt).toLocaleDateString()}</p>
+                        <p className="font-extrabold text-orange-900 text-sm [overflow-wrap:anywhere] leading-snug">
+                          {new Date(job.postedAt).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                   )}
