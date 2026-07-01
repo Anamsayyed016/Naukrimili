@@ -1,6 +1,6 @@
 import { validateAndRepairResumeExtraction } from '@/lib/resume-parser/extraction-repair';
 import { expandCompoundLanguages } from '@/lib/resume-parser/normalize-extracted';
-import { sanitizeSkillEntry } from '@/lib/resume-parser/import-sanitize';
+import { normalizeSkillsList, sanitizeSkillEntry } from '@/lib/resume-parser/import-sanitize';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
 
 describe('resume extraction intelligence', () => {
@@ -69,6 +69,28 @@ describe('resume extraction intelligence', () => {
     expect(parsed.skills.some((s) => /reading/i.test(s))).toBe(false);
     expect(parsed.skills.some((s) => /certif/i.test(s))).toBe(false);
     expect(sanitizeSkillEntry('Expected CTC: 15 LPA')).toBe('');
+  });
+
+  it('normalizeSkillsList scores, canonicalizes, and filters weak tokens', () => {
+    const skills = normalizeSkillsList([
+      'Python',
+      'Javascript',
+      'JS',
+      'NodeJS',
+      'Docker',
+      'Communication',
+      'Current CTC: 12 LPA',
+      'Reading',
+      'jane@example.com',
+      'Led team of engineers across multiple projects',
+      'Infosys Technologies Limited',
+    ]);
+    expect(skills).toEqual(
+      expect.arrayContaining(['Python', 'JavaScript', 'Node.js', 'Docker'])
+    );
+    expect(skills.filter((s) => s === 'JavaScript').length).toBe(1);
+    expect(skills.some((s) => /ctc|reading|@|infosys/i.test(s))).toBe(false);
+    expect(skills.indexOf('Python')).toBeLessThan(skills.indexOf('Communication'));
   });
 
   it('experience body stops at embedded section headings', () => {

@@ -42,6 +42,8 @@ import {
   isEmailDerivedName,
   parseIntelligentNameFromEmail,
   sanitizeSkillEntry,
+  normalizeSkillsList,
+  scoreSkillConfidence,
   sanitizeExperienceEntry,
   sanitizeEducationEntry,
   sanitizeAchievementEntry,
@@ -1175,8 +1177,7 @@ function extractJobTitleFromImport(
 
 function cleanSkills(skills: unknown): string[] {
   if (!Array.isArray(skills)) return [];
-  const cleaned = skills.map((s) => sanitizeSkillEntry(s)).filter(Boolean);
-  return dedupeStrings(cleaned);
+  return normalizeSkillsList(skills);
 }
 
 function cleanHobbies(hobbies: unknown): string[] {

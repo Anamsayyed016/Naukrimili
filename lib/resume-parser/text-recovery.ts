@@ -29,6 +29,7 @@ import {
   isResumeSectionHeadingLine,
   sanitizeSkillEntry,
   looksLikeJobTitleLine,
+  normalizeSkillsList,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1150,7 +1151,7 @@ function parseSkills(block: string): string[] {
       if (cleanedSkill) out.push(cleanedSkill);
     }
   }
-  return out;
+  return normalizeSkillsList(out);
 }
 
 function parseExperience(block: string): ExtractedResumeData['experience'] {

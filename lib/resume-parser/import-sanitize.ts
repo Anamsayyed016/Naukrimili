@@ -482,6 +482,17 @@ export function sanitizeSkillEntry(skill: unknown): string {
   if (isLikelyCertificationLine(s)) return '';
   if (isLikelyEducationLine(s) && s.length < 120) return '';
 
+  const classified = classifyResumeTextFragment(s);
+  const skillWords = s.split(/\s+/).filter(Boolean).length;
+  if (classified.kind === 'SECTION_HEADER') return '';
+  if (classified.kind === 'EDUCATION' || classified.kind === 'CERTIFICATION') return '';
+  if (classified.kind === 'COMPANY_NAME' && skillWords >= 2) return '';
+  if (classified.kind === 'DESIGNATION' && skillWords >= 2) return '';
+  if (classified.kind === 'PERSON_NAME' && skillWords >= 2 && isClassifiedPersonName(s, 70)) {
+    return '';
+  }
+  if (isLikelyCompanyNameFragment(s) && s.length > 18) return '';
+
   // Reject pure-numeric, percentage-only, or noise tokens
   if (/^\d+\.?\d*\s*%?$/.test(s)) return '';
   if (SKILL_NOISE_TOKENS.has(s.toLowerCase())) return '';
@@ -492,6 +503,191 @@ export function sanitizeSkillEntry(skill: unknown): string {
   if (s.length > 60 && /\s\w+\s\w+\s\w+/.test(s)) return ''; // a sentence
 
   return s;
+}
+
+/** Canonical display names for common skill aliases (dedupe JS / Javascript / Java Script). */
+const SKILL_CANONICAL_ALIASES: Record<string, string> = {
+  js: 'JavaScript',
+  javascript: 'JavaScript',
+  'java script': 'JavaScript',
+  ts: 'TypeScript',
+  typescript: 'TypeScript',
+  'type script': 'TypeScript',
+  node: 'Node.js',
+  nodejs: 'Node.js',
+  'node js': 'Node.js',
+  'node.js': 'Node.js',
+  reactjs: 'React',
+  'react.js': 'React',
+  react: 'React',
+  vuejs: 'Vue.js',
+  'vue.js': 'Vue.js',
+  vue: 'Vue.js',
+  angularjs: 'Angular',
+  angular: 'Angular',
+  postgres: 'PostgreSQL',
+  postgresql: 'PostgreSQL',
+  mongo: 'MongoDB',
+  mongodb: 'MongoDB',
+  aws: 'AWS',
+  gcp: 'GCP',
+  azure: 'Azure',
+  k8s: 'Kubernetes',
+  kubernetes: 'Kubernetes',
+  docker: 'Docker',
+  git: 'Git',
+  github: 'GitHub',
+  gitlab: 'GitLab',
+  html: 'HTML',
+  css: 'CSS',
+  sql: 'SQL',
+  nosql: 'NoSQL',
+  'rest api': 'REST API',
+  restapi: 'REST API',
+  graphql: 'GraphQL',
+  'c#': 'C#',
+  'c++': 'C++',
+  '.net': '.NET',
+  dotnet: '.NET',
+  python: 'Python',
+  django: 'Django',
+  flask: 'Flask',
+  java: 'Java',
+  spring: 'Spring',
+  'spring boot': 'Spring Boot',
+  php: 'PHP',
+  laravel: 'Laravel',
+  ruby: 'Ruby',
+  rails: 'Ruby on Rails',
+  'ruby on rails': 'Ruby on Rails',
+  go: 'Go',
+  golang: 'Go',
+  rust: 'Rust',
+  swift: 'Swift',
+  kotlin: 'Kotlin',
+  excel: 'Excel',
+  powerbi: 'Power BI',
+  'power bi': 'Power BI',
+  tableau: 'Tableau',
+  jira: 'Jira',
+  confluence: 'Confluence',
+  figma: 'Figma',
+  photoshop: 'Photoshop',
+  communication: 'Communication',
+  leadership: 'Leadership',
+  teamwork: 'Teamwork',
+};
+
+const SOFT_SKILL_PHRASES = new Set([
+  'communication',
+  'leadership',
+  'teamwork',
+  'problem solving',
+  'critical thinking',
+  'time management',
+  'adaptability',
+  'collaboration',
+  'interpersonal skills',
+  'presentation skills',
+  'negotiation',
+  'decision making',
+]);
+
+const LANGUAGE_SKILL_RE =
+  /^(english|hindi|tamil|telugu|bengali|marathi|gujarati|kannada|malayalam|punjabi|urdu|french|spanish|german|arabic|mandarin|cantonese)(?:\s*\(.*\))?$/i;
+
+export const SKILL_CONFIDENCE_THRESHOLD = 40;
+
+export function canonicalizeSkillName(skill: string): string {
+  const cleaned = skill.trim().replace(/\s+/g, ' ');
+  if (!cleaned) return '';
+  const key = cleaned.toLowerCase();
+  if (SKILL_CANONICAL_ALIASES[key]) return SKILL_CANONICAL_ALIASES[key];
+  if (/^[A-Z0-9+#.]{2,8}$/.test(cleaned)) return cleaned.toUpperCase();
+  if (/^[a-z0-9+#.]{2,8}$/.test(cleaned)) return cleaned.toUpperCase();
+  return cleaned
+    .split(/\s+/)
+    .map((part) => {
+      if (/^[A-Z0-9+#.]{2,}$/.test(part)) return part;
+      if (part.length <= 3) return part.toUpperCase();
+      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
+/** Confidence score 0–100 for skill quality filtering (higher = keep). */
+export function scoreSkillConfidence(skill: string): number {
+  const cleaned = sanitizeSkillEntry(skill);
+  if (!cleaned) return 0;
+
+  const lower = cleaned.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (RESUME_METADATA_LINE_RE.some((re) => re.test(lower))) return 0;
+  if (/@/.test(lower) || /\b\d{7,}\b/.test(lower)) return 0;
+  if (LANGUAGE_SKILL_RE.test(lower)) return 5;
+  if (isLikelyCertificationLine(cleaned)) return 5;
+  if (isLikelyEducationLine(cleaned)) return 8;
+  if (isLikelyCompanyNameFragment(cleaned)) return 5;
+  if (isLikelyJobTitleFragment(cleaned) && cleaned.split(/\s+/).length <= 4) return 12;
+
+  if (SOFT_SKILL_PHRASES.has(lower)) return 48;
+  if (SKILL_CANONICAL_ALIASES[lower]) return 96;
+
+  const words = lower.split(/\s+/).filter(Boolean);
+  if (words.length > 5 || cleaned.length > 52) return 18;
+  if (words.length >= 3 && /\b(and|with|using|including|responsible|developed|managed)\b/i.test(lower)) {
+    return 15;
+  }
+
+  if (/^(react|angular|vue|python|django|flask|docker|kubernetes|terraform|ansible|jenkins|redis|kafka|spark|hadoop|tableau|jira|figma|salesforce|sap|oracle|mysql|mongodb|postgresql|javascript|typescript|java|kotlin|swift|ruby|php|laravel|express|nextjs|next\.js)$/i.test(lower)) {
+    return 94;
+  }
+  if (/\.(js|ts|py|rb|go)$/i.test(lower)) return 90;
+  if (/^[a-z0-9+#.]{2,10}$/i.test(cleaned)) return 88;
+  if (words.length === 1 && cleaned.length <= 24) return 82;
+  if (words.length === 2) return 76;
+
+  return 62;
+}
+
+function expandSkillInputTokens(skills: unknown[]): string[] {
+  const tokens: string[] = [];
+  for (const raw of skills) {
+    if (typeof raw === 'string') {
+      const parts = raw.split(/[,;|•\n]+/).map((p) => p.trim()).filter(Boolean);
+      tokens.push(...(parts.length > 0 ? parts : [raw.trim()]));
+    } else if (raw && typeof raw === 'object') {
+      const rec = raw as Record<string, unknown>;
+      const name = rec.name ?? rec.Name ?? rec.skill ?? rec.Skill ?? rec.label;
+      if (name != null) tokens.push(String(name));
+    }
+  }
+  return tokens;
+}
+
+/** Sanitize, score, canonicalize, dedupe, and rank skills for form state. */
+export function normalizeSkillsList(
+  skills: unknown[],
+  minConfidence: number = SKILL_CONFIDENCE_THRESHOLD
+): string[] {
+  const ranked = new Map<string, { name: string; score: number }>();
+
+  for (const token of expandSkillInputTokens(skills)) {
+    const cleaned = sanitizeSkillEntry(token);
+    if (!cleaned || isSectionLabel(cleaned)) continue;
+    const score = scoreSkillConfidence(cleaned);
+    if (score < minConfidence) continue;
+    const name = canonicalizeSkillName(cleaned);
+    if (!name) continue;
+    const key = name.toLowerCase();
+    const prev = ranked.get(key);
+    if (!prev || score > prev.score) {
+      ranked.set(key, { name, score });
+    }
+  }
+
+  return [...ranked.values()]
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .map((entry) => entry.name);
 }
 
 /**

@@ -11,6 +11,7 @@ import {
 import {
   dedupeAdjacentExperienceEntries,
   dedupeExperienceBodyLines,
+  normalizeSkillsList,
   pruneExperienceBodyFields,
   reconcileExperienceHeaderFields,
 } from '@/lib/resume-parser/import-sanitize';
@@ -217,6 +218,15 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
     }
   }
   languages = expandedLanguages;
+
+  const rawSkills = Array.isArray(data.skills) ? (data.skills as unknown[]) : [];
+  const normalizedSkills = normalizeSkillsList(rawSkills);
+  if (normalizedSkills.length !== rawSkills.length) {
+    report.repairs.push(
+      `Normalized skills list: ${rawSkills.length} input tokens → ${normalizedSkills.length} retained`
+    );
+  }
+  data.skills = normalizedSkills;
 
   data.experience = dedupeAdjacentExperienceEntries(
     repairedExperience as Array<Record<string, unknown>>

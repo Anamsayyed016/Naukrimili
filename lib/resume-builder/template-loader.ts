@@ -34,6 +34,7 @@ import {
   coalesceFormDataForTemplateRender,
   appendHobbiesSectionIfMissing,
 } from './section-visibility';
+import { scoreSkillConfidence } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { resolveTemplateId } from './template-aliases';
 
@@ -766,34 +767,48 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
  * Render skills section
  * Supports both simple tags and progress bars (for templates that use progress bar classes)
  */
+function resolveSkillRenderLimit(total: number, useProgressBars: boolean): number | undefined {
+  if (useProgressBars) return 12;
+  if (total > 30) return 22;
+  if (total > 22) return 18;
+  return undefined;
+}
+
 function renderSkills(skills: string[], useProgressBars: boolean = false): string {
   if (!Array.isArray(skills) || skills.length === 0) {
     return '';
   }
 
-  const validSkills = filterMeaningfulSkills(
-    skills.map((skill) => {
-      if (typeof skill === 'string') return skill;
-      if (skill && typeof skill === 'object') {
-        const record = skill as Record<string, unknown>;
-        return String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? '');
-      }
-      return '';
-    })
-  ) as string[];
+  const validSkills = (
+    filterMeaningfulSkills(
+      skills.map((skill) => {
+        if (typeof skill === 'string') return skill;
+        if (skill && typeof skill === 'object') {
+          const record = skill as Record<string, unknown>;
+          return String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? '');
+        }
+        return '';
+      })
+    ) as string[]
+  )
+    .slice()
+    .sort((a, b) => scoreSkillConfidence(b) - scoreSkillConfidence(a));
 
-  if (validSkills.length === 0) {
+  const limit = resolveSkillRenderLimit(validSkills.length, useProgressBars);
+  const displaySkills = limit ? validSkills.slice(0, limit) : validSkills;
+
+  if (displaySkills.length === 0) {
     return '';
   }
 
   if (!useProgressBars) {
-    return validSkills
+    return displaySkills
       .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
       .join(' ');
   }
 
   // Progress-bar templates: show skill names only (no fake parser/confidence percentages)
-  return validSkills
+  return displaySkills
     .map((skill) => {
       const raw =
         typeof skill === 'string'
