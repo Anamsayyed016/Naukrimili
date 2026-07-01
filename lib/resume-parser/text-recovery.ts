@@ -26,6 +26,8 @@ import {
   looksLikeCompanyNameLine,
   looksLikeStandaloneLocationLine,
   pickBestNameFromCandidates,
+  isResumeSectionHeadingLine,
+  sanitizeSkillEntry,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1143,7 +1145,8 @@ function parseSkills(block: string): string[] {
       if (SKILL_SUBHEADERS.has(k)) continue;
       if (seen.has(k)) continue;
       seen.add(k);
-      out.push(cleaned);
+      const cleanedSkill = sanitizeSkillEntry(cleaned);
+      if (cleanedSkill) out.push(cleanedSkill);
     }
   }
   return out;
@@ -1160,6 +1163,11 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (!line.trim()) continue;
+    if (isResumeSectionHeadingLine(line.trim())) {
+      if (lastStart >= 0) entries.push({ start: lastStart, end: i });
+      lastStart = -1;
+      continue;
+    }
     const hasDateRange = DATE_RANGE_REGEX.test(line);
     const hasRoleMarker =
       ROLE_MARKERS.test(line) && line.length < 100 && !isExperienceBulletLine(line);
@@ -1360,6 +1368,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
   for (let i = descStart; i < chunkLines.length; i++) {
     const l = chunkLines[i].trim();
     if (!l) continue;
+    if (isResumeSectionHeadingLine(l)) break;
     if (/^[•\-\*\u2022\u2023\u25aa]\s+/.test(l) || /^o\s+/i.test(l) || /^\d+[\.\)]\s+/.test(l)) {
       bullets.push(l.replace(/^[•\-\*\u2022\u2023\u25aa]\s+|^o\s+/i, '').replace(/^\d+[\.\)]\s+/, '').trim());
     } else {

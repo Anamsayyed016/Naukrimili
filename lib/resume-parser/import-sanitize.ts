@@ -3,12 +3,15 @@
  * Rejects parser fallbacks and merged blobs; splits names for contact fields.
  */
 
-import { cleanString, cleanMultiline } from './normalize-extracted';
+import { cleanString, cleanMultiline, isSectionLabel } from './normalize-extracted';
 import {
+  classifyResumeTextFragment,
   isClassifiedPersonName,
   isEmailOrDomainFragment,
   isFirmOrLocationNamePhrase,
+  isLikelyCertificationLine,
   isLikelyCompanyNameFragment,
+  isLikelyEducationLine,
   isLikelyJobTitleFragment,
   splitClassifiedFullName,
   type ClassifiedText,
@@ -381,6 +384,73 @@ const SKILL_NOISE_TOKENS = new Set([
   'intermediate', 'beginner', 'novice', 'basic', 'fluent', 'native', 'competent',
 ]);
 
+/** Personal / metadata / section-heading lines that must not become skills or experience body. */
+const RESUME_METADATA_LINE_RE: RegExp[] = [
+  /\b(current|expected|present)\s*ctc\b/i,
+  /\bctc\s*[:.]?\s*(inr|rs|₹|\$|usd)?/i,
+  /\b(salary|package|compensation|remuneration)\b/i,
+  /\b(nationality|marital\s+status|date\s+of\s+birth|d\.?o\.?b\.?)\b/i,
+  /\b(permanent|present|current)\s+address\b/i,
+  /\b(pin\s*code|postal\s+code|zip\s+code)\b/i,
+  /^reading\b/i,
+  /\blistening\s+(to\s+)?music\b/i,
+  /^certif/i,
+  /^language(s)?\s*$/i,
+  /^skills?\s*$/i,
+  /^technical\s+skills?\s*$/i,
+  /^core\s+competenc/i,
+  /^education\s*$/i,
+  /^experience\s*$/i,
+  /^employment\s*$/i,
+  /^projects?\s*$/i,
+  /^achievements?\s*$/i,
+];
+
+/** True when a line is a section heading or personal metadata — not job content or a skill. */
+export function isResumeSectionHeadingLine(line: string): boolean {
+  const t = line.trim().replace(/[:|\-_=•]+$/g, '').trim();
+  if (!t || t.length > 72) return false;
+  if (isSectionLabel(t)) return true;
+  if (RESUME_METADATA_LINE_RE.some((re) => re.test(t))) return true;
+  const classified = classifyResumeTextFragment(t);
+  if (classified.kind === 'SECTION_HEADER') return true;
+  return false;
+}
+
+/** Strip section bleed and misplaced lines from experience description / bullets. */
+export function pruneExperienceBodyFields(
+  description: string,
+  achievements: string[]
+): { description: string; achievements: string[] } {
+  const keptAchievements: string[] = [];
+  for (const raw of achievements) {
+    const line = String(raw || '').trim();
+    if (!line) continue;
+    if (isResumeSectionHeadingLine(line)) break;
+    if (isLikelyEducationLine(line) || isLikelyCertificationLine(line)) continue;
+    if (RESUME_METADATA_LINE_RE.some((re) => re.test(line))) continue;
+    keptAchievements.push(line);
+  }
+
+  const descLines: string[] = [];
+  for (const rawLine of String(description || '').split('\n')) {
+    const line = rawLine.trim();
+    if (!line) {
+      if (descLines.length > 0) descLines.push('');
+      continue;
+    }
+    if (isResumeSectionHeadingLine(line)) break;
+    if (isLikelyEducationLine(line) || isLikelyCertificationLine(line)) continue;
+    if (RESUME_METADATA_LINE_RE.some((re) => re.test(line))) continue;
+    descLines.push(line);
+  }
+
+  return {
+    description: descLines.join('\n').replace(/\n{3,}/g, '\n\n').trim(),
+    achievements: keptAchievements,
+  };
+}
+
 export function sanitizeSkillEntry(skill: unknown): string {
   if (skill == null) return '';
 
@@ -405,6 +475,12 @@ export function sanitizeSkillEntry(skill: unknown): string {
 
   s = sanitizeFieldText(s, 80);
   if (!s) return '';
+
+  if (isResumeSectionHeadingLine(s)) return '';
+  if (RESUME_METADATA_LINE_RE.some((re) => re.test(s))) return '';
+  if (/@/.test(s) || /\b\d{7,}\b/.test(s)) return '';
+  if (isLikelyCertificationLine(s)) return '';
+  if (isLikelyEducationLine(s) && s.length < 120) return '';
 
   // Reject pure-numeric, percentage-only, or noise tokens
   if (/^\d+\.?\d*\s*%?$/.test(s)) return '';
@@ -980,7 +1056,18 @@ export function reconcileExperienceHeaderFields(
     }
   }
 
+  if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) company = '';
+  if (isResumeSectionHeadingLine(position) || isLikelyEducationLine(position)) position = '';
+
   const body = collectExperienceBodyFields(exp);
+  const pruned = pruneExperienceBodyFields(
+    body.description || String(exp.description || exp.Description || ''),
+    body.achievements.length > 0
+      ? body.achievements
+      : Array.isArray(exp.achievements)
+        ? (exp.achievements as unknown[]).map((a) => String(a)).filter(Boolean)
+        : []
+  );
   return {
     ...exp,
     company,
@@ -991,8 +1078,9 @@ export function reconcileExperienceHeaderFields(
     job_title: position,
     location,
     Location: location,
-    description: body.description || exp.description || exp.Description,
-    achievements: body.achievements.length > 0 ? body.achievements : exp.achievements,
+    description: pruned.description,
+    Description: pruned.description,
+    achievements: pruned.achievements,
   };
 }
 
@@ -1308,22 +1396,42 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
   ) {
     position = '';
   }
+  let safeCompany = isResumeSectionHeadingLine(company) ? '' : company;
+  let safePosition = isResumeSectionHeadingLine(position) ? '' : position;
   const description = sanitizeMultilineFieldText(exp.description || exp.Description, 8000);
-  if (!company && !position && !description) return null;
-  if (isGarbageResumeText(company) && isGarbageResumeText(position)) return null;
-  if (!isValidExperienceEntry({ company, position, startDate: String(exp.startDate || ''), endDate: String(exp.endDate || ''), description })) {
+  if (!safeCompany && !safePosition && !description) return null;
+  if (isGarbageResumeText(safeCompany) && isGarbageResumeText(safePosition)) return null;
+  const rawAchievements = Array.isArray(exp.achievements)
+    ? (exp.achievements as unknown[]).map((a) =>
+        typeof a === 'string' ? a : String((a as Record<string, unknown>)?.title ?? (a as Record<string, unknown>)?.description ?? '')
+      ).filter(Boolean)
+    : [];
+  const pruned = pruneExperienceBodyFields(description, rawAchievements);
+  const finalDescription = pruned.description;
+  const finalAchievements = pruned.achievements;
+
+  if (
+    !isValidExperienceEntry({
+      company: safeCompany,
+      position: safePosition,
+      startDate: String(exp.startDate || ''),
+      endDate: String(exp.endDate || ''),
+      description: finalDescription,
+    })
+  ) {
     return null;
   }
 
   return {
     ...exp,
-    company,
-    Company: company,
-    position,
-    Position: position,
-    title: position,
-    description,
-    Description: description,
+    company: safeCompany,
+    Company: safeCompany,
+    position: safePosition,
+    Position: safePosition,
+    title: safePosition,
+    description: finalDescription,
+    Description: finalDescription,
+    achievements: finalAchievements,
     location: sanitizeFieldText(exp.location || exp.Location, 120),
     startDate: exp.startDate || exp.start_date || '',
     endDate: exp.endDate || exp.end_date || '',

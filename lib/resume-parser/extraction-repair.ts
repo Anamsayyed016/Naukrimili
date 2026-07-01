@@ -8,6 +8,7 @@ import {
   isLikelyEducationLine,
   shouldKeepAsGlobalAchievement,
 } from '@/lib/resume-parser/field-classification';
+import { pruneExperienceBodyFields } from '@/lib/resume-parser/import-sanitize';
 import { cleanString, dedupeStrings } from '@/lib/resume-parser/normalize-extracted';
 
 export interface ResumeExtractionValidationReport {
@@ -133,6 +134,13 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
         keptBullets.push(b);
       }
       exp.achievements = keptBullets;
+      const pruned = pruneExperienceBodyFields(
+        String(exp.description || exp.Description || ''),
+        keptBullets.map((b) => String(b))
+      );
+      exp.description = pruned.description;
+      exp.Description = pruned.description;
+      exp.achievements = pruned.achievements;
       return exp;
     })
     .filter(Boolean);

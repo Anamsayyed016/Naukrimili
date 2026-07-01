@@ -4,6 +4,7 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { sanitizeSkillEntry } from '@/lib/resume-parser/import-sanitize';
 
 const PLACEHOLDER_PATTERNS = [
   /^n\/a$/i,
@@ -682,7 +683,10 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
   // Drop any pure section-label entries that Affinda accidentally lifted
   // out of "TECHNICAL SKILLS" sub-headers ("Frameworks", "Databases", ...).
   const skills = dedupeStrings(
-    [...skillStrings, ...extraSkills].filter((s) => !isSectionLabel(s))
+    [...skillStrings, ...extraSkills]
+      .map((s) => sanitizeSkillEntry(String(s || '')))
+      .filter(Boolean)
+      .filter((s) => !isSectionLabel(s))
   );
 
   const experienceSource = Array.isArray(profile.experience) && profile.experience.length > 0
