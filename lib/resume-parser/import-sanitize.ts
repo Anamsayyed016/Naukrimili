@@ -1117,13 +1117,30 @@ export function sanitizeProjectEntry(
 
 /**
  * Certification — emits both `url` and `link`.
+ * Rejects education/degree lines misclassified as certifications (e.g. MBA blocks).
  */
+export function isPlausibleCertificationEntry(name: string, issuer = ''): boolean {
+  const n = sanitizeFieldText(name, 200);
+  if (!n || n.length < 3) return false;
+  const combined = sanitizeFieldText(`${n} ${issuer || ''}`.trim(), 240);
+  if (isLikelyEducationLine(n) || isLikelyEducationLine(combined)) return false;
+  if (isLikelyCertificationLine(n) || isLikelyCertificationLine(combined)) return true;
+  if (
+    /\b(?:bachelor|master|mba|m\.?\s*a\.?|b\.?\s*tech|m\.?\s*tech|ph\.?d|doctorate|university|college|institute|school|degree|graduation|matriculation|hsc|ssc)\b/i.test(
+      combined
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function sanitizeCertificationEntry(value: unknown): Record<string, unknown> | null {
   if (value == null) return null;
 
   if (typeof value === 'string') {
     const name = sanitizeFieldText(value, 200);
-    if (!name) return null;
+    if (!name || !isPlausibleCertificationEntry(name)) return null;
     return { name, Name: name, issuer: '', date: '', url: '', link: '' };
   }
   if (typeof value !== 'object') return null;
@@ -1139,6 +1156,7 @@ export function sanitizeCertificationEntry(value: unknown): Record<string, unkno
     (rec.issuer ?? rec.organization ?? rec.issuingOrganization ?? rec.Issuer ?? '') as string,
     160
   );
+  if (!isPlausibleCertificationEntry(name, issuer)) return null;
   const date = sanitizeFieldText(
     (rec.date ?? rec.issued_date ?? rec.issuedDate ?? rec.year ?? rec.Date ?? '') as string,
     40

@@ -851,7 +851,8 @@ export function transformImportDataToBuilder(
 
     // ===== CertificationsStep =====
     certifications: transformCertificationsArray(
-      firstNonEmptyArray(mergedImport, ['certifications', 'Certifications'])
+      firstNonEmptyArray(mergedImport, ['certifications', 'Certifications']),
+      firstNonEmptyArray(mergedImport, ['education', 'Education'])
     ),
 
     // ===== LanguagesStep =====
@@ -1431,11 +1432,48 @@ function transformProjectsArray(projects: unknown): any[] {
   return transformed;
 }
 
-function transformCertificationsArray(certifications: unknown): any[] {
+function transformCertificationsArray(
+  certifications: unknown,
+  education: unknown = []
+): any[] {
   if (!Array.isArray(certifications)) return [];
+
+  const eduFingerprints = new Set<string>();
+  if (Array.isArray(education)) {
+    for (const e of education) {
+      if (!e || typeof e !== 'object') continue;
+      const rec = e as Record<string, unknown>;
+      const degree = String(rec.degree || rec.Degree || rec.title || '').trim().toLowerCase();
+      const institution = String(
+        rec.institution || rec.school || rec.university || rec.Institution || ''
+      )
+        .trim()
+        .toLowerCase();
+      if (degree) eduFingerprints.add(degree);
+      if (institution) eduFingerprints.add(institution);
+      if (degree && institution) eduFingerprints.add(`${degree}|${institution}`);
+    }
+  }
+
+  const certMatchesEducation = (name: string, issuer: string): boolean => {
+    const n = name.trim().toLowerCase();
+    const i = issuer.trim().toLowerCase();
+    if (eduFingerprints.has(n) || (i && eduFingerprints.has(i))) return true;
+    if (i && eduFingerprints.has(`${n}|${i}`)) return true;
+    for (const fp of eduFingerprints) {
+      if (fp.length >= 8 && (n.includes(fp) || fp.includes(n))) return true;
+    }
+    return false;
+  };
+
   return certifications
     .map((c) => sanitizeCertificationEntry(c))
-    .filter((c): c is Record<string, unknown> => c != null);
+    .filter((c): c is Record<string, unknown> => {
+      if (!c) return false;
+      const name = String(c.name || '');
+      const issuer = String(c.issuer || '');
+      return !certMatchesEducation(name, issuer);
+    });
 }
 
 function transformLanguagesArray(languages: unknown): any[] {

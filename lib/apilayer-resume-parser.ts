@@ -14,7 +14,7 @@ import {
   splitBullets,
   normalizeExtractedResumeData,
 } from './resume-parser/normalize-extracted';
-import { sanitizePersonName } from './resume-parser/import-sanitize';
+import { sanitizePersonName, isPlausibleCertificationEntry } from './resume-parser/import-sanitize';
 import { hasMinimalAutofillPayload } from './resume-parser/map-to-upload-profile';
 
 export type ApilayerResumePayload = Record<string, unknown>;
@@ -236,7 +236,7 @@ export function transformApilayerPayload(data: ApilayerResumePayload): Extracted
         url: cleanString(cert.url || cert.link),
       };
     })
-    .filter((c) => c.name);
+    .filter((c) => c.name && isPlausibleCertificationEntry(c.name, c.issuer));
 
   const languagesSeen = new Set<string>();
   const languages: Array<{ name: string; proficiency: string }> = [];

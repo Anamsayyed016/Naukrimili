@@ -35,6 +35,7 @@ import {
   pickBestNameFromCandidates,
   splitMergedProjectEntries,
   logRawProjects,
+  isPlausibleCertificationEntry,
 } from '@/lib/resume-parser/import-sanitize';
 import {
   applyRecoveredWordingToProfile,
@@ -601,7 +602,12 @@ export async function POST(request: NextRequest) {
             // Layout-tolerant path: keep usable Affinda data (multi-column, executive, etc.)
             if (hasMinimalAutofillPayload(affindaResult)) {
               const affindaWithText = mergeTextRecoveryIntoExtracted(affindaResult, extractedText);
-              if (hasMinimalAutofillPayload(affindaWithText)) {
+              const layoutNeedsBetterParser =
+                quality.prefer && (affindaWithText.experience?.length ?? 0) === 0;
+              if (
+                hasMinimalAutofillPayload(affindaWithText) &&
+                !layoutNeedsBetterParser
+              ) {
                 provenanceAffinda = affindaResult;
                 parsedData = mapExtractedToUploadProfile(affindaWithText, {
                   aiProvider: 'affinda+text-recovery',
@@ -1139,7 +1145,17 @@ export async function POST(request: NextRequest) {
           });
           for (let i = 0; i < recoveredCerts.length; i++) {
             if (usedRec.has(i)) continue;
-            enriched.push({ ...recoveredCerts[i] });
+            const cert = recoveredCerts[i];
+            if (
+              cert &&
+              typeof cert === 'object' &&
+              isPlausibleCertificationEntry(
+                String((cert as { name?: string }).name || ''),
+                String((cert as { issuer?: string }).issuer || '')
+              )
+            ) {
+              enriched.push({ ...recoveredCerts[i] });
+            }
           }
           parsedData.certifications = enriched;
         }

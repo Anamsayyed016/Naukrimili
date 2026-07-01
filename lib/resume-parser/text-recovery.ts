@@ -32,6 +32,7 @@ import {
   normalizeSkillsList,
   sanitizeExperienceDateValue,
   reconcileExperienceHeaderFields,
+  isPlausibleCertificationEntry,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -532,6 +533,7 @@ function mergeCertificationLists(
   const seen = new Set(existing.map((c) => c.name.toLowerCase()));
   const out = [...existing];
   for (const c of incoming) {
+    if (!isPlausibleCertificationEntry(c.name, c.issuer || '')) continue;
     const key = c.name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
@@ -1935,6 +1937,8 @@ function parseCertifications(block: string): NonNullable<ExtractedResumeData['ce
     name = name.replace(/[(\[].*?[)\]]/g, '').replace(/[-–—,]+$/, '').trim();
     issuer = issuer.replace(/[(\[].*?[)\]]/g, '').trim();
     if (!name || name.length < 3) continue;
+    if (DEGREE_PATTERNS.some((p) => p.test(name)) && !CERT_LINE_HEURISTIC_RE.test(name)) continue;
+    if (!isPlausibleCertificationEntry(name, issuer)) continue;
 
     out.push({ name, issuer, date, url });
   }

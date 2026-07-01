@@ -862,6 +862,25 @@ describe('experience boundary and pipeline hygiene', () => {
     expect(parsed.experience[1].position).toMatch(/Software Developer/i);
   });
 
+  it('rejects MBA/education lines misclassified as certifications', async () => {
+    const { isPlausibleCertificationEntry, sanitizeCertificationEntry } = await import(
+      '@/lib/resume-parser/import-sanitize'
+    );
+    expect(
+      isPlausibleCertificationEntry(
+        'Master of Business Administration (MBA)',
+        'Sagar Institute of Technology - Barkatullah University, Bhopal'
+      )
+    ).toBe(false);
+    expect(sanitizeCertificationEntry({ name: 'AWS Certified Solutions Architect', issuer: 'Amazon' })).not.toBeNull();
+    expect(
+      sanitizeCertificationEntry({
+        name: 'Master of Business Administration (MBA)',
+        issuer: 'Barkatullah University',
+      })
+    ).toBeNull();
+  });
+
   it('strips AI meta commentary from experience descriptions', async () => {
     const { pruneExperienceBodyFields } = await import('@/lib/resume-parser/import-sanitize');
     const cleaned = pruneExperienceBodyFields(

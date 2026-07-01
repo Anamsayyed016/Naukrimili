@@ -203,6 +203,28 @@ export function hasMinimalAutofillPayload(extracted: ExtractedResumeData): boole
   return false;
 }
 
+/** Experience or education present — not a skills/contact-only stub. */
+export function hasSubstantiveStructuredSections(extracted: ExtractedResumeData): boolean {
+  return (extracted.experience?.length ?? 0) > 0 || (extracted.education?.length ?? 0) > 0;
+}
+
+/** Partial parser output with skills but no employment/education — should not block Apilayer/Hybrid. */
+export function isSkillsOnlyAutofillPayload(extracted: ExtractedResumeData): boolean {
+  const skills = extracted.skills?.length ?? 0;
+  if (skills === 0) return false;
+  return !hasSubstantiveStructuredSections(extracted);
+}
+
+/**
+ * Document-parser result worth accepting as final autofill (vs falling through to Apilayer/Hybrid).
+ * Rejects skills-only stubs that would skip stronger parsers on creative layouts.
+ */
+export function isDocumentAutofillCompleteEnough(extracted: ExtractedResumeData): boolean {
+  if (!hasMinimalAutofillPayload(extracted)) return false;
+  if (isSkillsOnlyAutofillPayload(extracted)) return false;
+  return true;
+}
+
 export function isAffindaPrimaryAcceptable(
   extracted: ExtractedResumeData,
   layout: ResumeDocumentProfile | null | undefined

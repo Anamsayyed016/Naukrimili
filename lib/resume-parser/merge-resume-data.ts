@@ -11,7 +11,10 @@ import { isApilayerEnabled } from '@/lib/resume-parser/apilayer-config';
 import {
   hasAutofillPayload,
   hasMinimalAutofillPayload,
+  hasSubstantiveStructuredSections,
+  isDocumentAutofillCompleteEnough,
   isDocumentParserAcceptable,
+  isSkillsOnlyAutofillPayload,
   isSuspectSummary,
 } from '@/lib/resume-parser/map-to-upload-profile';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
@@ -558,7 +561,11 @@ export async function tryEdenAffindaDocumentParse(
   const affindaBase = affindaData || emptyExtractedResumeData();
 
   if (!isEdenEnabled()) {
-    if (affindaData && isDocumentParserAcceptable(affindaData)) {
+    if (
+      affindaData &&
+      isDocumentParserAcceptable(affindaData) &&
+      hasSubstantiveStructuredSections(affindaData)
+    ) {
       return { data: affindaData, provider: 'affinda', affindaData };
     }
     return null;
@@ -581,7 +588,11 @@ export async function tryEdenAffindaDocumentParse(
       '[resume-merge] Eden document parse failed:',
       error instanceof Error ? error.message : error
     );
-    if (affindaData && isDocumentParserAcceptable(affindaData)) {
+    if (
+      affindaData &&
+      isDocumentParserAcceptable(affindaData) &&
+      hasSubstantiveStructuredSections(affindaData)
+    ) {
       return { data: affindaData, provider: 'affinda', affindaData };
     }
     return null;
@@ -652,8 +663,11 @@ export async function resolveDocumentParserAutofill(
 
   if (doc) {
     const withText = mergeTextRecoveryIntoExtracted(doc.data, extractedText);
-    if (hasMinimalAutofillPayload(withText)) {
+    if (isDocumentAutofillCompleteEnough(withText)) {
       return { ...doc, data: withText };
+    }
+    if (isSkillsOnlyAutofillPayload(withText)) {
+      console.warn('[resume-merge] Document parser returned skills-only payload — trying Apilayer');
     }
   }
 
@@ -663,7 +677,12 @@ export async function resolveDocumentParserAutofill(
     timing?.record('apilayerMs', Date.now() - apilayerStart);
     if (apilayerDoc) {
       const withText = mergeTextRecoveryIntoExtracted(apilayerDoc.data, extractedText);
+      if (isDocumentAutofillCompleteEnough(withText)) {
+        console.warn('[resume-merge] ApiLayer document parse accepted:', apilayerDoc.provider);
+        return { ...apilayerDoc, data: withText };
+      }
       if (hasMinimalAutofillPayload(withText)) {
+        console.warn('[resume-merge] ApiLayer payload minimal — merging with text recovery');
         return { ...apilayerDoc, data: withText };
       }
     }
