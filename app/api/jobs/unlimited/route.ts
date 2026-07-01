@@ -283,6 +283,7 @@ function formatListingJob(job: Record<string, unknown>, options?: ListingFormatO
     location: job.location,
     country: job.country,
     description,
+    ...(options?.listView && fullDescription ? { descriptionFull: fullDescription } : {}),
     applyUrl,
     source: job.source || 'database',
     isExternal: isExternalJob,
@@ -306,6 +307,40 @@ function formatListingJob(job: Record<string, unknown>, options?: ListingFormatO
     updatedAt: job.updatedAt,
     distance: job.distance,
   };
+}
+
+/** Ensure detail cache rows carry full descriptions (list previews are ~220 chars). */
+async function hydrateListingJobsForDetailCache(
+  jobs: Record<string, unknown>[]
+): Promise<Record<string, unknown>[]> {
+  const missingFull = jobs.filter(
+    (job) =>
+      typeof job.descriptionFull !== 'string' &&
+      (job.source === 'manual' || job.source === 'employer')
+  );
+  if (!missingFull.length) return jobs;
+
+  const ids = missingFull
+    .map((job) => parseInt(String(job.id), 10))
+    .filter((id) => Number.isFinite(id) && id > 0);
+
+  if (!ids.length) return jobs;
+
+  const rows = await prisma.job.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, description: true },
+  });
+  const descriptionById = new Map(rows.map((row) => [row.id, row.description || '']));
+
+  return jobs.map((job) => {
+    if (typeof job.descriptionFull === 'string' && job.descriptionFull.trim()) {
+      return job;
+    }
+    const id = parseInt(String(job.id), 10);
+    const full = descriptionById.get(id);
+    if (!full) return job;
+    return { ...job, descriptionFull: full };
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -428,7 +463,8 @@ export async function GET(request: NextRequest) {
       }
       const jobsForDetail = (responsePayload as { jobs?: Record<string, unknown>[] }).jobs;
       if (Array.isArray(jobsForDetail) && jobsForDetail.length > 0) {
-        await jobCacheService.cacheJobsForDetail(jobsForDetail);
+        const hydratedForDetail = await hydrateListingJobsForDetailCache(jobsForDetail);
+        await jobCacheService.cacheJobsForDetail(hydratedForDetail);
       }
       timings.cacheHit = true;
       timings.totalMs = Date.now() - startTime;
@@ -1016,8 +1052,11 @@ export async function GET(request: NextRequest) {
     // Never cache empty listings — avoids locking the UI on a bad/empty response
     if (formattedJobs.length > 0) {
       await jobCacheService.set(cacheKey, response, 'api_jobs_list');
+      // Detail cache must store full descriptions — never list previews (~220 chars).
       await jobCacheService.cacheJobsForDetail(
-        formattedJobs as Record<string, unknown>[]
+        jobs.map((job) =>
+          formatListingJob(job as Record<string, unknown>, { listView: false })
+        ) as Record<string, unknown>[]
       );
     }
 

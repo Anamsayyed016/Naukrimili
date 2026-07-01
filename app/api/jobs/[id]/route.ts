@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { resolveJobRouteParam, extCompositeLookupVariants, extractExtFromSlug } from "@/lib/jobs/resolve-job-lookup";
 import { logJobApiTiming, withTimeout, type JobApiTimings } from "@/lib/jobs/api-perf";
 import { jobCacheService } from "@/lib/job-cache-service";
-import { cleanJobDescription } from "@/lib/jobs/clean-job-description";
+import { formatJobDescriptionForDetail, cleanJobDescription } from "@/lib/jobs/clean-job-description";
 
 /** Detail page only needs counts — not full application rows with user joins */
 const jobDetailInclude = {
@@ -46,7 +46,11 @@ function externalJobToDetailRow(external: Record<string, unknown>) {
     companyLogo: null,
     location: (external.location as string | null) ?? null,
     country: String(external.country || 'IN'),
-    description: cleanJobDescription(String(external.description || '')),
+    description: formatJobDescriptionForDetail({
+      description: String(external.description || ''),
+      source: String(external.source || 'external'),
+      rawJson: external.rawJson,
+    }),
     requirements: cleanJobDescription(String(external.requirements || '')),
     applyUrl: (external.applyUrl as string | null) ?? (external.source_url as string | null) ?? null,
     source_url: (external.source_url as string | null) ?? (external.applyUrl as string | null) ?? null,
@@ -532,7 +536,11 @@ export async function GET(
     const normalizedJob: Record<string, unknown> = {
       ...job,
       country, // Ensure country is always present
-      description: cleanJobDescription(String(job.description || '')),
+      description: formatJobDescriptionForDetail({
+        description: String(job.description || ''),
+        source: String((job as { source?: string }).source || ''),
+        rawJson: (job as { rawJson?: unknown }).rawJson,
+      }),
       requirements: cleanJobDescription(String((job as { requirements?: string }).requirements || '')),
       applicationsCount,
       views: updatedViews,

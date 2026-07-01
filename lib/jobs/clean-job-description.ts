@@ -83,6 +83,45 @@ export type JobDescriptionBlock =
   | { type: 'p'; text: string }
   | { type: 'ul'; items: string[] };
 
+/** Normalize line endings only — no truncation, no scraping cleanup. */
+export function normalizeJobDescriptionLineEndings(
+  raw: string | null | undefined
+): string {
+  if (raw == null) return '';
+  return String(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
+
+function readDescriptionFromRawJson(rawJson: unknown): string | null {
+  if (!rawJson || typeof rawJson !== 'object' || Array.isArray(rawJson)) {
+    return null;
+  }
+  const desc = (rawJson as Record<string, unknown>).description;
+  return typeof desc === 'string' && desc.trim() ? desc : null;
+}
+
+/**
+ * Detail API: employer-posted text is returned verbatim (line endings normalized).
+ * External/imported HTML jobs still pass through cleanJobDescription.
+ */
+export function formatJobDescriptionForDetail(job: {
+  description?: string | null;
+  source?: string | null;
+  rawJson?: unknown;
+}): string {
+  const source = String(job.source || '').toLowerCase();
+  const column = normalizeJobDescriptionLineEndings(job.description);
+
+  if (source === 'manual' || source === 'employer') {
+    const fromRawJson = readDescriptionFromRawJson(job.rawJson);
+    if (fromRawJson && fromRawJson.length > column.length) {
+      return normalizeJobDescriptionLineEndings(fromRawJson);
+    }
+    return column;
+  }
+
+  return cleanJobDescription(job.description);
+}
+
 /**
  * Convert provider HTML or entity-encoded text to clean plain text.
  * Preserves paragraph breaks and simple bullet lines where possible.

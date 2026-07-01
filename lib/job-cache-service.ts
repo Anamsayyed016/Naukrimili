@@ -26,9 +26,18 @@ export class JobCacheService {
 
   /** Cache a listing row under every id shape the detail route may receive. */
   async cacheJobForDetail(job: Record<string, unknown>): Promise<void> {
+    const fullDescription =
+      typeof job.descriptionFull === 'string' && job.descriptionFull.trim()
+        ? job.descriptionFull
+        : typeof job.description === 'string'
+          ? job.description
+          : '';
+    const { descriptionFull: _omit, ...rest } = job;
+    const jobForDetail: Record<string, unknown> = { ...rest, description: fullDescription };
+
     const keys = new Set<string>();
-    const id = job.id != null ? String(job.id) : '';
-    const sourceId = job.sourceId != null ? String(job.sourceId) : '';
+    const id = jobForDetail.id != null ? String(jobForDetail.id) : '';
+    const sourceId = jobForDetail.sourceId != null ? String(jobForDetail.sourceId) : '';
     if (id) keys.add(id);
     if (sourceId) keys.add(sourceId);
     const ext = id.match(/^ext-(?:external-)?(\w+)-(.+)$/i);
@@ -39,7 +48,7 @@ export class JobCacheService {
     const prefixed = sourceId.match(/^(adzuna|jooble|serpapi|usajobs|jsearch)-(.+)$/i);
     if (prefixed) keys.add(prefixed[2]);
     for (const key of keys) {
-      if (key) await this.set(key, job, 'job_detail');
+      if (key) await this.set(key, jobForDetail, 'job_detail');
     }
   }
 

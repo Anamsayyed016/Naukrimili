@@ -24,7 +24,7 @@ import {
   saveJobSearchContext,
 } from '@/lib/job-navigation-state';
 import {
-  cleanJobDescription,
+  normalizeJobDescriptionLineEndings,
   getJobDescriptionPreview,
 } from '@/lib/jobs/clean-job-description';
 import {
@@ -141,7 +141,7 @@ export function JobDescriptionView({
   description: string;
   className?: string;
 }) {
-  const text = cleanJobDescription(description);
+  const text = normalizeJobDescriptionLineEndings(description);
   if (!text) return null;
 
   return (
