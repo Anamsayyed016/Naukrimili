@@ -691,7 +691,7 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       // twice (once flat, once as a list).
       const leadDescription = allBullets.length > 1
         ? ''
-        : String(description).replace(/\s+/g, ' ').trim();
+        : String(description).trim();
 
       return `
         <div class="experience-item">
