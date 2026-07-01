@@ -81,6 +81,10 @@ if (fs.existsSync(standalonePath)) {
 // Export script type for runtime verification
 exports.scriptType = scriptType;
 
+// Dedicated port for zero-downtime deploy health checks (not production :3000).
+// Override with NAUKRIMILI_TEST_PORT env when starting naukrimili-test via PM2.
+const NAUKRIMILI_TEST_PORT = parseInt(process.env.NAUKRIMILI_TEST_PORT || '13001', 10);
+
 module.exports = {
   apps: [
     {
@@ -207,7 +211,7 @@ module.exports = {
       exec_mode: "fork",
       env_production: {
         NODE_ENV: "production",
-        PORT: 3001,
+        PORT: NAUKRIMILI_TEST_PORT,
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",

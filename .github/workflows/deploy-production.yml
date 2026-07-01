@@ -21,6 +21,7 @@ env:
   DEPLOY_FOLDER: /var/www/naukrimili
   STAGING_FOLDER: /var/www/naukrimili-staging
   BACKUP_FOLDER: /var/www/naukrimili-backup
+  NAUKRIMILI_TEST_PORT: '13001'
 
 jobs:
   validate_secrets:
@@ -286,7 +287,7 @@ jobs:
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           
           # Remote deployment script
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "export DATABASE_URL='${DATABASE_URL}'; export DEPLOY_FOLDER='${DEPLOY_FOLDER}'; export STAGING_FOLDER='${STAGING_FOLDER}'; export BACKUP_FOLDER='${BACKUP_FOLDER}'; bash -s" << 'EOF'
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "export DATABASE_URL='${DATABASE_URL}'; export DEPLOY_FOLDER='${DEPLOY_FOLDER}'; export STAGING_FOLDER='${STAGING_FOLDER}'; export BACKUP_FOLDER='${BACKUP_FOLDER}'; export NAUKRIMILI_TEST_PORT='${NAUKRIMILI_TEST_PORT}'; bash -s" << 'EOF'
           set -e
           BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
           [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
@@ -356,14 +357,23 @@ jobs:
             fi
           fi
           
-          echo "🧪 Testing application in temp folder (port 3001)..."
+          echo "🧪 Testing application in temp folder (port ${NAUKRIMILI_TEST_PORT:-13001})..."
+          export NAUKRIMILI_TEST_PORT="${NAUKRIMILI_TEST_PORT:-13001}"
           pm2 delete naukrimili-test 2>/dev/null || true
+          # Free stale listener on Naukrimili deploy-test port only (never touches prod :3000)
+          if command -v fuser >/dev/null 2>&1; then
+            fuser -k "${NAUKRIMILI_TEST_PORT}/tcp" 2>/dev/null || true
+          else
+            STALE_PID=$(ss -tlnp 2>/dev/null | grep ":${NAUKRIMILI_TEST_PORT} " | sed -n 's/.*pid=\([0-9]*\).*/\1/p' | head -1)
+            [ -n "$STALE_PID" ] && kill "$STALE_PID" 2>/dev/null || true
+          fi
+          sleep 1
           if pm2 start ecosystem.config.cjs --only naukrimili-test --env production; then
             sleep 8
             
             HEALTH_OK=0
             for i in 1 2 3 4 5 6 7 8 9 10; do
-              if curl -f -s http://127.0.0.1:3001/api/health > /dev/null 2>&1; then
+              if curl -f -s "http://127.0.0.1:${NAUKRIMILI_TEST_PORT}/api/health" > /dev/null 2>&1; then
                 HEALTH_OK=1
                 break
               fi
