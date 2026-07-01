@@ -1220,6 +1220,8 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   if (COMPANY_NAME_HINT_RE.test(t)) return true;
   const core = t.replace(/\s+(limited|ltd\.?|inc\.?|pvt\.?\s*ltd\.?)$/i, '').trim();
   if (WELL_KNOWN_EMPLOYER_RE.test(core)) return true;
+  // Multi-word lines that read as job titles are not companies (e.g. "Senior Software Engineer").
+  if (JOB_TITLE_HINT_RE.test(t)) return false;
   return t.length >= 22 && /\s/.test(t);
 }
 
@@ -1337,8 +1339,12 @@ export function reconcileExperienceHeaderFields(
     }
   }
 
-  if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) company = '';
-  if (isResumeSectionHeadingLine(position) || isLikelyEducationLine(position)) position = '';
+  if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) {
+    if (!looksLikeCompanyNameLine(company)) company = '';
+  }
+  if (isResumeSectionHeadingLine(position) || isLikelyEducationLine(position)) {
+    if (!looksLikeJobTitleLine(position)) position = '';
+  }
 
   if (!company) {
     const orgFallback = slotOrg || sanitizeFieldText(exp.employer || exp.Employer, 160);
@@ -1390,6 +1396,36 @@ export function reconcileExperienceHeaderFields(
           const remaining = descLines.filter((l) => l !== line).join('\n').trim();
           deduped = dedupeExperienceBodyLines(remaining, deduped.achievements);
         }
+        break;
+      }
+      const classified = classifyResumeTextFragment(line);
+      if (
+        classified.kind === 'COMPANY_NAME' &&
+        !looksLikeJobTitleLine(line) &&
+        line !== position &&
+        line.length <= 120
+      ) {
+        company = line;
+        if (descLines.length > 1) {
+          const remaining = descLines.filter((l) => l !== line).join('\n').trim();
+          deduped = dedupeExperienceBodyLines(remaining, deduped.achievements);
+        }
+        break;
+      }
+    }
+  }
+
+  if (!company) {
+    const nerCandidates = [
+      slotCompany,
+      slotOrg,
+      sanitizeFieldText(exp.employer || exp.Employer, 160),
+      sanitizeFieldText(exp.companyName || exp.CompanyName, 160),
+    ].filter((c) => c && c !== position && !isResumeSectionHeadingLine(c));
+    for (const candidate of nerCandidates) {
+      const classified = classifyResumeTextFragment(candidate);
+      if (classified.kind === 'COMPANY_NAME' && !looksLikeJobTitleLine(candidate)) {
+        company = candidate;
         break;
       }
     }

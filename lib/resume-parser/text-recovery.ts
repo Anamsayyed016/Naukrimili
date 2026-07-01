@@ -31,6 +31,7 @@ import {
   looksLikeJobTitleLine,
   normalizeSkillsList,
   sanitizeExperienceDateValue,
+  reconcileExperienceHeaderFields,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -147,11 +148,15 @@ const SECTION_ALIASES = {
     'employment', 'employment history', 'career history', 'professional background',
     'professional journey', 'board experience', 'legal experience',
     'job experience', 'career experience', 'relevant experience', 'industry experience',
-    'positions held', 'work', 'employment record',
+    'positions held', 'employment record',
+    'internship', 'internships', 'internship experience', 'training experience',
+    'consulting experience', 'leadership experience', 'management experience',
+    'corporate experience', 'industrial experience', 'organizational experience',
   ],
   education: [
     'education', 'educations', 'academic background', 'academic history', 'academic record',
-    'academic qualifications', 'educational qualifications',
+    'academic qualifications', 'educational qualifications', 'qualifications',
+    'academic qualification', 'educational qualification',
     'cs articleship', 'articleship',
     'educational background', 'degrees', 'schooling', 'studies', 'academics',
   ],
@@ -165,7 +170,7 @@ const SECTION_ALIASES = {
   ],
   projects: [
     'projects', 'project', 'personal projects', 'key projects', 'major projects',
-    'academic projects', 'notable projects', 'portfolio projects', 'portfolio',
+    'professional projects', 'academic projects', 'notable projects', 'portfolio projects', 'portfolio',
     'featured projects', 'software projects', 'applications developed',
     'selected work', 'work samples', 'samples of work',
     'case studies', 'case study', 'select projects',
@@ -232,7 +237,38 @@ const COMPANY_MARKERS =
   /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|systems|consulting|services|company|co\.?)\b/i;
 const ROLE_MARKERS = /\b(?:engineer|developer|architect|manager|director|lead|head|consultant|analyst|designer|administrator|administrator|specialist|coordinator|associate|executive|officer|programmer|intern|trainee|founder|owner|ceo|cto|cfo|coo|vp|president|principal|scientist|researcher)\b/i;
 
-const DATE_RANGE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})\s*[-–—to]+\s*((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2}|present|current|now|ongoing)/i;
+const MONTH_YEAR_DATE_RANGE_RE =
+  /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})\s*[-–—~]\s*(?:to\s+)?((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2}|present|current|now|ongoing|running|till\s*date)/i;
+
+const YEAR_DATE_RANGE_RE =
+  /\b((?:19|20)\d{2})\s*[-–—~]\s*(?:to\s+)?((?:19|20)\d{2}|present|current|now|ongoing|running|till\s*date)\b/i;
+
+function parseDateRangeFromLine(line: string): { start: string; end: string; current: boolean } | null {
+  const l = line.trim();
+  if (!l) return null;
+
+  let m = l.match(MONTH_YEAR_DATE_RANGE_RE);
+  if (!m) m = l.match(YEAR_DATE_RANGE_RE);
+  if (!m) return null;
+
+  const start = sanitizeExperienceDateValue(m[1]?.trim() || '');
+  const endRaw = (m[2] || '').trim();
+  if (/^(present|current|now|ongoing|running|till\s*date)$/i.test(endRaw)) {
+    return { start, end: '', current: true };
+  }
+  const normalizedEnd = sanitizeExperienceDateValue(endRaw);
+  if (/^present$/i.test(normalizedEnd)) {
+    return { start, end: '', current: true };
+  }
+  return { start, end: normalizedEnd, current: false };
+}
+
+function lineHasDateRange(line: string): boolean {
+  return MONTH_YEAR_DATE_RANGE_RE.test(line) || YEAR_DATE_RANGE_RE.test(line);
+}
+
+/** Backward-compatible alias used by boundary checks (month+year ranges). */
+const DATE_RANGE_REGEX = MONTH_YEAR_DATE_RANGE_RE;
 
 function isExperienceBulletLine(line: string): boolean {
   const t = line.trim();
@@ -244,9 +280,9 @@ function isNextJobBoundaryLine(line: string, nextLine?: string): boolean {
   const l = line.trim();
   const n = (nextLine || '').trim();
   if (!l || isExperienceBulletLine(l)) return false;
-  if (DATE_RANGE_REGEX.test(l)) return true;
-  if (looksLikeCompanyNameLine(l) && n && DATE_RANGE_REGEX.test(n)) return true;
-  if (looksLikeJobTitleLine(l) && n && DATE_RANGE_REGEX.test(n)) return true;
+  if (lineHasDateRange(l)) return true;
+  if (looksLikeCompanyNameLine(l) && n && lineHasDateRange(n)) return true;
+  if (looksLikeJobTitleLine(l) && n && lineHasDateRange(n)) return true;
   if (
     looksLikeJobTitleLine(l) &&
     l.length < 90 &&
@@ -639,18 +675,35 @@ function findHeadingLineIndex(lines: string[], aliases: readonly string[]): numb
   return -1;
 }
 
+function normalizeHeadingLine(line: string): string {
+  return line
+    .replace(/[\s\W]+$/, '')
+    .trim()
+    .toLowerCase()
+    .replace(/^\s*(?:\d+[\.\)]\s*|[ivxlcdm]+[\.\)]\s*|[a-z][\.\)]\s*)/i, '')
+    .replace(/[:|\-_=]+$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function headingMatchesAlias(normalized: string, alias: string): boolean {
+  if (alias === normalized) return true;
+  // Semantic containment for multi-word aliases (avoids short false positives like "work").
+  if (alias.length >= 8 && normalized.includes(alias)) return true;
+  if (normalized.length >= 8 && alias.includes(normalized)) return true;
+  return false;
+}
+
 function isHeadingLineFor(line: string, aliases: readonly string[]): boolean {
   const stripped = line.replace(/[\s\W]+$/, '').trim();
   if (!stripped) return false;
   // Combined headings can be a bit longer: "Certifications & Languages"
   if (stripped.length > 80) return false;
-  const normalized = stripped
-    .toLowerCase()
-    .replace(/[:|\-_=]+$/, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-  // Exact alias match
-  if (aliases.some((alias) => alias === normalized)) return true;
+  const normalized = normalizeHeadingLine(line);
+  if (!normalized) return false;
+
+  // Exact or semantic alias match
+  if (aliases.some((alias) => headingMatchesAlias(normalized, alias))) return true;
 
   // Combined heading: split on "&", "/", " and ", "+" — match if ANY part matches.
   if (/(\s(?:&|and|\/|\+)\s)/.test(` ${normalized} `)) {
@@ -658,7 +711,7 @@ function isHeadingLineFor(line: string, aliases: readonly string[]): boolean {
       .split(/\s(?:&|and|\/|\+)\s/)
       .map((p) => p.trim())
       .filter(Boolean);
-    if (parts.some((p) => aliases.some((alias) => alias === p))) return true;
+    if (parts.some((p) => aliases.some((alias) => headingMatchesAlias(p, alias)))) return true;
   }
   return false;
 }
@@ -796,7 +849,7 @@ export function reconstructColumnLayout(text: string): string {
       trimmed.length <= 90 &&
       /,/.test(trimmed) &&
       trimmed.split(',').filter((p) => p.trim().length >= 2).length >= 2 &&
-      !DATE_RANGE_REGEX.test(trimmed);
+      !lineHasDateRange(trimmed);
     const isShortIdentity =
       trimmed.length <= 55 &&
       !isLikelyJobTitle(trimmed) &&
@@ -1190,7 +1243,7 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
       lastStart = -1;
       continue;
     }
-    const hasDateRange = DATE_RANGE_REGEX.test(line);
+    const hasDateRange = lineHasDateRange(line);
     const hasRoleMarker =
       ROLE_MARKERS.test(line) &&
       line.length < 100 &&
@@ -1209,7 +1262,7 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
           const t = (s || '').trim();
           if (!t) return false;
           if (t.length > 120) return false;
-          if (DATE_RANGE_REGEX.test(t)) return false;
+          if (lineHasDateRange(t)) return false;
           if (isAnyHeadingLine(t)) return false;
           if (/^[•\-\*\u2022\u2023\u25aa]\s+/.test(t) || /^o\s+/i.test(t)) return false;
           return (
@@ -1298,23 +1351,12 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
   // Find date line first — anchors everything else
   let dateLineIdx = -1;
   for (let i = 0; i < chunkLines.length; i++) {
-    if (DATE_RANGE_REGEX.test(chunkLines[i])) {
+    const parsedRange = parseDateRangeFromLine(chunkLines[i]);
+    if (parsedRange) {
       dateLineIdx = i;
-      const m = chunkLines[i].match(DATE_RANGE_REGEX)!;
-      startDate = sanitizeExperienceDateValue(m[1].trim());
-      const endRaw = m[2].trim();
-      if (/^(present|current|now|ongoing|running|till date)$/i.test(endRaw)) {
-        current = true;
-        endDate = '';
-      } else {
-        const normalizedEnd = sanitizeExperienceDateValue(endRaw);
-        if (/^present$/i.test(normalizedEnd)) {
-          current = true;
-          endDate = '';
-        } else {
-          endDate = normalizedEnd;
-        }
-      }
+      startDate = parsedRange.start;
+      endDate = parsedRange.end;
+      current = parsedRange.current;
       break;
     }
   }
@@ -1325,7 +1367,11 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
   for (let i = 0; i < headerEnd; i++) {
     if (i === dateLineIdx) {
       // strip date span from the header line for parsing the role/company
-      const noDates = chunkLines[i].replace(DATE_RANGE_REGEX, '').replace(/[|·•@\-–—]+\s*$/g, '').trim();
+      const noDates = chunkLines[i]
+        .replace(MONTH_YEAR_DATE_RANGE_RE, '')
+        .replace(YEAR_DATE_RANGE_RE, '')
+        .replace(/[|·•@\-–—]+\s*$/g, '')
+        .trim();
       if (noDates) headerLines.push(noDates);
     } else {
       headerLines.push(chunkLines[i]);
@@ -1337,7 +1383,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
       .replace(/[|·•]+/g, ' ')
       .replace(/\s+at\s+/i, ' @ ')
       .trim();
-    if (!cleaned || DATE_RANGE_REGEX.test(cleaned)) continue;
+    if (!cleaned || lineHasDateRange(cleaned)) continue;
 
     const locOnLine = cleaned.match(
       /\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/
@@ -1418,7 +1464,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     if (i > descStart && isNextJobBoundaryLine(l, chunkLines[i + 1])) break;
     if (
       i > descStart &&
-      DATE_RANGE_REGEX.test(l) &&
+      lineHasDateRange(l) &&
       !isExperienceBulletLine(l)
     ) {
       break;
@@ -1427,7 +1473,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
       i > descStart &&
       looksLikeCompanyNameLine(l) &&
       i + 1 < chunkLines.length &&
-      DATE_RANGE_REGEX.test(chunkLines[i + 1])
+      lineHasDateRange(chunkLines[i + 1])
     ) {
       break;
     }
@@ -1441,7 +1487,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
   const description =
     descLines.length > 0 ? descLines.join('\n').trim() : bullets.join('\n').trim();
 
-  return {
+  return reconcileExperienceHeaderFields({
     company,
     position,
     location,
@@ -1450,7 +1496,7 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
     current,
     description,
     achievements: bullets,
-  };
+  }) as ExtractedResumeData['experience'][0];
 }
 
 function parseEducation(block: string): ExtractedResumeData['education'] {

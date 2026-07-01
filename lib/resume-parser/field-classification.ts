@@ -145,9 +145,6 @@ const SECTION_HEADER_PHRASES: RegExp[] = [
   /^executive\s+summary$/i,
   /^board\s+experience$/i,
   /^legal\s+experience$/i,
-  /^full\s+stack\s+developer$/i,
-  /^software\s+developer$/i,
-  /^chief\s+executive\s+officer$/i,
   /^professional\s+qualifications?$/i,
   /^professional\s+qualification$/i,
   /^professional\s+profile$/i,
@@ -171,13 +168,6 @@ const SECTION_HEADER_PHRASES: RegExp[] = [
   /^educational\s+qualifications?$/i,
   /^certifications?\s+(?:&|and)\s+/i,
   /^languages?\s+(?:&|and)\s+/i,
-  /^company\s+secretary$/i,
-  /^compliance\s+officer$/i,
-  /^legal\s+head$/i,
-  /^board\s+member$/i,
-  /^independent\s+director$/i,
-  /^managing\s+director$/i,
-  /^chartered\s+accountant$/i,
 ];
 
 const CREDENTIAL_ONLY_TOKENS = new Set(['cs', 'ca', 'cma', 'cfa', 'cpa', 'mba', 'phd', 'md']);

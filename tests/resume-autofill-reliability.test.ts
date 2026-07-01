@@ -841,6 +841,27 @@ describe('experience boundary and pipeline hygiene', () => {
     expect(deloitte?.description || '').not.toMatch(/billing platform/i);
   });
 
+  it('preserves stacked title/company headers including Software Developer designation', () => {
+    const text = [
+      'Professional Experience',
+      'Senior Software Engineer',
+      'Google',
+      'Jan 2020 - Present',
+      '- Built scalable systems',
+      'Software Developer',
+      'Infosys',
+      '2018 - 2019',
+      '- Developed APIs',
+    ].join('\n');
+
+    const parsed = extractResumeFromText(text);
+    expect(parsed.experience).toHaveLength(2);
+    expect(parsed.experience[0].company).toMatch(/Google/i);
+    expect(parsed.experience[0].position).toMatch(/Senior Software Engineer/i);
+    expect(parsed.experience[1].company).toMatch(/Infosys/i);
+    expect(parsed.experience[1].position).toMatch(/Software Developer/i);
+  });
+
   it('strips AI meta commentary from experience descriptions', async () => {
     const { pruneExperienceBodyFields } = await import('@/lib/resume-parser/import-sanitize');
     const cleaned = pruneExperienceBodyFields(
