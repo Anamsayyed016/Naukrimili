@@ -24,8 +24,8 @@ import {
   saveJobSearchContext,
 } from '@/lib/job-navigation-state';
 import {
+  cleanJobDescription,
   getJobDescriptionPreview,
-  parseJobDescriptionBlocks,
 } from '@/lib/jobs/clean-job-description';
 import {
   formatJobCardLocation,
@@ -133,7 +133,7 @@ function JobCardDescription({
   );
 }
 
-/** Premium job description body for detail pages (paragraphs + bullets). */
+/** Full job description body for detail pages — never truncated or line-clamped. */
 export function JobDescriptionView({
   description,
   className = '',
@@ -141,30 +141,14 @@ export function JobDescriptionView({
   description: string;
   className?: string;
 }) {
-  const blocks = parseJobDescriptionBlocks(description);
-  if (!blocks.length) return null;
+  const text = cleanJobDescription(description);
+  if (!text) return null;
 
   return (
-    <div className={`space-y-4 min-w-0 max-w-full overflow-x-hidden ${className}`}>
-      {blocks.map((block, index) =>
-        block.type === 'p' ? (
-          <p
-            key={`p-${index}`}
-            className="text-sm sm:text-base text-slate-600/95 leading-[1.75] tracking-normal break-words"
-          >
-            {block.text}
-          </p>
-        ) : (
-          <ul
-            key={`ul-${index}`}
-            className="list-disc pl-5 sm:pl-6 space-y-2 text-sm sm:text-base text-slate-600/95 leading-[1.7] break-words"
-          >
-            {block.items.map((item, itemIndex) => (
-              <li key={itemIndex}>{item}</li>
-            ))}
-          </ul>
-        )
-      )}
+    <div
+      className={`text-sm sm:text-base text-slate-600/95 leading-[1.75] tracking-normal break-words whitespace-pre-wrap min-w-0 max-w-full overflow-visible ${className}`}
+    >
+      {text}
     </div>
   );
 }
