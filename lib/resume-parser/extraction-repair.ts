@@ -8,8 +8,13 @@ import {
   isLikelyEducationLine,
   shouldKeepAsGlobalAchievement,
 } from '@/lib/resume-parser/field-classification';
-import { pruneExperienceBodyFields } from '@/lib/resume-parser/import-sanitize';
-import { cleanString, dedupeStrings } from '@/lib/resume-parser/normalize-extracted';
+import {
+  dedupeAdjacentExperienceEntries,
+  dedupeExperienceBodyLines,
+  pruneExperienceBodyFields,
+  reconcileExperienceHeaderFields,
+} from '@/lib/resume-parser/import-sanitize';
+import { cleanString } from '@/lib/resume-parser/normalize-extracted';
 
 export interface ResumeExtractionValidationReport {
   warnings: string[];
@@ -138,20 +143,47 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
         String(exp.description || exp.Description || ''),
         keptBullets.map((b) => String(b))
       );
-      exp.description = pruned.description;
-      exp.Description = pruned.description;
-      exp.achievements = pruned.achievements;
-      return exp;
+      const deduped = dedupeExperienceBodyLines(pruned.description, pruned.achievements);
+      exp.description = deduped.description;
+      exp.Description = deduped.description;
+      exp.achievements = deduped.achievements;
+      return reconcileExperienceHeaderFields(exp);
     })
     .filter(Boolean);
 
+  const placedResponsibility = new Set<number>();
   if (responsibilityLines.length && repairedExperience.length) {
-    const target = repairedExperience[0] as Record<string, unknown>;
-    const existing = Array.isArray(target.achievements) ? (target.achievements as unknown[]) : [];
-    target.achievements = dedupeStrings([
-      ...existing.map((a) => (typeof a === 'string' ? a : String(a))),
-      ...responsibilityLines,
-    ]);
+    for (const line of responsibilityLines) {
+      let idx = repairedExperience.findIndex((raw, i) => {
+        if (placedResponsibility.has(i)) return false;
+        const exp = raw as Record<string, unknown>;
+        const company = cleanString(exp.company || exp.Company || exp.organization);
+        const title = cleanString(exp.position || exp.title || exp.role);
+        if (!company || !title) return false;
+        const desc = String(exp.description || '').trim();
+        const ach = Array.isArray(exp.achievements) ? exp.achievements.length : 0;
+        return !desc && ach === 0;
+      });
+      if (idx < 0) {
+        idx = repairedExperience.findIndex((raw) => {
+          const exp = raw as Record<string, unknown>;
+          return !!cleanString(exp.company || exp.Company || exp.organization);
+        });
+      }
+      if (idx < 0) {
+        keptAchievements.push(line);
+        report.repairs.push(`Kept unplaced responsibility in achievements: ${line.slice(0, 60)}`);
+        continue;
+      }
+      placedResponsibility.add(idx);
+      const target = repairedExperience[idx] as Record<string, unknown>;
+      const deduped = dedupeExperienceBodyLines(line, [line]);
+      target.description = deduped.description;
+      target.Description = deduped.description;
+      target.achievements = deduped.achievements;
+      report.repairs.push(`Attached responsibility to experience ${idx + 1}: ${line.slice(0, 60)}`);
+    }
+    achievements = keptAchievements;
   }
 
   for (let i = 0; i < repairedExperience.length; i++) {
@@ -186,7 +218,9 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
   }
   languages = expandedLanguages;
 
-  data.experience = repairedExperience;
+  data.experience = dedupeAdjacentExperienceEntries(
+    repairedExperience as Array<Record<string, unknown>>
+  );
   data.education = education;
   data.certifications = certifications;
   data.achievements = achievements;
