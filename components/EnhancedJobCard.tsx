@@ -30,6 +30,7 @@ import {
 } from '@/lib/jobs/clean-job-description';
 import {
   formatJobCardLocation,
+  formatJobDetailLocation,
   normalizeJobLocationText,
 } from '@/lib/jobs/format-job-location';
 const jc = {
@@ -67,21 +68,32 @@ const jc = {
   bookmarkActive: 'bg-amber-50/90 border-amber-200/80 text-amber-600 hover:bg-amber-50 shadow-sm',
 } as const;
 
-/** Card location: responsive clamp + full text in native tooltip. */
-function JobCardLocation({
+/** Card location: wrap on mobile; single-line clamp on sm+ only. */
+export function JobCardLocation({
   location,
   className = '',
+  display = 'card',
+  fallback,
 }: {
   location?: string;
   className?: string;
+  /** `card` = list preview; `detail` = full address with comma line breaks */
+  display?: 'card' | 'detail';
+  fallback?: string;
 }) {
   const full = normalizeJobLocationText(location);
-  const label = formatJobCardLocation(location);
+  const label =
+    display === 'detail'
+      ? formatJobDetailLocation(location) || fallback || ''
+      : formatJobCardLocation(location) || fallback || 'Location not specified';
+  const typography = className.replace(/\btruncate\b|\bline-clamp-\d+\b/g, '').trim();
+  const wrapClass =
+    display === 'detail'
+      ? 'min-w-0 flex-1 max-w-full whitespace-pre-line [overflow-wrap:anywhere] leading-snug'
+      : 'min-w-0 flex-1 max-w-full [overflow-wrap:anywhere] whitespace-normal sm:line-clamp-1 sm:truncate';
+
   return (
-    <span
-      className={`min-w-0 max-w-full break-words line-clamp-2 sm:line-clamp-1 sm:truncate ${className}`}
-      title={full || undefined}
-    >
+    <span className={`${wrapClass} ${typography}`} title={full || undefined}>
       {label}
     </span>
   );
@@ -286,7 +298,7 @@ export default function EnhancedJobCard({
                   <span className={jc.companyCompact}>{normalizedJob.company}</span>
                 </div>
                 <span className="hidden sm:inline text-slate-300">·</span>
-                <div className="flex items-start min-w-0 max-w-full gap-1.5 overflow-hidden">
+                <div className="flex items-start min-w-0 flex-1 max-w-full gap-1.5 max-sm:overflow-visible overflow-hidden">
                   <MapPinIcon className="w-3 h-3 mr-0.5 text-slate-400 flex-shrink-0 mt-0.5" />
                   <JobCardLocation location={normalizedJob.location} className={jc.companyCompact} />
                 </div>
@@ -431,8 +443,8 @@ export default function EnhancedJobCard({
               </div>
 
               {/* Location and job details */}
-              <div className={`flex items-center flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3 min-w-0 max-w-full overflow-hidden ${jc.meta}`}>
-                <div className="flex items-start min-w-0 max-w-full gap-1.5 overflow-hidden">
+              <div className={`flex items-center flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3 min-w-0 max-w-full max-sm:overflow-visible overflow-hidden ${jc.meta}`}>
+                <div className="flex items-start min-w-0 flex-1 max-w-full gap-1.5 max-sm:overflow-visible overflow-hidden">
                   <MapPinIcon className={jc.metaIcon} />
                   <JobCardLocation location={job.location} />
                 </div>

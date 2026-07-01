@@ -40,6 +40,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import JobShare from "@/components/JobShare";
+import { JobCardLocation } from "@/components/EnhancedJobCard";
 interface Job {
   id: string;
   title: string;
@@ -1138,13 +1139,18 @@ export default function JobApplicationPage() {
                     <p className="text-lg font-bold text-gray-900 truncate">{job?.company || 'Company'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-green-50 rounded-xl">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                <div className="flex items-start gap-4 p-4 bg-green-50 rounded-xl min-w-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
                     <MapPin className="h-6 w-6 text-white" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-gray-600">Location</p>
-                    <p className="text-lg font-bold text-gray-900 truncate">{job?.location || 'Remote'}</p>
+                    <JobCardLocation
+                      display="detail"
+                      location={job?.location}
+                      fallback="Remote"
+                      className="text-lg font-bold text-gray-900"
+                    />
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-xl">
