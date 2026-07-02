@@ -53,8 +53,9 @@ function parseThreshold(raw: string | undefined, fallback: number): number {
 
 /** Read orchestrator config from environment. Defaults: disabled, mode=off. */
 export function getOrchestratorConfig(): OrchestratorConfig {
-  const enabled = parseBool(process.env[ORCHESTRATOR_ENV.ENABLED]);
-  let mode = parseMode(process.env[ORCHESTRATOR_ENV.MODE]);
+  // Direct process.env.* — same pattern as IMPORT_FIELD_TRACE (runtime PM2 / .env).
+  const enabled = parseBool(process.env.CUSTOM_PARSER_ENABLED);
+  let mode = parseMode(process.env.CUSTOM_PARSER_MODE);
 
   if (!enabled) {
     mode = 'off';
@@ -66,11 +67,11 @@ export function getOrchestratorConfig(): OrchestratorConfig {
     enabled,
     mode,
     confidenceThreshold: parseThreshold(
-      process.env[ORCHESTRATOR_ENV.CONFIDENCE_THRESHOLD],
+      process.env.CUSTOM_PARSER_CONFIDENCE_THRESHOLD,
       DEFAULT_CONFIG.confidenceThreshold
     ),
     qualityThreshold: parseThreshold(
-      process.env[ORCHESTRATOR_ENV.QUALITY_THRESHOLD],
+      process.env.CUSTOM_PARSER_QUALITY_THRESHOLD,
       DEFAULT_CONFIG.qualityThreshold
     ),
     minIdentityConfidence: DEFAULT_CONFIG.minIdentityConfidence,
