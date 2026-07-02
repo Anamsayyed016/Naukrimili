@@ -60,12 +60,14 @@ import {
   collectExperienceBodyFields,
   unionExperienceBodyFields,
   mergeOrphanEducationEntries,
+  reconcileExperienceHeaderFields,
   finalizeExperienceListForBuilder,
   finalizeEducationListForBuilder,
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
   looksLikeCompanyNameLine,
   looksLikeJobTitleLine,
+  countPlausibleExperienceCompanies,
 } from '@/lib/resume-parser/import-sanitize';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
@@ -144,6 +146,14 @@ function countExperiencesWithCompany(list: unknown[]): number {
   }).length;
 }
 
+function normalizeMergedExperienceList(list: unknown[]): Record<string, unknown>[] {
+  if (!Array.isArray(list) || list.length === 0) return [];
+  const reconciled = list
+    .filter((entry) => entry && typeof entry === 'object')
+    .map((entry) => reconcileExperienceHeaderFields(entry as Record<string, unknown>));
+  return finalizeExperienceListForBuilder(reconciled);
+}
+
 /** When API nests builderFormData, parent profile arrays may still hold parser output. */
 function mergeBuilderFormWithParent(
   parent: Record<string, unknown>,
@@ -162,8 +172,14 @@ function mergeBuilderFormWithParent(
           const parentList = firstNonEmptyArray(parent, [canonical, ...aliases]);
           const builderCompanies = countExperiencesWithCompany(fromBuilder as unknown[]);
           const parentCompanies = countExperiencesWithCompany(parentList);
+          const builderPlausible = countPlausibleExperienceCompanies(fromBuilder as unknown[]);
+          const parentPlausible = countPlausibleExperienceCompanies(parentList);
           const builderMissingCompany = builderCompanies < meaningful.length;
           if (
+            parentPlausible > builderPlausible ||
+            (builderPlausible < meaningful.length &&
+              parentPlausible > 0 &&
+              parentList.length >= meaningful.length) ||
             parentList.length > (fromBuilder as unknown[]).length ||
             parentCompanies > builderCompanies ||
             (builderMissingCompany &&
@@ -250,9 +266,7 @@ export function coalesceBuilderImportPayload(
     const { builderFormData: _nested, ...parent } = parsed;
     const merged = mergeBuilderFormWithParent(parent, nested as Record<string, any>);
     if (Array.isArray(merged.experience) && merged.experience.length > 0) {
-      merged.experience = finalizeExperienceListForBuilder(
-        merged.experience as Record<string, unknown>[]
-      );
+      merged.experience = normalizeMergedExperienceList(merged.experience);
     }
     return applySummaryHygieneToBuilderForm({
       ...merged,
@@ -266,9 +280,7 @@ export function coalesceBuilderImportPayload(
     const out = { ...(parsed as Record<string, any>) };
     delete out.builderFormData;
     if (Array.isArray(out.experience) && out.experience.length > 0) {
-      out.experience = finalizeExperienceListForBuilder(
-        out.experience as Record<string, unknown>[]
-      );
+      out.experience = normalizeMergedExperienceList(out.experience);
     }
     return applySummaryHygieneToBuilderForm(out);
   }

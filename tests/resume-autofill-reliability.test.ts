@@ -809,6 +809,36 @@ describe('resume preview data binding', () => {
       coalesced.experience.every((e: { company?: string }) => !!String(e.company || '').trim())
     ).toBe(true);
   });
+
+  it('coalesceBuilderImportPayload prefers parent experience when builder companies are misassigned titles', async () => {
+    const { coalesceBuilderImportPayload } = await import(
+      '@/lib/resume-builder/import-transformer'
+    );
+    const coalesced = coalesceBuilderImportPayload({
+      experience: [
+        {
+          company: 'Tata Consultancy Services',
+          position: 'Python Developer',
+          location: 'Bhopal',
+          description: 'Built APIs.',
+        },
+      ],
+      builderFormData: {
+        experience: [
+          {
+            company: 'Stack Developer',
+            title: 'Full',
+            description: 'Built APIs.',
+          },
+        ],
+        _imported: true,
+      },
+    });
+    expect(coalesced.experience?.[0]?.company).toMatch(/tata consultancy/i);
+    expect(coalesced.experience?.[0]?.title || coalesced.experience?.[0]?.position).toMatch(
+      /python developer/i
+    );
+  });
 });
 
 describe('experience boundary and pipeline hygiene', () => {
@@ -1097,16 +1127,25 @@ describe('experience header mapping', () => {
     expect(mapped?.title).toBe('Software Developer');
   });
 
-  it('swaps misplaced company/title without losing company', () => {
+  it('merges split title fragments like Full + Stack Developer', () => {
     const reconciled = reconcileExperienceHeaderFields({
-      company: 'Senior Software Engineer',
-      title: 'Google',
-      location: 'Bengaluru',
-      description: 'Shipped features.',
+      company: 'Stack Developer',
+      title: 'Full',
+      description: 'Built APIs.',
     });
-    expect(reconciled.company).toBe('Google');
-    expect(reconciled.title).toBe('Senior Software Engineer');
-    expect(reconciled.location).toBe('Bengaluru');
+    expect(reconciled.company).toBe('');
+    expect(reconciled.title).toBe('Full Stack Developer');
+  });
+
+  it('moves city lines out of company into location', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'Bhopal, Madhya Pradesh',
+      title: 'Python Developer',
+      description: 'Built services.',
+    });
+    expect(reconciled.location).toMatch(/bhopal/i);
+    expect(reconciled.title).toBe('Python Developer');
+    expect(String(reconciled.company || '')).toBe('');
   });
 
   it('preserves full summary in editor when no section bleed is present', () => {

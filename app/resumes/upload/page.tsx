@@ -160,6 +160,7 @@ export default function ResumeUploadPage() {
 
           const dataToStore = {
             ...builderReady,
+            _imported: true,
             rawText: parsed.rawText || builderReady.rawText,
             resumeId: data.resumeId,
           };

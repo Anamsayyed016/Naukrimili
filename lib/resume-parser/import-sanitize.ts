@@ -1394,6 +1394,10 @@ export function reconcileExperienceHeaderFields(
       const hold = company;
       company = position;
       position = hold;
+    } else if (looksLikeJobTitleLine(position)) {
+      // Apilayer sometimes splits "Full Stack Developer" → position "Full" + company "Stack Developer"
+      position = `${position} ${company}`.replace(/\s+/g, ' ').trim();
+      company = '';
     }
   }
 
@@ -2050,6 +2054,35 @@ export function isValidExperienceEntry(exp: {
   if (company && isLikelyCompanyNameFragment(company) && !position) return hasDates;
 
   return false;
+}
+
+/** True when company field is a real employer, not a title or location mis-assignment. */
+export function isPlausibleExperienceCompany(value: unknown): boolean {
+  const company = sanitizeFieldText(value, 160);
+  if (!company) return false;
+  if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
+  if (isLikelyLocationFragment(company)) return false;
+  if (looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) return false;
+  const classified = classifyResumeTextFragment(company);
+  if (classified.kind === 'DESIGNATION' && classified.confidence >= 70) return false;
+  if (classified.kind === 'LOCATION' && classified.confidence >= 70) return false;
+  return true;
+}
+
+export function countPlausibleExperienceCompanies(list: unknown[]): number {
+  if (!Array.isArray(list)) return 0;
+  return list.filter((entry) => {
+    if (!entry || typeof entry !== 'object') return false;
+    const exp = entry as Record<string, unknown>;
+    const company =
+      exp.company ||
+      exp.Company ||
+      exp.organization ||
+      exp.Organization ||
+      exp.employer ||
+      exp.Employer;
+    return isPlausibleExperienceCompany(company);
+  }).length;
 }
 
 export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<string, unknown> | null {
