@@ -564,8 +564,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (!customParserUsed) {
-    if (isJustFallbackText && !isAffindaEnabled()) {
+    if (customParserUsed) {
+      uploadStageDebug(REQ, 'CUSTOM-PARSER', 'skipping legacy parser chain');
+    } else if (isJustFallbackText && !isAffindaEnabled()) {
       console.warn('⚠️ Extracted text is minimal fallback - skipping AI, using basic extraction');
       parsedData = await parseResumeBasic(extractedText, session);
       aiProvider = 'basic-fallback';
@@ -1113,7 +1114,6 @@ export async function POST(request: NextRequest) {
         aiSuccess,
       });
       }
-    }
     }
     }
 
