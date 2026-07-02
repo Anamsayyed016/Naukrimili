@@ -224,7 +224,7 @@ export function uploadStageDebug(
 ): void {
   if (!isUploadPipelineDebugEnabled()) return;
   const mem = process.memoryUsage();
-  console.log(`[UPLOAD][${reqId}] ${stage} ${event}`, {
+  console.warn(`[UPLOAD][${reqId}] ${stage} ${event}`, {
     ts: new Date().toISOString(),
     heapUsedMb: +(mem.heapUsed / 1024 / 1024).toFixed(2),
     ...extra,

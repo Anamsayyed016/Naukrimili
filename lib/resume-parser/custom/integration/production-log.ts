@@ -35,5 +35,5 @@ export function logOrchestratorMetrics(
       : undefined,
     config: metrics.configSnapshot,
   };
-  console.log(prefix, JSON.stringify(payload));
+  console.warn(prefix, JSON.stringify(payload));
 }
