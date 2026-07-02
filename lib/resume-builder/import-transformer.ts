@@ -68,6 +68,7 @@ import {
   looksLikeCompanyNameLine,
   looksLikeJobTitleLine,
   countPlausibleExperienceCompanies,
+  countPlausibleProjects,
 } from '@/lib/resume-parser/import-sanitize';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
@@ -154,6 +155,18 @@ function normalizeMergedExperienceList(list: unknown[]): Record<string, unknown>
   return finalizeExperienceListForBuilder(reconciled);
 }
 
+function pickSkillsList(parent: Record<string, unknown>, out: Record<string, any>): string[] {
+  const parentRaw = firstNonEmptyArray(parent, ['skills', 'Skills', 'technicalSkills']);
+  const builderRaw = out.skills ?? out.Skills ?? out.technicalSkills;
+  const parentSkills = normalizeSkillsList(Array.isArray(parentRaw) ? parentRaw : []);
+  const builderSkills = normalizeSkillsList(Array.isArray(builderRaw) ? builderRaw : []);
+  if (builderSkills.length >= 10 && builderSkills.length >= parentSkills.length) {
+    return builderSkills;
+  }
+  if (parentSkills.length > builderSkills.length) return parentSkills;
+  return builderSkills.length > 0 ? builderSkills : parentSkills;
+}
+
 /** When API nests builderFormData, parent profile arrays may still hold parser output. */
 function mergeBuilderFormWithParent(
   parent: Record<string, unknown>,
@@ -190,6 +203,18 @@ function mergeBuilderFormWithParent(
           }
           return fromBuilder;
         }
+      } else if (canonical === 'projects') {
+        const parentList = firstNonEmptyArray(parent, [canonical, ...aliases]);
+        const builderPlausible = countPlausibleProjects(fromBuilder as unknown[]);
+        const parentPlausible = countPlausibleProjects(parentList);
+        if (
+          parentPlausible > builderPlausible ||
+          (builderPlausible === 0 && parentPlausible > 0) ||
+          parentList.length > (fromBuilder as unknown[]).length
+        ) {
+          return parentList;
+        }
+        return fromBuilder;
       } else {
         return fromBuilder;
       }
@@ -199,7 +224,7 @@ function mergeBuilderFormWithParent(
 
   out.experience = pick('experience', ['Work Experience', 'Experience', 'workExperience']);
   out.education = pick('education', ['Education']);
-  out.skills = firstNonEmptyArray({ ...parent, ...out }, ['skills', 'Skills', 'technicalSkills']);
+  out.skills = pickSkillsList(parent, out);
   out.projects = pick('projects', ['Projects', 'Projects(optional)', 'Academic Projects']);
   out.certifications = pick('certifications', ['Certifications']);
   out.languages = pick('languages', ['Languages']);
@@ -1652,9 +1677,26 @@ function logImportMappingValidation(t: Record<string, any>): void {
 
   if (!Array.isArray(t.skills) || t.skills.length === 0) {
     issues.push('skills:empty');
+  } else if (t.skills.length < 10) {
+    issues.push(`skills:below-target:${t.skills.length}`);
   }
   if (!Array.isArray(t.education) || t.education.length === 0) {
     issues.push('education:empty');
+  }
+
+  const projects = Array.isArray(t.projects) ? t.projects : [];
+  if (projects.length === 0) {
+    issues.push('projects:empty');
+  } else {
+    projects.forEach((entry, index) => {
+      if (!entry || typeof entry !== 'object') return;
+      const rec = entry as Record<string, unknown>;
+      const name = String(rec.name || rec.title || '').trim();
+      if (!name) issues.push(`projects[${index}]:missing-name`);
+      else if (looksLikeJobTitleLine(name)) {
+        issues.push(`projects[${index}]:name-looks-like-title:${name.slice(0, 40)}`);
+      }
+    });
   }
 
   if (issues.length > 0) {

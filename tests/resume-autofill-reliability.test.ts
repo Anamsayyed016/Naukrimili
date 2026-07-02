@@ -448,6 +448,11 @@ describe('isPlausibleProjectName', () => {
     expect(isPlausibleProjectName('E-Commerce Portal')).toBe(true);
     expect(isPlausibleProjectName('HR Dashboard')).toBe(true);
   });
+
+  it('rejects job titles misclassified as project names', () => {
+    expect(isPlausibleProjectName('Full Stack Python Developer')).toBe(false);
+    expect(isPlausibleProjectName('Python Developer')).toBe(false);
+  });
 });
 
 describe('sanitizeProjectEntry', () => {
@@ -1135,6 +1140,27 @@ describe('experience header mapping', () => {
     });
     expect(reconciled.company).toBe('');
     expect(reconciled.title).toBe('Full Stack Developer');
+  });
+
+  it('does not duplicate title when position already contains company fragment', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'Stack Developer',
+      title: 'Full Stack Developer',
+      description: 'Built APIs.',
+    });
+    expect(reconciled.company).toBe('');
+    expect(reconciled.title).toBe('Full Stack Developer');
+  });
+
+  it('splits company and location from pipe format', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'Technoart | Bhopal',
+      title: 'Python Developer',
+      description: 'Built services.',
+    });
+    expect(reconciled.company).toBe('Technoart');
+    expect(reconciled.location).toMatch(/bhopal/i);
+    expect(reconciled.title).toBe('Python Developer');
   });
 
   it('moves city lines out of company into location', () => {

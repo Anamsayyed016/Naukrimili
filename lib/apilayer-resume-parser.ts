@@ -15,6 +15,7 @@ import {
   normalizeExtractedResumeData,
 } from './resume-parser/normalize-extracted';
 import { sanitizePersonName, isPlausibleCertificationEntry } from './resume-parser/import-sanitize';
+import { isLikelyLocationFragment } from './resume-parser/field-classification';
 import { hasMinimalAutofillPayload } from './resume-parser/map-to-upload-profile';
 
 export type ApilayerResumePayload = Record<string, unknown>;
@@ -194,10 +195,19 @@ export function transformApilayerPayload(data: ApilayerResumePayload): Extracted
       const rawDescription = String(exp.description || exp.summary || '');
       const achievements = splitBullets(rawDescription);
 
+      const rawOrg = cleanString(exp.organization || exp.company || exp.employer);
+      const rawLocation = cleanString(exp.location);
+      let company = rawOrg;
+      let location = rawLocation;
+      if (rawOrg && !rawLocation && isLikelyLocationFragment(rawOrg)) {
+        location = rawOrg;
+        company = cleanString(exp.company || exp.employer) || '';
+      }
+
       return {
-        company: cleanString(exp.organization || exp.company || exp.employer),
+        company,
         position: cleanString(exp.title || exp.position || exp.job_title || exp.role),
-        location: cleanString(exp.location),
+        location,
         startDate,
         endDate: current ? '' : endDate,
         current,

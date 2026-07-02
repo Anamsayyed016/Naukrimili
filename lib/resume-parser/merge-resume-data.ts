@@ -24,6 +24,7 @@ import {
   deriveDisplayNameFromEmail,
   isLikelyJobTitle,
   isPlausiblePersonName,
+  isPlausibleExperienceCompany,
   pickBestNameFromCandidates,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
@@ -201,12 +202,45 @@ function mergeAchievements(primary: string[] = [], secondary: string[] = []): st
   return mergeStringLists(primary, secondary);
 }
 
+function isInvalidExperienceCompany(value: string): boolean {
+  const s = String(value || '').trim();
+  if (!s) return true;
+  return !isPlausibleExperienceCompany(s);
+}
+
+function findExperienceMatchIndex(
+  result: ExperienceEntry[],
+  secondary: ExperienceEntry
+): number {
+  const matchKey = normKey(secondary.position, secondary.company);
+  let idx = result.findIndex((entry) => normKey(entry.position, entry.company) === matchKey);
+  if (idx >= 0) return idx;
+
+  const posKey = normKey(secondary.position);
+  const dateKey = normKey(secondary.startDate);
+  if (posKey && dateKey) {
+    idx = result.findIndex(
+      (entry) => normKey(entry.position) === posKey && normKey(entry.startDate) === dateKey
+    );
+    if (idx >= 0) return idx;
+  }
+
+  if (posKey) {
+    const matches = result
+      .map((entry, index) => ({ entry, index }))
+      .filter(({ entry }) => normKey(entry.position) === posKey);
+    if (matches.length === 1) return matches[0].index;
+  }
+
+  return -1;
+}
+
 function fillExperience(primary: ExperienceEntry, secondary: ExperienceEntry): ExperienceEntry {
   return {
     ...primary,
-    company: mergeScalar(primary.company, secondary.company),
+    company: mergeScalarPreferValid(primary.company, secondary.company, isInvalidExperienceCompany),
     position: mergeExperiencePosition(primary, secondary),
-    location: mergeScalar(primary.location, secondary.location),
+    location: mergeScalarPreferValid(primary.location, secondary.location, isInvalidLocation),
     startDate: mergeScalar(primary.startDate, secondary.startDate),
     endDate: primary.current ? primary.endDate || '' : mergeScalar(primary.endDate, secondary.endDate),
     current: primary.current || secondary.current,
@@ -226,16 +260,14 @@ function mergeExperience(primary: ExperienceEntry[] = [], secondary: ExperienceE
   }));
 
   for (const secondaryEntry of secondary) {
-    const matchKey = normKey(secondaryEntry.position, secondaryEntry.company);
-    const matchIdx = result.findIndex(
-      (entry) => normKey(entry.position, entry.company) === matchKey
-    );
+    const matchIdx = findExperienceMatchIndex(result, secondaryEntry);
 
     if (matchIdx >= 0) {
       result[matchIdx] = fillExperience(result[matchIdx], secondaryEntry);
       continue;
     }
 
+    const matchKey = normKey(secondaryEntry.position, secondaryEntry.company);
     const isDuplicate = result.some(
       (entry) => normKey(entry.position, entry.company) === matchKey
     );

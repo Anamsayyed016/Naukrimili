@@ -657,6 +657,20 @@ export function scoreSkillConfidence(skill: string): number {
   if (LANGUAGE_SKILL_RE.test(lower)) return 5;
   if (isLikelyCertificationLine(cleaned)) return 5;
   if (isLikelyEducationLine(cleaned)) return 8;
+
+  if (SOFT_SKILL_PHRASES.has(lower)) return 48;
+  if (SKILL_CANONICAL_ALIASES[lower]) return 96;
+
+  if (
+    /^(react|angular|vue|python|django|flask|docker|kubernetes|terraform|ansible|jenkins|redis|kafka|spark|hadoop|tableau|jira|figma|salesforce|sap|oracle|mysql|mongodb|postgresql|javascript|typescript|java|kotlin|swift|ruby|php|laravel|express|nextjs|next\.js|html|css|git|aws|azure|gcp|linux|nginx|graphql|fastapi|pandas|numpy|scikit-learn|tensorflow|pytorch)$/i.test(
+      lower
+    )
+  ) {
+    return 94;
+  }
+  if (/\.(js|ts|py|rb|go)$/i.test(lower)) return 90;
+  if (/^[a-z0-9+#.]{2,10}$/i.test(cleaned)) return 88;
+
   if (isLikelyCompanyNameFragment(cleaned)) return 5;
   if (isLikelyJobTitleFragment(cleaned) && cleaned.split(/\s+/).length <= 4) return 12;
   const words = lower.split(/\s+/).filter(Boolean);
@@ -665,19 +679,11 @@ export function scoreSkillConfidence(skill: string): number {
   if (classified.kind === 'COMPANY_NAME') return 6;
   if (classified.kind === 'DESIGNATION' && words.length >= 2) return 10;
 
-  if (SOFT_SKILL_PHRASES.has(lower)) return 48;
-  if (SKILL_CANONICAL_ALIASES[lower]) return 96;
-
   if (words.length > 5 || cleaned.length > 52) return 18;
   if (words.length >= 3 && /\b(and|with|using|including|responsible|developed|managed)\b/i.test(lower)) {
     return 15;
   }
 
-  if (/^(react|angular|vue|python|django|flask|docker|kubernetes|terraform|ansible|jenkins|redis|kafka|spark|hadoop|tableau|jira|figma|salesforce|sap|oracle|mysql|mongodb|postgresql|javascript|typescript|java|kotlin|swift|ruby|php|laravel|express|nextjs|next\.js)$/i.test(lower)) {
-    return 94;
-  }
-  if (/\.(js|ts|py|rb|go)$/i.test(lower)) return 90;
-  if (/^[a-z0-9+#.]{2,10}$/i.test(cleaned)) return 88;
   if (words.length === 1 && cleaned.length <= 24) return 82;
   if (words.length === 2) return 76;
 
@@ -740,11 +746,9 @@ function expandSkillInputTokens(skills: unknown[]): string[] {
   return tokens;
 }
 
-/** Sanitize, score, canonicalize, dedupe, and rank skills for form state. */
-export function normalizeSkillsList(
-  skills: unknown[],
-  minConfidence: number = SKILL_CONFIDENCE_THRESHOLD
-): string[] {
+const MIN_TARGET_RESUME_SKILLS = 10;
+
+function normalizeSkillsListAtThreshold(skills: unknown[], minConfidence: number): string[] {
   const ranked = new Map<string, { name: string; score: number }>();
 
   for (const token of expandSkillInputTokens(skills)) {
@@ -765,6 +769,17 @@ export function normalizeSkillsList(
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
     .map((entry) => entry.name)
     .slice(0, MAX_RESUME_SKILLS);
+}
+
+/** Sanitize, score, canonicalize, dedupe, and rank skills for form state. */
+export function normalizeSkillsList(
+  skills: unknown[],
+  minConfidence: number = SKILL_CONFIDENCE_THRESHOLD
+): string[] {
+  const primary = normalizeSkillsListAtThreshold(skills, minConfidence);
+  if (primary.length >= MIN_TARGET_RESUME_SKILLS) return primary;
+  const relaxed = normalizeSkillsListAtThreshold(skills, Math.max(28, minConfidence - 12));
+  return relaxed.length > primary.length ? relaxed : primary;
 }
 
 /**
@@ -860,6 +875,9 @@ export function isPlausibleProjectName(value: unknown): boolean {
   const words = s.split(/\s+/).filter(Boolean);
   if (words.length > 12) return false;
   if (PROJECT_VERB_PREFIX_RE.test(s)) return false;
+  // Job titles misclassified as projects (e.g. "Full Stack Python Developer").
+  if (looksLikeJobTitleLine(s) && !PROJECT_TITLE_SUFFIX_RE.test(s)) return false;
+  if (isLikelyJobTitleFragment(s) && !PROJECT_TITLE_SUFFIX_RE.test(s)) return false;
 
   const stopCount = words.filter((w) => NAME_STOPWORDS.has(w.toLowerCase())).length;
   if (words.length >= 4 && stopCount >= 2) return false;
@@ -1346,6 +1364,75 @@ export function looksLikeStandaloneLocationLine(text: string): boolean {
   return false;
 }
 
+/** Split "Technoart | Bhopal" or "Acme / San Francisco" into company + location. */
+export function splitCompanyLocationPipe(text: string): { company: string; location: string } | null {
+  const t = sanitizeFieldText(text, 160);
+  if (!t) return null;
+  const match = t.match(/^(.+?)\s*[|/]\s+(.+)$/);
+  if (!match) return null;
+  const left = match[1].trim();
+  const right = match[2].trim();
+  if (!left || !right || left.length > 120 || right.length > 80) return null;
+  if (looksLikeJobTitleLine(left) && !looksLikeCompanyNameLine(left)) return null;
+  if (
+    looksLikeStandaloneLocationLine(right) ||
+    isLikelyLocationFragment(right) ||
+    (looksLikeCompanyNameLine(left) && !looksLikeStandaloneLocationLine(left))
+  ) {
+    return { company: left, location: right };
+  }
+  return null;
+}
+
+function wouldDuplicateTitleMerge(position: string, companyPart: string, merged: string): boolean {
+  const pos = position.toLowerCase().trim();
+  const comp = companyPart.toLowerCase().trim();
+  const m = merged.toLowerCase().trim();
+  if (!comp) return false;
+  if (pos.includes(comp)) return true;
+  if (comp.includes(pos) && comp.length > pos.length) return true;
+  if (m.endsWith(` ${comp}`) && pos.split(/\s+/).length >= 3) return true;
+  const words = m.split(/\s+/);
+  if (words.length >= 4) {
+    for (let len = 1; len <= Math.floor(words.length / 2); len++) {
+      const tail = words.slice(-len).join(' ');
+      const before = words.slice(0, -len).join(' ');
+      if (tail && before.endsWith(tail)) return true;
+    }
+  }
+  return false;
+}
+
+function recoverCompanyFromExperienceText(
+  description: string,
+  position: string
+): string {
+  const lines = description.split('\n').map((l) => l.trim()).filter(Boolean);
+  for (const line of lines.slice(0, 3)) {
+    const atMatch = line.match(/\bat\s+(.+?)(?:\s*[,;|(]|$)/i);
+    if (atMatch) {
+      const candidate = sanitizeFieldText(atMatch[1].replace(/[.,;:!?]+$/, '').trim(), 120);
+      if (
+        candidate &&
+        candidate !== position &&
+        looksLikeCompanyNameLine(candidate) &&
+        !looksLikeJobTitleLine(candidate)
+      ) {
+        return candidate;
+      }
+    }
+    if (
+      looksLikeCompanyNameLine(line) &&
+      !looksLikeJobTitleLine(line) &&
+      line !== position &&
+      line.length <= 80
+    ) {
+      return line;
+    }
+  }
+  return '';
+}
+
 /**
  * Fix swapped/misplaced title, company, and location before Builder mapping.
  * Example: title=Food Processor, company=Pranav Food Processors India Pvt Ltd, location=Bhopal
@@ -1367,6 +1454,21 @@ export function reconcileExperienceHeaderFields(
   let company = slotCompany || (slotOrg && slotOrg !== slotCompany ? slotOrg : '');
   let position = readExperiencePositionSlot(exp);
   let location = sanitizeFieldText(exp.location || exp.Location, 120);
+
+  if (company) {
+    const pipeSplit = splitCompanyLocationPipe(company);
+    if (pipeSplit) {
+      company = pipeSplit.company;
+      if (!location) location = pipeSplit.location;
+    }
+  }
+  if (!company && slotOrg) {
+    const orgSplit = splitCompanyLocationPipe(slotOrg);
+    if (orgSplit) {
+      company = orgSplit.company;
+      if (!location) location = orgSplit.location;
+    }
+  }
 
   if (
     slotCompany &&
@@ -1396,7 +1498,19 @@ export function reconcileExperienceHeaderFields(
       position = hold;
     } else if (looksLikeJobTitleLine(position)) {
       // Apilayer sometimes splits "Full Stack Developer" → position "Full" + company "Stack Developer"
-      position = `${position} ${company}`.replace(/\s+/g, ' ').trim();
+      const posLower = position.toLowerCase().trim();
+      const compLower = company.toLowerCase().trim();
+      if (posLower.includes(compLower) || (compLower.includes(posLower) && compLower.length > posLower.length)) {
+        position = posLower.length >= compLower.length ? position : company;
+      } else {
+        const posWords = position.split(/\s+/).filter(Boolean);
+        if (posWords.length <= 2) {
+          const merged = `${position} ${company}`.replace(/\s+/g, ' ').trim();
+          if (!wouldDuplicateTitleMerge(position, company, merged)) {
+            position = merged;
+          }
+        }
+      }
       company = '';
     }
   }
@@ -1462,6 +1576,8 @@ export function reconcileExperienceHeaderFields(
       orgFallback &&
       orgFallback !== position &&
       !looksLikeJobTitleLine(orgFallback) &&
+      !looksLikeStandaloneLocationLine(orgFallback) &&
+      !isLikelyLocationFragment(orgFallback) &&
       !isResumeSectionHeadingLine(orgFallback) &&
       !isLikelyEducationLine(orgFallback)
     ) {
@@ -1493,6 +1609,18 @@ export function reconcileExperienceHeaderFields(
       if (looksLikeCompanyNameLine(candidate) && candidate !== position) {
         company = candidate;
         break;
+      }
+    }
+  }
+
+  if (!company && deduped.description) {
+    const recovered = recoverCompanyFromExperienceText(deduped.description, position);
+    if (recovered) {
+      company = recovered;
+      const descLines = deduped.description.split('\n').map((l) => l.trim()).filter(Boolean);
+      const remaining = descLines.filter((l) => l !== recovered).join('\n').trim();
+      if (remaining !== deduped.description) {
+        deduped = dedupeExperienceBodyLines(remaining, deduped.achievements);
       }
     }
   }
@@ -2082,6 +2210,19 @@ export function countPlausibleExperienceCompanies(list: unknown[]): number {
       exp.employer ||
       exp.Employer;
     return isPlausibleExperienceCompany(company);
+  }).length;
+}
+
+export function countPlausibleProjects(list: unknown[]): number {
+  if (!Array.isArray(list)) return 0;
+  return list.filter((entry) => {
+    if (!entry || typeof entry !== 'object') return false;
+    const rec = entry as Record<string, unknown>;
+    const name = sanitizeFieldText(
+      String(rec.name ?? rec.title ?? rec.projectName ?? rec.ProjectName ?? ''),
+      120
+    );
+    return !!name && isPlausibleProjectName(name);
   }).length;
 }
 
