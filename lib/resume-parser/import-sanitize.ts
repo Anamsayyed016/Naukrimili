@@ -1755,6 +1755,189 @@ function mergeDateStubIntoEntry<T extends ExperienceLike>(target: T, stub: Exper
   return out;
 }
 
+function hasExperienceBodyContent(exp: ExperienceLike): boolean {
+  const desc = sanitizeMultilineFieldText(exp.description, 2000);
+  const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
+  return !!(desc || achievements.length > 0);
+}
+
+/** Pair company-only + title-only parser fragments into one experience row. */
+function pairHeaderFragmentOrphans<T extends ExperienceLike>(entries: T[]): T[] {
+  if (entries.length < 2) return entries;
+  const out: T[] = [];
+  let i = 0;
+  while (i < entries.length) {
+    const cur = entries[i];
+    const next = entries[i + 1];
+    const company = sanitizeFieldText(cur.company, 120);
+    const position = sanitizeFieldText(cur.position || cur.title, 120);
+    if (next) {
+      const nextCompany = sanitizeFieldText(next.company, 120);
+      const nextPosition = sanitizeFieldText(next.position || next.title, 120);
+      if (
+        !hasExperienceBodyContent(cur) &&
+        company &&
+        !position &&
+        nextPosition &&
+        !nextCompany
+      ) {
+        out.push(
+          reconcileExperienceHeaderFields({
+            ...(next as Record<string, unknown>),
+            ...(cur as Record<string, unknown>),
+            company,
+            position: nextPosition,
+            title: nextPosition,
+          }) as T
+        );
+        i += 2;
+        continue;
+      }
+      if (
+        !hasExperienceBodyContent(cur) &&
+        position &&
+        !company &&
+        nextCompany &&
+        !nextPosition
+      ) {
+        out.push(
+          reconcileExperienceHeaderFields({
+            ...(next as Record<string, unknown>),
+            ...(cur as Record<string, unknown>),
+            company: nextCompany,
+            position,
+            title: position,
+          }) as T
+        );
+        i += 2;
+        continue;
+      }
+    }
+    out.push(cur);
+    i += 1;
+  }
+  return out;
+}
+
+/**
+ * When one parser row embeds multiple jobs in description, split before orphan merge.
+ * Preserves block integrity: header lines + dates stay with their bullets.
+ */
+export function splitExperienceEntriesWithEmbeddedJobs(
+  entries: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  const result: Record<string, unknown>[] = [];
+  for (const entry of entries) {
+    if (!entry || typeof entry !== 'object') continue;
+    const splits = splitSingleExperienceOnEmbeddedJobs(entry);
+    result.push(...splits);
+  }
+  return result;
+}
+
+function splitSingleExperienceOnEmbeddedJobs(
+  entry: Record<string, unknown>
+): Record<string, unknown>[] {
+  const headerCompany = sanitizeFieldText(entry.company || entry.Company, 120);
+  const headerTitle = sanitizeFieldText(entry.position || entry.title, 120);
+  const body = collectExperienceBodyFields(entry);
+  const lines = body.description
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (lines.length < 3) return [entry];
+
+  const splitAt: number[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!EXPERIENCE_DATE_RANGE_RE.test(line)) continue;
+    const prev = lines[i - 1] || '';
+    const prev2 = lines[i - 2] || '';
+    const headerLike =
+      looksLikeJobTitleLine(prev) ||
+      looksLikeCompanyNameLine(prev) ||
+      looksLikeJobTitleLine(prev2) ||
+      looksLikeCompanyNameLine(prev2);
+    if (headerLike) splitAt.push(i - (looksLikeJobTitleLine(prev2) || looksLikeCompanyNameLine(prev2) ? 2 : 1));
+  }
+
+  const uniqueSplits = [...new Set(splitAt.filter((n) => n > 0))].sort((a, b) => a - b);
+  if (uniqueSplits.length === 0) return [entry];
+
+  const segments: string[][] = [];
+  let start = 0;
+  for (const idx of uniqueSplits) {
+    if (idx > start) segments.push(lines.slice(start, idx));
+    start = idx;
+  }
+  if (start < lines.length) segments.push(lines.slice(start));
+
+  if (segments.length <= 1) return [entry];
+
+  const out: Record<string, unknown>[] = [];
+  segments.forEach((segLines, segIndex) => {
+    if (segLines.length === 0) return;
+    let segCompany = '';
+    let segTitle = '';
+    let segLocation = '';
+    let segStart = '';
+    let segEnd = '';
+    let segCurrent = false;
+    const bodyLines: string[] = [];
+
+    for (const line of segLines) {
+      if (!segTitle && looksLikeJobTitleLine(line) && !EXPERIENCE_DATE_RANGE_RE.test(line)) {
+        segTitle = line;
+        continue;
+      }
+      if (!segCompany && looksLikeCompanyNameLine(line) && line !== segTitle) {
+        segCompany = line;
+        continue;
+      }
+      if (!segLocation && looksLikeStandaloneLocationLine(line)) {
+        segLocation = line;
+        continue;
+      }
+      if (EXPERIENCE_DATE_RANGE_RE.test(line)) {
+        const dates = line.match(EXPERIENCE_DATE_RANGE_RE);
+        if (dates) {
+          segStart = sanitizeExperienceDateValue(dates[1]) || segStart;
+          const endPart = dates[2] || '';
+          if (/present|current|now|ongoing/i.test(endPart)) segCurrent = true;
+          else segEnd = sanitizeExperienceDateValue(endPart) || segEnd;
+        }
+        continue;
+      }
+      bodyLines.push(line);
+    }
+
+    const peeled = peelExperienceBodyLines(bodyLines.join('\n'), body.achievements);
+    out.push(
+      reconcileExperienceHeaderFields({
+        ...entry,
+        company: segCompany || (segIndex === 0 ? headerCompany : ''),
+        position: segTitle || (segIndex === 0 ? headerTitle : ''),
+        title: segTitle || (segIndex === 0 ? headerTitle : ''),
+        location: segLocation || (segIndex === 0 ? entry.location : ''),
+        startDate: segStart || (segIndex === 0 ? entry.startDate : ''),
+        endDate: segEnd || (segIndex === 0 ? entry.endDate : ''),
+        current: segCurrent || (segIndex === 0 ? entry.current : false),
+        description: peeled.description,
+        achievements: peeled.achievements,
+      })
+    );
+  });
+
+  return out.length > 0 ? out : [entry];
+}
+
+function peelExperienceBodyLines(
+  description: string,
+  achievements: string[]
+): { description: string; achievements: string[] } {
+  return dedupeExperienceBodyLines(description, achievements);
+}
+
 /** Merge date/location-only stubs into the preceding experience entry. */
 export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: T[]): T[] {
   if (entries.length === 0) return entries;
@@ -1807,7 +1990,13 @@ export function mergeOrphanExperienceEntries<T extends ExperienceLike>(entries: 
       continue;
     }
     if (isDescriptionOnlyOrphan && out.length > 0) {
-      if (looksLikeSeparateEmploymentBlock(exp)) {
+      const combinedText = [desc, ...achievements].join('\n');
+      const mustKeepSeparate =
+        looksLikeSeparateEmploymentBlock(exp) ||
+        EXPERIENCE_DATE_RANGE_RE.test(combinedText) ||
+        achievements.length >= 2 ||
+        combinedText.split('\n').filter((l) => l.trim()).length >= 4;
+      if (mustKeepSeparate) {
         out.push({ ...exp });
         continue;
       }
@@ -2130,15 +2319,15 @@ export function finalizeExperienceListForBuilder(
   entries: Record<string, unknown>[]
 ): Record<string, unknown>[] {
   if (!Array.isArray(entries) || entries.length === 0) return [];
-  const merged = mergeOrphanExperienceEntries(entries as ExperienceLike[]) as Record<
+  const split = splitExperienceEntriesWithEmbeddedJobs(
+    entries.filter((e) => e && typeof e === 'object') as Record<string, unknown>[]
+  );
+  const paired = pairHeaderFragmentOrphans(split as ExperienceLike[]) as Record<string, unknown>[];
+  const merged = mergeOrphanExperienceEntries(paired as ExperienceLike[]) as Record<
     string,
     unknown
   >[];
-  const mergedTwice = mergeOrphanExperienceEntries(merged as ExperienceLike[]) as Record<
-    string,
-    unknown
-  >[];
-  const deduped = dedupeAdjacentExperienceEntries(mergedTwice as ExperienceLike[]) as Record<
+  const deduped = dedupeAdjacentExperienceEntries(merged as ExperienceLike[]) as Record<
     string,
     unknown
   >[];

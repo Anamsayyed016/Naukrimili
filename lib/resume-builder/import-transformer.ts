@@ -183,26 +183,50 @@ function enrichExperienceFromParserAliases(
     );
     if (hasCompany) return row;
 
+    const tryAssignCompany = (source: Record<string, unknown>) => {
+      for (const key of [
+        'company',
+        'Company',
+        'organization',
+        'Organization',
+        'employer',
+        'Employer',
+        'companyName',
+        'CompanyName',
+        'workedAt',
+        'organizationName',
+      ] as const) {
+        const candidate = sanitizeFieldText(source[key], 160);
+        if (candidate && isPlausibleExperienceCompany(candidate)) {
+          row.company = candidate;
+          row.Company = candidate;
+          return true;
+        }
+      }
+      return false;
+    };
+
     const raw = rawList[index];
-    if (!raw || typeof raw !== 'object') return row;
-    const source = raw as Record<string, unknown>;
-    for (const key of [
-      'company',
-      'Company',
-      'organization',
-      'Organization',
-      'employer',
-      'Employer',
-      'companyName',
-      'CompanyName',
-    ] as const) {
-      const candidate = sanitizeFieldText(source[key], 160);
-      if (candidate && isPlausibleExperienceCompany(candidate)) {
-        row.company = candidate;
-        row.Company = candidate;
-        break;
+    if (raw && typeof raw === 'object' && tryAssignCompany(raw as Record<string, unknown>)) {
+      return row;
+    }
+
+    const startKey = sanitizeFieldText(row.startDate || row.start_date, 40);
+    const titleKey = sanitizeFieldText(row.title || row.position || row.designation, 120)
+      .toLowerCase()
+      .trim();
+    for (const candidate of rawList) {
+      if (!candidate || typeof candidate !== 'object') continue;
+      const rec = candidate as Record<string, unknown>;
+      const candStart = sanitizeFieldText(rec.startDate || rec.start_date, 40);
+      const candTitle = sanitizeFieldText(rec.title || rec.position || rec.designation, 120)
+        .toLowerCase()
+        .trim();
+      if (startKey && candStart && startKey === candStart && (!titleKey || !candTitle || titleKey === candTitle)) {
+        if (tryAssignCompany(rec)) return row;
       }
     }
+
     return row;
   });
 }
@@ -1461,6 +1485,9 @@ function transformExperienceArray(experiences: unknown): any[] {
     if (bodyKey && seenHeaderBody.has(headerBodyKey)) return false;
 
     if (!start && !end) {
+      const headerOnlyKey = `${company}|${title}`.toLowerCase();
+      if (headerOnlyKey.replace(/\|/g, '').length > 0 && seen.has(headerOnlyKey)) return false;
+      if (headerOnlyKey.replace(/\|/g, '').length > 0) seen.add(headerOnlyKey);
       if (bodyKey) seenHeaderBody.add(headerBodyKey);
       return true;
     }
@@ -1521,10 +1548,8 @@ function transformExperienceArray(experiences: unknown): any[] {
     };
   });
 
-  // Most recent first (by startDate desc, then current first)
-  const sorted = deduped.sort(compareByRecent);
-
-  return sorted;
+  // Preserve parser/upload order — do not re-sort imported experiences.
+  return deduped;
 }
 
 function transformEducationArray(education: unknown): any[] {
@@ -1755,13 +1780,6 @@ function computeDuration(startDate: string, endDate: string): string {
   return `${startDate} - ${end}`;
 }
 
-function compareByRecent(a: { startDate?: string; current?: boolean }, b: { startDate?: string; current?: boolean }): number {
-  if (a.current && !b.current) return -1;
-  if (b.current && !a.current) return 1;
-  const sa = String(a.startDate || '');
-  const sb = String(b.startDate || '');
-  return sb.localeCompare(sa);
-}
 
 function logImportMappingValidation(
   t: Record<string, any>,
@@ -1800,11 +1818,20 @@ function logImportMappingValidation(
     else if (
       rawExperience[index] &&
       typeof rawExperience[index] === 'object' &&
-      !isPlausibleExperienceCompany(company)
+      !isPlausibleExperienceCompany(
+        String(
+          (rawExperience[index] as Record<string, unknown>).company ||
+            (rawExperience[index] as Record<string, unknown>).organization ||
+            ''
+        )
+      )
     ) {
       recoveries.push(`experience[${index}]:company-recovered-from-mapping`);
     }
     if (!title) issues.push(`experience[${index}]:missing-designation`);
+    if (!String(exp.location || exp.Location || '').trim() && company) {
+      issues.push(`experience[${index}]:missing-location`);
+    }
     if (!description && bullets === 0) {
       issues.push(`experience[${index}]:missing-description`);
     }

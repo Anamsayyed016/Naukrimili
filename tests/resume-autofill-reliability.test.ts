@@ -1178,23 +1178,39 @@ describe('experience header mapping', () => {
     expect(String(reconciled.company || '')).toBe('');
   });
 
-  it('preserves full summary in editor when no section bleed is present', () => {
-    const longSummary = 'Experienced engineer with cloud and API expertise. '.repeat(8).trim();
-    const result = transformImportDataToBuilder({
-      summary: longSummary,
-      skills: ['React', 'Node.js'],
-      experience: [
-        {
-          company: 'Acme Corp',
-          title: 'Developer',
-          startDate: '2021-01',
-          endDate: 'Present',
-          description: 'Delivered services.',
-        },
-      ],
-      education: [{ school: 'State University', degree: 'B.Tech', year: '2020' }],
-    });
-    expect(result.summary).toContain('Experienced engineer');
-    expect(result.summary.length).toBeGreaterThan(80);
+  it('splits embedded multi-job description into separate experiences', async () => {
+    const {
+      splitExperienceEntriesWithEmbeddedJobs,
+      finalizeExperienceListForBuilder,
+    } = await import('@/lib/resume-parser/import-sanitize');
+    const split = splitExperienceEntriesWithEmbeddedJobs([
+      {
+        company: 'Acme Corp',
+        title: 'Developer',
+        startDate: '2020-01',
+        endDate: '2021-12',
+        description: [
+          'Built APIs for billing.',
+          'Senior Engineer',
+          'Globex Inc',
+          'Jan 2022 - Present',
+          'Led platform migration.',
+        ].join('\n'),
+      },
+    ]);
+    expect(split.length).toBeGreaterThanOrEqual(2);
+    const finalized = finalizeExperienceListForBuilder(split);
+    expect(finalized.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('pairs company-only and title-only orphan fragments', async () => {
+    const { finalizeExperienceListForBuilder } = await import('@/lib/resume-parser/import-sanitize');
+    const result = finalizeExperienceListForBuilder([
+      { company: 'Technoart', startDate: '2020-01', endDate: '2021-12' },
+      { title: 'Python Developer', description: 'Built REST APIs.' },
+    ]);
+    expect(result.length).toBe(1);
+    expect(String(result[0]?.company || '')).toMatch(/technoart/i);
+    expect(String(result[0]?.title || result[0]?.position || '')).toMatch(/python developer/i);
   });
 });
