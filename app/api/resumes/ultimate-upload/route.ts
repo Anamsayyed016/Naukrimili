@@ -744,6 +744,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (!usedAffindaPrimary && !usedDocumentParser) {
+      let aiExtractionStart: number | null = null;
       if (!parserBudget.shouldRunNextParser(AI_PARSER_MIN_BUDGET_MS)) {
         warn('Parser budget exceeded — skipping Hybrid AI', {
           remainingMs: parserBudget.remainingMs(),
@@ -755,7 +756,7 @@ export async function POST(request: NextRequest) {
           applyDocAutofill(docAutofill);
         }
       } else {
-      const aiExtractionStart = Date.now();
+      aiExtractionStart = Date.now();
       uploadStageDebug(REQ, 'AI', 'extraction started', {
         remainingBudgetMs: parserBudget.remainingMs(),
       });
@@ -1107,12 +1108,14 @@ export async function POST(request: NextRequest) {
       }
       }
     }
-      uploadTiming.record('aiExtractionMs', Date.now() - aiExtractionStart);
-      uploadStageDebug(REQ, 'AI', 'extraction completed', {
-        durationMs: Date.now() - aiExtractionStart,
-        aiProvider,
-        aiSuccess,
-      });
+      if (aiExtractionStart !== null) {
+        uploadTiming.record('aiExtractionMs', Date.now() - aiExtractionStart);
+        uploadStageDebug(REQ, 'AI', 'extraction completed', {
+          durationMs: Date.now() - aiExtractionStart,
+          aiProvider,
+          aiSuccess,
+        });
+      }
       }
     }
     }
