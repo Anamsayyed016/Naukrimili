@@ -10,6 +10,7 @@ import {
   scoreSkillConfidence,
 } from '@/lib/resume-parser/import-sanitize';
 import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
+import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
 
 export type ResumeSectionKey =
   | 'contact'
@@ -206,10 +207,22 @@ export function isMeaningfulExperience(exp: Record<string, unknown>): boolean {
   const textFields = [
     'Company',
     'company',
+    'organization',
+    'Organization',
+    'employer',
+    'Employer',
+    'companyName',
+    'CompanyName',
     'Position',
     'position',
     'title',
     'Title',
+    'designation',
+    'Designation',
+    'role',
+    'Role',
+    'jobTitle',
+    'JobTitle',
     'Description',
     'description',
     'Duration',
@@ -792,11 +805,14 @@ function resolveCanonicalArray(
 export function coalesceFormDataForTemplateRender(
   formData: Record<string, unknown>
 ): Record<string, unknown> {
-  const experience = resolveCanonicalArray(formData, 'experience', [
+  const experienceRaw = resolveCanonicalArray(formData, 'experience', [
     'workExperience',
     'Work Experience',
     'Experience',
   ]);
+  const experience = experienceRaw
+    .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
+    .map((entry) => syncExperienceEntryAliases(entry));
   const education = resolveCanonicalArray(formData, 'education', ['Education']);
   const rawSkills = normalizeSkillsForRender(formData);
   const { skills, languageHints } = partitionSkillsForRender(rawSkills);

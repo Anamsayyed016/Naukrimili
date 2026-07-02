@@ -1095,6 +1095,16 @@ export function resolveProjectName(
     120
   );
   if (rawName && isPlausibleProjectName(rawName)) return rawName;
+  // Keep parser-provided project titles even without description (e.g. "Cafe Website").
+  if (
+    rawName &&
+    rawName.length >= 2 &&
+    rawName.length <= 90 &&
+    !looksLikeJobTitleLine(rawName) &&
+    !isLikelyJobTitleFragment(rawName)
+  ) {
+    return rawName;
+  }
 
   const description = sanitizeFieldText(
     String(rec.description ?? rec.summary ?? rec.Description ?? ''),

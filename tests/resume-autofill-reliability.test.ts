@@ -453,6 +453,10 @@ describe('isPlausibleProjectName', () => {
     expect(isPlausibleProjectName('Full Stack Python Developer')).toBe(false);
     expect(isPlausibleProjectName('Python Developer')).toBe(false);
   });
+
+  it('accepts short project titles without descriptions', () => {
+    expect(isPlausibleProjectName('Cafe Website')).toBe(true);
+  });
 });
 
 describe('sanitizeProjectEntry', () => {

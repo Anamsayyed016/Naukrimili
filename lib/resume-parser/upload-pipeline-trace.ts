@@ -93,6 +93,27 @@ export function logProfileFormDataAudit(
     }
   }
 
+  const profileExp = Array.isArray(profile.experience) ? profile.experience : [];
+  const formExp = Array.isArray(formData.experience) ? formData.experience : [];
+  const profileCompanies = profileExp.filter((e) => {
+    if (!e || typeof e !== 'object') return false;
+    const row = e as Record<string, unknown>;
+    return String(row.company || row.organization || row.employer || '').trim().length > 0;
+  }).length;
+  const formCompanies = formExp.filter((e) => {
+    if (!e || typeof e !== 'object') return false;
+    const row = e as Record<string, unknown>;
+    return String(row.company || row.Company || '').trim().length > 0;
+  }).length;
+  if (profileCompanies > formCompanies) {
+    diffs.push({
+      field: 'experience.company',
+      profile: `${profileCompanies} with company`,
+      formData: `${formCompanies} with company`,
+      note: 'company names lost in builder mapping',
+    });
+  }
+
   console.log(`${label} profile vs formData audit`, {
     diffCount: diffs.length,
     diffs: diffs.length ? diffs : 'no scalar/list count mismatches',

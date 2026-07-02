@@ -69,6 +69,7 @@ import {
   looksLikeJobTitleLine,
   countPlausibleExperienceCompanies,
   countPlausibleProjects,
+  isPlausibleExperienceCompany,
 } from '@/lib/resume-parser/import-sanitize';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
@@ -160,11 +161,110 @@ function pickSkillsList(parent: Record<string, unknown>, out: Record<string, any
   const builderRaw = out.skills ?? out.Skills ?? out.technicalSkills;
   const parentSkills = normalizeSkillsList(Array.isArray(parentRaw) ? parentRaw : []);
   const builderSkills = normalizeSkillsList(Array.isArray(builderRaw) ? builderRaw : []);
-  if (builderSkills.length >= 10 && builderSkills.length >= parentSkills.length) {
-    return builderSkills;
+  return builderSkills.length >= parentSkills.length ? builderSkills : parentSkills;
+}
+
+function enrichExperienceFromParserAliases(
+  experiences: unknown[],
+  rawImport: Record<string, unknown>
+): unknown[] {
+  if (!Array.isArray(experiences) || experiences.length === 0) return experiences;
+  const rawList = firstNonEmptyArray(rawImport, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]);
+  return experiences.map((exp, index) => {
+    if (!exp || typeof exp !== 'object') return exp;
+    const row = { ...(exp as Record<string, unknown>) };
+    const hasCompany = hasMeaningfulText(
+      row.company || row.Company || row.organization || row.employer
+    );
+    if (hasCompany) return row;
+
+    const raw = rawList[index];
+    if (!raw || typeof raw !== 'object') return row;
+    const source = raw as Record<string, unknown>;
+    for (const key of [
+      'company',
+      'Company',
+      'organization',
+      'Organization',
+      'employer',
+      'Employer',
+      'companyName',
+      'CompanyName',
+    ] as const) {
+      const candidate = sanitizeFieldText(source[key], 160);
+      if (candidate && isPlausibleExperienceCompany(candidate)) {
+        row.company = candidate;
+        row.Company = candidate;
+        break;
+      }
+    }
+    return row;
+  });
+}
+
+function isJobTitleMisclassifiedAsProject(
+  name: string,
+  jobTitle: string,
+  experienceTitles: string[]
+): boolean {
+  const n = name.toLowerCase().trim();
+  if (!n) return true;
+  if (
+    looksLikeJobTitleLine(name) &&
+    !/\b(website|web\s*site|portal|system|application|app|platform|dashboard|api|tool|suite|software|e-?commerce)\b/i.test(
+      name
+    )
+  ) {
+    return true;
   }
-  if (parentSkills.length > builderSkills.length) return parentSkills;
-  return builderSkills.length > 0 ? builderSkills : parentSkills;
+  const jt = jobTitle.toLowerCase().trim();
+  if (jt && n === jt) return true;
+  for (const title of experienceTitles) {
+    const tl = String(title || '').toLowerCase().trim();
+    if (tl && n === tl) return true;
+  }
+  return false;
+}
+
+function countExperienceWithPlausibleCompany(list: unknown[]): number {
+  if (!Array.isArray(list)) return 0;
+  return list.filter((entry) => {
+    if (!entry || typeof entry !== 'object') return false;
+    const exp = entry as Record<string, unknown>;
+    return isPlausibleExperienceCompany(
+      exp.company || exp.Company || exp.organization || exp.employer
+    );
+  }).length;
+}
+
+function logBuilderImportPipelineTrace(input: {
+  raw: Record<string, unknown>;
+  merged: Record<string, unknown>;
+  builder: Record<string, unknown>;
+}): void {
+  const snapshot = (data: Record<string, unknown>) => ({
+    summaryChars: String(data.summary || data.bio || '').length,
+    experience: Array.isArray(data.experience) ? data.experience.length : 0,
+    experienceCompanies: countExperienceWithPlausibleCompany(
+      Array.isArray(data.experience) ? data.experience : []
+    ),
+    projects: Array.isArray(data.projects) ? data.projects.length : 0,
+    skills: Array.isArray(data.skills) ? data.skills.length : 0,
+    education: Array.isArray(data.education) ? data.education.length : 0,
+    certifications: Array.isArray(data.certifications) ? data.certifications.length : 0,
+    languages: Array.isArray(data.languages) ? data.languages.length : 0,
+  });
+
+  console.log('[import-pipeline-trace]', {
+    raw: snapshot(input.raw),
+    merged: snapshot(input.merged),
+    builder: snapshot(input.builder),
+  });
 }
 
 /** When API nests builderFormData, parent profile arrays may still hold parser output. */
@@ -833,12 +933,15 @@ export function transformImportDataToBuilder(
   mergedImport = postSpillover;
 
   const experience = transformExperienceArray(
-    firstNonEmptyArray(mergedImport, [
-      'experience',
-      'workExperience',
-      'Work Experience',
-      'Experience',
-    ])
+    enrichExperienceFromParserAliases(
+      firstNonEmptyArray(mergedImport, [
+        'experience',
+        'workExperience',
+        'Work Experience',
+        'Experience',
+      ]),
+      mergedImport
+    )
   );
 
   const skills = cleanSkills(
@@ -899,7 +1002,11 @@ export function transformImportDataToBuilder(
           Projects: Array.isArray(mergedImport.Projects) ? mergedImport.Projects.length : 0,
         });
         return raw;
-      })()
+      })(),
+      jobTitle,
+      experience.map((e: Record<string, unknown>) =>
+        String(e.title || e.position || e.designation || '')
+      )
     ),
 
     // ===== CertificationsStep =====
@@ -957,7 +1064,12 @@ export function transformImportDataToBuilder(
   transformed.bio = trimmedSummary;
   transformed.objective = trimmedSummary;
 
-  logImportMappingValidation(transformed);
+  logBuilderImportPipelineTrace({
+    raw: importedData as Record<string, unknown>,
+    merged: mergedImport,
+    builder: transformed,
+  });
+  logImportMappingValidation(transformed, mergedImport);
   logSummary(transformed);
   return transformed;
 }
@@ -1467,7 +1579,11 @@ function transformEducationArray(education: unknown): any[] {
   });
 }
 
-function transformProjectsArray(projects: unknown): any[] {
+function transformProjectsArray(
+  projects: unknown,
+  jobTitle = '',
+  experienceTitles: string[] = []
+): any[] {
   if (!Array.isArray(projects)) return [];
   logRawProjects(projects);
   const split = splitMergedProjectEntries(projects);
@@ -1480,7 +1596,11 @@ function transformProjectsArray(projects: unknown): any[] {
   }
   const transformed = split
     .map((p, index) => sanitizeProjectEntry(p, index))
-    .filter((p): p is Record<string, unknown> => p != null);
+    .filter((p): p is Record<string, unknown> => p != null)
+    .filter((p) => {
+      const name = String(p.name || p.title || '').trim();
+      return !isJobTitleMisclassifiedAsProject(name, jobTitle, experienceTitles);
+    });
   console.log('[import-transformer] final projects.length', transformed.length);
   return transformed;
 }
@@ -1643,14 +1763,31 @@ function compareByRecent(a: { startDate?: string; current?: boolean }, b: { star
   return sb.localeCompare(sa);
 }
 
-function logImportMappingValidation(t: Record<string, any>): void {
+function logImportMappingValidation(
+  t: Record<string, any>,
+  source?: Record<string, unknown>
+): void {
   const issues: string[] = [];
+  const recoveries: string[] = [];
 
   if (!sanitizeFieldText(t.summary)) {
     issues.push('summary:missing');
+  } else if (source) {
+    const rawSummaryLen = String(
+      source.summary || source.professionalSummary || source.bio || ''
+    ).length;
+    const builtSummaryLen = String(t.summary || '').length;
+    if (rawSummaryLen > builtSummaryLen + 80) {
+      issues.push(`summary:truncated:${builtSummaryLen}/${rawSummaryLen}`);
+    }
   }
 
   const experience = Array.isArray(t.experience) ? t.experience : [];
+  const rawExperience = source
+    ? firstNonEmptyArray(source, ['experience', 'workExperience', 'Work Experience', 'Experience'])
+    : [];
+  const rawCompanyCount = countExperienceWithPlausibleCompany(rawExperience);
+
   experience.forEach((entry, index) => {
     if (!entry || typeof entry !== 'object') return;
     const exp = entry as Record<string, unknown>;
@@ -1660,6 +1797,13 @@ function logImportMappingValidation(t: Record<string, any>): void {
     const bullets = Array.isArray(exp.achievements) ? exp.achievements.length : 0;
 
     if (!company) issues.push(`experience[${index}]:missing-company`);
+    else if (
+      rawExperience[index] &&
+      typeof rawExperience[index] === 'object' &&
+      !isPlausibleExperienceCompany(company)
+    ) {
+      recoveries.push(`experience[${index}]:company-recovered-from-mapping`);
+    }
     if (!title) issues.push(`experience[${index}]:missing-designation`);
     if (!description && bullets === 0) {
       issues.push(`experience[${index}]:missing-description`);
@@ -1677,8 +1821,12 @@ function logImportMappingValidation(t: Record<string, any>): void {
 
   if (!Array.isArray(t.skills) || t.skills.length === 0) {
     issues.push('skills:empty');
-  } else if (t.skills.length < 10) {
-    issues.push(`skills:below-target:${t.skills.length}`);
+  } else if (source) {
+    const rawSkills = firstNonEmptyArray(source, ['skills', 'Skills', 'technicalSkills']);
+    const rawCount = Array.isArray(rawSkills) ? rawSkills.length : 0;
+    if (rawCount > t.skills.length + 3) {
+      issues.push(`skills:loss:${t.skills.length}/${rawCount}`);
+    }
   }
   if (!Array.isArray(t.education) || t.education.length === 0) {
     issues.push('education:empty');
@@ -1700,7 +1848,13 @@ function logImportMappingValidation(t: Record<string, any>): void {
   }
 
   if (issues.length > 0) {
-    console.warn('[import-transformer] mapping validation', { issues, experienceCount: experience.length });
+    console.warn('[import-transformer] mapping validation', {
+      issues,
+      recoveries,
+      experienceCount: experience.length,
+      rawCompanyCount,
+      builtCompanyCount: countExperienceWithPlausibleCompany(experience),
+    });
   }
 }
 
