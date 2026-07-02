@@ -8,6 +8,10 @@ import { detectDesignationFromLine } from './designation';
 import { extractDescriptionFromBlock } from './description';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
 import { extractTechnologiesFromBlock } from './technologies';
+import {
+  looksLikeCompanyNameLine,
+  looksLikeStandaloneLocationLine,
+} from '@/lib/resume-parser/import-sanitize';
 import type {
   CustomExtractedExperience,
   ExperienceFieldConfidence,
@@ -62,10 +66,18 @@ function pickBestDesignation(lines: string[], exclude: string): FieldPick<string
   return best;
 }
 
-function pickBestLocation(lines: string[]): FieldPick<string> {
+function pickBestLocation(lines: string[], excludeCompany = ''): FieldPick<string> {
   let best: FieldPick<string> = { value: '', confidence: 0 };
+  const exclude = excludeCompany.toLowerCase().trim();
+
   for (const line of expandHeaderSegments(lines)) {
+    if (parseDateRangeFromText(line)) continue;
+    if (exclude && line.toLowerCase().trim() === exclude) continue;
+    if (looksLikeCompanyNameLine(line) && !looksLikeStandaloneLocationLine(line)) continue;
+
+    const companyDet = detectCompanyFromLine(line);
     const det = detectLocationFromLine(line);
+    if (companyDet.confidence >= 45 && companyDet.confidence > det.confidence) continue;
     if (det.confidence > best.confidence) {
       best = { value: det.location, confidence: det.confidence };
     }
@@ -73,7 +85,7 @@ function pickBestLocation(lines: string[]): FieldPick<string> {
   return best;
 }
 
-function pickBestDateRange(lines: string[]): {
+function pickBestDateRange(lines: string[], bodyLines: string[] = []): {
   startDate: string | null;
   endDate: string | null;
   current: boolean;
@@ -81,7 +93,8 @@ function pickBestDateRange(lines: string[]): {
   endConf: number;
 } {
   let best: ReturnType<typeof parseDateRangeFromText> = null;
-  for (const line of expandHeaderSegments(lines)) {
+  const scanLines = [...expandHeaderSegments(lines), ...bodyLines.slice(0, 2).map((l) => l.trim()).filter(Boolean)];
+  for (const line of scanLines) {
     const parsed = parseDateRangeFromText(line);
     if (parsed && (!best || parsed.confidence > best.confidence)) {
       best = parsed;
@@ -142,8 +155,8 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
 
   const designationPick = pickBestDesignation(headerLines, '');
   const companyPick = pickBestCompany(headerLines, designationPick.value);
-  const locationPick = pickBestLocation(headerLines);
-  const datePick = pickBestDateRange(headerLines);
+  const locationPick = pickBestLocation(headerLines, companyPick.value);
+  const datePick = pickBestDateRange(headerLines, block.bodyLines);
   const employmentPick = pickEmploymentType(headerLines);
 
   let { description, bulletPoints, confidence: descConf } = extractDescriptionFromBlock(

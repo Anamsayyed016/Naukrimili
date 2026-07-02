@@ -865,6 +865,7 @@ function isStandaloneSectionLabel(text: string): boolean {
 function isSidebarColumnContent(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed || isStandaloneSectionLabel(trimmed)) return false;
+  if (looksLikeStandaloneLocationLine(trimmed)) return false;
   if (
     /@|linkedin\.com|github\.com|phone|mobile|tel\b/i.test(trimmed) ||
     /\+?\d[\d\s().-]{7,}\d/.test(trimmed)
@@ -890,6 +891,7 @@ function isMainColumnContent(text: string): boolean {
   if (!trimmed) return false;
   if (isAnyHeadingLine(trimmed)) return true;
   if (lineHasDateRange(trimmed)) return true;
+  if (looksLikeStandaloneLocationLine(trimmed)) return true;
   if (isLikelyJobTitle(trimmed)) return true;
   if (isLikelyCompanyName(trimmed)) return true;
   if (isPlausiblePersonName(trimmed)) return true;
@@ -989,21 +991,49 @@ export function reconstructColumnLayout(text: string): string {
   return text;
 }
 
+function splitCompositeContactSkillLine(line: string): string[] {
+  const trimmed = line.trim();
+  if (!trimmed) return [];
+
+  const segments: string[] = [];
+  for (const part of trimmed.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean)) {
+    const phoneSkill = part.match(/^(\+?\d[\d\s().-]{7,}\d)\s+(.+)$/);
+    if (phoneSkill?.[2]?.includes(',')) {
+      segments.push(phoneSkill[1].trim(), phoneSkill[2].trim());
+      continue;
+    }
+    segments.push(part);
+  }
+  return segments.length > 0 ? segments : [trimmed];
+}
+
 function partitionSidebarForOutput(sidebar: string[]): string[] {
   const skillLines: string[] = [];
   const otherLines: string[] = [];
 
   for (const line of sidebar) {
-    const cleaned = line.trim();
-    if (!cleaned) continue;
-    const isSkillish =
-      /,/.test(cleaned) &&
-      cleaned.split(/[,;|]/).filter((p) => p.trim().length >= 2).length >= 2 &&
-      !/@|linkedin|github|\+?\d{7,}/i.test(cleaned) &&
-      !isLikelyJobTitle(cleaned) &&
-      !isLikelyCompanyName(cleaned);
-    if (isSkillish) skillLines.push(cleaned);
-    else otherLines.push(cleaned);
+    for (const segment of splitCompositeContactSkillLine(line)) {
+      const cleaned = segment.trim();
+      if (!cleaned) continue;
+      const isContact =
+        /@|linkedin|github|\+?\d{7,}/i.test(cleaned) ||
+        /\+?\d[\d\s().-]{7,}\d/.test(cleaned);
+      const isLocation = looksLikeStandaloneLocationLine(cleaned);
+      const isSkillish =
+        /,/.test(cleaned) &&
+        cleaned.split(/[,;|]/).filter((p) => p.trim().length >= 2).length >= 2 &&
+        !isContact &&
+        !isLocation &&
+        !isLikelyJobTitle(cleaned) &&
+        !isLikelyCompanyName(cleaned);
+      if (isContact || isLocation) {
+        otherLines.push(cleaned);
+      } else if (isSkillish) {
+        skillLines.push(cleaned);
+      } else {
+        otherLines.push(cleaned);
+      }
+    }
   }
 
   const out: string[] = [];

@@ -128,17 +128,19 @@ export function repairGapsIntoPreamble(
   return { preamble, sections: repaired };
 }
 
+/** Remove consecutive duplicate lines (sidebar bleed), not repeated lines across jobs/degrees. */
 export function dedupeContentLines(content: string): string {
-  const seen = new Set<string>();
   const out: string[] = [];
+  let prevKey = '';
   for (const line of content.split('\n')) {
     const key = line.trim().toLowerCase();
     if (!key) {
       if (out.length > 0 && out[out.length - 1] !== '') out.push('');
+      prevKey = '';
       continue;
     }
-    if (seen.has(key)) continue;
-    seen.add(key);
+    if (key === prevKey) continue;
+    prevKey = key;
     out.push(line);
   }
   return out.join('\n').trim();

@@ -9,6 +9,24 @@ import type { CanonicalExperience, CustomExtractedExperience } from './types';
 import { filterValidExperiences } from './validate';
 import { toCanonicalExperience } from './types';
 
+/** When one employer has multiple roles, inherit company from the previous entry. */
+function inheritCompanyAcrossExperiences(
+  experiences: CustomExtractedExperience[]
+): CustomExtractedExperience[] {
+  let lastCompany = '';
+  return experiences.map((exp) => {
+    const company = exp.company?.trim() || '';
+    if (company) {
+      lastCompany = company;
+      return exp;
+    }
+    if (exp.designation?.trim() && lastCompany) {
+      return { ...exp, company: lastCompany };
+    }
+    return exp;
+  });
+}
+
 export interface ExperienceExtractionResult {
   experiences: CustomExtractedExperience[];
   canonical: CanonicalExperience[];
@@ -32,7 +50,7 @@ export function extractExperiencesWithMeta(
   const lines = buildExperienceLines(experienceSectionText || '');
   const blocks = partitionExperienceBlocks(lines);
   const built = blocks.map(buildExperienceFromBlock);
-  const experiences = filterValidExperiences(built);
+  const experiences = inheritCompanyAcrossExperiences(filterValidExperiences(built));
 
   return {
     experiences,

@@ -15,6 +15,7 @@ import {
 
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 const URL_RE = /https?:\/\//i;
+const PHONE_RE = /\+?\d[\d\s().-]{7,}\d/;
 const RESPONSIBILITY_RE =
   /\b(responsible for|managed|mentored|developed|implemented|designed|delivered)\b/i;
 
@@ -36,7 +37,7 @@ export function isValidSkillCandidate(raw: string): boolean {
 
   if (SECTION_HEADING_RE.test(cleaned)) return false;
   if (isResumeSectionHeadingLine(cleaned)) return false;
-  if (EMAIL_RE.test(cleaned) || URL_RE.test(cleaned)) return false;
+  if (EMAIL_RE.test(cleaned) || URL_RE.test(cleaned) || PHONE_RE.test(cleaned)) return false;
 
   if (isPlausibleExperienceCompany(cleaned) && cleaned.split(/\s+/).length >= 2) {
     return false;
