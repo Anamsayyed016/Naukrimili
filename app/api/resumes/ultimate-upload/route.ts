@@ -57,6 +57,12 @@ import {
   getUploadParserBudgetMs,
   uploadStageDebug,
 } from '@/lib/resume-parser/upload-pipeline-trace';
+import {
+  beginImportFieldTrace,
+  flushImportFieldTraceReport,
+  isImportFieldTraceEnabled,
+  traceImportStageOutput,
+} from '@/lib/resume-parser/import-field-trace';
 import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/resume-parser/text-recovery';
 
 // Configure route for larger file uploads
@@ -129,6 +135,7 @@ function parseJobSkillsField(skills: unknown): string[] {
  */
 export async function POST(request: NextRequest) {
   const REQ = `RZ-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  beginImportFieldTrace(REQ);
   const log = (msg: string, data?: unknown) => {
     if (data !== undefined) console.log(`[${REQ}] ${msg}`, data);
     else console.log(`[${REQ}] ${msg}`);
@@ -742,6 +749,10 @@ export async function POST(request: NextRequest) {
           hybridResult.education?.[0]?.degree?.includes('not extracted');
         const isTextRecoveryFallback = hybridResult.aiProvider === 'fallback';
         const hybridForPayloadCheck = hybridResultToExtracted(hybridResult);
+
+        if (isImportFieldTraceEnabled()) {
+          traceImportStageOutput('3_hybrid_parser_output', hybridForPayloadCheck, hybridResult.aiProvider || 'hybrid');
+        }
 
         let shouldMapHybrid = false;
         let hybridAiProvider: string = hybridResult.aiProvider || 'hybrid';
@@ -1889,6 +1900,9 @@ export async function POST(request: NextRequest) {
       const { transformImportDataToBuilder } = await import('@/lib/resume-builder/import-transformer');
       builderFormData = transformImportDataToBuilder(profile);
       logProfileFormDataAudit(REQ, profile, builderFormData);
+      if (isImportFieldTraceEnabled()) {
+        traceImportStageOutput('15_builder_form_data', builderFormData, aiProvider || 'builder');
+      }
       (profile as Record<string, unknown>).builderFormData = builderFormData;
     } catch (auditErr) {
       warn('formData audit skipped', auditErr instanceof Error ? auditErr.message : auditErr);
@@ -2128,7 +2142,9 @@ export async function POST(request: NextRequest) {
       ...uploadTiming.stages,
     });
 
-    return NextResponse.json({ 
+    flushImportFieldTraceReport();
+
+    return NextResponse.json({
       success: true, 
       message: 'Resume uploaded and parsed successfully using AI',
       resumeId: resume.id,

@@ -5,6 +5,10 @@
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { sanitizeSkillEntry, normalizeSkillsList } from '@/lib/resume-parser/import-sanitize';
+import {
+  isImportFieldTraceEnabled,
+  traceImportStageTransform,
+} from '@/lib/resume-parser/import-field-trace';
 
 const PLACEHOLDER_PATTERNS = [
   /^n\/a$/i,
@@ -457,6 +461,7 @@ function splitCompoundLanguageNames(name: string): string[] {
 }
 
 export function normalizeExtractedResumeData(data: ExtractedResumeData): ExtractedResumeData {
+  const traceInput = data;
   // STEP 0a: move language declarations OUT of certifications[]
   const { certifications: realCerts, extraLanguages: certLangs } =
     splitCertificationsAndExtraLanguages(data.certifications);
@@ -567,7 +572,7 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
 
   const summary = cleanMultiline(data.summary);
 
-  return {
+  const normalized: ExtractedResumeData = {
     ...data,
     fullName: cleanString(data.fullName),
     email: cleanString(data.email),
@@ -605,6 +610,15 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     confidence: data.confidence ?? 0,
     rawText: data.rawText || '',
   };
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform(
+      '6_normalize_extracted_resume_data',
+      traceInput,
+      normalized,
+      'normalize-extracted'
+    );
+  }
+  return normalized;
 }
 
 /**
@@ -688,6 +702,7 @@ export function expandCompoundLanguages(
 
 /** Normalize upload API profile object (post-mapping) */
 export function normalizeUploadProfile(profile: Record<string, any>): Record<string, any> {
+  const traceInput = { ...profile };
   // STEP 1a: scan certifications[] — if any row is actually a language
   // declaration ("Languages: English, Hindi" / "English (Fluent)"), MOVE it
   // out of certifications and feed it back into the languages input.
@@ -813,7 +828,7 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
       return (inst || deg) && !/\.(pdf|docx?)\b/i.test(deg) && !/parsing failed/i.test(deg);
     });
 
-  return {
+  const normalizedProfile = {
     ...profile,
     fullName: cleanString(profile.fullName || profile.name),
     name: cleanString(profile.fullName || profile.name),
@@ -834,6 +849,15 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
       }))
     ),
   };
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform(
+      '8_normalize_upload_profile',
+      traceInput,
+      normalizedProfile,
+      'normalize-upload-profile'
+    );
+  }
+  return normalizedProfile;
 }
 
 function dedupeCertifications(

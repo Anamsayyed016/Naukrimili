@@ -11,13 +11,18 @@ import {
   isPlausiblePersonName,
   sanitizePersonName,
 } from '@/lib/resume-parser/import-sanitize';
+import {
+  isImportFieldTraceEnabled,
+  traceImportStageTransform,
+} from '@/lib/resume-parser/import-field-trace';
 
 export function mapExtractedToUploadProfile(
   extracted: ExtractedResumeData,
   options?: { aiProvider?: string }
 ): Record<string, any> {
+  const traceInput = extracted;
   const fullName = sanitizePersonName(extracted.fullName) || '';
-  return {
+  const mapped = {
     name: fullName,
     fullName,
     email: extracted.email || '',
@@ -71,6 +76,15 @@ export function mapExtractedToUploadProfile(
     confidence: extracted.confidence ?? 75,
     _aiProvider: options?.aiProvider || 'extracted',
   };
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform(
+      '7_map_extracted_to_upload_profile',
+      traceInput,
+      mapped,
+      options?.aiProvider || 'extracted'
+    );
+  }
+  return mapped;
 }
 
 /** Board profile / cover-letter / corporate intro text mis-mapped as summary. */

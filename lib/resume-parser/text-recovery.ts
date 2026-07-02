@@ -11,6 +11,7 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { isImportFieldTraceEnabled, traceImportStageOutput } from '@/lib/resume-parser/import-field-trace';
 import {
   emptyAdditionalResumeData,
   isFirmOrLocationNamePhrase,
@@ -448,6 +449,10 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
 
   // 3. Confidence
   result.confidence = scoreConfidence(result);
+
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageOutput('4_text_recovery_output', result, 'text-recovery');
+  }
 
   return result;
 }

@@ -83,6 +83,10 @@ import {
 } from '@/lib/resume-parser/field-classification';
 import { inferProfessionFromResume } from '@/lib/resume-builder/infer-profession';
 import {
+  isImportFieldTraceEnabled,
+  traceImportStageTransform,
+} from '@/lib/resume-parser/import-field-trace';
+import {
   recoverFromRawText,
   mergeRecovery,
   extractResumeFromText,
@@ -970,6 +974,7 @@ function supplementImportFromRawText(
 export function transformImportDataToBuilder(
   importedData: any
 ): Record<string, any> {
+  const traceInput = importedData;
   if (!importedData) {
     console.error('[import-transformer] No import data provided');
     return {};
@@ -1218,6 +1223,9 @@ export function transformImportDataToBuilder(
   });
   logImportMappingValidation(transformed, mergedImport);
   logSummary(transformed);
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform('14_transform_import_data_to_builder', traceInput, transformed, 'import-transformer');
+  }
   return transformed;
 }
 

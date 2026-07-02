@@ -54,6 +54,12 @@ export class ApilayerResumeParser {
       confidence: normalized.confidence,
     });
 
+    const { traceImportStageOutput, isImportFieldTraceEnabled } = await import(
+      '@/lib/resume-parser/import-field-trace'
+    );
+    if (isImportFieldTraceEnabled()) {
+      traceImportStageOutput('2_apilayer_output', normalized, 'apilayer');
+    }
     return normalized;
   }
 

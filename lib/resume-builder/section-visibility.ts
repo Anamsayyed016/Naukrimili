@@ -11,6 +11,10 @@ import {
 } from '@/lib/resume-parser/import-sanitize';
 import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
+import {
+  isImportFieldTraceEnabled,
+  traceImportStageTransform,
+} from '@/lib/resume-parser/import-field-trace';
 
 export type ResumeSectionKey =
   | 'contact'
@@ -805,6 +809,7 @@ function resolveCanonicalArray(
 export function coalesceFormDataForTemplateRender(
   formData: Record<string, unknown>
 ): Record<string, unknown> {
+  const traceInput = formData;
   const experienceRaw = resolveCanonicalArray(formData, 'experience', [
     'workExperience',
     'Work Experience',
@@ -834,7 +839,7 @@ export function coalesceFormDataForTemplateRender(
     console.log('HOBBIES STATE coalesce', { hobbies, raw: formData.hobbies, interests: formData.interests });
   }
 
-  return {
+  const coalesced = {
     ...formData,
     experience,
     education,
@@ -858,6 +863,10 @@ export function coalesceFormDataForTemplateRender(
     Interests: hobbies,
     personalInterests: hobbies,
   };
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform('16_template_render_input', traceInput, coalesced, 'template-render');
+  }
+  return coalesced;
 }
 
 export interface TemplateRenderCapacity {

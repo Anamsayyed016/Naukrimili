@@ -28,6 +28,10 @@ import {
   pickBestNameFromCandidates,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
+import {
+  isImportFieldTraceEnabled,
+  traceImportStageTransform,
+} from '@/lib/resume-parser/import-field-trace';
 
 type ExperienceEntry = ExtractedResumeData['experience'][number];
 type EducationEntry = ExtractedResumeData['education'][number];
@@ -480,7 +484,7 @@ export function mergeResumeData(
   const primaryRaw = affindaData.rawText || '';
   const secondaryRaw = edenData.rawText || '';
 
-  return {
+  const merged: ExtractedResumeData = {
     ...affindaData,
     fullName: mergeFullName(
       affindaData.fullName,
@@ -510,6 +514,10 @@ export function mergeResumeData(
     confidence: affindaData.confidence,
     rawText: secondaryRaw.length > primaryRaw.length ? secondaryRaw : primaryRaw,
   };
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform('5_merge_resume_data', affindaData, merged, 'affinda+eden');
+  }
+  return merged;
 }
 
 function emptyExtractedResumeData(): ExtractedResumeData {
@@ -535,7 +543,11 @@ export function mergeTextRecoveryIntoExtracted(
   const text = (rawText || '').trim();
   if (text.length < 30) return base;
   const recovered = extractResumeFromText(text);
-  return mergeParserWithRecoveredWording(base, recovered);
+  const merged = mergeParserWithRecoveredWording(base, recovered);
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform('4_text_recovery_output', base, merged, 'text-recovery-merge');
+  }
+  return merged;
 }
 
 export type DocumentParserResult = {

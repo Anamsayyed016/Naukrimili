@@ -18,6 +18,16 @@ import {
   splitClassifiedFullName,
   type ClassifiedText,
 } from './field-classification';
+import {
+  isImportFieldTraceEnabled,
+  traceExperienceReconcile,
+  traceSanitizeExperienceDropped,
+  traceSanitizeProjectDropped,
+  traceSkillDecisions,
+} from './import-field-trace';
+
+let _traceReconcileExpIndex = 0;
+let _traceSanitizeExpIndex = 0;
 
 const GARBAGE_PATTERNS = [
   /pdf parsing failed/i,
@@ -777,9 +787,17 @@ export function normalizeSkillsList(
   minConfidence: number = SKILL_CONFIDENCE_THRESHOLD
 ): string[] {
   const primary = normalizeSkillsListAtThreshold(skills, minConfidence);
-  if (primary.length >= MIN_TARGET_RESUME_SKILLS) return primary;
-  const relaxed = normalizeSkillsListAtThreshold(skills, Math.max(28, minConfidence - 12));
-  return relaxed.length > primary.length ? relaxed : primary;
+  const output =
+    primary.length >= MIN_TARGET_RESUME_SKILLS
+      ? primary
+      : (() => {
+          const relaxed = normalizeSkillsListAtThreshold(skills, Math.max(28, minConfidence - 12));
+          return relaxed.length > primary.length ? relaxed : primary;
+        })();
+  if (isImportFieldTraceEnabled()) {
+    traceSkillDecisions(skills, output, scoreSkillConfidence, minConfidence, 'normalize-skills');
+  }
+  return output;
 }
 
 /**
@@ -1143,6 +1161,9 @@ export function sanitizeProjectEntry(
   const name = resolveProjectName(rec, index);
   if (!name) {
     console.log('REMOVED PROJECT', value, 'reason', 'no name/title and no description or technologies');
+    if (isImportFieldTraceEnabled()) {
+      traceSanitizeProjectDropped(index, value, 'no name/title and no description or technologies', 'sanitize-project');
+    }
     return null;
   }
 
@@ -1455,6 +1476,8 @@ function recoverCompanyFromExperienceText(
 export function reconcileExperienceHeaderFields(
   exp: Record<string, unknown>
 ): Record<string, unknown> {
+  const traceInput = { ...exp };
+  const traceIndex = _traceReconcileExpIndex++;
   const slotCompany = readExperienceCompanySlot(exp);
   const slotOrg = sanitizeFieldText(
     exp.organization ||
@@ -1722,7 +1745,7 @@ export function reconcileExperienceHeaderFields(
     }
   }
 
-  return {
+  const result = {
     ...exp,
     company,
     Company: company,
@@ -1741,6 +1764,10 @@ export function reconcileExperienceHeaderFields(
     Description: deduped.description,
     achievements: deduped.achievements,
   };
+  if (isImportFieldTraceEnabled()) {
+    traceExperienceReconcile(traceIndex, traceInput, result, 'reconcile');
+  }
+  return result;
 }
 
 function isExperienceDateOnlyStub(exp: ExperienceLike): boolean {
@@ -2520,6 +2547,8 @@ export function countPlausibleProjects(list: unknown[]): number {
 }
 
 export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<string, unknown> | null {
+  const traceIndex = _traceSanitizeExpIndex++;
+  const traceInput = { ...exp };
   const reconciled = reconcileExperienceHeaderFields(exp);
   const company = readExperienceCompanySlot(reconciled);
   let position = readExperiencePositionSlot(reconciled);
@@ -2539,8 +2568,16 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
     reconciled.description || reconciled.Description,
     8000
   );
-  if (!safeCompany && !safePosition && !description) return null;
+  if (!safeCompany && !safePosition && !description) {
+    if (isImportFieldTraceEnabled()) {
+      traceSanitizeExperienceDropped(traceIndex, traceInput, 'no company, position, or description', 'sanitize-experience');
+    }
+    return null;
+  }
   if (isGarbageResumeText(safeCompany) && isGarbageResumeText(safePosition) && !description) {
+    if (isImportFieldTraceEnabled()) {
+      traceSanitizeExperienceDropped(traceIndex, traceInput, 'garbage company and position with no description', 'sanitize-experience');
+    }
     return null;
   }
   const rawAchievements = Array.isArray(reconciled.achievements)
@@ -2562,6 +2599,9 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
       description: finalDescription || finalAchievements.join('\n'),
     })
   ) {
+    if (isImportFieldTraceEnabled()) {
+      traceSanitizeExperienceDropped(traceIndex, traceInput, 'isValidExperienceEntry failed', 'sanitize-experience');
+    }
     return null;
   }
 

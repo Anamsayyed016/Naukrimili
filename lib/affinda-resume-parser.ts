@@ -138,6 +138,12 @@ export class AffindaResumeParser {
         }
       }
 
+      const { traceImportStageOutput, isImportFieldTraceEnabled } = await import(
+        '@/lib/resume-parser/import-field-trace'
+      );
+      if (isImportFieldTraceEnabled()) {
+        traceImportStageOutput('1_affinda_output', normalized, 'affinda');
+      }
       return normalized;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);

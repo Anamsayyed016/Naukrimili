@@ -16,6 +16,10 @@ import {
   reconcileExperienceHeaderFields,
 } from '@/lib/resume-parser/import-sanitize';
 import { cleanString } from '@/lib/resume-parser/normalize-extracted';
+import {
+  isImportFieldTraceEnabled,
+  traceImportStageTransform,
+} from '@/lib/resume-parser/import-field-trace';
 
 export interface ResumeExtractionValidationReport {
   warnings: string[];
@@ -39,6 +43,7 @@ function splitCompoundLanguageNames(name: string): string[] {
 export function validateAndRepairResumeExtraction<T extends Record<string, unknown>>(
   input: T
 ): { data: T; report: ResumeExtractionValidationReport } {
+  const traceInput = { ...input };
   const report: ResumeExtractionValidationReport = { warnings: [], repairs: [] };
   const data = { ...input };
 
@@ -286,6 +291,15 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
       warnings: report.warnings.length,
       repairs: report.repairs.length,
     });
+  }
+
+  if (isImportFieldTraceEnabled()) {
+    traceImportStageTransform(
+      '9_validate_and_repair_resume_extraction',
+      traceInput,
+      data,
+      'extraction-repair'
+    );
   }
 
   return { data: data as T, report };
