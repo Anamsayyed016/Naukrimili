@@ -131,21 +131,9 @@ function trimSummaryForStructuredSections(
   return truncateSummaryAtSectionBoundary(text).slice(0, 4000);
 }
 
-/** Count experiences that have a company/employer field populated. */
+/** Count experiences that have a plausible company/employer field populated. */
 function countExperiencesWithCompany(list: unknown[]): number {
-  if (!Array.isArray(list)) return 0;
-  return list.filter((entry) => {
-    if (!entry || typeof entry !== 'object') return false;
-    const exp = entry as Record<string, unknown>;
-    return hasMeaningfulText(
-      exp.company ||
-        exp.Company ||
-        exp.organization ||
-        exp.Organization ||
-        exp.employer ||
-        exp.Employer
-    );
-  }).length;
+  return countPlausibleExperienceCompanies(list);
 }
 
 function normalizeMergedExperienceList(list: unknown[]): Record<string, unknown>[] {
@@ -178,7 +166,10 @@ function enrichExperienceFromParserAliases(
   return experiences.map((exp, index) => {
     if (!exp || typeof exp !== 'object') return exp;
     const row = { ...(exp as Record<string, unknown>) };
-    const hasCompany = hasMeaningfulText(row.company || row.Company || row.organization || row.employer);
+    const companyRaw =
+      row.company || row.Company || row.organization || row.employer;
+    const hasCompany =
+      hasMeaningfulText(companyRaw) && isPlausibleExperienceCompany(companyRaw);
     const hasLocation = hasMeaningfulText(row.location || row.Location);
     const hasDescription = hasMeaningfulText(row.description || row.Description);
 
@@ -263,6 +254,101 @@ function enrichExperienceFromParserAliases(
 
     return row;
   });
+}
+
+function projectNameKey(value: unknown): string {
+  return sanitizeFieldText(value, 120).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function enrichProjectsFromParserAliases(
+  projects: unknown[],
+  rawImport: Record<string, unknown>
+): unknown[] {
+  const rawList = firstNonEmptyArray(rawImport, ['projects', 'Projects']);
+  if (!Array.isArray(rawList) || rawList.length === 0) return projects;
+
+  const built = Array.isArray(projects)
+    ? projects.filter((p) => p && typeof p === 'object')
+    : [];
+  if (built.length === 0) return rawList;
+
+  const fillFromSource = (row: Record<string, unknown>, source: Record<string, unknown>): void => {
+    if (!hasMeaningfulText(row.name || row.title)) {
+      for (const key of [
+        'name',
+        'title',
+        'projectName',
+        'ProjectName',
+        'ProjectTitle',
+      ] as const) {
+        const candidate = sanitizeFieldText(source[key], 120);
+        if (candidate) {
+          row.name = candidate;
+          row.title = candidate;
+          break;
+        }
+      }
+    }
+    if (!hasMeaningfulText(row.description || row.Description)) {
+      const desc = cleanMultiline(
+        String(
+          source.description ??
+            source.summary ??
+            source.Description ??
+            source.details ??
+            source.responsibilities ??
+            ''
+        )
+      ).trim();
+      if (desc.length >= 12) {
+        row.description = desc;
+        row.Description = desc;
+      }
+    }
+    if (!hasMeaningfulText(row.technologies || row.Technologies)) {
+      const tech = source.technologies ?? source.tech_stack ?? source.techStack ?? source.tech;
+      if (tech) {
+        row.technologies = tech;
+        row.Technologies = tech;
+      }
+    }
+  };
+
+  const enriched = built.map((project, index) => {
+    const row = { ...(project as Record<string, unknown>) };
+    const raw = rawList[index];
+    if (raw && typeof raw === 'object') {
+      fillFromSource(row, raw as Record<string, unknown>);
+      return row;
+    }
+    const nameKey = projectNameKey(row.name || row.title);
+    for (const candidate of rawList) {
+      if (!candidate || typeof candidate !== 'object') continue;
+      const rec = candidate as Record<string, unknown>;
+      if (nameKey && projectNameKey(rec.name || rec.title) === nameKey) {
+        fillFromSource(row, rec);
+        break;
+      }
+    }
+    return row;
+  });
+
+  const seen = new Set(
+    enriched.map((p) => projectNameKey((p as Record<string, unknown>).name || (p as Record<string, unknown>).title))
+  );
+  for (const raw of rawList) {
+    if (!raw || typeof raw !== 'object') continue;
+    const rec = raw as Record<string, unknown>;
+    const name = sanitizeFieldText(rec.name || rec.title, 120);
+    const desc = sanitizeFieldText(rec.description || rec.summary || rec.Description, 500);
+    const key = projectNameKey(name || desc.slice(0, 40));
+    if (!key || seen.has(key)) continue;
+    if (name || desc.length >= 20) {
+      enriched.push(rec);
+      seen.add(key);
+    }
+  }
+  return enriched;
 }
 
 function isJobTitleMisclassifiedAsProject(
@@ -1053,14 +1139,17 @@ export function transformImportDataToBuilder(
 
     // ===== ProjectsStep =====
     projects: transformProjectsArray(
-      (() => {
-        const raw = firstNonEmptyArray(mergedImport, ['projects', 'Projects']);
-        console.log('[import-transformer] mergedImport project keys', {
-          projects: Array.isArray(mergedImport.projects) ? mergedImport.projects.length : 0,
-          Projects: Array.isArray(mergedImport.Projects) ? mergedImport.Projects.length : 0,
-        });
-        return raw;
-      })(),
+      enrichProjectsFromParserAliases(
+        (() => {
+          const raw = firstNonEmptyArray(mergedImport, ['projects', 'Projects']);
+          console.log('[import-transformer] mergedImport project keys', {
+            projects: Array.isArray(mergedImport.projects) ? mergedImport.projects.length : 0,
+            Projects: Array.isArray(mergedImport.Projects) ? mergedImport.Projects.length : 0,
+          });
+          return raw;
+        })(),
+        mergedImport
+      ),
       jobTitle,
       experience.map((e: Record<string, unknown>) =>
         String(e.title || e.position || e.designation || '')
@@ -1658,6 +1747,8 @@ function transformProjectsArray(
     .filter((p): p is Record<string, unknown> => p != null)
     .filter((p) => {
       const name = String(p.name || p.title || '').trim();
+      const desc = String(p.description || p.Description || '').trim();
+      if (desc.length >= 40) return true;
       return !isJobTitleMisclassifiedAsProject(name, jobTitle, experienceTitles);
     });
   console.log('[import-transformer] final projects.length', transformed.length);

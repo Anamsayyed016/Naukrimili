@@ -1213,4 +1213,52 @@ describe('experience header mapping', () => {
     expect(String(result[0]?.company || '')).toMatch(/technoart/i);
     expect(String(result[0]?.title || result[0]?.position || '')).toMatch(/python developer/i);
   });
+
+  it('rejects tech skill and location mis-assigned as company', async () => {
+    const {
+      reconcileExperienceHeaderFields,
+      isPlausibleExperienceCompany,
+      splitCompanyLocationPipe,
+      finalizeExperienceListForBuilder,
+    } = await import('@/lib/resume-parser/import-sanitize');
+
+    expect(isPlausibleExperienceCompany('PYTHON')).toBe(false);
+    expect(isPlausibleExperienceCompany('Bhopal')).toBe(false);
+    expect(isPlausibleExperienceCompany('Full-stack Python Developer')).toBe(false);
+    expect(isPlausibleExperienceCompany('Technoart')).toBe(true);
+
+    const pipeSplit = splitCompanyLocationPipe('PYTHON | Bhopal');
+    expect(pipeSplit?.company).toBe('');
+    expect(pipeSplit?.location).toMatch(/bhopal/i);
+
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'PYTHON | Bhopal',
+      title: 'Python Developer',
+      description: 'Built services at Technoart.',
+    });
+    expect(reconciled.company).toBe('');
+    expect(reconciled.location).toMatch(/bhopal/i);
+
+    const collapsed = finalizeExperienceListForBuilder([
+      { title: 'Python Developer', location: 'Bhopal', current: true },
+      {
+        title: 'Python Developer',
+        company: 'Technoart',
+        startDate: '2020-01',
+        endDate: '2022-12',
+        description: 'Built REST APIs and Django services.',
+      },
+      { title: 'Full Stack Developer', description: 'Led migration project.' },
+      {
+        title: 'Full Stack Developer',
+        company: 'Globex',
+        startDate: '2023-01',
+        description: 'Led platform migration.\nBuilt CI/CD pipelines.',
+      },
+    ]);
+    expect(collapsed.length).toBeLessThanOrEqual(3);
+    expect(collapsed.some((e) => String(e.company || '').toLowerCase().includes('technoart'))).toBe(
+      true
+    );
+  });
 });

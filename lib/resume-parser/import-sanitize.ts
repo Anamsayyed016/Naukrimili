@@ -1374,6 +1374,9 @@ export function looksLikeStandaloneLocationLine(text: string): boolean {
   return false;
 }
 
+const TECH_SKILL_AS_COMPANY_RE =
+  /^(python3?|django|flask|fastapi|react(?:\.?js)?|node\.?js|javascript|typescript|java|kotlin|swift|ruby|php|laravel|express|next\.?js|vue\.?js|angular|sql|mysql|postgresql|mongodb|redis|docker|kubernetes|aws|azure|gcp|html5?|css3?|git|go|golang|rust|c\+\+|c#|\.net)$/i;
+
 /** Split "Technoart | Bhopal" or "Acme / San Francisco" into company + location. */
 export function splitCompanyLocationPipe(text: string): { company: string; location: string } | null {
   const t = sanitizeFieldText(text, 160);
@@ -1383,12 +1386,14 @@ export function splitCompanyLocationPipe(text: string): { company: string; locat
   const left = match[1].trim();
   const right = match[2].trim();
   if (!left || !right || left.length > 120 || right.length > 80) return null;
+  const rightIsLocation =
+    looksLikeStandaloneLocationLine(right) || isLikelyLocationFragment(right);
+  const leftIsCompany = isPlausibleExperienceCompany(left);
+  if (!leftIsCompany && rightIsLocation) {
+    return { company: '', location: right };
+  }
   if (looksLikeJobTitleLine(left) && !looksLikeCompanyNameLine(left)) return null;
-  if (
-    looksLikeStandaloneLocationLine(right) ||
-    isLikelyLocationFragment(right) ||
-    (looksLikeCompanyNameLine(left) && !looksLikeStandaloneLocationLine(left))
-  ) {
+  if (rightIsLocation && leftIsCompany) {
     return { company: left, location: right };
   }
   return null;
@@ -1700,6 +1705,25 @@ export function reconcileExperienceHeaderFields(
       String(exp.endDate || exp.end_date || '').trim()
     );
 
+  if (company && !isPlausibleExperienceCompany(company)) {
+    if (
+      (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) &&
+      !location
+    ) {
+      location = company;
+    }
+    company = '';
+    Company = '';
+  }
+
+  if (!company && position) {
+    const recovered = recoverCompanyFromExperienceText(deduped.description, position);
+    if (recovered && isPlausibleExperienceCompany(recovered)) {
+      company = recovered;
+      Company = company;
+    }
+  }
+
   return {
     ...exp,
     company,
@@ -1753,6 +1777,67 @@ function mergeDateStubIntoEntry<T extends ExperienceLike>(target: T, stub: Exper
   const stubLoc = sanitizeFieldText(stub.location, 120);
   if (stubLoc && !sanitizeFieldText(out.location, 120)) out.location = stubLoc;
   return out;
+}
+
+function experienceRichnessScore(exp: ExperienceLike): number {
+  let score = 0;
+  const company = sanitizeFieldText(exp.company, 120);
+  const position = sanitizeFieldText(exp.position || exp.title, 120);
+  const desc = sanitizeMultilineFieldText(exp.description, 2000);
+  const achievements = Array.isArray(exp.achievements) ? exp.achievements.length : 0;
+  if (company && isPlausibleExperienceCompany(company)) score += 5;
+  if (position) score += 2;
+  if (desc.length > 20) score += 4;
+  if (achievements > 0) score += 3;
+  if (exp.startDate || exp.endDate || exp.start_date || exp.end_date) score += 3;
+  if (exp.location) score += 1;
+  return score;
+}
+
+function normalizeExperienceTitleKey(value: unknown): string {
+  return sanitizeFieldText(value, 120).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function experienceTitlesOverlap(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.includes(b) || b.includes(a)) return true;
+  const aWords = a.split(/\s+/).filter((w) => w.length >= 3);
+  const bWords = b.split(/\s+/).filter((w) => w.length >= 3);
+  if (!aWords.length || !bWords.length) return false;
+  const shared = aWords.filter((w) => bWords.includes(w));
+  return shared.length >= Math.min(2, Math.min(aWords.length, bWords.length));
+}
+
+/** Drop title/location-only shadow rows when a richer matching experience exists. */
+function collapseShadowExperienceEntries<T extends ExperienceLike>(entries: T[]): T[] {
+  if (entries.length < 2) return entries;
+  const scored = entries.map((entry, index) => ({
+    entry: reconcileExperienceHeaderFields(entry as Record<string, unknown>) as T,
+    index,
+    score: experienceRichnessScore(entry),
+    titleKey: normalizeExperienceTitleKey(
+      (entry as ExperienceLike).position || (entry as ExperienceLike).title
+    ),
+  }));
+
+  const keep = new Array(scored.length).fill(true);
+  for (let i = 0; i < scored.length; i++) {
+    if (!keep[i]) continue;
+    for (let j = 0; j < scored.length; j++) {
+      if (i === j || !keep[j]) continue;
+      if (!experienceTitlesOverlap(scored[i].titleKey, scored[j].titleKey)) continue;
+      if (scored[i].score >= scored[j].score) {
+        if (scored[j].score <= scored[i].score - 2) keep[j] = false;
+      } else if (scored[i].score <= scored[j].score - 2) {
+        keep[i] = false;
+        break;
+      }
+    }
+  }
+
+  const survivors = scored.filter((_, idx) => keep[idx]).map((s) => s.entry);
+  return survivors.length > 0 ? survivors : entries;
 }
 
 function hasExperienceBodyContent(exp: ExperienceLike): boolean {
@@ -2319,8 +2404,12 @@ export function finalizeExperienceListForBuilder(
   entries: Record<string, unknown>[]
 ): Record<string, unknown>[] {
   if (!Array.isArray(entries) || entries.length === 0) return [];
+  const collapsed = collapseShadowExperienceEntries(entries as ExperienceLike[]) as Record<
+    string,
+    unknown
+  >[];
   const split = splitExperienceEntriesWithEmbeddedJobs(
-    entries.filter((e) => e && typeof e === 'object') as Record<string, unknown>[]
+    collapsed.filter((e) => e && typeof e === 'object') as Record<string, unknown>[]
   );
   const paired = pairHeaderFragmentOrphans(split as ExperienceLike[]) as Record<string, unknown>[];
   const merged = mergeOrphanExperienceEntries(paired as ExperienceLike[]) as Record<
@@ -2388,12 +2477,19 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   const company = sanitizeFieldText(value, 160);
   if (!company) return false;
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
-  if (isLikelyLocationFragment(company)) return false;
+  if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;
+  const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (TECH_SKILL_AS_COMPANY_RE.test(lower)) return false;
   if (looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) return false;
   const classified = classifyResumeTextFragment(company);
   if (classified.kind === 'DESIGNATION' && classified.confidence >= 70) return false;
   if (classified.kind === 'LOCATION' && classified.confidence >= 70) return false;
-  return true;
+  if (classified.kind === 'COMPANY_NAME' && classified.confidence >= 70) {
+    if (TECH_SKILL_AS_COMPANY_RE.test(lower) || looksLikeJobTitleLine(company)) return false;
+    return true;
+  }
+  if (looksLikeCompanyNameLine(company)) return true;
+  return company.length >= 18 && /\s/.test(company);
 }
 
 export function countPlausibleExperienceCompanies(list: unknown[]): number {
@@ -2437,6 +2533,9 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
     position = '';
   }
   let safeCompany = isResumeSectionHeadingLine(company) ? '' : company;
+  if (safeCompany && !isPlausibleExperienceCompany(safeCompany)) {
+    safeCompany = '';
+  }
   let safePosition = isResumeSectionHeadingLine(position) ? '' : position;
   const description = sanitizeMultilineFieldText(
     reconciled.description || reconciled.Description,
