@@ -60,11 +60,12 @@ import {
   collectExperienceBodyFields,
   unionExperienceBodyFields,
   mergeOrphanEducationEntries,
-  reconcileExperienceHeaderFields,
   finalizeExperienceListForBuilder,
   finalizeEducationListForBuilder,
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
+  looksLikeCompanyNameLine,
+  looksLikeJobTitleLine,
 } from '@/lib/resume-parser/import-sanitize';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
@@ -90,6 +91,20 @@ import { applyRecoveredWordingToProfile } from '@/lib/resume-parser/prefer-recov
 /*  Public API                                                        */
 /* ------------------------------------------------------------------ */
 
+/** Strip section bleed from summary only when another section heading appears inside the text. */
+function summaryContainsSectionBleed(summary: string): boolean {
+  const STOP_HEADING =
+    /^(?:(?:(?:work|professional)\s+)?experience|employment(?:\s+history)?|education|academic(?:\s+background|\s+history)?|skills?|technical\s+skills|key\s+skills|core\s+competenc(?:y|ies)|projects?|certifications?|achievements?|languages?|employment\s+record|professional\s+journey|professional\s+history)\s*:?\s*$/i;
+  return summary.split('\n').some((line) => {
+    const norm = line
+      .trim()
+      .replace(/[:|\-_=]+$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return norm.length > 0 && norm.length <= 72 && STOP_HEADING.test(norm);
+  });
+}
+
 /** Strip section bleed from summary when structured arrays are populated (builder mapping only). */
 function trimSummaryForStructuredSections(
   summary: string,
@@ -107,6 +122,7 @@ function trimSummaryForStructuredSections(
     sections.education.length > 0 ||
     sections.skills.length > 0;
   if (!hasStructured) return text.slice(0, 4000);
+  if (!summaryContainsSectionBleed(text)) return text.slice(0, 4000);
 
   return truncateSummaryAtSectionBoundary(text).slice(0, 4000);
 }
@@ -904,6 +920,7 @@ export function transformImportDataToBuilder(
   transformed.bio = trimmedSummary;
   transformed.objective = trimmedSummary;
 
+  logImportMappingValidation(transformed);
   logSummary(transformed);
   return transformed;
 }
@@ -1218,7 +1235,6 @@ function transformExperienceArray(experiences: unknown): any[] {
   const mapped = experiences
     .map((exp) => sanitizeExperienceEntry((exp ?? {}) as Record<string, unknown>))
     .filter((exp): exp is Record<string, unknown> => exp != null)
-    .map((exp) => reconcileExperienceHeaderFields(exp))
     .map((exp, index) => {
       const position = String(exp.position || exp.title || '');
       const company = String(exp.company || '');
@@ -1504,7 +1520,7 @@ function mergeSummarySections(
   const parts: string[] = [];
   const add = (raw: unknown) => {
     const t = cleanMultiline(String(raw || '')).trim();
-    if (!t || t.length < 12) return;
+    if (!t || t.length < 8) return;
     const key = t.toLowerCase().replace(/\s+/g, ' ').slice(0, 120);
     if (seen.has(key)) return;
     seen.add(key);
@@ -1513,6 +1529,11 @@ function mergeSummarySections(
 
   add(mergedImport.summary);
   add(mergedImport.professionalSummary);
+  add(mergedImport['Professional Summary']);
+  add(mergedImport.executiveSummary);
+  add(mergedImport.careerSummary);
+  add(mergedImport.professionalProfile);
+  add(mergedImport.aboutMe);
   add(mergedImport.objective);
   add(mergedImport.bio);
   add(textParsed?.summary);
@@ -1583,6 +1604,50 @@ function compareByRecent(a: { startDate?: string; current?: boolean }, b: { star
   const sa = String(a.startDate || '');
   const sb = String(b.startDate || '');
   return sb.localeCompare(sa);
+}
+
+function logImportMappingValidation(t: Record<string, any>): void {
+  const issues: string[] = [];
+
+  if (!sanitizeFieldText(t.summary)) {
+    issues.push('summary:missing');
+  }
+
+  const experience = Array.isArray(t.experience) ? t.experience : [];
+  experience.forEach((entry, index) => {
+    if (!entry || typeof entry !== 'object') return;
+    const exp = entry as Record<string, unknown>;
+    const company = String(exp.company || exp.Company || '').trim();
+    const title = String(exp.title || exp.position || exp.designation || '').trim();
+    const description = String(exp.description || exp.Description || '').trim();
+    const bullets = Array.isArray(exp.achievements) ? exp.achievements.length : 0;
+
+    if (!company) issues.push(`experience[${index}]:missing-company`);
+    if (!title) issues.push(`experience[${index}]:missing-designation`);
+    if (!description && bullets === 0) {
+      issues.push(`experience[${index}]:missing-description`);
+    }
+    if (company && title && company.toLowerCase() === title.toLowerCase()) {
+      issues.push(`experience[${index}]:company-equals-title`);
+    }
+    if (company && looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) {
+      issues.push(`experience[${index}]:company-looks-like-title:${company.slice(0, 40)}`);
+    }
+    if (title && looksLikeCompanyNameLine(title) && !looksLikeJobTitleLine(title)) {
+      issues.push(`experience[${index}]:title-looks-like-company:${title.slice(0, 40)}`);
+    }
+  });
+
+  if (!Array.isArray(t.skills) || t.skills.length === 0) {
+    issues.push('skills:empty');
+  }
+  if (!Array.isArray(t.education) || t.education.length === 0) {
+    issues.push('education:empty');
+  }
+
+  if (issues.length > 0) {
+    console.warn('[import-transformer] mapping validation', { issues, experienceCount: experience.length });
+  }
 }
 
 function logSummary(t: Record<string, any>): void {

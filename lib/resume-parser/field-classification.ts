@@ -10,6 +10,7 @@ export type TextClassificationKind =
   | 'DESIGNATION'
   | 'SECTION_HEADER'
   | 'COMPANY_NAME'
+  | 'LOCATION'
   | 'PROJECT_NAME'
   | 'SKILL'
   | 'CERTIFICATION'
@@ -257,7 +258,33 @@ export function isLikelyJobTitleFragment(value: string): boolean {
 export function isLikelyCompanyNameFragment(value: string): boolean {
   const s = normalizeFragment(value);
   if (!s) return false;
-  return COMPANY_NAME_MARKERS.test(s);
+  if (COMPANY_NAME_MARKERS.test(s)) return true;
+  if (
+    /^[A-Z][A-Za-z0-9&.'-]{2,24}$/.test(s) &&
+    !JOB_TITLE_MARKERS.test(s) &&
+    !INDIAN_CITY_TOKENS.has(s.toLowerCase())
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function isLikelyLocationFragment(value: string): boolean {
+  const s = normalizeFragment(value);
+  if (!s || s.length > 72) return false;
+  if (JOB_TITLE_MARKERS.test(s)) return false;
+  if (COMPANY_NAME_MARKERS.test(s)) return false;
+  if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(s)) {
+    return true;
+  }
+  if (/^(remote|hybrid|on-?site|work from home|wfh)$/i.test(s)) return true;
+  const words = s.split(/\s+/).filter(Boolean);
+  if (words.length <= 3 && words.every((w) => INDIAN_CITY_TOKENS.has(w.toLowerCase()))) return true;
+  if (words.length === 1 && INDIAN_CITY_TOKENS.has(words[0].toLowerCase())) return true;
+  if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}$/.test(s) && !/\d/.test(s) && words.length <= 3) {
+    return !isLikelyCompanyNameFragment(s);
+  }
+  return false;
 }
 
 /** CS/CA firm lines and city suffixes — not personal names. */
@@ -361,15 +388,20 @@ export function classifyResumeTextFragment(value: unknown): ClassifiedText {
   }
 
   if (isLikelyJobTitleFragment(valueNorm)) {
-    return { kind: 'DESIGNATION', confidence: 0, value: valueNorm };
+    return { kind: 'DESIGNATION', confidence: 88, value: valueNorm };
   }
 
   if (isLikelyCompanyNameFragment(valueNorm)) {
-    return { kind: 'COMPANY_NAME', confidence: 0, value: valueNorm };
+    const confidence = COMPANY_NAME_MARKERS.test(valueNorm) ? 92 : 78;
+    return { kind: 'COMPANY_NAME', confidence, value: valueNorm };
+  }
+
+  if (isLikelyLocationFragment(valueNorm)) {
+    return { kind: 'LOCATION', confidence: 82, value: valueNorm };
   }
 
   if (isFirmOrLocationNamePhrase(valueNorm)) {
-    return { kind: 'DESIGNATION', confidence: 0, value: valueNorm };
+    return { kind: 'DESIGNATION', confidence: 72, value: valueNorm };
   }
 
   const words = lower.split(/\s+/).filter(Boolean);

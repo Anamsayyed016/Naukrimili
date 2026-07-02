@@ -14,6 +14,7 @@ import {
   isLikelyCompanyNameFragment,
   isLikelyEducationLine,
   isLikelyJobTitleFragment,
+  isLikelyLocationFragment,
   splitClassifiedFullName,
   type ClassifiedText,
 } from './field-classification';
@@ -1251,7 +1252,46 @@ const COMPANY_NAME_HINT_RE =
   /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|systems|consulting|services|company|co\.?)\b/i;
 
 const WELL_KNOWN_EMPLOYER_RE =
-  /^(?:google|microsoft|amazon|apple|meta|facebook|netflix|uber|airbnb|stripe|salesforce|oracle|ibm|accenture|deloitte|pwc|kpmg|ey|ernst|infosys|tcs|tata consultancy services|wipro|hcl|cognizant|capgemini|tech mahindra|larsen|flipkart|swiggy|zomato|startup)$/i;
+  /^(?:google|microsoft|amazon|apple|meta|facebook|netflix|uber|airbnb|stripe|salesforce|oracle|ibm|accenture|deloitte|pwc|kpmg|ey|ernst|infosys|tcs|tata consultancy services|wipro|hcl|cognizant|capgemini|tech mahindra|larsen|flipkart|swiggy|zomato|startup|adobe|sap|nokia|reliance|hdfc|icici|sbi|mphasis|mindtree|lti)$/i;
+
+/** Read company from any parser/import field alias. */
+export function readExperienceCompanySlot(exp: Record<string, unknown>): string {
+  for (const key of [
+    'company',
+    'Company',
+    'organization',
+    'Organization',
+    'employer',
+    'Employer',
+    'companyName',
+    'CompanyName',
+  ]) {
+    const value = sanitizeFieldText(exp[key], 160);
+    if (value) return value;
+  }
+  return '';
+}
+
+/** Read designation/title from any parser/import field alias. */
+export function readExperiencePositionSlot(exp: Record<string, unknown>): string {
+  for (const key of [
+    'position',
+    'Position',
+    'title',
+    'Title',
+    'job_title',
+    'jobTitle',
+    'JobTitle',
+    'role',
+    'Role',
+    'designation',
+    'Designation',
+  ]) {
+    const value = sanitizeFieldText(exp[key], 120);
+    if (value) return value;
+  }
+  return '';
+}
 
 const SPECIAL_EMPLOYER_RE =
   /^(?:self[- ]?employed|freelance|freelancer|confidential|independent contractor|contract(?:or)?|government(?: of)?)$/i;
@@ -1279,6 +1319,10 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   if (COMPANY_NAME_HINT_RE.test(t)) return true;
   const core = t.replace(/\s+(limited|ltd\.?|inc\.?|pvt\.?\s*ltd\.?)$/i, '').trim();
   if (WELL_KNOWN_EMPLOYER_RE.test(core)) return true;
+  const classified = classifyResumeTextFragment(t);
+  if (classified.kind === 'COMPANY_NAME') return true;
+  if (classified.kind === 'DESIGNATION' || classified.kind === 'LOCATION') return false;
+  if (isLikelyCompanyNameFragment(t)) return true;
   // Multi-word lines that read as job titles are not companies (e.g. "Senior Software Engineer").
   if (JOB_TITLE_HINT_RE.test(t)) return false;
   return t.length >= 22 && /\s/.test(t);
@@ -1298,11 +1342,7 @@ export function looksLikeStandaloneLocationLine(text: string): boolean {
   if (looksLikeJobTitleLine(t)) return false;
   if (/\b(19|20)\d{2}\b/.test(t)) return false;
   if (looksLikeCompanyNameLine(t)) return false;
-  if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(t)) {
-    return true;
-  }
-  if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}$/.test(t) && !/\d/.test(t)) return true;
-  if (/^(remote|hybrid|on-?site|work from home|wfh)$/i.test(t)) return true;
+  if (isLikelyLocationFragment(t)) return true;
   return false;
 }
 
@@ -1313,7 +1353,7 @@ export function looksLikeStandaloneLocationLine(text: string): boolean {
 export function reconcileExperienceHeaderFields(
   exp: Record<string, unknown>
 ): Record<string, unknown> {
-  const slotCompany = sanitizeFieldText(exp.company || exp.Company, 160);
+  const slotCompany = readExperienceCompanySlot(exp);
   const slotOrg = sanitizeFieldText(
     exp.organization ||
       exp.Organization ||
@@ -1324,11 +1364,8 @@ export function reconcileExperienceHeaderFields(
     160
   );
 
-  let company = slotCompany || slotOrg;
-  let position = sanitizeFieldText(
-    exp.position || exp.Position || exp.title || exp.job_title || exp.role,
-    120
-  );
+  let company = slotCompany || (slotOrg && slotOrg !== slotCompany ? slotOrg : '');
+  let position = readExperiencePositionSlot(exp);
   let location = sanitizeFieldText(exp.location || exp.Location, 120);
 
   if (
@@ -1378,8 +1415,18 @@ export function reconcileExperienceHeaderFields(
   }
 
   if (company && looksLikeStandaloneLocationLine(company) && !location) {
-    location = company;
-    company = '';
+    const companyClass = classifyResumeTextFragment(company);
+    if (companyClass.kind === 'LOCATION' && companyClass.confidence >= 70) {
+      location = company;
+      company =
+        [slotCompany, slotOrg].find(
+          (candidate) =>
+            candidate &&
+            candidate !== location &&
+            (looksLikeCompanyNameLine(candidate) ||
+              classifyResumeTextFragment(candidate).kind === 'COMPANY_NAME')
+        ) || '';
+    }
   }
 
   if (company && !position && looksLikeJobTitleLine(company) && company.length <= 60) {
@@ -1483,10 +1530,21 @@ export function reconcileExperienceHeaderFields(
     ].filter((c) => c && c !== position && !isResumeSectionHeadingLine(c));
     for (const candidate of nerCandidates) {
       const classified = classifyResumeTextFragment(candidate);
-      if (classified.kind === 'COMPANY_NAME' && !looksLikeJobTitleLine(candidate)) {
+      if (
+        (classified.kind === 'COMPANY_NAME' && classified.confidence >= 70) ||
+        (looksLikeCompanyNameLine(candidate) && !looksLikeJobTitleLine(candidate))
+      ) {
         company = candidate;
         break;
       }
+    }
+  }
+
+  if (!company && position) {
+    const positionClass = classifyResumeTextFragment(position);
+    if (positionClass.kind === 'COMPANY_NAME' && positionClass.confidence >= 75) {
+      company = position;
+      position = '';
     }
   }
 
@@ -1979,26 +2037,25 @@ export function isValidExperienceEntry(exp: {
   if (!company && !position) return false;
 
   if (position && isLikelyJobTitleFragment(position) && !company) return hasDates;
+  if (company && !position) {
+    if (
+      looksLikeCompanyNameLine(company) ||
+      isLikelyCompanyNameFragment(company) ||
+      classifyResumeTextFragment(company).kind === 'COMPANY_NAME'
+    ) {
+      return true;
+    }
+    return hasDates;
+  }
   if (company && isLikelyCompanyNameFragment(company) && !position) return hasDates;
 
   return false;
 }
 
 export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<string, unknown> | null {
-  const company = sanitizeFieldText(
-    exp.company || exp.Company || exp.organization || exp.Organization || exp.employer,
-    120
-  );
-  let position = sanitizeFieldText(
-    exp.position ||
-      exp.Position ||
-      exp.jobTitle ||
-      exp.JobTitle ||
-      exp.job_title ||
-      exp.title ||
-      exp.role,
-    120
-  );
+  const reconciled = reconcileExperienceHeaderFields(exp);
+  const company = readExperienceCompanySlot(reconciled);
+  let position = readExperiencePositionSlot(reconciled);
   if (
     company &&
     position &&
@@ -2008,11 +2065,16 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
   }
   let safeCompany = isResumeSectionHeadingLine(company) ? '' : company;
   let safePosition = isResumeSectionHeadingLine(position) ? '' : position;
-  const description = sanitizeMultilineFieldText(exp.description || exp.Description, 8000);
+  const description = sanitizeMultilineFieldText(
+    reconciled.description || reconciled.Description,
+    8000
+  );
   if (!safeCompany && !safePosition && !description) return null;
-  if (isGarbageResumeText(safeCompany) && isGarbageResumeText(safePosition)) return null;
-  const rawAchievements = Array.isArray(exp.achievements)
-    ? (exp.achievements as unknown[]).map((a) =>
+  if (isGarbageResumeText(safeCompany) && isGarbageResumeText(safePosition) && !description) {
+    return null;
+  }
+  const rawAchievements = Array.isArray(reconciled.achievements)
+    ? (reconciled.achievements as unknown[]).map((a) =>
         typeof a === 'string' ? a : String((a as Record<string, unknown>)?.title ?? (a as Record<string, unknown>)?.description ?? '')
       ).filter(Boolean)
     : [];
@@ -2025,27 +2087,29 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
     !isValidExperienceEntry({
       company: safeCompany,
       position: safePosition,
-      startDate: String(exp.startDate || ''),
-      endDate: String(exp.endDate || ''),
-      description: finalDescription,
+      startDate: String(reconciled.startDate || ''),
+      endDate: String(reconciled.endDate || ''),
+      description: finalDescription || finalAchievements.join('\n'),
     })
   ) {
     return null;
   }
 
   return {
-    ...exp,
+    ...reconciled,
     company: safeCompany,
     Company: safeCompany,
+    organization: safeCompany,
     position: safePosition,
     Position: safePosition,
     title: safePosition,
+    designation: safePosition,
     description: finalDescription,
     Description: finalDescription,
     achievements: finalAchievements,
-    location: sanitizeFieldText(exp.location || exp.Location, 120),
-    startDate: exp.startDate || exp.start_date || '',
-    endDate: exp.endDate || exp.end_date || '',
+    location: sanitizeFieldText(reconciled.location || reconciled.Location, 120),
+    startDate: reconciled.startDate || reconciled.start_date || '',
+    endDate: reconciled.endDate || reconciled.end_date || '',
   };
 }
 

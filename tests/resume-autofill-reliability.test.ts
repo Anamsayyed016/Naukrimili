@@ -1071,3 +1071,61 @@ describe('optimizeResumeDataForRender', () => {
     expect(JSON.stringify(formData)).toBe(snapshot);
   });
 });
+
+describe('experience header mapping', () => {
+  const {
+    sanitizeExperienceEntry,
+    reconcileExperienceHeaderFields,
+    looksLikeCompanyNameLine,
+  } = require('@/lib/resume-parser/import-sanitize');
+  const { transformImportDataToBuilder } = require('@/lib/resume-builder/import-transformer');
+
+  it('recognizes short employer names like Reliance and Adobe', () => {
+    expect(looksLikeCompanyNameLine('Reliance')).toBe(true);
+    expect(looksLikeCompanyNameLine('Adobe')).toBe(true);
+  });
+
+  it('reads company from companyName alias before mapping', () => {
+    const mapped = sanitizeExperienceEntry({
+      companyName: 'Infosys Limited',
+      title: 'Software Developer',
+      startDate: '2020-01',
+      endDate: '2022-12',
+      description: 'Built APIs.',
+    });
+    expect(mapped?.company).toBe('Infosys Limited');
+    expect(mapped?.title).toBe('Software Developer');
+  });
+
+  it('swaps misplaced company/title without losing company', () => {
+    const reconciled = reconcileExperienceHeaderFields({
+      company: 'Senior Software Engineer',
+      title: 'Google',
+      location: 'Bengaluru',
+      description: 'Shipped features.',
+    });
+    expect(reconciled.company).toBe('Google');
+    expect(reconciled.title).toBe('Senior Software Engineer');
+    expect(reconciled.location).toBe('Bengaluru');
+  });
+
+  it('preserves full summary in editor when no section bleed is present', () => {
+    const longSummary = 'Experienced engineer with cloud and API expertise. '.repeat(8).trim();
+    const result = transformImportDataToBuilder({
+      summary: longSummary,
+      skills: ['React', 'Node.js'],
+      experience: [
+        {
+          company: 'Acme Corp',
+          title: 'Developer',
+          startDate: '2021-01',
+          endDate: 'Present',
+          description: 'Delivered services.',
+        },
+      ],
+      education: [{ school: 'State University', degree: 'B.Tech', year: '2020' }],
+    });
+    expect(result.summary).toContain('Experienced engineer');
+    expect(result.summary.length).toBeGreaterThan(80);
+  });
+});

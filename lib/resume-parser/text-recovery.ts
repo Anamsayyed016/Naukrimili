@@ -146,7 +146,8 @@ const SECTION_ALIASES = {
   ],
   experience: [
     'experience', 'work experience', 'professional experience', 'work history',
-    'employment', 'employment history', 'career history', 'professional background',
+    'employment', 'employment history', 'career history', 'professional history',
+    'professional background',
     'professional journey', 'board experience', 'legal experience',
     'job experience', 'career experience', 'relevant experience', 'industry experience',
     'positions held', 'employment record',
