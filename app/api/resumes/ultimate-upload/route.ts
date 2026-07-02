@@ -64,6 +64,12 @@ import {
   traceImportStageOutput,
 } from '@/lib/resume-parser/import-field-trace';
 import { collectNameCandidatesFromText, classifyResumeTextSignals } from '@/lib/resume-parser/text-recovery';
+import {
+  orchestrateResumeParse,
+  getOrchestratorConfig,
+  isCustomParserActive,
+  logOrchestratorMetrics,
+} from '@/lib/resume-parser/custom/integration';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -499,6 +505,7 @@ export async function POST(request: NextRequest) {
     let aiProvider = 'fallback';
     let provenanceAffinda: ExtractedResumeData | null = null;
     let provenanceEden: ExtractedResumeData | null = null;
+    let customParserUsed = false;
     
     // CRITICAL: Skip AI ONLY if extracted text is truly minimal
     const isPdfParseFailure =
@@ -510,6 +517,54 @@ export async function POST(request: NextRequest) {
         isPdfParseFailure) &&
       extractedText.length < 200;
 
+    const orchestratorConfig = getOrchestratorConfig();
+    if (!isJustFallbackText && isCustomParserActive(orchestratorConfig)) {
+      try {
+        const orchResult = await orchestrateResumeParse(
+          {
+            normalizedText: extractedText,
+            fileBuffer,
+            fileName: file.name,
+            documentProfile: resumeDocumentProfile,
+            resumeIdentifier: REQ,
+          },
+          { deferProductionFallback: true }
+        );
+        logOrchestratorMetrics(orchResult.metrics, orchResult.fallbackReason, REQ);
+
+        if (
+          orchResult.selectedParser === 'custom' &&
+          orchResult.data &&
+          !orchResult.deferToProductionParser
+        ) {
+          if (isImportFieldTraceEnabled()) {
+            traceImportStageOutput('custom_parser_output', orchResult.data, 'custom-parser');
+          }
+          parsedData = mapExtractedToUploadProfile(orchResult.data, {
+            aiProvider: 'custom-parser',
+          });
+          aiSuccess = true;
+          aiProvider = 'custom-parser';
+          customParserUsed = true;
+          uploadStageDebug(REQ, 'CUSTOM-PARSER', 'primary accepted', {
+            confidence: orchResult.metrics.primary.confidence,
+            resumeQuality: orchResult.metrics.primary.resumeQuality,
+            sectionScores: orchResult.metrics.primary.sectionScores,
+          });
+        } else if (orchResult.deferToProductionParser) {
+          uploadStageDebug(REQ, 'CUSTOM-PARSER', 'deferred to production parser', {
+            reason: orchResult.fallbackReason,
+            mode: orchestratorConfig.mode,
+          });
+        }
+      } catch (orchError) {
+        uploadStageDebug(REQ, 'CUSTOM-PARSER', 'orchestrator error — production fallback', {
+          message: orchError instanceof Error ? orchError.message : String(orchError),
+        });
+      }
+    }
+
+    if (!customParserUsed) {
     if (isJustFallbackText && !isAffindaEnabled()) {
       console.warn('⚠️ Extracted text is minimal fallback - skipping AI, using basic extraction');
       parsedData = await parseResumeBasic(extractedText, session);
@@ -1058,6 +1113,7 @@ export async function POST(request: NextRequest) {
         aiSuccess,
       });
       }
+    }
     }
     }
 

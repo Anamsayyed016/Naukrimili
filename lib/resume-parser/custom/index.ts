@@ -216,3 +216,26 @@ export type {
   ReliabilityTestCategory,
   RegressionModuleId,
 } from './reliability';
+
+export {
+  PARSER_ORCHESTRATOR_VERSION,
+  orchestrateResumeParse,
+  getOrchestratorConfig,
+  resolveOrchestratorConfig,
+  isCustomParserActive,
+  ORCHESTRATOR_ENV,
+  runLegacyProductionParser,
+  runCustomParserAdapter,
+  passesCustomQualityGates,
+  logOrchestratorMetrics,
+} from './integration';
+export type {
+  OrchestratorInput,
+  OrchestratorResult,
+  OrchestratorOptions,
+  OrchestratorConfig,
+  CustomParserMode,
+  ParserId,
+  ParserRunMetrics,
+  OrchestratorMetrics,
+} from './integration';
