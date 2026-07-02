@@ -2295,9 +2295,17 @@ export function unionExperienceBodyFields(
 
   let description = sanitizeMultilineFieldText(primary.description, 8000);
   const secondaryDesc = sanitizeMultilineFieldText(secondary.description, 8000);
+  const secondaryIsDateOnly =
+    secondaryDesc.length > 0 &&
+    secondaryDesc.length <= 40 &&
+    EXPERIENCE_DATE_RANGE_RE.test(secondaryDesc);
   if (!description) description = secondaryDesc;
-  else if (secondaryDesc.length > description.length) description = secondaryDesc;
-  else if (secondaryDesc && !description.includes(secondaryDesc.slice(0, Math.min(48, secondaryDesc.length)))) {
+  else if (
+    secondaryDesc.length > description.length &&
+    !secondaryIsDateOnly
+  ) {
+    description = secondaryDesc;
+  } else if (secondaryDesc && !description.includes(secondaryDesc.slice(0, Math.min(48, secondaryDesc.length)))) {
     description = sanitizeMultilineFieldText(`${description}\n${secondaryDesc}`, 8000);
   }
 

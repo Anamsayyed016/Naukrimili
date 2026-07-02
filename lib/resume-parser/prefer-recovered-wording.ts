@@ -4,6 +4,7 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 import {
   mergeOrphanExperienceEntries,
   mergeOrphanEducationEntries,
@@ -603,6 +604,10 @@ export function applyRecoveredWordingToProfile(
   profile: Record<string, unknown>,
   recovered: ExtractedResumeData
 ): Record<string, unknown> {
+  if (isCustomParserImport(profile)) {
+    return profile;
+  }
+
   const out = { ...profile };
 
   const parserExp = (Array.isArray(out.experience) ? out.experience : []) as Record<string, unknown>[];

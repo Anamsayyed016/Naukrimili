@@ -1927,7 +1927,13 @@ export async function POST(request: NextRequest) {
         'Skills and experience extracted automatically',
         'Ready for job matching and recommendations'
       ],
-      jobSuggestions: generateJobSuggestions(parsedData)
+      jobSuggestions: generateJobSuggestions(parsedData),
+      _aiProvider: aiProvider,
+      customParserUsed: Boolean(customParserUsed || parsedData.customParserUsed),
+      selectedParser:
+        customParserUsed || parsedData.customParserUsed
+          ? 'custom'
+          : parsedData.selectedParser,
     };
 
     console.log('FINAL PROJECTS COUNT', profile.projects?.length);
