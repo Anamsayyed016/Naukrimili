@@ -1802,8 +1802,25 @@ function transformProjectsArray(
     .filter((p) => {
       const name = String(p.name || p.title || '').trim();
       const desc = String(p.description || p.Description || '').trim();
-      if (desc.length >= 40) return true;
-      return !isJobTitleMisclassifiedAsProject(name, jobTitle, experienceTitles);
+      const techRaw = p.technologies ?? p.Technologies ?? p.tech_stack;
+      const techEmpty =
+        techRaw == null ||
+        techRaw === '' ||
+        (Array.isArray(techRaw) ? techRaw.length === 0 : !String(techRaw).trim());
+      const url = String(p.url || p.link || p.Link || '').trim();
+      const startDate = String(p.startDate || p.start_date || '').trim();
+      const endDate = String(p.endDate || p.end_date || '').trim();
+      const datesEmpty = !startDate && !endDate;
+
+      const n = name.toLowerCase();
+      const equalsJobTitle =
+        (!!jobTitle && n === jobTitle.toLowerCase().trim()) ||
+        experienceTitles.some((title) => n === String(title || '').toLowerCase().trim());
+
+      if (equalsJobTitle && !desc && techEmpty && !url && datesEmpty) {
+        return false;
+      }
+      return true;
     });
   console.log('[import-transformer] final projects.length', transformed.length);
   return transformed;

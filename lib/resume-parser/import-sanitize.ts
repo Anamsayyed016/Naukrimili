@@ -1345,7 +1345,7 @@ type ExperienceLike = {
 
 /** Company-name heuristics for header reconciliation (mapping layer only). */
 const COMPANY_NAME_HINT_RE =
-  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|technology|systems|consulting|services|company|co\.?)\b/i;
+  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|technology|tech|systems|labs|software|digital|consulting|services|networks|company|co\.?)\b/i;
 
 const WELL_KNOWN_EMPLOYER_RE =
   /^(?:google|microsoft|amazon|apple|meta|facebook|netflix|uber|airbnb|stripe|salesforce|oracle|ibm|accenture|deloitte|pwc|kpmg|ey|ernst|infosys|tcs|tata consultancy services|wipro|hcl|cognizant|capgemini|tech mahindra|larsen|flipkart|swiggy|zomato|startup|adobe|sap|nokia|reliance|hdfc|icici|sbi|mphasis|mindtree|lti)$/i;
@@ -2563,6 +2563,7 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   const company = sanitizeFieldText(value, 160);
   if (!company) return false;
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
+  if (looksLikeCompanyNameLine(company)) return true;
   if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
   if (TECH_SKILL_AS_COMPANY_RE.test(lower)) return false;
@@ -2621,7 +2622,11 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
     position = '';
   }
   let safeCompany = isResumeSectionHeadingLine(company) ? '' : company;
-  if (safeCompany && !isPlausibleExperienceCompany(safeCompany)) {
+  if (
+    safeCompany &&
+    !isPlausibleExperienceCompany(safeCompany) &&
+    !looksLikeCompanyNameLine(safeCompany)
+  ) {
     safeCompany = '';
   }
   let safePosition = isResumeSectionHeadingLine(position) ? '' : position;

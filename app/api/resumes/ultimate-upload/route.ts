@@ -1134,7 +1134,7 @@ export async function POST(request: NextRequest) {
     try {
       const { extractResumeFromText } = await import('@/lib/resume-parser/text-recovery');
       const text = (extractedText || '').trim();
-      if (text.length > 100) {
+      if (!customParserUsed && text.length > 100) {
         const recovered = extractResumeFromText(text);
         lastRecovered = recovered;
         if (!parsedData.email && recovered.email) {

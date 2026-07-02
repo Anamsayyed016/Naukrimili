@@ -1002,7 +1002,6 @@ function optimizeExperienceListForRender(
     }
 
     const description = getStringValue(exp.description ?? exp.Description);
-    const useBulletsOnly = selected.length > 1 || bullets.length > 1;
 
     return {
       ...exp,
@@ -1010,8 +1009,8 @@ function optimizeExperienceListForRender(
       bullets: selected,
       bulletPoints: selected,
       Achievements: selected,
-      description: useBulletsOnly ? '' : description || selected[0],
-      Description: useBulletsOnly ? '' : description || selected[0],
+      description: description || selected[0] || '',
+      Description: description || selected[0] || '',
     };
   });
 }
