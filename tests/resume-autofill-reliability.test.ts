@@ -1002,3 +1002,72 @@ describe('experience boundary and pipeline hygiene', () => {
     expect(parsed.experience.some((e) => /\btcs\b/i.test(String(e.company || '')))).toBe(true);
   });
 });
+
+describe('optimizeResumeDataForRender', () => {
+  const {
+    optimizeResumeDataForRender,
+    resolveTemplateRenderCapacity,
+  } = require('@/lib/resume-builder/section-visibility');
+  const { scoreBulletQuality } = require('@/lib/resume-parser/import-sanitize');
+
+  it('caps skills for sidebar/progress templates at 12', () => {
+    const capacity = resolveTemplateRenderCapacity('<div class="psp-skills-progress sidebar"></div>');
+    expect(capacity.maxSkills).toBe(12);
+  });
+
+  it('prefers measurable bullets over generic responsibilities', () => {
+    expect(
+      scoreBulletQuality('Increased revenue by 35% through optimized sales pipeline')
+    ).toBeGreaterThan(scoreBulletQuality('Responsible for various tasks on the team'));
+  });
+
+  it('keeps all companies but trims bullets for template render', () => {
+    const formData = {
+      experience: [
+        {
+          company: 'Google',
+          title: 'Senior Engineer',
+          achievements: [
+            'Responsible for writing code',
+            'Increased API throughput by 40%',
+            'Led team of 8 engineers',
+            'Worked on multiple projects',
+            'Delivered migration saving $2M annually',
+            'Assisted with daily standups',
+          ],
+        },
+        {
+          company: 'Infosys',
+          title: 'Developer',
+          description: 'Built services.\nReduced latency 25%.',
+        },
+      ],
+      skills: Array.from({ length: 25 }, (_, i) => `Skill${i}`),
+      summary: Array.from({ length: 120 }, (_, i) => `word${i}`).join(' '),
+      projects: Array.from({ length: 6 }, (_, i) => ({ name: `Project ${i}`, description: `Impact ${i}` })),
+    };
+
+    const optimized = optimizeResumeDataForRender(formData, {
+      htmlTemplate: '<aside class="sidebar psp-skills-progress"></aside>',
+    });
+
+    expect(optimized.experience).toHaveLength(2);
+    expect((optimized.experience as unknown[])[0]).toMatchObject({ company: 'Google' });
+    expect((optimized.experience as unknown[])[1]).toMatchObject({ company: 'Infosys' });
+    expect((optimized.experience as unknown[])[0].achievements.length).toBeLessThanOrEqual(5);
+    expect((optimized.skills as string[]).length).toBeLessThanOrEqual(12);
+    expect((optimized.projects as unknown[]).length).toBeLessThanOrEqual(4);
+    expect(String(optimized.summary).split(/\s+/).length).toBeLessThanOrEqual(90);
+  });
+
+  it('does not mutate the original editor formData object', () => {
+    const formData = {
+      experience: [{ company: 'Acme', title: 'Dev', achievements: ['A', 'B', 'C', 'D', 'E', 'F'] }],
+      skills: ['React', 'Node.js', 'Python'],
+      summary: 'Short summary.',
+    };
+    const snapshot = JSON.stringify(formData);
+    optimizeResumeDataForRender(formData, { htmlTemplate: '<div></div>' });
+    expect(JSON.stringify(formData)).toBe(snapshot);
+  });
+});

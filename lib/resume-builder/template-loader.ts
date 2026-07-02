@@ -32,6 +32,7 @@ import {
   renderContactListHtml,
   resolveProfileImageForRender,
   coalesceFormDataForTemplateRender,
+  optimizeResumeDataForRender,
   appendHobbiesSectionIfMissing,
 } from './section-visibility';
 import { scoreSkillConfidence } from '@/lib/resume-parser/import-sanitize';
@@ -403,6 +404,8 @@ export interface InjectResumeDataOptions {
   galleryPreview?: boolean;
   /** Picks template-specific demo portrait in gallery mode */
   galleryTemplateId?: string;
+  /** Active template id — informs layout capacity heuristics */
+  templateId?: string;
 }
 
 /**
@@ -413,7 +416,12 @@ export function injectResumeData(
   formData: Record<string, unknown>,
   options?: InjectResumeDataOptions
 ): string {
-  const data = coalesceFormDataForTemplateRender(formData);
+  const data = optimizeResumeDataForRender(coalesceFormDataForTemplateRender(formData), {
+    htmlTemplate,
+    templateId: options?.templateId ?? options?.galleryTemplateId,
+    galleryPreview: options?.galleryPreview,
+    mode: 'preview',
+  });
 
   // Helper function to safely extract string values
   const getString = (key: string | string[]): string => {

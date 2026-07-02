@@ -3,6 +3,14 @@
  * Shared by preview (template-loader) and PDF export (template-loader-server).
  */
 
+import {
+  canonicalizeSkillName,
+  dedupeExperienceBodyLines,
+  scoreBulletQuality,
+  scoreSkillConfidence,
+} from '@/lib/resume-parser/import-sanitize';
+import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
+
 export type ResumeSectionKey =
   | 'contact'
   | 'profileImage'
@@ -834,6 +842,272 @@ export function coalesceFormDataForTemplateRender(
     Interests: hobbies,
     personalInterests: hobbies,
   };
+}
+
+export interface TemplateRenderCapacity {
+  maxSkills: number;
+  maxBulletsPerExperience: number;
+  maxProjects: number;
+  maxSummaryWords: number;
+}
+
+export interface OptimizeResumeForRenderOptions {
+  htmlTemplate?: string;
+  templateId?: string;
+  mode?: 'preview' | 'pdf';
+  /** Gallery/demo previews skip aggressive trimming */
+  galleryPreview?: boolean;
+}
+
+/** Derive per-template display budgets from HTML structure (no template file edits). */
+export function resolveTemplateRenderCapacity(
+  htmlTemplate: string = '',
+  _options?: Pick<OptimizeResumeForRenderOptions, 'templateId'>
+): TemplateRenderCapacity {
+  const useProgressBars =
+    htmlTemplate.includes('psp-skills-progress') ||
+    htmlTemplate.includes('psp-languages-progress');
+  const hasSidebar = /\bsidebar\b|tm-sidebar|<aside[\s>]/i.test(htmlTemplate);
+  const denseSkillGrid =
+    /skills-grid|skill-cards|capability|expertise-board/i.test(htmlTemplate);
+
+  let maxSkills = 15;
+  if (useProgressBars || hasSidebar) {
+    maxSkills = 12;
+  } else if (denseSkillGrid) {
+    maxSkills = 18;
+  }
+  maxSkills = Math.min(18, Math.max(8, maxSkills));
+
+  return {
+    maxSkills,
+    maxBulletsPerExperience: 5,
+    maxProjects: 4,
+    maxSummaryWords: 90,
+  };
+}
+
+function trimSummaryForRender(summary: string, maxWords: number): string {
+  const text = summary.trim();
+  if (!text) return '';
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) return text;
+
+  const truncated = words.slice(0, maxWords).join(' ');
+  const sentenceEnd = truncated.match(/^([\s\S]*[.!?])(?:\s+[^.!?]*)?$/);
+  if (sentenceEnd) {
+    const sentenceWords = sentenceEnd[1].trim().split(/\s+/).filter(Boolean);
+    if (sentenceWords.length >= 50) {
+      return sentenceEnd[1].trim();
+    }
+  }
+  return truncated.trim();
+}
+
+function normalizeBulletLine(value: unknown): string {
+  if (typeof value === 'string') {
+    return value.replace(/^[\s\-–—*•·]+/, '').trim();
+  }
+  if (value && typeof value === 'object') {
+    const rec = value as Record<string, unknown>;
+    return String(rec.title ?? rec.description ?? rec.text ?? '')
+      .replace(/^[\s\-–—*•·]+/, '')
+      .trim();
+  }
+  return '';
+}
+
+function extractExperienceBullets(exp: Record<string, unknown>): string[] {
+  const fromArrays = [
+    ...(Array.isArray(exp.achievements) ? (exp.achievements as unknown[]) : []),
+    ...(Array.isArray(exp.bullets) ? (exp.bullets as unknown[]) : []),
+    ...(Array.isArray(exp.bulletPoints) ? (exp.bulletPoints as unknown[]) : []),
+  ]
+    .map(normalizeBulletLine)
+    .filter((line) => line.length >= 3);
+
+  const description = getStringValue(
+    exp.description ?? exp.Description ?? exp.responsibilities ?? exp.Responsibilities
+  );
+
+  const merged =
+    fromArrays.length > 0
+      ? fromArrays
+      : description
+        ? splitBullets(description)
+            .map((line) => line.replace(/^[\s\-–—*•·]+/, '').trim())
+            .filter((line) => line.length >= 3)
+        : [];
+
+  return dedupeExperienceBodyLines('', merged).achievements;
+}
+
+function selectTopBulletsForRender(bullets: string[], maxBullets: number): string[] {
+  if (bullets.length === 0) return [];
+  if (bullets.length <= 2) {
+    return dedupeExperienceBodyLines('', bullets).achievements;
+  }
+
+  const ranked = bullets
+    .map((text) => ({ text, score: scoreBulletQuality(text) }))
+    .filter((entry) => entry.score >= 12)
+    .sort((a, b) => b.score - a.score || a.text.length - b.text.length);
+
+  const pool = ranked.length > 0 ? ranked : bullets.map((text) => ({ text, score: 40 }));
+  const upper = Math.min(maxBullets, 5, pool.length);
+  const keepCount = Math.max(Math.min(3, bullets.length), upper);
+
+  return pool.slice(0, keepCount).map((entry) => entry.text);
+}
+
+function optimizeExperienceListForRender(
+  experiences: unknown[],
+  maxBullets: number
+): Array<Record<string, unknown>> {
+  if (!Array.isArray(experiences)) return [];
+
+  return experiences.map((raw) => {
+    if (!raw || typeof raw !== 'object') return raw as Record<string, unknown>;
+    const exp = { ...(raw as Record<string, unknown>) };
+    const bullets = extractExperienceBullets(exp);
+    const selected = selectTopBulletsForRender(bullets, maxBullets);
+
+    if (selected.length === 0) {
+      return exp;
+    }
+
+    const description = getStringValue(exp.description ?? exp.Description);
+    const useBulletsOnly = selected.length > 1 || bullets.length > 1;
+
+    return {
+      ...exp,
+      achievements: selected,
+      bullets: selected,
+      bulletPoints: selected,
+      Achievements: selected,
+      description: useBulletsOnly ? '' : description || selected[0],
+      Description: useBulletsOnly ? '' : description || selected[0],
+    };
+  });
+}
+
+function scoreProjectForRender(project: Record<string, unknown>): number {
+  const name = getStringValue(project.name ?? project.Name ?? project.title ?? project.Title);
+  const description = getStringValue(
+    project.description ?? project.Description ?? project.summary ?? project.Summary
+  );
+  let score = name ? 40 : 0;
+  if (description) score += Math.min(30, description.length / 8);
+  if (/\d+[%xX]?|\$\d|₹|\b\d+\s*(users|clients)\b/i.test(`${name} ${description}`)) score += 22;
+  if (/\b(react|node|python|aws|docker|kubernetes|api|ml|ai)\b/i.test(`${name} ${description}`)) {
+    score += 10;
+  }
+  return score;
+}
+
+function optimizeProjectsListForRender(
+  projects: unknown[],
+  maxProjects: number
+): unknown[] {
+  if (!Array.isArray(projects) || projects.length === 0) return [];
+  if (projects.length <= maxProjects) return projects;
+
+  return [...projects]
+    .map((item, index) => ({
+      item,
+      index,
+      score: item && typeof item === 'object' ? scoreProjectForRender(item as Record<string, unknown>) : 0,
+    }))
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, maxProjects)
+    .sort((a, b) => a.index - b.index)
+    .map((entry) => entry.item);
+}
+
+function optimizeSkillsListForRender(skills: string[], maxSkills: number): string[] {
+  const ranked = new Map<string, { name: string; score: number }>();
+
+  for (const raw of skills) {
+    const name = canonicalizeSkillName(String(raw || '').replace(/\s+\d{1,3}%?\s*$/i, '').trim());
+    if (!name) continue;
+    const score = scoreSkillConfidence(name);
+    if (score < 35) continue;
+    const key = name.toLowerCase();
+    const prev = ranked.get(key);
+    if (!prev || score > prev.score) {
+      ranked.set(key, { name, score });
+    }
+  }
+
+  return [...ranked.values()]
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .map((entry) => entry.name)
+    .slice(0, maxSkills);
+}
+
+function resolveSummaryForRender(formData: Record<string, unknown>, maxWords: number): string {
+  const keys = [
+    'summary',
+    'professionalSummary',
+    'Professional Summary',
+    'Career Objective',
+    'Objective',
+    'Executive Summary',
+  ];
+  for (const key of keys) {
+    const value = formData[key];
+    if (typeof value === 'string' && value.trim()) {
+      return trimSummaryForRender(value, maxWords);
+    }
+  }
+  return '';
+}
+
+/**
+ * Layout-aware content optimization for preview/PDF only.
+ * Editor formData is never mutated — call on a coalesced copy from injectResumeData.
+ */
+export function optimizeResumeDataForRender(
+  formData: Record<string, unknown>,
+  options?: OptimizeResumeForRenderOptions
+): Record<string, unknown> {
+  if (options?.galleryPreview) {
+    return formData;
+  }
+
+  const capacity = resolveTemplateRenderCapacity(options?.htmlTemplate ?? '', options);
+  const experience = optimizeExperienceListForRender(
+    Array.isArray(formData.experience) ? formData.experience : [],
+    capacity.maxBulletsPerExperience
+  );
+  const projects = optimizeProjectsListForRender(
+    Array.isArray(formData.projects) ? formData.projects : [],
+    capacity.maxProjects
+  );
+  const skills = optimizeSkillsListForRender(
+    Array.isArray(formData.skills) ? (formData.skills as string[]) : normalizeSkillsForRender(formData),
+    capacity.maxSkills
+  );
+  const summary = resolveSummaryForRender(formData, capacity.maxSummaryWords);
+
+  const optimized: Record<string, unknown> = {
+    ...formData,
+    experience,
+    projects,
+    skills,
+    Experience: experience,
+    'Work Experience': experience,
+    Projects: projects,
+    Skills: skills,
+  };
+
+  if (summary) {
+    optimized.summary = summary;
+    optimized.professionalSummary = summary;
+    optimized['Professional Summary'] = summary;
+  }
+
+  return optimized;
 }
 
 /**

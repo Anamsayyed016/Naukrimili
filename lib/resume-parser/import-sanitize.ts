@@ -683,6 +683,47 @@ export function scoreSkillConfidence(skill: string): number {
   return 62;
 }
 
+/** Quality score 0–100 for experience bullets at render time (higher = show first). */
+export function scoreBulletQuality(bullet: string): number {
+  const line = String(bullet || '')
+    .replace(/^[\s\u2022\u25aa\u2023*\-–—•·]+/, '')
+    .trim();
+  if (!line || line.length < 6) return 4;
+
+  const lower = line.toLowerCase();
+  let score = 48;
+
+  if (/\d+[%xX]?|\$\d|₹|\bcrore|\bmillion|\bbillion|\bk\+|\b\d+\s*(users|clients|customers|team|engineers|people)\b/i.test(line)) {
+    score += 30;
+  }
+  if (/\b\d{1,3}%/.test(line)) score += 12;
+
+  if (
+    /\b(led|managed|delivered|achieved|increased|reduced|improved|optimized|launched|scaled|generated|saved|grew|decreased|accelerated|spearheaded|established|implemented|architected|migrated|automated|streamlined)\b/i.test(
+      line
+    )
+  ) {
+    score += 16;
+  }
+
+  if (
+    /\b(responsible for|duties included|worked on|helped with|involved in|assisted with|participated in|tasked with)\b/i.test(
+      lower
+    )
+  ) {
+    score -= 24;
+  }
+  if (/\b(various|multiple|several|different)\b/i.test(lower) && !/\d/.test(line)) {
+    score -= 10;
+  }
+
+  if (line.length > 240) score -= 18;
+  if (line.length < 22) score -= 6;
+  if (/^(experience|education|skills|summary|objective|employment)\b/i.test(lower)) score -= 45;
+
+  return Math.max(0, Math.min(100, score));
+}
+
 function expandSkillInputTokens(skills: unknown[]): string[] {
   const tokens: string[] = [];
   for (const raw of skills) {
