@@ -43,6 +43,7 @@ import {
   parseIntelligentNameFromEmail,
   sanitizeSkillEntry,
   normalizeSkillsList,
+  normalizeCustomParserSkillsList,
   scoreSkillConfidence,
   sanitizeExperienceEntry,
   sanitizeEducationEntry,
@@ -62,6 +63,7 @@ import {
   mergeOrphanEducationEntries,
   reconcileExperienceHeaderFields,
   finalizeExperienceListForBuilder,
+  finalizeExperienceListForCustomParserImport,
   finalizeEducationListForBuilder,
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
@@ -94,6 +96,7 @@ import {
   truncateSummaryAtSectionBoundary,
 } from '@/lib/resume-parser/text-recovery';
 import { applyRecoveredWordingToProfile } from '@/lib/resume-parser/prefer-recovered-wording';
+import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
@@ -990,35 +993,67 @@ export function transformImportDataToBuilder(
     return transformImportDataToBuilder({ ...parent, ...merged, builderFormData: undefined });
   }
 
+  const isCustomParser = isCustomParserImport(importedData as Record<string, unknown>);
   const effectiveRawText = resolveEffectiveRawText(importedData as Record<string, unknown>);
 
-  // 1. Identity recovery + section backfill from rawText when parser arrays are sparse
-  const recovered = recoverFromRawText(effectiveRawText || importedData.rawText);
-  const mergedBase = mergeRecovery(importedData, recovered) as Record<string, unknown>;
+  // 1. Custom parser: trust structured output — skip legacy text-recovery merges.
+  const recovered = isCustomParser
+    ? {
+        email: '',
+        phone: '',
+        linkedin: '',
+        portfolio: '',
+        github: '',
+        summary: '',
+        fullName: '',
+      }
+    : recoverFromRawText(effectiveRawText || importedData.rawText);
+  const mergedBase = isCustomParser
+    ? ({ ...importedData } as Record<string, unknown>)
+    : (mergeRecovery(importedData, recovered) as Record<string, unknown>);
   const textParsed =
-    effectiveRawText.length >= 80 ? extractResumeFromText(effectiveRawText) : undefined;
-  let mergedImport = isSparseSectionImport(mergedBase)
-    ? supplementImportFromRawText(
-        { ...mergedBase, rawText: effectiveRawText || mergedBase.rawText },
-        textParsed
-      )
-    : enrichIdentityFromText(mergedBase, textParsed, recovered);
-  mergedImport = applyTextRecoveryWhenSparse(mergedImport);
-  mergedImport = relocateMisplacedEducationEntries(mergedImport);
-  if (textParsed && effectiveRawText.length >= 80) {
-    mergedImport = applyRecoveredWordingToProfile(mergedImport, textParsed);
-  }
-  const { data: repairedImport } = validateAndRepairResumeExtraction(mergedImport);
-  mergedImport = repairedImport;
-  if (Array.isArray(mergedImport.experience)) {
-    mergedImport.experience = finalizeExperienceListForBuilder(
-      mergedImport.experience as Record<string, unknown>[]
-    );
-  }
-  if (Array.isArray(mergedImport.education)) {
-    mergedImport.education = finalizeEducationListForBuilder(
-      mergedImport.education as Record<string, unknown>[]
-    );
+    !isCustomParser && effectiveRawText.length >= 80
+      ? extractResumeFromText(effectiveRawText)
+      : undefined;
+  let mergedImport: Record<string, unknown>;
+  if (isCustomParser) {
+    mergedImport = relocateMisplacedEducationEntries(mergedBase);
+    const { data: repairedImport } = validateAndRepairResumeExtraction(mergedImport);
+    mergedImport = repairedImport;
+    if (Array.isArray(mergedImport.experience)) {
+      mergedImport.experience = finalizeExperienceListForCustomParserImport(
+        mergedImport.experience as Record<string, unknown>[]
+      );
+    }
+    if (Array.isArray(mergedImport.education)) {
+      mergedImport.education = finalizeEducationListForBuilder(
+        mergedImport.education as Record<string, unknown>[]
+      );
+    }
+  } else {
+    mergedImport = isSparseSectionImport(mergedBase)
+      ? supplementImportFromRawText(
+          { ...mergedBase, rawText: effectiveRawText || mergedBase.rawText },
+          textParsed
+        )
+      : enrichIdentityFromText(mergedBase, textParsed, recovered);
+    mergedImport = applyTextRecoveryWhenSparse(mergedImport);
+    mergedImport = relocateMisplacedEducationEntries(mergedImport);
+    if (textParsed && effectiveRawText.length >= 80) {
+      mergedImport = applyRecoveredWordingToProfile(mergedImport, textParsed);
+    }
+    const { data: repairedImport } = validateAndRepairResumeExtraction(mergedImport);
+    mergedImport = repairedImport;
+    if (Array.isArray(mergedImport.experience)) {
+      mergedImport.experience = finalizeExperienceListForBuilder(
+        mergedImport.experience as Record<string, unknown>[]
+      );
+    }
+    if (Array.isArray(mergedImport.education)) {
+      mergedImport.education = finalizeEducationListForBuilder(
+        mergedImport.education as Record<string, unknown>[]
+      );
+    }
   }
 
   // 2. Identity & contact
@@ -1057,29 +1092,36 @@ export function transformImportDataToBuilder(
     textParsed?.fullName || '',
     locationHint
   );
-  const textAdditional =
-    effectiveRawText.length >= 80
+  const textAdditional = isCustomParser
+    ? emptyAdditionalResumeData()
+    : effectiveRawText.length >= 80
       ? extractAdditionalResumeDataFromText(effectiveRawText)
       : emptyAdditionalResumeData();
   const mergedAdditional = mergeAdditionalResumeData(additionalResumeData, textAdditional);
 
-  const achievementCandidateLines = [
-    ...firstNonEmptyArray(mergedImport, ['achievements', 'Achievements']).map((a) =>
-      typeof a === 'string' ? a : String((a as { title?: string }).title || '')
-    ),
-    ...(mergedAdditional.achievements || []),
-    ...(mergedAdditional.memberships || []),
-    ...(mergedAdditional.publications || []),
-    ...(mergedAdditional.volunteerWork || []),
-    ...mergedAdditional.unclassifiedFragments
-      .filter((f) => f.kind === 'ACHIEVEMENT')
-      .map((f) => f.value),
-    ...(textParsed?.achievements || []),
-  ];
-  const partitionedAchievements = partitionSpilloverLines(achievementCandidateLines);
-  mergedImport = applySpilloverToImport(mergedImport, partitionedAchievements);
-  const { data: postSpillover } = validateAndRepairResumeExtraction(mergedImport);
-  mergedImport = postSpillover;
+  const achievementCandidateLines = isCustomParser
+    ? []
+    : [
+        ...firstNonEmptyArray(mergedImport, ['achievements', 'Achievements']).map((a) =>
+          typeof a === 'string' ? a : String((a as { title?: string }).title || '')
+        ),
+        ...(mergedAdditional.achievements || []),
+        ...(mergedAdditional.memberships || []),
+        ...(mergedAdditional.publications || []),
+        ...(mergedAdditional.volunteerWork || []),
+        ...mergedAdditional.unclassifiedFragments
+          .filter((f) => f.kind === 'ACHIEVEMENT')
+          .map((f) => f.value),
+        ...(textParsed?.achievements || []),
+      ];
+  const partitionedAchievements = isCustomParser
+    ? { achievements: [], education: [], experience: [], skills: [] }
+    : partitionSpilloverLines(achievementCandidateLines);
+  if (!isCustomParser) {
+    mergedImport = applySpilloverToImport(mergedImport, partitionedAchievements);
+    const { data: postSpillover } = validateAndRepairResumeExtraction(mergedImport);
+    mergedImport = postSpillover;
+  }
 
   const experience = transformExperienceArray(
     enrichExperienceFromParserAliases(
@@ -1093,9 +1135,13 @@ export function transformImportDataToBuilder(
     )
   );
 
-  const skills = cleanSkills(
-    firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
-  );
+  const skills = isCustomParser
+    ? normalizeCustomParserSkillsList(
+        firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
+      )
+    : cleanSkills(
+        firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
+      );
 
   let jobTitle = extractJobTitleFromImport(mergedImport, professional, experience);
   if (!jobTitle) {

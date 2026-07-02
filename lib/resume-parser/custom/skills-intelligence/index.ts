@@ -8,7 +8,7 @@ export {
   extractSkillsWithMeta,
 } from './engine';
 
-export { collectAllSkillCandidates, collectFromSkillsSection } from './collect';
+export { collectAllSkillCandidates, collectFromSkillsSection, collectFromPreambleText } from './collect';
 export { normalizeSkillAlias, skillDedupeKey } from './aliases';
 export { categorizeSkill } from './categorize';
 export { scoreSkillCandidate, aggregateSkillCandidates, computeImportance } from './confidence';

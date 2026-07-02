@@ -25,6 +25,7 @@ import {
   traceSanitizeProjectDropped,
   traceSkillDecisions,
 } from './import-field-trace';
+import { looksLikeSentenceNotCompany } from '@/lib/resume-parser/custom/experience-extraction/company';
 
 let _traceReconcileExpIndex = 0;
 let _traceSanitizeExpIndex = 0;
@@ -490,6 +491,10 @@ export function pruneExperienceBodyFields(
   };
 }
 
+/** Known tech tokens validated by the custom parser — never strip at mapping time. */
+const PARSER_VALIDATED_SKILL_RE =
+  /^(?:aws|gcp|azure|rest\s+api|api|ci\/cd|html|css|git|sql|nosql|express\.?js|node\.?js|next\.?js|tailwind\s+css|tailwind|firebase|mongodb|postgresql|mysql|react|reactjs|javascript|typescript|python|django|flask|docker|kubernetes|graphql|redis|kafka|terraform|vue\.?js|angular)$/i;
+
 export function sanitizeSkillEntry(skill: unknown): string {
   if (skill == null) return '';
 
@@ -514,6 +519,10 @@ export function sanitizeSkillEntry(skill: unknown): string {
 
   s = sanitizeFieldText(s, 80);
   if (!s) return '';
+
+  if (PARSER_VALIDATED_SKILL_RE.test(s)) {
+    return canonicalizeSkillName(s) || s;
+  }
 
   if (isResumeSectionHeadingLine(s)) return '';
   if (RESUME_METADATA_LINE_RE.some((re) => re.test(s))) return '';
@@ -772,6 +781,44 @@ function normalizeSkillsListAtThreshold(skills: unknown[], minConfidence: number
     const prev = ranked.get(key);
     if (!prev || score > prev.score) {
       ranked.set(key, { name, score });
+    }
+  }
+
+  return [...ranked.values()]
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .map((entry) => entry.name)
+    .slice(0, MAX_RESUME_SKILLS);
+}
+
+/** Preserve custom-parser skill output with light dedupe/canonicalization only. */
+export function normalizeCustomParserSkillsList(skills: unknown[]): string[] {
+  const ranked = new Map<string, { name: string; score: number }>();
+
+  for (const token of expandSkillInputTokens(skills)) {
+    const trimmed = String(token || '').trim();
+    if (!trimmed || trimmed.length < 2) continue;
+    if (isResumeSectionHeadingLine(trimmed)) continue;
+    if (/@/.test(trimmed) || trimmed.includes('\n')) continue;
+
+    let cleaned = trimmed
+      .replace(/\s+\d{1,3}\s*%/g, '')
+      .replace(/[:\-–—]\s*\d{1,3}\s*%?\s*$/i, '')
+      .trim();
+    if (PARSER_VALIDATED_SKILL_RE.test(cleaned)) {
+      cleaned = canonicalizeSkillName(cleaned) || cleaned;
+    } else {
+      cleaned = sanitizeFieldText(cleaned, 80);
+      if (!cleaned || isSectionLabel(cleaned)) continue;
+      if (cleaned.length > 60 && /\s\w+\s\w+\s\w+/.test(cleaned)) continue;
+      cleaned = canonicalizeSkillName(cleaned) || cleaned;
+    }
+    if (!cleaned) continue;
+
+    const key = cleaned.toLowerCase();
+    const score = scoreSkillConfidence(cleaned) || (PARSER_VALIDATED_SKILL_RE.test(cleaned) ? 72 : 60);
+    const prev = ranked.get(key);
+    if (!prev || score > prev.score) {
+      ranked.set(key, { name: cleaned, score });
     }
   }
 
@@ -1298,7 +1345,7 @@ type ExperienceLike = {
 
 /** Company-name heuristics for header reconciliation (mapping layer only). */
 const COMPANY_NAME_HINT_RE =
-  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|systems|consulting|services|company|co\.?)\b/i;
+  /\b(?:inc\.?|ltd\.?|llc|corp(?:oration)?|pvt\.?\s*ltd\.?|private\s+limited|gmbh|llp|group|enterprises|solutions|technologies|technology|systems|consulting|services|company|co\.?)\b/i;
 
 const WELL_KNOWN_EMPLOYER_RE =
   /^(?:google|microsoft|amazon|apple|meta|facebook|netflix|uber|airbnb|stripe|salesforce|oracle|ibm|accenture|deloitte|pwc|kpmg|ey|ernst|infosys|tcs|tata consultancy services|wipro|hcl|cognizant|capgemini|tech mahindra|larsen|flipkart|swiggy|zomato|startup|adobe|sap|nokia|reliance|hdfc|icici|sbi|mphasis|mindtree|lti)$/i;
@@ -1374,6 +1421,7 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   if (isLikelyCompanyNameFragment(t)) return true;
   // Multi-word lines that read as job titles are not companies (e.g. "Senior Software Engineer").
   if (JOB_TITLE_HINT_RE.test(t)) return false;
+  if (looksLikeSentenceNotCompany(t)) return false;
   return t.length >= 22 && /\s/.test(t);
 }
 
@@ -1460,6 +1508,7 @@ function recoverCompanyFromExperienceText(
     if (
       looksLikeCompanyNameLine(line) &&
       !looksLikeJobTitleLine(line) &&
+      !looksLikeSentenceNotCompany(line) &&
       line !== position &&
       line.length <= 80
     ) {
@@ -1565,7 +1614,10 @@ export function reconcileExperienceHeaderFields(
     }
   }
 
-  if (location && looksLikeCompanyNameLine(location) && !company) {
+  if (location && !company && isPlausibleExperienceCompany(location)) {
+    company = location;
+    location = '';
+  } else if (location && looksLikeCompanyNameLine(location) && !company) {
     company = location;
     location = '';
   }
@@ -1653,7 +1705,7 @@ export function reconcileExperienceHeaderFields(
 
   if (!company && deduped.description) {
     const recovered = recoverCompanyFromExperienceText(deduped.description, position);
-    if (recovered) {
+    if (recovered && !looksLikeSentenceNotCompany(recovered) && isPlausibleExperienceCompany(recovered)) {
       company = recovered;
       const descLines = deduped.description.split('\n').map((l) => l.trim()).filter(Boolean);
       const remaining = descLines.filter((l) => l !== recovered).join('\n').trim();
@@ -1666,6 +1718,7 @@ export function reconcileExperienceHeaderFields(
   if (!company && deduped.description) {
     const descLines = deduped.description.split('\n').map((l) => l.trim()).filter(Boolean);
     for (const line of descLines.slice(0, 2)) {
+      if (looksLikeSentenceNotCompany(line)) continue;
       if (looksLikeCompanyNameLine(line) && !looksLikeJobTitleLine(line) && line !== position) {
         company = line;
         if (descLines.length > 1) {
@@ -1728,7 +1781,11 @@ export function reconcileExperienceHeaderFields(
       String(exp.endDate || exp.end_date || '').trim()
     );
 
-  if (company && !isPlausibleExperienceCompany(company)) {
+  if (
+    company &&
+    (looksLikeSentenceNotCompany(company) ||
+      (!isPlausibleExperienceCompany(company) && !looksLikeCompanyNameLine(company)))
+  ) {
     if (
       (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) &&
       !location
@@ -1834,35 +1891,27 @@ function experienceTitlesOverlap(a: string, b: string): boolean {
   return shared.length >= Math.min(2, Math.min(aWords.length, bWords.length));
 }
 
-/** Drop title/location-only shadow rows when a richer matching experience exists. */
+function experiencesAreStrictDuplicates(a: ExperienceLike, b: ExperienceLike): boolean {
+  const headerA = experienceEntryFingerprint(a);
+  const headerB = experienceEntryFingerprint(b);
+  if (!headerA.replace(/\|/g, '') || headerA !== headerB) return false;
+  return experienceBodyFingerprint(a) === experienceBodyFingerprint(b);
+}
+
+/** Collapse only true duplicates — same company, title, dates, and description. */
 function collapseShadowExperienceEntries<T extends ExperienceLike>(entries: T[]): T[] {
   if (entries.length < 2) return entries;
-  const scored = entries.map((entry, index) => ({
-    entry: reconcileExperienceHeaderFields(entry as Record<string, unknown>) as T,
-    index,
-    score: experienceRichnessScore(entry),
-    titleKey: normalizeExperienceTitleKey(
-      (entry as ExperienceLike).position || (entry as ExperienceLike).title
-    ),
-  }));
-
-  const keep = new Array(scored.length).fill(true);
-  for (let i = 0; i < scored.length; i++) {
-    if (!keep[i]) continue;
-    for (let j = 0; j < scored.length; j++) {
-      if (i === j || !keep[j]) continue;
-      if (!experienceTitlesOverlap(scored[i].titleKey, scored[j].titleKey)) continue;
-      if (scored[i].score >= scored[j].score) {
-        if (scored[j].score <= scored[i].score - 2) keep[j] = false;
-      } else if (scored[i].score <= scored[j].score - 2) {
-        keep[i] = false;
-        break;
-      }
+  const out: T[] = [];
+  for (const entry of entries) {
+    const reconciled = reconcileExperienceHeaderFields(entry as Record<string, unknown>) as T;
+    const dupIdx = out.findIndex((prev) => experiencesAreStrictDuplicates(prev, reconciled));
+    if (dupIdx >= 0) {
+      out[dupIdx] = mergeDuplicateExperienceEntries(out[dupIdx], reconciled);
+    } else {
+      out.push(reconciled);
     }
   }
-
-  const survivors = scored.filter((_, idx) => keep[idx]).map((s) => s.entry);
-  return survivors.length > 0 ? survivors : entries;
+  return out.length > 0 ? out : entries;
 }
 
 function hasExperienceBodyContent(exp: ExperienceLike): boolean {
@@ -2422,6 +2471,18 @@ export function dedupeAdjacentExperienceEntries<T extends ExperienceLike>(entrie
   }
 
   return out;
+}
+
+/** Custom-parser import — preserve structured rows; reconcile headers only. */
+export function finalizeExperienceListForCustomParserImport(
+  entries: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  if (!Array.isArray(entries) || entries.length === 0) return [];
+  const deduped = dedupeAdjacentExperienceEntries(entries as ExperienceLike[]) as Record<
+    string,
+    unknown
+  >[];
+  return deduped.map((e) => reconcileExperienceHeaderFields(e));
 }
 
 /** Final binding pass before Builder state — orphan merge + semantic header reconciliation. */

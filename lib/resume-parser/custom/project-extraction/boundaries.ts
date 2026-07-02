@@ -131,6 +131,16 @@ function isMetaHeaderLine(text: string): boolean {
   );
 }
 
+function looksLikeProjectDescriptionLine(text: string): boolean {
+  const t = text.trim();
+  if (!t) return false;
+  if (/^(built|developed|implemented|designed|created|led|worked\s+on)\b/i.test(t)) return true;
+  if (t.length >= 28 && /\b(with|using|via)\b/i.test(t) && scoreProjectTitleCandidate(t) < 35) {
+    return true;
+  }
+  return false;
+}
+
 function buildRawBlock(lines: ProjectLine[], startLine: number, endLine: number): ProjectRawBlock {
   const headerLimit = Math.min(6, lines.length);
   let headerEnd = 0;
@@ -138,6 +148,7 @@ function buildRawBlock(lines: ProjectLine[], startLine: number, endLine: number)
   for (let i = 0; i < headerLimit; i++) {
     const l = lines[i];
     if (l.isBullet && i > 0) break;
+    if (i > 0 && looksLikeProjectDescriptionLine(l.text)) break;
     if (i > 0 && l.text.trim().length > 160 && !isMetaHeaderLine(l.text)) break;
     headerEnd = i + 1;
   }
@@ -155,7 +166,10 @@ function buildRawBlock(lines: ProjectLine[], startLine: number, endLine: number)
 }
 
 function isHeaderOnlyBlock(block: ProjectRawBlock): boolean {
-  return block.bodyLines.every((l) => !l.trim());
+  if (block.bodyLines.some((l) => l.trim())) return false;
+  const headerLines = block.headerText.split('\n').map((l) => l.trim()).filter(Boolean);
+  if (headerLines.length <= 1) return true;
+  return headerLines.every((line) => detectTitleFromLine(line).confidence >= 38);
 }
 
 function mergeBlocks(a: ProjectRawBlock, b: ProjectRawBlock): ProjectRawBlock {

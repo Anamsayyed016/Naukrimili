@@ -52,11 +52,17 @@ export interface SkillCandidate {
 
 export interface SkillsIntelligenceInput {
   skillsSectionText?: string;
+  /** Preamble / sidebar block before first major section (multi-column skill lists). */
+  preambleText?: string;
   /** Per-experience technology lists */
   experienceTechnologies?: string[][];
+  /** Per-experience description + bullet text for technology recovery */
+  experienceTexts?: string[];
   /** Per-project technology lists */
   projectTechnologies?: string[][];
   summaryText?: string;
+  /** Per-education degree / field / coursework text */
+  educationTexts?: string[];
   /** Per-education coursework lists */
   educationCoursework?: string[][];
   certificationNames?: string[];

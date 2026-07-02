@@ -27,9 +27,16 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
   const projects = sections.projects ? extractProjectsFromSection(sections.projects) : [];
   const skills = extractSkillsIntelligence({
     skillsSectionText: sections.skills,
+    preambleText: sections.preamble,
     experienceTechnologies: experiences.map((e) => e.technologies),
+    experienceTexts: experiences.map((e) =>
+      [e.description, ...(e.bulletPoints || [])].filter(Boolean).join('\n')
+    ),
     projectTechnologies: projects.map((p) => p.technologies),
     summaryText: sections.summary,
+    educationTexts: educations.map((e) =>
+      [e.degree, e.fieldOfStudy, ...(e.coursework || [])].filter(Boolean).join(' ')
+    ),
   });
 
   const validation = validateAndRepairResume({

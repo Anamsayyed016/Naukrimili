@@ -75,6 +75,8 @@ export function mapExtractedToUploadProfile(
     hobbies: extracted.hobbies || [],
     confidence: extracted.confidence ?? 75,
     _aiProvider: options?.aiProvider || 'extracted',
+    customParserUsed: options?.aiProvider === 'custom-parser',
+    selectedParser: options?.aiProvider === 'custom-parser' ? 'custom' : undefined,
   };
   if (isImportFieldTraceEnabled()) {
     traceImportStageTransform(

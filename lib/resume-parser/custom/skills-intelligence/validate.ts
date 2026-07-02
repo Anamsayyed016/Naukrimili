@@ -21,7 +21,16 @@ const RESPONSIBILITY_RE =
 const SECTION_HEADING_RE =
   /^(?:skills?|technical\s+skills|core\s+skills|expertise|competencies|technologies|tools|frameworks)$/i;
 
+const KNOWN_TECH_ACRONYMS_RE =
+  /^(?:aws|gcp|azure|rest\s+api|api|ci\/cd|html|css|git|sql|nosql|saas|paas|iaas|oauth|jwt|grpc|tcp|udp|http|https|json|xml|yaml|sdk|ide|ui|ux|ml|ai|nlp|ocr|etl|erp|crm)$/i;
+
+export { KNOWN_TECH_ACRONYMS_RE };
+
 export function isValidSkillCandidate(raw: string): boolean {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return false;
+  if (KNOWN_TECH_ACRONYMS_RE.test(trimmed)) return true;
+
   const cleaned = sanitizeSkillEntry(raw);
   if (!cleaned) return false;
 
@@ -35,11 +44,11 @@ export function isValidSkillCandidate(raw: string): boolean {
   if (isLikelyLocationFragment(cleaned) && cleaned.split(/\s+/).length <= 3) {
     return false;
   }
-  if (isLikelyEducationLine(cleaned) && !/^(java|python|r|go|c)$/i.test(cleaned)) {
+  if (isLikelyEducationLine(cleaned) && !/^(java|python|r|go|c|git|aws|css|html)$/i.test(cleaned)) {
     return false;
   }
   if (looksLikeJobTitleLine(cleaned) && cleaned.split(/\s+/).length >= 2) {
-    return false;
+    if (!/^(rest\s+api|machine\s+learning)$/i.test(cleaned)) return false;
   }
 
   if (RESPONSIBILITY_RE.test(cleaned) && cleaned.split(/\s+/).length > 4) {

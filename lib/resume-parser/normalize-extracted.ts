@@ -4,7 +4,8 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
-import { sanitizeSkillEntry, normalizeSkillsList } from '@/lib/resume-parser/import-sanitize';
+import { sanitizeSkillEntry, normalizeSkillsList, normalizeCustomParserSkillsList } from '@/lib/resume-parser/import-sanitize';
+import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 import {
   isImportFieldTraceEnabled,
   traceImportStageTransform,
@@ -731,7 +732,9 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
   }
   // Drop any pure section-label entries that Affinda accidentally lifted
   // out of "TECHNICAL SKILLS" sub-headers ("Frameworks", "Databases", ...).
-  const skills = normalizeSkillsList([...skillStrings, ...extraSkills]);
+  const skills = isCustomParserImport(profile)
+    ? normalizeCustomParserSkillsList([...skillStrings, ...extraSkills])
+    : normalizeSkillsList([...skillStrings, ...extraSkills]);
 
   const experienceSource = Array.isArray(profile.experience) && profile.experience.length > 0
     ? profile.experience

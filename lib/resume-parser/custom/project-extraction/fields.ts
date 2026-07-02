@@ -136,14 +136,24 @@ export function buildProjectFromBlock(block: ProjectRawBlock): CustomExtractedPr
 
   const technologies = [
     ...new Set([
-      ...extractTechnologiesFromBlock(block.headerText, description, achievements),
+      ...extractTechnologiesFromBlock(
+        [block.headerText, description, ...achievements].join('\n'),
+        description,
+        achievements
+      ),
       ...peeledTechnologies,
     ]),
   ].sort((a, b) => a.localeCompare(b));
 
   const techConf =
     technologies.length > 0
-      ? Math.min(95, 45 + technologies.length * 8)
+      ? Math.min(
+          95,
+          52 +
+            technologies.length * 10 +
+            (description.length > 20 ? 6 : 0) +
+            (descConf >= 35 ? 4 : 0)
+        )
       : peeledTechnologies.length > 0
         ? 55
         : 0;

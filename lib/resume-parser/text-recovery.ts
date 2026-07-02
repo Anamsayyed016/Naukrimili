@@ -984,9 +984,34 @@ export function reconstructColumnLayout(text: string): string {
   }
 
   if (sidebar.length >= 2 && main.length >= sidebar.length) {
-    return [...sidebar, '', ...main].join('\n').trim();
+    return [...partitionSidebarForOutput(sidebar), '', ...main].join('\n').trim();
   }
   return text;
+}
+
+function partitionSidebarForOutput(sidebar: string[]): string[] {
+  const skillLines: string[] = [];
+  const otherLines: string[] = [];
+
+  for (const line of sidebar) {
+    const cleaned = line.trim();
+    if (!cleaned) continue;
+    const isSkillish =
+      /,/.test(cleaned) &&
+      cleaned.split(/[,;|]/).filter((p) => p.trim().length >= 2).length >= 2 &&
+      !/@|linkedin|github|\+?\d{7,}/i.test(cleaned) &&
+      !isLikelyJobTitle(cleaned) &&
+      !isLikelyCompanyName(cleaned);
+    if (isSkillish) skillLines.push(cleaned);
+    else otherLines.push(cleaned);
+  }
+
+  const out: string[] = [];
+  if (skillLines.length >= 1) {
+    out.push('SKILLS', ...skillLines);
+  }
+  out.push(...otherLines);
+  return out;
 }
 
 export function prepareResumeTextForParsing(rawText: string): { text: string; signals: ResumeTextSignals } {

@@ -6,6 +6,7 @@ import { scoreSkillConfidence } from '@/lib/resume-parser/import-sanitize';
 
 import { getSourceWeight } from './collect';
 import type { SkillCandidate, SkillSource } from './types';
+import { KNOWN_TECH_ACRONYMS_RE } from './validate';
 
 const SOURCE_BASE_SCORE: Record<SkillSource, number> = {
   skills_section: 88,
@@ -28,7 +29,13 @@ export interface ScoredSkillAggregate {
 }
 
 export function scoreSkillCandidate(candidate: SkillCandidate): number {
-  const quality = scoreSkillConfidence(candidate.raw);
+  let quality = scoreSkillConfidence(candidate.raw);
+  if (quality <= 0 && candidate.normalized) {
+    quality = scoreSkillConfidence(candidate.normalized);
+  }
+  if (quality <= 0 && KNOWN_TECH_ACRONYMS_RE.test(candidate.raw)) {
+    quality = 72;
+  }
   const sourceBoost = Math.round(SOURCE_BASE_SCORE[candidate.source] * getSourceWeight(candidate.source) * 0.35);
   return Math.min(100, Math.round(quality * 0.55 + sourceBoost));
 }

@@ -35,7 +35,8 @@ export function scoreProjectTitleCandidate(text: string): number {
   if (/(?:github|gitlab|bitbucket)\.com/i.test(trimmed)) return 0;
   if (parseDateRangeFromText(trimmed)) return 0;
   if (parseExplicitTechLine(trimmed).length >= 2) return 0;
-  if (/\s+with\s+/i.test(trimmed) && trimmed.split(/\s+/).length >= 3) return 0;
+  if (/\s+with\s+/i.test(trimmed) && trimmed.split(/\s+/).length >= 4) return 0;
+  if (/^(built|developed|implemented|designed|created|led)\b/i.test(trimmed)) return 0;
   if (isLikelyEducationLine(trimmed) && !PROJECT_TITLE_SUFFIX_RE.test(trimmed)) return 0;
 
   if (looksLikeCompanyNameLine(trimmed) && !PROJECT_TITLE_SUFFIX_RE.test(trimmed)) return 0;

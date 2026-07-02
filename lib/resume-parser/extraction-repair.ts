@@ -12,9 +12,11 @@ import {
   dedupeAdjacentExperienceEntries,
   dedupeExperienceBodyLines,
   normalizeSkillsList,
+  normalizeCustomParserSkillsList,
   pruneExperienceBodyFields,
   reconcileExperienceHeaderFields,
 } from '@/lib/resume-parser/import-sanitize';
+import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 import { cleanString } from '@/lib/resume-parser/normalize-extracted';
 import {
   isImportFieldTraceEnabled,
@@ -270,7 +272,10 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
   languages = expandedLanguages;
 
   const rawSkills = Array.isArray(data.skills) ? (data.skills as unknown[]) : [];
-  const normalizedSkills = normalizeSkillsList(rawSkills);
+  const isCustomParser = isCustomParserImport(data as Record<string, unknown>);
+  const normalizedSkills = isCustomParser
+    ? normalizeCustomParserSkillsList(rawSkills)
+    : normalizeSkillsList(rawSkills);
   if (normalizedSkills.length !== rawSkills.length) {
     report.repairs.push(
       `Normalized skills list: ${rawSkills.length} input tokens → ${normalizedSkills.length} retained`

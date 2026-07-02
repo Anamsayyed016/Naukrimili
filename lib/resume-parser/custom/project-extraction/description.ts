@@ -32,7 +32,13 @@ export function extractDescriptionFromBlock(bodyLines: string[]): BlockDescripti
       continue;
     }
     if (parseDateRangeFromText(line) && line.length < 50) continue;
-    if (parseExplicitTechLine(line).length >= 2 && line.length < 140) continue;
+    if (
+      parseExplicitTechLine(line).length >= 2 &&
+      line.length < 140 &&
+      !/^(built|developed|implemented|designed|created)\b/i.test(line)
+    ) {
+      continue;
+    }
 
     if (isBulletLine(raw)) {
       const bullet = stripBulletPrefix(raw);
@@ -60,7 +66,7 @@ export function extractDescriptionFromBlock(bodyLines: string[]): BlockDescripti
   let confidence = 0;
   if (achievements.length > 0) confidence += Math.min(90, 40 + achievements.length * 8);
   if (peeled.description.length > 0) {
-    confidence += Math.min(75, 30 + Math.floor(peeled.description.length / 35));
+    confidence += Math.min(85, 38 + Math.floor(peeled.description.length / 22));
   }
   confidence = Math.min(100, confidence);
 
