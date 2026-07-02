@@ -99,6 +99,30 @@ function parseContentLength(request: NextRequest): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** Job.skills may be JSON array or comma-separated text (e.g. "Python, Go"). */
+function parseJobSkillsField(skills: unknown): string[] {
+  if (Array.isArray(skills)) {
+    return skills.map((s) => String(s ?? '').trim()).filter(Boolean);
+  }
+  if (typeof skills !== 'string') return [];
+  const trimmed = skills.trim();
+  if (!trimmed) return [];
+  if (trimmed.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (Array.isArray(parsed)) {
+        return parsed.map((s) => String(s ?? '').trim()).filter(Boolean);
+      }
+    } catch {
+      // fall through to comma split
+    }
+  }
+  return trimmed
+    .split(/[,;|]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 /**
  * POST /api/resumes/ultimate-upload
  * Enhanced resume upload with AI parsing and job recommendations
@@ -2050,7 +2074,7 @@ export async function POST(request: NextRequest) {
 
         // Skills match
         if (profile.skills && profile.skills.length > 0 && job.skills) {
-          const jobSkills = typeof job.skills === 'string' ? JSON.parse(job.skills) : job.skills;
+          const jobSkills = parseJobSkillsField(job.skills);
           const matchingSkills = profile.skills.filter((skill: string) => 
             jobSkills.some((jobSkill: string) => 
               jobSkill.toLowerCase().includes(skill.toLowerCase())

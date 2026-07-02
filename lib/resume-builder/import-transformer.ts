@@ -1829,8 +1829,13 @@ function logImportMappingValidation(
       recoveries.push(`experience[${index}]:company-recovered-from-mapping`);
     }
     if (!title) issues.push(`experience[${index}]:missing-designation`);
-    if (!String(exp.location || exp.Location || '').trim() && company) {
-      issues.push(`experience[${index}]:missing-location`);
+    const rawLoc =
+      rawExperience[index] && typeof rawExperience[index] === 'object'
+        ? String((rawExperience[index] as Record<string, unknown>).location || '').trim()
+        : '';
+    const builtLoc = String(exp.location || exp.Location || '').trim();
+    if (rawLoc && !builtLoc) {
+      issues.push(`experience[${index}]:location-lost`);
     }
     if (!description && bullets === 0) {
       issues.push(`experience[${index}]:missing-description`);
