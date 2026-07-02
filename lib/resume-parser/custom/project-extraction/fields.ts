@@ -94,7 +94,7 @@ function pickCompany(lines: string[], excludeTitle: string): FieldPick<string> {
 }
 
 function computeOverallConfidence(fc: ProjectFieldConfidence): number {
-  const weights = {
+  const weights: Record<keyof ProjectFieldConfidence, number> = {
     title: 0.28,
     description: 0.3,
     technologies: 0.14,
@@ -106,9 +106,12 @@ function computeOverallConfidence(fc: ProjectFieldConfidence): number {
 
   let sum = 0;
   let weightSum = 0;
-  for (const [key, w] of Object.entries(weights)) {
-    sum += fc[key as keyof ProjectFieldConfidence] * w;
-    weightSum += w;
+  for (const [key, w] of Object.entries(weights) as Array<[keyof ProjectFieldConfidence, number]>) {
+    const val = fc[key];
+    if (key === 'title' || key === 'description' || key === 'technologies' || val > 0) {
+      sum += val * w;
+      weightSum += w;
+    }
   }
   return Math.min(100, Math.round(weightSum > 0 ? sum / weightSum : 0));
 }
@@ -125,8 +128,11 @@ export function buildProjectFromBlock(block: ProjectRawBlock): CustomExtractedPr
   const durationPick = pickDuration(headerLines);
   const companyPick = pickCompany(headerLines, titlePick.value);
 
+  const headerRemainder = headerLines.filter(
+    (line) => line.trim().toLowerCase() !== titlePick.value.toLowerCase()
+  );
   const { description, achievements, peeledTechnologies, confidence: descConf } =
-    extractDescriptionFromBlock(block.bodyLines);
+    extractDescriptionFromBlock([...headerRemainder, ...block.bodyLines]);
 
   const technologies = [
     ...new Set([

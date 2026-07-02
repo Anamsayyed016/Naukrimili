@@ -10,7 +10,7 @@ export {
 } from './engine';
 
 export { partitionExperienceBlocks, scoreExperienceBoundaries } from './boundaries';
-export { detectCompanyFromLine, scoreCompanyCandidate } from './company';
+export { detectCompanyFromLine, scoreCompanyCandidate, looksLikeSentenceNotCompany } from './company';
 export { detectDesignationFromLine, scoreDesignationCandidate } from './designation';
 export { parseDateRangeFromText, lineHasDateSignal } from './dates';
 export { detectLocationFromLine, detectEmploymentTypeFromText } from './location';

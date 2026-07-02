@@ -33,10 +33,15 @@ function expandHeaderSegments(lines: string[]): string[] {
   return segments;
 }
 
-function pickBestCompany(lines: string[]): FieldPick<string> {
+function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<string> {
   let best: FieldPick<string> = { value: '', confidence: 0 };
+  const exclude = excludeDesignation.toLowerCase().trim();
+
   for (const line of expandHeaderSegments(lines)) {
+    if (parseDateRangeFromText(line)) continue;
     const det = detectCompanyFromLine(line);
+    if (!det.company) continue;
+    if (exclude && det.company.toLowerCase().trim() === exclude) continue;
     if (det.confidence > best.confidence) {
       best = { value: det.company, confidence: det.confidence };
     }
@@ -135,15 +140,19 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const companyPick = pickBestCompany(headerLines);
-  const designationPick = pickBestDesignation(headerLines, companyPick.value);
+  const designationPick = pickBestDesignation(headerLines, '');
+  const companyPick = pickBestCompany(headerLines, designationPick.value);
   const locationPick = pickBestLocation(headerLines);
   const datePick = pickBestDateRange(headerLines);
   const employmentPick = pickEmploymentType(headerLines);
 
-  const { description, bulletPoints, confidence: descConf } = extractDescriptionFromBlock(
+  let { description, bulletPoints, confidence: descConf } = extractDescriptionFromBlock(
     block.bodyLines
   );
+  if (!description && bulletPoints.length > 0) {
+    description = bulletPoints.join('\n');
+    descConf = Math.max(descConf, Math.min(90, 40 + bulletPoints.length * 8));
+  }
   const technologies = extractTechnologiesFromBlock(description, bulletPoints);
 
   const fieldConfidence: ExperienceFieldConfidence = {

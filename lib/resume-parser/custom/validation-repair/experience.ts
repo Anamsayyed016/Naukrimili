@@ -11,6 +11,7 @@ import {
 } from '@/lib/resume-parser/import-sanitize';
 
 import { TECH_SKILL_AS_COMPANY_RE } from '../experience-extraction/constants';
+import { looksLikeSentenceNotCompany } from '../experience-extraction/company';
 import { isValidExperience } from '../experience-extraction/validate';
 import type { CustomExtractedExperience } from '../experience-extraction/types';
 import type { RepairContext } from './types';
@@ -30,12 +31,14 @@ function recoverCompanyFromBullets(exp: CustomExtractedExperience): {
   confidence: number;
 } {
   for (const bullet of exp.bulletPoints) {
-    const atMatch = bullet.match(/\bat\s+([A-Z][A-Za-z0-9&.,'()\- ]{2,80})/);
+    if (looksLikeSentenceNotCompany(bullet)) continue;
+    const atMatch = bullet.match(/\bat\s+([A-Z][A-Za-z0-9&.,'()\- ]{2,60})/);
     if (atMatch?.[1] && isPlausibleExperienceCompany(atMatch[1])) {
       return { company: atMatch[1].trim(), confidence: 72 };
     }
   }
   for (const bullet of exp.bulletPoints) {
+    if (looksLikeSentenceNotCompany(bullet)) continue;
     const pipe = splitCompanyLocationPipe(bullet);
     if (pipe?.company && isPlausibleExperienceCompany(pipe.company)) {
       return { company: pipe.company, confidence: 68 };
@@ -92,6 +95,20 @@ export function repairExperienceEntry(
       reason: 'Reconciled designation via header field rules.',
     });
     fixed.designation = newPosition;
+  }
+
+  if (fixed.company && looksLikeSentenceNotCompany(fixed.company)) {
+    recordRepair(ctx, {
+      section: 'experience',
+      field: 'company',
+      index,
+      originalValue: fixed.company,
+      recoveredValue: '',
+      evidenceSource: 'current_section',
+      confidence: 90,
+      reason: 'Cleared sentence-like text from company slot.',
+    });
+    fixed.company = '';
   }
 
   if (newLocation !== fixed.location) {

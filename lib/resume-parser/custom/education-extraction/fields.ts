@@ -5,7 +5,7 @@
 import { detectLocationFromLine } from '../experience-extraction/location';
 import { parseEducationDates } from './dates';
 import { extractDescriptionFromBlock } from './description';
-import { detectDegreeFromLine } from './degree';
+import { detectDegreeFromLine, lineHasDegreeSignal } from './degree';
 import { detectFieldFromLine } from './field';
 import { detectInstitutionFromLine } from './institution';
 import { detectPerformanceFromText } from './performance';
@@ -120,23 +120,31 @@ function pickBestLocation(lines: string[]): FieldPick<string> {
 }
 
 function computeOverallConfidence(fc: EducationFieldConfidence): number {
-  const weights = {
-    institution: 0.22,
-    degree: 0.22,
-    fieldOfStudy: 0.12,
-    startDate: 0.1,
-    endDate: 0.1,
-    performance: 0.1,
-    description: 0.08,
-    specialization: 0.03,
-    location: 0.03,
-  };
+  const requiredWeights: Array<[keyof EducationFieldConfidence, number]> = [
+    ['institution', 0.35],
+    ['degree', 0.35],
+    ['startDate', 0.15],
+    ['endDate', 0.15],
+  ];
+  const optionalWeights: Array<[keyof EducationFieldConfidence, number]> = [
+    ['fieldOfStudy', 0.12],
+    ['performance', 0.1],
+    ['description', 0.08],
+    ['specialization', 0.03],
+    ['location', 0.03],
+  ];
 
   let sum = 0;
   let weightSum = 0;
-  for (const [key, w] of Object.entries(weights)) {
-    sum += fc[key as keyof EducationFieldConfidence] * w;
+  for (const [key, w] of requiredWeights) {
+    sum += fc[key] * w;
     weightSum += w;
+  }
+  for (const [key, w] of optionalWeights) {
+    if (fc[key] > 0) {
+      sum += fc[key] * w;
+      weightSum += w;
+    }
   }
 
   return Math.min(100, Math.round(weightSum > 0 ? sum / weightSum : 0));
@@ -156,14 +164,45 @@ export function buildEducationFromBlock(block: EducationRawBlock): CustomExtract
   const performance = pickBestPerformance(allLines);
   const locationPick = pickBestLocation(headerLines);
 
+  let institution = institutionPick.value;
+  let institutionConf = institutionPick.confidence;
+  let degree = degreePick.degree;
+  let degreeConf = degreePick.confidence;
+
+  const INSTITUTION_MARKERS_RE =
+    /\b(university|college|institute|institution|school|academy|polytechnic|campus|vidyalaya|iit|nit|iiit|bits)\b/i;
+
+  if (
+    institution &&
+    lineHasDegreeSignal(institution) &&
+    !INSTITUTION_MARKERS_RE.test(institution)
+  ) {
+    if (!degree) {
+      degree = institution;
+      degreeConf = Math.max(degreeConf, institutionConf);
+    }
+    let bestInst = { value: '', confidence: 0 };
+    for (const line of allLines) {
+      const det = detectInstitutionFromLine(line);
+      if (
+        det.confidence > bestInst.confidence &&
+        !lineHasDegreeSignal(det.institution)
+      ) {
+        bestInst = { value: det.institution, confidence: det.confidence };
+      }
+    }
+    institution = bestInst.value;
+    institutionConf = bestInst.confidence;
+  }
+
   const fieldOfStudy = fieldPick.value || degreePick.fieldFromDegree;
   const { description, achievements, coursework, confidence: descConf } =
     extractDescriptionFromBlock(block.bodyLines);
 
   const perfConf = performance.confidence;
   const fieldConfidence: EducationFieldConfidence = {
-    institution: institutionPick.confidence,
-    degree: degreePick.confidence,
+    institution: institutionConf,
+    degree: degreeConf,
     fieldOfStudy: Math.max(fieldPick.confidence, degreePick.fieldFromDegree ? 70 : 0),
     specialization: fieldPick.confidence,
     startDate: datePick.startDate ? datePick.confidence : 0,
@@ -174,8 +213,8 @@ export function buildEducationFromBlock(block: EducationRawBlock): CustomExtract
   };
 
   return {
-    institution: institutionPick.value,
-    degree: degreePick.degree,
+    institution,
+    degree,
     fieldOfStudy,
     specialization: fieldPick.value,
     startDate: datePick.startDate,

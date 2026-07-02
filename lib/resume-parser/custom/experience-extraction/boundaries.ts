@@ -2,7 +2,7 @@
  * Experience boundary detection using weighted confidence signals.
  */
 
-import { detectCompanyFromLine } from './company';
+import { detectCompanyFromLine, looksLikeSentenceNotCompany } from './company';
 import { parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine } from './designation';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
@@ -41,6 +41,7 @@ function scoreBoundaryLine(line: ExperienceLine, prevBlank: boolean): number {
   }
 
   if (text.split(/\s+/).length > 18 && !dateRange) score -= 25;
+  if (looksLikeSentenceNotCompany(text)) score -= 40;
   if (/^(responsibilities|achievements|key contributions)/i.test(text)) score -= 30;
 
   return Math.max(0, Math.min(100, Math.round(score)));
@@ -58,25 +59,26 @@ export function partitionExperienceBlocks(lines: ExperienceLine[]): ExperienceRa
   const scored = scoreExperienceBoundaries(lines);
   const blocks: ExperienceRawBlock[] = [];
   let currentStart = 0;
+  let prevWasBlank = false;
 
-  const shouldStartNew = (line: ExperienceLine, idx: number): boolean => {
-    if (idx === 0) return true;
-    const prevBlank = idx > 0 && scored[idx - 1].isBlank;
-    const threshold = prevBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
+  const shouldStartNew = (line: ExperienceLine, afterBlank: boolean): boolean => {
+    const threshold = afterBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
     return line.boundaryScore >= threshold && !line.isBullet;
   };
 
   for (let i = 0; i < scored.length; i++) {
     const line = scored[i];
-    if (line.isBlank) continue;
+    if (line.isBlank) {
+      prevWasBlank = true;
+      continue;
+    }
 
-    if (shouldStartNew(line, i) && i > currentStart) {
+    if (shouldStartNew(line, prevWasBlank) && i > currentStart) {
       const slice = scored.slice(currentStart, i).filter((l) => !l.isBlank);
       if (slice.length > 0) blocks.push(buildRawBlock(slice, currentStart, i - 1));
       currentStart = i;
-    } else if (i === 0) {
-      currentStart = 0;
     }
+    prevWasBlank = false;
   }
 
   const tail = scored.slice(currentStart).filter((l) => !l.isBlank);

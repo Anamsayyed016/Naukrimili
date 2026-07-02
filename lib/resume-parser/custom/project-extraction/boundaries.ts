@@ -16,6 +16,7 @@ function scoreBoundaryLine(line: ProjectLine, prevBlank: boolean): number {
   if (line.isBlank) return 0;
   if (line.isBullet) {
     if (prevBlank) {
+      const text = line.text.trim();
       const bulletTitle = scoreProjectTitleCandidate(stripBulletTitle(text));
       if (bulletTitle >= 45) return Math.min(55, Math.round(bulletTitle * 0.45 + 14));
     }

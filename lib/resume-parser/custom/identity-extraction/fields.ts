@@ -25,25 +25,16 @@ function mergePick(current: FieldPick, next: FieldPick): FieldPick {
 }
 
 function computeOverallConfidence(fc: IdentityFieldConfidence): number {
-  const weights: Array<[keyof IdentityFieldConfidence, number]> = [
-    ['fullName', 0.22],
-    ['email', 0.18],
-    ['phone', 0.14],
-    ['professionalHeadline', 0.1],
-    ['linkedin', 0.08],
-    ['github', 0.05],
-    ['portfolio', 0.05],
-    ['city', 0.05],
-    ['address', 0.04],
-    ['website', 0.03],
-    ['alternatePhone', 0.02],
-    ['state', 0.02],
-    ['country', 0.02],
+  const requiredWeights: Array<[keyof IdentityFieldConfidence, number]> = [
+    ['fullName', 0.3],
+    ['email', 0.25],
+    ['phone', 0.2],
+    ['linkedin', 0.25],
   ];
 
   let sum = 0;
   let weightSum = 0;
-  for (const [key, w] of weights) {
+  for (const [key, w] of requiredWeights) {
     sum += fc[key] * w;
     weightSum += w;
   }

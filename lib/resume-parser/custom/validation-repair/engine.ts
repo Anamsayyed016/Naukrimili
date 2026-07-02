@@ -26,6 +26,7 @@ import {
   computeParserConfidenceScore,
   computeResumeQualityScore,
   computeSectionConfidence,
+  inferSectionPresence,
 } from './scoring';
 import type {
   ValidationRepairInput,
@@ -68,9 +69,18 @@ export function validateAndRepairResume(input: ValidationRepairInput): Validatio
   const validationReport = buildValidationReport(ctx.issues, sectionConfidence);
   const repairReport = buildRepairReport(ctx.repairs);
 
+  const sectionPresence = inferSectionPresence({
+    rawText: input.rawText,
+    sectionTexts: input.sectionTexts,
+    projectCount: projects.length,
+    languageCount: languages?.length ?? 0,
+    certificationCount: certifications?.length ?? 0,
+  });
+
   const parserConfidenceScore = computeParserConfidenceScore(
     sectionConfidence,
-    input.parserConfidence
+    input.parserConfidence,
+    sectionPresence
   );
 
   const resumeQualityScore = computeResumeQualityScore({
@@ -84,6 +94,7 @@ export function validateAndRepairResume(input: ValidationRepairInput): Validatio
     projectCount: projects.length,
     educationCount: educations.length,
     skillCount: skills.length,
+    sectionPresence,
   });
 
   const validated: ValidatedResumeBundle = {

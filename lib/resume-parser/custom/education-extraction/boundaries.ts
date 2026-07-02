@@ -3,7 +3,7 @@
  */
 
 import { parseEducationDates } from './dates';
-import { detectDegreeFromLine, lineHasDegreeSignal, scoreDegreeCandidate } from './degree';
+import { detectDegreeFromLine, lineHasDegreeSignal } from './degree';
 import { detectInstitutionFromLine } from './institution';
 import { buildTypedEducationLines } from './lines';
 import type { EducationLine, EducationRawBlock } from './types';
@@ -54,23 +54,26 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
   const scored = scoreEducationBoundaries(lines);
   const blocks: EducationRawBlock[] = [];
   let currentStart = 0;
+  let prevWasBlank = false;
 
-  const shouldStartNew = (line: EducationLine, idx: number): boolean => {
-    if (idx === 0) return true;
-    const prevBlank = idx > 0 && scored[idx - 1].isBlank;
-    const threshold = prevBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
+  const shouldStartNew = (line: EducationLine, afterBlank: boolean): boolean => {
+    const threshold = afterBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
     return line.boundaryScore >= threshold;
   };
 
   for (let i = 0; i < scored.length; i++) {
     const line = scored[i];
-    if (line.isBlank) continue;
+    if (line.isBlank) {
+      prevWasBlank = true;
+      continue;
+    }
 
-    if (shouldStartNew(line, i) && i > currentStart) {
+    if (shouldStartNew(line, prevWasBlank) && i > currentStart) {
       const slice = scored.slice(currentStart, i).filter((l) => !l.isBlank);
       if (slice.length > 0) blocks.push(buildRawBlock(slice, currentStart, i - 1));
       currentStart = i;
     }
+    prevWasBlank = false;
   }
 
   const tail = scored.slice(currentStart).filter((l) => !l.isBlank);
@@ -110,7 +113,16 @@ function buildRawBlock(lines: EducationLine[], startLine: number, endLine: numbe
 }
 
 function isHeaderOnlyBlock(block: EducationRawBlock): boolean {
-  return block.bodyLines.every((l) => !l.trim());
+  if (!block.bodyLines.every((l) => !l.trim())) return false;
+  const headerLines = block.headerText.split('\n').map((l) => l.trim()).filter(Boolean);
+  const hasDates = headerLines.some((l) => parseEducationDates(l));
+  const hasDegree = headerLines.some((l) => lineHasDegreeSignal(l));
+  const hasInstitution = headerLines.some(
+    (l) => detectInstitutionFromLine(l).confidence >= 40
+  );
+  // Complete education entry fits in header — keep as standalone block
+  if (hasInstitution && hasDegree && hasDates) return false;
+  return headerLines.length <= 2;
 }
 
 function mergeBlocks(a: EducationRawBlock, b: EducationRawBlock): EducationRawBlock {

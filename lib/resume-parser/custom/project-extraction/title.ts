@@ -40,6 +40,13 @@ export function scoreProjectTitleCandidate(text: string): number {
 
   if (looksLikeCompanyNameLine(trimmed) && !PROJECT_TITLE_SUFFIX_RE.test(trimmed)) return 0;
   if (looksLikeJobTitleLine(trimmed) && !PROJECT_TITLE_SUFFIX_RE.test(trimmed)) return 0;
+  if (
+    looksLikeJobTitleLine(trimmed) &&
+    /\b(developer|engineer|architect|analyst|consultant|designer|programmer)\b/i.test(trimmed) &&
+    !PROJECT_TITLE_SUFFIX_RE.test(trimmed)
+  ) {
+    return 0;
+  }
   if (!isPlausibleProjectName(trimmed) && !isEmbeddedProjectTitleLine(trimmed)) return 0;
 
   let score = 0;

@@ -19,6 +19,13 @@ export interface QualityScoreInput {
   projectCount: number;
   educationCount: number;
   skillCount: number;
+  sectionPresence?: SectionPresenceFlags;
+}
+
+export interface SectionPresenceFlags {
+  languages: boolean;
+  certifications: boolean;
+  projects: boolean;
 }
 
 const SECTION_WEIGHTS: Record<keyof SectionConfidenceScores, number> = {
@@ -31,6 +38,89 @@ const SECTION_WEIGHTS: Record<keyof SectionConfidenceScores, number> = {
   languages: 0.05,
   certifications: 0.05,
 };
+
+const SECTION_HEADING_PATTERNS: Record<keyof SectionPresenceFlags, RegExp[]> = {
+  languages: [
+    /^languages?\s*:?\s*$/i,
+    /^language\s+proficiency\s*:?\s*$/i,
+    /^spoken\s+languages?\s*:?\s*$/i,
+  ],
+  certifications: [
+    /^certifications?\s*(?:and\s+licenses?)?\s*:?\s*$/i,
+    /^licenses?\s*(?:and\s+certifications?)?\s*:?\s*$/i,
+    /^professional\s+certifications?\s*:?\s*$/i,
+    /^certificates?\s*:?\s*$/i,
+  ],
+  projects: [
+    /^projects?\s*:?\s*$/i,
+    /^personal\s+projects?\s*:?\s*$/i,
+    /^academic\s+projects?\s*:?\s*$/i,
+    /^key\s+projects?\s*:?\s*$/i,
+    /^major\s+projects?\s*:?\s*$/i,
+  ],
+};
+
+/** Detect whether optional sections exist in source text (not parser output). */
+export function inferSectionPresence(input: {
+  rawText?: string;
+  sectionTexts?: {
+    projects?: string;
+    languages?: string;
+    certifications?: string;
+  };
+  projectCount?: number;
+  languageCount?: number;
+  certificationCount?: number;
+}): SectionPresenceFlags {
+  const raw = input.rawText || '';
+  const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+
+  const hasHeading = (patterns: RegExp[]) =>
+    lines.some((line) => line.length <= 60 && patterns.some((re) => re.test(line)));
+
+  return {
+    languages:
+      (input.languageCount ?? 0) > 0 ||
+      Boolean(input.sectionTexts?.languages?.trim()) ||
+      hasHeading(SECTION_HEADING_PATTERNS.languages),
+    certifications:
+      (input.certificationCount ?? 0) > 0 ||
+      Boolean(input.sectionTexts?.certifications?.trim()) ||
+      hasHeading(SECTION_HEADING_PATTERNS.certifications),
+    projects:
+      (input.projectCount ?? 0) > 0 ||
+      Boolean(input.sectionTexts?.projects?.trim()) ||
+      hasHeading(SECTION_HEADING_PATTERNS.projects),
+  };
+}
+
+function getActiveWeights(presence?: SectionPresenceFlags): Record<keyof SectionConfidenceScores, number> {
+  const weights = { ...SECTION_WEIGHTS };
+  if (presence) {
+    if (!presence.languages) weights.languages = 0;
+    if (!presence.certifications) weights.certifications = 0;
+    if (!presence.projects) weights.projects = 0;
+  }
+  const sum = Object.values(weights).reduce((a, b) => a + b, 0);
+  if (sum <= 0) return weights;
+  const normalized = { ...weights };
+  for (const key of Object.keys(normalized) as Array<keyof SectionConfidenceScores>) {
+    normalized[key] = weights[key] / sum;
+  }
+  return normalized;
+}
+
+function computeWeightedScore(
+  sectionConfidence: SectionConfidenceScores,
+  presence?: SectionPresenceFlags
+): number {
+  const weights = getActiveWeights(presence);
+  let weighted = 0;
+  for (const key of Object.keys(weights) as Array<keyof SectionConfidenceScores>) {
+    weighted += sectionConfidence[key] * weights[key];
+  }
+  return weighted;
+}
 
 export function computeSectionConfidence(input: {
   identityScore: number;
@@ -56,17 +146,10 @@ export function computeSectionConfidence(input: {
 
 export function computeParserConfidenceScore(
   sectionConfidence: SectionConfidenceScores,
-  parserConfidence?: number
+  parserConfidence?: number,
+  sectionPresence?: SectionPresenceFlags
 ): number {
-  const weighted =
-    sectionConfidence.identity * SECTION_WEIGHTS.identity +
-    sectionConfidence.summary * SECTION_WEIGHTS.summary +
-    sectionConfidence.experience * SECTION_WEIGHTS.experience +
-    sectionConfidence.projects * SECTION_WEIGHTS.projects +
-    sectionConfidence.education * SECTION_WEIGHTS.education +
-    sectionConfidence.skills * SECTION_WEIGHTS.skills +
-    sectionConfidence.languages * SECTION_WEIGHTS.languages +
-    sectionConfidence.certifications * SECTION_WEIGHTS.certifications;
+  const weighted = computeWeightedScore(sectionConfidence, sectionPresence);
 
   const blended =
     typeof parserConfidence === 'number' && parserConfidence > 0
@@ -77,17 +160,9 @@ export function computeParserConfidenceScore(
 }
 
 export function computeResumeQualityScore(input: QualityScoreInput): number {
-  const { sectionConfidence, validationReport, repairReport } = input;
+  const { sectionConfidence, validationReport, repairReport, sectionPresence } = input;
 
-  let base =
-    sectionConfidence.identity * SECTION_WEIGHTS.identity +
-    sectionConfidence.summary * SECTION_WEIGHTS.summary +
-    sectionConfidence.experience * SECTION_WEIGHTS.experience +
-    sectionConfidence.projects * SECTION_WEIGHTS.projects +
-    sectionConfidence.education * SECTION_WEIGHTS.education +
-    sectionConfidence.skills * SECTION_WEIGHTS.skills +
-    sectionConfidence.languages * SECTION_WEIGHTS.languages +
-    sectionConfidence.certifications * SECTION_WEIGHTS.certifications;
+  let base = computeWeightedScore(sectionConfidence, sectionPresence);
 
   const completenessBonus =
     (input.hasIdentity ? 4 : 0) +

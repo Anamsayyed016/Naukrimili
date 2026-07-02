@@ -24,7 +24,10 @@ export {
   computeParserConfidenceScore,
   computeResumeQualityScore,
   computeSectionConfidence,
+  inferSectionPresence,
 } from './scoring';
+
+export type { SectionPresenceFlags, QualityScoreInput } from './scoring';
 
 export { validateAndRepairIdentity } from './identity';
 export { validateAndRepairSummary } from './summary';

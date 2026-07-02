@@ -5,6 +5,8 @@
 import { isLikelyEducationLine } from '@/lib/resume-parser/field-classification';
 import { isPlausibleExperienceCompany } from '@/lib/resume-parser/import-sanitize';
 
+import { lineHasDegreeSignal } from './degree';
+
 export interface InstitutionDetection {
   institution: string;
   confidence: number;
@@ -19,6 +21,7 @@ const GOVT_INSTITUTION_RE =
 export function scoreInstitutionCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 4 || trimmed.length > 160) return 0;
+  if (lineHasDegreeSignal(trimmed) && !INSTITUTION_MARKERS_RE.test(trimmed)) return 0;
   if (isPlausibleExperienceCompany(trimmed) && !INSTITUTION_MARKERS_RE.test(trimmed)) {
     return 0;
   }

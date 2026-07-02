@@ -3,6 +3,7 @@
  */
 
 import { TECH_SKILL_AS_COMPANY_RE } from './constants';
+import { looksLikeSentenceNotCompany } from './company';
 
 import type { CustomExtractedExperience } from './types';
 
@@ -43,6 +44,10 @@ export function isValidExperience(exp: CustomExtractedExperience): boolean {
     !exp.designation &&
     exp.bulletPoints.length === 0
   ) {
+    return false;
+  }
+
+  if (exp.company && looksLikeSentenceNotCompany(exp.company)) {
     return false;
   }
 

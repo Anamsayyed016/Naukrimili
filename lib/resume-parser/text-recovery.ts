@@ -340,8 +340,10 @@ export function cleanResumeTextPreservingLines(input: string): string {
     .replace(/[\u2500-\u259F\u2630-\u268F]/g, ' ')
     // C1 control characters
     .replace(/[\u0080-\u009F]/g, ' ')
-    // Collapse runs of spaces/tabs WITHIN a line, but preserve \n
-    .replace(/[ \t]+/g, ' ')
+    // Collapse runs of spaces/tabs WITHIN a line, but preserve \n and column tabs
+    .replace(/\t/g, '\u0001')
+    .replace(/[ ]+/g, ' ')
+    .replace(/\u0001/g, '\t')
     // Collapse 3+ blank lines to 2
     .replace(/\n{3,}/g, '\n\n')
     .trim();
@@ -823,6 +825,78 @@ export function classifyResumeTextSignals(rawText: string): ResumeTextSignals {
   };
 }
 
+/** Preserve wide horizontal gaps as tab column separators before space collapse. */
+function preserveColumnGaps(text: string): string {
+  return text.replace(/ {3,}/g, '\t');
+}
+
+/** Split a line that contains two columns separated by tab or wide whitespace. */
+function splitDualColumnLine(line: string): { left: string; right: string } | null {
+  if (line.includes('\t')) {
+    const parts = line.split('\t').map((p) => p.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      return { left: parts[0], right: parts.slice(1).join(' ') };
+    }
+  }
+  const match = line.match(/^(.+?)\s{3,}(.+)$/);
+  if (!match) return null;
+  const left = match[1].trim();
+  const right = match[2].trim();
+  if (!left || !right || left.length < 2 || right.length < 2) return null;
+  return { left, right };
+}
+
+/** Strip sidebar label bleed from identity lines only (e.g. "ANAM SAYYED SKILLS"). */
+function stripSidebarNameBleed(text: string): string {
+  const trimmed = text.trim();
+  const m = trimmed.match(/^(.{2,60}?)\s+(SKILLS?|CONTACT)\s*$/i);
+  if (m && isPlausiblePersonName(m[1].trim())) {
+    return m[1].trim();
+  }
+  return trimmed;
+}
+
+function isStandaloneSectionLabel(text: string): boolean {
+  return /^(skills?|contact|languages?|certifications?|experience|education|projects?|summary)$/i.test(
+    text.trim()
+  );
+}
+
+function isSidebarColumnContent(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed || isStandaloneSectionLabel(trimmed)) return false;
+  if (
+    /@|linkedin\.com|github\.com|phone|mobile|tel\b/i.test(trimmed) ||
+    /\+?\d[\d\s().-]{7,}\d/.test(trimmed)
+  ) {
+    return true;
+  }
+  if (
+    trimmed.length <= 90 &&
+    /,/.test(trimmed) &&
+    trimmed.split(',').filter((p) => p.trim().length >= 2).length >= 2 &&
+    !lineHasDateRange(trimmed) &&
+    !isLikelyJobTitle(trimmed) &&
+    !isLikelyCompanyName(trimmed)
+  ) {
+    return true;
+  }
+  if (/^(skills?|languages?|certifications?|contact|expertise)$/i.test(trimmed)) return true;
+  return false;
+}
+
+function isMainColumnContent(text: string): boolean {
+  const trimmed = stripSidebarNameBleed(text);
+  if (!trimmed) return false;
+  if (isAnyHeadingLine(trimmed)) return true;
+  if (lineHasDateRange(trimmed)) return true;
+  if (isLikelyJobTitle(trimmed)) return true;
+  if (isLikelyCompanyName(trimmed)) return true;
+  if (isPlausiblePersonName(trimmed)) return true;
+  if (/^[-•*]\s/.test(trimmed)) return true;
+  return false;
+}
+
 /**
  * Sidebar / two-column PDFs often interleave contact lines with body paragraphs.
  * Pull contact/identity lines to the top so header + section parsers see a linear resume.
@@ -839,40 +913,74 @@ export function reconstructColumnLayout(text: string): string {
     const line = lines[i];
     const trimmed = line.trim();
     if (!trimmed) {
-      if (hitMajorSection) main.push(line);
+      if (hitMajorSection) main.push('');
       continue;
     }
 
-    if (isAnyHeadingLine(trimmed) && i > 4) {
+    const dual = splitDualColumnLine(trimmed);
+    if (dual) {
+      const left = stripSidebarNameBleed(dual.left);
+      const right = stripSidebarNameBleed(dual.right);
+
+      if (isPlausiblePersonName(left) || isLikelyJobTitle(left)) {
+        main.push(left);
+      } else if (isMainColumnContent(left) || hitMajorSection) {
+        main.push(left);
+      } else if (isSidebarColumnContent(left) && !hitMajorSection) {
+        sidebar.push(left);
+      } else {
+        main.push(left);
+      }
+
+      if (isStandaloneSectionLabel(right)) {
+        // drop bare section labels from sidebar bleed
+      } else if (isSidebarColumnContent(right) && !hitMajorSection) {
+        sidebar.push(right);
+      } else if (isMainColumnContent(right) || hitMajorSection) {
+        main.push(right);
+      } else if (!hitMajorSection) {
+        sidebar.push(right);
+      } else {
+        main.push(right);
+      }
+      continue;
+    }
+
+    const cleaned = stripSidebarNameBleed(trimmed);
+
+    if (isAnyHeadingLine(cleaned) && i > 4) {
       hitMajorSection = true;
-      main.push(line);
+      main.push(cleaned);
       continue;
     }
 
     const isContactish =
-      /@|linkedin\.com|github\.com|phone|mobile|tel\b/i.test(trimmed) ||
-      /\+?\d[\d\s().-]{7,}\d/.test(trimmed);
+      /@|linkedin\.com|github\.com|phone|mobile|tel\b/i.test(cleaned) ||
+      /\+?\d[\d\s().-]{7,}\d/.test(cleaned);
     const isSkillish =
       !hitMajorSection &&
-      trimmed.length <= 90 &&
-      /,/.test(trimmed) &&
-      trimmed.split(',').filter((p) => p.trim().length >= 2).length >= 2 &&
-      !lineHasDateRange(trimmed);
+      cleaned.length <= 90 &&
+      /,/.test(cleaned) &&
+      cleaned.split(',').filter((p) => p.trim().length >= 2).length >= 2 &&
+      !lineHasDateRange(cleaned) &&
+      !isLikelyJobTitle(cleaned) &&
+      !isLikelyCompanyName(cleaned);
     const isShortIdentity =
-      trimmed.length <= 55 &&
-      !isLikelyJobTitle(trimmed) &&
-      !isLikelyCompanyName(trimmed) &&
-      (isPlausiblePersonName(trimmed) || isContactish);
+      cleaned.length <= 55 &&
+      !isLikelyJobTitle(cleaned) &&
+      !isLikelyCompanyName(cleaned) &&
+      (isPlausiblePersonName(cleaned) || isContactish);
 
     if (
       !hitMajorSection &&
-      (isContactish || isSkillish || (isShortIdentity && trimmed.length <= 40))
+      (isContactish || isSkillish || (isShortIdentity && cleaned.length <= 40)) &&
+      !isMainColumnContent(cleaned)
     ) {
-      sidebar.push(trimmed);
+      sidebar.push(cleaned);
       continue;
     }
 
-    main.push(line);
+    main.push(cleaned);
   }
 
   if (sidebar.length >= 2 && main.length >= sidebar.length) {
@@ -882,7 +990,8 @@ export function reconstructColumnLayout(text: string): string {
 }
 
 export function prepareResumeTextForParsing(rawText: string): { text: string; signals: ResumeTextSignals } {
-  let text = cleanResumeTextPreservingLines(rawText || '');
+  const withColumnGaps = preserveColumnGaps(rawText || '');
+  let text = cleanResumeTextPreservingLines(withColumnGaps);
   const signals = classifyResumeTextSignals(text);
 
   if (signals.coverLetterDetected || signals.executiveLayout) {
