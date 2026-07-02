@@ -1713,14 +1713,12 @@ export function reconcileExperienceHeaderFields(
       location = company;
     }
     company = '';
-    Company = '';
   }
 
   if (!company && position) {
     const recovered = recoverCompanyFromExperienceText(deduped.description, position);
     if (recovered && isPlausibleExperienceCompany(recovered)) {
       company = recovered;
-      Company = company;
     }
   }
 
