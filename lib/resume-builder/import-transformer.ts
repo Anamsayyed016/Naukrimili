@@ -178,36 +178,70 @@ function enrichExperienceFromParserAliases(
   return experiences.map((exp, index) => {
     if (!exp || typeof exp !== 'object') return exp;
     const row = { ...(exp as Record<string, unknown>) };
-    const hasCompany = hasMeaningfulText(
-      row.company || row.Company || row.organization || row.employer
-    );
-    if (hasCompany) return row;
+    const hasCompany = hasMeaningfulText(row.company || row.Company || row.organization || row.employer);
+    const hasLocation = hasMeaningfulText(row.location || row.Location);
+    const hasDescription = hasMeaningfulText(row.description || row.Description);
 
-    const tryAssignCompany = (source: Record<string, unknown>) => {
-      for (const key of [
-        'company',
-        'Company',
-        'organization',
-        'Organization',
-        'employer',
-        'Employer',
-        'companyName',
-        'CompanyName',
-        'workedAt',
-        'organizationName',
-      ] as const) {
-        const candidate = sanitizeFieldText(source[key], 160);
-        if (candidate && isPlausibleExperienceCompany(candidate)) {
-          row.company = candidate;
-          row.Company = candidate;
-          return true;
+    const fillFromSource = (source: Record<string, unknown>): boolean => {
+      let changed = false;
+      if (!hasCompany) {
+        for (const key of [
+          'company',
+          'Company',
+          'organization',
+          'Organization',
+          'employer',
+          'Employer',
+          'companyName',
+          'CompanyName',
+          'workedAt',
+          'organizationName',
+        ] as const) {
+          const candidate = sanitizeFieldText(source[key], 160);
+          if (candidate && isPlausibleExperienceCompany(candidate)) {
+            row.company = candidate;
+            row.Company = candidate;
+            changed = true;
+            break;
+          }
         }
       }
-      return false;
+      if (!hasLocation) {
+        const loc = sanitizeFieldText(
+          source.location ?? source.Location ?? source.city ?? source.City ?? '',
+          120
+        );
+        if (loc) {
+          row.location = loc;
+          row.Location = loc;
+          changed = true;
+        }
+      }
+      if (!hasDescription) {
+        const desc = cleanMultiline(
+          String(
+            source.description ??
+              source.Description ??
+              source.summary ??
+              source.Summary ??
+              source.responsibilities ??
+              source.achievements ??
+              ''
+          )
+        ).trim();
+        if (desc.length >= 12) {
+          row.description = desc;
+          row.Description = desc;
+          changed = true;
+        }
+      }
+      return changed;
     };
 
+    if (hasCompany && hasLocation && hasDescription) return row;
+
     const raw = rawList[index];
-    if (raw && typeof raw === 'object' && tryAssignCompany(raw as Record<string, unknown>)) {
+    if (raw && typeof raw === 'object' && fillFromSource(raw as Record<string, unknown>)) {
       return row;
     }
 
@@ -223,7 +257,7 @@ function enrichExperienceFromParserAliases(
         .toLowerCase()
         .trim();
       if (startKey && candStart && startKey === candStart && (!titleKey || !candTitle || titleKey === candTitle)) {
-        if (tryAssignCompany(rec)) return row;
+        if (fillFromSource(rec)) return row;
       }
     }
 
