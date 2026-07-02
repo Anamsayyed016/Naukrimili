@@ -1,0 +1,48 @@
+/**
+ * Designation / job title detection with dynamic support for unknown titles.
+ */
+
+import {
+  classifyResumeTextFragment,
+  isLikelyJobTitleFragment,
+} from '@/lib/resume-parser/field-classification';
+import { looksLikeJobTitleLine } from '@/lib/resume-parser/import-sanitize';
+
+export interface DesignationDetection {
+  designation: string;
+  confidence: number;
+}
+
+const TITLE_KEYWORDS_RE =
+  /\b(?:software|senior|junior|lead|principal|staff|full[- ]?stack|front[- ]?end|back[- ]?end|python|java|devops|data|machine learning|ml|cloud|mobile|web|product|project|engineering|developer|engineer|manager|consultant|intern|founder|ceo|cto|cfo|director|architect|analyst|specialist|associate|coordinator|administrator|executive|officer|head|vp|vice president)\b/i;
+
+const SENIORITY_RE =
+  /\b(?:senior|sr\.?|junior|jr\.?|lead|principal|staff|associate|entry[- ]?level)\b/i;
+
+export function scoreDesignationCandidate(text: string): number {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.length < 3) return 0;
+  if (trimmed.length > 120) return 0;
+  if (/[.!?]$/.test(trimmed) && trimmed.split(/\s+/).length > 6) return 0;
+
+  let score = 0;
+  const classified = classifyResumeTextFragment(trimmed);
+  if (classified.kind === 'DESIGNATION') score += classified.confidence * 0.9;
+  if (isLikelyJobTitleFragment(trimmed)) score += 30;
+  if (looksLikeJobTitleLine(trimmed)) score += 28;
+  if (TITLE_KEYWORDS_RE.test(trimmed)) score += 24;
+  if (SENIORITY_RE.test(trimmed)) score += 10;
+  if (trimmed.split(/\s+/).length <= 8) score += 8;
+  if (/^[A-Z]/.test(trimmed)) score += 5;
+
+  return Math.min(100, Math.round(score));
+}
+
+export function detectDesignationFromLine(text: string): DesignationDetection {
+  const trimmed = text.trim();
+  const conf = scoreDesignationCandidate(trimmed);
+  if (conf >= 38) {
+    return { designation: trimmed, confidence: conf };
+  }
+  return { designation: '', confidence: 0 };
+}

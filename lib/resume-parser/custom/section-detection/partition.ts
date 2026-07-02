@@ -1,0 +1,155 @@
+/**
+ * Partition validation — full coverage, no overlaps, no duplicate lines.
+ */
+
+import { sliceTextByLines } from './line-index';
+import type {
+  CustomSectionBlock,
+  DetectedSectionBlock,
+  LineSpan,
+  SectionCoverageReport,
+} from './types';
+
+export function assignLineOwnership(
+  lines: LineSpan[],
+  headings: Array<{ lineIndex: number; sectionIndex: number }>
+): Int16Array {
+  const owner = new Int16Array(lines.length).fill(-1);
+  const sorted = [...headings].sort((a, b) => a.lineIndex - b.lineIndex);
+
+  for (let h = 0; h < sorted.length; h++) {
+    const startLine = sorted[h].lineIndex;
+    const endLine = h + 1 < sorted.length ? sorted[h + 1].lineIndex : lines.length;
+    for (let li = startLine; li < endLine; li++) {
+      if (li === startLine) {
+        owner[li] = -2;
+        continue;
+      }
+      owner[li] = sorted[h].sectionIndex;
+    }
+  }
+
+  for (let li = 0; li < lines.length; li++) {
+    if (owner[li] !== -1) continue;
+    const nextHeading = sorted.find((h) => h.lineIndex > li);
+    if (!nextHeading) {
+      owner[li] = -1;
+      continue;
+    }
+    owner[li] = -1;
+  }
+
+  return owner;
+}
+
+export function buildCoverageReport(
+  text: string,
+  lines: LineSpan[],
+  sections: DetectedSectionBlock[],
+  preamble: { start: number; end: number }
+): SectionCoverageReport {
+  const totalChars = text.length;
+  const assigned = new Uint8Array(totalChars);
+  const mark = (start: number, end: number) => {
+    for (let i = Math.max(0, start); i < Math.min(totalChars, end); i++) assigned[i] = 1;
+  };
+
+  if (preamble.end > preamble.start) mark(preamble.start, preamble.end);
+  for (const s of sections) mark(s.startIndex, s.endIndex);
+
+  const gaps: SectionCoverageReport['gaps'] = [];
+  let gapStart = -1;
+  for (let i = 0; i < totalChars; i++) {
+    if (assigned[i] === 0 && text[i] !== '\n') {
+      if (gapStart < 0) gapStart = i;
+    } else if (gapStart >= 0) {
+      gaps.push({ start: gapStart, end: i, text: text.slice(gapStart, i) });
+      gapStart = -1;
+    }
+  }
+  if (gapStart >= 0) gaps.push({ start: gapStart, end: totalChars, text: text.slice(gapStart) });
+
+  const overlaps: SectionCoverageReport['overlaps'] = [];
+  for (let a = 0; a < sections.length; a++) {
+    for (let b = a + 1; b < sections.length; b++) {
+      const start = Math.max(sections[a].startIndex, sections[b].startIndex);
+      const end = Math.min(sections[a].endIndex, sections[b].endIndex);
+      if (start < end) overlaps.push({ sectionA: a, sectionB: b, start, end });
+    }
+  }
+
+  const assignedChars = assigned.reduce((n, v) => n + (v ? 1 : 0), 0);
+  return {
+    complete: gaps.length === 0 && overlaps.length === 0,
+    assignedChars,
+    totalChars,
+    gaps,
+    overlaps,
+  };
+}
+
+export function repairGapsIntoPreamble(
+  text: string,
+  lines: LineSpan[],
+  preambleEndLine: number,
+  sections: DetectedSectionBlock[],
+  coverage: SectionCoverageReport
+): { preamble: string; sections: DetectedSectionBlock[] } {
+  if (coverage.complete || coverage.gaps.length === 0) {
+    return {
+      preamble: sliceTextByLines(lines, 0, preambleEndLine, text),
+      sections,
+    };
+  }
+
+  const gapText = coverage.gaps.map((g) => g.text.trim()).filter(Boolean).join('\n');
+  const preamble = [sliceTextByLines(lines, 0, preambleEndLine, text), gapText]
+    .filter(Boolean)
+    .join('\n')
+    .trim();
+
+  const repaired = sections.map((s) => ({ ...s }));
+  for (const gap of coverage.gaps) {
+    const inside = repaired.findIndex((s) => gap.start >= s.startIndex && gap.end <= s.endIndex);
+    if (inside >= 0) continue;
+    const before = repaired.filter((s) => s.endIndex <= gap.start);
+    if (before.length > 0) {
+      const target = before[before.length - 1];
+      const idx = repaired.indexOf(target);
+      const merged = `${target.content}\n${gap.text}`.trim();
+      repaired[idx] = {
+        ...target,
+        content: merged,
+        endIndex: Math.max(target.endIndex, gap.end),
+      };
+    }
+  }
+
+  return { preamble, sections: repaired };
+}
+
+export function dedupeContentLines(content: string): string {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const line of content.split('\n')) {
+    const key = line.trim().toLowerCase();
+    if (!key) {
+      if (out.length > 0 && out[out.length - 1] !== '') out.push('');
+      continue;
+    }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(line);
+  }
+  return out.join('\n').trim();
+}
+
+export function toCustomSectionBlock(section: DetectedSectionBlock): CustomSectionBlock {
+  return {
+    rawHeading: section.rawHeading,
+    content: section.content,
+    confidence: section.confidence,
+    startIndex: section.startIndex,
+    endIndex: section.endIndex,
+  };
+}
