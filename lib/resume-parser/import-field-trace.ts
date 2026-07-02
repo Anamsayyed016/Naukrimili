@@ -27,6 +27,11 @@ export function isImportFieldTraceEnabled(): boolean {
   return v === '1' || v === 'true' || v === 'yes';
 }
 
+/** Use warn so production removeConsole (log-only strip) does not silence trace output. */
+function traceLog(...args: unknown[]): void {
+  console.warn(...args);
+}
+
 type ExperienceRow = {
   index: number;
   company: string;
@@ -356,9 +361,9 @@ function diffSnapshots(
 
 function logStageRecord(record: StageRecord): void {
   const label = `[import-field-trace:${activeReqId}]`;
-  console.log(`${label} ═══ STAGE: ${record.stage} ═══`);
-  console.log(`${label} Parser Source: ${record.parserSource}`);
-  console.log(`${label} Incoming:`, {
+  traceLog(`${label} ═══ STAGE: ${record.stage} ═══`);
+  traceLog(`${label} Parser Source: ${record.parserSource}`);
+  traceLog(`${label} Incoming:`, {
     fullName: preview(record.incoming.fullName, 80),
     headline: preview(record.incoming.headline, 80),
     summary: preview(record.incoming.summary, 100),
@@ -369,7 +374,7 @@ function logStageRecord(record: StageRecord): void {
     projects: record.incoming.projectsCount,
     experience: record.incoming.experienceCount,
   });
-  console.log(`${label} Outgoing:`, {
+  traceLog(`${label} Outgoing:`, {
     fullName: preview(record.outgoing.fullName, 80),
     headline: preview(record.outgoing.headline, 80),
     summary: preview(record.outgoing.summary, 100),
@@ -380,41 +385,41 @@ function logStageRecord(record: StageRecord): void {
     projects: record.outgoing.projectsCount,
     experience: record.outgoing.experienceCount,
   });
-  console.log(`${label} Dropped fields:`, record.dropped.length ? record.dropped : '(none)');
-  console.log(`${label} Modified fields:`, record.modified.length ? record.modified : '(none)');
-  console.log(`${label} Empty fields:`, record.empty.length ? record.empty : '(none)');
-  console.log(`${label} Recovered fields:`, record.recovered.length ? record.recovered : '(none)');
+  traceLog(`${label} Dropped fields:`, record.dropped.length ? record.dropped : '(none)');
+  traceLog(`${label} Modified fields:`, record.modified.length ? record.modified : '(none)');
+  traceLog(`${label} Empty fields:`, record.empty.length ? record.empty : '(none)');
+  traceLog(`${label} Recovered fields:`, record.recovered.length ? record.recovered : '(none)');
   if (record.notes.length) {
-    console.log(`${label} Notes:`, record.notes);
+    traceLog(`${label} Notes:`, record.notes);
   }
 
   if (record.experiences.length) {
-    console.log(`${label} Experience rows:`);
+    traceLog(`${label} Experience rows:`);
     for (const exp of record.experiences) {
-      console.log(
+      traceLog(
         `${label}   [${exp.index}] company="${preview(exp.company, 60)}" title="${preview(exp.title, 60)}" location="${preview(exp.location, 40)}" descLen=${exp.descriptionLength} achievements=${exp.achievementsCount} start="${exp.startDate}" end="${exp.endDate}" source=${exp.parserSource}`
       );
     }
   }
 
   if (record.projects.length) {
-    console.log(`${label} Project rows:`);
+    traceLog(`${label} Project rows:`);
     for (const proj of record.projects) {
-      console.log(
+      traceLog(
         `${label}   name="${preview(proj.name, 80)}" desc="${proj.description}" tech="${preview(proj.technologies, 80)}" source=${proj.parserSource}`
       );
     }
   }
 
   if (record.skills.length) {
-    console.log(`${label} Skill decisions (sample up to 40):`);
+    traceLog(`${label} Skill decisions (sample up to 40):`);
     for (const sk of record.skills.slice(0, 40)) {
-      console.log(
+      traceLog(
         `${label}   skill="${sk.skill}" confidence=${sk.confidence} accepted=${sk.accepted} rejected=${sk.rejected} reason="${sk.reason}"`
       );
     }
     if (record.skills.length > 40) {
-      console.log(`${label}   … ${record.skills.length - 40} more skills omitted from log`);
+      traceLog(`${label}   … ${record.skills.length - 40} more skills omitted from log`);
     }
   }
 }
@@ -425,7 +430,7 @@ export function beginImportFieldTrace(reqId: string): void {
   stageHistory.length = 0;
   lossEvents.length = 0;
   lastSnapshot = null;
-  console.log(`[import-field-trace:${reqId}] TRACE STARTED`);
+  traceLog(`[import-field-trace:${reqId}] TRACE STARTED`);
 }
 
 /** Trace a stage where only outgoing data exists (e.g. parser output). */
@@ -521,10 +526,10 @@ export function traceExperienceReconcile(
   if (!b.location && a.location) notes.push(`location set ("${preview(a.location, 40)}")`);
 
   const label = `[import-field-trace:${activeReqId}]`;
-  console.log(
+  traceLog(
     `${label} [10_reconcile] exp[${index}] company="${preview(a.company, 60)}" title="${preview(a.title, 60)}" loc="${preview(a.location, 40)}" descLen=${a.descriptionLength}`
   );
-  if (notes.length) console.log(`${label} [10_reconcile] exp[${index}] notes:`, notes);
+  if (notes.length) traceLog(`${label} [10_reconcile] exp[${index}] notes:`, notes);
 }
 
 export function traceSanitizeExperienceDropped(
@@ -544,7 +549,7 @@ export function traceSanitizeExperienceDropped(
     parserSource,
     overwrittenBy: 'n/a',
   });
-  console.log(
+  traceLog(
     `[import-field-trace:${activeReqId}] [11_sanitize] DROPPED exp[${index}] company="${row?.company || ''}" title="${row?.title || ''}" reason="${reason}"`
   );
 }
@@ -565,7 +570,7 @@ export function traceSanitizeProjectDropped(
     parserSource,
     overwrittenBy: 'n/a',
   });
-  console.log(
+  traceLog(
     `[import-field-trace:${activeReqId}] [12_sanitize_project] DROPPED project[${index}] reason="${reason}" input=${JSON.stringify(input).slice(0, 120)}`
   );
 }
@@ -648,23 +653,23 @@ export function flushImportFieldTraceReport(): void {
   if (!isImportFieldTraceEnabled()) return;
   const label = `[import-field-trace:${activeReqId}]`;
 
-  console.log(`${label}`);
-  console.log(`${label} ╔══════════════════════════════════════════════════════════════╗`);
-  console.log(`${label} ║           IMPORT FIELD LOSS — FINAL TRACE REPORT            ║`);
-  console.log(`${label} ╚══════════════════════════════════════════════════════════════╝`);
+  traceLog(`${label}`);
+  traceLog(`${label} ╔══════════════════════════════════════════════════════════════╗`);
+  traceLog(`${label} ║           IMPORT FIELD LOSS — FINAL TRACE REPORT            ║`);
+  traceLog(`${label} ╚══════════════════════════════════════════════════════════════╝`);
 
-  console.log(`${label} Stages traced: ${stageHistory.length}`);
+  traceLog(`${label} Stages traced: ${stageHistory.length}`);
   for (const s of stageHistory) {
-    console.log(`${label} • ${s.stage} | dropped=[${s.dropped.join(', ') || 'none'}] recovered=[${s.recovered.join(', ') || 'none'}]`);
+    traceLog(`${label} • ${s.stage} | dropped=[${s.dropped.join(', ') || 'none'}] recovered=[${s.recovered.join(', ') || 'none'}]`);
   }
 
-  console.log(`${label}`);
-  console.log(`${label} ── Per-field loss events ──`);
+  traceLog(`${label}`);
+  traceLog(`${label} ── Per-field loss events ──`);
   if (!lossEvents.length) {
-    console.log(`${label} (no explicit loss events recorded — fields may have been empty at source)`);
+    traceLog(`${label} (no explicit loss events recorded — fields may have been empty at source)`);
   }
   for (const ev of lossEvents) {
-    console.log(
+    traceLog(
       `${label} FIELD="${ev.field}" firstSeen="${ev.firstSeenAt}" lostAt="${ev.lostAt}" fn="${ev.functionName}" condition="${ev.condition}"`
     );
   }
@@ -672,22 +677,22 @@ export function flushImportFieldTraceReport(): void {
   const first = stageHistory[0]?.outgoing;
   const last = stageHistory[stageHistory.length - 1]?.outgoing;
   if (first && last) {
-    console.log(`${label}`);
-    console.log(`${label} ── Pipeline summary (first stage → last stage) ──`);
-    console.log(`${label} Full Name: "${preview(first.fullName, 60)}" → "${preview(last.fullName, 60)}"`);
-    console.log(`${label} Headline: "${preview(first.headline, 60)}" → "${preview(last.headline, 60)}"`);
-    console.log(`${label} Summary len: ${first.summary.length} → ${last.summary.length}`);
-    console.log(`${label} Skills: ${first.skills.length} → ${last.skills.length}`);
-    console.log(`${label} Experience: ${first.experienceCount} → ${last.experienceCount}`);
-    console.log(`${label} Companies: ${first.experiences.filter((e) => e.company).length} → ${last.experiences.filter((e) => e.company).length}`);
-    console.log(`${label} Projects: ${first.projectsCount} → ${last.projectsCount}`);
+    traceLog(`${label}`);
+    traceLog(`${label} ── Pipeline summary (first stage → last stage) ──`);
+    traceLog(`${label} Full Name: "${preview(first.fullName, 60)}" → "${preview(last.fullName, 60)}"`);
+    traceLog(`${label} Headline: "${preview(first.headline, 60)}" → "${preview(last.headline, 60)}"`);
+    traceLog(`${label} Summary len: ${first.summary.length} → ${last.summary.length}`);
+    traceLog(`${label} Skills: ${first.skills.length} → ${last.skills.length}`);
+    traceLog(`${label} Experience: ${first.experienceCount} → ${last.experienceCount}`);
+    traceLog(`${label} Companies: ${first.experiences.filter((e) => e.company).length} → ${last.experiences.filter((e) => e.company).length}`);
+    traceLog(`${label} Projects: ${first.projectsCount} → ${last.projectsCount}`);
   }
 
-  console.log(`${label}`);
-  console.log(`${label} ── SINGLE ROOT CAUSE (heuristic from trace) ──`);
+  traceLog(`${label}`);
+  traceLog(`${label} ── SINGLE ROOT CAUSE (heuristic from trace) ──`);
   const root = inferSingleRootCause();
-  console.log(`${label} ${root}`);
-  console.log(`${label} TRACE COMPLETE`);
+  traceLog(`${label} ${root}`);
+  traceLog(`${label} TRACE COMPLETE`);
 }
 
 function inferSingleRootCause(): string {
