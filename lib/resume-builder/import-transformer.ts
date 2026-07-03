@@ -144,6 +144,16 @@ function countExperiencesWithCompany(list: unknown[]): number {
   return countPlausibleExperienceCompanies(list);
 }
 
+function shouldUseCustomParserExperienceFinalize(
+  importMeta: Record<string, unknown> | undefined,
+  list: Record<string, unknown>[]
+): boolean {
+  if (isCustomParserImport(importMeta ?? {})) return true;
+  if (importMeta?._imported === true) return true;
+  if (list.length > 0 && countPlausibleExperienceCompanies(list) < list.length) return true;
+  return false;
+}
+
 function normalizeMergedExperienceList(
   list: unknown[],
   importMeta?: Record<string, unknown>
@@ -152,7 +162,7 @@ function normalizeMergedExperienceList(
   const objects = list.filter(
     (entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object'
   );
-  if (isCustomParserImport(importMeta ?? {})) {
+  if (shouldUseCustomParserExperienceFinalize(importMeta, objects)) {
     return finalizeExperienceListForCustomParserImport(objects);
   }
   const reconciled = objects.map((entry) => reconcileExperienceHeaderFields(entry));
@@ -584,12 +594,15 @@ export function coalesceBuilderImportPayload(
     });
   }
 
-  // Upload / editor already coalesced this payload — re-merge orphans + text backfill.
+  // Upload / editor already coalesced this payload — text backfill + orphan merge.
   if (parsed._imported === true) {
-    const out = overlaySparseSectionsFromTextRecovery({ ...(parsed as Record<string, any>) });
-    delete out.builderFormData;
+    let out = { ...(parsed as Record<string, any>) };
     if (Array.isArray(out.experience) && out.experience.length > 0) {
       out.experience = enrichExperienceFromParserAliases(out.experience, out);
+    }
+    out = overlaySparseSectionsFromTextRecovery(out) as Record<string, any>;
+    delete out.builderFormData;
+    if (Array.isArray(out.experience) && out.experience.length > 0) {
       out.experience = normalizeMergedExperienceList(out.experience, out);
     }
     return applySummaryHygieneToBuilderForm(out);

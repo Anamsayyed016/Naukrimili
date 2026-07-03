@@ -2486,7 +2486,10 @@ export function finalizeExperienceListForCustomParserImport(
   entries: Record<string, unknown>[]
 ): Record<string, unknown>[] {
   if (!Array.isArray(entries) || entries.length === 0) return [];
-  const paired = pairHeaderFragmentOrphans(entries as ExperienceLike[]) as Record<
+  const demoted = entries
+    .filter((e): e is Record<string, unknown> => !!e && typeof e === 'object')
+    .map(demoteImplausibleExperienceCompany);
+  const paired = pairHeaderFragmentOrphans(demoted as ExperienceLike[]) as Record<
     string,
     unknown
   >[];
@@ -2498,7 +2501,9 @@ export function finalizeExperienceListForCustomParserImport(
     string,
     unknown
   >[];
-  return deduped.map((e) => reconcileExperienceHeaderFields(e));
+  return deduped.map((e) =>
+    demoteImplausibleExperienceCompany(reconcileExperienceHeaderFields(e))
+  );
 }
 
 /** Final binding pass before Builder state — orphan merge + semantic header reconciliation. */
@@ -2603,14 +2608,104 @@ export function isValidExperienceEntry(exp: {
 }
 
 /** True when company field is a real employer, not a title or location mis-assignment. */
+/** Clear tech-skill / location values wrongly stored in the company slot; relocate to location when empty. */
+export function demoteImplausibleExperienceCompany(
+  exp: Record<string, unknown>
+): Record<string, unknown> {
+  if (!exp || typeof exp !== 'object') return exp;
+  const out = { ...exp };
+  const company = readExperienceCompanySlot(out);
+  if (!company || isPlausibleExperienceCompany(company) || looksLikeCompanyNameLine(company)) {
+    return out;
+  }
+
+  const existingLoc = sanitizeFieldText(out.location ?? out.Location, 120);
+  if (
+    !existingLoc &&
+    (looksLikeStandaloneLocationLine(company) ||
+      isLikelyLocationFragment(company) ||
+      classifyResumeTextFragment(company).kind === 'LOCATION')
+  ) {
+    out.location = company;
+    out.Location = company;
+  }
+
+  for (const key of [
+    'company',
+    'Company',
+    'organization',
+    'Organization',
+    'employer',
+    'Employer',
+    'companyName',
+    'CompanyName',
+  ] as const) {
+    delete out[key];
+  }
+  return out;
+}
+
+/** Prefer a plausible employer name when merging parser + recovered experience rows. */
+export function resolveMergedExperienceCompany(
+  parser: Record<string, unknown>,
+  recovered: Record<string, unknown>
+): string {
+  const parserCo = sanitizeFieldText(readExperienceCompanySlot(parser), 160);
+  const recoveredCo = sanitizeFieldText(
+    String(
+      recovered.company ||
+        recovered.Company ||
+        recovered.organization ||
+        recovered.Organization ||
+        recovered.employer ||
+        ''
+    ),
+    160
+  );
+  const parserOk = !!parserCo && isPlausibleExperienceCompany(parserCo);
+  const recoveredOk = !!recoveredCo && isPlausibleExperienceCompany(recoveredCo);
+  if (parserOk && recoveredOk) {
+    return parserCo.length >= recoveredCo.length ? parserCo : recoveredCo;
+  }
+  if (recoveredOk) return recoveredCo;
+  if (parserOk) return parserCo;
+  if (looksLikeCompanyNameLine(recoveredCo) && !looksLikeJobTitleLine(recoveredCo)) {
+    return recoveredCo;
+  }
+  if (looksLikeCompanyNameLine(parserCo) && !looksLikeJobTitleLine(parserCo)) {
+    return parserCo;
+  }
+  return '';
+}
+
 export function isPlausibleExperienceCompany(value: unknown): boolean {
   const company = sanitizeFieldText(value, 160);
   if (!company) return false;
-  if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
-  if (looksLikeCompanyNameLine(company)) return true;
-  if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
   if (TECH_SKILL_AS_COMPANY_RE.test(lower)) return false;
+  if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
+  if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;
+  if (
+    /\b(technologies?|solutions?|systems?|services?|consulting|processors?|industries|enterprises?|laborator(?:y|ies)|university|college|pvt|ltd|llc|inc|corp|group|holdings)\b/i.test(
+      lower
+    ) &&
+    !/\b(developer|engineer|manager|analyst|consultant|designer|architect|lead|intern|programmer|specialist)\b/i.test(
+      lower
+    ) &&
+    !TECH_SKILL_AS_COMPANY_RE.test(lower)
+  ) {
+    return true;
+  }
+  if (
+    !/\s/.test(company) &&
+    company.length <= 12 &&
+    !/\b(ltd|llc|pvt|inc|corp|gmbh|llp|co|plc)\b/i.test(lower)
+  ) {
+    if (looksLikeJobTitleLine(company)) return false;
+    if (isLikelyCompanyNameFragment(company)) return true;
+    return false;
+  }
+  if (looksLikeCompanyNameLine(company)) return true;
   if (looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) return false;
   const classified = classifyResumeTextFragment(company);
   if (classified.kind === 'DESIGNATION' && classified.confidence >= 70) return false;

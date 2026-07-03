@@ -14,6 +14,11 @@ import {
   finalizeEducationListForBuilder,
   unionExperienceBodyFields,
   countPlausibleExperienceCompanies,
+  resolveMergedExperienceCompany,
+  demoteImplausibleExperienceCompany,
+  finalizeExperienceListForCustomParserImport,
+  isPlausibleExperienceCompany,
+  sanitizeFieldText,
 } from '@/lib/resume-parser/import-sanitize';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
@@ -298,14 +303,37 @@ function applyExperienceStructuralMerge(
     parser.position || parser.title || parser.role || parser.job_title,
     recovered.position
   );
-  const company = preferNonemptyField(
-    parser.company ||
-      parser.Company ||
-      parser.organization ||
-      parser.Organization ||
-      parser.employer,
-    recovered.company || (recovered as { organization?: string }).organization
+  const company = resolveMergedExperienceCompany(parser, recovered);
+  const parserCo = sanitizeFieldText(
+    String(
+      parser.company ||
+        parser.Company ||
+        parser.organization ||
+        parser.employer ||
+        ''
+    ),
+    160
   );
+  const recoveredCo = sanitizeFieldText(
+    String(
+      recovered.company ||
+        recovered.Company ||
+        recovered.organization ||
+        recovered.employer ||
+        ''
+    ),
+    160
+  );
+  let mergedCompany = company;
+  if (
+    recoveredCo &&
+    isPlausibleExperienceCompany(recoveredCo) &&
+    (!parserCo ||
+      (parserCo.length < recoveredCo.length &&
+        recoveredCo.toLowerCase().startsWith(parserCo.toLowerCase())))
+  ) {
+    mergedCompany = recoveredCo;
+  }
   const startDate = preferNonemptyField(parser.startDate || parser.start_date, recovered.startDate);
   const endDate = preferNonemptyField(parser.endDate || parser.end_date, recovered.endDate);
   return reconcileExperienceHeaderFields({
@@ -640,6 +668,27 @@ export function overlaySparseSectionsFromTextRecovery(
         usedRec
       )
     );
+    out.experience = finalizeExperienceListForCustomParserImport(
+      (out.experience as Record<string, unknown>[]).map(demoteImplausibleExperienceCompany)
+    );
+    const finalized = out.experience as Record<string, unknown>[];
+    const postPlausible = countPlausibleExperienceCompanies(finalized);
+    const recPlausible = countPlausibleExperienceCompanies(recExp);
+    if (
+      recPlausible > postPlausible ||
+      (parserExp.length >= 4 && recPlausible >= 2 && postPlausible < parserExp.length)
+    ) {
+      out.experience = finalizeExperienceListForCustomParserImport(
+        recExp.map((row, idx) =>
+          demoteImplausibleExperienceCompany(
+            applyExperienceStructuralMerge(
+              (parserExp[idx] || {}) as Record<string, unknown>,
+              row as Record<string, unknown>
+            )
+          )
+        )
+      );
+    }
   }
 
   const parserProj = (Array.isArray(out.projects) ? out.projects : []).filter(

@@ -8,7 +8,11 @@ import {
   dedupeExperienceBodyLines,
   scoreBulletQuality,
   scoreSkillConfidence,
+  countPlausibleExperienceCompanies,
+  demoteImplausibleExperienceCompany,
+  finalizeExperienceListForCustomParserImport,
 } from '@/lib/resume-parser/import-sanitize';
+import { overlaySparseSectionsFromTextRecovery } from '@/lib/resume-parser/prefer-recovered-wording';
 import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
 import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
@@ -804,6 +808,37 @@ function resolveCanonicalArray(
 }
 
 /**
+ * Final binding repair for imported / fragmented experience before template HTML.
+ * Does not mutate parser output — runs on a coalesced copy at render time only.
+ */
+export function repairExperienceForTemplateBinding(
+  formData: Record<string, unknown>,
+  experience: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  if (!Array.isArray(experience) || experience.length === 0) return experience;
+
+  const sparseCompanies = countPlausibleExperienceCompanies(experience) < experience.length;
+  const needsRepair =
+    isCustomParserImport(formData) || formData._imported === true || sparseCompanies;
+  if (!needsRepair) return experience;
+
+  let working = experience;
+  const rawText = String(formData.rawText ?? '').trim();
+  if (rawText.length >= 80 && sparseCompanies) {
+    const overlaid = overlaySparseSectionsFromTextRecovery({ ...formData, experience });
+    if (Array.isArray(overlaid.experience) && overlaid.experience.length > 0) {
+      working = overlaid.experience as Record<string, unknown>[];
+    }
+  }
+
+  const demoted = working
+    .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
+    .map(demoteImplausibleExperienceCompany);
+
+  return finalizeExperienceListForCustomParserImport(demoted);
+}
+
+/**
  * Normalize formData section keys before template injection (preview + PDF).
  * Coalesces parser/import aliases onto canonical keys without mutating the caller object.
  */
@@ -817,7 +852,8 @@ export function coalesceFormDataForTemplateRender(
     'Experience',
   ]);
   const skipHeaderReconcile = isCustomParserImport(formData);
-  const experience = experienceRaw
+  const experienceRepaired = repairExperienceForTemplateBinding(formData, experienceRaw);
+  const experience = experienceRepaired
     .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
     .map((entry) =>
       syncExperienceEntryAliases(entry, { reconcileHeaders: !skipHeaderReconcile })

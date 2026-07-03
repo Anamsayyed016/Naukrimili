@@ -162,6 +162,9 @@ export default function ResumeUploadPage() {
             ...builderReady,
             _imported: true,
             rawText: parsed.rawText || builderReady.rawText,
+            customParserUsed: builderReady.customParserUsed ?? parsed.customParserUsed,
+            selectedParser: builderReady.selectedParser ?? parsed.selectedParser,
+            _aiProvider: builderReady._aiProvider ?? parsed._aiProvider,
             resumeId: data.resumeId,
           };
           console.log('💾 Builder mapping after upload:', {
