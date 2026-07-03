@@ -161,6 +161,14 @@ function normalizeMergedExperienceList(
 function pickSkillsList(parent: Record<string, unknown>, out: Record<string, any>): string[] {
   const parentRaw = firstNonEmptyArray(parent, ['skills', 'Skills', 'technicalSkills']);
   const builderRaw = out.skills ?? out.Skills ?? out.technicalSkills;
+  const importMeta = { ...parent, ...out };
+  if (isCustomParserImport(importMeta)) {
+    const combined = [
+      ...(Array.isArray(builderRaw) ? builderRaw : []),
+      ...(Array.isArray(parentRaw) ? parentRaw : []),
+    ];
+    return normalizeCustomParserSkillsList(combined);
+  }
   const parentSkills = normalizeSkillsList(Array.isArray(parentRaw) ? parentRaw : []);
   const builderSkills = normalizeSkillsList(Array.isArray(builderRaw) ? builderRaw : []);
   return builderSkills.length >= parentSkills.length ? builderSkills : parentSkills;

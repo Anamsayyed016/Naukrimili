@@ -590,7 +590,27 @@ export function injectResumeData(
   return result;
 }
 
-/** Prefer first non-empty string among canonical + aliases; fall back to canonical when empty. */
+/** Coerce Builder field values to a display string (handles string arrays from import). */
+function coerceFieldToString(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === 'string') return item.trim();
+        if (item && typeof item === 'object') {
+          const rec = item as Record<string, unknown>;
+          return String(rec.title ?? rec.description ?? rec.text ?? rec.name ?? '').trim();
+        }
+        return '';
+      })
+      .filter(Boolean)
+      .join(', ');
+  }
+  return '';
+}
+
+/** Prefer first non-empty value among canonical Builder key + aliases. */
 function readCanonicalString(
   record: Record<string, unknown>,
   canonical: string,
@@ -598,17 +618,17 @@ function readCanonicalString(
 ): string {
   for (const key of [canonical, ...aliases]) {
     if (!(key in record)) continue;
-    const value = record[key];
-    if (typeof value === 'string' && value.trim()) {
-      return value.trim();
-    }
+    const text = coerceFieldToString(record[key]);
+    if (text) return text;
   }
-  if (canonical in record && typeof record[canonical] === 'string') {
-    return record[canonical];
+  if (canonical in record) {
+    const text = coerceFieldToString(record[canonical]);
+    if (text) return text;
   }
   for (const key of aliases) {
-    const value = record[key];
-    if (typeof value === 'string') return value;
+    if (!(key in record)) continue;
+    const text = coerceFieldToString(record[key]);
+    if (text) return text;
   }
   return '';
 }
@@ -638,8 +658,26 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
 
   return meaningful
     .map((exp) => {
-      const company = readCanonicalString(exp, 'company', ['Company']);
-      const position = readCanonicalString(exp, 'title', ['position', 'Position', 'Title']);
+      const company = readCanonicalString(exp, 'company', [
+        'Company',
+        'organization',
+        'Organization',
+        'employer',
+        'Employer',
+        'companyName',
+        'CompanyName',
+      ]);
+      const position = readCanonicalString(exp, 'title', [
+        'position',
+        'Position',
+        'Title',
+        'designation',
+        'Designation',
+        'role',
+        'Role',
+        'jobTitle',
+        'JobTitle',
+      ]);
       const duration = readCanonicalString(exp, 'duration', ['Duration']);
       const description = readCanonicalString(exp, 'description', ['Description']);
       
@@ -671,6 +709,10 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
         ? (exp.achievements as unknown[])
         : Array.isArray((exp as Record<string, unknown>).bullets)
         ? ((exp as Record<string, unknown>).bullets as unknown[])
+        : Array.isArray((exp as Record<string, unknown>).bulletPoints)
+        ? ((exp as Record<string, unknown>).bulletPoints as unknown[])
+        : Array.isArray((exp as Record<string, unknown>).Achievements)
+        ? ((exp as Record<string, unknown>).Achievements as unknown[])
         : [];
       const bullets: string[] = bulletsRaw
         .map((b) => {
@@ -741,16 +783,16 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
 
   return meaningful
     .map((edu) => {
-      const institution = readCanonicalString(edu, 'school', [
-        'institution',
-        'Institution',
+      const institution = readCanonicalString(edu, 'institution', [
+        'school',
         'School',
-        'University',
+        'Institution',
         'university',
-        'College',
+        'University',
         'college',
+        'College',
       ]);
-      const degree = readCanonicalString(edu, 'degree', ['Degree']);
+      const degree = readCanonicalString(edu, 'degree', ['Degree', 'course', 'Course']);
       const year = readCanonicalString(edu, 'year', ['graduationDate', 'GraduationDate', 'Year']);
       const field = readCanonicalString(edu, 'field', ['Field']);
       const cgpa = readCanonicalString(edu, 'cgpa', ['CGPA']);
@@ -860,10 +902,21 @@ function renderProjects(projects: Array<Record<string, string>>): string {
   return validProjects
     .map((project) => {
       const rec = project as Record<string, unknown>;
-      const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title']);
-      const description = readCanonicalString(rec, 'description', ['Description']);
-      const technologies = readCanonicalString(rec, 'technologies', ['Technologies', 'tech_stack']);
-      const link = readCanonicalString(rec, 'link', ['Link', 'url']);
+      const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title', 'projectName', 'ProjectName']);
+      const description = readCanonicalString(rec, 'description', [
+        'Description',
+        'summary',
+        'Summary',
+      ]);
+      const technologies = readCanonicalString(rec, 'technologies', [
+        'Technologies',
+        'tech_stack',
+        'techStack',
+        'TechStack',
+        'tech',
+        'Tech',
+      ]);
+      const link = readCanonicalString(rec, 'link', ['Link', 'url', 'URL', 'github', 'Github']);
 
       return `
         <div class="project-item">

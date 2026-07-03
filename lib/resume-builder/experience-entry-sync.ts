@@ -9,21 +9,31 @@ import {
  * do not render orphaned achievements from import.
  */
 export function syncExperienceEntryAliases(
-  entry: Record<string, unknown>
+  entry: Record<string, unknown>,
+  options?: { reconcileHeaders?: boolean }
 ): Record<string, unknown> {
-  const reconciled = reconcileExperienceHeaderFields(entry);
+  const reconciled =
+    options?.reconcileHeaders === false ? entry : reconcileExperienceHeaderFields(entry);
 
-  const title =
-    'title' in reconciled
-      ? String(reconciled.title ?? '')
-      : String(
-          reconciled.position ??
-            reconciled.Position ??
-            reconciled.designation ??
-            reconciled.role ??
-            reconciled.jobTitle ??
-            ''
-        );
+  const readTitle = (): string => {
+    const fromTitle = String(reconciled.title ?? reconciled.Title ?? '').trim();
+    if (fromTitle) return fromTitle;
+    for (const key of [
+      'position',
+      'Position',
+      'designation',
+      'Designation',
+      'role',
+      'Role',
+      'jobTitle',
+      'JobTitle',
+    ]) {
+      const value = String(reconciled[key] ?? '').trim();
+      if (value) return value;
+    }
+    return '';
+  };
+  const title = readTitle();
   let company =
     'company' in reconciled
       ? String(reconciled.company ?? '')
@@ -58,8 +68,14 @@ export function syncExperienceEntryAliases(
     title,
     position: title,
     Position: title,
+    designation: title,
+    Designation: title,
     company,
     Company: company,
+    organization: company,
+    Organization: company,
+    employer: company,
+    Employer: company,
     location,
     Location: location,
     description,
@@ -69,6 +85,7 @@ export function syncExperienceEntryAliases(
   if (!description.trim()) {
     synced.achievements = [];
     synced.bullets = [];
+    synced.bulletPoints = [];
   }
 
   return synced;

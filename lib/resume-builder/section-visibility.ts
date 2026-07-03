@@ -11,6 +11,7 @@ import {
 } from '@/lib/resume-parser/import-sanitize';
 import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
+import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 import {
   isImportFieldTraceEnabled,
   traceImportStageTransform,
@@ -815,9 +816,12 @@ export function coalesceFormDataForTemplateRender(
     'Work Experience',
     'Experience',
   ]);
+  const skipHeaderReconcile = isCustomParserImport(formData);
   const experience = experienceRaw
     .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
-    .map((entry) => syncExperienceEntryAliases(entry));
+    .map((entry) =>
+      syncExperienceEntryAliases(entry, { reconcileHeaders: !skipHeaderReconcile })
+    );
   const education = resolveCanonicalArray(formData, 'education', ['Education']);
   const rawSkills = normalizeSkillsForRender(formData);
   const { skills, languageHints } = partitionSkillsForRender(rawSkills);
