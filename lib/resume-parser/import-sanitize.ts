@@ -2481,12 +2481,20 @@ export function dedupeAdjacentExperienceEntries<T extends ExperienceLike>(entrie
   return out;
 }
 
-/** Custom-parser import — preserve structured rows; reconcile headers only. */
+/** Custom-parser import — pair title/company fragments and merge date/location stubs, then reconcile. */
 export function finalizeExperienceListForCustomParserImport(
   entries: Record<string, unknown>[]
 ): Record<string, unknown>[] {
   if (!Array.isArray(entries) || entries.length === 0) return [];
-  const deduped = dedupeAdjacentExperienceEntries(entries as ExperienceLike[]) as Record<
+  const paired = pairHeaderFragmentOrphans(entries as ExperienceLike[]) as Record<
+    string,
+    unknown
+  >[];
+  const merged = mergeOrphanExperienceEntries(paired as ExperienceLike[]) as Record<
+    string,
+    unknown
+  >[];
+  const deduped = dedupeAdjacentExperienceEntries(merged as ExperienceLike[]) as Record<
     string,
     unknown
   >[];

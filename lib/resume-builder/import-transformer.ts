@@ -149,12 +149,13 @@ function normalizeMergedExperienceList(
   importMeta?: Record<string, unknown>
 ): Record<string, unknown>[] {
   if (!Array.isArray(list) || list.length === 0) return [];
-  const reconciled = list
-    .filter((entry) => entry && typeof entry === 'object')
-    .map((entry) => reconcileExperienceHeaderFields(entry as Record<string, unknown>));
+  const objects = list.filter(
+    (entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object'
+  );
   if (isCustomParserImport(importMeta ?? {})) {
-    return finalizeExperienceListForCustomParserImport(reconciled);
+    return finalizeExperienceListForCustomParserImport(objects);
   }
+  const reconciled = objects.map((entry) => reconcileExperienceHeaderFields(entry));
   return finalizeExperienceListForBuilder(reconciled);
 }
 
