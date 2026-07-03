@@ -741,6 +741,26 @@ describe('resume preview data binding', () => {
     expect(transformed.summary).toMatch(/logistics/i);
   });
 
+  it('syncExperienceEntryAliases preserves partial company names when reconcileHeaders is false', async () => {
+    const { syncExperienceEntryAliases } = await import(
+      '@/lib/resume-builder/experience-entry-sync'
+    );
+    const entry = {
+      title: 'Full Stack Developer',
+      company: 'Tech',
+      location: 'Bhopal',
+      startDate: '2022-01',
+      current: true,
+    };
+    const withReconcile = syncExperienceEntryAliases(entry);
+    expect(withReconcile.company).toBe('');
+
+    const editorSafe = syncExperienceEntryAliases(entry, { reconcileHeaders: false });
+    expect(editorSafe.company).toBe('Tech');
+    expect(editorSafe.Company).toBe('Tech');
+    expect(editorSafe.organization).toBe('Tech');
+  });
+
   it('syncExperienceEntryAliases clears orphaned bullets when description is empty', async () => {
     const { syncExperienceEntryAliases } = await import(
       '@/lib/resume-builder/experience-entry-sync'

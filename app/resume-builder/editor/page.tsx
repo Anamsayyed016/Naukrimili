@@ -559,7 +559,9 @@ export default function ResumeEditorPage() {
         const list = (Array.isArray(patch.experience) ? patch.experience : []).map(
           (item) =>
             syncExperienceEntryAliases(
-              item && typeof item === 'object' ? (item as Record<string, unknown>) : {}
+              item && typeof item === 'object' ? (item as Record<string, unknown>) : {},
+              // Import-time header reconciliation clears partial company names while typing.
+              { reconcileHeaders: false }
             )
         );
         next.experience = list;
