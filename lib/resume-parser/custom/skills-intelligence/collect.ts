@@ -12,7 +12,7 @@ import { isValidSkillCandidate } from './validate';
 import type { SkillCandidate, SkillSource, SkillsIntelligenceInput } from './types';
 
 const SKILL_SUBHEADERS = new Set([
-  'languages', 'language', 'programming languages', 'programming',
+  'programming languages', 'programming language', 'programming',
   'frameworks', 'framework', 'libraries', 'library',
   'databases', 'database', 'tools', 'tool', 'platforms',
   'cloud', 'devops', 'concepts', 'methodologies',
@@ -79,11 +79,44 @@ function collectTokensFromLine(line: string, source: SkillSource, out: SkillCand
   }
 }
 
+function isSkillTableHeader(cell: string): boolean {
+  const lower = cell.toLowerCase().trim();
+  return /^(?:skill|skills|technology|technologies|tool|tools|competency|level|proficiency)$/i.test(
+    lower
+  );
+}
+
+function isTableSeparatorRow(line: string): boolean {
+  const cells = line.split('|').map((c) => c.trim()).filter(Boolean);
+  return cells.length > 0 && cells.every((c) => /^[-:]+$/.test(c));
+}
+
+function collectFromTableRows(lines: string[], source: SkillSource, out: SkillCandidate[]): void {
+  for (const raw of lines) {
+    const trimmed = raw.trim();
+    if (!/^\|?.+\|/.test(trimmed)) continue;
+
+    const cells = trimmed
+      .split('|')
+      .map((c) => c.trim())
+      .filter(Boolean);
+    if (cells.length < 2) continue;
+    if (isTableSeparatorRow(trimmed)) continue;
+    if (cells.every((c) => /^[-:]+$/.test(c))) continue;
+
+    const skillCell = isSkillTableHeader(cells[0]) ? cells[1] : cells[0];
+    if (!skillCell || isSkillTableHeader(skillCell)) continue;
+    pushCandidate(out, skillCell, source);
+  }
+}
+
 export function collectFromSkillsSection(sectionText: string): SkillCandidate[] {
   const out: SkillCandidate[] = [];
   if (!sectionText?.trim()) return out;
 
   const lines = sectionText.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim());
+
+  collectFromTableRows(lines, 'skills_section', out);
 
   for (const raw of lines) {
     if (!raw) continue;
@@ -209,9 +242,13 @@ export function collectAllSkillCandidates(input: SkillsIntelligenceInput): Skill
   const skillsSection = input.skillsSectionText?.trim() || '';
   const preamble = input.preambleText?.trim() || '';
 
+  const fromSection = collectFromSkillsSection(skillsSection);
+  const fromPreamble =
+    !skillsSection || fromSection.length < 3 ? collectFromPreambleText(preamble) : [];
+
   const all: SkillCandidate[] = [
-    ...collectFromSkillsSection(skillsSection),
-    ...(skillsSection ? [] : collectFromPreambleText(preamble)),
+    ...fromSection,
+    ...fromPreamble,
     ...collectFromTechnologyLists(input.experienceTechnologies, 'experience'),
     ...(input.experienceTexts || []).flatMap((t) => collectFromTextScan(t, 'experience')),
     ...collectFromTechnologyLists(input.projectTechnologies, 'project'),

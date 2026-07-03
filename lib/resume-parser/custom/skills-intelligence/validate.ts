@@ -20,7 +20,7 @@ const RESPONSIBILITY_RE =
   /\b(responsible for|managed|mentored|developed|implemented|designed|delivered)\b/i;
 
 const SECTION_HEADING_RE =
-  /^(?:skills?|technical\s+skills|core\s+skills|expertise|competencies|technologies|tools|frameworks)$/i;
+  /^(?:skills?|technical\s+skills|core\s+skills|expertise|competencies|technologies|technology|tools|frameworks)$/i;
 
 const KNOWN_TECH_ACRONYMS_RE =
   /^(?:aws|gcp|azure|rest\s+api|api|ci\/cd|html|css|git|sql|nosql|saas|paas|iaas|oauth|jwt|grpc|tcp|udp|http|https|json|xml|yaml|sdk|ide|ui|ux|ml|ai|nlp|ocr|etl|erp|crm)$/i;

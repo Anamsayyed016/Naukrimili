@@ -5,6 +5,7 @@
 import { parseEducationDates } from './dates';
 import { detectDegreeFromLine, lineHasDegreeSignal } from './degree';
 import { detectInstitutionFromLine } from './institution';
+import { buildEducationFromBlock } from './fields';
 import { buildTypedEducationLines } from './lines';
 import type { EducationLine, EducationRawBlock } from './types';
 
@@ -86,7 +87,47 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
     blocks.push(buildRawBlock(nonBlank, nonBlank[0].index, nonBlank[nonBlank.length - 1].index));
   }
 
-  return mergeHeaderOnlyBlocks(blocks);
+  return coalesceEducationBlocks(mergeHeaderOnlyBlocks(blocks));
+}
+
+function mergeBlocks(a: EducationRawBlock, b: EducationRawBlock): EducationRawBlock {
+  return buildRawBlock([...a.lines, ...b.lines], a.startLine, b.endLine);
+}
+
+/** Merge date-only orphan tails back into the preceding education block. */
+function coalesceEducationBlocks(blocks: EducationRawBlock[]): EducationRawBlock[] {
+  if (blocks.length <= 1) return blocks;
+
+  const out: EducationRawBlock[] = [];
+
+  for (const block of blocks) {
+    const prev = out[out.length - 1];
+    if (!prev) {
+      out.push(block);
+      continue;
+    }
+
+    const prevBuilt = buildEducationFromBlock(prev);
+    const headerLines = block.headerText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const dateOnlyHeader =
+      headerLines.length === 1 && parseEducationDates(headerLines[0]) !== null;
+    const prevNeedsDates =
+      Boolean(prevBuilt.institution || prevBuilt.degree) &&
+      !prevBuilt.startDate &&
+      !prevBuilt.endDate;
+
+    if (dateOnlyHeader && prevNeedsDates) {
+      out[out.length - 1] = mergeBlocks(prev, block);
+      continue;
+    }
+
+    out.push(block);
+  }
+
+  return out;
 }
 
 function buildRawBlock(lines: EducationLine[], startLine: number, endLine: number): EducationRawBlock {
@@ -123,10 +164,6 @@ function isHeaderOnlyBlock(block: EducationRawBlock): boolean {
   // Complete education entry fits in header — keep as standalone block
   if (hasInstitution && hasDegree && hasDates) return false;
   return headerLines.length <= 2;
-}
-
-function mergeBlocks(a: EducationRawBlock, b: EducationRawBlock): EducationRawBlock {
-  return buildRawBlock([...a.lines, ...b.lines], a.startLine, b.endLine);
 }
 
 function mergeHeaderOnlyBlocks(blocks: EducationRawBlock[]): EducationRawBlock[] {

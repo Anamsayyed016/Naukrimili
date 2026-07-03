@@ -23,6 +23,72 @@ interface FieldPick<T> {
   confidence: number;
 }
 
+/** Parse composite header lines: "Title at Company", "Title - Company", "Company - Title". */
+function parseCompositeHeaderLine(line: string): {
+  designation: FieldPick<string>;
+  company: FieldPick<string>;
+} | null {
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+
+  const atMatch = trimmed.match(/^(.+?)\s+at\s+(.+)$/i);
+  if (atMatch) {
+    const des = detectDesignationFromLine(atMatch[1]);
+    const comp = detectCompanyFromLine(atMatch[2]);
+    if (des.confidence >= 38 && comp.confidence >= 42) {
+      return {
+        designation: { value: des.designation, confidence: des.confidence },
+        company: { value: comp.company, confidence: comp.confidence },
+      };
+    }
+  }
+
+  const dashParts = trimmed.split(/\s*[-–—]\s*/);
+  if (dashParts.length === 2) {
+    const [a, b] = dashParts.map((p) => p.trim());
+    const desA = detectDesignationFromLine(a);
+    const compA = detectCompanyFromLine(a);
+    const desB = detectDesignationFromLine(b);
+    const compB = detectCompanyFromLine(b);
+
+    if (desA.confidence >= 40 && compB.confidence >= 42) {
+      return {
+        designation: { value: desA.designation, confidence: desA.confidence },
+        company: { value: compB.company, confidence: compB.confidence },
+      };
+    }
+    if (compA.confidence >= 42 && desB.confidence >= 40) {
+      return {
+        designation: { value: desB.designation, confidence: desB.confidence },
+        company: { value: compA.company, confidence: compA.confidence },
+      };
+    }
+  }
+
+  return null;
+}
+
+function pickCompositeFields(lines: string[]): {
+  designation: FieldPick<string>;
+  company: FieldPick<string>;
+} {
+  let designation: FieldPick<string> = { value: '', confidence: 0 };
+  let company: FieldPick<string> = { value: '', confidence: 0 };
+
+  for (const line of lines) {
+    const composite = parseCompositeHeaderLine(line);
+    if (!composite) continue;
+    if (composite.designation.confidence > designation.confidence) {
+      designation = composite.designation;
+    }
+    if (composite.company.confidence > company.confidence) {
+      company = composite.company;
+    }
+  }
+
+  return { designation, company };
+}
+
 /** Split composite header lines ("Title | Dates | Location") into classifiable segments. */
 function expandHeaderSegments(lines: string[]): string[] {
   const segments: string[] = [];
@@ -153,9 +219,20 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     .map((l) => l.trim())
     .filter(Boolean);
 
+  const compositePick = pickCompositeFields(headerLines);
   const designationPick = pickBestDesignation(headerLines, '');
   const companyPick = pickBestCompany(headerLines, designationPick.value);
-  const locationPick = pickBestLocation(headerLines, companyPick.value);
+
+  const finalDesignation =
+    compositePick.designation.confidence > designationPick.confidence
+      ? compositePick.designation
+      : designationPick;
+  const finalCompany =
+    compositePick.company.confidence > companyPick.confidence
+      ? compositePick.company
+      : companyPick;
+
+  const locationPick = pickBestLocation(headerLines, finalCompany.value);
   const datePick = pickBestDateRange(headerLines, block.bodyLines);
   const employmentPick = pickEmploymentType(headerLines);
 
@@ -169,8 +246,8 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   const technologies = extractTechnologiesFromBlock(description, bulletPoints);
 
   const fieldConfidence: ExperienceFieldConfidence = {
-    company: companyPick.confidence,
-    designation: designationPick.confidence,
+    company: finalCompany.confidence,
+    designation: finalDesignation.confidence,
     location: locationPick.confidence,
     employmentType: employmentPick.confidence,
     startDate: datePick.startConf,
@@ -181,8 +258,8 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   const confidence = computeOverallConfidence(fieldConfidence, bulletPoints.length > 0);
 
   return {
-    company: companyPick.value,
-    designation: designationPick.value,
+    company: finalCompany.value,
+    designation: finalDesignation.value,
     location: locationPick.value,
     employmentType: employmentPick.value,
     startDate: datePick.startDate,

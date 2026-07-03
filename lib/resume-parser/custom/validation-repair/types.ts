@@ -85,6 +85,8 @@ export interface ValidationRepairInput {
     skills?: string;
     summary?: string;
     contact?: string;
+    languages?: string;
+    certifications?: string;
   };
 }
 

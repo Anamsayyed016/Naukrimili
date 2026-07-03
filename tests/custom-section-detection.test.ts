@@ -210,22 +210,23 @@ describe('custom section detection engine', () => {
     }
   });
 
-  it('parseResume remains empty — detection does not populate ExtractedResumeData', async () => {
+  it('parseResume delegates to full custom pipeline', async () => {
     const { parseResume } = await import('@/lib/resume-parser/custom');
     const text = [
       'User',
+      'user@example.com',
       '',
       'Experience',
-      'Acme — Dev — 2020',
+      'Software Developer | Acme Corp',
+      '2020 - Present',
+      '- Built APIs',
       '',
       'Skills',
-      'Python',
+      'Python, JavaScript',
     ].join('\n');
     const parsed = parseResume(text);
-    expect(parsed.experience).toHaveLength(0);
-    expect(parsed.skills).toHaveLength(0);
-    const detected = detectResumeSections(text);
-    expect(detected.experience.length).toBeGreaterThan(0);
-    expect(detected.skills.length).toBeGreaterThan(0);
+    expect(parsed.experience.length).toBeGreaterThan(0);
+    expect(parsed.skills.length).toBeGreaterThan(0);
+    expect(parsed.confidence).toBeGreaterThan(0);
   });
 });

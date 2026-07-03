@@ -10,9 +10,24 @@ import { extractSummaryFromSection } from '../summary-extraction';
 import { extractExperiencesFromSection } from '../experience-extraction';
 import { extractEducationFromSection } from '../education-extraction';
 import { extractProjectsFromSection } from '../project-extraction';
+import { extractLanguagesFromSection } from '../language-extraction';
+import { extractCertificationsFromSection } from '../certification-extraction';
 import { extractSkillsIntelligence } from '../skills-intelligence';
 import { validateAndRepairResume } from '../validation-repair';
 import type { CustomParserPipelineResult } from './types';
+
+function estimateLayoutConfidence(
+  sections: ReturnType<typeof detectResumeSections>
+): number {
+  let score = 55;
+  if (sections.coverage?.complete) score += 15;
+  if (sections.experience?.trim()) score += 8;
+  if (sections.education?.trim()) score += 5;
+  if (sections.skills?.trim()) score += 5;
+  if (sections.preamble?.trim()) score += 4;
+  if (sections.documentProfile?.signals?.multiColumnLikely) score += 3;
+  return Math.min(92, score);
+}
 
 export function runCustomParserPipeline(rawText: string): CustomParserPipelineResult {
   const cpuBefore = process.cpuUsage();
@@ -25,6 +40,13 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
     : [];
   const educations = sections.education ? extractEducationFromSection(sections.education) : [];
   const projects = sections.projects ? extractProjectsFromSection(sections.projects) : [];
+  const languages = sections.languages ? extractLanguagesFromSection(sections.languages) : [];
+  const certifications = sections.certifications
+    ? extractCertificationsFromSection(sections.certifications)
+    : [];
+
+  const certNames = certifications.map((c) => c.name).filter(Boolean);
+
   const skills = extractSkillsIntelligence({
     skillsSectionText: sections.skills,
     preambleText: sections.preamble,
@@ -37,6 +59,7 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
     educationTexts: educations.map((e) =>
       [e.degree, e.fieldOfStudy, ...(e.coursework || [])].filter(Boolean).join(' ')
     ),
+    certificationNames: certNames,
   });
 
   const validation = validateAndRepairResume({
@@ -44,7 +67,7 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
     identity: extractIdentityFromSections({
       headerText: sections.preamble || rawText.split('\n').slice(0, 4).join('\n'),
       contactSectionText: sections.preamble,
-      preambleText: rawText.slice(0, 500),
+      preambleText: rawText.slice(0, 800),
       fullResumeText: rawText,
     }),
     summary: sections.summary
@@ -54,6 +77,15 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
     educations,
     projects,
     skills,
+    languages: languages.map((l) =>
+      l.proficiency ? { name: l.name, proficiency: l.proficiency } : l.name
+    ),
+    certifications: certifications.map((c) => ({
+      name: c.name,
+      issuer: c.issuer,
+      date: c.date,
+      ...(c.url ? { url: c.url } : {}),
+    })),
     sectionTexts: {
       experience: sections.experience,
       education: sections.education,
@@ -61,8 +93,10 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
       skills: sections.skills,
       summary: sections.summary,
       contact: sections.preamble,
+      languages: sections.languages,
+      certifications: sections.certifications,
     },
-    parserConfidence: 70,
+    parserConfidence: estimateLayoutConfidence(sections),
   });
 
   const canonical = buildCanonicalResumeFromValidation(validation);

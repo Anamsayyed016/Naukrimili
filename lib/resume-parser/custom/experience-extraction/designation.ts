@@ -40,6 +40,30 @@ export function scoreDesignationCandidate(text: string): number {
 
 export function detectDesignationFromLine(text: string): DesignationDetection {
   const trimmed = text.trim();
+  if (!trimmed) return { designation: '', confidence: 0 };
+
+  const atMatch = trimmed.match(/^(.+?)\s+at\s+(.+)$/i);
+  if (atMatch) {
+    const titlePart = atMatch[1].trim();
+    const conf = scoreDesignationCandidate(titlePart);
+    if (conf >= 38) {
+      return { designation: titlePart, confidence: conf };
+    }
+  }
+
+  const dashParts = trimmed.split(/\s*[-–—]\s*/);
+  if (dashParts.length === 2) {
+    const [left, right] = dashParts.map((p) => p.trim());
+    const leftConf = scoreDesignationCandidate(left);
+    const rightConf = scoreDesignationCandidate(right);
+    if (leftConf >= 40 && leftConf >= rightConf + 8) {
+      return { designation: left, confidence: leftConf };
+    }
+    if (rightConf >= 40 && rightConf >= leftConf + 8) {
+      return { designation: right, confidence: rightConf };
+    }
+  }
+
   const conf = scoreDesignationCandidate(trimmed);
   if (conf >= 38) {
     return { designation: trimmed, confidence: conf };
