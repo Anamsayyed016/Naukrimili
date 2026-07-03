@@ -338,8 +338,8 @@ function applyExperienceStructuralMerge(
   const endDate = preferNonemptyField(parser.endDate || parser.end_date, recovered.endDate);
   return reconcileExperienceHeaderFields({
     ...parser,
-    company,
-    organization: company,
+    company: mergedCompany,
+    organization: mergedCompany,
     position,
     title: position,
     job_title: position,
@@ -699,26 +699,36 @@ export function overlaySparseSectionsFromTextRecovery(
     const desc = String(p.description ?? p.summary ?? p.Description ?? '').trim();
     return desc.length >= 12;
   }).length;
-  if (parserProj.length > 0 && recProj.length > 0 && projWithDesc < parserProj.length) {
-    out.projects = mergeListWithRecoveredWording(
-      parserProj,
-      recProj,
-      projectSectionMatch,
-      () => 50,
-      (p, r) => {
-        const desc = preferRecoveredWording(
-          (r as { description?: string }).description,
-          (p as { description?: string }).description ||
-            (p as { summary?: string }).summary
-        );
-        const name = preferNonemptyField(
-          p.name || p.title || p.projectName,
-          (r as { name?: string }).name || (r as { title?: string }).title
-        );
-        return { ...p, name, title: name, description: desc, summary: desc };
-      },
-      false
-    );
+  if (recProj.length > 0) {
+    if (parserProj.length === 0) {
+      out.projects = recProj.map((row) => ({
+        ...row,
+        name: row.name || row.title || row.projectName,
+        title: row.name || row.title || row.projectName,
+        description: row.description || row.summary || row.Description,
+        summary: row.description || row.summary || row.Description,
+      }));
+    } else if (projWithDesc < parserProj.length) {
+      out.projects = mergeListWithRecoveredWording(
+        parserProj,
+        recProj,
+        projectSectionMatch,
+        () => 50,
+        (p, r) => {
+          const desc = preferRecoveredWording(
+            (r as { description?: string }).description,
+            (p as { description?: string }).description ||
+              (p as { summary?: string }).summary
+          );
+          const name = preferNonemptyField(
+            p.name || p.title || p.projectName,
+            (r as { name?: string }).name || (r as { title?: string }).title
+          );
+          return { ...p, name, title: name, description: desc, summary: desc };
+        },
+        false
+      );
+    }
   }
 
   return out;

@@ -68,6 +68,7 @@ import {
   finalizeEducationListForCustomParserImport,
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
+  stripRedundantExperienceDateBodyLines,
   looksLikeCompanyNameLine,
   looksLikeJobTitleLine,
   countPlausibleExperienceCompanies,
@@ -528,6 +529,7 @@ function mergeBuilderFormWithParent(
   out.customParserUsed = parent.customParserUsed ?? builderFormData.customParserUsed;
   out.selectedParser = parent.selectedParser ?? builderFormData.selectedParser;
   out._aiProvider = parent._aiProvider ?? builderFormData._aiProvider;
+  out.rawText = parent.rawText ?? builderFormData.rawText ?? out.rawText;
 
   return out;
 }
@@ -578,7 +580,15 @@ export function coalesceBuilderImportPayload(
     const { builderFormData: _nested, ...parent } = parsed;
     const merged = mergeBuilderFormWithParent(parent, nested as Record<string, any>);
     const importMeta = { ...parent, ...merged };
-    const overlaid = overlaySparseSectionsFromTextRecovery(merged);
+    const overlayInput = {
+      ...merged,
+      rawText: merged.rawText ?? parent.rawText ?? parsed.rawText,
+      customParserUsed: importMeta.customParserUsed,
+      selectedParser: importMeta.selectedParser,
+      _aiProvider: importMeta._aiProvider,
+      _imported: true,
+    };
+    const overlaid = overlaySparseSectionsFromTextRecovery(overlayInput);
     merged.experience = overlaid.experience ?? merged.experience;
     merged.projects = overlaid.projects ?? merged.projects;
     if (Array.isArray(merged.experience) && merged.experience.length > 0) {
@@ -600,7 +610,10 @@ export function coalesceBuilderImportPayload(
     if (Array.isArray(out.experience) && out.experience.length > 0) {
       out.experience = enrichExperienceFromParserAliases(out.experience, out);
     }
-    out = overlaySparseSectionsFromTextRecovery(out) as Record<string, any>;
+    out = overlaySparseSectionsFromTextRecovery({
+      ...out,
+      rawText: out.rawText ?? parsed.rawText,
+    }) as Record<string, any>;
     delete out.builderFormData;
     if (Array.isArray(out.experience) && out.experience.length > 0) {
       out.experience = normalizeMergedExperienceList(out.experience, out);
@@ -1664,8 +1677,13 @@ function transformExperienceArray(experiences: unknown): any[] {
       const descBullets = splitBullets(rawDesc);
       const bullets = dedupeStrings([...parserBullets, ...descBullets]);
       const dedupedBody = dedupeExperienceBodyLines(cleanMultiline(rawDesc), bullets);
-      const description = dedupedBody.description;
-      const finalBullets = dedupedBody.achievements;
+      const strippedBody = stripRedundantExperienceDateBodyLines(
+        dedupedBody.description,
+        dedupedBody.achievements,
+        { startDate: startMonth, endDate: endMonth, current: isCurrent }
+      );
+      const description = strippedBody.description;
+      const finalBullets = strippedBody.achievements;
 
       const duration = isCurrent
         ? (startMonth ? `${startMonth} - Present` : 'Present')

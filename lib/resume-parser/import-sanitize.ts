@@ -1802,6 +1802,21 @@ export function reconcileExperienceHeaderFields(
     }
   }
 
+  if (company && position) {
+    const pLower = position.toLowerCase().trim();
+    const cLower = company.toLowerCase().trim();
+    if (pLower && cLower.startsWith(pLower) && company.length > position.length + 2) {
+      const rest = company.slice(position.length).replace(/^[\s,:\-–—|]+/, '').trim();
+      if (
+        rest &&
+        rest !== position &&
+        (looksLikeCompanyNameLine(rest) || isPlausibleExperienceCompany(rest))
+      ) {
+        company = rest;
+      }
+    }
+  }
+
   const result = {
     ...exp,
     company,
@@ -2358,6 +2373,51 @@ export function dedupeExperienceBodyLines(
     seen.add(key);
     descLines.push(line);
   }
+
+  let finalDescription = descLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (!finalDescription && keptAchievements.length > 0) {
+    finalDescription = keptAchievements.join('\n');
+  }
+
+  return { description: finalDescription, achievements: keptAchievements };
+}
+
+function isRedundantExperienceDateBodyLine(line: string): boolean {
+  const t = line.trim();
+  if (!t || t.length > 64) return false;
+  if (EXPERIENCE_DATE_RANGE_RE.test(t)) return true;
+  if (
+    /\b(19|20)\d{2}(?:-\d{2})?\s*[-–—to]+\s*((?:19|20)\d{2}(?:-\d{2})?|present|current|now|ongoing)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  if (/^(present|current|now|ongoing)$/i.test(t)) return true;
+  return false;
+}
+
+/** Drop date-only body lines when structured start/end dates already exist on the entry. */
+export function stripRedundantExperienceDateBodyLines(
+  description: string,
+  achievements: string[],
+  options?: { startDate?: string; endDate?: string; current?: boolean }
+): { description: string; achievements: string[] } {
+  const hasStructuredDates =
+    !!String(options?.startDate ?? '').trim() ||
+    !!String(options?.endDate ?? '').trim() ||
+    options?.current === true;
+  if (!hasStructuredDates) {
+    return { description, achievements };
+  }
+
+  const filterLine = (line: string): boolean => !isRedundantExperienceDateBodyLine(line);
+  const keptAchievements = achievements.map((a) => String(a || '').trim()).filter(filterLine);
+  const descLines = String(description || '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .filter(filterLine);
 
   let finalDescription = descLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
   if (!finalDescription && keptAchievements.length > 0) {

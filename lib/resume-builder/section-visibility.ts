@@ -9,10 +9,12 @@ import {
   scoreBulletQuality,
   scoreSkillConfidence,
   countPlausibleExperienceCompanies,
+  countPlausibleProjects,
   demoteImplausibleExperienceCompany,
   finalizeExperienceListForCustomParserImport,
 } from '@/lib/resume-parser/import-sanitize';
 import { overlaySparseSectionsFromTextRecovery } from '@/lib/resume-parser/prefer-recovered-wording';
+import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
 import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
 import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
@@ -838,6 +840,28 @@ export function repairExperienceForTemplateBinding(
   return finalizeExperienceListForCustomParserImport(demoted);
 }
 
+/** Backfill projects from raw-text recovery when parser/builder left the section empty. */
+export function repairProjectsForTemplateBinding(
+  formData: Record<string, unknown>,
+  projects: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  const plausible = countPlausibleProjects(projects);
+  if (plausible > 0) return projects;
+
+  const rawText = String(formData.rawText ?? '').trim();
+  if (rawText.length < 80) return projects;
+
+  const overlaid = overlaySparseSectionsFromTextRecovery({ ...formData, projects });
+  const fromOverlay = Array.isArray(overlaid.projects) ? overlaid.projects : [];
+  if (countPlausibleProjects(fromOverlay) > 0) {
+    return fromOverlay as Record<string, unknown>[];
+  }
+
+  const recovered = extractResumeFromText(rawText);
+  const recProj = (recovered.projects || []) as unknown as Record<string, unknown>[];
+  return recProj.length > 0 ? recProj : projects;
+}
+
 /**
  * Normalize formData section keys before template injection (preview + PDF).
  * Coalesces parser/import aliases onto canonical keys without mutating the caller object.
@@ -863,11 +887,14 @@ export function coalesceFormDataForTemplateRender(
   const { skills, languageHints } = partitionSkillsForRender(rawSkills);
   const languagesRaw = resolveCanonicalArray(formData, 'languages', ['Languages']);
   const languages = mergeLanguageHints(languagesRaw, languageHints);
-  const projects = resolveCanonicalArray(formData, 'projects', [
+  const projectsRaw = resolveCanonicalArray(formData, 'projects', [
     'Projects',
     'Projects(optional)',
     'Academic Projects',
   ]);
+  const projectsRepaired = repairProjectsForTemplateBinding(formData, projectsRaw);
+  const projects = projectsRepaired
+    .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object');
   const certifications = resolveCanonicalArray(formData, 'certifications', ['Certifications']);
   const achievements = resolveCanonicalArray(formData, 'achievements', [
     'Achievements',

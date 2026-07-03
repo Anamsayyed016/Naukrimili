@@ -741,6 +741,19 @@ describe('resume preview data binding', () => {
     expect(transformed.summary).toMatch(/logistics/i);
   });
 
+  it('stripRedundantExperienceDateBodyLines removes date-only body when structured dates exist', async () => {
+    const { stripRedundantExperienceDateBodyLines } = await import('@/lib/resume-parser/import-sanitize');
+    const stripped = stripRedundantExperienceDateBodyLines(
+      '2022-01 - Present\nDesigned secure APIs',
+      ['2022-01 - Present', 'Designed secure APIs'],
+      { startDate: '2022-01', current: true }
+    );
+    expect(stripped.description).toContain('Designed secure APIs');
+    expect(stripped.description).not.toMatch(/^2022-01 - Present$/);
+    expect(stripped.achievements).toContain('Designed secure APIs');
+    expect(stripped.achievements.some((line) => /2022-01 - Present/.test(line))).toBe(false);
+  });
+
   it('syncExperienceEntryAliases preserves partial company names when reconcileHeaders is false', async () => {
     const { syncExperienceEntryAliases } = await import(
       '@/lib/resume-builder/experience-entry-sync'
