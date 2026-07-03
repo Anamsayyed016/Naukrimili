@@ -5,7 +5,7 @@ import { runCustomParserPipeline } from '../lib/resume-parser/custom/reliability
 import { runBenchmarkSuite, BENCHMARK_FIXTURES } from '../lib/resume-parser/custom/benchmark';
 import { generateBenchmarkCorpus } from '../lib/resume-parser/custom/benchmark/fixtures/corpus-generator';
 
-const CORPUS_SIZE = Number(process.env.BENCHMARK_CORPUS_SIZE || 300);
+const CORPUS_SIZE = Number(process.env.BENCHMARK_CORPUS_SIZE || 500);
 const corpus = generateBenchmarkCorpus(CORPUS_SIZE);
 const core = BENCHMARK_FIXTURES;
 

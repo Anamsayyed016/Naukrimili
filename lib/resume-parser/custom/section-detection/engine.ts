@@ -11,6 +11,7 @@ import { buildLineIndex, lineContentDensity, sliceTextByLines } from './line-ind
 import {
   buildCoverageReport,
   dedupeContentLines,
+  inferSectionsFromContent,
   repairGapsIntoPreamble,
   toCustomSectionBlock,
 } from './partition';
@@ -193,7 +194,8 @@ export function detectResumeSections(resumeText: string): DetectedResumeSections
     });
   }
 
-  const { fields, customSections } = mergeSectionsIntoFields(sections);
+  const { fields: mergedFields, customSections } = mergeSectionsIntoFields(sections);
+  const fields = inferSectionsFromContent(text, mergedFields);
 
   return {
     detectionVersion: SECTION_DETECTION_VERSION,

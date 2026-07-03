@@ -71,6 +71,12 @@ export interface ParsedDateRange {
 export type CanonicalExperience = ExtractedResumeData['experience'][number];
 
 export function toCanonicalExperience(exp: CustomExtractedExperience): CanonicalExperience {
+  const achievements = [...exp.bulletPoints];
+  const description =
+    achievements.length > 0
+      ? ''
+      : exp.description || '';
+
   return {
     company: exp.company || '',
     position: exp.designation || '',
@@ -78,7 +84,7 @@ export function toCanonicalExperience(exp: CustomExtractedExperience): Canonical
     startDate: exp.startDate || '',
     endDate: exp.current ? undefined : exp.endDate || undefined,
     current: exp.current,
-    description: exp.description,
-    achievements: [...exp.bulletPoints],
+    description,
+    achievements,
   };
 }

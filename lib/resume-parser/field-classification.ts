@@ -274,6 +274,9 @@ export function isLikelyLocationFragment(value: string): boolean {
   if (!s || s.length > 72) return false;
   if (JOB_TITLE_MARKERS.test(s)) return false;
   if (COMPANY_NAME_MARKERS.test(s)) return false;
+  if (/\b(?:hospitals?|healthcare|chartered|assistance|generation|analytics|logistics|motors|retail|pharma|laborator(?:y|ies)|universit(?:y|ies)|colleges?|schools?|clinics?|banks?|insurance|vidyalaya|vidyalay|asia|partners|associates|diagnostics|pathlabs?)\b/i.test(s)) {
+    return false;
+  }
   if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(s)) {
     return true;
   }

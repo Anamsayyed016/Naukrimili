@@ -32,6 +32,23 @@ const FALSE_COMPANY_RE =
 const SENTENCE_VERB_RE =
   /\b(led|built|designed|developed|wrote|managed|created|implemented|integrated|responsible|delivered|achieved|maintained|optimized|collaborated)\b/i;
 
+/** Short employer references common in government, academic, and agency resumes. */
+const SHORT_ORG_RE =
+  /^(?:org|dept|department|unit|branch|office|agency|division|bureau|firm|group|ministry|directorate)\s+[\w\d.-]+$/i;
+
+/** Compact employer labels such as "Org 4", "Unit 12", "Branch 3". */
+const COMPACT_EMPLOYER_RE = /^[A-Z][A-Za-z]{1,24}(?:\s+[A-Z][A-Za-z]{1,24})?\s+\d{1,4}$/;
+
+/** Government and institutional employer patterns. */
+const INSTITUTIONAL_EMPLOYER_RE =
+  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay)\b/i;
+
+export function looksLikeInstitutionalEmployer(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.length < 4) return false;
+  return INSTITUTIONAL_EMPLOYER_RE.test(trimmed) || SHORT_ORG_RE.test(trimmed);
+}
+
 /** Reject bullet sentences and long prose misclassified as company names. */
 export function looksLikeSentenceNotCompany(text: string): boolean {
   const trimmed = text.trim();
@@ -59,7 +76,21 @@ export function scoreCompanyCandidate(text: string): number {
   if (looksLikeCompanyNameLine(trimmed)) score += 32;
   if (COMPANY_SUFFIX_RE.test(trimmed)) score += 22;
   if (PROPRIETARY_NAME_SUFFIX_RE.test(trimmed)) score += 38;
+  if (SHORT_ORG_RE.test(trimmed)) score += 48;
+  if (COMPACT_EMPLOYER_RE.test(trimmed)) score += 44;
+  if (INSTITUTIONAL_EMPLOYER_RE.test(trimmed)) score += 36;
+  if (looksLikeInstitutionalEmployer(trimmed)) score += 32;
+  if (/\b[A-Z][a-z]+\s+(?:Sons|Bros|Brothers|Holdings|Group|Industries|Enterprises|Motors|Retail)\b/.test(trimmed)) {
+    score += 42;
+  }
+  if (/\b\w+\s+(?:Asia|Partners|Associates|Healthcare|Diagnostics|Pathlabs?|Pharma)\b/i.test(trimmed)) {
+    score += 40;
+  }
+  if (/\s&\s+Co\.?$/i.test(trimmed)) score += 44;
   if (isPlausibleExperienceCompany(trimmed)) score += 18;
+  if (trimmed.length >= 3 && trimmed.length <= 40 && /^[A-Z]/.test(trimmed) && !looksLikeJobTitleLine(trimmed)) {
+    score += 10;
+  }
   if (trimmed.length >= 4 && trimmed.length <= 80 && /\s/.test(trimmed)) score += 8;
   if (/^[A-Z][A-Za-z0-9&.,'()\- ]{2,}$/.test(trimmed) && !/[.!?]$/.test(trimmed)) score += 6;
 
@@ -87,7 +118,7 @@ export function detectCompanyFromLine(text: string): CompanyDetection {
   }
 
   const conf = scoreCompanyCandidate(trimmed);
-  if (conf >= 42) {
+  if (conf >= 38) {
     return { company: trimmed, confidence: conf };
   }
 

@@ -1411,8 +1411,10 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
   if (!t) return false;
   if (SPECIAL_EMPLOYER_RE.test(t)) return true;
-  if (/^government\b/i.test(t)) return true;
+  if (/^government\b/i.test(t) && !JOB_TITLE_HINT_RE.test(t)) return true;
+  if (JOB_TITLE_HINT_RE.test(t)) return false;
   if (COMPANY_NAME_HINT_RE.test(t)) return true;
+  if (INSTITUTIONAL_EMPLOYER_HINT_RE.test(t)) return true;
   const core = t.replace(/\s+(limited|ltd\.?|inc\.?|pvt\.?\s*ltd\.?)$/i, '').trim();
   if (WELL_KNOWN_EMPLOYER_RE.test(core)) return true;
   const classified = classifyResumeTextFragment(t);
@@ -1433,9 +1435,16 @@ export function looksLikeJobTitleLine(text: string): boolean {
   return false;
 }
 
+const INSTITUTIONAL_EMPLOYER_HINT_RE =
+  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay)\b/i;
+
+const EMPLOYER_NOT_LOCATION_RE =
+  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|asia|partners|associates|diagnostics|pathlabs?)\b|(?:sons|bros|brothers|holdings|group|industries|enterprises)\b|&\s+co\.?/i;
+
 export function looksLikeStandaloneLocationLine(text: string): boolean {
   const t = sanitizeFieldText(text, 80);
   if (!t || t.length > 60) return false;
+  if (EMPLOYER_NOT_LOCATION_RE.test(t)) return false;
   if (looksLikeJobTitleLine(t)) return false;
   if (/\b(19|20)\d{2}\b/.test(t)) return false;
   if (looksLikeCompanyNameLine(t)) return false;
@@ -2742,6 +2751,14 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   const company = sanitizeFieldText(value, 160);
   if (!company) return false;
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (INSTITUTIONAL_EMPLOYER_HINT_RE.test(lower)) return true;
+  if (/\b[A-Z][a-z]+\s+(?:sons|bros|brothers|holdings|group|industries|enterprises|motors|retail)\b/i.test(company)) {
+    return true;
+  }
+  if (/\b(?!south|east|west|north|southeast|central)\w+\s+asia\b/i.test(lower)) {
+    return true;
+  }
+  if (/\s&\s+co\.?$/i.test(company)) return true;
   if (TECH_SKILL_AS_COMPANY_RE.test(lower)) return false;
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
   if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;

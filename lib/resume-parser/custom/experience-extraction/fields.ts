@@ -2,7 +2,7 @@
  * Per-block field assembly and confidence aggregation.
  */
 
-import { detectCompanyFromLine } from './company';
+import { detectCompanyFromLine, looksLikeInstitutionalEmployer } from './company';
 import { parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine } from './designation';
 import { extractDescriptionFromBlock } from './description';
@@ -11,6 +11,7 @@ import { extractTechnologiesFromBlock } from './technologies';
 import {
   looksLikeCompanyNameLine,
   looksLikeStandaloneLocationLine,
+  isPlausibleExperienceCompany,
 } from '@/lib/resume-parser/import-sanitize';
 import type {
   CustomExtractedExperience,
@@ -76,6 +77,25 @@ function pickCompositeFields(lines: string[]): {
   let company: FieldPick<string> = { value: '', confidence: 0 };
 
   for (const line of lines) {
+    const pipeParts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
+    if (pipeParts.length === 2) {
+      const leftDes = detectDesignationFromLine(pipeParts[0]);
+      const rightComp = detectCompanyFromLine(pipeParts[1]);
+      if (
+        leftDes.confidence >= 38 &&
+        (rightComp.confidence >= 30 || looksLikeInstitutionalEmployer(pipeParts[1]))
+      ) {
+        if (leftDes.confidence > designation.confidence) {
+          designation = { value: leftDes.designation, confidence: leftDes.confidence };
+        }
+        const compPick = {
+          value: rightComp.company || pipeParts[1],
+          confidence: Math.max(rightComp.confidence, 58),
+        };
+        if (compPick.confidence > company.confidence) company = compPick;
+      }
+    }
+
     const composite = parseCompositeHeaderLine(line);
     if (!composite) continue;
     if (composite.designation.confidence > designation.confidence) {
@@ -107,6 +127,50 @@ function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<st
   let best: FieldPick<string> = { value: '', confidence: 0 };
   const exclude = excludeDesignation.toLowerCase().trim();
 
+  for (const line of lines) {
+    const pipeParts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
+    if (pipeParts.length >= 3) {
+      const des = detectDesignationFromLine(pipeParts[0]);
+      const comp = detectCompanyFromLine(pipeParts[1]);
+      if (des.confidence >= 38 && comp.confidence >= 35) {
+        const pick = {
+          value: comp.company || pipeParts[1],
+          confidence: Math.max(comp.confidence, 62),
+        };
+        if (pick.confidence > best.confidence) best = pick;
+      }
+      continue;
+    }
+    if (pipeParts.length === 2) {
+      const leftDes = detectDesignationFromLine(pipeParts[0]);
+      const rightDes = detectDesignationFromLine(pipeParts[1]);
+      const leftComp = detectCompanyFromLine(pipeParts[0]);
+      const rightComp = detectCompanyFromLine(pipeParts[1]);
+      const rightIsLocation =
+        looksLikeStandaloneLocationLine(pipeParts[1]) &&
+        !looksLikeInstitutionalEmployer(pipeParts[1]) &&
+        !isPlausibleExperienceCompany(pipeParts[1]);
+
+      if (
+        leftDes.confidence >= 38 &&
+        (rightComp.confidence >= 30 || looksLikeInstitutionalEmployer(pipeParts[1])) &&
+        !rightIsLocation
+      ) {
+        const pick = {
+          value: rightComp.company || pipeParts[1],
+          confidence: Math.max(rightComp.confidence, looksLikeInstitutionalEmployer(pipeParts[1]) ? 60 : 55),
+        };
+        if (pick.confidence > best.confidence) best = pick;
+      } else if (rightDes.confidence >= 38 && leftComp.confidence >= 35) {
+        const pick = {
+          value: leftComp.company || pipeParts[0],
+          confidence: Math.max(leftComp.confidence, 58),
+        };
+        if (pick.confidence > best.confidence) best = pick;
+      }
+    }
+  }
+
   for (const line of expandHeaderSegments(lines)) {
     if (parseDateRangeFromText(line)) continue;
     const det = detectCompanyFromLine(line);
@@ -121,6 +185,20 @@ function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<st
 
 function pickBestDesignation(lines: string[], exclude: string): FieldPick<string> {
   let best: FieldPick<string> = { value: '', confidence: 0 };
+  for (const line of lines) {
+    const pipeParts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
+    if (pipeParts.length === 2) {
+      const leftDes = detectDesignationFromLine(pipeParts[0]);
+      const rightComp = detectCompanyFromLine(pipeParts[1]);
+      if (
+        leftDes.confidence >= 38 &&
+        (rightComp.confidence >= 30 || looksLikeInstitutionalEmployer(pipeParts[1]))
+      ) {
+        const pick = { value: leftDes.designation, confidence: leftDes.confidence };
+        if (pick.confidence > best.confidence) best = pick;
+      }
+    }
+  }
   for (const line of expandHeaderSegments(lines)) {
     if (parseDateRangeFromText(line)) continue;
     const det = detectDesignationFromLine(line);
@@ -136,9 +214,21 @@ function pickBestLocation(lines: string[], excludeCompany = ''): FieldPick<strin
   let best: FieldPick<string> = { value: '', confidence: 0 };
   const exclude = excludeCompany.toLowerCase().trim();
 
+  for (const line of lines) {
+    const pipeParts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
+    if (pipeParts.length >= 3) {
+      const loc = detectLocationFromLine(pipeParts[pipeParts.length - 1]);
+      if (loc.confidence > best.confidence) {
+        best = { value: loc.location, confidence: loc.confidence };
+      }
+    }
+  }
+
   for (const line of expandHeaderSegments(lines)) {
     if (parseDateRangeFromText(line)) continue;
     if (exclude && line.toLowerCase().trim() === exclude) continue;
+    if (isPlausibleExperienceCompany(line)) continue;
+    if (looksLikeInstitutionalEmployer(line)) continue;
     if (looksLikeCompanyNameLine(line) && !looksLikeStandaloneLocationLine(line)) continue;
 
     const companyDet = detectCompanyFromLine(line);
@@ -240,7 +330,6 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     block.bodyLines
   );
   if (!description && bulletPoints.length > 0) {
-    description = bulletPoints.join('\n');
     descConf = Math.max(descConf, Math.min(90, 40 + bulletPoints.length * 8));
   }
   const technologies = extractTechnologiesFromBlock(description, bulletPoints);

@@ -84,13 +84,17 @@ const CATEGORY_RULES: CategoryRule[] = [
   {
     category: 'Soft Skills',
     patterns: [
-      /\b(communication|leadership|teamwork|problem solving|critical thinking|time management|adaptability|collaboration|negotiation|presentation)\b/i,
+      /\b(communication|leadership|teamwork|problem solving|critical thinking|time management|adaptability|collaboration|negotiation|presentation|analytics|reporting)\b/i,
+      /\b(classroom management|lesson planning|curriculum design|patient care|financial analysis|case management|conflict resolution|stakeholder management|lead generation)\b/i,
     ],
     confidence: 80,
   },
   {
     category: 'Office Tools',
-    patterns: [/\b(excel|word|powerpoint|power bi|google sheets|ms office|sharepoint|outlook)\b/i],
+    patterns: [
+      /\b(excel|word|powerpoint|power bi|google sheets|ms office|sharepoint|outlook|tally|quickbooks)\b/i,
+      /\b(sap|gst|emr|auditing|bookkeeping|payroll)\b/i,
+    ],
     confidence: 82,
   },
 ];

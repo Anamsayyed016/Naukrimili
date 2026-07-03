@@ -23,7 +23,20 @@ const SECTION_HEADING_RE =
   /^(?:skills?|technical\s+skills|core\s+skills|expertise|competencies|technologies|technology|tools|frameworks)$/i;
 
 const KNOWN_TECH_ACRONYMS_RE =
-  /^(?:aws|gcp|azure|rest\s+api|api|ci\/cd|html|css|git|sql|nosql|saas|paas|iaas|oauth|jwt|grpc|tcp|udp|http|https|json|xml|yaml|sdk|ide|ui|ux|ml|ai|nlp|ocr|etl|erp|crm)$/i;
+  /^(?:aws|gcp|azure|rest\s+api|api|ci\/cd|html|css|git|sql|nosql|saas|paas|iaas|oauth|jwt|grpc|tcp|udp|http|https|json|xml|yaml|sdk|ide|ui|ux|ml|ai|nlp|ocr|etl|erp|crm|seo|sem|ppc|hris)$/i;
+
+/** Professional competency phrases across industries (not job titles or education lines). */
+const PROFESSIONAL_SKILL_PHRASE_RE =
+  /\b(?:management|planning|design|care|analysis|auditing|assessment|communication|leadership|marketing|sales|negotiation|compliance|budgeting|reporting|counseling|diagnosis|teaching|training|research|writing|coordination|presentation|curriculum|classroom|patient|pharmacology|surgery|lesson|financial|accounting|taxation|bookkeeping|recruitment|onboarding|payroll|litigation|contract|statutory|governance|procurement|operations|inventory|forecasting|analytics|branding|campaign|content|pipeline|relations)\b/i;
+
+const SOFT_SKILL_SINGLE_RE =
+  /^(?:excel|word|tally|sap|gst|emr|quickbooks|auditing|assessment|negotiation|teamwork|adaptability|collaboration|problem solving|critical thinking|time management|seo|crm|hris|payroll|governance|reporting|analytics)$/i;
+
+export { SOFT_SKILL_SINGLE_RE };
+
+/** Common multi-word competencies listed in non-technical skills sections. */
+export const MULTI_WORD_SKILL_ALLOW_RE =
+  /^(?:public administration|policy analysis|statutory compliance|financial analysis|classroom management|patient care|lesson planning|curriculum design|content marketing|brand management|campaign planning|google analytics|pipeline management|client relations|employee relations|case management|due diligence|contract drafting|legal research|infection control|vital signs|iv therapy|ms office|surgery assistance|lead generation)$/i;
 
 export { KNOWN_TECH_ACRONYMS_RE };
 
@@ -31,9 +44,25 @@ export function isValidSkillCandidate(raw: string): boolean {
   const trimmed = (raw || '').trim();
   if (!trimmed) return false;
   if (KNOWN_TECH_ACRONYMS_RE.test(trimmed)) return true;
+  if (MULTI_WORD_SKILL_ALLOW_RE.test(trimmed.toLowerCase())) return true;
+  if (SOFT_SKILL_SINGLE_RE.test(trimmed)) return true;
 
   const cleaned = sanitizeSkillEntry(raw);
   if (!cleaned) return false;
+
+  if (MULTI_WORD_SKILL_ALLOW_RE.test(cleaned)) return true;
+  if (SOFT_SKILL_SINGLE_RE.test(cleaned)) return true;
+
+  const wordCount = cleaned.split(/\s+/).length;
+  if (
+    wordCount <= 4 &&
+    cleaned.length <= 50 &&
+    PROFESSIONAL_SKILL_PHRASE_RE.test(cleaned) &&
+    !/[.!?]$/.test(cleaned) &&
+    !(RESPONSIBILITY_RE.test(cleaned) && wordCount > 4)
+  ) {
+    return true;
+  }
 
   if (SECTION_HEADING_RE.test(cleaned)) return false;
   if (isResumeSectionHeadingLine(cleaned)) return false;
@@ -46,10 +75,16 @@ export function isValidSkillCandidate(raw: string): boolean {
     return false;
   }
   if (isLikelyEducationLine(cleaned) && !/^(java|python|r|go|c|git|aws|css|html)$/i.test(cleaned)) {
-    return false;
+    if (!(wordCount <= 4 && PROFESSIONAL_SKILL_PHRASE_RE.test(cleaned))) {
+      return false;
+    }
   }
   if (looksLikeJobTitleLine(cleaned) && cleaned.split(/\s+/).length >= 2) {
-    if (!/^(rest\s+api|machine\s+learning)$/i.test(cleaned)) return false;
+    if (!/^(rest\s+api|machine\s+learning)$/i.test(cleaned)) {
+      if (!(wordCount <= 4 && PROFESSIONAL_SKILL_PHRASE_RE.test(cleaned))) {
+        return false;
+      }
+    }
   }
 
   if (RESPONSIBILITY_RE.test(cleaned) && cleaned.split(/\s+/).length > 4) {

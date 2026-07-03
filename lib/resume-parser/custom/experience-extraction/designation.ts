@@ -14,7 +14,7 @@ export interface DesignationDetection {
 }
 
 const TITLE_KEYWORDS_RE =
-  /\b(?:software|senior|junior|lead|principal|staff|full[- ]?stack|front[- ]?end|back[- ]?end|python|java|devops|data|machine learning|ml|cloud|mobile|web|product|project|engineering|developer|engineer|manager|consultant|intern|founder|ceo|cto|cfo|director|architect|analyst|specialist|associate|coordinator|administrator|executive|officer|head|vp|vice president)\b/i;
+  /\b(?:software|senior|junior|lead|principal|staff|full[- ]?stack|front[- ]?end|back[- ]?end|python|java|devops|data|machine learning|ml|cloud|mobile|web|product|project|engineering|developer|engineer|manager|consultant|intern|founder|ceo|cto|cfo|director|architect|analyst|specialist|associate|coordinator|administrator|executive|officer|head|vp|vice president|teacher|nurse|doctor|physician|accountant|lawyer|attorney|paralegal|secretary|marketer|designer|researcher|scientist|professor|lecturer|pharmacist|therapist|counselor|auditor|recruiter|hr|government|marketing|finance|sales|legal|medical|nursing|healthcare)\b/i;
 
 const SENIORITY_RE =
   /\b(?:senior|sr\.?|junior|jr\.?|lead|principal|staff|associate|entry[- ]?level)\b/i;

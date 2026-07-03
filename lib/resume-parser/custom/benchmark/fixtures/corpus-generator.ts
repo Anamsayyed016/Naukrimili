@@ -15,17 +15,49 @@ const DEV_SKILLS = ['Python', 'Java', 'JavaScript', 'React', 'SQL', 'Docker', 'A
 const FINANCE_SKILLS = ['Excel', 'Tally', 'GST', 'Financial Analysis', 'SAP', 'QuickBooks', 'Auditing'];
 const MEDICAL_SKILLS = ['Patient Care', 'Diagnosis', 'EMR', 'Surgery Assistance', 'Pharmacology'];
 const TEACHER_SKILLS = ['Curriculum Design', 'Classroom Management', 'Assessment', 'Lesson Planning'];
+const HR_SKILLS = ['Recruitment', 'Onboarding', 'Payroll', 'Employee Relations', 'HRIS'];
+const MARKETING_SKILLS = ['SEO', 'Content Marketing', 'Google Analytics', 'Brand Management', 'Campaign Planning'];
+const LEGAL_SKILLS = ['Legal Research', 'Contract Drafting', 'Litigation', 'Compliance', 'Due Diligence'];
+const NURSE_SKILLS = ['Patient Care', 'IV Therapy', 'Vital Signs', 'EMR', 'Infection Control'];
+const SALES_SKILLS = ['Lead Generation', 'Negotiation', 'CRM', 'Pipeline Management', 'Client Relations'];
+const GOVT_SKILLS = ['Public Administration', 'Policy Analysis', 'Governance', 'Statutory Compliance', 'Reporting'];
+
+const EMPLOYERS: Record<string, string[]> = {
+  teacher: ["St. Mary's School", 'Delhi Public School', 'Kendriya Vidyalaya', 'Ryan International'],
+  doctor: ['Apollo Hospitals', 'Max Healthcare', 'Fortis Healthcare', 'AIIMS'],
+  nurse: ['Apollo Hospitals', 'Manipal Hospitals', 'Columbia Asia'],
+  accountant: ['Deloitte', 'EY', 'KPMG', 'PwC'],
+  hr: ['Randstad', 'Adecco', 'TeamLease', 'Quess Corp'],
+  marketing: ['Ogilvy', 'Hindustan Unilever', 'Dentsu', 'GroupM'],
+  government: ['Ministry of Finance', 'Municipal Corporation', 'State Secretariat'],
+  international: ['HSBC', 'Standard Chartered', 'Amazon', 'Siemens'],
+  lawyer: ['Khaitan & Co', 'AZB Partners', 'Luthra & Luthra'],
+  sales: ['Reliance Retail', 'Tata Motors', 'HDFC Bank'],
+  researcher: ['IISc Bengaluru', 'TIFR', 'CSIR'],
+  designer: ['Landor', 'IDEO', 'Frog Design'],
+  architect: ['Hafeez Contractor', 'CP Kukreja', 'Morphogenesis'],
+  student: ['University Placement Cell'],
+  company_secretary: ['Tata Sons', 'Reliance Industries', 'Infosys'],
+};
 
 type ProfileKind =
   | 'developer'
   | 'fresher'
   | 'accountant'
   | 'doctor'
+  | 'nurse'
   | 'teacher'
   | 'hr'
   | 'marketing'
   | 'government'
-  | 'international';
+  | 'international'
+  | 'lawyer'
+  | 'sales'
+  | 'researcher'
+  | 'designer'
+  | 'architect'
+  | 'student'
+  | 'company_secretary';
 
 type CorpusVariant = {
   profile: ProfileKind;
@@ -163,10 +195,20 @@ function buildFresherResume(i: number): { raw: string; gt: GroundTruthResume } {
 function buildSpecializedResume(i: number, profile: ProfileKind): { raw: string; gt: GroundTruthResume } {
   const name = `${pick(FIRST_NAMES, i + 5)} ${pick(LAST_NAMES, i + 7)}`;
   const email = `${profile}${i}@example.com`;
+  const employers = EMPLOYERS[profile] || EMPLOYERS.hr;
+  const company = pick(employers, i);
+  const title = `${profile.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())} Specialist`;
+
   const skills =
     profile === 'accountant' ? FINANCE_SKILLS.slice(0, 5)
     : profile === 'doctor' ? MEDICAL_SKILLS.slice(0, 5)
+    : profile === 'nurse' ? NURSE_SKILLS.slice(0, 5)
     : profile === 'teacher' ? TEACHER_SKILLS.slice(0, 5)
+    : profile === 'hr' ? HR_SKILLS.slice(0, 5)
+    : profile === 'marketing' ? MARKETING_SKILLS.slice(0, 5)
+    : profile === 'lawyer' ? LEGAL_SKILLS.slice(0, 5)
+    : profile === 'sales' ? SALES_SKILLS.slice(0, 5)
+    : profile === 'government' ? GOVT_SKILLS.slice(0, 5)
     : ['Communication', 'Leadership', 'MS Office', 'Analytics', 'Reporting'];
 
   const raw = [
@@ -174,12 +216,12 @@ function buildSpecializedResume(i: number, profile: ProfileKind): { raw: string;
     email,
     '',
     'SUMMARY',
-    `${profile} professional with ${3 + (i % 5)} years of experience.`,
+    `${title} with ${3 + (i % 5)} years of experience.`,
     '',
     'EXPERIENCE',
-    `${profile} Specialist | Org ${i % 20}`,
+    `${title} | ${company}`,
     '2018 - Present',
-    `- Delivered ${profile} outcomes`,
+    `- Delivered ${profile.replace(/_/g, ' ')} outcomes`,
     '',
     'SKILLS',
     skills.join(', '),
@@ -193,11 +235,12 @@ function buildSpecializedResume(i: number, profile: ProfileKind): { raw: string;
       skills,
       experience: [
         {
-          company: `Org ${i % 20}`,
-          position: `${profile} Specialist`,
+          company,
+          position: title,
           startDate: '2018',
           current: true,
           description: '',
+          achievements: [`Delivered ${profile.replace(/_/g, ' ')} outcomes`],
         },
       ],
       education: [],
@@ -215,17 +258,26 @@ function profileTags(profile: ProfileKind): ResumeFixtureTag[] {
     case 'developer':
       return ['developer', 'experienced'];
     case 'fresher':
+    case 'student':
       return ['fresher', 'academic'];
     case 'doctor':
+    case 'nurse':
       return ['healthcare', 'experienced'];
     case 'government':
       return ['government', 'experienced'];
     case 'international':
       return ['international', 'experienced'];
+    case 'designer':
+      return ['designer', 'experienced'];
     case 'accountant':
     case 'teacher':
     case 'hr':
     case 'marketing':
+    case 'lawyer':
+    case 'sales':
+    case 'researcher':
+    case 'architect':
+    case 'company_secretary':
       return ['experienced'];
     default:
       return ['experienced'];
@@ -234,7 +286,23 @@ function profileTags(profile: ProfileKind): ResumeFixtureTag[] {
 
 function variantForIndex(i: number): CorpusVariant {
   const profiles: ProfileKind[] = [
-    'developer', 'fresher', 'accountant', 'doctor', 'teacher', 'hr', 'marketing', 'government', 'international',
+    'developer',
+    'fresher',
+    'accountant',
+    'doctor',
+    'nurse',
+    'teacher',
+    'hr',
+    'marketing',
+    'government',
+    'international',
+    'lawyer',
+    'sales',
+    'researcher',
+    'designer',
+    'architect',
+    'student',
+    'company_secretary',
   ];
   const profile = profiles[i % profiles.length];
   const layout = LAYOUT_VARIANTS[i % LAYOUT_VARIANTS.length];
@@ -242,7 +310,7 @@ function variantForIndex(i: number): CorpusVariant {
   return { profile, layout, tags };
 }
 
-export function generateBenchmarkCorpus(count = 300): BenchmarkCase[] {
+export function generateBenchmarkCorpus(count = 500): BenchmarkCase[] {
   const fixtures: BenchmarkCase[] = [];
   for (let i = 0; i < count; i++) {
     const variant = variantForIndex(i);
@@ -269,4 +337,4 @@ export function generateBenchmarkCorpus(count = 300): BenchmarkCase[] {
   return fixtures;
 }
 
-export const BENCHMARK_CORPUS_SIZE = 300;
+export const BENCHMARK_CORPUS_SIZE = 500;

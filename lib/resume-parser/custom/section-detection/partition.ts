@@ -7,6 +7,7 @@ import type {
   CustomSectionBlock,
   DetectedSectionBlock,
   LineSpan,
+  NormalizedSectionType,
   SectionCoverageReport,
 } from './types';
 
@@ -154,4 +155,55 @@ export function toCustomSectionBlock(section: DetectedSectionBlock): CustomSecti
     startIndex: section.startIndex,
     endIndex: section.endIndex,
   };
+}
+
+type SectionFieldMap = Record<Exclude<NormalizedSectionType, 'custom'>, string>;
+
+/**
+ * Infer section bodies from content patterns when headings are missing or non-standard.
+ */
+export function inferSectionsFromContent(text: string, fields: SectionFieldMap): SectionFieldMap {
+  const out = { ...fields };
+  const lines = text.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean);
+
+  if (!out.skills) {
+    for (const line of lines) {
+      const inline = line.match(
+        /^(?:skills?|technical\s+skills|core\s+skills|competencies|expertise)\s*:?\s*(.+)$/i
+      );
+      if (inline?.[1]?.includes(',')) {
+        out.skills = inline[1].trim();
+        break;
+      }
+    }
+  }
+
+  if (!out.summary) {
+    for (const line of lines) {
+      const inline = line.match(/^(?:objective|profile|about)\s*:?\s*(.+)$/i);
+      if (inline?.[1] && inline[1].length >= 20) {
+        out.summary = inline[1].trim();
+        break;
+      }
+    }
+  }
+
+  if (!out.experience) {
+    const blocks: string[] = [];
+    const educationHeaderRe =
+      /\b(?:b\.?(?:tech|e|a|sc|com)|m\.?(?:tech|ba|sc|com)|ph\.?d|mba|bachelor|master|degree|diploma|certificate|university|college|institute|school|academy|gpa|cgpa)\b/i;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!/\b(19|20)\d{2}\b/.test(line) || !/present|current|[-–—to]/i.test(line)) continue;
+      const header = lines[i - 1] || '';
+      if (!header || header.length > 100 || /@/.test(header)) continue;
+      if (educationHeaderRe.test(header)) continue;
+      if (/^(?:education|academic|qualification|degree)/i.test(lines[i - 2] || '')) continue;
+      const bullets = lines.slice(i + 1, i + 5).filter((l) => /^[-•*·]/.test(l));
+      blocks.push([header, line, ...bullets].join('\n'));
+    }
+    if (blocks.length > 0) out.experience = blocks.join('\n\n');
+  }
+
+  return out;
 }

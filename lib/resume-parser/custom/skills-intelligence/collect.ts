@@ -8,7 +8,7 @@ import {
   looksLikeJobTitleLine,
 } from '@/lib/resume-parser/import-sanitize';
 import { normalizeSkillAlias } from './aliases';
-import { isValidSkillCandidate } from './validate';
+import { isValidSkillCandidate, MULTI_WORD_SKILL_ALLOW_RE, SOFT_SKILL_SINGLE_RE } from './validate';
 import type { SkillCandidate, SkillSource, SkillsIntelligenceInput } from './types';
 
 const SKILL_SUBHEADERS = new Set([
@@ -41,6 +41,16 @@ function pushCandidate(
 ): void {
   const trimmed = raw.trim();
   if (!trimmed || trimmed.length < 2) return;
+  if (MULTI_WORD_SKILL_ALLOW_RE.test(trimmed.toLowerCase())) {
+    const normalized = normalizeSkillAlias(trimmed);
+    if (normalized) out.push({ raw: trimmed, normalized, source });
+    return;
+  }
+  if (SOFT_SKILL_SINGLE_RE.test(trimmed)) {
+    const normalized = normalizeSkillAlias(trimmed);
+    if (normalized) out.push({ raw: trimmed, normalized, source });
+    return;
+  }
   if (!isValidSkillCandidate(trimmed)) return;
   const normalized = normalizeSkillAlias(trimmed);
   if (!normalized || normalized.length < 2) return;
