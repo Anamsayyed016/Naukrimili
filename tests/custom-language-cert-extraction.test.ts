@@ -85,6 +85,18 @@ describe('certification extraction', () => {
     expect(blockCount).toBeGreaterThanOrEqual(1);
     expect(rejectedCount).toBeGreaterThanOrEqual(0);
   });
+
+  it('rejects MBA and experience text misclassified as certifications', () => {
+    expect(
+      parseCertificationLine('Master of Business Administration (MBA) - Barkatullah University')
+    ).toBeNull();
+    expect(
+      parseCertificationLine('Led billing platform development at Infosys')
+    ).toBeNull();
+    expect(
+      parseCertificationLine('Python, Django, React, JavaScript, SQL')
+    ).toBeNull();
+  });
 });
 
 describe('skills table collection', () => {

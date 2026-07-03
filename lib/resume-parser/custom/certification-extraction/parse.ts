@@ -3,6 +3,13 @@
  */
 
 import { parseDateRangeFromText } from '../experience-extraction/dates';
+import {
+  isPlausibleCertificationEntry,
+  isResumeSectionHeadingLine,
+  looksLikeJobTitleLine,
+} from '@/lib/resume-parser/import-sanitize';
+import { isLikelyEducationLine } from '@/lib/resume-parser/field-classification';
+import { looksLikeSentenceNotCompany } from '../experience-extraction/company';
 
 export interface ParsedCertification {
   name: string;
@@ -19,7 +26,27 @@ const ISSUER_SUFFIX_RE =
   /\b(?:amazon\s+web\s+services|aws|microsoft|google|cisco|comptia|oracle|ibm|salesforce|pmi|scrum\.org|isc2|ec-council|red\s+hat|hashicorp|sap|adobe)\b/i;
 
 const CERT_KEYWORD_RE =
-  /\b(?:certified|certification|certificate|license|licence|credential|accreditation|chartered|fellowship|diploma)\b/i;
+  /\b(?:certified|certification|certificate|license|licence|credential|accreditation|chartered|fellowship)\b/i;
+
+const EXPERIENCE_VERB_RE =
+  /\b(responsible for|managed|mentored|developed|implemented|designed|delivered|led|built|created)\b/i;
+
+const SKILL_LIST_RE = /(?:^|[,;|])\s*[A-Za-z+#.]+\s*[,;|]\s*[A-Za-z+#.]+\s*[,;|]/;
+
+function isUnrelatedCertificationContent(name: string, issuer: string): boolean {
+  const combined = `${name} ${issuer}`.trim();
+  if (!combined) return true;
+  if (isResumeSectionHeadingLine(name) || isResumeSectionHeadingLine(combined)) return true;
+  if (isLikelyEducationLine(name) || isLikelyEducationLine(combined)) return true;
+  if (looksLikeJobTitleLine(name) && !CERT_KEYWORD_RE.test(name)) return true;
+  if (EXPERIENCE_VERB_RE.test(combined) && combined.split(/\s+/).length > 5) return true;
+  if (looksLikeSentenceNotCompany(name) && name.split(/\s+/).length > 6) return true;
+  if (SKILL_LIST_RE.test(name)) return true;
+  if (/^(?:summary|objective|profile|experience|skills?|projects?|education)\b/i.test(name)) {
+    return true;
+  }
+  return false;
+}
 
 function extractUrl(text: string): { url: string; remainder: string } {
   const match = text.match(URL_RE);
@@ -135,6 +162,8 @@ export function parseCertificationLine(line: string): ParsedCertification | null
 
   const confidence = scoreCertification(name, issuer, Boolean(date), Boolean(url));
   if (confidence < 45 && !CERT_KEYWORD_RE.test(name)) return null;
+  if (isUnrelatedCertificationContent(name, issuer)) return null;
+  if (!isPlausibleCertificationEntry(name, issuer)) return null;
 
   return { name, issuer, date, url, credentialId, confidence };
 }

@@ -16,6 +16,15 @@ import { isValidExperience } from '../experience-extraction/validate';
 import type { CustomExtractedExperience } from '../experience-extraction/types';
 import type { RepairContext } from './types';
 import { recordIssue, recordRepair } from './types';
+import { resolveSafeRepair } from './repair-utils';
+
+function isValidCompanyValue(value: string): boolean {
+  return isPlausibleExperienceCompany(value);
+}
+
+function isValidDesignationValue(value: string): boolean {
+  return looksLikeJobTitleLine(value) || value.split(/\s+/).length <= 6;
+}
 
 function expKey(exp: CustomExtractedExperience): string {
   return [
@@ -69,32 +78,50 @@ export function repairExperienceEntry(
   const newPosition = String(reconciled.position || '').trim();
   const newLocation = String(reconciled.location || '').trim();
 
-  if (newCompany !== fixed.company) {
+  const companyConf = fixed.fieldConfidence?.company ?? fixed.confidence ?? 70;
+  const designationConf = fixed.fieldConfidence?.designation ?? fixed.confidence ?? 70;
+  const locationConf = fixed.fieldConfidence?.location ?? fixed.confidence ?? 65;
+
+  const safeCompany = resolveSafeRepair(
+    fixed.company,
+    newCompany,
+    companyConf,
+    82,
+    isValidCompanyValue
+  );
+  if (safeCompany !== fixed.company) {
     recordRepair(ctx, {
       section: 'experience',
       field: 'company',
       index,
       originalValue: fixed.company,
-      recoveredValue: newCompany,
+      recoveredValue: safeCompany,
       evidenceSource: 'parser_aliases',
       confidence: 82,
       reason: 'Reconciled company via header field rules.',
     });
-    fixed.company = newCompany;
+    fixed.company = safeCompany;
   }
 
-  if (newPosition !== fixed.designation) {
+  const safePosition = resolveSafeRepair(
+    fixed.designation,
+    newPosition,
+    designationConf,
+    80,
+    isValidDesignationValue
+  );
+  if (safePosition !== fixed.designation) {
     recordRepair(ctx, {
       section: 'experience',
       field: 'designation',
       index,
       originalValue: fixed.designation,
-      recoveredValue: newPosition,
+      recoveredValue: safePosition,
       evidenceSource: 'parser_aliases',
       confidence: 80,
       reason: 'Reconciled designation via header field rules.',
     });
-    fixed.designation = newPosition;
+    fixed.designation = safePosition;
   }
 
   if (fixed.company && looksLikeSentenceNotCompany(fixed.company)) {
@@ -111,18 +138,25 @@ export function repairExperienceEntry(
     fixed.company = '';
   }
 
-  if (newLocation !== fixed.location) {
+  const safeLocation = resolveSafeRepair(
+    fixed.location,
+    newLocation,
+    locationConf,
+    78,
+    (v) => v.length >= 2 && !isPlausibleExperienceCompany(v)
+  );
+  if (safeLocation !== fixed.location) {
     recordRepair(ctx, {
       section: 'experience',
       field: 'location',
       index,
       originalValue: fixed.location,
-      recoveredValue: newLocation,
+      recoveredValue: safeLocation,
       evidenceSource: 'parser_aliases',
       confidence: 78,
       reason: 'Reconciled location via header field rules.',
     });
-    fixed.location = newLocation;
+    fixed.location = safeLocation;
   }
 
   if (!fixed.company && fixed.designation && looksLikeJobTitleLine(fixed.designation)) {
@@ -202,7 +236,11 @@ export function repairExperienceEntry(
     fixed.endDate = null;
   }
 
-  if (fixed.company && looksLikeStandaloneLocationLine(fixed.company)) {
+  if (
+    fixed.company &&
+    looksLikeStandaloneLocationLine(fixed.company) &&
+    !isPlausibleExperienceCompany(fixed.company)
+  ) {
     recordRepair(ctx, {
       section: 'experience',
       field: 'location',

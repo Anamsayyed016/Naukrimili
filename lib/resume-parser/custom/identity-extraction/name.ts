@@ -25,6 +25,39 @@ export interface NameDetection {
 
 const NAME_SUFFIX_RE = /^(dr|mr|mrs|ms|prof|sir|jr|sr|ii|iii|iv)\.?$/i;
 
+const TRAILING_SECTION_NOISE_RE =
+  /\s+(?:skills?|technical\s+skills|experience|work\s+experience|education|summary|objective|profile|resume|cv|contact)\s*$/i;
+
+/** Strip multi-column padding and trailing section labels from a header line. */
+export function normalizeNameLine(line: string): string {
+  let trimmed = line.trim();
+  if (!trimmed) return '';
+
+  const multiCol = trimmed.match(
+    /^([A-Z][A-Za-z'.\-]+(?:\s+[A-Z][A-Za-z'.\-]+){0,4})\s+(.+)$/
+  );
+  if (multiCol?.[1] && multiCol[2]) {
+    const tail = multiCol[2].trim().toLowerCase();
+    if (
+      looksLikePersonNameShape(multiCol[1]) &&
+      /^(?:skills?|technical\s+skills|experience|education|summary|objective|profile|resume|cv|contact)\b/.test(
+        tail
+      )
+    ) {
+      trimmed = multiCol[1].trim();
+    }
+  }
+
+  trimmed = trimmed.replace(TRAILING_SECTION_NOISE_RE, '').trim();
+
+  const beforePipe = trimmed.split(/\s*\|\s*/)[0]?.trim() || trimmed;
+  if (beforePipe && beforePipe !== trimmed && looksLikePersonNameShape(beforePipe)) {
+    return beforePipe;
+  }
+
+  return trimmed;
+}
+
 /** Local shape heuristic when production plausibility gates are too strict (e.g. uncommon surnames). */
 export function looksLikePersonNameShape(text: string): boolean {
   const trimmed = text.trim();
@@ -105,6 +138,9 @@ export function detectFullName(zones: ScanZone[], primaryEmail = ''): NameDetect
   const near = detectNameNearContactLines(zones);
   if (near.confidence >= 55) return near;
 
+  const firstLine = detectNameFromFirstLines(zones);
+  if (firstLine.confidence >= 58) return firstLine;
+
   const candidates = collectZoneNameCandidates(zones);
   const best = pickBestNameFromCandidates(candidates, primaryEmail);
   if (best) {
@@ -130,7 +166,9 @@ export function detectFullName(zones: ScanZone[], primaryEmail = ''): NameDetect
 
 export function detectNameNearContactLines(zones: ScanZone[]): NameDetection {
   const lines = getZoneLines(zones, ['header', 'contact', 'preamble']);
-  for (const line of lines.slice(0, 12)) {
+  for (const rawLine of lines.slice(0, 14)) {
+    const line = normalizeNameLine(rawLine);
+    if (!line) continue;
     if (isResumeSectionHeadingLine(line)) continue;
     if (/[@+]|https?:\/\//i.test(line)) continue;
     if (looksLikePersonNameShape(line)) {
@@ -138,6 +176,19 @@ export function detectNameNearContactLines(zones: ScanZone[]): NameDetection {
     }
     const conf = scoreNameCandidate(line, 65);
     if (conf >= 55) return { fullName: line, confidence: conf };
+  }
+  return { fullName: '', confidence: 0 };
+}
+
+function detectNameFromFirstLines(zones: ScanZone[]): NameDetection {
+  for (const zone of zones) {
+    if (zone.label === 'full') continue;
+    const first = zone.text.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).find(Boolean);
+    if (!first) continue;
+    const line = normalizeNameLine(first);
+    if (!line || /[@+]|https?:\/\//i.test(line)) continue;
+    const conf = scoreNameCandidate(line, Math.round(66 * zone.weight));
+    if (conf >= 58) return { fullName: line, confidence: conf };
   }
   return { fullName: '', confidence: 0 };
 }

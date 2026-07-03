@@ -3,6 +3,7 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import { isPlausibleCertificationEntry } from '@/lib/resume-parser/import-sanitize';
 
 import type { RepairContext } from './types';
 import { recordIssue } from './types';
@@ -68,6 +69,18 @@ export function validateCertifications(
         index: i,
         code: 'missing_cert_name',
         message: 'Certification missing name.',
+      });
+      continue;
+    }
+
+    const issuer = (cert.issuer || '').trim();
+    if (!isPlausibleCertificationEntry(name, issuer)) {
+      recordIssue(ctx, {
+        severity: 'warning',
+        section: 'certifications',
+        index: i,
+        code: 'invalid_certification',
+        message: 'Certification rejected — unrelated or education/experience content.',
       });
       continue;
     }

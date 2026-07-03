@@ -12,7 +12,7 @@ import {
   looksLikeJobTitleLine,
 } from '@/lib/resume-parser/import-sanitize';
 
-import { looksLikePersonNameShape } from './name';
+import { looksLikePersonNameShape, normalizeNameLine } from './name';
 import type { CustomExtractedIdentity } from './types';
 
 const SKILL_LIST_RE =
@@ -26,12 +26,13 @@ export function sanitizeIdentityField(
   if (!trimmed) return '';
 
   if (field === 'fullName') {
-    if (!isPlausiblePersonName(trimmed) && !looksLikePersonNameShape(trimmed)) return '';
-    if (isResumeSectionHeadingLine(trimmed)) return '';
-    if (looksLikeCompanyNameLine(trimmed)) return '';
-    if (isPlausibleProjectName(trimmed) && !looksLikePersonNameShape(trimmed)) return '';
-    if (isLikelyEducationLine(trimmed)) return '';
-    return trimmed;
+    const normalized = normalizeNameLine(trimmed);
+    if (!isPlausiblePersonName(normalized) && !looksLikePersonNameShape(normalized)) return '';
+    if (isResumeSectionHeadingLine(normalized)) return '';
+    if (looksLikeCompanyNameLine(normalized)) return '';
+    if (isPlausibleProjectName(normalized) && !looksLikePersonNameShape(normalized)) return '';
+    if (isLikelyEducationLine(normalized)) return '';
+    return normalized;
   }
 
   if (field === 'professionalHeadline' || field === 'professionalTitle' || field === 'currentDesignation') {
