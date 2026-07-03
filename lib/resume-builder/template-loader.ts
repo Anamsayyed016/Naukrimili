@@ -38,6 +38,10 @@ import {
 import { scoreSkillConfidence } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { resolveTemplateId } from './template-aliases';
+import {
+  getAtsContentBalanceStyleBlock,
+  isPremiumTemplate,
+} from './ats-content-balance-css';
 
 /**
  * Load template metadata from JSON
@@ -561,30 +565,18 @@ export function injectResumeData(
     data
   );
 
-  // Minimal render fixes only — skill chip spacing (does not alter template layout).
-  const renderFixesCSS = `
-<style data-injected="render-fixes">
-.skills-list,
-.skills-chips-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  align-items: flex-start;
-}
-.skills-list > .skill-tag,
-.skills-chips-wrap > .skill-tag {
-  display: inline-block;
-  white-space: normal;
-  word-break: break-word;
-}
-</style>
-`;
-  if (/<\/body>/i.test(result)) {
-    result = result.replace(/<\/body>/i, renderFixesCSS + '</body>');
-  } else if (/<\/html>/i.test(result)) {
-    result = result.replace(/<\/html>/i, renderFixesCSS + '</html>');
-  } else {
-    result = result + renderFixesCSS;
+  // Premium typography & content-balance (spacing/hierarchy only — no layout/color changes).
+  const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
+  const injectedStyles =
+    isPremiumTemplate(resolvedTemplateId) ? getAtsContentBalanceStyleBlock() : '';
+  if (injectedStyles) {
+    if (/<\/body>/i.test(result)) {
+      result = result.replace(/<\/body>/i, injectedStyles + '</body>');
+    } else if (/<\/html>/i.test(result)) {
+      result = result.replace(/<\/html>/i, injectedStyles + '</html>');
+    } else {
+      result = result + injectedStyles;
+    }
   }
 
   return result;

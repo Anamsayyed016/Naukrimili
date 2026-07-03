@@ -715,3 +715,215 @@
     align-items: flex-start !important;
   }
 }
+
+/* ATS Content Balance — typography & spacing */
+.resume-container {
+  --acb-lh-body: 1.62;
+  --acb-lh-tight: 1.48;
+  --acb-section-gap: clamp(10px, 1.4vw, 14px);
+  --acb-block-gap: clamp(8px, 1.2vw, 12px);
+  --acb-heading-gap: clamp(6px, 1vw, 10px);
+}
+
+.resume-container section > h2,
+.resume-container .section-title,
+.resume-container [class*="section-title"],
+.resume-container [class*="-heading"]:not([class*="accent"]):not([class*="text"]) {
+  font-size: clamp(12px, 1.15vw, 14px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1.25 !important;
+  margin-top: 0 !important;
+  margin-bottom: var(--acb-heading-gap) !important;
+  padding-bottom: clamp(3px, 0.5vw, 6px) !important;
+}
+
+.resume-container section {
+  margin-bottom: var(--acb-section-gap) !important;
+}
+
+.resume-container aside section,
+.resume-container [class*="sidebar"] section {
+  margin-bottom: clamp(8px, 1.2vw, 12px) !important;
+}
+
+.resume-container .summary-text {
+  font-size: clamp(9px, 0.95vw, 10px) !important;
+  line-height: var(--acb-lh-body) !important;
+  max-width: 68ch;
+  margin-top: 0 !important;
+  margin-bottom: clamp(4px, 0.8vw, 8px) !important;
+}
+
+.resume-container .experience-item {
+  margin-bottom: var(--acb-block-gap) !important;
+  padding-bottom: clamp(2px, 0.4vw, 4px) !important;
+}
+
+.resume-container .experience-header {
+  margin-bottom: clamp(4px, 0.7vw, 6px) !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.resume-container .experience-header .company {
+  order: 1;
+  display: block;
+  font-size: clamp(11px, 1.05vw, 12px) !important;
+  font-weight: 700 !important;
+  line-height: var(--acb-lh-tight) !important;
+  letter-spacing: 0.01em !important;
+  margin-bottom: 2px !important;
+}
+
+.resume-container .experience-header h3 {
+  order: 2;
+  font-size: clamp(10px, 0.98vw, 11px) !important;
+  font-weight: 500 !important;
+  line-height: var(--acb-lh-tight) !important;
+  margin-bottom: 2px !important;
+}
+
+.resume-container .experience-header .duration {
+  order: 3;
+  font-size: clamp(8px, 0.88vw, 9px) !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+}
+
+.resume-container .experience-item .description,
+.resume-container .project-item .description,
+.resume-container .description {
+  font-size: clamp(9px, 0.95vw, 10px) !important;
+  line-height: var(--acb-lh-body) !important;
+}
+
+.resume-container .experience-item .description ul,
+.resume-container .description ul {
+  margin: clamp(3px, 0.6vw, 5px) 0 0 1.15em !important;
+  padding: 0 !important;
+}
+
+.resume-container .experience-item .description li,
+.resume-container .description li {
+  margin-bottom: clamp(3px, 0.5vw, 5px) !important;
+  line-height: var(--acb-lh-body) !important;
+}
+
+.resume-container .education-item {
+  margin-bottom: var(--acb-block-gap) !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.resume-container .education-item .institution {
+  order: 1;
+  display: block;
+  font-size: clamp(11px, 1.05vw, 12px) !important;
+  font-weight: 700 !important;
+  line-height: var(--acb-lh-tight) !important;
+  margin-bottom: 2px !important;
+}
+
+.resume-container .education-item h3 {
+  order: 2;
+  font-size: clamp(10px, 0.98vw, 11px) !important;
+  font-weight: 500 !important;
+  line-height: var(--acb-lh-tight) !important;
+  margin-bottom: 2px !important;
+}
+
+.resume-container .education-item .year,
+.resume-container .education-item .cgpa {
+  order: 3;
+  font-size: clamp(8px, 0.88vw, 9px) !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+}
+
+.resume-container .project-item {
+  margin-bottom: var(--acb-block-gap) !important;
+}
+
+.resume-container .project-item h3 {
+  font-size: clamp(11px, 1.05vw, 12px) !important;
+  font-weight: 700 !important;
+  line-height: var(--acb-lh-tight) !important;
+  margin-bottom: 3px !important;
+}
+
+.resume-container .project-item .description,
+.resume-container .project-item p.description {
+  font-size: clamp(9px, 0.95vw, 10px) !important;
+  font-weight: 400 !important;
+  line-height: var(--acb-lh-body) !important;
+  margin-bottom: 3px !important;
+}
+
+.resume-container .project-item .technologies {
+  font-size: clamp(8.5px, 0.9vw, 9.5px) !important;
+  line-height: 1.4 !important;
+  margin-bottom: 2px !important;
+}
+
+.resume-container .project-item a {
+  font-size: clamp(8px, 0.85vw, 9px) !important;
+  line-height: 1.3 !important;
+}
+
+.resume-container .skills-list:not(:has(.psp-skill-item)),
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(4px, 0.6vw, 6px) clamp(6px, 0.9vw, 10px) !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+.resume-container .skills-list:not(:has(.psp-skill-item)) > .skill-tag,
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) > .skill-tag {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  width: 100% !important;
+  min-height: 1.55em !important;
+  margin: 0 !important;
+  padding: clamp(3px, 0.45vw, 5px) clamp(6px, 0.8vw, 8px) !important;
+  box-sizing: border-box !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.35 !important;
+  font-size: clamp(8.5px, 0.9vw, 9.5px) !important;
+}
+
+.resume-container .achievement-item {
+  margin-bottom: clamp(4px, 0.7vw, 6px) !important;
+}
+
+.resume-container .achievements-list .achievement-item h3,
+.resume-container .achievement-item h3 {
+  font-size: clamp(10px, 0.98vw, 11px) !important;
+  font-weight: 600 !important;
+  line-height: var(--acb-lh-tight) !important;
+  margin-bottom: 2px !important;
+}
+
+.resume-container main p,
+.resume-container [class*="main"] p:not(.header-title) {
+  line-height: var(--acb-lh-body) !important;
+}
+
+.resume-container .experience-list > .experience-item:last-child,
+.resume-container .education-list > .education-item:last-child,
+.resume-container .projects-list > .project-item:last-child {
+  margin-bottom: 0 !important;
+}
+
+@media print {
+  .resume-container .skills-list:not(:has(.psp-skill-item)),
+  .resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
