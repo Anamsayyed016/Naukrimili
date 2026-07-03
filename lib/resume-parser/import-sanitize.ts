@@ -2529,6 +2529,34 @@ export function finalizeEducationListForBuilder(
   return mergeOrphanEducationEntries(merged as EducationLike[]) as Record<string, unknown>[];
 }
 
+/** Custom-parser import — preserve each education row; drop exact duplicates only. */
+export function finalizeEducationListForCustomParserImport(
+  entries: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  if (!Array.isArray(entries) || entries.length === 0) return [];
+  const out: Record<string, unknown>[] = [];
+  const seen = new Set<string>();
+
+  for (const edu of entries) {
+    if (!edu || typeof edu !== 'object') continue;
+    const sanitized = sanitizeEducationEntry(edu);
+    if (!sanitized) continue;
+    const key = [
+      sanitizeFieldText(sanitized.institution, 160),
+      sanitizeFieldText(sanitized.degree, 160),
+      sanitizeFieldText(sanitized.field, 120),
+      sanitizeFieldText(sanitized.endDate || sanitized.year, 40),
+    ]
+      .join('|')
+      .toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(sanitized);
+  }
+
+  return out;
+}
+
 /** Reject random text blocks that lack employment structure. */
 export function isValidExperienceEntry(exp: {
   company?: string;

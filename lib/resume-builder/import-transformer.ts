@@ -65,6 +65,7 @@ import {
   finalizeExperienceListForBuilder,
   finalizeExperienceListForCustomParserImport,
   finalizeEducationListForBuilder,
+  finalizeEducationListForCustomParserImport,
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
   looksLikeCompanyNameLine,
@@ -143,11 +144,17 @@ function countExperiencesWithCompany(list: unknown[]): number {
   return countPlausibleExperienceCompanies(list);
 }
 
-function normalizeMergedExperienceList(list: unknown[]): Record<string, unknown>[] {
+function normalizeMergedExperienceList(
+  list: unknown[],
+  importMeta?: Record<string, unknown>
+): Record<string, unknown>[] {
   if (!Array.isArray(list) || list.length === 0) return [];
   const reconciled = list
     .filter((entry) => entry && typeof entry === 'object')
     .map((entry) => reconcileExperienceHeaderFields(entry as Record<string, unknown>));
+  if (isCustomParserImport(importMeta ?? {})) {
+    return finalizeExperienceListForCustomParserImport(reconciled);
+  }
   return finalizeExperienceListForBuilder(reconciled);
 }
 
@@ -466,6 +473,12 @@ function mergeBuilderFormWithParent(
           return parentList;
         }
         return fromBuilder;
+      } else if (canonical === 'education') {
+        const parentList = firstNonEmptyArray(parent, [canonical, ...aliases]);
+        if (parentList.length > (fromBuilder as unknown[]).length) {
+          return parentList;
+        }
+        return fromBuilder;
       } else {
         return fromBuilder;
       }
@@ -492,6 +505,10 @@ function mergeBuilderFormWithParent(
   out.Languages = out.languages;
   out.Hobbies = out.hobbies;
   out['Hobbies & Interests'] = out.hobbies;
+
+  out.customParserUsed = parent.customParserUsed ?? builderFormData.customParserUsed;
+  out.selectedParser = parent.selectedParser ?? builderFormData.selectedParser;
+  out._aiProvider = parent._aiProvider ?? builderFormData._aiProvider;
 
   return out;
 }
@@ -541,13 +558,17 @@ export function coalesceBuilderImportPayload(
   if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
     const { builderFormData: _nested, ...parent } = parsed;
     const merged = mergeBuilderFormWithParent(parent, nested as Record<string, any>);
+    const importMeta = { ...parent, ...merged };
     if (Array.isArray(merged.experience) && merged.experience.length > 0) {
-      merged.experience = normalizeMergedExperienceList(merged.experience);
+      merged.experience = normalizeMergedExperienceList(merged.experience, importMeta);
     }
     return applySummaryHygieneToBuilderForm({
       ...merged,
       _imported: merged._imported ?? parent._imported ?? true,
       rawText: merged.rawText ?? parent.rawText ?? parsed.rawText,
+      customParserUsed: importMeta.customParserUsed,
+      selectedParser: importMeta.selectedParser,
+      _aiProvider: importMeta._aiProvider,
     });
   }
 
@@ -556,7 +577,7 @@ export function coalesceBuilderImportPayload(
     const out = { ...(parsed as Record<string, any>) };
     delete out.builderFormData;
     if (Array.isArray(out.experience) && out.experience.length > 0) {
-      out.experience = normalizeMergedExperienceList(out.experience);
+      out.experience = normalizeMergedExperienceList(out.experience, out);
     }
     return applySummaryHygieneToBuilderForm(out);
   }
@@ -1026,7 +1047,7 @@ export function transformImportDataToBuilder(
       );
     }
     if (Array.isArray(mergedImport.education)) {
-      mergedImport.education = finalizeEducationListForBuilder(
+      mergedImport.education = finalizeEducationListForCustomParserImport(
         mergedImport.education as Record<string, unknown>[]
       );
     }
@@ -1185,7 +1206,8 @@ export function transformImportDataToBuilder(
 
     // ===== EducationStep =====
     education: transformEducationArray(
-      firstNonEmptyArray(mergedImport, ['education', 'Education'])
+      firstNonEmptyArray(mergedImport, ['education', 'Education']),
+      isCustomParser
     ),
 
     // ===== ProjectsStep =====
@@ -1729,12 +1751,14 @@ function transformExperienceArray(experiences: unknown): any[] {
   return deduped;
 }
 
-function transformEducationArray(education: unknown): any[] {
+function transformEducationArray(education: unknown, isCustomParser = false): any[] {
   if (!Array.isArray(education)) return [];
 
-  const merged = mergeOrphanEducationEntries(
-    education.filter((e) => e != null) as Record<string, unknown>[]
-  );
+  const merged = isCustomParser
+    ? (education.filter((e) => e != null) as Record<string, unknown>[])
+    : mergeOrphanEducationEntries(
+        education.filter((e) => e != null) as Record<string, unknown>[]
+      );
 
   const mapped = merged
     .map((edu) => sanitizeEducationEntry((edu ?? {}) as Record<string, unknown>))
@@ -1774,7 +1798,9 @@ function transformEducationArray(education: unknown): any[] {
 
   const seen = new Set<string>();
   return mapped.filter((edu) => {
-    const key = `${edu.institution}|${edu.degree}`.toLowerCase();
+    const key = isCustomParser
+      ? `${edu.institution}|${edu.degree}|${edu.year}|${edu.field}`.toLowerCase()
+      : `${edu.institution}|${edu.degree}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
