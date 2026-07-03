@@ -96,7 +96,7 @@ import {
   extractAdditionalResumeDataFromText,
   truncateSummaryAtSectionBoundary,
 } from '@/lib/resume-parser/text-recovery';
-import { applyRecoveredWordingToProfile } from '@/lib/resume-parser/prefer-recovered-wording';
+import { applyRecoveredWordingToProfile, overlaySparseSectionsFromTextRecovery } from '@/lib/resume-parser/prefer-recovered-wording';
 import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 
 /* ------------------------------------------------------------------ */
@@ -568,6 +568,9 @@ export function coalesceBuilderImportPayload(
     const { builderFormData: _nested, ...parent } = parsed;
     const merged = mergeBuilderFormWithParent(parent, nested as Record<string, any>);
     const importMeta = { ...parent, ...merged };
+    const overlaid = overlaySparseSectionsFromTextRecovery(merged);
+    merged.experience = overlaid.experience ?? merged.experience;
+    merged.projects = overlaid.projects ?? merged.projects;
     if (Array.isArray(merged.experience) && merged.experience.length > 0) {
       merged.experience = normalizeMergedExperienceList(merged.experience, importMeta);
     }
@@ -581,11 +584,12 @@ export function coalesceBuilderImportPayload(
     });
   }
 
-  // Upload / editor already coalesced this payload — do not re-run full sanitize (drops experience).
+  // Upload / editor already coalesced this payload — re-merge orphans + text backfill.
   if (parsed._imported === true) {
-    const out = { ...(parsed as Record<string, any>) };
+    const out = overlaySparseSectionsFromTextRecovery({ ...(parsed as Record<string, any>) });
     delete out.builderFormData;
     if (Array.isArray(out.experience) && out.experience.length > 0) {
+      out.experience = enrichExperienceFromParserAliases(out.experience, out);
       out.experience = normalizeMergedExperienceList(out.experience, out);
     }
     return applySummaryHygieneToBuilderForm(out);
@@ -1058,6 +1062,12 @@ export function transformImportDataToBuilder(
     if (Array.isArray(mergedImport.education)) {
       mergedImport.education = finalizeEducationListForCustomParserImport(
         mergedImport.education as Record<string, unknown>[]
+      );
+    }
+    mergedImport = overlaySparseSectionsFromTextRecovery(mergedImport);
+    if (Array.isArray(mergedImport.experience)) {
+      mergedImport.experience = finalizeExperienceListForCustomParserImport(
+        mergedImport.experience as Record<string, unknown>[]
       );
     }
   } else {

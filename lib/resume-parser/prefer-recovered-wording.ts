@@ -13,7 +13,9 @@ import {
   finalizeExperienceListForBuilder,
   finalizeEducationListForBuilder,
   unionExperienceBodyFields,
+  countPlausibleExperienceCompanies,
 } from '@/lib/resume-parser/import-sanitize';
+import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
 import { isConfidentValue } from '@/lib/resume-parser/normalize-extracted';
 
 const MIN_WORDING_LENGTH = 3;
@@ -597,6 +599,80 @@ export function mergeParserWithRecoveredWording(
       (merged.education || []) as unknown as Record<string, unknown>[]
     ) as unknown as EduLike[],
   };
+}
+
+/**
+ * Custom-parser mapping overlay: when structured rows lack company/description,
+ * backfill from raw-text recovery without replacing the full parser profile.
+ */
+export function overlaySparseSectionsFromTextRecovery(
+  profile: Record<string, unknown>
+): Record<string, unknown> {
+  const text = String(profile.rawText ?? '').trim();
+  if (text.length < 80) return profile;
+
+  const out = { ...profile };
+  const recovered = extractResumeFromText(text);
+
+  const parserExp = (Array.isArray(out.experience) ? out.experience : []).filter(
+    (e): e is Record<string, unknown> => !!e && typeof e === 'object'
+  );
+  const recExp = (recovered.experience || []) as unknown as Record<string, unknown>[];
+  if (
+    parserExp.length > 0 &&
+    recExp.length > 0 &&
+    countPlausibleExperienceCompanies(parserExp) < parserExp.length
+  ) {
+    const usedRec = new Set<number>();
+    const merged = mergeListWithRecoveredWording(
+      parserExp,
+      recExp,
+      experienceSectionMatch,
+      experienceMatchScore,
+      (p, r) => applyExperienceStructuralMerge(p, r),
+      false,
+      usedRec
+    );
+    out.experience = mergeOrphanExperienceEntries(
+      fillMissingExperienceFromRecovered(
+        merged as Record<string, unknown>[],
+        recExp,
+        usedRec
+      )
+    );
+  }
+
+  const parserProj = (Array.isArray(out.projects) ? out.projects : []).filter(
+    (p): p is Record<string, unknown> => !!p && typeof p === 'object'
+  );
+  const recProj = (recovered.projects || []) as unknown as Record<string, unknown>[];
+  const projWithDesc = parserProj.filter((p) => {
+    const desc = String(p.description ?? p.summary ?? p.Description ?? '').trim();
+    return desc.length >= 12;
+  }).length;
+  if (parserProj.length > 0 && recProj.length > 0 && projWithDesc < parserProj.length) {
+    out.projects = mergeListWithRecoveredWording(
+      parserProj,
+      recProj,
+      projectSectionMatch,
+      () => 50,
+      (p, r) => {
+        const desc = preferRecoveredWording(
+          (r as { description?: string }).description,
+          (p as { description?: string }).description ||
+            (p as { summary?: string }).summary
+        );
+        const name = preferNonemptyField(
+          p.name || p.title || p.projectName,
+          (r as { name?: string }).name || (r as { title?: string }).title
+        );
+        return { ...p, name, title: name, description: desc, summary: desc };
+      },
+      false
+    );
+  }
+
+  return out;
 }
 
 /** Apply recovered wording onto an upload profile object (ultimate-upload / import-transformer). */
