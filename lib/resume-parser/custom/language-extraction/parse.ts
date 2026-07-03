@@ -131,71 +131,109 @@ function parseLanguageToken(token: string): ParsedLanguageLine | null {
   };
 }
 
-export function parseLanguageLine(line: string): ParsedLanguageLine | null {
+export interface LanguageSectionParseResult {
+  languages: ParsedLanguageLine[];
+  rejectedCount: number;
+  attemptCount: number;
+}
+
+export function parseLanguageLinesFromLine(line: string): ParsedLanguageLine[] {
   const trimmed = line.trim();
-  if (!trimmed || trimmed.length < 2) return null;
-  if (/^(?:languages?|language\s+proficiency|spoken\s+languages?)\s*:?\s*$/i.test(trimmed)) return null;
+  if (!trimmed || trimmed.length < 2) return [];
+  if (/^(?:languages?|language\s+proficiency|spoken\s+languages?)\s*:?\s*$/i.test(trimmed)) {
+    return [];
+  }
 
   const inline = trimmed.match(/^(?:languages?)\s*:\s*(.+)$/i);
   if (inline) {
     const tokens = inline[1].split(/[,;|·•]/).map((t) => t.trim()).filter(Boolean);
-    if (tokens.length === 1) return parseLanguageToken(tokens[0]);
+    const parsed: ParsedLanguageLine[] = [];
+    for (const token of tokens) {
+      const lang = parseLanguageToken(token);
+      if (lang) parsed.push(lang);
+    }
+    return parsed;
   }
 
   if (/^\|/.test(trimmed)) {
     const cells = trimmed.split('|').map((c) => c.trim()).filter(Boolean);
     if (cells.length >= 2 && !/^language/i.test(cells[0])) {
-      return parseLanguageToken(`${cells[0]} - ${cells[1]}`);
+      const lang = parseLanguageToken(`${cells[0]} - ${cells[1]}`);
+      return lang ? [lang] : [];
     }
   }
 
   if (/^[-•*·]\s*/.test(trimmed)) {
-    return parseLanguageToken(trimmed.replace(/^[-•*·]\s*/, ''));
+    const lang = parseLanguageToken(trimmed.replace(/^[-•*·]\s*/, ''));
+    return lang ? [lang] : [];
   }
 
-  return parseLanguageToken(trimmed);
+  if (trimmed.includes(',') && !/[-–—:]/.test(trimmed)) {
+    const tokens = trimmed.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
+    if (tokens.length >= 2 && tokens.every((t) => isHumanLanguageName(t.split(/\s+/)[0]))) {
+      const parsed: ParsedLanguageLine[] = [];
+      for (const token of tokens) {
+        const lang = parseLanguageToken(token);
+        if (lang) parsed.push(lang);
+      }
+      if (parsed.length > 0) return parsed;
+    }
+  }
+
+  const single = parseLanguageToken(trimmed);
+  return single ? [single] : [];
+}
+
+export function parseLanguageLine(line: string): ParsedLanguageLine | null {
+  const parsed = parseLanguageLinesFromLine(line);
+  return parsed.length > 0 ? parsed[0] : null;
 }
 
 export function parseLanguagesFromSection(sectionText: string): ParsedLanguageLine[] {
-  if (!sectionText?.trim()) return [];
+  return parseLanguagesFromSectionWithStats(sectionText).languages;
+}
+
+export function parseLanguagesFromSectionWithStats(sectionText: string): LanguageSectionParseResult {
+  if (!sectionText?.trim()) {
+    return { languages: [], rejectedCount: 0, attemptCount: 0 };
+  }
 
   const lines = sectionText.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean);
   const results: ParsedLanguageLine[] = [];
   const seen = new Set<string>();
+  let rejectedCount = 0;
+  let attemptCount = 0;
 
   for (const line of lines) {
-    const commaList = line.match(/^(?:languages?)\s*:\s*(.+)$/i);
-    if (commaList) {
-      for (const token of commaList[1].split(/[,;|]/).map((t) => t.trim()).filter(Boolean)) {
-        const parsed = parseLanguageToken(token);
-        if (parsed && !seen.has(parsed.name.toLowerCase())) {
-          seen.add(parsed.name.toLowerCase());
-          results.push(parsed);
-        }
-      }
+    if (/^(?:languages?|language\s+proficiency|spoken\s+languages?)\s*:?\s*$/i.test(line)) {
       continue;
     }
 
-    if (line.includes(',') && !/[-–—:]/.test(line)) {
-      const tokens = line.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
-      if (tokens.length >= 2 && tokens.every((t) => isHumanLanguageName(t.split(/\s+/)[0]))) {
-        for (const token of tokens) {
-          const parsed = parseLanguageToken(token);
-          if (parsed && !seen.has(parsed.name.toLowerCase())) {
-            seen.add(parsed.name.toLowerCase());
-            results.push(parsed);
-          }
+    const fromLine = parseLanguageLinesFromLine(line);
+    if (fromLine.length > 0) {
+      const tokens =
+        line.match(/^(?:languages?)\s*:\s*(.+)$/i)?.[1]?.split(/[,;|·•]/).map((t) => t.trim()).filter(Boolean) ||
+        (line.includes(',') && !/[-–—:]/.test(line)
+          ? line.split(/[,;]/).map((t) => t.trim()).filter(Boolean)
+          : [line]);
+      attemptCount += tokens.length;
+
+      for (const lang of fromLine) {
+        const key = lang.name.toLowerCase();
+        if (seen.has(key)) {
+          rejectedCount += 1;
+          continue;
         }
-        continue;
+        seen.add(key);
+        results.push(lang);
       }
+      rejectedCount += Math.max(0, tokens.length - fromLine.length);
+      continue;
     }
 
-    const parsed = parseLanguageLine(line);
-    if (parsed && !seen.has(parsed.name.toLowerCase())) {
-      seen.add(parsed.name.toLowerCase());
-      results.push(parsed);
-    }
+    attemptCount += 1;
+    rejectedCount += 1;
   }
 
-  return results;
+  return { languages: results, rejectedCount, attemptCount };
 }

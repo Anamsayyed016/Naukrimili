@@ -14,5 +14,7 @@ export {
   parseCertificationBlock,
   parseCertificationLine,
   parseCertificationsFromSection,
+  parseCertificationsFromSectionWithStats,
   partitionCertificationBlocks,
 } from './parse';
+export type { ParsedCertification, CertificationSectionParseResult } from './parse';

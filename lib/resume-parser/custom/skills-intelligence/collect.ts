@@ -139,9 +139,16 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
 
     const afterContact = stripContactNoise(raw);
     if (!afterContact) continue;
+
+    const tokens = splitSkillTokens(afterContact);
+    if (tokens.length >= 2) {
+      collectTokensFromLine(raw, 'skills_section', out);
+      continue;
+    }
+
     if (
       !lineLooksSkillList(raw) &&
-      splitSkillTokens(afterContact).length < 2 &&
+      tokens.length < 2 &&
       !/:/.test(raw)
     ) {
       continue;
@@ -245,13 +252,21 @@ export function collectAllSkillCandidates(input: SkillsIntelligenceInput): Skill
   const fromSection = collectFromSkillsSection(skillsSection);
   const fromPreamble =
     !skillsSection || fromSection.length < 3 ? collectFromPreambleText(preamble) : [];
+  const hasRichSkillsSection = fromSection.length >= 3;
+
+  const crossSectionMining: SkillCandidate[] = hasRichSkillsSection
+    ? []
+    : [
+        ...collectFromTechnologyLists(input.experienceTechnologies, 'experience'),
+        ...(input.experienceTexts || []).flatMap((t) => collectFromTextScan(t, 'experience')),
+        ...collectFromTechnologyLists(input.projectTechnologies, 'project'),
+        ...(input.projectTexts || []).flatMap((t) => collectFromTextScan(t, 'project')),
+      ];
 
   const all: SkillCandidate[] = [
     ...fromSection,
     ...fromPreamble,
-    ...collectFromTechnologyLists(input.experienceTechnologies, 'experience'),
-    ...(input.experienceTexts || []).flatMap((t) => collectFromTextScan(t, 'experience')),
-    ...collectFromTechnologyLists(input.projectTechnologies, 'project'),
+    ...crossSectionMining,
     ...collectFromTextScan(input.summaryText || '', 'summary'),
     ...collectFromEducationTexts(input.educationTexts),
     ...collectFromTechnologyLists(input.educationCoursework, 'education'),

@@ -55,6 +55,9 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
       [e.description, ...(e.bulletPoints || [])].filter(Boolean).join('\n')
     ),
     projectTechnologies: projects.map((p) => p.technologies),
+    projectTexts: projects.map((p) =>
+      [p.title, p.description, ...(p.achievements || [])].filter(Boolean).join('\n')
+    ),
     summaryText: sections.summary,
     educationTexts: educations.map((e) =>
       [e.degree, e.fieldOfStudy, ...(e.coursework || [])].filter(Boolean).join(' ')

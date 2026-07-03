@@ -1,6 +1,6 @@
 import { extractLanguagesFromSection } from '@/lib/resume-parser/custom/language-extraction';
-import { parseLanguageLine, parseLanguagesFromSection } from '@/lib/resume-parser/custom/language-extraction/parse';
-import { extractCertificationsFromSection } from '@/lib/resume-parser/custom/certification-extraction';
+import { parseLanguageLine, parseLanguagesFromSection, parseLanguagesFromSectionWithStats } from '@/lib/resume-parser/custom/language-extraction/parse';
+import { extractCertificationsFromSection, extractCertificationsWithMeta } from '@/lib/resume-parser/custom/certification-extraction';
 import { parseCertificationLine } from '@/lib/resume-parser/custom/certification-extraction/parse';
 import { runCustomParserPipeline } from '@/lib/resume-parser/custom/reliability/pipeline';
 import { collectFromSkillsSection } from '@/lib/resume-parser/custom/skills-intelligence/collect';
@@ -29,6 +29,23 @@ describe('language extraction', () => {
     const parsed = parseLanguageLine('JavaScript - Expert');
     expect(parsed).toBeNull();
   });
+
+  it('parses inline comma-separated language lists', () => {
+    const langs = parseLanguagesFromSection('Languages: English, French, Hindi');
+    expect(langs.length).toBe(3);
+    expect(langs.map((l) => l.name.toLowerCase())).toEqual(
+      expect.arrayContaining(['english', 'french', 'hindi'])
+    );
+  });
+
+  it('tracks rejected language entries', () => {
+    const { languages, rejectedCount, attemptCount } = parseLanguagesFromSectionWithStats(
+      ['English - Native', 'English - Fluent', 'NotALanguage123'].join('\n')
+    );
+    expect(languages.length).toBe(1);
+    expect(attemptCount).toBeGreaterThanOrEqual(2);
+    expect(rejectedCount).toBeGreaterThanOrEqual(1);
+  });
 });
 
 describe('certification extraction', () => {
@@ -53,6 +70,20 @@ describe('certification extraction', () => {
     const certs = extractCertificationsFromSection(section);
     expect(certs.length).toBeGreaterThanOrEqual(1);
     expect(certs[0].name.length).toBeGreaterThan(3);
+  });
+
+  it('tracks rejected certification blocks', () => {
+    const section = [
+      'CERTIFICATIONS',
+      'AWS Solutions Architect - Amazon Web Services',
+      '2023',
+      '',
+      'not a valid cert line without keywords',
+    ].join('\n');
+    const { certifications, rejectedCount, blockCount } = extractCertificationsWithMeta(section);
+    expect(certifications.length).toBeGreaterThanOrEqual(1);
+    expect(blockCount).toBeGreaterThanOrEqual(1);
+    expect(rejectedCount).toBeGreaterThanOrEqual(0);
   });
 });
 

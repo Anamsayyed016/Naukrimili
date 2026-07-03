@@ -2,7 +2,7 @@
  * Language Extraction Engine — converts detected languages section into structured entries.
  */
 
-import { parseLanguagesFromSection } from './parse';
+import { parseLanguagesFromSectionWithStats } from './parse';
 import type { CanonicalLanguage, CustomExtractedLanguage, LanguageExtractionResult } from './types';
 import { toCanonicalLanguage } from './types';
 
@@ -15,7 +15,9 @@ export function extractLanguagesFromSection(
 export function extractLanguagesWithMeta(
   languagesSectionText: string
 ): LanguageExtractionResult {
-  const parsed = parseLanguagesFromSection(languagesSectionText || '');
+  const { languages: parsed, rejectedCount } = parseLanguagesFromSectionWithStats(
+    languagesSectionText || ''
+  );
   const languages: CustomExtractedLanguage[] = parsed.map((p) => ({
     name: p.name,
     proficiency: p.proficiency,
@@ -25,7 +27,7 @@ export function extractLanguagesWithMeta(
   return {
     languages,
     canonical: languages.map(toCanonicalLanguage),
-    rejectedCount: 0,
+    rejectedCount,
   };
 }
 

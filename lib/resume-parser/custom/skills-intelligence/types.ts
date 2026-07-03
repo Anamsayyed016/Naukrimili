@@ -65,6 +65,8 @@ export interface SkillsIntelligenceInput {
   educationTexts?: string[];
   /** Per-education coursework lists */
   educationCoursework?: string[][];
+  /** Per-project description text for technology recovery */
+  projectTexts?: string[];
   certificationNames?: string[];
 }
 

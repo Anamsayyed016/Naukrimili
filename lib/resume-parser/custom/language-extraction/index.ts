@@ -6,4 +6,5 @@ export {
   extractLanguagesFromSection,
   extractLanguagesWithMeta,
 } from './engine';
-export { parseLanguageLine, parseLanguagesFromSection } from './parse';
+export { parseLanguageLine, parseLanguageLinesFromLine, parseLanguagesFromSection, parseLanguagesFromSectionWithStats } from './parse';
+export type { ParsedLanguageLine, LanguageSectionParseResult } from './parse';

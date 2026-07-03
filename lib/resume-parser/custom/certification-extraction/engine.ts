@@ -2,7 +2,7 @@
  * Certification Extraction Engine — converts detected certifications section into structured entries.
  */
 
-import { parseCertificationsFromSection } from './parse';
+import { parseCertificationsFromSectionWithStats } from './parse';
 import type {
   CanonicalCertification,
   CertificationExtractionResult,
@@ -19,7 +19,8 @@ export function extractCertificationsFromSection(
 export function extractCertificationsWithMeta(
   certificationsSectionText: string
 ): CertificationExtractionResult {
-  const parsed = parseCertificationsFromSection(certificationsSectionText || '');
+  const { certifications: parsed, rejectedCount, blockCount } =
+    parseCertificationsFromSectionWithStats(certificationsSectionText || '');
   const certifications: CustomExtractedCertification[] = parsed.map((p) => ({
     name: p.name,
     issuer: p.issuer,
@@ -32,8 +33,8 @@ export function extractCertificationsWithMeta(
   return {
     certifications,
     canonical: certifications.map(toCanonicalCertification),
-    rejectedCount: 0,
-    blockCount: parsed.length,
+    rejectedCount,
+    blockCount,
   };
 }
 

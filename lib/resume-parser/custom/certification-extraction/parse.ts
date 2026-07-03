@@ -229,21 +229,42 @@ export function parseCertificationBlock(lines: string[]): ParsedCertification | 
   return best;
 }
 
+export interface CertificationSectionParseResult {
+  certifications: ParsedCertification[];
+  rejectedCount: number;
+  blockCount: number;
+}
+
 export function parseCertificationsFromSection(sectionText: string): ParsedCertification[] {
-  if (!sectionText?.trim()) return [];
+  return parseCertificationsFromSectionWithStats(sectionText).certifications;
+}
+
+export function parseCertificationsFromSectionWithStats(
+  sectionText: string
+): CertificationSectionParseResult {
+  if (!sectionText?.trim()) {
+    return { certifications: [], rejectedCount: 0, blockCount: 0 };
+  }
 
   const blocks = partitionCertificationBlocks(sectionText);
   const results: ParsedCertification[] = [];
   const seen = new Set<string>();
+  let rejectedCount = 0;
 
   for (const block of blocks) {
     const parsed = parseCertificationBlock(block);
-    if (!parsed) continue;
+    if (!parsed) {
+      rejectedCount += 1;
+      continue;
+    }
     const key = parsed.name.toLowerCase();
-    if (seen.has(key)) continue;
+    if (seen.has(key)) {
+      rejectedCount += 1;
+      continue;
+    }
     seen.add(key);
     results.push(parsed);
   }
 
-  return results;
+  return { certifications: results, rejectedCount, blockCount: blocks.length };
 }
