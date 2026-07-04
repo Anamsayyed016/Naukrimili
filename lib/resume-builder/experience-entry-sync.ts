@@ -63,8 +63,17 @@ export function syncExperienceEntryAliases(
       ? String(reconciled.description ?? '')
       : String(reconciled.Description ?? '');
 
+  const existingId =
+    typeof reconciled._id === 'string' && reconciled._id.trim() ? reconciled._id.trim() : '';
+  const id =
+    existingId ||
+    (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `exp_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`);
+
   const synced: Record<string, unknown> = {
     ...reconciled,
+    _id: id,
     title,
     position: title,
     Position: title,

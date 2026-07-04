@@ -17,6 +17,8 @@ interface Certification {
   date?: string;
   link?: string;
   url?: string;
+  credentialId?: string;
+  expiryDate?: string;
 }
 
 export default function CertificationsStep({ formData, updateFormData }: CertificationsStepProps) {
@@ -33,6 +35,8 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
       issuer: '',
       date: '',
       link: '',
+      credentialId: '',
+      expiryDate: '',
     };
     updateFormData({
       certifications: [...certifications, newCert],
@@ -122,6 +126,8 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
           const issuer = cert.issuer || '';
           const date = cert.date || '';
           const link = cert.link || cert.url || '';
+          const credentialId = cert.credentialId || '';
+          const expiryDate = cert.expiryDate || '';
 
           return (
             <div
@@ -204,6 +210,26 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
                     type="month"
                     value={date}
                     onChange={(e) => updateCertification(index, 'date', e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-900">Credential ID (Optional)</Label>
+                  <Input
+                    placeholder="ABC-12345"
+                    value={credentialId}
+                    onChange={(e) => updateCertification(index, 'credentialId', e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-900">Expiry Date (Optional)</Label>
+                  <Input
+                    type="month"
+                    value={expiryDate}
+                    onChange={(e) => updateCertification(index, 'expiryDate', e.target.value)}
                     className="w-full"
                   />
                 </div>

@@ -117,6 +117,7 @@ import {
   recoverBuilderFormSections,
   backfillExperienceColumnsFromRawText,
 } from '@/lib/resume-parser/builder-field-mapper';
+import { runCanonicalBuilderMapping } from '@/lib/resume-builder/canonical-mapping';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
@@ -1344,6 +1345,22 @@ export function transformImportDataToBuilder(
   );
   Object.assign(transformed, recoveredBuilder);
   logBuilderFieldMappingReport(mappingReport);
+
+  const canonical = runCanonicalBuilderMapping({
+    importProfile: mergedImport,
+    builderDraft: transformed,
+  });
+  Object.assign(transformed, canonical.builder);
+  if (canonical.report.rejected.length || canonical.report.recovered.length) {
+    console.log('[import-transformer] canonical mapping', {
+      nodes: canonical.nodes.length,
+      matched: canonical.report.matched.length,
+      recovered: canonical.report.recovered.length,
+      rejected: canonical.report.rejected.length,
+      repaired: canonical.report.repaired.length,
+      dynamicSections: canonical.report.dynamicSections.length,
+    });
+  }
 
   logBuilderImportPipelineTrace({
     raw: importedData as Record<string, unknown>,

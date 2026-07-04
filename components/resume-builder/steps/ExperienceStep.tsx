@@ -14,7 +14,10 @@ interface ExperienceStepProps {
   updateFormData: (updates: Record<string, unknown>) => void;
 }
 
+import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
+
 interface Experience {
+  _id?: string;
   title?: string;
   Position?: string;
   company?: string;
@@ -30,7 +33,7 @@ interface Experience {
 }
 
 export default function ExperienceStep({ formData, updateFormData }: ExperienceStepProps) {
-  const experiences: Experience[] =
+  const rawExperiences: Experience[] =
     'experience' in formData
       ? Array.isArray(formData.experience)
         ? formData.experience
@@ -39,16 +42,26 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
         ? formData['Work Experience']
         : [];
 
+  const experiences = rawExperiences.map((entry) =>
+    syncExperienceEntryAliases(
+      entry && typeof entry === 'object' ? (entry as Record<string, unknown>) : {},
+      { reconcileHeaders: false }
+    ) as Experience
+  );
+
   const addExperience = () => {
-    const newExp: Experience = {
-      title: '',
-      company: '',
-      location: '',
-      startDate: '',
-      endDate: '',
-      description: '',
-      current: false,
-    };
+    const newExp = syncExperienceEntryAliases(
+      {
+        title: '',
+        company: '',
+        location: '',
+        startDate: '',
+        endDate: '',
+        description: '',
+        current: false,
+      },
+      { reconcileHeaders: false }
+    ) as Experience;
     updateFormData({
       experience: [...experiences, newExp],
     });
@@ -56,7 +69,10 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
 
   const updateExperience = (index: number, field: keyof Experience, value: string | boolean) => {
     const updated = [...experiences];
-    updated[index] = { ...updated[index], [field]: value };
+    updated[index] = syncExperienceEntryAliases(
+      { ...updated[index], [field]: value },
+      { reconcileHeaders: false }
+    ) as Experience;
     updateFormData({ experience: updated });
   };
 
@@ -128,7 +144,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
 
             return (
               <motion.div
-                key={index}
+                key={(exp as Experience)._id || `exp-${index}`}
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.95 }}

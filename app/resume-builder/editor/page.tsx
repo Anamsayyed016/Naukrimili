@@ -11,7 +11,7 @@ import './editor-layout.css';
 import './form-panel.css';
 import './optimization-panel.css';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -33,10 +33,13 @@ import ProjectsStep from '@/components/resume-builder/steps/ProjectsStep';
 import CertificationsStep from '@/components/resume-builder/steps/CertificationsStep';
 import AchievementsStep from '@/components/resume-builder/steps/AchievementsStep';
 import HobbiesStep from '@/components/resume-builder/steps/HobbiesStep';
+import DynamicSectionsStep from '@/components/resume-builder/steps/DynamicSectionsStep';
 import FinalizeStep from '@/components/resume-builder/steps/FinalizeStep';
 
 import { loadTemplate } from '@/lib/resume-builder/template-loader';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
+import { hasAnyDynamicSectionData } from '@/lib/resume-builder/dynamic-section-registry';
+import { validateImportPipelineAlignment } from '@/lib/resume-builder/import-pipeline-validation';
 import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import type { Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
@@ -51,7 +54,8 @@ export type StepId =
   | 'projects' 
   | 'certifications' 
   | 'achievements' 
-  | 'hobbies' 
+  | 'hobbies'
+  | 'additional-sections'
   | 'finalize';
 
 interface Step {
@@ -181,7 +185,7 @@ function isBuilderReadyImportPayload(parsed: Record<string, unknown>): boolean {
   return hasContact && hasSections;
 }
 
-const STEPS: Step[] = [
+const BASE_STEPS: Step[] = [
   { id: 'contacts', label: 'Contacts' },
   { id: 'experience', label: 'Experience' },
   { id: 'education', label: 'Education' },
@@ -216,6 +220,15 @@ export default function ResumeEditorPage() {
   const formHydratedForTemplateRef = useRef<string | null>(null);
   /** After first manual edit, autofill / re-import must never overwrite form state. */
   const userHasEditedRef = useRef(false);
+
+  const activeSteps = useMemo(() => {
+    const steps = [...BASE_STEPS];
+    if (hasAnyDynamicSectionData(formData)) {
+      const finalizeIdx = steps.findIndex((s) => s.id === 'finalize');
+      steps.splice(finalizeIdx, 0, { id: 'additional-sections', label: 'More Sections' });
+    }
+    return steps;
+  }, [formData]);
 
   // Load template on mount
   useEffect(() => {
@@ -376,6 +389,14 @@ export default function ResumeEditorPage() {
               const validation = validateTransformedData(formPayload);
               const importOk = hasImportableContent(formPayload);
 
+              const pipelineCheck = validateImportPipelineAlignment(
+                builderReady ? parsed : (parsed as Record<string, unknown>),
+                formPayload
+              );
+              if (!pipelineCheck.ok && process.env.NODE_ENV === 'development') {
+                console.warn('[resume-import:pipeline-validation]', pipelineCheck);
+              }
+
               devResumeImportLog('after import', {
                 hasImportableContent: importOk,
                 ...importSectionCounts(formPayload),
@@ -489,8 +510,8 @@ export default function ResumeEditorPage() {
   }, [formData, templateId, typeId]);
 
   // Calculate progress
-  const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
-  const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
+  const currentStepIndex = activeSteps.findIndex(s => s.id === currentStep);
+  const progress = ((currentStepIndex + 1) / activeSteps.length) * 100;
 
   // Navigation handlers
   const goToStep = (stepId: StepId) => {
@@ -502,16 +523,16 @@ export default function ResumeEditorPage() {
   };
 
   const nextStep = () => {
-    const currentIndex = STEPS.findIndex(s => s.id === currentStep);
-    if (currentIndex < STEPS.length - 1) {
-      goToStep(STEPS[currentIndex + 1].id);
+    const currentIndex = activeSteps.findIndex(s => s.id === currentStep);
+    if (currentIndex < activeSteps.length - 1) {
+      goToStep(activeSteps[currentIndex + 1].id);
     }
   };
 
   const prevStep = () => {
-    const currentIndex = STEPS.findIndex(s => s.id === currentStep);
+    const currentIndex = activeSteps.findIndex(s => s.id === currentStep);
     if (currentIndex > 0) {
-      goToStep(STEPS[currentIndex - 1].id);
+      goToStep(activeSteps[currentIndex - 1].id);
     }
   };
 
@@ -716,6 +737,8 @@ export default function ResumeEditorPage() {
         return <AchievementsStep {...commonProps} />;
       case 'hobbies':
         return <HobbiesStep {...commonProps} />;
+      case 'additional-sections':
+        return <DynamicSectionsStep {...commonProps} />;
       case 'finalize':
         return (
           <FinalizeStep
@@ -793,7 +816,7 @@ export default function ResumeEditorPage() {
               <div className="hidden min-[1200px]:block">
                 <Progress value={progress} className="w-64 h-2" />
                 <p className="text-xs text-gray-500 mt-1 text-center">
-                  Step {currentStepIndex + 1} of {STEPS.length}
+                  Step {currentStepIndex + 1} of {activeSteps.length}
                 </p>
               </div>
             </motion.div>
@@ -824,7 +847,7 @@ export default function ResumeEditorPage() {
                 onChange={(e) => goToStep(e.target.value as StepId)}
                 className="resume-form-step-select max-w-full"
               >
-                {STEPS.map((step) => (
+                {activeSteps.map((step) => (
                   <option key={step.id} value={step.id}>
                     {step.label}
                   </option>
@@ -840,7 +863,7 @@ export default function ResumeEditorPage() {
               className="hidden lg:block mb-4 lg:mb-6"
             >
               <div className="resume-form-tabs overflow-x-auto pb-1 scrollbar-hide w-full max-w-full">
-                {STEPS.map((step, index) => {
+                {activeSteps.map((step, index) => {
                   const isActive = step.id === currentStep;
                   const isCompleted = isStepCompleted(step.id);
                   const isClickable = index <= currentStepIndex || isCompleted;
