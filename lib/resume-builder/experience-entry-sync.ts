@@ -29,6 +29,29 @@ export function stableExperienceEntryId(entry: Record<string, unknown>, index: n
 }
 
 /**
+ * Form editing uses `title` as the single live-editable field.
+ * Parser aliases (position, designation, …) must NOT override while the user types.
+ */
+export function readExperienceTitleForForm(entry: Record<string, unknown>): string {
+  if (Object.prototype.hasOwnProperty.call(entry, 'title')) {
+    return String(entry.title ?? '');
+  }
+  if (Object.prototype.hasOwnProperty.call(entry, 'Title')) {
+    return String(entry.Title ?? '');
+  }
+  return readExperiencePositionSlot(entry);
+}
+
+/**
+ * Resolve canonical title for blur/save — prefer live `title`, then parser aliases.
+ */
+export function readExperienceTitleForSync(entry: Record<string, unknown>): string {
+  const fromForm = readExperienceTitleForForm(entry).trim();
+  if (fromForm) return fromForm;
+  return readExperiencePositionSlot(entry).trim();
+}
+
+/**
  * Keep experience entry canonical + alias fields in sync after import / blur / save.
  * Do NOT call on every keystroke — use finalizeExperienceEntryForBuilder instead.
  */
@@ -39,7 +62,7 @@ export function syncExperienceEntryAliases(
   const reconciled =
     options?.reconcileHeaders === false ? entry : reconcileExperienceHeaderFields(entry);
 
-  const title = readExperiencePositionSlot(reconciled);
+  const title = readExperienceTitleForSync(reconciled);
   let company = sanitizeExperienceCompanyValue(readExperienceCompanySlot(reconciled));
 
   if (!company.trim()) {
@@ -108,7 +131,7 @@ export function readExperienceEntryForForm(
   description: string;
   current: boolean;
 } {
-  const title = readExperiencePositionSlot(entry);
+  const title = readExperienceTitleForForm(entry);
   const company = String(
     entry.company !== undefined && String(entry.company).trim()
       ? entry.company

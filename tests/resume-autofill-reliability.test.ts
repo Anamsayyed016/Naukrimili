@@ -1329,6 +1329,23 @@ describe('experience header mapping', () => {
     expect(builder.languages.length).toBeGreaterThan(0);
   });
 
+  it('readExperienceTitleForForm prefers live title over stale position alias', async () => {
+    const { readExperienceTitleForForm, readExperienceEntryForForm } = await import(
+      '@/lib/resume-builder/experience-entry-sync'
+    );
+    const entry = {
+      position: 'StackPythonDeveloper',
+      designation: 'StackPythonDeveloper',
+      title: 'Stack Python Developer',
+      company: 'Acme',
+    };
+    expect(readExperienceTitleForForm(entry)).toBe('Stack Python Developer');
+    expect(readExperienceEntryForForm(entry, 0).title).toBe('Stack Python Developer');
+
+    const cleared = { position: 'Old Title', title: '' };
+    expect(readExperienceTitleForForm(cleared)).toBe('');
+  });
+
   it('readExperienceEntryForForm uses Company alias when company key is empty', async () => {
     const { readExperienceEntryForForm, finalizeExperienceEntryForBuilder } = await import(
       '@/lib/resume-builder/experience-entry-sync'

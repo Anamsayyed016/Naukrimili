@@ -73,10 +73,21 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
     field: string,
     value: string | boolean
   ) => {
-    const updated = experiences.map((entry, i) =>
-      i === index ? { ...entry, [field]: value } : entry
-    );
+    const updated = experiences.map((entry, i) => {
+      if (i !== index) return entry;
+      if (field === 'title') {
+        return { ...entry, title: value };
+      }
+      return { ...entry, [field]: value };
+    });
     commitExperiences(updated);
+  };
+
+  const applyTitleSuggestion = (index: number, suggestion: string) => {
+    const updated = experiences.map((entry, i) =>
+      i === index ? { ...entry, title: suggestion } : entry
+    );
+    commitExperiences(updated, { finalize: true });
   };
 
   const finalizeExperience = (index: number) => {
@@ -182,10 +193,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                     />
                     <TitleSuggestionChips
                       value={row.title}
-                      onApply={(suggestion) => {
-                        updateExperience(index, 'title', suggestion);
-                        finalizeExperience(index);
-                      }}
+                      onApply={(suggestion) => applyTitleSuggestion(index, suggestion)}
                       formData={formData}
                       section="experience"
                     />
