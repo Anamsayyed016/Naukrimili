@@ -624,10 +624,14 @@ export default function ResumeEditorPage() {
         const jt = patch.jobTitle == null ? '' : String(patch.jobTitle);
         next.jobTitle = jt;
         next.title = jt;
+        next['Job Title'] = jt;
+        next.desiredJobTitle = jt;
       } else if ('title' in patch && !('jobTitle' in patch)) {
         const t = patch.title == null ? '' : String(patch.title);
         next.title = t;
         next.jobTitle = t;
+        next['Job Title'] = t;
+        next.desiredJobTitle = t;
       }
 
       const clearKeys = [
@@ -646,6 +650,8 @@ export default function ResumeEditorPage() {
           if (key === 'jobTitle' || key === 'title') {
             next.jobTitle = '';
             next.title = '';
+            next['Job Title'] = '';
+            next.desiredJobTitle = '';
           }
         }
       }

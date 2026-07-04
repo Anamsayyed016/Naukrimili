@@ -1421,4 +1421,38 @@ describe('experience header mapping', () => {
     expect(updated[0].description).toContain('New bullet for A.');
     expect(updated[1].description).toBe('Other role.');
   });
+
+  it('readExperienceTitleForSync respects cleared title instead of stale position alias', async () => {
+    const { readExperienceTitleForSync } = await import('@/lib/resume-builder/experience-entry-sync');
+    expect(
+      readExperienceTitleForSync({
+        title: '',
+        position: 'Full Stack Developer',
+      })
+    ).toBe('');
+  });
+
+  it('readExperienceDescriptionForSync respects cleared description instead of Description alias', async () => {
+    const { readExperienceDescriptionForSync } = await import('@/lib/resume-builder/experience-entry-sync');
+    expect(
+      readExperienceDescriptionForSync({
+        description: '',
+        Description: 'Stale imported bullets',
+      })
+    ).toBe('');
+  });
+
+  it('syncExperienceEntryAliases drops stale import bullets when live description is set', async () => {
+    const { syncExperienceEntryAliases } = await import('@/lib/resume-builder/experience-entry-sync');
+    const synced = syncExperienceEntryAliases({
+      title: 'Engineer',
+      company: 'Acme',
+      description: 'Optimized SQL queries.\nMentored junior developers.',
+      achievements: ['Old import bullet that must not appear in preview'],
+      bullets: ['Another stale bullet'],
+    });
+    expect(synced.description).toContain('Optimized SQL');
+    expect(synced.achievements).toEqual([]);
+    expect(synced.bullets).toEqual([]);
+  });
 });

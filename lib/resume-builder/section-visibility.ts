@@ -16,7 +16,10 @@ import {
 import { overlaySparseSectionsFromTextRecovery } from '@/lib/resume-parser/prefer-recovered-wording';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
 import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
-import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
+import {
+  readExperienceDescriptionForForm,
+  syncExperienceEntryAliases,
+} from '@/lib/resume-builder/experience-entry-sync';
 import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 import {
   isImportFieldTraceEnabled,
@@ -821,6 +824,7 @@ export function repairExperienceForTemplateBinding(
 
   const sparseCompanies = countPlausibleExperienceCompanies(experience) < experience.length;
   const needsRepair =
+    formData._userEdited !== true &&
     !isCustomParserImport(formData) &&
     (formData._imported === true || sparseCompanies);
   if (!needsRepair) return experience;
@@ -1011,6 +1015,24 @@ function normalizeBulletLine(value: unknown): string {
 }
 
 function extractExperienceBullets(exp: Record<string, unknown>): string[] {
+  const hasLiveDescription = Object.prototype.hasOwnProperty.call(exp, 'description');
+  const description = hasLiveDescription
+    ? String(exp.description ?? '').trim()
+    : readExperienceDescriptionForForm(exp).trim();
+
+  if (description) {
+    return dedupeExperienceBodyLines(
+      '',
+      splitBullets(description)
+        .map((line) => line.replace(/^[\s\-–—*•·]+/, '').trim())
+        .filter((line) => line.length >= 3)
+    ).achievements;
+  }
+
+  if (hasLiveDescription) {
+    return [];
+  }
+
   const fromArrays = [
     ...(Array.isArray(exp.achievements) ? (exp.achievements as unknown[]) : []),
     ...(Array.isArray(exp.bullets) ? (exp.bullets as unknown[]) : []),
@@ -1019,20 +1041,7 @@ function extractExperienceBullets(exp: Record<string, unknown>): string[] {
     .map(normalizeBulletLine)
     .filter((line) => line.length >= 3);
 
-  const description = getStringValue(
-    exp.description ?? exp.Description ?? exp.responsibilities ?? exp.Responsibilities
-  );
-
-  const merged =
-    fromArrays.length > 0
-      ? fromArrays
-      : description
-        ? splitBullets(description)
-            .map((line) => line.replace(/^[\s\-–—*•·]+/, '').trim())
-            .filter((line) => line.length >= 3)
-        : [];
-
-  return dedupeExperienceBodyLines('', merged).achievements;
+  return dedupeExperienceBodyLines('', fromArrays).achievements;
 }
 
 function selectTopBulletsForRender(bullets: string[], maxBullets: number): string[] {

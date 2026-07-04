@@ -467,7 +467,7 @@ export function injectResumeData(
   
   const email = getString(['Email', 'email']);
   const phone = getString(['Phone', 'phone']);
-  const jobTitle = getString(['Job Title', 'jobTitle', 'desiredJobTitle']);
+  const jobTitle = getString(['jobTitle', 'title', 'Job Title', 'desiredJobTitle']);
   const location = getString(['Location', 'location']);
   const linkedin = getString(['LinkedIn', 'linkedin']);
   const portfolio = getString(['Portfolio', 'website', 'portfolio']);
@@ -602,20 +602,17 @@ function coerceFieldToString(value: unknown): string {
   return '';
 }
 
-/** Prefer first non-empty value among canonical Builder key + aliases. */
+/**
+ * Prefer the canonical Builder key when present (including empty string).
+ * Parser/import aliases are used only when the canonical key was never set.
+ */
 function readCanonicalString(
   record: Record<string, unknown>,
   canonical: string,
   aliases: string[] = []
 ): string {
-  for (const key of [canonical, ...aliases]) {
-    if (!(key in record)) continue;
-    const text = coerceFieldToString(record[key]);
-    if (text) return text;
-  }
-  if (canonical in record) {
-    const text = coerceFieldToString(record[canonical]);
-    if (text) return text;
+  if (Object.prototype.hasOwnProperty.call(record, canonical)) {
+    return coerceFieldToString(record[canonical]);
   }
   for (const key of aliases) {
     if (!(key in record)) continue;
@@ -697,15 +694,19 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       // splitting the description on \n / bullet chars if no array was provided.
       // Existing template CSS (.experience-item .description ul / li) styles this
       // natively — no template change required.
-      const bulletsRaw = Array.isArray(exp.achievements)
-        ? (exp.achievements as unknown[])
-        : Array.isArray((exp as Record<string, unknown>).bullets)
-        ? ((exp as Record<string, unknown>).bullets as unknown[])
-        : Array.isArray((exp as Record<string, unknown>).bulletPoints)
-        ? ((exp as Record<string, unknown>).bulletPoints as unknown[])
-        : Array.isArray((exp as Record<string, unknown>).Achievements)
-        ? ((exp as Record<string, unknown>).Achievements as unknown[])
-        : [];
+      const hasLiveDescription = Object.prototype.hasOwnProperty.call(exp, 'description');
+      const bulletsRaw =
+        hasLiveDescription
+          ? []
+          : Array.isArray(exp.achievements)
+            ? (exp.achievements as unknown[])
+            : Array.isArray((exp as Record<string, unknown>).bullets)
+              ? ((exp as Record<string, unknown>).bullets as unknown[])
+              : Array.isArray((exp as Record<string, unknown>).bulletPoints)
+                ? ((exp as Record<string, unknown>).bulletPoints as unknown[])
+                : Array.isArray((exp as Record<string, unknown>).Achievements)
+                  ? ((exp as Record<string, unknown>).Achievements as unknown[])
+                  : [];
       const bullets: string[] = bulletsRaw
         .map((b) => {
           if (typeof b === 'string') return b;

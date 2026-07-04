@@ -46,8 +46,12 @@ export function readExperienceTitleForForm(entry: Record<string, unknown>): stri
  * Resolve canonical title for blur/save — prefer live `title`, then parser aliases.
  */
 export function readExperienceTitleForSync(entry: Record<string, unknown>): string {
-  const fromForm = readExperienceTitleForForm(entry).trim();
-  if (fromForm) return fromForm;
+  if (
+    Object.prototype.hasOwnProperty.call(entry, 'title') ||
+    Object.prototype.hasOwnProperty.call(entry, 'Title')
+  ) {
+    return readExperienceTitleForForm(entry).trim();
+  }
   return readExperiencePositionSlot(entry).trim();
 }
 
@@ -67,9 +71,13 @@ export function readExperienceDescriptionForForm(entry: Record<string, unknown>)
 
 /** Resolve canonical description for blur/save — prefer live `description`, then alias. */
 export function readExperienceDescriptionForSync(entry: Record<string, unknown>): string {
-  const fromForm = readExperienceDescriptionForForm(entry).trim();
-  if (fromForm) return fromForm;
-  return String(entry.Description ?? '').trim();
+  if (
+    Object.prototype.hasOwnProperty.call(entry, 'description') ||
+    Object.prototype.hasOwnProperty.call(entry, 'Description')
+  ) {
+    return readExperienceDescriptionForForm(entry).trim();
+  }
+  return String(entry.Description ?? entry.description ?? '').trim();
 }
 
 /** Append an AI suggestion to the live description body (never replaces existing content). */
@@ -117,9 +125,7 @@ export function syncExperienceEntryAliases(
   }
 
   const location = String(reconciled.location ?? reconciled.Location ?? '').trim();
-  const description = String(
-    reconciled.description ?? reconciled.Description ?? ''
-  ).trim();
+  const description = readExperienceDescriptionForSync(reconciled);
   const id = stableExperienceEntryId(reconciled, Number(reconciled._index ?? 0));
 
   const synced: Record<string, unknown> = {
@@ -140,13 +146,11 @@ export function syncExperienceEntryAliases(
     Location: location,
     description,
     Description: description,
+    achievements: [],
+    bullets: [],
+    bulletPoints: [],
+    Achievements: [],
   };
-
-  if (!description.trim()) {
-    synced.achievements = [];
-    synced.bullets = [];
-    synced.bulletPoints = [];
-  }
 
   return synced;
 }
