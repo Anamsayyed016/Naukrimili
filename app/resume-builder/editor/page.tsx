@@ -457,7 +457,10 @@ export default function ResumeEditorPage() {
                   parsed.summary.length >= 120 &&
                   /(experience|education|skills|employment)/i.test(parsed.summary));
               const shouldRehydrate =
-                !isBuilderFormSnapshot(parsed) && sparseSections && hasRecoverySource;
+                !parsed._userEdited &&
+                !isBuilderFormSnapshot(parsed) &&
+                sparseSections &&
+                hasRecoverySource;
               if (shouldRehydrate) {
                 const { transformImportDataToBuilder } = await import(
                   '@/lib/resume-builder/import-transformer'
@@ -577,17 +580,33 @@ export default function ResumeEditorPage() {
       }
 
       if ('experience' in patch) {
-        const list = (Array.isArray(patch.experience) ? patch.experience : []).map(
-          (item) =>
-            syncExperienceEntryAliases(
-              item && typeof item === 'object' ? (item as Record<string, unknown>) : {},
-              // Import-time header reconciliation clears partial company names while typing.
-              { reconcileHeaders: false }
+        const list = Array.isArray(patch.experience) ? patch.experience : [];
+        const shouldFinalize = patch._experienceFinalize === true;
+        const normalized = shouldFinalize
+          ? list.map((item, index) =>
+              syncExperienceEntryAliases(
+                item && typeof item === 'object' ? (item as Record<string, unknown>) : {},
+                { reconcileHeaders: false }
+              )
             )
-        );
-        next.experience = list;
-        next['Work Experience'] = list;
-        next.Experience = list;
+          : list.map((item, index) => {
+              if (!item || typeof item !== 'object') return item;
+              const row = item as Record<string, unknown>;
+              if (typeof row._id === 'string' && row._id.trim()) return row;
+              return {
+                ...row,
+                _id:
+                  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+                    ? crypto.randomUUID()
+                    : `exp_${index}`,
+              };
+            });
+        next.experience = normalized;
+        next['Work Experience'] = normalized;
+        next.Experience = normalized;
+        if ('_experienceFinalize' in next) {
+          delete next._experienceFinalize;
+        }
       }
 
       if ('education' in patch) {

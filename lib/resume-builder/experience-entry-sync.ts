@@ -1,12 +1,36 @@
 import {
   isPlausibleExperienceCompany,
+  readExperienceCompanySlot,
+  readExperiencePositionSlot,
   reconcileExperienceHeaderFields,
+  sanitizeExperienceCompanyValue,
 } from '@/lib/resume-parser/import-sanitize';
 
+export function stableExperienceEntryId(entry: Record<string, unknown>, index: number): string {
+  const existing =
+    typeof entry._id === 'string' && entry._id.trim() ? entry._id.trim() : '';
+  if (existing) return existing;
+
+  const company = sanitizeExperienceCompanyValue(readExperienceCompanySlot(entry)).slice(0, 24);
+  const title = readExperiencePositionSlot(entry).slice(0, 24);
+  const start = String(entry.startDate || '').slice(0, 10);
+  const fingerprint = [company, title, start, String(index)]
+    .join('|')
+    .toLowerCase()
+    .replace(/[^a-z0-9|_-]/g, '');
+  if (fingerprint.replace(/[|_-]/g, '').length > 0) {
+    return `exp_${fingerprint}`;
+  }
+
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `exp_${index}`;
+}
+
 /**
- * Keep experience entry canonical + alias fields in sync after editor updates.
- * When description is cleared, derived bullet arrays must clear too so preview/PDF
- * do not render orphaned achievements from import.
+ * Keep experience entry canonical + alias fields in sync after import / blur / save.
+ * Do NOT call on every keystroke — use finalizeExperienceEntryForBuilder instead.
  */
 export function syncExperienceEntryAliases(
   entry: Record<string, unknown>,
@@ -15,29 +39,9 @@ export function syncExperienceEntryAliases(
   const reconciled =
     options?.reconcileHeaders === false ? entry : reconcileExperienceHeaderFields(entry);
 
-  const readTitle = (): string => {
-    const fromTitle = String(reconciled.title ?? reconciled.Title ?? '').trim();
-    if (fromTitle) return fromTitle;
-    for (const key of [
-      'position',
-      'Position',
-      'designation',
-      'Designation',
-      'role',
-      'Role',
-      'jobTitle',
-      'JobTitle',
-    ]) {
-      const value = String(reconciled[key] ?? '').trim();
-      if (value) return value;
-    }
-    return '';
-  };
-  const title = readTitle();
-  let company =
-    'company' in reconciled
-      ? String(reconciled.company ?? '')
-      : String(reconciled.Company ?? '');
+  const title = readExperiencePositionSlot(reconciled);
+  let company = sanitizeExperienceCompanyValue(readExperienceCompanySlot(reconciled));
+
   if (!company.trim()) {
     for (const key of [
       'organization',
@@ -47,29 +51,19 @@ export function syncExperienceEntryAliases(
       'companyName',
       'CompanyName',
     ] as const) {
-      const candidate = String(reconciled[key] ?? '').trim();
+      const candidate = sanitizeExperienceCompanyValue(reconciled[key]);
       if (candidate && isPlausibleExperienceCompany(candidate)) {
         company = candidate;
         break;
       }
     }
   }
-  const location =
-    'location' in reconciled
-      ? String(reconciled.location ?? '')
-      : String(reconciled.Location ?? '');
-  const description =
-    'description' in reconciled
-      ? String(reconciled.description ?? '')
-      : String(reconciled.Description ?? '');
 
-  const existingId =
-    typeof reconciled._id === 'string' && reconciled._id.trim() ? reconciled._id.trim() : '';
-  const id =
-    existingId ||
-    (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `exp_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`);
+  const location = String(reconciled.location ?? reconciled.Location ?? '').trim();
+  const description = String(
+    reconciled.description ?? reconciled.Description ?? ''
+  ).trim();
+  const id = stableExperienceEntryId(reconciled, Number(reconciled._index ?? 0));
 
   const synced: Record<string, unknown> = {
     ...reconciled,
@@ -98,4 +92,54 @@ export function syncExperienceEntryAliases(
   }
 
   return synced;
+}
+
+/** Read display values without mutating or re-syncing (safe during live typing). */
+export function readExperienceEntryForForm(
+  entry: Record<string, unknown>,
+  index: number
+): {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  current: boolean;
+} {
+  const title = readExperiencePositionSlot(entry);
+  const company = String(
+    entry.company !== undefined && String(entry.company).trim()
+      ? entry.company
+      : entry.Company !== undefined && String(entry.Company).trim()
+        ? entry.Company
+        : readExperienceCompanySlot(entry)
+  );
+  const location = String(entry.location ?? entry.Location ?? '').trim();
+  const startDate = String(entry.startDate ?? '').trim();
+  const endDate = String(entry.endDate ?? '').trim();
+  const description = String(entry.description ?? entry.Description ?? '').trim();
+  const current = entry.current === true || entry.Current === true;
+
+  return {
+    id: stableExperienceEntryId(entry, index),
+    title,
+    company,
+    location,
+    startDate,
+    endDate,
+    description,
+    current,
+  };
+}
+
+export function finalizeExperienceEntryForBuilder(
+  entry: Record<string, unknown>,
+  index: number
+): Record<string, unknown> {
+  return syncExperienceEntryAliases(
+    { ...entry, _id: stableExperienceEntryId(entry, index) },
+    { reconcileHeaders: false }
+  );
 }

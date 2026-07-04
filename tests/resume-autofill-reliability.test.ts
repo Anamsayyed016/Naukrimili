@@ -1328,4 +1328,28 @@ describe('experience header mapping', () => {
     expect(builder.education.length).toBeGreaterThan(0);
     expect(builder.languages.length).toBeGreaterThan(0);
   });
+
+  it('readExperienceEntryForForm uses Company alias when company key is empty', async () => {
+    const { readExperienceEntryForForm, finalizeExperienceEntryForBuilder } = await import(
+      '@/lib/resume-builder/experience-entry-sync'
+    );
+    const display = readExperienceEntryForForm(
+      {
+        title: 'Company Secretary',
+        company: '',
+        Company: 'ABC Holdings Pvt Ltd',
+        location: 'Mumbai',
+      },
+      0
+    );
+    expect(display.company).toBe('ABC Holdings Pvt Ltd');
+    expect(display.title).toBe('Company Secretary');
+
+    const finalized = finalizeExperienceEntryForBuilder(
+      { title: 'Developer', company: 'Present', Company: 'Digital Solutions Pvt Ltd' },
+      0
+    );
+    expect(finalized.company).toBe('Digital Solutions Pvt Ltd');
+    expect(finalized.company).not.toBe('Present');
+  });
 });

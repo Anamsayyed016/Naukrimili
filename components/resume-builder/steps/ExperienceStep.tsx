@@ -5,53 +5,58 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, CheckCircle2, Info, Briefcase } from 'lucide-react';
+import { Plus, Trash2, Info, Briefcase } from 'lucide-react';
 import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestionBox';
 import TitleSuggestionChips from '@/components/resume-builder/form-inputs/TitleSuggestionChips';
+import {
+  finalizeExperienceEntryForBuilder,
+  readExperienceEntryForForm,
+  stableExperienceEntryId,
+} from '@/lib/resume-builder/experience-entry-sync';
 
 interface ExperienceStepProps {
   formData: Record<string, unknown>;
   updateFormData: (updates: Record<string, unknown>) => void;
 }
 
-import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
+type ExperienceRow = Record<string, unknown>;
 
-interface Experience {
-  _id?: string;
-  title?: string;
-  Position?: string;
-  company?: string;
-  Company?: string;
-  location?: string;
-  Location?: string;
-  startDate?: string;
-  endDate?: string;
-  Duration?: string;
-  description?: string;
-  Description?: string;
-  current?: boolean;
+function readExperiences(formData: Record<string, unknown>): ExperienceRow[] {
+  if ('experience' in formData && Array.isArray(formData.experience)) {
+    return formData.experience as ExperienceRow[];
+  }
+  if (Array.isArray(formData['Work Experience'])) {
+    return formData['Work Experience'] as ExperienceRow[];
+  }
+  return [];
 }
 
 export default function ExperienceStep({ formData, updateFormData }: ExperienceStepProps) {
-  const rawExperiences: Experience[] =
-    'experience' in formData
-      ? Array.isArray(formData.experience)
-        ? formData.experience
-        : []
-      : Array.isArray(formData['Work Experience'])
-        ? formData['Work Experience']
-        : [];
+  const experiences = readExperiences(formData);
 
-  const experiences = rawExperiences.map((entry) =>
-    syncExperienceEntryAliases(
-      entry && typeof entry === 'object' ? (entry as Record<string, unknown>) : {},
-      { reconcileHeaders: false }
-    ) as Experience
-  );
+  const commitExperiences = (
+    next: ExperienceRow[],
+    options?: { finalize?: boolean }
+  ) => {
+    if (options?.finalize) {
+      updateFormData({
+        experience: next,
+        _experienceFinalize: true,
+      });
+      return;
+    }
+    updateFormData({ experience: next });
+  };
 
   const addExperience = () => {
-    const newExp = syncExperienceEntryAliases(
+    const id =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `exp_new_${experiences.length}`;
+    commitExperiences([
+      ...experiences,
       {
+        _id: id,
         title: '',
         company: '',
         location: '',
@@ -60,25 +65,32 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
         description: '',
         current: false,
       },
-      { reconcileHeaders: false }
-    ) as Experience;
-    updateFormData({
-      experience: [...experiences, newExp],
-    });
+    ]);
   };
 
-  const updateExperience = (index: number, field: keyof Experience, value: string | boolean) => {
-    const updated = [...experiences];
-    updated[index] = syncExperienceEntryAliases(
-      { ...updated[index], [field]: value },
-      { reconcileHeaders: false }
-    ) as Experience;
-    updateFormData({ experience: updated });
+  const updateExperience = (
+    index: number,
+    field: string,
+    value: string | boolean
+  ) => {
+    const updated = experiences.map((entry, i) =>
+      i === index ? { ...entry, [field]: value } : entry
+    );
+    commitExperiences(updated);
+  };
+
+  const finalizeExperience = (index: number) => {
+    const updated = experiences.map((entry, i) =>
+      i === index ? finalizeExperienceEntryForBuilder(entry, i) : entry
+    );
+    commitExperiences(updated, { finalize: true });
   };
 
   const removeExperience = (index: number) => {
-    const updated = experiences.filter((_, i) => i !== index);
-    updateFormData({ experience: updated });
+    commitExperiences(
+      experiences.filter((_, i) => i !== index),
+      { finalize: true }
+    );
   };
 
   return (
@@ -98,12 +110,11 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
           Work Experience
         </h2>
         <p className="text-sm text-gray-600">
-          List your work history, starting with your most recent position. 
+          List your work history, starting with your most recent position.
           Use AI suggestions to create impactful achievement bullet points.
         </p>
       </motion.div>
 
-      {/* Guidance Tooltip */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -111,12 +122,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
         className="bg-gradient-to-r from-blue-50 via-indigo-50/80 to-purple-50/50 border-2 border-blue-200/60 rounded-xl p-4 shadow-md"
       >
         <div className="flex items-start gap-3">
-          <motion.div
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          >
-            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          </motion.div>
+          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1 space-y-1">
             <h4 className="text-sm font-semibold text-blue-900">Writing Tips</h4>
             <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
@@ -133,223 +139,195 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
       <div className="space-y-6">
         <AnimatePresence>
           {experiences.map((exp, index) => {
-            const title = 'title' in exp ? (exp.title ?? '') : (exp.Position ?? '');
-            const company = 'company' in exp ? (exp.company ?? '') : (exp.Company ?? '');
-            const location = 'location' in exp ? (exp.location ?? '') : (exp.Location ?? '');
-            const startDate = 'startDate' in exp ? (exp.startDate ?? '') : '';
-            const endDate = 'endDate' in exp ? (exp.endDate ?? '') : '';
-            const description =
-              'description' in exp ? (exp.description ?? '') : (exp.Description ?? '');
-            const isCurrent = exp.current || false;
+            const row = readExperienceEntryForForm(exp, index);
+            const entryId = row.id || stableExperienceEntryId(exp, index);
 
             return (
               <motion.div
-                key={(exp as Experience)._id || `exp-${index}`}
+                key={entryId}
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+                transition={{ duration: 0.3 }}
                 className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 rounded-2xl border-2 border-gray-200/60 p-4 sm:p-5 md:p-6 space-y-4 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300/50 w-full max-w-full overflow-x-hidden"
               >
-              <div className="flex items-center justify-between mb-4">
-                <motion.h3
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-lg font-semibold text-gray-900"
-                >
-                  Experience #{index + 1}
-                </motion.h3>
-                {experiences.length > 1 && (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Experience #{index + 1}
+                  </h3>
+                  {experiences.length > 1 && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeExperience(index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
                       Remove
                     </Button>
-                  </motion.div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
-                    <span>Job Title</span>
-                    <span className="text-red-500 font-bold">*</span>
-                  </Label>
-                  <Input
-                    placeholder="Software Engineer"
-                    value={title}
-                    onChange={(e) => updateExperience(index, 'title', e.target.value)}
-                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
-                  />
-                  <TitleSuggestionChips
-                    value={title}
-                    onApply={(suggestion) => updateExperience(index, 'title', suggestion)}
-                    formData={formData}
-                    section="experience"
-                  />
+                  )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
-                    <span>Company</span>
-                    <span className="text-red-500 font-bold">*</span>
-                  </Label>
-                  <Input
-                    placeholder="Tech Company Inc."
-                    value={company}
-                    onChange={(e) => updateExperience(index, 'company', e.target.value)}
-                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-800">Location</Label>
-                  <Input
-                    placeholder="City, State"
-                    value={location}
-                    onChange={(e) => updateExperience(index, 'location', e.target.value)}
-                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
-                    <span>Start Date</span>
-                    <span className="text-red-500 font-bold">*</span>
-                  </Label>
-                  <Input
-                    type="month"
-                    value={startDate}
-                    onChange={(e) => updateExperience(index, 'startDate', e.target.value)}
-                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-800">
-                    End Date {isCurrent && <span className="text-xs text-gray-500 font-normal">(or leave empty if current)</span>}
-                  </Label>
-                  <Input
-                    type="month"
-                    value={endDate}
-                    onChange={(e) => updateExperience(index, 'endDate', e.target.value)}
-                    disabled={isCurrent}
-                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id={`current-${index}`}
-                      checked={isCurrent}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        const updated = [...experiences];
-                        updated[index] = { 
-                          ...updated[index], 
-                          current: checked,
-                          endDate: checked ? '' : updated[index].endDate
-                        };
-                        updateFormData({ experience: updated });
-                      }}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <Label htmlFor={`current-${index}`} className="text-sm text-gray-700 cursor-pointer">
-                      I currently work here
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-gray-800">
+                      Job Title <span className="text-red-500">*</span>
                     </Label>
+                    <Input
+                      placeholder="Software Engineer"
+                      value={row.title}
+                      onChange={(e) => updateExperience(index, 'title', e.target.value)}
+                      onBlur={() => finalizeExperience(index)}
+                      className="w-full"
+                    />
+                    <TitleSuggestionChips
+                      value={row.title}
+                      onApply={(suggestion) => {
+                        updateExperience(index, 'title', suggestion);
+                        finalizeExperience(index);
+                      }}
+                      formData={formData}
+                      section="experience"
+                    />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-800">Description</Label>
-                  <Textarea
-                    placeholder="Describe your responsibilities and achievements..."
-                    value={description}
-                    onChange={(e) => updateExperience(index, 'description', e.target.value)}
-                    rows={4}
-                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400 resize-y"
-                  />
-                  <p className="text-xs text-gray-500 italic">
-                    Use bullet points or paragraphs. Include metrics and achievements when possible.
-                  </p>
-                  {/* AI Suggestions for Experience Bullets */}
-                  {description.length >= 10 && (
-                    <div className="mt-2">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-gray-800">
+                      Company <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      placeholder="Tech Company Inc."
+                      value={row.company}
+                      onChange={(e) => updateExperience(index, 'company', e.target.value)}
+                      onBlur={() => finalizeExperience(index)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-gray-800">Location</Label>
+                    <Input
+                      placeholder="City, State"
+                      value={row.location}
+                      onChange={(e) => updateExperience(index, 'location', e.target.value)}
+                      onBlur={() => finalizeExperience(index)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-gray-800">
+                      Start Date <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      type="month"
+                      value={row.startDate}
+                      onChange={(e) => updateExperience(index, 'startDate', e.target.value)}
+                      onBlur={() => finalizeExperience(index)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-gray-800">
+                      End Date{' '}
+                      {row.current && (
+                        <span className="text-xs text-gray-500 font-normal">
+                          (or leave empty if current)
+                        </span>
+                      )}
+                    </Label>
+                    <Input
+                      type="month"
+                      value={row.endDate}
+                      onChange={(e) => updateExperience(index, 'endDate', e.target.value)}
+                      onBlur={() => finalizeExperience(index)}
+                      disabled={row.current}
+                      className="w-full disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id={`current-${entryId}`}
+                        checked={row.current}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          const updated = experiences.map((entry, i) =>
+                            i === index
+                              ? {
+                                  ...entry,
+                                  current: checked,
+                                  endDate: checked ? '' : String(entry.endDate ?? ''),
+                                }
+                              : entry
+                          );
+                          commitExperiences(updated, { finalize: true });
+                        }}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <Label htmlFor={`current-${entryId}`} className="text-sm text-gray-700 cursor-pointer">
+                        I currently work here
+                      </Label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-gray-800">Description</Label>
+                    <Textarea
+                      placeholder="Describe your responsibilities and achievements..."
+                      value={row.description}
+                      onChange={(e) => updateExperience(index, 'description', e.target.value)}
+                      onBlur={() => finalizeExperience(index)}
+                      rows={4}
+                      className="w-full resize-y"
+                    />
+                    {row.description.length >= 10 && (
                       <AISuggestionBox
                         field="experience"
-                        currentValue={description}
+                        currentValue={row.description}
                         formData={{
                           ...formData,
-                          experience: [{ ...exp, description }],
+                          experience: experiences.map((entry, i) =>
+                            i === index ? { ...entry, description: row.description } : entry
+                          ),
                         }}
                         onApply={(suggestion) => {
-                          // Append or replace based on user preference
-                          const currentDesc = description.trim();
-                          const newDesc = currentDesc 
-                            ? `${currentDesc}\n\n${suggestion}` 
+                          const currentDesc = row.description.trim();
+                          const newDesc = currentDesc
+                            ? `${currentDesc}\n\n${suggestion}`
                             : suggestion;
                           updateExperience(index, 'description', newDesc);
+                          finalizeExperience(index);
                         }}
                         autoTrigger={true}
                         debounceMs={600}
                       />
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
               </motion.div>
             );
           })}
         </AnimatePresence>
 
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Button
-            variant="outline"
-            onClick={addExperience}
-            className="w-full border-2 border-dashed hover:border-solid hover:bg-blue-50 transition-all duration-200"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Experience
-          </Button>
-        </motion.div>
+        <Button variant="outline" onClick={addExperience} className="w-full border-2 border-dashed">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Experience
+        </Button>
       </div>
 
-      <AnimatePresence>
-        {experiences.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="text-center py-8 text-gray-500"
-          >
-            <p className="mb-4">No work experience added yet.</p>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button variant="outline" onClick={addExperience}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Experience
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {experiences.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          <p className="mb-4">No work experience added yet.</p>
+          <Button variant="outline" onClick={addExperience}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Your First Experience
+          </Button>
+        </div>
+      )}
     </motion.div>
   );
 }
-
