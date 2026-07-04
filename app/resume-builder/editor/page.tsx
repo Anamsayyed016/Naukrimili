@@ -40,6 +40,16 @@ import { loadTemplate } from '@/lib/resume-builder/template-loader';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
 import { hasAnyDynamicSectionData } from '@/lib/resume-builder/dynamic-section-registry';
 import { validateImportPipelineAlignment } from '@/lib/resume-builder/import-pipeline-validation';
+import {
+  readPendingImportRaw,
+  readImportMeta,
+  readLocalDraft,
+  commitBuilderDraft,
+  shouldForceImportHydration,
+  isImportFresherThanDraft,
+  builderFormChecksum,
+  logBuilderHydration,
+} from '@/lib/resume-builder/builder-hydration';
 import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import type { Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
@@ -218,6 +228,8 @@ export default function ResumeEditorPage() {
   const [saving, setSaving] = useState(false);
   /** Prevents import/localStorage from overwriting in-memory edits on colorParam / URL changes. */
   const formHydratedForTemplateRef = useRef<string | null>(null);
+  /** Tracks which upload session was last applied so a new import re-hydrates the editor. */
+  const lastAppliedImportIdRef = useRef<string | null>(null);
   /** After first manual edit, autofill / re-import must never overwrite form state. */
   const userHasEditedRef = useRef(false);
 
@@ -278,72 +290,45 @@ export default function ResumeEditorPage() {
             : loaded.template.defaultColor || loaded.template.colors?.[0]?.id || ''
         );
         
+        const pendingImport = readPendingImportRaw();
+        const importMeta = readImportMeta();
+        const forceImportHydration = shouldForceImportHydration({
+          shouldPrefill,
+          sourceImport,
+        });
+        const importId =
+          importMeta?.importId ??
+          (pendingImport ? String(pendingImport._importSessionId ?? '') : '');
+
+        if (importId && importId !== lastAppliedImportIdRef.current) {
+          formHydratedForTemplateRef.current = null;
+        }
+
         const skipFormHydration = formHydratedForTemplateRef.current === templateId;
 
-        // Priority 0: Check for saved payment flow data (user returned after payment)
-        // This takes highest priority to restore user's work
+        // Priority 0: Payment return (skipped when a fresh import session is pending)
         const paymentFlowData =
-          !skipFormHydration && typeof window !== 'undefined'
+          !skipFormHydration &&
+          !pendingImport &&
+          typeof window !== 'undefined'
             ? sessionStorage.getItem('resume-builder-payment-flow')
             : null;
         let formLoaded = skipFormHydration;
 
-        if (paymentFlowData) {
-          try {
-            const saved = JSON.parse(paymentFlowData);
-            console.log('💾 [Resume Editor] Found saved payment flow data, restoring resume...');
-            
-            // If templateId doesn't match, redirect to correct template
-            if (saved.templateId && saved.templateId !== templateId) {
-              console.log(`🔄 [Resume Editor] Template mismatch (current: ${templateId}, saved: ${saved.templateId}), redirecting to correct template`);
-              const correctUrl = `/resume-builder/editor?template=${saved.templateId}${saved.typeId ? `&type=${saved.typeId}` : ''}`;
-              router.push(correctUrl);
-              return; // Exit early, will reload with correct template
-            }
-            
-            // Restore form data
-            if (saved.formData && Object.keys(saved.formData).length > 0) {
-              setFormData(saved.formData);
-              formLoaded = true;
-              console.log('✅ [Resume Editor] Restored form data from payment flow');
-            }
-            
-            // Restore color selection
-            if (saved.selectedColorId) {
-              setSelectedColorId(saved.selectedColorId);
-            }
-            
-            // Jump to finalize step (user was here before payment)
-            if (saved.currentStep === 'finalize') {
-              setCurrentStep('finalize');
-              console.log('✅ [Resume Editor] Jumped to finalize step');
-              
-              toast({
-                title: '✨ Resume Restored!',
-                description: 'Your resume data has been restored. You can now download your resume.',
-                duration: 5000,
-              });
-            }
-            
-            // Clear payment flow data after restoring
-            sessionStorage.removeItem('resume-builder-payment-flow');
-            sessionStorage.removeItem('resume-builder-needs-payment');
-            console.log('🧹 [Resume Editor] Cleared payment flow data');
-          } catch (e) {
-            console.error('❌ [Resume Editor] Error restoring payment flow data:', e);
-            sessionStorage.removeItem('resume-builder-payment-flow');
-          }
-        }
-        
-        // Priority 1: Load imported resume data (prefill=true OR pending session import) — once per template
-        if (!skipFormHydration && !formLoaded && !paymentFlowData) {
-          const importData = sessionStorage.getItem('resume-import-data');
-          if (importData) {
+        // Priority 1: Pending import session — always beats stale localStorage draft
+        if (!skipFormHydration && !formLoaded && pendingImport) {
+          const localDraft = readLocalDraft(templateId);
+          const shouldLoadImport =
+            forceImportHydration ||
+            !localDraft ||
+            isImportFresherThanDraft(localDraft, importMeta);
+
+          if (shouldLoadImport) {
             try {
-              const parsed = JSON.parse(importData) as Record<string, unknown>;
+              const parsed = pendingImport;
 
               devResumeImportLog('before import', {
-                payloadBytes: importData.length,
+                payloadBytes: JSON.stringify(parsed).length,
                 ...importSectionCounts(parsed),
               });
 
@@ -404,10 +389,15 @@ export default function ResumeEditorPage() {
               });
 
               if (importOk) {
+                const checksum = builderFormChecksum(formPayload);
                 setFormData(formPayload);
+                commitBuilderDraft(templateId, formPayload);
+                logBuilderHydration('import', { templateId, importId, checksum });
                 console.log('formData.projects after import', formPayload.projects);
                 formLoaded = true;
-                sessionStorage.removeItem('resume-import-data');
+                if (importId) {
+                  lastAppliedImportIdRef.current = importId;
+                }
 
                 const notes = [...validation.issues, ...validation.warnings].filter(Boolean);
                 toast({
@@ -436,17 +426,76 @@ export default function ResumeEditorPage() {
                 variant: 'destructive',
               });
             }
-          } else if (shouldPrefill) {
-            console.warn('⚠️ Prefill=true but no import data found in sessionStorage');
+          } else if (localDraft) {
+            setFormData(localDraft);
+            formLoaded = true;
+            logBuilderHydration('local-draft-preserved', {
+              templateId,
+              checksum: builderFormChecksum(localDraft),
+            });
           }
+        } else if (!skipFormHydration && shouldPrefill && !pendingImport) {
+          console.warn('⚠️ Prefill=true but no import data found in sessionStorage');
         }
 
-        // Priority 2: Load saved draft (from localStorage) — once per template
+        if (paymentFlowData && !formLoaded) {
+          try {
+            const saved = JSON.parse(paymentFlowData);
+            console.log('💾 [Resume Editor] Found saved payment flow data, restoring resume...');
+            
+            // If templateId doesn't match, redirect to correct template
+            if (saved.templateId && saved.templateId !== templateId) {
+              console.log(`🔄 [Resume Editor] Template mismatch (current: ${templateId}, saved: ${saved.templateId}), redirecting to correct template`);
+              const correctUrl = `/resume-builder/editor?template=${saved.templateId}${saved.typeId ? `&type=${saved.typeId}` : ''}`;
+              router.push(correctUrl);
+              return; // Exit early, will reload with correct template
+            }
+            
+            // Restore form data
+            if (saved.formData && Object.keys(saved.formData).length > 0) {
+              setFormData(saved.formData);
+              formLoaded = true;
+              console.log('✅ [Resume Editor] Restored form data from payment flow');
+            }
+            
+            // Restore color selection
+            if (saved.selectedColorId) {
+              setSelectedColorId(saved.selectedColorId);
+            }
+            
+            // Jump to finalize step (user was here before payment)
+            if (saved.currentStep === 'finalize') {
+              setCurrentStep('finalize');
+              console.log('✅ [Resume Editor] Jumped to finalize step');
+              
+              toast({
+                title: '✨ Resume Restored!',
+                description: 'Your resume data has been restored. You can now download your resume.',
+                duration: 5000,
+              });
+            }
+            
+            // Clear payment flow data after restoring
+            sessionStorage.removeItem('resume-builder-payment-flow');
+            sessionStorage.removeItem('resume-builder-needs-payment');
+            console.log('🧹 [Resume Editor] Cleared payment flow data');
+          } catch (e) {
+            console.error('❌ [Resume Editor] Error restoring payment flow data:', e);
+            sessionStorage.removeItem('resume-builder-payment-flow');
+          }
+        }
+        
+        // Priority 2: Load saved draft (from localStorage) — skip when import session is fresher
         if (!skipFormHydration && !formLoaded && !paymentFlowData) {
-          const savedData = localStorage.getItem(`resume-${templateId}`);
-          if (savedData) {
+          const parsed = readLocalDraft(templateId);
+          if (parsed) {
             try {
-              const parsed = JSON.parse(savedData);
+              if (pendingImport && isImportFresherThanDraft(parsed, importMeta)) {
+                logBuilderHydration('skipped-stale-draft', {
+                  templateId,
+                  draftChecksum: builderFormChecksum(parsed),
+                });
+              } else {
               const sparseSections =
                 (!Array.isArray(parsed.experience) || parsed.experience.length === 0) ||
                 (!Array.isArray(parsed.skills) || parsed.skills.length === 0) ||
@@ -471,7 +520,12 @@ export default function ResumeEditorPage() {
                 setFormData(parsed);
               }
               formLoaded = true;
+              logBuilderHydration('local-draft', {
+                templateId,
+                checksum: builderFormChecksum(parsed),
+              });
               console.log('📋 Loaded saved draft from localStorage');
+              }
             } catch (e) {
               console.error('Error parsing saved data:', e);
             }
@@ -498,7 +552,7 @@ export default function ResumeEditorPage() {
     // colorParam is intentionally read here as well so returning from the
     // Design Studio with ?color= restores the chosen palette.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templateId, router, toast, colorParam, shouldPrefill]);
+  }, [templateId, router, toast, colorParam, shouldPrefill, sourceImport]);
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -545,7 +599,7 @@ export default function ResumeEditorPage() {
     userHasEditedRef.current = true;
     setFormData((prev) => {
       const patch = typeof updates === 'function' ? updates(prev) : updates;
-      const next = { ...prev, ...patch, _userEdited: true };
+      const next = { ...prev, ...patch, _userEdited: true, _userEditedAt: Date.now() };
 
       if ('firstName' in patch || 'lastName' in patch) {
         const fn = String(next.firstName ?? '').trim();

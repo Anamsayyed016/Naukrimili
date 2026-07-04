@@ -179,6 +179,12 @@ export function routeNodeToExtendedBucket(
     case 'INDUSTRY_EXPERTISE':
       mergeUniqueStrings(out.industryExpertise, [val]);
       break;
+    case 'SEMANTIC_SECTION': {
+      const sec = `${node.section} ${node.source}`.toLowerCase();
+      if (/highlight/.test(sec)) mergeUniqueStrings(out.professionalHighlights, [val]);
+      else if (/qualification/.test(sec)) mergeUniqueStrings(out.professionalQualifications, [val]);
+      break;
+    }
     case 'DECLARATION':
       out.declaration = val;
       break;

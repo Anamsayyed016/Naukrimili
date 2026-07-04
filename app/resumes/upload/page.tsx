@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { clearJobseekerRecommendationsCache } from '@/lib/jobseeker/recommendations-cache';
+import { writeImportSession } from '@/lib/resume-builder/builder-hydration';
 
 const RESUME_IMPORT_STORAGE_KEY = 'resume-import-data';
 
@@ -174,7 +175,10 @@ export default function ResumeUploadPage() {
             summaryChars: String(dataToStore.summary || '').length,
           });
 
-          const stored = safeSessionStorageWrite(RESUME_IMPORT_STORAGE_KEY, dataToStore);
+          const stored = writeImportSession(dataToStore, {
+            resumeId: data.resumeId,
+            source: 'upload',
+          });
           if (!stored) {
             toast({
               title: 'Import Warning',

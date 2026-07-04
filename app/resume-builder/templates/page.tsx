@@ -105,9 +105,11 @@ export default function TemplateSelectionPage() {
   }, [filters, templates, templatesLoaded]);
 
   const handleTemplateSelect = (templateId: string) => {
-    // Pass prefill param if coming from import
-    const prefillParam = source === 'import' ? '&prefill=true' : '';
-    router.push(`/resume-builder/editor?template=${templateId}${typeId ? `&type=${typeId}` : ''}${prefillParam}`);
+    const importParams =
+      source === 'import' ? '&prefill=true&source=import' : '';
+    router.push(
+      `/resume-builder/editor?template=${templateId}${typeId ? `&type=${typeId}` : ''}${importParams}`
+    );
   };
 
   // Get filter options from templates.json

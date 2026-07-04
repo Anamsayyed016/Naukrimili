@@ -83,7 +83,7 @@ export function extendBuilderSchema(
   );
   mergeUnique(
     extended.professionalQualifications,
-    findNodes(nodes, { types: ['CERTIFICATION', 'TRAINING', 'EDUCATION'] })
+    findNodes(nodes, { types: ['CERTIFICATION', 'TRAINING', 'SEMANTIC_SECTION'] })
       .filter((n) => /qualification/i.test(n.section + n.source))
       .map((n) => n.value)
   );

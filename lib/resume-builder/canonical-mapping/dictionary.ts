@@ -67,7 +67,17 @@ export function inferNodeTypeFromKey(
     return ['HOBBY', 'INTEREST'];
   }
 
-  if (['achievement', 'achievements', 'accomplishment', 'highlight', 'careerhighlight'].includes(k)) {
+  if (['professionalhighlights', 'careerhighlights', 'professionalhighlight', 'careerhighlight'].includes(k)) {
+    return ['SEMANTIC_SECTION'];
+  }
+  if (['professionalqualifications', 'professionalqualification'].includes(k)) {
+    return ['SEMANTIC_SECTION'];
+  }
+  if (['strength', 'strengths'].includes(k)) {
+    return ['STRENGTH'];
+  }
+
+  if (['achievement', 'achievements', 'accomplishment'].includes(k)) {
     return ['ACHIEVEMENT'];
   }
   if (['award', 'awards', 'honour', 'honors', 'recognition'].includes(k)) return ['AWARD'];
