@@ -15,50 +15,85 @@ import {
   isImportFieldTraceEnabled,
   traceImportStageTransform,
 } from '@/lib/resume-parser/import-field-trace';
+import {
+  normalizeExperienceEntryAliases,
+  normalizeEducationEntryAliases,
+  readFirstString,
+  splitFullNameForBuilder,
+} from '@/lib/resume-parser/builder-field-mapper';
 
 export function mapExtractedToUploadProfile(
   extracted: ExtractedResumeData,
   options?: { aiProvider?: string }
 ): Record<string, any> {
   const traceInput = extracted;
+  const ext = extracted as Record<string, unknown>;
   const fullName = sanitizePersonName(extracted.fullName) || '';
+  const { firstName, lastName } = splitFullNameForBuilder(fullName);
+  const github =
+    readFirstString(ext, ['github', 'Github']) ||
+    (String(extracted.portfolio || '').includes('github.com') ? extracted.portfolio : '');
+  const headline = readFirstString(ext, [
+    'headline',
+    'professionalHeadline',
+    'professionalTitle',
+    'currentDesignation',
+  ]);
+  const designation = readFirstString(ext, ['designation', 'jobTitle', 'currentDesignation']);
   const mapped = {
     name: fullName,
     fullName,
+    firstName,
+    lastName,
     email: extracted.email || '',
     phone: extracted.phone || '',
     address: extracted.location || '',
     location: extracted.location || '',
     linkedin: extracted.linkedin || '',
-    portfolio: extracted.portfolio || '',
+    github,
+    headline,
+    designation,
+    portfolio: extracted.portfolio || github || '',
     skills: extracted.skills || [],
-    experience: (extracted.experience || []).map((exp) => ({
-      company: exp.company || (exp as { organization?: string }).organization || (exp as { employer?: string }).employer || '',
-      position: exp.position || '',
-      job_title: exp.position || '',
-      startDate: exp.startDate || '',
-      endDate: exp.endDate || '',
-      start_date: exp.startDate || '',
-      end_date: exp.endDate || '',
-      description: exp.description || '',
-      achievements: exp.achievements || [],
-      current: exp.current || false,
-      location: exp.location || '',
-    })),
+    experience: (extracted.experience || []).map((exp) => {
+      const norm = normalizeExperienceEntryAliases(exp as Record<string, unknown>);
+      const company = String(norm.company || '');
+      const position = String(norm.position || norm.title || norm.designation || '');
+      return {
+        company,
+        organization: company,
+        employer: company,
+        position,
+        title: position,
+        designation: position,
+        job_title: position,
+        startDate: norm.startDate || exp.startDate || '',
+        endDate: norm.endDate || exp.endDate || '',
+        start_date: norm.startDate || exp.startDate || '',
+        end_date: norm.endDate || exp.endDate || '',
+        description: norm.description || exp.description || '',
+        achievements: norm.achievements || exp.achievements || [],
+        current: norm.current ?? exp.current ?? false,
+        location: norm.location || exp.location || '',
+      };
+    }),
     education: (extracted.education || []).map((edu) => {
-      const institution = edu.institution || '';
+      const norm = normalizeEducationEntryAliases(edu as Record<string, unknown>);
+      const institution = String(norm.institution || edu.institution || '');
       return {
         institution,
         school: institution,
         Institution: institution,
-        degree: edu.degree || '',
-        Degree: edu.degree || '',
-        field: edu.field || '',
-        Field: edu.field || '',
-        year: edu.endDate || '',
-        startDate: edu.startDate || '',
-        endDate: edu.endDate || '',
-        gpa: edu.gpa || '',
+        degree: norm.degree || edu.degree || '',
+        Degree: norm.degree || edu.degree || '',
+        field: norm.field || edu.field || '',
+        Field: norm.field || edu.field || '',
+        year: norm.endDate || edu.endDate || '',
+        startDate: norm.startDate || edu.startDate || '',
+        endDate: norm.endDate || edu.endDate || '',
+        gpa: norm.gpa || edu.gpa || '',
+        cgpa: norm.cgpa || norm.gpa || edu.gpa || '',
+        percentage: norm.percentage || '',
         description: edu.description || '',
       };
     }),

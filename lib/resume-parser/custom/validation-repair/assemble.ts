@@ -24,14 +24,23 @@ export function assembleValidatedResume(
   const identity = bundle.identity ? toCanonicalIdentity(bundle.identity) : null;
   const summary = bundle.summary ? toCanonicalSummary(bundle.summary) : null;
 
-  return {
+  const resume: ExtractedResumeData & {
+    github?: string;
+    headline?: string;
+    designation?: string;
+  } = {
     ...base,
     fullName: identity?.fullName || '',
     email: identity?.email || '',
     phone: identity?.phone || '',
     location: identity?.location || '',
     linkedin: identity?.linkedin || '',
-    portfolio: identity?.portfolio || bundle.identity?.github || '',
+    portfolio:
+      identity?.portfolio ||
+      bundle.identity?.portfolio ||
+      bundle.identity?.website ||
+      bundle.identity?.github ||
+      '',
     summary: summary?.summary || '',
     skills: toCanonicalSkills(bundle.skills),
     experience: bundle.experiences.map(toCanonicalExperience),
@@ -43,7 +52,13 @@ export function assembleValidatedResume(
     hobbies: bundle.hobbies || [],
     confidence: parserConfidenceScore,
     rawText,
-    // Store quality metadata in achievements slot is wrong - use confidence only
-    // resumeQualityScore exposed via ValidationRepairResult, not embedded in canonical
+    github: bundle.identity?.github || '',
+    headline:
+      bundle.identity?.professionalHeadline ||
+      bundle.identity?.professionalTitle ||
+      bundle.identity?.currentDesignation ||
+      '',
+    designation: bundle.identity?.currentDesignation || '',
   };
+  return resume;
 }

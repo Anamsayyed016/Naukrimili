@@ -1285,23 +1285,43 @@ export function sanitizeCertificationEntry(value: unknown): Record<string, unkno
 
   const rec = value as Record<string, unknown>;
   const name = sanitizeFieldText(
-    (rec.name ?? rec.title ?? rec.certification ?? rec.Name ?? '') as string,
+    (rec.name ??
+      rec.title ??
+      rec.certification ??
+      rec.certificateName ??
+      rec.Name ??
+      '') as string,
     200
   );
   if (!name) return null;
 
   const issuer = sanitizeFieldText(
-    (rec.issuer ?? rec.organization ?? rec.issuingOrganization ?? rec.Issuer ?? '') as string,
+    (rec.issuer ??
+      rec.organization ??
+      rec.issuingOrganization ??
+      rec.issuedBy ??
+      rec.Issuer ??
+      '') as string,
     160
   );
   if (!isPlausibleCertificationEntry(name, issuer)) return null;
   const date = sanitizeFieldText(
-    (rec.date ?? rec.issued_date ?? rec.issuedDate ?? rec.year ?? rec.Date ?? '') as string,
+    (rec.date ??
+      rec.issueDate ??
+      rec.issued_date ??
+      rec.issuedDate ??
+      rec.year ??
+      rec.Date ??
+      '') as string,
     40
   );
   const url = sanitizeFieldText(
-    (rec.url ?? rec.link ?? rec.credentialUrl ?? rec.Link ?? '') as string,
+    (rec.url ?? rec.link ?? rec.credentialUrl ?? rec.credentialURL ?? rec.Link ?? '') as string,
     300
+  );
+  const credentialId = sanitizeFieldText(
+    (rec.credentialId ?? rec.credential_id ?? rec.id ?? rec.licenseNumber ?? '') as string,
+    80
   );
 
   return {
@@ -1313,7 +1333,11 @@ export function sanitizeCertificationEntry(value: unknown): Record<string, unkno
     Date: date,
     url,
     link: url,
-    expiryDate: sanitizeFieldText((rec.expiryDate ?? rec.expiry_date ?? '') as string, 40),
+    credentialId,
+    expiryDate: sanitizeFieldText(
+      (rec.expiryDate ?? rec.expiry_date ?? rec.expiry ?? rec.expirationDate ?? '') as string,
+      40
+    ),
   };
 }
 
@@ -1357,10 +1381,16 @@ export function readExperienceCompanySlot(exp: Record<string, unknown>): string 
     'Company',
     'organization',
     'Organization',
+    'organisation',
+    'Organisation',
     'employer',
     'Employer',
     'companyName',
     'CompanyName',
+    'firm',
+    'Firm',
+    'office',
+    'Office',
   ]) {
     const value = sanitizeFieldText(exp[key], 160);
     if (value) return value;

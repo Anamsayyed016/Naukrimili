@@ -99,6 +99,22 @@ import {
 } from '@/lib/resume-parser/text-recovery';
 import { applyRecoveredWordingToProfile, overlaySparseSectionsFromTextRecovery } from '@/lib/resume-parser/prefer-recovered-wording';
 import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
+import {
+  ACHIEVEMENT_SECTION_KEYS,
+  CERT_SECTION_KEYS,
+  COMPANY_ALIASES,
+  DESIGNATION_ALIASES,
+  EDUCATION_SECTION_KEYS,
+  EXPERIENCE_SECTION_KEYS,
+  HOBBY_SECTION_KEYS,
+  LANGUAGE_SECTION_KEYS,
+  PROJECT_SECTION_KEYS,
+  SKILL_SECTION_KEYS,
+  logBuilderFieldMappingReport,
+  normalizeImportProfileAliases,
+  readFirstArray,
+  recoverBuilderFormSections,
+} from '@/lib/resume-parser/builder-field-mapper';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
@@ -191,41 +207,40 @@ function enrichExperienceFromParserAliases(
   rawImport: Record<string, unknown>
 ): unknown[] {
   if (!Array.isArray(experiences) || experiences.length === 0) return experiences;
-  const rawList = firstNonEmptyArray(rawImport, [
-    'experience',
-    'workExperience',
-    'Work Experience',
-    'Experience',
-  ]);
+  const rawList = readFirstArray(rawImport, EXPERIENCE_SECTION_KEYS);
   return experiences.map((exp, index) => {
     if (!exp || typeof exp !== 'object') return exp;
     const row = { ...(exp as Record<string, unknown>) };
     const companyRaw =
-      row.company || row.Company || row.organization || row.employer;
+      row.company || row.Company || row.organization || row.employer || row.firm || row.office;
     const hasCompany =
       hasMeaningfulText(companyRaw) && isPlausibleExperienceCompany(companyRaw);
     const hasLocation = hasMeaningfulText(row.location || row.Location);
     const hasDescription = hasMeaningfulText(row.description || row.Description);
+    const hasPosition = hasMeaningfulText(
+      row.position || row.title || row.designation || row.role || row.jobTitle
+    );
 
     const fillFromSource = (source: Record<string, unknown>): boolean => {
       let changed = false;
       if (!hasCompany) {
-        for (const key of [
-          'company',
-          'Company',
-          'organization',
-          'Organization',
-          'employer',
-          'Employer',
-          'companyName',
-          'CompanyName',
-          'workedAt',
-          'organizationName',
-        ] as const) {
+        for (const key of COMPANY_ALIASES) {
           const candidate = sanitizeFieldText(source[key], 160);
           if (candidate && isPlausibleExperienceCompany(candidate)) {
             row.company = candidate;
             row.Company = candidate;
+            changed = true;
+            break;
+          }
+        }
+      }
+      if (!hasPosition) {
+        for (const key of DESIGNATION_ALIASES) {
+          const candidate = sanitizeFieldText(source[key], 120);
+          if (candidate) {
+            row.position = candidate;
+            row.title = candidate;
+            row.designation = candidate;
             changed = true;
             break;
           }
@@ -263,7 +278,7 @@ function enrichExperienceFromParserAliases(
       return changed;
     };
 
-    if (hasCompany && hasLocation && hasDescription) return row;
+    if (hasCompany && hasLocation && hasDescription && hasPosition) return row;
 
     const raw = rawList[index];
     if (raw && typeof raw === 'object' && fillFromSource(raw as Record<string, unknown>)) {
@@ -340,7 +355,14 @@ function enrichProjectsFromParserAliases(
       }
     }
     if (!hasMeaningfulText(row.technologies || row.Technologies)) {
-      const tech = source.technologies ?? source.tech_stack ?? source.techStack ?? source.tech;
+      const tech =
+        source.technologies ??
+        source.tech_stack ??
+        source.techStack ??
+        source.tech ??
+        source.stack ??
+        source.tools ??
+        source.languagesUsed;
       if (tech) {
         row.technologies = tech;
         row.Technologies = tech;
@@ -1122,6 +1144,8 @@ export function transformImportDataToBuilder(
     }
   }
 
+  mergedImport = normalizeImportProfileAliases(mergedImport);
+
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};
   const professional = mergedImport.professionalInformation || importedData.professionalInformation || {};
@@ -1140,9 +1164,15 @@ export function transformImportDataToBuilder(
   const portfolio = sanitizeFieldText(
     mergedImport.portfolio ||
       mergedImport.website ||
-      mergedImport.github ||
+      personal.portfolio ||
+      personal.website ||
+      ''
+  );
+  const github = sanitizeFieldText(
+    mergedImport.github ||
+      personal.github ||
       recovered.github ||
-      recovered.portfolio
+      (String(mergedImport.portfolio || '').includes('github.com') ? mergedImport.portfolio : '')
   );
 
   const summaryRaw = mergeSummarySections(mergedImport, textParsed, recovered.summary);
@@ -1191,23 +1221,14 @@ export function transformImportDataToBuilder(
 
   const experience = transformExperienceArray(
     enrichExperienceFromParserAliases(
-      firstNonEmptyArray(mergedImport, [
-        'experience',
-        'workExperience',
-        'Work Experience',
-        'Experience',
-      ]),
+      readFirstArray(mergedImport, EXPERIENCE_SECTION_KEYS),
       mergedImport
     )
   );
 
   const skills = isCustomParser
-    ? normalizeCustomParserSkillsList(
-        firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
-      )
-    : cleanSkills(
-        firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
-      );
+    ? normalizeCustomParserSkillsList(readFirstArray(mergedImport, SKILL_SECTION_KEYS))
+    : cleanSkills(readFirstArray(mergedImport, SKILL_SECTION_KEYS));
 
   let jobTitle = extractJobTitleFromImport(mergedImport, professional, experience);
   if (!jobTitle) {
@@ -1233,7 +1254,8 @@ export function transformImportDataToBuilder(
     phone,
     location,
     linkedin,
-    portfolio,
+    portfolio: portfolio || github,
+    github,
 
     // ===== SummaryStep =====
     summary,
@@ -1251,7 +1273,7 @@ export function transformImportDataToBuilder(
 
     // ===== EducationStep =====
     education: transformEducationArray(
-      firstNonEmptyArray(mergedImport, ['education', 'Education']),
+      readFirstArray(mergedImport, EDUCATION_SECTION_KEYS),
       isCustomParser
     ),
 
@@ -1259,7 +1281,7 @@ export function transformImportDataToBuilder(
     projects: transformProjectsArray(
       enrichProjectsFromParserAliases(
         (() => {
-          const raw = firstNonEmptyArray(mergedImport, ['projects', 'Projects']);
+          const raw = readFirstArray(mergedImport, PROJECT_SECTION_KEYS);
           console.log('[import-transformer] mergedImport project keys', {
             projects: Array.isArray(mergedImport.projects) ? mergedImport.projects.length : 0,
             Projects: Array.isArray(mergedImport.Projects) ? mergedImport.Projects.length : 0,
@@ -1276,25 +1298,24 @@ export function transformImportDataToBuilder(
 
     // ===== CertificationsStep =====
     certifications: transformCertificationsArray(
-      firstNonEmptyArray(mergedImport, ['certifications', 'Certifications']),
-      firstNonEmptyArray(mergedImport, ['education', 'Education'])
+      readFirstArray(mergedImport, CERT_SECTION_KEYS),
+      readFirstArray(mergedImport, EDUCATION_SECTION_KEYS)
     ),
 
     // ===== LanguagesStep =====
-    languages: transformLanguagesArray(
-      firstNonEmptyArray(mergedImport, ['languages', 'Languages'])
-    ),
+    languages: transformLanguagesArray(readFirstArray(mergedImport, LANGUAGE_SECTION_KEYS)),
 
     // ===== AchievementsStep =====
-    achievements: transformAchievementsArray([
-      ...partitionedAchievements.achievements,
-      ...(Array.isArray(mergedImport.achievements) ? mergedImport.achievements : []),
-    ]),
+    achievements: transformAchievementsArray(
+      [
+        ...partitionedAchievements.achievements,
+        ...(Array.isArray(mergedImport.achievements) ? mergedImport.achievements : []),
+      ],
+      isCustomParser
+    ),
 
     // ===== HobbiesStep =====
-    hobbies: cleanHobbies(
-      firstNonEmptyArray(mergedImport, ['hobbies', 'Hobbies', 'Hobbies & Interests'])
-    ),
+    hobbies: cleanHobbies(readFirstArray(mergedImport, HOBBY_SECTION_KEYS)),
 
     additionalResumeData: mergedAdditional,
 
@@ -1328,6 +1349,16 @@ export function transformImportDataToBuilder(
   transformed.summary = trimmedSummary;
   transformed.bio = trimmedSummary;
   transformed.objective = trimmedSummary;
+
+  const { builder: recoveredBuilder, report: mappingReport } = recoverBuilderFormSections(
+    transformed,
+    {
+      mergedImport,
+      rawImport: importedData as Record<string, unknown>,
+    }
+  );
+  Object.assign(transformed, recoveredBuilder);
+  logBuilderFieldMappingReport(mappingReport);
 
   logBuilderImportPipelineTrace({
     raw: importedData as Record<string, unknown>,
@@ -1452,6 +1483,21 @@ function resolveClassifiedName(
 } {
   const additionalResumeData = emptyAdditionalResumeData();
   const personal = importedData.personalInformation || {};
+
+  const profileFirst = sanitizeFieldText(importedData.firstName || personal.firstName, 80);
+  const profileLast = sanitizeFieldText(importedData.lastName || personal.lastName, 80);
+  if (profileFirst || profileLast) {
+    const combined = [profileFirst, profileLast].filter(Boolean).join(' ').trim();
+    if (combined) {
+      return {
+        firstName: profileFirst,
+        lastName: profileLast,
+        displayName: combined,
+        additionalResumeData,
+      };
+    }
+  }
+
   const textHeaderName = sanitizePersonName(headerNameFromText, 120);
 
   const parserFirst = String(importedData.firstName || personal.firstName || '').trim();
@@ -1653,8 +1699,12 @@ function transformExperienceArray(experiences: unknown): any[] {
     .map((exp) => sanitizeExperienceEntry((exp ?? {}) as Record<string, unknown>))
     .filter((exp): exp is Record<string, unknown> => exp != null)
     .map((exp, index) => {
-      const position = String(exp.position || exp.title || '');
-      const company = String(exp.company || '');
+      const position = String(
+        exp.position || exp.title || exp.designation || exp.role || exp.jobTitle || ''
+      );
+      const company = String(
+        exp.company || exp.Company || exp.organization || exp.employer || ''
+      );
       const location = String(exp.location || exp.Location || '');
 
       const startMonth = toMonthInput(exp.startDate);
@@ -1814,10 +1864,12 @@ function transformEducationArray(education: unknown, isCustomParser = false): an
     .map((edu) => sanitizeEducationEntry((edu ?? {}) as Record<string, unknown>))
     .filter((edu): edu is Record<string, unknown> => edu != null)
     .map((edu) => {
-      const institution = String(edu.institution || '');
-      const degree = String(edu.degree || '');
-      const field = String(edu.field || '');
-      const gpa = String(edu.gpa || '');
+      const institution = String(
+        edu.institution || edu.school || edu.college || edu.university || edu.academy || ''
+      );
+      const degree = String(edu.degree || edu.Degree || edu.qualification || '');
+      const field = String(edu.field || edu.Field || edu.major || '');
+      const gpa = String(edu.gpa || edu.cgpa || edu.GPA || edu.CGPA || edu.percentage || '');
 
       // Year MUST be a bare 4-digit string — EducationStep uses <input type="number">
       const year = extractYear(edu.year || edu.Year || edu.endDate || edu.end_date || edu.startDate);
@@ -1943,7 +1995,16 @@ function transformCertificationsArray(
       const name = String(c.name || '');
       const issuer = String(c.issuer || '');
       return !certMatchesEducation(name, issuer);
-    });
+    })
+    .map((c) => ({
+      name: String(c.name || ''),
+      issuer: String(c.issuer || ''),
+      date: String(c.date || ''),
+      link: String(c.url || c.link || ''),
+      url: String(c.url || c.link || ''),
+      credentialId: String(c.credentialId || ''),
+      expiryDate: String(c.expiryDate || ''),
+    }));
 }
 
 function transformLanguagesArray(languages: unknown): any[] {
@@ -1996,14 +2057,14 @@ function mergeSummarySections(
   return parts.join('\n\n').slice(0, 4000);
 }
 
-function transformAchievementsArray(achievements: unknown): string[] {
+function transformAchievementsArray(achievements: unknown, trustParserList = false): string[] {
   if (!Array.isArray(achievements)) return [];
   const seen = new Set<string>();
   const out: string[] = [];
   for (const a of achievements) {
     const value = sanitizeAchievementEntry(a);
     if (!value || isMisplacedAchievementLine(value)) continue;
-    if (!shouldKeepAsGlobalAchievement(value)) continue;
+    if (!trustParserList && !shouldKeepAsGlobalAchievement(value)) continue;
     const key = value.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
