@@ -147,6 +147,29 @@ export function validateImportPipelineAlignment(
     }
   }
 
+  const ledger = builderForm.mappingLedger as
+    | { discarded?: number; mapped?: number; dynamic?: number; unsupported?: number }
+    | undefined;
+  if (ledger && typeof ledger.discarded === 'number' && ledger.discarded > 0) {
+    issues.push({
+      layer: 'builder',
+      code: 'nodes-discarded',
+      message: `${ledger.discarded} parser node(s) were discarded`,
+    });
+  }
+
+  const highlightNodes = nodes.filter(
+    (n) => n.type === 'SEMANTIC_SECTION' && /highlight/i.test(n.value)
+  ).length;
+  if (highlightNodes > 0 && extended.professionalHighlights.length === 0) {
+    issues.push({
+      layer: 'extended',
+      code: 'highlights-not-surfaced',
+      message: 'Professional highlights nodes not routed to builder',
+      section: 'professionalHighlights',
+    });
+  }
+
   return {
     ok: issues.length === 0,
     issues,

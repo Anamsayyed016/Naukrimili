@@ -5,6 +5,7 @@
 
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { buildOpenAISectionClassificationRules } from '@/lib/resume-builder/semantic-registry';
 
 export interface HybridResumeData {
   personalInformation: {
@@ -331,7 +332,10 @@ SEPARATION RULES:
 - "Education" is university/college degrees only (Bachelor, Master, MBA, B.Tech, etc.) — NEVER in experience.
 - experience[].achievements = job RESPONSIBILITIES (Managed, Handled, Led, Coordinated, Implemented, Supervised, etc.).
 - Top-level achievements[] = ONLY measurable outcomes (percentages, revenue, team size, awards). If a bullet has no measurable impact, keep it under experience responsibilities — NOT achievements.
-- Merge Objective + Professional Summary + Professional Highlights into summary (preserve all unique content, do not invent).
+- Professional Highlights / Career Highlights → separate extended section (NOT summary); include as achievements[] only when they are measurable outcomes, otherwise note in summary only if no highlights section exists.
+- Professional Qualifications (IATA, PMP, CA, licenses) → certifications[] — NOT education degrees.
+- Strengths → skills[] with soft-skill prefix OR leave for downstream extended routing — do NOT mix with technical tools.
+${buildOpenAISectionClassificationRules()}
 - Preserve employment chronology exactly as written — do not reorder jobs.
 
 Resume Text:

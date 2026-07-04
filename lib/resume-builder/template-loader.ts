@@ -35,6 +35,7 @@ import {
   optimizeResumeDataForRender,
   appendHobbiesSectionIfMissing,
 } from './section-visibility';
+import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
 import { scoreSkillConfidence } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { resolveTemplateId } from './template-aliases';
@@ -564,6 +565,8 @@ export function injectResumeData(
     placeholders['{{HOBBIES}}'] || '',
     data
   );
+
+  result = appendExtendedSectionsToHtml(result, formData);
 
   // Premium typography & content-balance (spacing/hierarchy only — no layout/color changes).
   const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;

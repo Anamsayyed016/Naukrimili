@@ -11,6 +11,10 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import {
+  buildTextRecoverySectionAliases,
+  classifySectionHeading,
+} from '@/lib/resume-builder/semantic-registry';
 import { isImportFieldTraceEnabled, traceImportStageOutput } from '@/lib/resume-parser/import-field-trace';
 import {
   emptyAdditionalResumeData,
@@ -217,7 +221,26 @@ const SECTION_ALIASES = {
     'interests and hobbies', 'extracurricular', 'extracurricular activities',
     'activities', 'passions',
   ],
-} as const;
+};
+
+(function mergeTextRecoveryAliasesFromSemanticRegistry() {
+  const registry = buildTextRecoverySectionAliases();
+  const bucket = SECTION_ALIASES as Record<string, string[]>;
+  for (const [key, phrases] of Object.entries(registry)) {
+    if (!bucket[key]) bucket[key] = [];
+    const seen = new Set(bucket[key].map((s) => s.toLowerCase()));
+    for (const phrase of phrases) {
+      const lower = phrase.toLowerCase();
+      if (!seen.has(lower)) {
+        bucket[key].push(phrase);
+        seen.add(lower);
+      }
+    }
+  }
+  bucket.summary = bucket.summary.filter(
+    (s) => classifySectionHeading(s)?.definition.id !== 'professional-highlights'
+  );
+})();
 
 const ALL_HEADINGS = Object.values(SECTION_ALIASES).flat();
 

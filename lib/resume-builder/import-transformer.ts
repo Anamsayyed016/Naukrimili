@@ -2037,6 +2037,16 @@ function transformProjectsArray(
       if (equalsJobTitle && !desc && techEmpty && !url && datesEmpty) {
         return false;
       }
+      if (
+        name &&
+        isJobTitleMisclassifiedAsProject(name, jobTitle, experienceTitles) &&
+        !desc &&
+        techEmpty &&
+        !url &&
+        datesEmpty
+      ) {
+        return false;
+      }
       return true;
     });
   console.log('[import-transformer] final projects.length', transformed.length);

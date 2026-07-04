@@ -266,7 +266,7 @@ export default function DynamicSectionsStep({ formData, updateFormData }: Dynami
     updateFormData(writeExtendedSection(formData, 'extraSections', sections));
   };
 
-  if (activeSections.length === 0 && extended.extraSections.length === 0) {
+  if (activeSections.length === 0 && extended.extraSections.length === 0 && (extended.unsupportedSections?.length ?? 0) === 0) {
     return (
       <div className="space-y-4 text-center py-12">
         <Layers className="w-10 h-10 text-gray-300 mx-auto" />
@@ -323,6 +323,23 @@ export default function DynamicSectionsStep({ formData, updateFormData }: Dynami
                 }}
                 rows={4}
               />
+            </div>
+          ))}
+        </section>
+      )}
+
+      {(extended.unsupportedSections?.length ?? 0) > 0 && (
+        <section className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Unclassified Content</h3>
+            <p className="text-sm text-gray-600">
+              Extracted content preserved for review — move or edit as needed.
+            </p>
+          </div>
+          {(extended.unsupportedSections || []).map((sec, index) => (
+            <div key={`unsup-${index}`} className="space-y-2 rounded-lg border border-amber-100 bg-white p-3">
+              <Label className="text-sm font-medium">{sec.heading}</Label>
+              <Textarea value={sec.body} readOnly rows={3} className="bg-gray-50" />
             </div>
           ))}
         </section>

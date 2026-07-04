@@ -4,6 +4,7 @@
  */
 
 import type { NormalizedSectionType } from './types';
+import { classifySectionHeading } from '@/lib/resume-builder/semantic-registry';
 
 export interface SectionTaxonomyEntry {
   phrases: readonly string[];
@@ -207,6 +208,25 @@ export function scoreHeadingKeywords(
   const normalized = normalizeHeadingText(rawHeading);
   const parts = splitCombinedHeadingParts(normalized);
   const scores: Partial<Record<NormalizedSectionType, number>> = {};
+
+  const semantic = classifySectionHeading(rawHeading);
+  if (semantic && semantic.confidence >= 58 && semantic.definition.parserType) {
+    const pt = semantic.definition.parserType;
+    if (pt !== 'custom') {
+      scores[pt] = Math.max(scores[pt] ?? 0, semantic.confidence);
+    }
+    if (semantic.definition.id === 'professional-qualifications') {
+      scores.education = Math.min(scores.education ?? 0, 35);
+      scores.certifications = Math.max(scores.certifications ?? 0, semantic.confidence);
+    }
+    if (semantic.definition.id === 'professional-highlights') {
+      scores.summary = Math.min(scores.summary ?? 0, 40);
+      scores.achievements = Math.max(scores.achievements ?? 0, semantic.confidence);
+    }
+    if (semantic.definition.id === 'strengths') {
+      scores.skills = Math.min(scores.skills ?? 0, 45);
+    }
+  }
 
   for (const [type, tax] of Object.entries(SECTION_TAXONOMY) as Array<
     [Exclude<NormalizedSectionType, 'custom'>, SectionTaxonomyEntry]

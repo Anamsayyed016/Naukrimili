@@ -6,6 +6,8 @@ import { DYNAMIC_SECTION_ROUTING } from './dictionary';
 import { findNodes } from './ingest';
 import type { CanonicalFieldNode, ExtendedBuilderSections } from './types';
 import { emptyExtendedBuilderSections } from './types';
+import { classifySectionHeading } from '@/lib/resume-builder/semantic-registry';
+import { routeNodeToExtendedBucket } from '@/lib/resume-builder/semantic-routing';
 
 export function extendBuilderSchema(
   builder: Record<string, unknown>,
@@ -63,9 +65,26 @@ export function extendBuilderSchema(
   mergeUnique(extended.training, findNodes(nodes, { types: ['TRAINING'] }).map((n) => n.value));
   mergeUnique(extended.research, findNodes(nodes, { types: ['RESEARCH'] }).map((n) => n.value));
   mergeUnique(
+    extended.professionalHighlights,
+    findNodes(nodes, { types: ['ACHIEVEMENT', 'SEMANTIC_SECTION'] })
+      .filter((n) => /highlight/i.test(n.section) || /highlight/i.test(n.source))
+      .map((n) => n.value)
+  );
+  mergeUnique(extended.strengths, findNodes(nodes, { types: ['STRENGTH'] }).map((n) => n.value));
+  mergeUnique(
+    extended.industryExpertise,
+    findNodes(nodes, { types: ['INDUSTRY_EXPERTISE'] }).map((n) => n.value)
+  );
+  mergeUnique(
+    extended.seminars,
+    findNodes(nodes, { types: ['TRAINING', 'SEMANTIC_SECTION'] })
+      .filter((n) => /seminar|conference/i.test(n.section + n.source))
+      .map((n) => n.value)
+  );
+  mergeUnique(
     extended.professionalQualifications,
-    findNodes(nodes, { types: ['EDUCATION'] })
-      .filter((n) => n.section.includes('qualification'))
+    findNodes(nodes, { types: ['CERTIFICATION', 'TRAINING', 'EDUCATION'] })
+      .filter((n) => /qualification/i.test(n.section + n.source))
       .map((n) => n.value)
   );
   mergeUnique(
@@ -84,9 +103,24 @@ export function extendBuilderSchema(
   const sectionNodes = findNodes(nodes, { types: ['SEMANTIC_SECTION'] });
   for (const sec of sectionNodes) {
     const bodyNodes = nodes.filter(
-      (n) => n.section === sec.value || n.source.includes(sec.source.replace('.heading', '.body'))
+      (n) =>
+        n.parent === sec.id ||
+        n.section === sec.value ||
+        n.source.includes(sec.source.replace('.heading', '.body'))
     );
-    const body = bodyNodes.map((n) => n.value).join('\n');
+    const body = bodyNodes.map((n) => n.value).join('\n').trim() || sec.value;
+    const classified = classifySectionHeading(sec.value);
+    if (classified && classified.definition.builderTarget.kind === 'extended') {
+      const fieldKey = classified.definition.builderTarget.field;
+      if (fieldKey === 'declaration') {
+        extended.declaration = body;
+      } else if (fieldKey === 'personalDetails') {
+        extended.personalDetails[sec.value] = body;
+      } else if (Array.isArray((extended as Record<string, unknown>)[fieldKey])) {
+        mergeUnique((extended as Record<string, string[]>)[fieldKey], body.split(/\n+/).filter(Boolean));
+      }
+      continue;
+    }
     for (const route of DYNAMIC_SECTION_ROUTING) {
       if (!route.pattern.test(sec.value)) continue;
       const bucket = route.bucket;
@@ -95,14 +129,22 @@ export function extendBuilderSchema(
       } else if (bucket === 'personalDetails') {
         extended.personalDetails[sec.value] = body;
       } else if (Array.isArray((extended as Record<string, unknown>)[bucket])) {
-        mergeUnique((extended as Record<string, string[]>)[bucket], [body || sec.value]);
+        mergeUnique((extended as Record<string, string[]>)[bucket], body ? [body] : [sec.value]);
       }
       break;
     }
     if (!DYNAMIC_SECTION_ROUTING.some((r) => r.pattern.test(sec.value))) {
-      extended.extraSections.push({ heading: sec.value, body });
+      if (!classified) {
+        extended.extraSections.push({ heading: sec.value, body });
+      }
     }
   }
+
+  let routedExtended = extended;
+  for (const node of nodes) {
+    routedExtended = routeNodeToExtendedBucket(routedExtended, node);
+  }
+  Object.assign(extended, routedExtended);
 
   const mergedAdditional = {
     ...additional,
@@ -146,5 +188,9 @@ export function extendBuilderSchema(
     coreCompetencies: extended.coreCompetencies,
     softSkills: extended.softSkills,
     technicalSkills: extended.technicalSkills,
+    strengths: extended.strengths,
+    industryExpertise: extended.industryExpertise,
+    seminars: extended.seminars,
+    unsupportedSections: extended.unsupportedSections,
   };
 }

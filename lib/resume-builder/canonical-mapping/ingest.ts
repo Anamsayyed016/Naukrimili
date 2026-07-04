@@ -5,6 +5,11 @@
 import { sanitizeFieldText } from '@/lib/resume-parser/import-sanitize';
 import { inferNodeTypeFromKey } from './dictionary';
 import type { CanonicalFieldNode, CanonicalNodeType } from './types';
+import {
+  classifySectionHeading,
+  STANDARD_PROFILE_KEYS,
+} from '@/lib/resume-builder/semantic-registry';
+import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
 
 let _nodeCounter = 0;
 
@@ -241,6 +246,115 @@ const SUMMARY_KEYS = [
   'aboutMe',
 ];
 
+function ingestSemanticSectionBlock(
+  nodes: CanonicalFieldNode[],
+  heading: string,
+  body: string,
+  sourcePrefix: string,
+  position: number
+): void {
+  const classified = classifySectionHeading(heading);
+  const sectionId = nextId('semantic');
+  const headingNode: CanonicalFieldNode = {
+    id: sectionId,
+    type: 'SEMANTIC_SECTION',
+    value: heading,
+    confidence: classified?.confidence ?? 65,
+    section: classified?.definition.id ?? 'semantic',
+    position,
+    source: `${sourcePrefix}.heading`,
+  };
+  nodes.push(headingNode);
+
+  const lines = splitBullets(body)
+    .map((l) => l.replace(/^[\s\-–—*•·]+/, '').trim())
+    .filter((l) => l.length >= 2);
+
+  const primaryType: CanonicalNodeType =
+    classified?.definition.nodeTypes[0] ?? 'UNKNOWN';
+
+  if (lines.length === 0 && body.trim()) {
+    const node = scalarNode(primaryType, body.trim(), headingNode.section, `${sourcePrefix}.body`, position, 72, sectionId);
+    if (node) nodes.push(node);
+    return;
+  }
+
+  lines.forEach((line, i) => {
+    const node = scalarNode(primaryType, line, headingNode.section, `${sourcePrefix}.body[${i}]`, i, 74, sectionId);
+    if (node) nodes.push(node);
+  });
+}
+
+function ingestSemanticProfileSections(
+  profile: Record<string, unknown>,
+  nodes: CanonicalFieldNode[]
+): void {
+  const topLevelArrays: Array<{ keys: string[]; type: CanonicalNodeType }> = [
+    { keys: ['references'], type: 'REFERENCE' },
+    { keys: ['training', 'trainings'], type: 'TRAINING' },
+    { keys: ['internships'], type: 'INTERNSHIP' },
+    { keys: ['strengths'], type: 'STRENGTH' },
+    { keys: ['professionalHighlights', 'careerHighlights'], type: 'ACHIEVEMENT' },
+    { keys: ['professionalQualifications'], type: 'CERTIFICATION' },
+    { keys: ['coreCompetencies'], type: 'CORE_SKILL' },
+    { keys: ['softSkills'], type: 'SOFT_SKILL' },
+    { keys: ['technicalSkills'], type: 'TECHNICAL_SKILL' },
+    { keys: ['industryExpertise'], type: 'INDUSTRY_EXPERTISE' },
+    { keys: ['seminars'], type: 'TRAINING' },
+    { keys: ['memberships'], type: 'MEMBERSHIP' },
+    { keys: ['research'], type: 'RESEARCH' },
+    { keys: ['publications'], type: 'PUBLICATION' },
+    { keys: ['patents'], type: 'PATENT' },
+    { keys: ['volunteer', 'volunteerWork'], type: 'VOLUNTEER' },
+  ];
+
+  for (const { keys, type } of topLevelArrays) {
+    for (const key of keys) {
+      const raw = profile[key];
+      if (!Array.isArray(raw)) continue;
+      nodes.push(...ingestStringList(raw, type, key, key));
+    }
+  }
+
+  if (typeof profile.declaration === 'string' && profile.declaration.trim()) {
+    const node = scalarNode('DECLARATION', profile.declaration, 'declaration', 'declaration', nodes.length, 80);
+    if (node) nodes.push(node);
+  }
+
+  let semanticIndex = 0;
+  for (const [key, raw] of Object.entries(profile)) {
+    if (STANDARD_PROFILE_KEYS.has(key)) continue;
+    if (raw == null) continue;
+
+    if (typeof raw === 'string' && raw.trim()) {
+      ingestSemanticSectionBlock(nodes, key, raw, `profile.${key}`, semanticIndex++);
+      continue;
+    }
+
+    if (Array.isArray(raw)) {
+      const classified = classifySectionHeading(key);
+      if (classified) {
+        const body = raw
+          .map((item) => (typeof item === 'string' ? item : JSON.stringify(item)))
+          .join('\n');
+        ingestSemanticSectionBlock(nodes, classified.definition.label, body, `profile.${key}`, semanticIndex++);
+      }
+    }
+  }
+
+  const customSections = profile.customSections;
+  if (Array.isArray(customSections)) {
+    for (let i = 0; i < customSections.length; i++) {
+      const block = customSections[i];
+      if (!block || typeof block !== 'object') continue;
+      const rec = block as { rawHeading?: string; heading?: string; content?: string; body?: string };
+      const heading = String(rec.rawHeading || rec.heading || `Section ${i + 1}`);
+      const body = String(rec.content || rec.body || '');
+      ingestSemanticSectionBlock(nodes, heading, body, `customSections[${i}]`, semanticIndex++);
+    }
+  }
+}
+
 export function ingestCanonicalNodes(profile: Record<string, unknown>): CanonicalFieldNode[] {
   _nodeCounter = 0;
   const nodes: CanonicalFieldNode[] = [];
@@ -343,6 +457,8 @@ export function ingestCanonicalNodes(profile: Record<string, unknown>): Canonica
       }
     }
   }
+
+  ingestSemanticProfileSections(profile, nodes);
 
   return nodes;
 }

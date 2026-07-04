@@ -49,6 +49,8 @@ export type CanonicalNodeType =
   | 'RESEARCH'
   | 'PATENT'
   | 'SEMANTIC_SECTION'
+  | 'STRENGTH'
+  | 'INDUSTRY_EXPERTISE'
   | 'UNKNOWN';
 
 export interface CanonicalFieldNode {
@@ -81,6 +83,7 @@ export interface CanonicalMappingReport {
   rejected: string[];
   repaired: string[];
   dynamicSections: string[];
+  ledger?: BuilderMappingLedger;
 }
 
 export interface CanonicalMappingResult {
@@ -97,6 +100,9 @@ export interface ExtendedBuilderSections {
   coreCompetencies: string[];
   softSkills: string[];
   technicalSkills: string[];
+  strengths: string[];
+  industryExpertise: string[];
+  seminars: string[];
   awards: string[];
   memberships: string[];
   training: string[];
@@ -109,6 +115,17 @@ export interface ExtendedBuilderSections {
   declaration: string;
   personalDetails: Record<string, string>;
   extraSections: Array<{ heading: string; body: string }>;
+  /** Sections that could not be mapped — visible for user review, never silently dropped */
+  unsupportedSections: Array<{ heading: string; body: string; reason?: string }>;
+}
+
+export interface BuilderMappingLedger {
+  mapped: number;
+  recovered: number;
+  dynamic: number;
+  unsupported: number;
+  discarded: number;
+  nodeIds: string[];
 }
 
 export function emptyExtendedBuilderSections(): ExtendedBuilderSections {
@@ -118,6 +135,9 @@ export function emptyExtendedBuilderSections(): ExtendedBuilderSections {
     coreCompetencies: [],
     softSkills: [],
     technicalSkills: [],
+    strengths: [],
+    industryExpertise: [],
+    seminars: [],
     awards: [],
     memberships: [],
     training: [],
@@ -130,5 +150,10 @@ export function emptyExtendedBuilderSections(): ExtendedBuilderSections {
     declaration: '',
     personalDetails: {},
     extraSections: [],
+    unsupportedSections: [],
   };
+}
+
+export function emptyMappingLedger(): BuilderMappingLedger {
+  return { mapped: 0, recovered: 0, dynamic: 0, unsupported: 0, discarded: 0, nodeIds: [] };
 }
