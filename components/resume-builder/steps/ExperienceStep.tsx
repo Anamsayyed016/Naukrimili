@@ -9,6 +9,7 @@ import { Plus, Trash2, Info, Briefcase } from 'lucide-react';
 import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestionBox';
 import TitleSuggestionChips from '@/components/resume-builder/form-inputs/TitleSuggestionChips';
 import {
+  appendExperienceDescriptionSuggestion,
   finalizeExperienceEntryForBuilder,
   readExperienceEntryForForm,
   stableExperienceEntryId,
@@ -87,6 +88,15 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
     const updated = experiences.map((entry, i) =>
       i === index ? { ...entry, title: suggestion } : entry
     );
+    commitExperiences(updated, { finalize: true });
+  };
+
+  const applyDescriptionSuggestion = (index: number, suggestion: string) => {
+    const updated = experiences.map((entry, i) => {
+      if (i !== index) return entry;
+      const withDescription = appendExperienceDescriptionSuggestion(entry, suggestion);
+      return finalizeExperienceEntryForBuilder(withDescription, i);
+    });
     commitExperiences(updated, { finalize: true });
   };
 
@@ -302,14 +312,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                             i === index ? { ...entry, description: row.description } : entry
                           ),
                         }}
-                        onApply={(suggestion) => {
-                          const currentDesc = row.description.trim();
-                          const newDesc = currentDesc
-                            ? `${currentDesc}\n\n${suggestion}`
-                            : suggestion;
-                          updateExperience(index, 'description', newDesc);
-                          finalizeExperience(index);
-                        }}
+                        onApply={(suggestion) => applyDescriptionSuggestion(index, suggestion)}
                         autoTrigger={true}
                         debounceMs={600}
                       />

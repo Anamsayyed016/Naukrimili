@@ -52,6 +52,40 @@ export function readExperienceTitleForSync(entry: Record<string, unknown>): stri
 }
 
 /**
+ * Form editing uses `description` as the single live-editable field.
+ * Parser alias `Description` must NOT override while the user types or applies AI suggestions.
+ */
+export function readExperienceDescriptionForForm(entry: Record<string, unknown>): string {
+  if (Object.prototype.hasOwnProperty.call(entry, 'description')) {
+    return String(entry.description ?? '');
+  }
+  if (Object.prototype.hasOwnProperty.call(entry, 'Description')) {
+    return String(entry.Description ?? '');
+  }
+  return '';
+}
+
+/** Resolve canonical description for blur/save — prefer live `description`, then alias. */
+export function readExperienceDescriptionForSync(entry: Record<string, unknown>): string {
+  const fromForm = readExperienceDescriptionForForm(entry).trim();
+  if (fromForm) return fromForm;
+  return String(entry.Description ?? '').trim();
+}
+
+/** Append an AI suggestion to the live description body (never replaces existing content). */
+export function appendExperienceDescriptionSuggestion(
+  entry: Record<string, unknown>,
+  suggestion: string
+): Record<string, unknown> {
+  const trimmedSuggestion = suggestion.trim();
+  if (!trimmedSuggestion) return entry;
+
+  const currentDesc = readExperienceDescriptionForForm(entry).trim();
+  const newDesc = currentDesc ? `${currentDesc}\n\n${trimmedSuggestion}` : trimmedSuggestion;
+  return { ...entry, description: newDesc };
+}
+
+/**
  * Keep experience entry canonical + alias fields in sync after import / blur / save.
  * Do NOT call on every keystroke — use finalizeExperienceEntryForBuilder instead.
  */
@@ -142,7 +176,7 @@ export function readExperienceEntryForForm(
   const location = String(entry.location ?? entry.Location ?? '').trim();
   const startDate = String(entry.startDate ?? '').trim();
   const endDate = String(entry.endDate ?? '').trim();
-  const description = String(entry.description ?? entry.Description ?? '').trim();
+  const description = readExperienceDescriptionForForm(entry).trim();
   const current = entry.current === true || entry.Current === true;
 
   return {

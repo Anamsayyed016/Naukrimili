@@ -1369,4 +1369,56 @@ describe('experience header mapping', () => {
     expect(finalized.company).toBe('Digital Solutions Pvt Ltd');
     expect(finalized.company).not.toBe('Present');
   });
+
+  it('readExperienceDescriptionForForm prefers live description over Description alias', async () => {
+    const {
+      readExperienceDescriptionForForm,
+      readExperienceEntryForForm,
+      appendExperienceDescriptionSuggestion,
+      finalizeExperienceEntryForBuilder,
+    } = await import('@/lib/resume-builder/experience-entry-sync');
+
+    const entry = {
+      description: 'Optimized SQL queries.\nMentored junior developers.',
+      Description: 'Stale alias text',
+    };
+    expect(readExperienceDescriptionForForm(entry)).toContain('Optimized SQL');
+    expect(readExperienceEntryForForm(entry, 0).description).toContain('Mentored junior');
+
+    const suggestion =
+      'Developed and maintained production features using Django, HTML, MySQL, Node.js.';
+    const appended = appendExperienceDescriptionSuggestion(entry, suggestion);
+    expect(appended.description).toContain('Optimized SQL queries.');
+    expect(appended.description).toContain('Mentored junior developers.');
+    expect(appended.description).toContain('Django, HTML, MySQL');
+
+    const finalized = finalizeExperienceEntryForBuilder(appended, 0);
+    expect(finalized.description).toBe(appended.description);
+    expect(finalized.Description).toBe(appended.description);
+  });
+
+  it('appendExperienceDescriptionSuggestion inserts directly when description is empty', async () => {
+    const { appendExperienceDescriptionSuggestion } = await import(
+      '@/lib/resume-builder/experience-entry-sync'
+    );
+    const suggestion = 'Built REST APIs and improved latency by 40%.';
+    const result = appendExperienceDescriptionSuggestion({ description: '' }, suggestion);
+    expect(result.description).toBe(suggestion);
+  });
+
+  it('appendExperienceDescriptionSuggestion only updates the targeted experience entry', async () => {
+    const { appendExperienceDescriptionSuggestion } = await import(
+      '@/lib/resume-builder/experience-entry-sync'
+    );
+    const experiences = [
+      { title: 'Dev', company: 'A', description: 'Line one.' },
+      { title: 'Lead', company: 'B', description: 'Other role.' },
+    ];
+    const updated = experiences.map((entry, i) =>
+      i === 0 ? appendExperienceDescriptionSuggestion(entry, 'New bullet for A.') : entry
+    );
+    expect(updated[0].description).toContain('Line one.');
+    expect(updated[0].description).toContain('New bullet for A.');
+    expect(updated[1].description).toBe('Other role.');
+  });
 });
