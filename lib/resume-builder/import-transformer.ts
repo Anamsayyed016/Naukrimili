@@ -137,7 +137,7 @@ function summaryContainsSectionBleed(summary: string): boolean {
   });
 }
 
-/** Strip section bleed from summary when structured arrays are populated (builder mapping only). */
+/** Strip section bleed from summary only when the matching structured array is already populated. */
 function trimSummaryForStructuredSections(
   summary: string,
   sections: {
@@ -148,13 +148,15 @@ function trimSummaryForStructuredSections(
 ): string {
   const text = cleanMultiline(summary || '');
   if (!text) return '';
-
-  const hasStructured =
-    sections.experience.length > 0 ||
-    sections.education.length > 0 ||
-    sections.skills.length > 0;
-  if (!hasStructured) return text.slice(0, 4000);
   if (!summaryContainsSectionBleed(text)) return text.slice(0, 4000);
+
+  const hasExperience = sections.experience.length > 0;
+  const hasEducation = sections.education.length > 0;
+  const hasSkills = sections.skills.length > 0;
+
+  // Education alone must not strip work-experience prose still needed for hydration.
+  if (!hasExperience && !hasEducation && !hasSkills) return text.slice(0, 4000);
+  if (!hasExperience) return text.slice(0, 4000);
 
   return truncateSummaryAtSectionBoundary(text).slice(0, 4000);
 }
@@ -506,6 +508,9 @@ function mergeBuilderFormWithParent(
           }
           return fromBuilder;
         }
+        const parentList = firstNonEmptyArray(parent, [canonical, ...aliases]);
+        if (parentList.length > 0) return parentList;
+        return fromBuilder;
       } else if (canonical === 'projects') {
         const parentList = firstNonEmptyArray(parent, [canonical, ...aliases]);
         const builderPlausible = countPlausibleProjects(fromBuilder as unknown[]);
@@ -611,8 +616,14 @@ export function coalesceBuilderImportPayload(
     });
   }
 
-  // Upload / editor already coalesced this payload — text backfill + orphan merge.
+  // Upload / editor already coalesced — re-run full mapping when sections are still sparse.
   if (parsed._imported === true) {
+    const rawText = String(parsed.rawText ?? '').trim();
+    if (isSparseSectionImport(parsed) && rawText.length >= 80) {
+      const { builderFormData: _drop, ...profile } = parsed;
+      return transformImportDataToBuilder({ ...profile, _imported: true });
+    }
+
     let out = { ...(parsed as Record<string, any>) };
     if (Array.isArray(out.experience) && out.experience.length > 0) {
       out.experience = enrichExperienceFromParserAliases(out.experience, out);
@@ -843,6 +854,75 @@ function resolveEffectiveRawText(data: Record<string, unknown>): string {
   return raw;
 }
 
+const EXPERIENCE_SECTION_HEADING_RE =
+  /^(?:(?:work|professional)\s+experience|employment(?:\s+history)?|career\s+history|professional\s+journey|legal\s+work)\s*:?\s*$/i;
+
+const SKILLS_SECTION_HEADING_RE =
+  /^(?:skills?|technical\s+skills?|key\s+skills?|core\s+competenc(?:y|ies))\s*:?\s*$/i;
+
+const NEXT_MAJOR_SECTION_HEADING_RE =
+  /^(?:education|qualifications?|academic(?:\s+background)?|skills?|technical\s+skills?|certifications?|languages?|projects?|achievements?|awards?|references?|personal\s+(?:information|details)|declaration|hobbies?|interests?)\s*:?\s*$/i;
+
+function normalizeSectionHeadingLine(line: string): string {
+  return line
+    .trim()
+    .replace(/[:|\-_=]+$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Slice prose from a major section heading until the next major heading (mapping layer only). */
+function sliceTextFromSectionHeading(
+  text: string,
+  headingRe: RegExp
+): string | null {
+  const lines = text.split(/\r?\n/);
+  const start = lines.findIndex((line) => headingRe.test(normalizeSectionHeadingLine(line)));
+  if (start < 0) return null;
+  const out: string[] = [lines[start]];
+  for (let i = start + 1; i < lines.length; i++) {
+    const norm = normalizeSectionHeadingLine(lines[i]);
+    if (norm && NEXT_MAJOR_SECTION_HEADING_RE.test(norm) && !headingRe.test(norm)) break;
+    out.push(lines[i]);
+  }
+  const slice = out.join('\n').trim();
+  return slice.length >= 30 ? slice : null;
+}
+
+function parseTextWithSectionFallback(
+  rawText: string,
+  summaryText: string,
+  fromText?: ReturnType<typeof extractResumeFromText>
+): ReturnType<typeof extractResumeFromText> {
+  let textParsed = fromText ?? extractResumeFromText(rawText);
+
+  if ((textParsed.experience || []).length === 0) {
+    const expSlice =
+      sliceTextFromSectionHeading(rawText, EXPERIENCE_SECTION_HEADING_RE) ||
+      sliceTextFromSectionHeading(summaryText, EXPERIENCE_SECTION_HEADING_RE);
+    if (expSlice) {
+      const sliceParsed = extractResumeFromText(expSlice);
+      if ((sliceParsed.experience || []).length > 0) {
+        textParsed = { ...textParsed, experience: sliceParsed.experience };
+      }
+    }
+  }
+
+  if ((textParsed.skills || []).length === 0) {
+    const skillSlice =
+      sliceTextFromSectionHeading(rawText, SKILLS_SECTION_HEADING_RE) ||
+      sliceTextFromSectionHeading(summaryText, SKILLS_SECTION_HEADING_RE);
+    if (skillSlice) {
+      const sliceParsed = extractResumeFromText(skillSlice);
+      if ((sliceParsed.skills || []).length > 0) {
+        textParsed = { ...textParsed, skills: sliceParsed.skills };
+      }
+    }
+  }
+
+  return textParsed;
+}
+
 /** Backfill sparse parser arrays from rawText or summary bleed (builder mapping only). */
 function applyTextRecoveryWhenSparse(data: Record<string, unknown>): Record<string, unknown> {
   if (!isSparseSectionImport(data)) return data;
@@ -939,7 +1019,11 @@ function supplementImportFromRawText(
     return importedData;
   }
 
-  const textParsed = fromText ?? extractResumeFromText(rawText);
+  const textParsed = parseTextWithSectionFallback(
+    rawText,
+    String(importedData.summary || importedData.bio || importedData.objective || ''),
+    fromText
+  );
   const email = String(importedData.email || textParsed.email || '');
   const personal = (importedData.personalInformation || {}) as Record<string, unknown>;
   const locationHint = String(importedData.location || importedData.address || textParsed?.location || '');
@@ -1097,6 +1181,7 @@ export function transformImportDataToBuilder(
         mergedImport.education as Record<string, unknown>[]
       );
     }
+    mergedImport = applyTextRecoveryWhenSparse(mergedImport);
   } else {
     mergedImport = isSparseSectionImport(mergedBase)
       ? supplementImportFromRawText(
@@ -2052,6 +2137,9 @@ function mergeSummarySections(
   add(mergedImport.executiveSummary);
   add(mergedImport.careerSummary);
   add(mergedImport.professionalProfile);
+  add(mergedImport['Professional Profile']);
+  add(mergedImport.careerProfile);
+  add(mergedImport.profile);
   add(mergedImport.aboutMe);
   add(mergedImport.objective);
   add(mergedImport.bio);

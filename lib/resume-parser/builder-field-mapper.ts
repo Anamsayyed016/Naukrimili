@@ -20,6 +20,14 @@ export const EXPERIENCE_SECTION_KEYS = [
   'Experience',
   'employment',
   'workHistory',
+  'employmentHistory',
+  'professionalExperience',
+  'Professional Experience',
+  'careerHistory',
+  'legalWork',
+  'legalExperience',
+  'positions',
+  'appointments',
 ];
 
 export const EDUCATION_SECTION_KEYS = [
@@ -35,9 +43,14 @@ export const SKILL_SECTION_KEYS = [
   'skills',
   'Skills',
   'technicalSkills',
+  'technical_skills',
   'expertise',
   'competencies',
   'coreSkills',
+  'coreCompetencies',
+  'core_competencies',
+  'softSkills',
+  'soft_skills',
 ];
 
 export const LANGUAGE_SECTION_KEYS = [
@@ -301,8 +314,93 @@ function normalizeListSection(
 }
 
 /** Expand parser/import aliases on an upload profile before Builder transform. */
-export function normalizeImportProfileAliases(profile: Record<string, unknown>): Record<string, unknown> {
+const HYDRATION_SKIP_KEYS = new Set([
+  'builderFormData',
+  'additionalResumeData',
+  'extendedSections',
+  'rawText',
+  'customParserUsed',
+  'selectedParser',
+  '_aiProvider',
+  '_imported',
+  '_importedAt',
+  '_userEdited',
+  'personalInformation',
+  'professionalInformation',
+]);
+
+const EXPERIENCE_ARRAY_KEY_RE =
+  /(?:experience|employment|work[\s_-]?history|career|positions?|legal|professional[\s_-]?(?:experience|background|history)|appointments?|responsibilit)/i;
+
+const SKILL_ARRAY_KEY_RE =
+  /(?:skills?|competenc|expertise|technical|proficienc)/i;
+
+function looksLikeExperienceArray(arr: unknown[]): boolean {
+  let hits = 0;
+  for (const item of arr) {
+    if (typeof item === 'string' && sanitizeFieldText(item, 200).length >= 8) {
+      hits++;
+      continue;
+    }
+    if (!item || typeof item !== 'object') continue;
+    const row = item as Record<string, unknown>;
+    if (
+      readExperienceCompanySlot(row) ||
+      readExperiencePositionSlot(row) ||
+      sanitizeFieldText(row.description ?? row.Description, 40)
+    ) {
+      hits++;
+    }
+  }
+  return hits > 0;
+}
+
+/** Discover parser output stored under non-canonical section keys (mapping layer only). */
+export function discoverImportSectionArrays(profile: Record<string, unknown>): Record<string, unknown> {
   const out = { ...profile };
+
+  if (readFirstArray(out, EXPERIENCE_SECTION_KEYS).length === 0) {
+    const discovered: unknown[] = [];
+    for (const [key, value] of Object.entries(out)) {
+      if (HYDRATION_SKIP_KEYS.has(key)) continue;
+      if (EDUCATION_SECTION_KEYS.includes(key)) continue;
+      if (!Array.isArray(value) || value.length === 0) continue;
+      if (!EXPERIENCE_ARRAY_KEY_RE.test(key)) continue;
+      if (!looksLikeExperienceArray(value)) continue;
+      discovered.push(...value);
+    }
+    if (discovered.length > 0) {
+      out.experience = discovered;
+    }
+  }
+
+  if (readFirstArray(out, SKILL_SECTION_KEYS).length === 0) {
+    for (const [key, value] of Object.entries(out)) {
+      if (HYDRATION_SKIP_KEYS.has(key)) continue;
+      if (!Array.isArray(value) || value.length === 0) continue;
+      if (SKILL_SECTION_KEYS.includes(key)) continue;
+      if (!SKILL_ARRAY_KEY_RE.test(key)) continue;
+      const strings = value
+        .map((v) =>
+          typeof v === 'string'
+            ? v
+            : v && typeof v === 'object'
+              ? String((v as { name?: string }).name || '')
+              : ''
+        )
+        .filter((s) => s.trim().length > 0);
+      if (strings.length > 0) {
+        out.skills = strings;
+        break;
+      }
+    }
+  }
+
+  return out;
+}
+
+export function normalizeImportProfileAliases(profile: Record<string, unknown>): Record<string, unknown> {
+  const out = discoverImportSectionArrays({ ...profile });
 
   const github = readFirstString(out, ['github', 'Github', 'githubUrl'], 300);
   const headline = readFirstString(
@@ -562,7 +660,18 @@ export function recoverBuilderFormSections(
     out,
     'summary',
     sources,
-    ['summary', 'bio', 'objective', 'professionalSummary'],
+    [
+      'summary',
+      'bio',
+      'objective',
+      'professionalSummary',
+      'professionalProfile',
+      'Professional Profile',
+      'careerObjective',
+      'executiveSummary',
+      'profile',
+      'aboutMe',
+    ],
     report
   );
 
@@ -579,13 +688,10 @@ export function recoverBuilderFormSections(
     .filter((e): e is Record<string, unknown> => !!e && typeof e === 'object')
     .map(normalizeExperienceEntryAliases);
 
-  if (Array.isArray(out.experience)) {
-    out.experience = recoverExperienceFields(
-      out.experience as Record<string, unknown>[],
-      sourceExps,
-      report
-    );
-  }
+  const builderExps = Array.isArray(out.experience)
+    ? (out.experience as Record<string, unknown>[])
+    : [];
+  out.experience = recoverExperienceFields(builderExps, sourceExps, report);
 
   const sectionPairs: Array<[string, string[]]> = [
     ['education', EDUCATION_SECTION_KEYS],

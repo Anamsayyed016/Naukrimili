@@ -1294,4 +1294,38 @@ describe('experience header mapping', () => {
       true
     );
   });
+
+  it('hydrates experience and summary when custom parser leaves experience empty but education exists', () => {
+    const rawText = [
+      'OBJECTIVE',
+      'Seeking a company secretary role with 15+ years experience.',
+      'PROFESSIONAL PROFILE',
+      'Corporate governance and legal compliance specialist.',
+      'WORK EXPERIENCE',
+      'Company Secretary                    ABC Holdings Pvt Ltd',
+      'Mumbai                               2010-01 - Present',
+      '- Managed board meetings.',
+      'Assistant Company Secretary          XYZ Legal Associates',
+      'Delhi                                2005-06 - 2009-12',
+      '- Drafted agreements.',
+    ].join('\n');
+
+    const builder = transformImportDataToBuilder({
+      customParserUsed: true,
+      fullName: 'John Doe',
+      objective: 'Seeking a company secretary role with 15+ years experience.',
+      professionalProfile: 'Corporate governance and legal compliance specialist.',
+      summary: rawText,
+      experience: [],
+      education: [{ institution: 'ICSI', degree: 'ACS' }],
+      languages: [{ language: 'English', proficiency: 'Fluent' }],
+      skills: [],
+      rawText,
+    });
+
+    expect(builder.experience.length).toBeGreaterThan(0);
+    expect(String(builder.summary || '').length).toBeGreaterThan(40);
+    expect(builder.education.length).toBeGreaterThan(0);
+    expect(builder.languages.length).toBeGreaterThan(0);
+  });
 });
