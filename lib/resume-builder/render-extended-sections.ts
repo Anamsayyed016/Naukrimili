@@ -3,8 +3,9 @@
  * Appends sections after standard template content — templates unchanged.
  */
 
-import { readExtendedSections, DYNAMIC_SECTION_REGISTRY } from '@/lib/resume-builder/dynamic-section-registry';
+import { readExtendedSections, getActiveDynamicSections } from '@/lib/resume-builder/dynamic-section-registry';
 import type { DynamicSectionSpec } from '@/lib/resume-builder/dynamic-section-registry';
+import { filterMeaningfulListItems } from '@/lib/resume-builder/dynamic-section-visibility';
 import type { ExtendedBuilderSections } from '@/lib/resume-builder/canonical-mapping/types';
 
 function escapeHtml(text: string): string {
@@ -57,9 +58,9 @@ function renderSectionBlock(heading: string, innerHtml: string): string {
 function renderSpecSection(spec: DynamicSectionSpec, extended: ExtendedBuilderSections): string {
   const value = extended[spec.fieldKey];
   if (spec.kind === 'stringList') {
-    const items = (Array.isArray(value) ? value : [])
-      .map((v) => String(v).trim())
-      .filter(Boolean);
+    const items = filterMeaningfulListItems(Array.isArray(value) ? value : [], {
+      sectionLabel: spec.label,
+    });
     return renderSectionBlock(spec.label, renderStringListItems(items));
   }
   if (spec.kind === 'recordList') {
@@ -84,9 +85,10 @@ function renderSpecSection(spec: DynamicSectionSpec, extended: ExtendedBuilderSe
 /** Build HTML for all active extended sections. */
 export function renderExtendedBuilderSections(formData: Record<string, unknown>): string {
   const extended = readExtendedSections(formData);
+  const activeSpecs = getActiveDynamicSections(formData);
   const blocks: string[] = [];
 
-  for (const spec of DYNAMIC_SECTION_REGISTRY) {
+  for (const spec of activeSpecs) {
     const html = renderSpecSection(spec, extended);
     if (html.trim()) blocks.push(html);
   }

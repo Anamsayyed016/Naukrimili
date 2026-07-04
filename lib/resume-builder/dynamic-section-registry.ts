@@ -5,6 +5,12 @@
 
 import type { CanonicalNodeType } from '@/lib/resume-builder/canonical-mapping/types';
 import { emptyExtendedBuilderSections, type ExtendedBuilderSections } from '@/lib/resume-builder/canonical-mapping/types';
+import {
+  filterMeaningfulListItems,
+  hasMeaningfulContent,
+  isDynamicSectionVisible,
+} from '@/lib/resume-builder/dynamic-section-visibility';
+import { hasMeaningfulText } from '@/lib/resume-builder/section-visibility';
 
 export type DynamicSectionKind = 'stringList' | 'recordList' | 'textarea' | 'keyValue';
 
@@ -196,29 +202,20 @@ export const DYNAMIC_SECTION_REGISTRY: DynamicSectionSpec[] = [
   },
 ];
 
-function hasStringList(value: unknown): boolean {
-  return Array.isArray(value) && value.some((v) => typeof v === 'string' && v.trim().length > 0);
+function hasStringList(value: unknown, sectionLabel?: string): boolean {
+  return hasMeaningfulContent(value, 'stringList', sectionLabel);
 }
 
-function hasRecordList(value: unknown): boolean {
-  if (!Array.isArray(value)) return false;
-  return value.some((entry) => {
-    if (!entry || typeof entry !== 'object') return false;
-    return Object.values(entry as Record<string, unknown>).some(
-      (v) => typeof v === 'string' && v.trim().length > 0
-    );
-  });
+function hasRecordList(value: unknown, sectionLabel?: string): boolean {
+  return hasMeaningfulContent(value, 'recordList', sectionLabel);
 }
 
-function hasText(value: unknown): boolean {
-  return typeof value === 'string' && value.trim().length > 0;
+function hasText(value: unknown, sectionLabel?: string): boolean {
+  return hasMeaningfulContent(value, 'textarea', sectionLabel);
 }
 
 function hasKeyValue(value: unknown): boolean {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-  return Object.values(value as Record<string, unknown>).some(
-    (v) => typeof v === 'string' && v.trim().length > 0
-  );
+  return hasMeaningfulContent(value, 'keyValue');
 }
 
 export function readExtendedSections(formData: Record<string, unknown>): ExtendedBuilderSections {
@@ -238,16 +235,24 @@ export function readExtendedSections(formData: Record<string, unknown>): Extende
   for (const spec of DYNAMIC_SECTION_REGISTRY) {
     const top = formData[spec.fieldKey];
     if (top == null) continue;
-    if (spec.kind === 'stringList' && hasStringList(top)) {
-      (merged[spec.fieldKey] as string[]) = top as string[];
-    } else if (spec.kind === 'recordList' && hasRecordList(top)) {
+    if (spec.kind === 'stringList' && hasStringList(top, spec.label)) {
+      (merged[spec.fieldKey] as string[]) = filterMeaningfulListItems(top as string[], {
+        sectionLabel: spec.label,
+      });
+    } else if (spec.kind === 'recordList' && hasRecordList(top, spec.label)) {
       (merged[spec.fieldKey] as Array<Record<string, unknown>>) = top as Array<Record<string, unknown>>;
-    } else if (spec.kind === 'textarea' && hasText(top)) {
+    } else if (spec.kind === 'textarea' && hasText(top, spec.label)) {
       (merged[spec.fieldKey] as string) = String(top);
     } else if (spec.kind === 'keyValue' && hasKeyValue(top)) {
       (merged[spec.fieldKey] as Record<string, string>) = top as Record<string, string>;
     }
   }
+
+  merged.extraSections = merged.extraSections.filter(
+    (section) =>
+      hasMeaningfulContent(section.body, 'textarea', section.heading) &&
+      hasMeaningfulContent(section.heading, 'textarea')
+  );
 
   if (hasRecordList(formData.extraSections)) {
     merged.extraSections = formData.extraSections as Array<{ heading: string; body: string }>;
@@ -263,33 +268,18 @@ export function sectionHasData(
   extended: ExtendedBuilderSections
 ): boolean {
   const value = extended[spec.fieldKey];
-  switch (spec.kind) {
-    case 'stringList':
-      return hasStringList(value);
-    case 'recordList':
-      return hasRecordList(value);
-    case 'textarea':
-      return hasText(value);
-    case 'keyValue':
-      return hasKeyValue(value);
-    default:
-      return false;
-  }
+  return hasMeaningfulContent(value, spec.kind, spec.label);
 }
 
 export function getActiveDynamicSections(formData: Record<string, unknown>): DynamicSectionSpec[] {
   const extended = readExtendedSections(formData);
-  const active = DYNAMIC_SECTION_REGISTRY.filter((spec) => sectionHasData(spec, extended));
-  if (extended.extraSections.length > 0) {
-    return active;
-  }
-  return active;
+  return DYNAMIC_SECTION_REGISTRY.filter((spec) => isDynamicSectionVisible(spec, extended, formData));
 }
 
 export function hasAnyDynamicSectionData(formData: Record<string, unknown>): boolean {
   const extended = readExtendedSections(formData);
   if (extended.extraSections.length > 0) return true;
-  return DYNAMIC_SECTION_REGISTRY.some((spec) => sectionHasData(spec, extended));
+  return DYNAMIC_SECTION_REGISTRY.some((spec) => isDynamicSectionVisible(spec, extended, formData));
 }
 
 export function writeExtendedSection(

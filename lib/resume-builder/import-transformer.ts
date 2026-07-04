@@ -118,6 +118,8 @@ import {
   backfillExperienceColumnsFromRawText,
 } from '@/lib/resume-parser/builder-field-mapper';
 import { runCanonicalBuilderMapping } from '@/lib/resume-builder/canonical-mapping';
+import { DYNAMIC_SECTION_REGISTRY } from '@/lib/resume-builder/dynamic-section-registry';
+import { pruneAndMergeDynamicSections } from '@/lib/resume-builder/dynamic-section-visibility';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
@@ -1450,6 +1452,9 @@ export function transformImportDataToBuilder(
       dynamicSections: canonical.report.dynamicSections.length,
     });
   }
+
+  const pruned = pruneAndMergeDynamicSections(transformed, DYNAMIC_SECTION_REGISTRY);
+  Object.assign(transformed, pruned);
 
   logBuilderImportPipelineTrace({
     raw: importedData as Record<string, unknown>,
