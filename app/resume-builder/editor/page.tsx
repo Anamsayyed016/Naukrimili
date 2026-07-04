@@ -218,6 +218,7 @@ export default function ResumeEditorPage() {
   const typeId = searchParams.get('type') || '';
   const colorParam = searchParams.get('color') || '';
   const shouldPrefill = searchParams.get('prefill') === 'true';
+  const sourceImport = searchParams.get('source') === 'import';
 
   // State
   const [currentStep, setCurrentStep] = useState<StepId>('contacts');
