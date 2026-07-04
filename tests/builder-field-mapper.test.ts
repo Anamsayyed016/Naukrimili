@@ -74,4 +74,23 @@ describe('builder-field-mapper', () => {
     expect((builder.experience as Record<string, unknown>[])[0].company).toBe('Initech');
     expect(report.recovered.some((r) => r.includes('company'))).toBe(true);
   });
+
+  it('splits multi-column title and company on one designation field', () => {
+    const norm = normalizeExperienceEntryAliases({
+      position: 'Full Stack Developer\tDigital Solutions Pvt Ltd',
+      startDate: '2022-01',
+      current: true,
+    });
+    expect(norm.position).toBe('Full Stack Developer');
+    expect(norm.company).toBe('Digital Solutions Pvt Ltd');
+  });
+
+  it('rejects Present as company value', () => {
+    const norm = normalizeExperienceEntryAliases({
+      company: 'Present',
+      title: 'Full Stack Developer',
+    });
+    expect(norm.company).toBeUndefined();
+    expect(norm.position).toBe('Full Stack Developer');
+  });
 });

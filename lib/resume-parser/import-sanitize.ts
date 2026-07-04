@@ -1374,6 +1374,160 @@ const COMPANY_NAME_HINT_RE =
 const WELL_KNOWN_EMPLOYER_RE =
   /^(?:google|microsoft|amazon|apple|meta|facebook|netflix|uber|airbnb|stripe|salesforce|oracle|ibm|accenture|deloitte|pwc|kpmg|ey|ernst|infosys|tcs|tata consultancy services|wipro|hcl|cognizant|capgemini|tech mahindra|larsen|flipkart|swiggy|zomato|startup|adobe|sap|nokia|reliance|hdfc|icici|sbi|mphasis|mindtree|lti)$/i;
 
+/** Present/Current/date tokens must never occupy company, title, or location slots. */
+export function isExperienceDateOrDurationToken(value: unknown): boolean {
+  const s = sanitizeFieldText(value, 80)
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!s) return false;
+  if (/^(present|current|now|ongoing|running|till date|to date)$/.test(s)) return true;
+  if (/^(19|20)\d{2}(-\d{2})?$/.test(s)) return true;
+  if (/^(19|20)\d{2}\s*[-–—]\s*(present|current|now)$/.test(s)) return true;
+  if (
+    /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(19|20)\d{2}/i.test(s)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function sanitizeExperienceCompanyValue(value: unknown): string {
+  const s = sanitizeFieldText(value, 160);
+  if (!s || isExperienceDateOrDurationToken(s)) return '';
+  return s;
+}
+
+/** Prefer the longer whole value when one field is a partial prefix of the other. */
+export function preferWholeExperienceField(parserVal: unknown, recoveredVal: unknown): string {
+  const p = sanitizeFieldText(parserVal, 160);
+  const r = sanitizeFieldText(recoveredVal, 160);
+  if (!p) return r;
+  if (!r) return p;
+  if (p.toLowerCase() === r.toLowerCase()) return p;
+  const pLow = p.toLowerCase();
+  const rLow = r.toLowerCase();
+  if (rLow.startsWith(`${pLow} `) || pLow.startsWith(`${rLow} `)) {
+    return p.length >= r.length ? p : r;
+  }
+  if (p.length > r.length && pLow.includes(rLow) && r.length <= 12) return p;
+  if (r.length > p.length && rLow.includes(pLow) && p.length <= 12) return r;
+  return p;
+}
+
+/** Split two-column headers: "Title    Company" or "Title\tCompany". */
+export function splitMultiColumnExperienceHeader(
+  exp: Record<string, unknown>
+): Record<string, unknown> {
+  const out = { ...exp };
+  if (sanitizeExperienceCompanyValue(readExperienceCompanySlot(out))) {
+    return out;
+  }
+
+  let combined = '';
+  for (const key of [
+    'position',
+    'Position',
+    'title',
+    'Title',
+    'designation',
+    'Designation',
+    'role',
+    'Role',
+    'jobTitle',
+    'JobTitle',
+    'job_title',
+  ]) {
+    const raw = String(exp[key] ?? '');
+    if (raw.includes('\t') || /\s{3,}/.test(raw)) {
+      combined = raw;
+      break;
+    }
+  }
+  if (!combined) combined = readExperiencePositionSlot(exp);
+  if (!combined) return out;
+
+  let parts: string[] = [];
+  if (combined.includes('\t')) {
+    parts = combined.split(/\t+/).map((p) => p.trim()).filter(Boolean);
+  } else {
+    const m = combined.match(/^(.+?)\s{2,}(.+)$/);
+    if (m) parts = [m[1].trim(), m[2].trim()];
+  }
+  if (parts.length !== 2) return out;
+
+  const [left, right] = parts;
+  const leftIsTitle =
+    looksLikeJobTitleLine(left) || classifyResumeTextFragment(left).kind === 'DESIGNATION';
+  const rightIsCompany =
+    looksLikeCompanyNameLine(right) ||
+    isPlausibleExperienceCompany(right) ||
+    classifyResumeTextFragment(right).kind === 'COMPANY_NAME';
+  const leftIsCompany =
+    looksLikeCompanyNameLine(left) ||
+    isPlausibleExperienceCompany(left) ||
+    classifyResumeTextFragment(left).kind === 'COMPANY_NAME';
+  const rightIsTitle =
+    looksLikeJobTitleLine(right) || classifyResumeTextFragment(right).kind === 'DESIGNATION';
+
+  if (
+    leftIsTitle &&
+    rightIsCompany &&
+    !isExperienceDateOrDurationToken(right) &&
+    !isExperienceDateOrDurationToken(left)
+  ) {
+    out.company = right;
+    out.Company = right;
+    out.organization = right;
+    out.position = left;
+    out.title = left;
+    out.designation = left;
+    out.Position = left;
+    out.Designation = left;
+  } else if (
+    rightIsTitle &&
+    leftIsCompany &&
+    !isExperienceDateOrDurationToken(left) &&
+    !isExperienceDateOrDurationToken(right)
+  ) {
+    out.company = left;
+    out.Company = left;
+    out.organization = left;
+    out.position = right;
+    out.title = right;
+    out.designation = right;
+    out.Position = right;
+    out.Designation = right;
+  }
+  return out;
+}
+
+/** When company is already known, remove duplicate employer text from a combined title field. */
+export function stripRedundantCompanyFromPosition(position: string, company: string): string {
+  const p = sanitizeFieldText(position, 160);
+  const c = sanitizeFieldText(company, 160);
+  if (!p || !c) return p;
+  if (p.includes('\t')) {
+    const parts = p.split(/\t+/).map((s) => s.trim()).filter(Boolean);
+    if (parts.length >= 2 && parts[0]) return parts[0];
+  }
+  const multiSpace = p.match(/^(.+?)\s{2,}(.+)$/);
+  if (multiSpace) {
+    const left = multiSpace[1].trim();
+    const right = multiSpace[2].trim();
+    if (right.toLowerCase() === c.toLowerCase() && looksLikeJobTitleLine(left)) {
+      return left;
+    }
+  }
+  const pLow = p.toLowerCase();
+  const cLow = c.toLowerCase();
+  if (pLow.endsWith(cLow) && p.length > c.length) {
+    const trimmed = p.slice(0, p.length - c.length).replace(/[\s|–—-]+$/, '').trim();
+    if (trimmed.length >= 4) return trimmed;
+  }
+  return p;
+}
+
 /** Read company from any parser/import field alias. */
 export function readExperienceCompanySlot(exp: Record<string, unknown>): string {
   for (const key of [
@@ -1392,7 +1546,7 @@ export function readExperienceCompanySlot(exp: Record<string, unknown>): string 
     'office',
     'Office',
   ]) {
-    const value = sanitizeFieldText(exp[key], 160);
+    const value = sanitizeExperienceCompanyValue(exp[key]);
     if (value) return value;
   }
   return '';
@@ -1566,6 +1720,7 @@ export function reconcileExperienceHeaderFields(
 ): Record<string, unknown> {
   const traceInput = { ...exp };
   const traceIndex = _traceReconcileExpIndex++;
+  exp = splitMultiColumnExperienceHeader(exp);
   const slotCompany = readExperienceCompanySlot(exp);
   const slotOrg = sanitizeFieldText(
     exp.organization ||
@@ -1697,6 +1852,10 @@ export function reconcileExperienceHeaderFields(
   }
   if (isResumeSectionHeadingLine(position) || isLikelyEducationLine(position)) {
     if (!looksLikeJobTitleLine(position)) position = '';
+  }
+
+  if (company && position) {
+    position = stripRedundantCompanyFromPosition(position, company);
   }
 
   if (!company) {
@@ -2768,10 +2927,20 @@ export function resolveMergedExperienceCompany(
   }
   if (recoveredOk) return recoveredCo;
   if (parserOk) return parserCo;
-  if (looksLikeCompanyNameLine(recoveredCo) && !looksLikeJobTitleLine(recoveredCo)) {
+  if (
+    recoveredCo &&
+    !isExperienceDateOrDurationToken(recoveredCo) &&
+    looksLikeCompanyNameLine(recoveredCo) &&
+    !looksLikeJobTitleLine(recoveredCo)
+  ) {
     return recoveredCo;
   }
-  if (looksLikeCompanyNameLine(parserCo) && !looksLikeJobTitleLine(parserCo)) {
+  if (
+    parserCo &&
+    !isExperienceDateOrDurationToken(parserCo) &&
+    looksLikeCompanyNameLine(parserCo) &&
+    !looksLikeJobTitleLine(parserCo)
+  ) {
     return parserCo;
   }
   return '';

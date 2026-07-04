@@ -74,6 +74,7 @@ import {
   countPlausibleExperienceCompanies,
   countPlausibleProjects,
   isPlausibleExperienceCompany,
+  sanitizeExperienceCompanyValue,
 } from '@/lib/resume-parser/import-sanitize';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
@@ -114,6 +115,7 @@ import {
   normalizeImportProfileAliases,
   readFirstArray,
   recoverBuilderFormSections,
+  backfillExperienceColumnsFromRawText,
 } from '@/lib/resume-parser/builder-field-mapper';
 
 /* ------------------------------------------------------------------ */
@@ -601,28 +603,10 @@ export function coalesceBuilderImportPayload(
   if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
     const { builderFormData: _nested, ...parent } = parsed;
     const merged = mergeBuilderFormWithParent(parent, nested as Record<string, any>);
-    const importMeta = { ...parent, ...merged };
-    const overlayInput = {
+    return transformImportDataToBuilder({
+      ...parent,
       ...merged,
-      rawText: merged.rawText ?? parent.rawText ?? parsed.rawText,
-      customParserUsed: importMeta.customParserUsed,
-      selectedParser: importMeta.selectedParser,
-      _aiProvider: importMeta._aiProvider,
-      _imported: true,
-    };
-    const overlaid = overlaySparseSectionsFromTextRecovery(overlayInput);
-    merged.experience = overlaid.experience ?? merged.experience;
-    merged.projects = overlaid.projects ?? merged.projects;
-    if (Array.isArray(merged.experience) && merged.experience.length > 0) {
-      merged.experience = normalizeMergedExperienceList(merged.experience, importMeta);
-    }
-    return applySummaryHygieneToBuilderForm({
-      ...merged,
-      _imported: merged._imported ?? parent._imported ?? true,
-      rawText: merged.rawText ?? parent.rawText ?? parsed.rawText,
-      customParserUsed: importMeta.customParserUsed,
-      selectedParser: importMeta.selectedParser,
-      _aiProvider: importMeta._aiProvider,
+      builderFormData: undefined,
     });
   }
 
@@ -1112,12 +1096,6 @@ export function transformImportDataToBuilder(
         mergedImport.education as Record<string, unknown>[]
       );
     }
-    mergedImport = overlaySparseSectionsFromTextRecovery(mergedImport);
-    if (Array.isArray(mergedImport.experience)) {
-      mergedImport.experience = finalizeExperienceListForCustomParserImport(
-        mergedImport.experience as Record<string, unknown>[]
-      );
-    }
   } else {
     mergedImport = isSparseSectionImport(mergedBase)
       ? supplementImportFromRawText(
@@ -1145,6 +1123,13 @@ export function transformImportDataToBuilder(
   }
 
   mergedImport = normalizeImportProfileAliases(mergedImport);
+
+  if (Array.isArray(mergedImport.experience) && effectiveRawText.length >= 40) {
+    mergedImport.experience = backfillExperienceColumnsFromRawText(
+      mergedImport.experience as unknown[],
+      effectiveRawText
+    );
+  }
 
   // 2. Identity & contact
   const personal = mergedImport.personalInformation || importedData.personalInformation || {};
@@ -1703,7 +1688,9 @@ function transformExperienceArray(experiences: unknown): any[] {
         exp.position || exp.title || exp.designation || exp.role || exp.jobTitle || ''
       );
       const company = String(
-        exp.company || exp.Company || exp.organization || exp.employer || ''
+        sanitizeExperienceCompanyValue(
+          exp.company || exp.Company || exp.organization || exp.employer
+        )
       );
       const location = String(exp.location || exp.Location || '');
 

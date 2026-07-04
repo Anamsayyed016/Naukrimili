@@ -34,6 +34,7 @@ import {
   sanitizeExperienceDateValue,
   reconcileExperienceHeaderFields,
   isPlausibleCertificationEntry,
+  isExperienceDateOrDurationToken,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1585,16 +1586,22 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
       if (!position && (ROLE_MARKERS.test(left) || !looksLikeCompanyNameLine(left))) {
         position = left;
       } else if (!position) position = right;
-      if (!company && (looksLikeCompanyNameLine(right) || !ROLE_MARKERS.test(right))) {
+      if (
+        !company &&
+        !isExperienceDateOrDurationToken(right) &&
+        (looksLikeCompanyNameLine(right) || !ROLE_MARKERS.test(right))
+      ) {
         company = right;
-      } else if (!company) company = left;
+      } else if (!company && !isExperienceDateOrDurationToken(left)) company = left;
       continue;
     }
 
     if (!position && ROLE_MARKERS.test(cleaned)) position = cleaned;
     else if (!company && looksLikeCompanyNameLine(cleaned)) company = cleaned;
     else if (!position && looksLikeJobTitleLine(cleaned)) position = cleaned;
-    else if (!company && cleaned.length <= 120) company = cleaned;
+    else if (!company && cleaned.length <= 120 && !isExperienceDateOrDurationToken(cleaned)) {
+      company = cleaned;
+    }
   }
 
   // Location: look for "City, ST/Country" in header lines

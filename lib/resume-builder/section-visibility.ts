@@ -821,12 +821,13 @@ export function repairExperienceForTemplateBinding(
 
   const sparseCompanies = countPlausibleExperienceCompanies(experience) < experience.length;
   const needsRepair =
-    isCustomParserImport(formData) || formData._imported === true || sparseCompanies;
+    !isCustomParserImport(formData) &&
+    (formData._imported === true || sparseCompanies);
   if (!needsRepair) return experience;
 
   let working = experience;
   const rawText = String(formData.rawText ?? '').trim();
-  if (rawText.length >= 80 && sparseCompanies) {
+  if (rawText.length >= 80 && sparseCompanies && !isCustomParserImport(formData)) {
     const overlaid = overlaySparseSectionsFromTextRecovery({ ...formData, experience });
     if (Array.isArray(overlaid.experience) && overlaid.experience.length > 0) {
       working = overlaid.experience as Record<string, unknown>[];

@@ -7,6 +7,10 @@ import {
   readExperienceCompanySlot,
   readExperiencePositionSlot,
   sanitizeFieldText,
+  splitMultiColumnExperienceHeader,
+  sanitizeExperienceCompanyValue,
+  isExperienceDateOrDurationToken,
+  stripRedundantCompanyFromPosition,
 } from '@/lib/resume-parser/import-sanitize';
 
 export const EXPERIENCE_SECTION_KEYS = [
@@ -135,21 +139,29 @@ export function normalizeTechnologiesField(value: unknown): string[] {
 }
 
 export function normalizeExperienceEntryAliases(exp: Record<string, unknown>): Record<string, unknown> {
-  const out = { ...exp };
+  const split = splitMultiColumnExperienceHeader(exp);
+  const out = { ...split };
   const company =
-    readExperienceCompanySlot(exp) ||
-    readFirstString(exp, ['firm', 'Firm', 'office', 'Office'], 160);
-  const position = readExperiencePositionSlot(exp);
+    readExperienceCompanySlot(split) ||
+    readFirstString(split, ['firm', 'Firm', 'office', 'Office'], 160);
+  const position = readExperiencePositionSlot(split);
   if (company) {
     out.company = company;
     out.Company = company;
     out.organization = company;
+  } else {
+    for (const key of ['company', 'Company', 'organization', 'employer', 'firm', 'office'] as const) {
+      delete out[key];
+    }
   }
   if (position) {
-    out.position = position;
-    out.title = position;
-    out.designation = position;
-    out.job_title = position;
+    const cleanedPosition = company
+      ? stripRedundantCompanyFromPosition(position, company)
+      : position;
+    out.position = cleanedPosition;
+    out.title = cleanedPosition;
+    out.designation = cleanedPosition;
+    out.job_title = cleanedPosition;
   }
   const loc = readFirstString(exp, ['location', 'Location', 'city', 'City', 'workLocation'], 120);
   if (loc) {
@@ -350,6 +362,57 @@ export function normalizeImportProfileAliases(profile: Record<string, unknown>):
   return out;
 }
 
+/** When structured experience lacks company, recover from multi-column raw text lines. */
+export function backfillExperienceColumnsFromRawText(
+  experiences: unknown[],
+  rawText: string
+): Record<string, unknown>[] {
+  if (!Array.isArray(experiences) || !rawText || rawText.length < 40) {
+    return (experiences || []).filter(
+      (e): e is Record<string, unknown> => !!e && typeof e === 'object'
+    );
+  }
+  const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  return experiences.map((exp) => {
+    if (!exp || typeof exp !== 'object') return exp as Record<string, unknown>;
+    const row = { ...(exp as Record<string, unknown>) };
+    if (sanitizeExperienceCompanyValue(readExperienceCompanySlot(row))) {
+      const co = readExperienceCompanySlot(row);
+      const title = readExperiencePositionSlot(row);
+      if (co && title) {
+        const cleaned = stripRedundantCompanyFromPosition(title, co);
+        row.position = cleaned;
+        row.title = cleaned;
+        row.designation = cleaned;
+      }
+      return row;
+    }
+    const titleKey = readExperiencePositionSlot(row).toLowerCase();
+    for (const line of lines) {
+      if (!/\s{2,}|\t/.test(line)) continue;
+      const split = splitMultiColumnExperienceHeader({ position: line, title: line });
+      const splitTitle = readExperiencePositionSlot(split).toLowerCase();
+      const splitCo = readExperienceCompanySlot(split);
+      if (!splitCo || !splitTitle) continue;
+      if (
+        splitTitle === titleKey ||
+        titleKey.startsWith(`${splitTitle} `) ||
+        splitTitle.startsWith(`${titleKey} `)
+      ) {
+        return {
+          ...row,
+          ...split,
+          company: splitCo,
+          title: readExperiencePositionSlot(split),
+          position: readExperiencePositionSlot(split),
+          designation: readExperiencePositionSlot(split),
+        };
+      }
+    }
+    return row;
+  });
+}
+
 export interface BuilderMappingSources {
   mergedImport: Record<string, unknown>;
   rawImport?: Record<string, unknown>;
@@ -405,8 +468,12 @@ function recoverExperienceFields(
   for (let i = 0; i < sourceExps.length; i++) {
     const src = normalizeExperienceEntryAliases(sourceExps[i] || {});
     if (!out[i] || typeof out[i] !== 'object') {
+      const company =
+        sanitizeExperienceCompanyValue(
+          readExperienceCompanySlot(src) || readFirstString(src, COMPANY_ALIASES, 160)
+        );
       out[i] = {
-        company: readExperienceCompanySlot(src) || readFirstString(src, COMPANY_ALIASES, 160),
+        company,
         title: readExperiencePositionSlot(src),
         designation: readExperiencePositionSlot(src),
         location: readFirstString(src, ['location', 'Location'], 120),
@@ -420,11 +487,11 @@ function recoverExperienceFields(
       continue;
     }
     const row = { ...(out[i] as Record<string, unknown>) };
-    const companyExisting = sanitizeFieldText(row.company ?? row.Company, 160);
+    const companyExisting = sanitizeExperienceCompanyValue(row.company ?? row.Company);
     if (!companyExisting) {
       const recovered =
         readExperienceCompanySlot(src) || readFirstString(src, COMPANY_ALIASES, 160);
-      if (recovered) {
+      if (recovered && !isExperienceDateOrDurationToken(recovered)) {
         row.company = recovered;
         row.Company = recovered;
         report.recovered.push(`experience[${i}]:company`);

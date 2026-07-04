@@ -18,6 +18,9 @@ import {
   demoteImplausibleExperienceCompany,
   finalizeExperienceListForCustomParserImport,
   isPlausibleExperienceCompany,
+  isExperienceDateOrDurationToken,
+  preferWholeExperienceField,
+  sanitizeExperienceCompanyValue,
   sanitizeFieldText,
 } from '@/lib/resume-parser/import-sanitize';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
@@ -119,6 +122,21 @@ function slugWords(s: unknown): string[] {
     .filter((w) => w.length >= 3);
 }
 
+/** Whole-value title alignment — never match a single prefix token like "full" to "Full Stack Developer". */
+function experienceTitlesAlign(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+  const at = String(a.position || a.title || a.job_title || a.role || '').trim().toLowerCase();
+  const bt = String(b.position || b.title || b.job_title || b.role || '').trim().toLowerCase();
+  if (!at || !bt) return false;
+  if (at === bt) return true;
+  if (at.startsWith(`${bt} `) || bt.startsWith(`${at} `)) return true;
+  const ap = slugWords(at);
+  const bp = slugWords(bt);
+  if (ap.length >= 2 && bp.length >= 2) {
+    return ap.some((w) => bp.includes(w));
+  }
+  return false;
+}
+
 function experienceStartDateKey(rec: Record<string, unknown>): string {
   const raw = String(rec.startDate || rec.start_date || '').trim();
   const m = raw.match(/(19|20)\d{2}/);
@@ -145,7 +163,7 @@ export function experienceMatchScore(a: Record<string, unknown>, b: Record<strin
   const ap = slugWords(a.position || a.job_title || a.title || a.role);
   const bp = slugWords(b.position || b.job_title || b.title || b.role);
   const sharesCompany = ac.length > 0 && bc.length > 0 && ac.some((w) => bc.includes(w));
-  const sharesPosition = ap.length > 0 && bp.length > 0 && ap.some((w) => bp.includes(w));
+  const sharesPosition = experienceTitlesAlign(a, b);
 
   // Never match on designation alone.
   if (!sharesCompany && sharesPosition) return 0;
@@ -299,30 +317,22 @@ function applyExperienceStructuralMerge(
     parser as unknown as ExpLike,
     recovered as unknown as ExpLike
   );
-  const position = preferNonemptyField(
+  const position = preferWholeExperienceField(
     parser.position || parser.title || parser.role || parser.job_title,
-    recovered.position
+    recovered.position || recovered.title || recovered.role || recovered.job_title
   );
   const company = resolveMergedExperienceCompany(parser, recovered);
-  const parserCo = sanitizeFieldText(
-    String(
-      parser.company ||
-        parser.Company ||
-        parser.organization ||
-        parser.employer ||
-        ''
-    ),
-    160
+  const parserCo = sanitizeExperienceCompanyValue(
+    parser.company ||
+      parser.Company ||
+      parser.organization ||
+      parser.employer
   );
-  const recoveredCo = sanitizeFieldText(
-    String(
-      recovered.company ||
-        recovered.Company ||
-        recovered.organization ||
-        recovered.employer ||
-        ''
-    ),
-    160
+  const recoveredCo = sanitizeExperienceCompanyValue(
+    recovered.company ||
+      recovered.Company ||
+      recovered.organization ||
+      recovered.employer
   );
   let mergedCompany = company;
   if (
@@ -333,6 +343,9 @@ function applyExperienceStructuralMerge(
         recoveredCo.toLowerCase().startsWith(parserCo.toLowerCase())))
   ) {
     mergedCompany = recoveredCo;
+  }
+  if (isExperienceDateOrDurationToken(mergedCompany)) {
+    mergedCompany = parserCo || '';
   }
   const startDate = preferNonemptyField(parser.startDate || parser.start_date, recovered.startDate);
   const endDate = preferNonemptyField(parser.endDate || parser.end_date, recovered.endDate);
@@ -419,7 +432,7 @@ function experienceHeaderBackfillScore(
 
   const ap = slugWords(parser.position || parser.title || parser.job_title);
   const bp = slugWords(recovered.position || recovered.title || recovered.job_title);
-  const sharesPosition = ap.length > 0 && bp.length > 0 && ap.some((w) => bp.includes(w));
+  const sharesPosition = experienceTitlesAlign(parser, recovered);
   if (!sharesPosition) return 0;
 
   let score = 35;
@@ -636,6 +649,9 @@ export function mergeParserWithRecoveredWording(
 export function overlaySparseSectionsFromTextRecovery(
   profile: Record<string, unknown>
 ): Record<string, unknown> {
+  if (isCustomParserImport(profile)) {
+    return profile;
+  }
   const text = String(profile.rawText ?? '').trim();
   if (text.length < 80) return profile;
 
