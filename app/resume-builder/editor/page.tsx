@@ -11,7 +11,7 @@ import './editor-layout.css';
 import './form-panel.css';
 import './optimization-panel.css';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,11 @@ import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entr
 import { hasAnyDynamicSectionData } from '@/lib/resume-builder/dynamic-section-registry';
 import { validateImportPipelineAlignment } from '@/lib/resume-builder/import-pipeline-validation';
 import {
+  hasImportableContent,
+  validateTransformedData,
+  transformImportDataToBuilder,
+} from '@/lib/resume-builder/import-transformer';
+import {
   readPendingImportRaw,
   readImportMeta,
   readLocalDraft,
@@ -48,7 +53,9 @@ import {
   isImportFresherThanDraft,
   builderFormChecksum,
   logBuilderHydration,
-  isImportFlowActive,
+  shouldForceImportHydration,
+  resolveEditorFormFromImport,
+  ensureBuilderContactFields,
 } from '@/lib/resume-builder/builder-hydration';
 import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import type { Template } from '@/lib/resume-builder/types';
@@ -203,7 +210,10 @@ export default function ResumeEditorPage() {
   const [currentStep, setCurrentStep] = useState<StepId>('contacts');
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedColorId, setSelectedColorId] = useState<string>('');
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, any>>(() => {
+    if (typeof window === 'undefined') return {};
+    return resolveEditorFormFromImport() ?? {};
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   /** Prevents import/localStorage from overwriting in-memory edits on colorParam / URL changes. */
@@ -221,6 +231,35 @@ export default function ResumeEditorPage() {
     }
     return steps;
   }, [formData]);
+
+  // Hydrate from import session before paint — avoids empty form when URL params lag
+  useLayoutEffect(() => {
+    if (!templateId || userHasEditedRef.current) return;
+    const resolved = resolveEditorFormFromImport();
+    if (!resolved) return;
+
+    const forceImport = shouldForceImportHydration({ shouldPrefill, sourceImport });
+    if (!forceImport) return;
+
+    const explicitGalleryImport = shouldPrefill || sourceImport;
+
+    setFormData((prev) => {
+      if (prev._userEdited === true) return prev;
+      if (explicitGalleryImport) return resolved;
+      if (hasImportableContent(prev)) return ensureBuilderContactFields(prev);
+      return resolved;
+    });
+    commitBuilderDraft(templateId, resolved);
+    const importMeta = readImportMeta();
+    if (importMeta?.importId) {
+      lastAppliedImportIdRef.current = importMeta.importId;
+    }
+    formHydratedForTemplateRef.current = templateId;
+    logBuilderHydration('layout-import', {
+      templateId,
+      checksum: builderFormChecksum(resolved),
+    });
+  }, [templateId, shouldPrefill, sourceImport]);
 
   // Load template on mount
   useEffect(() => {
@@ -272,52 +311,31 @@ export default function ResumeEditorPage() {
         
         const pendingImport = readPendingImportRaw();
         const importMeta = readImportMeta();
-        const importFlowActive = isImportFlowActive({ shouldPrefill, sourceImport });
+        const forceImportHydration = shouldForceImportHydration({
+          shouldPrefill,
+          sourceImport,
+        });
         const importId =
           importMeta?.importId ??
           (pendingImport ? String(pendingImport._importSessionId ?? '') : '');
 
-        const importAlreadyApplied =
-          !!importId &&
-          lastAppliedImportIdRef.current === importId &&
-          formHydratedForTemplateRef.current === templateId;
+        const sessionForm = resolveEditorFormFromImport();
+        let formLoaded = hasImportableContent(formData);
 
-        let formLoaded = false;
-
-        if (importAlreadyApplied) {
-          const draft = readLocalDraft(templateId);
-          if (draft && Object.keys(draft).length > 0) {
-            setFormData(draft);
-            formLoaded = true;
-            logBuilderHydration('import-draft-restore', {
-              templateId,
-              importId,
-              checksum: builderFormChecksum(draft),
-            });
-          }
+        if (formLoaded && importId && lastAppliedImportIdRef.current !== importId) {
+          formLoaded = false;
         }
 
-        const paymentFlowData =
-          !formLoaded &&
-          !pendingImport &&
-          typeof window !== 'undefined'
-            ? sessionStorage.getItem('resume-builder-payment-flow')
-            : null;
-
-        // Priority 1: Import session — gallery → edit must load the same coalesced payload
+        // Priority 1: Import session — read session directly (not React state — SSR hydration safe)
         const shouldLoadImport =
-          !!pendingImport && importFlowActive && !formLoaded;
+          !!sessionForm && forceImportHydration && !formLoaded && !userHasEditedRef.current;
 
         if (shouldLoadImport) {
+          const explicitGalleryImport = shouldPrefill || sourceImport;
           const localDraft = readLocalDraft(templateId);
-          const {
-            coalesceBuilderImportPayload,
-            validateTransformedData,
-            hasImportableContent,
-          } = await import('@/lib/resume-builder/import-transformer');
-
           const draftHasContent = !!(localDraft && hasImportableContent(localDraft));
           const shouldApplyImport =
+            explicitGalleryImport ||
             !localDraft ||
             !draftHasContent ||
             !localDraft._userEdited ||
@@ -325,14 +343,7 @@ export default function ResumeEditorPage() {
 
           if (shouldApplyImport) {
             try {
-              const parsed = pendingImport;
-
-              devResumeImportLog('before import', {
-                payloadBytes: JSON.stringify(parsed).length,
-                ...importSectionCounts(parsed),
-              });
-
-              const formPayload = coalesceBuilderImportPayload(parsed);
+              const formPayload = sessionForm;
 
               devResumeImportLog('using coalesced import (gallery parity)', {
                 ...importSectionCounts(formPayload),
@@ -341,7 +352,10 @@ export default function ResumeEditorPage() {
               const validation = validateTransformedData(formPayload);
               const importOk = hasImportableContent(formPayload);
 
-              const pipelineCheck = validateImportPipelineAlignment(parsed, formPayload);
+              const pipelineCheck = validateImportPipelineAlignment(
+                pendingImport ?? {},
+                formPayload
+              );
               if (!pipelineCheck.ok && process.env.NODE_ENV === 'development') {
                 console.warn('[resume-import:pipeline-validation]', pipelineCheck);
               }
@@ -390,16 +404,23 @@ export default function ResumeEditorPage() {
               });
             }
           } else if (localDraft) {
-            setFormData(localDraft);
+            setFormData(ensureBuilderContactFields(localDraft));
             formLoaded = true;
             logBuilderHydration('local-draft-preserved', {
               templateId,
               checksum: builderFormChecksum(localDraft),
             });
           }
-        } else if (importFlowActive && !pendingImport) {
+        } else if (forceImportHydration && !sessionForm) {
           console.warn('⚠️ Import flow active but no import data found in sessionStorage');
         }
+
+        const paymentFlowData =
+          !formLoaded &&
+          !pendingImport &&
+          typeof window !== 'undefined'
+            ? sessionStorage.getItem('resume-builder-payment-flow')
+            : null;
 
         if (paymentFlowData && !formLoaded) {
           try {
@@ -451,10 +472,10 @@ export default function ResumeEditorPage() {
         // Priority 2: Load saved draft — never override a fresh import flow
         const skipStaleLocalDraft =
           !!pendingImport &&
-          importFlowActive &&
+          forceImportHydration &&
           isImportFresherThanDraft(readLocalDraft(templateId), importMeta);
 
-        if (!formLoaded && !paymentFlowData && !skipStaleLocalDraft) {
+        if (!formLoaded && !paymentFlowData && !skipStaleLocalDraft && !sessionForm) {
           const parsed = readLocalDraft(templateId);
           if (parsed) {
             try {
@@ -479,13 +500,12 @@ export default function ResumeEditorPage() {
                 sparseSections &&
                 hasRecoverySource;
               if (shouldRehydrate) {
-                const { transformImportDataToBuilder } = await import(
-                  '@/lib/resume-builder/import-transformer'
-                );
                 const { builderFormData: _nestedBuilder, ...profileForTransform } = parsed;
-                setFormData(transformImportDataToBuilder(profileForTransform));
+                setFormData(
+                  ensureBuilderContactFields(transformImportDataToBuilder(profileForTransform))
+                );
               } else {
-                setFormData(parsed);
+                setFormData(ensureBuilderContactFields(parsed));
               }
               formLoaded = true;
               logBuilderHydration('local-draft', {

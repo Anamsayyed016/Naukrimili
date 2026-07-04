@@ -7,7 +7,7 @@ import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import type { Template } from '@/lib/resume-builder/types';
-import { writeImportSession } from '@/lib/resume-builder/builder-hydration';
+import { writeImportSession, ensureBuilderContactFields } from '@/lib/resume-builder/builder-hydration';
 import { coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
 
 // Prevent static generation
@@ -110,11 +110,14 @@ export default function TemplateSelectionPage() {
     if (source === 'import') {
       const raw = loadGalleryPreviewFormData();
       if (Object.keys(raw).length > 0) {
-        const payload =
+        const payload = ensureBuilderContactFields(
           Object.keys(previewFormData).length > 0
             ? previewFormData
-            : coalesceBuilderImportPayload(raw);
-        writeImportSession(payload);
+            : coalesceBuilderImportPayload(raw)
+        );
+        if (!writeImportSession(payload)) {
+          console.warn('[templates] Failed to persist import session before editor');
+        }
       }
     }
     const importParams =

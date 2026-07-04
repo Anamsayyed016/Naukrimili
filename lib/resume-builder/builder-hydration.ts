@@ -3,6 +3,11 @@
  * Parser/import → session → localStorage draft. Never load stale draft over fresh import.
  */
 
+import {
+  coalesceBuilderImportPayload,
+  hasImportableContent,
+} from './import-transformer';
+
 export const RESUME_IMPORT_STORAGE_KEY = 'resume-import-data';
 export const RESUME_IMPORT_META_KEY = 'resume-import-meta';
 
@@ -158,7 +163,43 @@ export function isImportFlowActive(options: {
   shouldPrefill: boolean;
   sourceImport: boolean;
 }): boolean {
-  return options.shouldPrefill || options.sourceImport;
+  return shouldForceImportHydration(options);
+}
+
+/** Split fullName/name into firstName/lastName for ContactsStep when import only has combined name. */
+export function ensureBuilderContactFields(
+  data: Record<string, unknown>
+): Record<string, unknown> {
+  const out = { ...data };
+  const first = String(out.firstName ?? '').trim();
+  const last = String(out.lastName ?? '').trim();
+  if (first || last) return out;
+
+  const full = String(out.fullName || out.name || '').trim();
+  if (!full) return out;
+
+  const parts = full.split(/\s+/).filter(Boolean);
+  out.firstName = parts[0] ?? '';
+  out.lastName = parts.slice(1).join(' ');
+  out.name = full;
+  out['Full Name'] = full;
+  return out;
+}
+
+/**
+ * Gallery + editor must use the same coalesced builder payload.
+ * Safe to call synchronously on the client before template load.
+ */
+export function resolveEditorFormFromImport(): Record<string, unknown> | null {
+  const raw = readPendingImportRaw();
+  if (!raw) return null;
+  try {
+    const coalesced = coalesceBuilderImportPayload(raw);
+    if (!hasImportableContent(coalesced)) return null;
+    return ensureBuilderContactFields(coalesced);
+  } catch {
+    return null;
+  }
 }
 
 export function logBuilderHydration(

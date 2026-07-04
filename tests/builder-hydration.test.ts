@@ -4,6 +4,7 @@ import {
   isImportFresherThanDraft,
   shouldForceImportHydration,
   builderFormChecksum,
+  ensureBuilderContactFields,
 } from '../lib/resume-builder/builder-hydration';
 
 describe('builder-hydration', () => {
@@ -16,6 +17,15 @@ describe('builder-hydration', () => {
       shouldForceImportHydration({ shouldPrefill: false, sourceImport: true }),
       true
     );
+  });
+
+  it('ensureBuilderContactFields splits fullName for ContactsStep', () => {
+    const out = ensureBuilderContactFields({
+      fullName: 'Anam Sayyed',
+      email: 'a@b.com',
+    });
+    assert.equal(out.firstName, 'Anam');
+    assert.equal(out.lastName, 'Sayyed');
   });
 
   it('isImportFresherThanDraft respects user edits after import', () => {
