@@ -123,6 +123,16 @@ export function partitionExperienceBlocks(lines: ExperienceLine[]): ExperienceRa
       return false;
     }
 
+    // Completed role block followed by a new title/company after blank line → split.
+    if (
+      afterBlank &&
+      state.hasDates &&
+      (state.hasCompany || state.hasDesignation) &&
+      (isCompanyLine || isDesignationLine || isDateLine)
+    ) {
+      return line.boundaryScore >= threshold - 6;
+    }
+
     return true;
   };
 
@@ -158,6 +168,19 @@ function isHeaderOnlyBlock(block: ExperienceRawBlock): boolean {
   return block.bodyLines.every((l) => !l.trim());
 }
 
+function isCompleteRoleHeader(block: ExperienceRawBlock): boolean {
+  const built = buildExperienceFromBlock(block);
+  const hasDates = Boolean(built.startDate || built.endDate || built.current);
+  const hasCompany = Boolean(built.company);
+  const hasTitle = Boolean(built.designation);
+  return (hasCompany && hasTitle) || (hasTitle && hasDates) || (hasCompany && hasDates);
+}
+
+function isPartialHeaderBlock(block: ExperienceRawBlock): boolean {
+  if (!isHeaderOnlyBlock(block)) return false;
+  return !isCompleteRoleHeader(block);
+}
+
 function mergeBlocks(a: ExperienceRawBlock, b: ExperienceRawBlock): ExperienceRawBlock {
   const lines = [...a.lines, ...b.lines];
   return buildRawBlock(lines, a.startLine, b.endLine);
@@ -177,7 +200,7 @@ function mergeHeaderOnlyBlocks(blocks: ExperienceRawBlock[]): ExperienceRawBlock
       continue;
     }
 
-    if (isHeaderOnlyBlock(block)) {
+    if (isPartialHeaderBlock(block)) {
       carry = block;
       continue;
     }
@@ -212,18 +235,26 @@ function coalesceExperienceBlocks(blocks: ExperienceRawBlock[]): ExperienceRawBl
     const orphanBullets =
       headerLines.length === 0 && block.bodyLines.some((l) => l.trim().length > 0);
 
+    const blockBuilt = buildExperienceFromBlock(block);
+    const blockIsCompleteRole = isCompleteRoleHeader(block);
+
     const prevNeedsDates =
       Boolean(prevBuilt.company || prevBuilt.designation) &&
       !prevBuilt.startDate &&
       !prevBuilt.endDate &&
       !prevBuilt.current;
 
-    if (dateOnlyHeader && prevNeedsDates) {
+    if (dateOnlyHeader && prevNeedsDates && !blockIsCompleteRole) {
       out[out.length - 1] = mergeBlocks(prev, block);
       continue;
     }
 
-    if (orphanBullets && (prevBuilt.company || prevBuilt.designation)) {
+    if (
+      orphanBullets &&
+      (prevBuilt.company || prevBuilt.designation) &&
+      !blockIsCompleteRole &&
+      !(blockBuilt.company && blockBuilt.designation)
+    ) {
       out[out.length - 1] = mergeBlocks(prev, block);
       continue;
     }

@@ -14,6 +14,8 @@ import { validateAndRepairSkills, scoreSkillsSection } from './skills';
 import {
   validateLanguages,
   validateCertifications,
+  validateAchievements,
+  validateHobbies,
   scoreLanguagesSection,
   scoreCertificationsSection,
 } from './languages';
@@ -51,6 +53,8 @@ export function validateAndRepairResume(input: ValidationRepairInput): Validatio
   const skills = validateAndRepairSkills(input.skills, ctx);
   const languages = validateLanguages(input.languages, ctx);
   const certifications = validateCertifications(input.certifications, ctx);
+  const achievements = validateAchievements(input.achievements, ctx);
+  const hobbies = validateHobbies(input.hobbies, ctx);
 
   validateChronology(experiences, educations, projects, ctx);
   crossCheckSections(experiences, projects, educations, skills, ctx);
@@ -106,6 +110,8 @@ export function validateAndRepairResume(input: ValidationRepairInput): Validatio
     skills,
     languages,
     certifications,
+    achievements,
+    hobbies,
   };
 
   const resume = assembleValidatedResume(

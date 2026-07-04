@@ -39,6 +39,8 @@ export function assembleValidatedResume(
     projects: bundle.projects.map(toCanonicalProject),
     certifications: bundle.certifications || [],
     languages: bundle.languages || [],
+    achievements: bundle.achievements || [],
+    hobbies: bundle.hobbies || [],
     confidence: parserConfidenceScore,
     rawText,
     // Store quality metadata in achievements slot is wrong - use confidence only

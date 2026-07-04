@@ -5,6 +5,10 @@
 
 import { buildCanonicalResumeFromValidation } from '../canonical-resume/build';
 import { detectResumeSections } from '../section-detection';
+import {
+  resolveAchievementsSectionText,
+  resolveHobbiesSectionText,
+} from '../section-detection/resolve-section';
 import { extractIdentityFromSections } from '../identity-extraction';
 import { extractSummaryFromSection } from '../summary-extraction';
 import { extractExperiencesFromSection } from '../experience-extraction';
@@ -12,6 +16,8 @@ import { extractEducationFromSection } from '../education-extraction';
 import { extractProjectsFromSection } from '../project-extraction';
 import { extractLanguagesFromSection } from '../language-extraction';
 import { extractCertificationsFromSection } from '../certification-extraction';
+import { extractAchievementsFromSection } from '../achievements-extraction';
+import { extractHobbiesFromSection } from '../hobbies-extraction';
 import { extractSkillsIntelligence } from '../skills-intelligence';
 import { validateAndRepairResume } from '../validation-repair';
 import type { CustomParserPipelineResult } from './types';
@@ -44,6 +50,8 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
   const certifications = sections.certifications
     ? extractCertificationsFromSection(sections.certifications)
     : [];
+  const achievements = extractAchievementsFromSection(resolveAchievementsSectionText(sections));
+  const hobbies = extractHobbiesFromSection(resolveHobbiesSectionText(sections));
 
   const certNames = certifications.map((c) => c.name).filter(Boolean);
 
@@ -89,6 +97,8 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
       date: c.date,
       ...(c.url ? { url: c.url } : {}),
     })),
+    achievements: achievements.map((a) => a.text),
+    hobbies: hobbies.map((h) => h.name),
     sectionTexts: {
       experience: sections.experience,
       education: sections.education,
@@ -98,6 +108,8 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
       contact: sections.preamble,
       languages: sections.languages,
       certifications: sections.certifications,
+      achievements: resolveAchievementsSectionText(sections),
+      hobbies: resolveHobbiesSectionText(sections),
     },
     parserConfidence: estimateLayoutConfidence(sections),
   });

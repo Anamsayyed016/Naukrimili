@@ -27,11 +27,13 @@ function isValidDesignationValue(value: string): boolean {
 }
 
 function expKey(exp: CustomExtractedExperience): string {
+  const bulletSig = (exp.bulletPoints[0] || '').toLowerCase().slice(0, 48);
   return [
     exp.company?.toLowerCase() || '',
     exp.designation?.toLowerCase() || '',
     exp.startDate || '',
     exp.endDate || '',
+    bulletSig,
   ].join('|');
 }
 

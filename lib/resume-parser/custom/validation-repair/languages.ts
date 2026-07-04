@@ -103,6 +103,66 @@ export function validateCertifications(
   return kept;
 }
 
+export function validateAchievements(
+  achievements: string[] | undefined,
+  ctx: RepairContext
+): string[] {
+  if (!achievements?.length) return [];
+
+  const seen = new Set<string>();
+  const kept: string[] = [];
+
+  for (let i = 0; i < achievements.length; i++) {
+    const text = (achievements[i] || '').trim();
+    if (!text || text.length < 6) {
+      recordIssue(ctx, {
+        severity: 'warning',
+        section: 'achievements',
+        index: i,
+        code: 'invalid_achievement',
+        message: 'Achievement entry too short or empty.',
+      });
+      continue;
+    }
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    kept.push(text);
+  }
+
+  return kept;
+}
+
+export function validateHobbies(
+  hobbies: string[] | undefined,
+  ctx: RepairContext
+): string[] {
+  if (!hobbies?.length) return [];
+
+  const seen = new Set<string>();
+  const kept: string[] = [];
+
+  for (let i = 0; i < hobbies.length; i++) {
+    const name = (hobbies[i] || '').trim();
+    if (!name || name.length < 2 || name.length > 50) {
+      recordIssue(ctx, {
+        severity: 'warning',
+        section: 'hobbies',
+        index: i,
+        code: 'invalid_hobby',
+        message: 'Hobby entry invalid length.',
+      });
+      continue;
+    }
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    kept.push(name);
+  }
+
+  return kept;
+}
+
 export function scoreLanguagesSection(languages: ExtractedResumeData['languages']): number {
   if (!languages?.length) return 0;
   return Math.min(100, 40 + languages.length * 15);

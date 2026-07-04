@@ -77,6 +77,8 @@ export interface ValidationRepairInput {
   skills?: IntelligentSkill[];
   languages?: ExtractedResumeData['languages'];
   certifications?: ExtractedResumeData['certifications'];
+  achievements?: string[];
+  hobbies?: string[];
   parserConfidence?: number;
   sectionTexts?: {
     experience?: string;
@@ -87,6 +89,8 @@ export interface ValidationRepairInput {
     contact?: string;
     languages?: string;
     certifications?: string;
+    achievements?: string;
+    hobbies?: string;
   };
 }
 
@@ -99,6 +103,8 @@ export interface ValidatedResumeBundle {
   skills: IntelligentSkill[];
   languages: ExtractedResumeData['languages'];
   certifications: ExtractedResumeData['certifications'];
+  achievements: string[];
+  hobbies: string[];
 }
 
 export interface ValidationRepairResult {

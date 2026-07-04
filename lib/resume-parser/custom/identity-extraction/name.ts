@@ -153,7 +153,9 @@ export function detectFullName(zones: ScanZone[], primaryEmail = ''): NameDetect
   if (nearFallback.fullName) return nearFallback;
 
   const headerText = zones
-    .filter((z) => z.label === 'header' || z.label === 'contact' || z.label === 'preamble')
+    .filter((z) =>
+      ['header', 'contact', 'preamble', 'footer', 'page'].includes(z.label)
+    )
     .map((z) => z.text)
     .join('\n');
   const heuristic = headerText ? extractNameWithConfidence(headerText) : '';
@@ -165,7 +167,7 @@ export function detectFullName(zones: ScanZone[], primaryEmail = ''): NameDetect
 }
 
 export function detectNameNearContactLines(zones: ScanZone[]): NameDetection {
-  const lines = getZoneLines(zones, ['header', 'contact', 'preamble']);
+  const lines = getZoneLines(zones, ['header', 'contact', 'preamble', 'footer', 'page']);
   for (const rawLine of lines.slice(0, 14)) {
     const line = normalizeNameLine(rawLine);
     if (!line) continue;

@@ -205,5 +205,46 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
     if (blocks.length > 0) out.experience = blocks.join('\n\n');
   }
 
+  if (!out.achievements) {
+    for (let i = 0; i < lines.length; i++) {
+      if (
+        !/^(?:achievements?|awards?|honors?|recognition|accomplishments?|highlights?|key\s+achievements?|professional\s+highlights?)\s*:?\s*$/i.test(
+          lines[i]
+        )
+      ) {
+        continue;
+      }
+      const body = lines.slice(i + 1, i + 12).filter((l) => l.length >= 6);
+      if (body.length >= 1) {
+        out.achievements = body.join('\n');
+        break;
+      }
+    }
+  }
+
+  if (!out.hobbies) {
+    for (let i = 0; i < lines.length; i++) {
+      if (
+        !/^(?:hobbies?|interests?|personal\s+interests?|extracurricular|activities)\s*:?\s*$/i.test(
+          lines[i]
+        )
+      ) {
+        continue;
+      }
+      const inline = lines[i].match(
+        /^(?:hobbies?|interests?|personal\s+interests?|extracurricular|activities)\s*:?\s*(.+)$/i
+      );
+      if (inline?.[1]?.includes(',')) {
+        out.hobbies = inline[1].trim();
+        break;
+      }
+      const body = lines.slice(i + 1, i + 8).filter((l) => l.length >= 2);
+      if (body.length >= 1) {
+        out.hobbies = body.join('\n');
+        break;
+      }
+    }
+  }
+
   return out;
 }
