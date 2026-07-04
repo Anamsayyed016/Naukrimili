@@ -1407,6 +1407,11 @@ export function preferWholeExperienceField(parserVal: unknown, recoveredVal: unk
   if (p.toLowerCase() === r.toLowerCase()) return p;
   const pLow = p.toLowerCase();
   const rLow = r.toLowerCase();
+  const norm = (s: string) => s.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+  const pNorm = norm(pLow);
+  const rNorm = norm(rLow);
+  if (rNorm.includes(pNorm) && r.length >= p.length) return r;
+  if (pNorm.includes(rNorm) && p.length >= r.length) return p;
   if (rLow.startsWith(`${pLow} `) || pLow.startsWith(`${rLow} `)) {
     return p.length >= r.length ? p : r;
   }
@@ -1702,6 +1707,7 @@ function recoverCompanyFromExperienceText(
       looksLikeCompanyNameLine(line) &&
       !looksLikeJobTitleLine(line) &&
       !looksLikeSentenceNotCompany(line) &&
+      isPlausibleExperienceCompany(line) &&
       line !== position &&
       line.length <= 80
     ) {
@@ -1918,6 +1924,7 @@ export function reconcileExperienceHeaderFields(
     for (const line of descLines.slice(0, 2)) {
       if (looksLikeSentenceNotCompany(line)) continue;
       if (looksLikeCompanyNameLine(line) && !looksLikeJobTitleLine(line) && line !== position) {
+        if (!isPlausibleExperienceCompany(line)) continue;
         company = line;
         if (descLines.length > 1) {
           const remaining = descLines.filter((l) => l !== line).join('\n').trim();
@@ -1930,7 +1937,8 @@ export function reconcileExperienceHeaderFields(
         classified.kind === 'COMPANY_NAME' &&
         !looksLikeJobTitleLine(line) &&
         line !== position &&
-        line.length <= 120
+        line.length <= 120 &&
+        isPlausibleExperienceCompany(line)
       ) {
         company = line;
         if (descLines.length > 1) {
@@ -1981,8 +1989,8 @@ export function reconcileExperienceHeaderFields(
 
   if (
     company &&
-    (looksLikeSentenceNotCompany(company) ||
-      (!isPlausibleExperienceCompany(company) && !looksLikeCompanyNameLine(company)))
+    !isPlausibleExperienceCompany(company) &&
+    (looksLikeSentenceNotCompany(company) || !looksLikeCompanyNameLine(company))
   ) {
     if (
       (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) &&
@@ -2873,7 +2881,7 @@ export function demoteImplausibleExperienceCompany(
   if (!exp || typeof exp !== 'object') return exp;
   const out = { ...exp };
   const company = readExperienceCompanySlot(out);
-  if (!company || isPlausibleExperienceCompany(company) || looksLikeCompanyNameLine(company)) {
+  if (!company || isPlausibleExperienceCompany(company)) {
     return out;
   }
 
@@ -2908,17 +2916,14 @@ export function resolveMergedExperienceCompany(
   parser: Record<string, unknown>,
   recovered: Record<string, unknown>
 ): string {
-  const parserCo = sanitizeFieldText(readExperienceCompanySlot(parser), 160);
-  const recoveredCo = sanitizeFieldText(
-    String(
-      recovered.company ||
-        recovered.Company ||
-        recovered.organization ||
-        recovered.Organization ||
-        recovered.employer ||
-        ''
-    ),
-    160
+  const parserCo = sanitizeExperienceCompanyValue(readExperienceCompanySlot(parser));
+  const recoveredCo = sanitizeExperienceCompanyValue(
+    recovered.company ||
+      recovered.Company ||
+      recovered.organization ||
+      recovered.Organization ||
+      recovered.employer ||
+      ''
   );
   const parserOk = !!parserCo && isPlausibleExperienceCompany(parserCo);
   const recoveredOk = !!recoveredCo && isPlausibleExperienceCompany(recoveredCo);
@@ -2947,9 +2952,19 @@ export function resolveMergedExperienceCompany(
 }
 
 export function isPlausibleExperienceCompany(value: unknown): boolean {
-  const company = sanitizeFieldText(value, 160);
+  const company = sanitizeExperienceCompanyValue(value);
   if (!company) return false;
+  if (looksLikeSentenceNotCompany(company)) return false;
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (
+    company.length > 40 &&
+    /\b(improv|optimiz|reduc|increas|develop|design|mentor|administer|engineer|construct|deliver)\w*/i.test(
+      lower
+    )
+  ) {
+    return false;
+  }
+  if (/\d+\s*%/.test(company)) return false;
   if (INSTITUTIONAL_EMPLOYER_HINT_RE.test(lower)) return true;
   if (/\b[A-Z][a-z]+\s+(?:sons|bros|brothers|holdings|group|industries|enterprises|motors|retail)\b/i.test(company)) {
     return true;
@@ -2991,7 +3006,7 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     return true;
   }
   if (looksLikeCompanyNameLine(company)) return true;
-  return company.length >= 18 && /\s/.test(company);
+  return false;
 }
 
 export function countPlausibleExperienceCompanies(list: unknown[]): number {

@@ -338,6 +338,12 @@ function applyExperienceStructuralMerge(
   if (
     recoveredCo &&
     isPlausibleExperienceCompany(recoveredCo) &&
+    (!parserCo || !isPlausibleExperienceCompany(parserCo))
+  ) {
+    mergedCompany = recoveredCo;
+  } else if (
+    recoveredCo &&
+    isPlausibleExperienceCompany(recoveredCo) &&
     (!parserCo ||
       (parserCo.length < recoveredCo.length &&
         recoveredCo.toLowerCase().startsWith(parserCo.toLowerCase())))
@@ -649,9 +655,6 @@ export function mergeParserWithRecoveredWording(
 export function overlaySparseSectionsFromTextRecovery(
   profile: Record<string, unknown>
 ): Record<string, unknown> {
-  if (isCustomParserImport(profile)) {
-    return profile;
-  }
   const text = String(profile.rawText ?? '').trim();
   if (text.length < 80) return profile;
 
@@ -662,11 +665,14 @@ export function overlaySparseSectionsFromTextRecovery(
     (e): e is Record<string, unknown> => !!e && typeof e === 'object'
   );
   const recExp = (recovered.experience || []) as unknown as Record<string, unknown>[];
-  if (
+  const missingCompany =
     parserExp.length > 0 &&
     recExp.length > 0 &&
-    countPlausibleExperienceCompanies(parserExp) < parserExp.length
-  ) {
+    countPlausibleExperienceCompanies(parserExp) < parserExp.length;
+  const missingTitle = parserExp.some(
+    (e) => !String(e.position || e.title || e.jobTitle || e.designation || '').trim()
+  );
+  if (parserExp.length > 0 && recExp.length > 0 && (missingCompany || missingTitle)) {
     const usedRec = new Set<number>();
     const merged = mergeListWithRecoveredWording(
       parserExp,
@@ -745,6 +751,41 @@ export function overlaySparseSectionsFromTextRecovery(
         false
       );
     }
+  }
+
+  const parserEdu = (Array.isArray(out.education) ? out.education : []).filter(
+    (e): e is Record<string, unknown> => !!e && typeof e === 'object'
+  );
+  const recEdu = (recovered.education || []) as unknown as Record<string, unknown>[];
+  const eduWithDegree = parserEdu.filter(
+    (e) => String(e.degree ?? e.Degree ?? '').trim().length >= 4
+  );
+  const misclassifiedEdu = parserEdu.some((e) => {
+    const deg = String(e.degree ?? e.Degree ?? '').trim();
+    const inst = String(e.institution ?? e.school ?? e.Institution ?? '').trim();
+    return (
+      deg.length >= 4 &&
+      inst.length >= 4 &&
+      deg.toLowerCase() === inst.toLowerCase()
+    );
+  });
+  if (
+    recEdu.length > 0 &&
+    (parserEdu.length === 0 || recEdu.length > eduWithDegree.length || misclassifiedEdu)
+  ) {
+    out.education = mergeOrphanEducationEntries(
+      fillMissingEducationFromRecovered(
+        mergeListWithRecoveredWording(
+          parserEdu,
+          recEdu,
+          educationSectionMatch,
+          educationMatchScore,
+          (p, r) => applyEducationStructuralMerge(p, r),
+          false
+        ) as Record<string, unknown>[],
+        recEdu
+      )
+    );
   }
 
   return out;

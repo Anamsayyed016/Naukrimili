@@ -53,6 +53,11 @@ export function looksLikeInstitutionalEmployer(text: string): boolean {
 export function looksLikeSentenceNotCompany(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed) return false;
+  if (COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 120) return false;
+  if (/\b(improv(?:ed|ing)|optimiz(?:ed|ing)|reduc(?:ed|ing)|increas(?:ed|ing)|develop(?:ed|ing)|design(?:ed|ing)|mentor(?:ed|ing)|administer(?:ed|ing))\b/i.test(trimmed)) {
+    return true;
+  }
+  if (/\d+\s*%/.test(trimmed)) return true;
   if (trimmed.length > 55) return true;
   if (trimmed.length > 30 && SENTENCE_VERB_RE.test(trimmed)) return true;
   if (/^[a-z]/.test(trimmed) && trimmed.length > 25) return true;

@@ -1181,6 +1181,10 @@ export function transformImportDataToBuilder(
         mergedImport.education as Record<string, unknown>[]
       );
     }
+    mergedImport = overlaySparseSectionsFromTextRecovery({
+      ...mergedImport,
+      rawText: effectiveRawText || mergedImport.rawText,
+    });
     mergedImport = applyTextRecoveryWhenSparse(mergedImport);
   } else {
     mergedImport = isSparseSectionImport(mergedBase)

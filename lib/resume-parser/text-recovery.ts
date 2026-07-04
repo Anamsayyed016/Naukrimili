@@ -39,6 +39,8 @@ import {
   reconcileExperienceHeaderFields,
   isPlausibleCertificationEntry,
   isExperienceDateOrDurationToken,
+  splitCompanyLocationPipe,
+  isPlausibleExperienceCompany,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -253,6 +255,8 @@ const DEGREE_PATTERNS = [
   /\bm\.?(?:s|a|tech|e|com|sc|ba|ed|ba)\.?\b/i,
   /\bmba\b/i,
   /\bbba\b/i,
+  /\bb\.?\s*c\.?\s*a\.?\b/i,
+  /computer applications/i,
   /diploma/i,
   /associate(?:'s)?(?:\s+degree)?/i,
   /\bhigh\s+school\b/i,
@@ -1642,6 +1646,29 @@ function parseExperienceChunk(chunkLines: string[]): ExtractedResumeData['experi
   for (let i = bodyStart; i < chunkLines.length; i++) {
     const l = chunkLines[i].trim();
     if (!l) continue;
+
+    if (!company && l.includes('|')) {
+      const pipe = splitCompanyLocationPipe(l);
+      if (pipe?.company && isPlausibleExperienceCompany(pipe.company)) {
+        company = pipe.company;
+        if (pipe.location && !location) location = pipe.location;
+        descStart = i + 1;
+        continue;
+      }
+    }
+    if (
+      !company &&
+      looksLikeCompanyNameLine(l) &&
+      !isExperienceBulletLine(l) &&
+      !lineHasDateRange(l)
+    ) {
+      company = l.replace(/\s*\|\s*.+$/, '').trim() || l;
+      const pipe = splitCompanyLocationPipe(l);
+      if (pipe?.location && !location) location = pipe.location;
+      descStart = i + 1;
+      continue;
+    }
+
     const locOnLine = l.match(
       /\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/
     );
@@ -1716,6 +1743,13 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const parsedRange = parseDateRangeFromLine(line);
+    if (current && parsedRange) {
+      current.startDate = parsedRange.start;
+      current.endDate = parsedRange.end;
+      if (parsedRange.current) current.endDate = '';
+      continue;
+    }
     const hasDegree = DEGREE_PATTERNS.some((p) => p.test(line));
     const hasInstitution =
       /\b(university|college|institute|school|academy|iim|iit|nit)\b/i.test(line) ||
@@ -1725,7 +1759,7 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
     if (hasDegree) {
       flush();
       current = {
-        degree: line,
+        degree: line.replace(/\bin\s+[A-Z][A-Za-z ,&]+$/, '').trim(),
         institution: '',
         field: '',
         year: yearMatch ? yearMatch[yearMatch.length - 1] : '',
@@ -1734,12 +1768,13 @@ function parseEducation(block: string): ExtractedResumeData['education'] {
         endDate: '',
       };
 
-      // Try to pull field-of-study: "Bachelor of Science in Computer Science"
       const fieldMatch = line.match(/\bin\s+([A-Z][A-Za-z ,&]+)$/);
       if (fieldMatch) current.field = fieldMatch[1].trim();
+      continue;
+    }
 
-      // Try to grab degree-only by stripping "in field" portion
-      current.degree = line.replace(/\bin\s+[A-Z][A-Za-z ,&]+$/, '').trim();
+    if (/^speciali[sz]ations?\s*:/i.test(line) && current) {
+      current.field = line.replace(/^speciali[sz]ations?\s*:\s*/i, '').trim();
       continue;
     }
 
