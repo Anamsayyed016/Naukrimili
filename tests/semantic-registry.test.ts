@@ -7,6 +7,9 @@ import {
 } from '../lib/resume-builder/semantic-registry.ts';
 import { routeSectionBodyToBuilder } from '../lib/resume-builder/semantic-routing.ts';
 import { renderExtendedBuilderSections } from '../lib/resume-builder/render-extended-sections.ts';
+import {
+  isRenderableResumeSection,
+} from '../lib/resume-builder/renderable-resume-sections.ts';
 
 describe('semantic-registry', () => {
   it('routes Professional Highlights to extended bucket not summary', () => {
@@ -62,6 +65,40 @@ describe('render-extended-sections', () => {
     assert.match(html, /Professional Highlights/);
     assert.match(html, /Expanded into 4 new markets/);
     assert.match(html, /Awards/);
+  });
+
+  it('does not render internal metadata or parser extra sections', () => {
+    const html = renderExtendedBuilderSections({
+      preferredJobType: 'Full-time',
+      _importSource: 'ai-extraction',
+      extendedSections: {
+        extraSections: [
+          { heading: 'preferredJobType', body: 'Full-time' },
+          { heading: '_importSource', body: 'ai-extraction' },
+          { heading: 'experience[0]', body: 'exp-cybrom-techn-full-stack-p-2025-01' },
+        ],
+        unsupportedSections: [
+          { heading: 'experience[0]', body: 'exp_0_experience25' },
+          { heading: 'CERTIFICATIONS[0]', body: 'cert_2' },
+        ],
+      },
+    });
+    assert.doesNotMatch(html, /preferredJobType/i);
+    assert.doesNotMatch(html, /_importSource/i);
+    assert.doesNotMatch(html, /experience\[0\]/i);
+    assert.doesNotMatch(html, /exp_0_experience25/i);
+    assert.doesNotMatch(html, /cert_2/i);
+  });
+});
+
+describe('renderable-resume-sections', () => {
+  it('rejects internal builder metadata keys', () => {
+    assert.equal(isRenderableResumeSection('_importSource'), false);
+    assert.equal(isRenderableResumeSection('preferredJobType'), false);
+    assert.equal(isRenderableResumeSection('experience[0]'), false);
+    assert.equal(isRenderableResumeSection('exp_0_experience25'), false);
+    assert.equal(isRenderableResumeSection('Volunteer Experience'), true);
+    assert.equal(isRenderableResumeSection('Professional Highlights'), true);
   });
 });
 

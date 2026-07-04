@@ -7,6 +7,10 @@ import { readExtendedSections, getActiveDynamicSections } from '@/lib/resume-bui
 import type { DynamicSectionSpec } from '@/lib/resume-builder/dynamic-section-registry';
 import { filterMeaningfulListItems } from '@/lib/resume-builder/dynamic-section-visibility';
 import type { ExtendedBuilderSections } from '@/lib/resume-builder/canonical-mapping/types';
+import {
+  isRenderableResumeFieldKey,
+  isRenderableResumeSection,
+} from '@/lib/resume-builder/renderable-resume-sections';
 
 function escapeHtml(text: string): string {
   return text
@@ -74,7 +78,7 @@ function renderSpecSection(spec: DynamicSectionSpec, extended: ExtendedBuilderSe
   if (spec.kind === 'keyValue') {
     const kv = value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, string>) : {};
     const inner = Object.entries(kv)
-      .filter(([, v]) => v && String(v).trim())
+      .filter(([k, v]) => isRenderableResumeFieldKey(k, v) && String(v).trim())
       .map(([k, v]) => `<div class="extended-field"><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(v))}</div>`)
       .join('');
     return renderSectionBlock(spec.label, inner);
@@ -89,26 +93,9 @@ export function renderExtendedBuilderSections(formData: Record<string, unknown>)
   const blocks: string[] = [];
 
   for (const spec of activeSpecs) {
+    if (!isRenderableResumeSection(spec.label)) continue;
     const html = renderSpecSection(spec, extended);
     if (html.trim()) blocks.push(html);
-  }
-
-  for (const extra of extended.extraSections) {
-    const heading = String(extra.heading || '').trim();
-    const body = String(extra.body || '').trim();
-    if (!heading || !body) continue;
-    const inner = body.includes('\n')
-      ? renderStringListItems(body.split(/\n+/).map((l) => l.trim()).filter(Boolean))
-      : `<p>${escapeHtml(body)}</p>`;
-    blocks.push(renderSectionBlock(heading, inner));
-  }
-
-  const unsupported = extended.unsupportedSections || [];
-  for (const entry of unsupported) {
-    const heading = String(entry.heading || 'Additional Information').trim();
-    const body = String(entry.body || '').trim();
-    if (!body) continue;
-    blocks.push(renderSectionBlock(heading, `<p>${escapeHtml(body)}</p>`));
   }
 
   return blocks.join('\n');
