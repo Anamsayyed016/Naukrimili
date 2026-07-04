@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Layers } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import {
   DYNAMIC_SECTION_REGISTRY,
   getActiveDynamicSections,
@@ -262,31 +262,12 @@ export default function DynamicSectionsStep({ formData, updateFormData }: Dynami
     updateFormData(writeExtendedSection(formData, spec.fieldKey, value));
   };
 
-  const updateExtraSections = (sections: Array<{ heading: string; body: string }>) => {
-    updateFormData(writeExtendedSection(formData, 'extraSections', sections));
-  };
-
-  if (activeSections.length === 0 && extended.extraSections.length === 0 && (extended.unsupportedSections?.length ?? 0) === 0) {
-    return (
-      <div className="space-y-4 text-center py-12">
-        <Layers className="w-10 h-10 text-gray-300 mx-auto" />
-        <p className="text-gray-600">No additional sections were detected in your resume import.</p>
-      </div>
-    );
+  if (activeSections.length === 0) {
+    return null;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-          <Layers className="w-5 h-5 text-blue-600" />
-          Additional Sections
-        </h2>
-        <p className="text-sm text-gray-600">
-          These sections were extracted from your resume. Edit or add entries as needed.
-        </p>
-      </div>
-
       {activeSections.map((spec) => (
         <SectionBlock
           key={spec.id}
@@ -295,55 +276,6 @@ export default function DynamicSectionsStep({ formData, updateFormData }: Dynami
           onUpdate={(value) => handleSectionUpdate(spec, value)}
         />
       ))}
-
-      {extended.extraSections.length > 0 && (
-        <section className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Other Sections</h3>
-            <p className="text-sm text-gray-600">Custom headings detected during import.</p>
-          </div>
-          {extended.extraSections.map((sec, index) => (
-            <div key={index} className="space-y-2 rounded-lg border border-gray-100 p-3">
-              <Label className="text-sm font-medium">Section heading</Label>
-              <Input
-                value={sec.heading}
-                onChange={(e) => {
-                  const next = [...extended.extraSections];
-                  next[index] = { ...sec, heading: e.target.value };
-                  updateExtraSections(next);
-                }}
-              />
-              <Label className="text-sm font-medium">Content</Label>
-              <Textarea
-                value={sec.body}
-                onChange={(e) => {
-                  const next = [...extended.extraSections];
-                  next[index] = { ...sec, body: e.target.value };
-                  updateExtraSections(next);
-                }}
-                rows={4}
-              />
-            </div>
-          ))}
-        </section>
-      )}
-
-      {(extended.unsupportedSections?.length ?? 0) > 0 && (
-        <section className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Unclassified Content</h3>
-            <p className="text-sm text-gray-600">
-              Extracted content preserved for review — move or edit as needed.
-            </p>
-          </div>
-          {(extended.unsupportedSections || []).map((sec, index) => (
-            <div key={`unsup-${index}`} className="space-y-2 rounded-lg border border-amber-100 bg-white p-3">
-              <Label className="text-sm font-medium">{sec.heading}</Label>
-              <Textarea value={sec.body} readOnly rows={3} className="bg-gray-50" />
-            </div>
-          ))}
-        </section>
-      )}
     </div>
   );
 }

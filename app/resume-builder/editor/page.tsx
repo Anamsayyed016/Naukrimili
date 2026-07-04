@@ -38,7 +38,7 @@ import FinalizeStep from '@/components/resume-builder/steps/FinalizeStep';
 
 import { loadTemplate } from '@/lib/resume-builder/template-loader';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
-import { hasAnyDynamicSectionData } from '@/lib/resume-builder/dynamic-section-registry';
+import { getActiveDynamicSections } from '@/lib/resume-builder/dynamic-section-registry';
 import { validateImportPipelineAlignment } from '@/lib/resume-builder/import-pipeline-validation';
 import {
   hasImportableContent,
@@ -225,7 +225,7 @@ export default function ResumeEditorPage() {
 
   const activeSteps = useMemo(() => {
     const steps = [...BASE_STEPS];
-    if (hasAnyDynamicSectionData(formData)) {
+    if (getActiveDynamicSections(formData).length > 0) {
       const finalizeIdx = steps.findIndex((s) => s.id === 'finalize');
       steps.splice(finalizeIdx, 0, { id: 'additional-sections', label: 'More Sections' });
     }
