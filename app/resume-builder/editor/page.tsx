@@ -45,10 +45,10 @@ import {
   readImportMeta,
   readLocalDraft,
   commitBuilderDraft,
-  shouldForceImportHydration,
   isImportFresherThanDraft,
   builderFormChecksum,
   logBuilderHydration,
+  isImportFlowActive,
 } from '@/lib/resume-builder/builder-hydration';
 import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import type { Template } from '@/lib/resume-builder/types';
@@ -174,27 +174,6 @@ function isBuilderFormSnapshot(parsed: Record<string, unknown>): boolean {
   );
 }
 
-/** API / upload page already produced builder form data — skip second sanitize pass. */
-function isBuilderReadyImportPayload(parsed: Record<string, unknown>): boolean {
-  if (parsed._imported === true) return true;
-
-  const hasContact =
-    !!String(parsed.firstName || '').trim() ||
-    !!String(parsed.lastName || '').trim() ||
-    !!String(parsed.fullName || '').trim() ||
-    !!String(parsed.name || '').trim() ||
-    !!String(parsed.email || '').trim();
-
-  const counts = importSectionCounts(parsed);
-  const hasSections =
-    counts.experience > 0 ||
-    counts.education > 0 ||
-    counts.skills > 0 ||
-    counts.projects > 0;
-
-  return hasContact && hasSections;
-}
-
 const BASE_STEPS: Step[] = [
   { id: 'contacts', label: 'Contacts' },
   { id: 'experience', label: 'Experience' },
@@ -293,38 +272,58 @@ export default function ResumeEditorPage() {
         
         const pendingImport = readPendingImportRaw();
         const importMeta = readImportMeta();
-        const forceImportHydration = shouldForceImportHydration({
-          shouldPrefill,
-          sourceImport,
-        });
+        const importFlowActive = isImportFlowActive({ shouldPrefill, sourceImport });
         const importId =
           importMeta?.importId ??
           (pendingImport ? String(pendingImport._importSessionId ?? '') : '');
 
-        if (importId && importId !== lastAppliedImportIdRef.current) {
-          formHydratedForTemplateRef.current = null;
+        const importAlreadyApplied =
+          !!importId &&
+          lastAppliedImportIdRef.current === importId &&
+          formHydratedForTemplateRef.current === templateId;
+
+        let formLoaded = false;
+
+        if (importAlreadyApplied) {
+          const draft = readLocalDraft(templateId);
+          if (draft && Object.keys(draft).length > 0) {
+            setFormData(draft);
+            formLoaded = true;
+            logBuilderHydration('import-draft-restore', {
+              templateId,
+              importId,
+              checksum: builderFormChecksum(draft),
+            });
+          }
         }
 
-        const skipFormHydration = formHydratedForTemplateRef.current === templateId;
-
-        // Priority 0: Payment return (skipped when a fresh import session is pending)
         const paymentFlowData =
-          !skipFormHydration &&
+          !formLoaded &&
           !pendingImport &&
           typeof window !== 'undefined'
             ? sessionStorage.getItem('resume-builder-payment-flow')
             : null;
-        let formLoaded = skipFormHydration;
 
-        // Priority 1: Pending import session — always beats stale localStorage draft
-        if (!skipFormHydration && !formLoaded && pendingImport) {
+        // Priority 1: Import session — gallery → edit must load the same coalesced payload
+        const shouldLoadImport =
+          !!pendingImport && importFlowActive && !formLoaded;
+
+        if (shouldLoadImport) {
           const localDraft = readLocalDraft(templateId);
-          const shouldLoadImport =
-            forceImportHydration ||
+          const {
+            coalesceBuilderImportPayload,
+            validateTransformedData,
+            hasImportableContent,
+          } = await import('@/lib/resume-builder/import-transformer');
+
+          const draftHasContent = !!(localDraft && hasImportableContent(localDraft));
+          const shouldApplyImport =
             !localDraft ||
+            !draftHasContent ||
+            !localDraft._userEdited ||
             isImportFresherThanDraft(localDraft, importMeta);
 
-          if (shouldLoadImport) {
+          if (shouldApplyImport) {
             try {
               const parsed = pendingImport;
 
@@ -333,52 +332,16 @@ export default function ResumeEditorPage() {
                 ...importSectionCounts(parsed),
               });
 
-              console.log('SESSION STORAGE PROJECTS', parsed.projects);
-              console.log('📥 Loaded imported resume data from sessionStorage');
-              console.log('   - Has fullName?', !!parsed.fullName);
-              console.log('   - Has name?', !!parsed.name);
-              console.log('   - Has email?', !!parsed.email);
-              console.log('   - Has rawText?', typeof parsed.rawText === 'string' && parsed.rawText.length > 0);
-              const parsedCounts = importSectionCounts(parsed);
-              console.log('   - Skills count:', parsedCounts.skills);
-              console.log('   - Experience count:', parsedCounts.experience);
-              console.log('   - Education count:', parsedCounts.education);
+              const formPayload = coalesceBuilderImportPayload(parsed);
 
-              const {
-                transformImportDataToBuilder,
-                coalesceBuilderImportPayload,
-                validateTransformedData,
-                hasImportableContent,
-              } = await import('@/lib/resume-builder/import-transformer');
-
-              const builderReady = isBuilderReadyImportPayload(parsed);
-              let formPayload: Record<string, unknown>;
-
-              if (builderReady) {
-                formPayload = coalesceBuilderImportPayload(parsed);
-                devResumeImportLog('using builder-ready payload (coalesced)', {
-                  ...importSectionCounts(formPayload),
-                });
-              } else {
-                const { builderFormData: _nestedBuilder, ...profileForTransform } = parsed;
-                formPayload = transformImportDataToBuilder(profileForTransform);
-                const transformedCounts = importSectionCounts(formPayload);
-                console.log('🔄 After transformation:', {
-                  firstName: formPayload.firstName || '(empty)',
-                  lastName: formPayload.lastName || '(empty)',
-                  skills: transformedCounts.skills,
-                  experience: transformedCounts.experience,
-                  education: transformedCounts.education,
-                });
-              }
+              devResumeImportLog('using coalesced import (gallery parity)', {
+                ...importSectionCounts(formPayload),
+              });
 
               const validation = validateTransformedData(formPayload);
               const importOk = hasImportableContent(formPayload);
 
-              const pipelineCheck = validateImportPipelineAlignment(
-                builderReady ? parsed : (parsed as Record<string, unknown>),
-                formPayload
-              );
+              const pipelineCheck = validateImportPipelineAlignment(parsed, formPayload);
               if (!pipelineCheck.ok && process.env.NODE_ENV === 'development') {
                 console.warn('[resume-import:pipeline-validation]', pipelineCheck);
               }
@@ -394,7 +357,6 @@ export default function ResumeEditorPage() {
                 setFormData(formPayload);
                 commitBuilderDraft(templateId, formPayload);
                 logBuilderHydration('import', { templateId, importId, checksum });
-                console.log('formData.projects after import', formPayload.projects);
                 formLoaded = true;
                 if (importId) {
                   lastAppliedImportIdRef.current = importId;
@@ -435,8 +397,8 @@ export default function ResumeEditorPage() {
               checksum: builderFormChecksum(localDraft),
             });
           }
-        } else if (!skipFormHydration && shouldPrefill && !pendingImport) {
-          console.warn('⚠️ Prefill=true but no import data found in sessionStorage');
+        } else if (importFlowActive && !pendingImport) {
+          console.warn('⚠️ Import flow active but no import data found in sessionStorage');
         }
 
         if (paymentFlowData && !formLoaded) {
@@ -486,8 +448,13 @@ export default function ResumeEditorPage() {
           }
         }
         
-        // Priority 2: Load saved draft (from localStorage) — skip when import session is fresher
-        if (!skipFormHydration && !formLoaded && !paymentFlowData) {
+        // Priority 2: Load saved draft — never override a fresh import flow
+        const skipStaleLocalDraft =
+          !!pendingImport &&
+          importFlowActive &&
+          isImportFresherThanDraft(readLocalDraft(templateId), importMeta);
+
+        if (!formLoaded && !paymentFlowData && !skipStaleLocalDraft) {
           const parsed = readLocalDraft(templateId);
           if (parsed) {
             try {
@@ -533,7 +500,7 @@ export default function ResumeEditorPage() {
           }
         }
 
-        if (!skipFormHydration && formLoaded) {
+        if (formLoaded) {
           formHydratedForTemplateRef.current = templateId;
         }
       } catch (error) {

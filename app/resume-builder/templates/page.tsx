@@ -7,6 +7,8 @@ import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import type { Template } from '@/lib/resume-builder/types';
+import { writeImportSession } from '@/lib/resume-builder/builder-hydration';
+import { coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';
@@ -105,6 +107,16 @@ export default function TemplateSelectionPage() {
   }, [filters, templates, templatesLoaded]);
 
   const handleTemplateSelect = (templateId: string) => {
+    if (source === 'import') {
+      const raw = loadGalleryPreviewFormData();
+      if (Object.keys(raw).length > 0) {
+        const payload =
+          Object.keys(previewFormData).length > 0
+            ? previewFormData
+            : coalesceBuilderImportPayload(raw);
+        writeImportSession(payload);
+      }
+    }
     const importParams =
       source === 'import' ? '&prefill=true&source=import' : '';
     router.push(

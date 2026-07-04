@@ -154,6 +154,13 @@ export function builderFormChecksum(data: Record<string, unknown>): string {
   return `bf-${Math.abs(hash)}`;
 }
 
+export function isImportFlowActive(options: {
+  shouldPrefill: boolean;
+  sourceImport: boolean;
+}): boolean {
+  return options.shouldPrefill || options.sourceImport;
+}
+
 export function logBuilderHydration(
   source: string,
   detail: Record<string, unknown>
