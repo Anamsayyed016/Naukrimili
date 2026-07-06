@@ -493,9 +493,7 @@ export function injectResumeData(
   const educationData = filterMeaningfulEducation(
     (Array.isArray(data.education) ? data.education : []) as Array<Record<string, unknown>>
   );
-  const skillsData = Array.isArray(data.skills)
-    ? (data.skills as string[])
-    : normalizeSkillsForRender(data);
+  const skillsData = normalizeSkillsForRender(data);
   const projectsData = filterMeaningfulProjects(
     (Array.isArray(data.projects) ? data.projects : []) as Array<Record<string, unknown>>
   ) as Array<Record<string, string>>;

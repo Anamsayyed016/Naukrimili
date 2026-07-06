@@ -671,6 +671,11 @@ export function coalesceBuilderImportPayload(
 
     // Re-coalesce of gallery/editor session — skip field-mapper re-recovery (inflates achievements).
     if (isAlreadyBuilderCoalescedImport(out) && hasImportableContent(out)) {
+      // Gallery/editor session payloads are finalized in prepareBuilderSessionPayload —
+      // skip heavy import guards (raw-text skill/edu recovery) to avoid crashes and N× preview cost.
+      if (out._builderCoalesced === true) {
+        return applySummaryHygieneToBuilderForm(out);
+      }
       return applySummaryHygieneToBuilderForm(
         applyBuilderImportGuards(
           out,
@@ -2481,8 +2486,8 @@ function recoverJobTitleFromRawText(rawText: string): string {
 }
 
 function recoverSkillsFromRawText(rawText: string, existing: string[]): string[] {
-  const seen = new Set(existing.map((s) => s.toLowerCase()));
-  const out = [...existing];
+  const out = existing.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+  const seen = new Set(out.map((s) => s.toLowerCase()));
   if (!rawText || rawText.length < 80) return out;
 
   const addSkill = (part: string) => {

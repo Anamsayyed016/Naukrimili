@@ -868,9 +868,9 @@ export function recoverBuilderFormSections(
           typeof item === 'string'
             ? item
             : readFirstString(item as Record<string, unknown>, ['name', 'title', 'description']);
-        if (v && !seen.has(v.toLowerCase())) {
+        if (v && !seen.has(String(v).toLowerCase())) {
           merged.push(v);
-          seen.add(v.toLowerCase());
+          seen.add(String(v).toLowerCase());
           report.recovered.push(`${builderKey}:appended`);
         }
       }

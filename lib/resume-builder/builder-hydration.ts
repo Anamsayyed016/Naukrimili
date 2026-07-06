@@ -8,6 +8,10 @@ import {
   hasImportableContent,
   backfillImportedExperienceForDisplay,
 } from './import-transformer';
+import {
+  buildGallerySampleFormData,
+  isGalleryEmptyFormData,
+} from './gallery-demo';
 import { syncExperienceEntryAliases } from './experience-entry-sync';
 import {
   isValidatedContactName,
@@ -335,6 +339,39 @@ export function resolveEditorFormFromImport(): Record<string, unknown> | null {
     }
   }
   return null;
+}
+
+/**
+ * Resolve form data for template gallery previews — once per gallery render, not per card.
+ * Skips heavy re-coalesce when the session payload is already finalized.
+ */
+export function prepareGalleryPreviewFormData(
+  formData: Record<string, unknown>
+): Record<string, unknown> {
+  if (isGalleryEmptyFormData(formData)) {
+    return {};
+  }
+  if (formData._builderCoalesced === true) {
+    return backfillImportedExperienceForDisplay(ensureBuilderContactFields(formData));
+  }
+  try {
+    const coalesced = coalesceBuilderImportPayload(formData);
+    const base = hasImportableContent(coalesced) ? coalesced : formData;
+    return backfillImportedExperienceForDisplay(ensureBuilderContactFields(base));
+  } catch {
+    return backfillImportedExperienceForDisplay(ensureBuilderContactFields(formData));
+  }
+}
+
+/** Per-template demo payload when gallery has no user import data. */
+export function prepareGalleryTemplatePreviewData(
+  formData: Record<string, unknown>,
+  templateId: string
+): Record<string, unknown> {
+  if (isGalleryEmptyFormData(formData)) {
+    return buildGallerySampleFormData(templateId);
+  }
+  return prepareGalleryPreviewFormData(formData);
 }
 
 export function logBuilderHydration(

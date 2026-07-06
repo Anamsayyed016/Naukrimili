@@ -361,6 +361,7 @@ export function partitionSkillsForRender(skills: string[]): {
   let droppedPersonal = 0;
 
   for (const raw of skills) {
+    if (typeof raw !== 'string') continue;
     const name = raw.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
     if (!name) continue;
     if (isPersonalOrNonSkillEntry(name)) {

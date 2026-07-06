@@ -10,6 +10,7 @@ import {
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
+import { prepareGalleryPreviewFormData } from '@/lib/resume-builder/builder-hydration';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
@@ -44,6 +45,12 @@ export default function TemplatePreviewGallery({
   // preserved across re-renders that don't actually change the array contents.
   const galleryTemplates = useMemo(() => templates, [templates]);
 
+  // Coalesce import payload once for the whole gallery (not per card — avoids N× crash/latency).
+  const userPreviewData = useMemo(() => {
+    if (isGalleryEmptyFormData(formData)) return null;
+    return prepareGalleryPreviewFormData(formData);
+  }, [formData]);
+
   if (galleryTemplates.length === 0) {
     return (
       <div className="space-y-4">
@@ -76,7 +83,7 @@ export default function TemplatePreviewGallery({
           <EnhancedTemplateCard
             key={template.id}
             template={template}
-            formData={formData}
+            userPreviewData={userPreviewData}
             isSelected={selectedTemplateId === template.id}
             lockState={templateLockStates?.[template.id] ?? 'open'}
             onSelect={() => onTemplateSelect(template.id)}
@@ -89,7 +96,7 @@ export default function TemplatePreviewGallery({
 
 interface EnhancedTemplateCardProps {
   template: Template;
-  formData: Record<string, unknown>;
+  userPreviewData: Record<string, unknown> | null;
   isSelected: boolean;
   lockState?: TemplateLockState;
   onSelect: () => void;
@@ -97,7 +104,7 @@ interface EnhancedTemplateCardProps {
 
 function EnhancedTemplateCard({
   template,
-  formData,
+  userPreviewData,
   isSelected,
   lockState = 'open',
   onSelect,
@@ -179,15 +186,8 @@ function EnhancedTemplateCard({
         const colorVariant = templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) || templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
         
-        const previewData = isGalleryEmptyFormData(formData)
-          ? buildGallerySampleFormData(template.id)
-          : (await import('@/lib/resume-builder/import-transformer')).backfillImportedExperienceForDisplay(
-              (await import('@/lib/resume-builder/builder-hydration')).ensureBuilderContactFields(
-                (await import('@/lib/resume-builder/import-transformer')).coalesceBuilderImportPayload(
-                  formData
-                )
-              )
-            );
+        const previewData =
+          userPreviewData ?? buildGallerySampleFormData(template.id);
 
         const dataInjectedHtml = injectResumeData(html, previewData, {
           galleryPreview: true,
@@ -246,7 +246,7 @@ function EnhancedTemplateCard({
     return () => {
       mounted = false;
     };
-  }, [template.id, formData, useImagePreview, hasEnteredViewport]);
+  }, [template.id, userPreviewData, useImagePreview, hasEnteredViewport]);
 
   const cardAccent = getGalleryCardAccent(template.id);
 
