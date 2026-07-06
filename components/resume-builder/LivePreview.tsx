@@ -19,6 +19,7 @@ import { Maximize2, Minus, Plus } from 'lucide-react';
 import type { LoadedTemplate, Template } from '@/lib/resume-builder/types';
 import { resolveColorVariant } from '@/lib/resume-builder/color-theme';
 import { PREVIEW_CONTENT_FLOW_CSS } from '@/lib/resume-builder/preview-content-flow';
+import { PDF_PAGINATION_EXPORT_CSS } from '@/lib/resume-builder/pdf-pagination-overrides';
 import { cn } from '@/lib/utils';
 import {
   A4_WIDTH_PX,
@@ -557,6 +558,8 @@ export default function LivePreview({
                   overflow-wrap: break-word !important;
                   hyphens: auto;
                 }
+
+                ${PDF_PAGINATION_EXPORT_CSS}
 
                 ${PREVIEW_CONTENT_FLOW_CSS}
                 

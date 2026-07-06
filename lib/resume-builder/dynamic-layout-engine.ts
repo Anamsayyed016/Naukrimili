@@ -431,27 +431,60 @@ function estimateHtmlVolume(html: string): number {
   return text.length;
 }
 
-function extractSectionBlocks(containerHtml: string): Array<{ html: string; kind: RelocatableSectionKind | 'fixed' }> {
+/** Text volume + fixed blocks (photo strip ~220px) that inflate column height without much text. */
+function estimateColumnVisualWeight(html: string): number {
+  let weight = estimateHtmlVolume(html);
+  const photoBlocks = (
+    html.match(/profile-image-wrapper|photo-block|ese-photo-block|pee-photo-block|header-photo/gi) || []
+  ).length;
+  weight += photoBlocks * 1200;
+  return weight;
+}
+
+function classifySectionKind(block: string): RelocatableSectionKind | 'fixed' {
+  if (/\bexperience-item\b/i.test(block)) return 'fixed';
+  if (/\bsummary-text\b|professional-summary\b/i.test(block)) return 'fixed';
+  if (/\beducation-item\b/i.test(block)) return 'fixed';
+  if (/\bese-contact-list\b|\bcontact-list\b/i.test(block)) return 'fixed';
+  for (const spec of RELOCATABLE_SECTIONS) {
+    if (spec.marker.test(block)) return spec.kind;
+  }
+  return 'fixed';
+}
+
+function extractSectionBlocks(
+  containerHtml: string
+): Array<{ html: string; kind: RelocatableSectionKind | 'fixed' }> {
   const blocks: Array<{ html: string; kind: RelocatableSectionKind | 'fixed' }> = [];
   const re = /<section[^>]*>[\s\S]*?<\/section>/gi;
   let match: RegExpExecArray | null;
   while ((match = re.exec(containerHtml)) !== null) {
     const block = match[0];
-    let kind: RelocatableSectionKind | 'fixed' = 'fixed';
-    for (const spec of RELOCATABLE_SECTIONS) {
-      if (spec.marker.test(block)) {
-        kind = spec.kind;
-        break;
-      }
-    }
-    blocks.push({ html: block, kind });
+    blocks.push({ html: block, kind: classifySectionKind(block) });
   }
   return blocks;
 }
 
+/** Forensic threshold: rebalance only when column volume gap exceeds ~80px rendered height. */
+const COLUMN_IMBALANCE_VOLUME_THRESHOLD = 280;
+const SIDEBAR_SPARSE_RATIO = 0.55;
+
+function replaceColumnInner(
+  renderedHtml: string,
+  sidebarMatch: RegExpMatchArray,
+  mainMatch: RegExpMatchArray,
+  newSidebarInner: string,
+  newMainInner: string
+): string {
+  return renderedHtml
+    .replace(sidebarMatch[0], `${sidebarMatch[1]}${newSidebarInner}${sidebarMatch[3]}`)
+    .replace(mainMatch[0], `${mainMatch[1]}${newMainInner}${mainMatch[3]}`);
+}
+
 /**
- * Move flexible low-priority sections from main → sidebar when sidebar is sparse.
- * Import mode only. Experience, summary, and education stay in main.
+ * Bidirectional column balance for import mode.
+ * Sidebar → main when sidebar dominates; main → sidebar when sidebar is sparse.
+ * Experience, summary, education, and contact never move.
  */
 export function rebalanceImportSectionPlacement(
   renderedHtml: string,
@@ -461,9 +494,8 @@ export function rebalanceImportSectionPlacement(
   if (!shouldPreserveFullContentForRender(formData)) return renderedHtml;
   if (!detectHasSidebar(htmlTemplate)) return renderedHtml;
 
-  const asideMatch = renderedHtml.match(/(<aside[^>]*>)([\s\S]*?)(<\/aside>)/i);
   const sidebarDivMatch =
-    asideMatch ||
+    renderedHtml.match(/(<aside[^>]*>)([\s\S]*?)(<\/aside>)/i) ||
     renderedHtml.match(
       /(<div[^>]*class="[^"]*\bsidebar[^"]*"[^>]*>)([\s\S]*?)(<\/div>)(?=[\s\S]*<main)/i
     );
@@ -472,16 +504,57 @@ export function rebalanceImportSectionPlacement(
   const mainMatch = renderedHtml.match(/(<main[^>]*>)([\s\S]*?)(<\/main>)/i);
   if (!mainMatch) return renderedHtml;
 
-  const sidebarInner = sidebarDivMatch[2];
-  const mainInner = mainMatch[2];
-  const sidebarVol = estimateHtmlVolume(sidebarInner);
-  const mainVol = estimateHtmlVolume(mainInner);
+  let sidebarInner = sidebarDivMatch[2];
+  let mainInner = mainMatch[2];
+  let sidebarWeight = estimateColumnVisualWeight(sidebarInner);
+  let mainWeight = estimateColumnVisualWeight(mainInner);
+  const weightGap = () => Math.abs(sidebarWeight - mainWeight);
 
-  if (sidebarVol >= mainVol * 0.55) return renderedHtml;
+  // Sidebar taller than main — move flexible sections sidebar → main
+  if (sidebarWeight > mainWeight && weightGap() > COLUMN_IMBALANCE_VOLUME_THRESHOLD) {
+    const sidebarBlocks = extractSectionBlocks(sidebarInner);
+    const candidates = sidebarBlocks
+      .filter((b) => b.kind !== 'fixed')
+      .filter((b) => {
+        const spec = RELOCATABLE_SECTIONS.find((s) => s.kind === b.kind);
+        if (!spec) return false;
+        return new RegExp(`\\{\\{#if ${spec.token}\\}\\}`, 'i').test(htmlTemplate);
+      })
+      .sort(
+        (a, b) => estimateHtmlVolume(b.html) - estimateHtmlVolume(a.html)
+      );
+
+    const toMove: string[] = [];
+    for (const block of candidates) {
+      if (weightGap() <= COLUMN_IMBALANCE_VOLUME_THRESHOLD) break;
+      toMove.push(block.html);
+      const blockWeight = estimateColumnVisualWeight(block.html);
+      sidebarWeight -= blockWeight;
+      mainWeight += blockWeight;
+    }
+
+    if (toMove.length > 0) {
+      for (const blockHtml of toMove) {
+        sidebarInner = sidebarInner.replace(blockHtml, '');
+        mainInner = `${mainInner}\n${blockHtml}`;
+      }
+      return replaceColumnInner(
+        renderedHtml,
+        sidebarDivMatch,
+        mainMatch,
+        sidebarInner,
+        mainInner
+      );
+    }
+  }
+
+  // Sidebar sparse — move flexible sections main → sidebar
+  if (sidebarWeight >= mainWeight * SIDEBAR_SPARSE_RATIO) return renderedHtml;
 
   const mainBlocks = extractSectionBlocks(mainInner);
   const toMove: string[] = [];
-  let projectedSidebarVol = sidebarVol;
+  let projectedSidebarWeight = sidebarWeight;
+  const targetSidebarWeight = mainWeight * 0.42;
 
   const sorted = [...mainBlocks].sort((a, b) => {
     const pa = RELOCATABLE_SECTIONS.find((s) => s.kind === a.kind)?.priority ?? 99;
@@ -489,18 +562,16 @@ export function rebalanceImportSectionPlacement(
     return pb - pa;
   });
 
-  const targetSidebarVol = mainVol * 0.42;
-
   for (const block of sorted) {
     if (block.kind === 'fixed') continue;
     const spec = RELOCATABLE_SECTIONS.find((s) => s.kind === block.kind);
     if (!spec) continue;
     const templateSupports = new RegExp(`\\{\\{#if ${spec.token}\\}\\}`, 'i').test(htmlTemplate);
     if (!templateSupports) continue;
-    if (projectedSidebarVol >= targetSidebarVol) break;
+    if (projectedSidebarWeight >= targetSidebarWeight) break;
 
     toMove.push(block.html);
-    projectedSidebarVol += estimateHtmlVolume(block.html);
+    projectedSidebarWeight += estimateColumnVisualWeight(block.html);
   }
 
   if (toMove.length === 0) return renderedHtml;
@@ -512,9 +583,13 @@ export function rebalanceImportSectionPlacement(
     newSidebarInner = `${newSidebarInner}\n${blockHtml}`;
   }
 
-  return renderedHtml
-    .replace(sidebarDivMatch[0], `${sidebarDivMatch[1]}${newSidebarInner}${sidebarDivMatch[3]}`)
-    .replace(mainMatch[0], `${mainMatch[1]}${newMainInner}${mainMatch[3]}`);
+  return replaceColumnInner(
+    renderedHtml,
+    sidebarDivMatch,
+    mainMatch,
+    newSidebarInner,
+    newMainInner
+  );
 }
 
 /* ── Render validation audit ── */
