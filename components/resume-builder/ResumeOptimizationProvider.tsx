@@ -137,6 +137,8 @@ export function ResumeOptimizationProvider({
   const analyzeInFlightRef = useRef(false);
   const lastAnalyzeAtRef = useRef(0);
   const roleTouchedRef = useRef(false);
+  const paidOptimizeBlockedRef = useRef(false);
+  const [optimizeAccessAllowed, setOptimizeAccessAllowed] = useState<boolean | null>(null);
 
   const resolvedRole =
     targetRole === '__custom__' ? customRole.trim() : targetRole.trim();
@@ -163,6 +165,33 @@ export function ResumeOptimizationProvider({
       }),
     [resolvedRole, industry, experienceLevel, jobDescription, formData]
   );
+
+  // Probe paid optimize access once — silent auto-run must not POST when credits are exhausted.
+  useEffect(() => {
+    if (status !== 'authenticated') {
+      setOptimizeAccessAllowed(null);
+      return;
+    }
+    let cancelled = false;
+    fetch('/api/resume-builder/optimize', { method: 'GET', credentials: 'include' })
+      .then(async (res) => {
+        const data = (await res.json()) as { allowed?: boolean };
+        if (!cancelled) {
+          const allowed = res.ok && data.allowed === true;
+          setOptimizeAccessAllowed(allowed);
+          if (!allowed) paidOptimizeBlockedRef.current = true;
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setOptimizeAccessAllowed(false);
+          paidOptimizeBlockedRef.current = true;
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [status]);
 
   // Restore JD from sessionStorage once per template
   useEffect(() => {
@@ -237,6 +266,7 @@ export function ResumeOptimizationProvider({
   const runOptimize = useCallback(
     async (options?: { force?: boolean; silent?: boolean }) => {
       if (analyzeInFlightRef.current || isAnalyzing) return;
+      if (!options?.force && paidOptimizeBlockedRef.current) return;
 
       const now = Date.now();
       if (!options?.force && now - lastAnalyzeAtRef.current < ANALYZE_COOLDOWN_MS) {
@@ -312,11 +342,14 @@ export function ResumeOptimizationProvider({
 
         if (!res.ok) {
           if (data.requiresPayment) {
+            paidOptimizeBlockedRef.current = true;
+            if (options?.silent) return;
             throw new Error(
               data.error ||
                 'Full AI analysis requires a plan. Role-based guidance below is still available.'
             );
           }
+          if (options?.silent) return;
           throw new Error(data.error || 'Analysis failed');
         }
 
@@ -336,11 +369,10 @@ export function ResumeOptimizationProvider({
           });
         }
       } catch (err) {
+        if (options?.silent) return;
         const msg = err instanceof Error ? err.message : 'Analysis failed';
         setAnalyzeError(msg);
-        if (!options?.silent) {
-          toast({ title: 'Optimization failed', description: msg, variant: 'destructive' });
-        }
+        toast({ title: 'Optimization failed', description: msg, variant: 'destructive' });
       } finally {
         setIsAnalyzing(false);
         analyzeInFlightRef.current = false;
@@ -370,14 +402,14 @@ export function ResumeOptimizationProvider({
     [report, isReportStale, rolePreview]
   );
 
-  // Auto-run role-first guidance when role / level / JD context changes
+  // Auto-run full AI analysis only when the user has optimize credits (GET probe above).
   useEffect(() => {
-    if (!resolvedRole || status !== 'authenticated') return;
+    if (!resolvedRole || status !== 'authenticated' || optimizeAccessAllowed !== true) return;
     const timer = setTimeout(() => {
       runOptimize({ silent: true });
     }, AUTO_RUN_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [resolvedRole, experienceLevel, jobDescription, status, runOptimize]);
+  }, [resolvedRole, experienceLevel, jobDescription, status, optimizeAccessAllowed, runOptimize]);
 
   const getFieldSuggestions = useCallback(
     (field: SuggestionField, fd: Record<string, unknown>, searchValue = '') => {

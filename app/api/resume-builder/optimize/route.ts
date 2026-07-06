@@ -25,6 +25,27 @@ function aiAvailable(): boolean {
   );
 }
 
+/** Lightweight access probe — avoids POST 403 noise from silent auto-run in the editor. */
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ allowed: false, reason: 'Unauthorized' }, { status: 401 });
+    }
+
+    const accessCheck = await checkResumeOptimizationPanelAccess(session.user.id);
+    return NextResponse.json({
+      allowed: accessCheck.allowed,
+      freeTier: accessCheck.freeTier ?? false,
+      requiresPayment: !accessCheck.allowed,
+      reason: accessCheck.reason,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Access check failed';
+    return NextResponse.json({ allowed: false, reason: message }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

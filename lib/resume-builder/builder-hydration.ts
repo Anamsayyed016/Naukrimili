@@ -301,11 +301,20 @@ export function resolveEditorFormFromImport(): Record<string, unknown> | null {
   if (!raw) return null;
   try {
     const coalesced = coalesceBuilderImportPayload(raw);
-    if (!hasImportableContent(coalesced)) return null;
-    return normalizeImportedFormForEditor(coalesced);
+    if (hasImportableContent(coalesced)) {
+      return normalizeImportedFormForEditor(coalesced);
+    }
   } catch {
-    return null;
+    /* fall through — gallery uses the same raw-session fallback */
   }
+  if (hasImportableContent(raw)) {
+    try {
+      return normalizeImportedFormForEditor(ensureBuilderContactFields(raw));
+    } catch {
+      return ensureBuilderContactFields(raw);
+    }
+  }
+  return null;
 }
 
 export function logBuilderHydration(

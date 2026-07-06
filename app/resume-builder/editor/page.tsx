@@ -211,10 +211,8 @@ export default function ResumeEditorPage() {
   const [currentStep, setCurrentStep] = useState<StepId>('contacts');
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedColorId, setSelectedColorId] = useState<string>('');
-  const [formData, setFormData] = useState<Record<string, any>>(() => {
-    if (typeof window === 'undefined') return {};
-    return resolveEditorFormFromImport() ?? {};
-  });
+  // Always {} on first paint — import is applied in useLayoutEffect (SSR-safe).
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   /** Prevents import/localStorage from overwriting in-memory edits on colorParam / URL changes. */
@@ -322,18 +320,26 @@ export default function ResumeEditorPage() {
           (pendingImport ? String(pendingImport._importSessionId ?? '') : '');
 
         const sessionForm = resolveEditorFormFromImport();
+        const explicitGalleryImport = shouldPrefill || sourceImport;
         let formLoaded = hasImportableContent(formData);
 
-        if (formLoaded && importId && lastAppliedImportIdRef.current !== importId) {
+        if (
+          formLoaded &&
+          importId &&
+          lastAppliedImportIdRef.current !== importId &&
+          !explicitGalleryImport
+        ) {
           formLoaded = false;
         }
 
         // Priority 1: Import session — read session directly (not React state — SSR hydration safe)
         const shouldLoadImport =
-          !!sessionForm && forceImportHydration && !formLoaded && !userHasEditedRef.current;
+          !!sessionForm &&
+          forceImportHydration &&
+          (!formLoaded || explicitGalleryImport) &&
+          !userHasEditedRef.current;
 
         if (shouldLoadImport) {
-          const explicitGalleryImport = shouldPrefill || sourceImport;
           const localDraft = readLocalDraft(templateId);
           const draftHasContent = !!(localDraft && hasImportableContent(localDraft));
           const shouldApplyImport =
