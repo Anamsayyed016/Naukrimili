@@ -80,6 +80,7 @@ import {
   sanitizeExperienceCompanyValue,
   isCorporateStructurePhrase,
   isMisclassifiedExperienceProject,
+  isPlausibleProjectName,
   isAcceptedEmailDerivedName,
   sanitizeImportSummary,
   sanitizeImportJobTitle,
@@ -457,6 +458,19 @@ function isJobTitleMisclassifiedAsProject(
     if (tl && n === tl) return true;
   }
   return false;
+}
+
+/**
+ * Project descriptions legitimately use action verbs (Developed, Built, etc.).
+ * Reject only on the title when the name is a plausible project — not on combined prose.
+ */
+function shouldRejectProjectAsExperience(name: string, description = ''): boolean {
+  const n = String(name || '').trim();
+  if (!n) return true;
+  if (isPlausibleProjectName(n)) {
+    return isMisclassifiedExperienceProject(n, '');
+  }
+  return isMisclassifiedExperienceProject(n, description);
 }
 
 function countExperienceWithPlausibleCompany(list: unknown[]): number {
@@ -2551,7 +2565,7 @@ function rehomeMisclassifiedProjects(
   for (const project of projects) {
     const name = String(project.name || project.title || '').trim();
     const desc = String(project.description || project.Description || '').trim();
-    if (!name || isMisclassifiedExperienceProject(name, desc)) {
+    if (!name || shouldRejectProjectAsExperience(name, desc)) {
       const bullet = [name, desc].filter(Boolean).join(' — ').trim();
       if (bullet.length >= 12) bullets.push(bullet);
       continue;
@@ -3042,7 +3056,7 @@ function transformProjectsArray(
       ) {
         return false;
       }
-      if (name && isMisclassifiedExperienceProject(name, desc)) {
+      if (name && shouldRejectProjectAsExperience(name, desc)) {
         return false;
       }
       return true;
