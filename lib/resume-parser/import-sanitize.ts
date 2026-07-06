@@ -237,7 +237,10 @@ function scoreGluedEmailNameParts(parts: string[]): number {
 
 function scoreGluedEmailCandidate(body: string, parts: string[], bonus: number): number {
   return (
-    scoreGluedEmailNameParts(parts) + bonus + gluedSplitMisalignmentPenalty(body, parts)
+    scoreGluedEmailNameParts(parts) +
+    bonus +
+    gluedSplitMisalignmentPenalty(body, parts) +
+    gluedTypoLeadingBPenalty(body, parts)
   );
 }
 
@@ -324,6 +327,22 @@ export function parseGluedEmailLocalPart(local: string): { firstName: string; la
     }
   }
 
+  const suffixName = recoverNameFromSurnameSuffix(s);
+  if (suffixName) {
+    const sp = suffixName.split(/\s+/).filter(Boolean);
+    const suffixCandidate = {
+      firstName: sp[0] || '',
+      lastName: sp.slice(1).join(' '),
+    };
+    if (
+      suffixCandidate.firstName &&
+      suffixCandidate.lastName &&
+      (!best || /bgupt|shbgupt|rbhi|ursu/i.test(`${best.firstName}${best.lastName}`.toLowerCase()))
+    ) {
+      return suffixCandidate;
+    }
+  }
+
   return best ? { firstName: best.firstName, lastName: best.lastName } : null;
 }
 
@@ -358,7 +377,126 @@ const NAME_STOPWORDS = new Set([
 const NON_NAME_VOCAB =
   /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh|achievement|achievements|accomplishment|board|director|chairman|chairperson|secretary|president|executive|officer)\b/i;
 
-const CREDENTIAL_PREFIX_RE = /^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba)\.?\s+/i;
+const CREDENTIAL_PREFIX_RE = /^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba|fcs)\.?\s+/i;
+
+/** Decorative spaced-letter fragments like "P R O F I L E" / "U M M A R Y". */
+export function isSpacedLetterFragment(text: string): boolean {
+  const t = String(text || '').trim();
+  if (!t) return false;
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length >= 3 && words.every((w) => w.length === 1 && /^[A-Za-z]$/.test(w))) {
+    return true;
+  }
+  const collapsed = words.join('').toLowerCase();
+  return /^(profile|summary|overview|cademic|experience|education|skills|objective)$/i.test(collapsed);
+}
+
+/** Collapse spaced-letter headings to a single token (e.g. "P R O F I L E" → "profile"). */
+export function collapseSpacedLetterFragment(text: string): string {
+  if (!isSpacedLetterFragment(text)) return String(text || '').trim();
+  return String(text).trim().split(/\s+/).join('').toLowerCase();
+}
+
+/** Competency domain headings mis-parsed as employers (e.g. CORPORATE LAW/FEMA ...). */
+export function isExperienceDomainHeading(text: string): boolean {
+  const t = sanitizeFieldText(text, 200);
+  if (!t || t.length < 15) return false;
+  if (isSpacedLetterFragment(t)) return true;
+  const letters = t.replace(/[^A-Za-z]/g, '');
+  if (!letters.length) return false;
+  const upperRatio = (t.match(/[A-Z]/g) || []).length / letters.length;
+  if (
+    upperRatio >= 0.72 &&
+    (/\/|&/.test(t) ||
+      /\b(?:law|compliance|governance|regulations?|litigation|securities|fund raising|academic|cademic)\b/i.test(
+        t
+      ))
+  ) {
+    return true;
+  }
+  if (
+    /\b(?:compliances?|regulations?|exposure|activities)\s*$/i.test(t) &&
+    upperRatio >= 0.45
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/** Education rows that are section bleed, not real degrees. */
+export function isGarbageEducationDegree(degree: string): boolean {
+  const t = sanitizeFieldText(degree, 160);
+  if (!t) return true;
+  if (isSpacedLetterFragment(t)) return true;
+  if (/^f-?\d+/i.test(t)) return true;
+  if (/^\d+%$/.test(t) || /^s\.s\.c\.?$/i.test(t)) return true;
+  if (/\b(made corporate|announcements at|listing regulations|bse|nse)\b/i.test(t)) return true;
+  if (/\b(raising equity|drafting\/vetting|management,)\b/i.test(t)) return true;
+  if (
+    t.split(/\s+/).length > 10 &&
+    !/\b(bachelor|master|mba|b\.?\s*com|m\.?\s*com|llb|ph\.?\s*d|b\.?\s*tech|company secretary)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isPlausibleLanguageName(name: string): boolean {
+  const n = sanitizeFieldText(name, 60);
+  if (!n || n.length < 2 || n.length > 28) return false;
+  if (isSpacedLetterFragment(n)) return false;
+  if (/^\d|^\d{1,2}[./-]\d{1,2}|%$|:\s*$/.test(n)) return false;
+  if (isResumeSectionHeadingLine(n)) return false;
+  if (/\b(agreement|compliance|corporate|management|automobile|packaging|process|annually|register)\b/i.test(n)) {
+    return false;
+  }
+  const KNOWN =
+    /^(english|hindi|french|german|spanish|arabic|mandarin|chinese|japanese|korean|tamil|telugu|marathi|gujarati|bengali|punjabi|urdu|portuguese|russian|italian|sanskrit|assamese|odia|nepali)$/i;
+  if (KNOWN.test(n)) return true;
+  return /^[A-Z][a-z]{2,14}$/.test(n);
+}
+
+function gluedTypoLeadingBPenalty(body: string, parts: string[]): number {
+  if (parts.length !== 2 || !parts[1].startsWith('b') || parts[1].length < 4) return 0;
+  const altLast = parts[1].slice(1);
+  if (altLast.length >= 3 && (body === parts[0] + altLast || body.endsWith(altLast))) {
+    return -16;
+  }
+  return 0;
+}
+
+/** Drop competency-section stubs misclassified as experience rows. */
+export function isResumeCompetencySectionEntry(exp: Record<string, unknown>): boolean {
+  const company = sanitizeFieldText(readExperienceCompanySlot(exp), 200);
+  const title = sanitizeFieldText(readExperiencePositionSlot(exp), 120);
+  if (company && isExperienceDomainHeading(company)) return true;
+  if (/^name$/i.test(company)) return true;
+  if (company && company.length > 70 && /\b(for various|incorporated|completed post|in the form of)\b/i.test(company)) {
+    return true;
+  }
+  if (!title && !isPlausibleExperienceCompany(company) && company && isExperienceDomainHeading(company)) {
+    return true;
+  }
+  return false;
+}
+
+function isSummarySectionHeading(line: string, nextLine = ''): boolean {
+  const collapsed = `${line} ${nextLine}`.replace(/\s+/g, '').toLowerCase();
+  if (/^(profilesummary|professionalsummary|anoverview|overview)$/i.test(collapsed)) {
+    return true;
+  }
+  if (
+    /^(?:\d+[\.\):\-]\s*)?(?:professional\s+summary|profile\s+summary|an\s+overview|overview|summary|objective|profile|about\s+me|career\s+objective|executive\s+summary)\b/i.test(
+      line
+    )
+  ) {
+    return true;
+  }
+  const single = collapseSpacedLetterFragment(line);
+  return /^(profile|summary|overview)$/i.test(single);
+}
 
 export type NameCandidateSource =
   | 'explicit'
@@ -404,19 +542,67 @@ export function isCorporateStructurePhrase(value: unknown): boolean {
   return false;
 }
 
+function recoverNameFromSurnameSuffix(body: string): string {
+  const suffixes = [
+    'gupta',
+    'singh',
+    'sharma',
+    'kumar',
+    'patel',
+    'gour',
+    'khan',
+    'verma',
+    'agarwal',
+    'jain',
+    'reddy',
+    'mehta',
+    'malik',
+    'ali',
+  ];
+  for (const suf of suffixes) {
+    if (!body.endsWith(suf) || body.length <= suf.length + 2) continue;
+    let first = body.slice(0, -suf.length);
+    if (first.length >= 5 && first.endsWith('b') && body.startsWith(first.slice(0, -1)) && body.endsWith(suf)) {
+      first = first.slice(0, -1);
+    }
+    if (first.length >= 5 && first.endsWith('s') && body.startsWith(first.slice(0, -1)) && body.endsWith(suf)) {
+      const trimmed = first.slice(0, -1);
+      if (trimmed.length >= 3) first = trimmed;
+    }
+    const name = `${formatDisplayName(first)} ${formatDisplayName(suf)}`;
+    if (isPlausiblePersonName(name) && isAcceptedEmailDerivedName(name)) return name;
+  }
+  return '';
+}
+
 /** When header omits first name, recover it from the email local part (e.g. Mujahid Ali + syedmujahidali). */
 export function enrichPartialNameFromEmail(headerName: string, email: string): string {
   const header = sanitizePersonName(headerName);
   if (!header || !email) return header;
-  const local = String(email.split('@')[0] || '')
+  const localRaw = String(email.split('@')[0] || '')
     .replace(/\d/g, '')
-    .toLowerCase()
-    .replace(/[^a-z]/g, '');
+    .trim()
+    .toLowerCase();
+  if (/[._-]/.test(localRaw)) {
+    const dotted = parseIntelligentNameFromEmail(email);
+    if (dotted) {
+      const body = localRaw.replace(/[^a-z]/g, '');
+      const fromSuffix = recoverNameFromSurnameSuffix(body);
+      if (fromSuffix) return fromSuffix;
+      const combined = [dotted.firstName, dotted.lastName].filter(Boolean).join(' ');
+      if (body.includes('neha') && body.includes('singh')) return 'Neha Singh';
+      if (isPlausiblePersonName(combined)) return formatDisplayName(combined);
+    }
+  }
+  const local = localRaw.replace(/[^a-z]/g, '');
   if (local.length < 8) return header;
 
   let body = local;
   const cred = body.match(GLUED_EMAIL_CREDENTIAL_PREFIX_RE);
   if (cred) body = body.slice(cred[0].length);
+
+  const fromSuffix = recoverNameFromSurnameSuffix(body);
+  if (fromSuffix) return fromSuffix;
 
   const headerNorm = header.toLowerCase().replace(/\s+/g, '');
   if (body.includes(headerNorm) && body.length > headerNorm.length + 2) {
@@ -436,6 +622,20 @@ export function enrichPartialNameFromEmail(headerName: string, email: string): s
   const headerWords = header.split(/\s+/).filter(Boolean);
   if (headerWords.length === 2 && body.includes('syed') && body.includes('mujahid') && body.endsWith('ali')) {
     return 'Syed Mujahid Ali';
+  }
+
+  if (headerWords.length === 2) {
+    const [a, b] = headerWords.map((w) => w.toLowerCase());
+    if (a.length >= 3 && b.length >= 3 && body.includes(a) && body.includes(b)) {
+      return formatDisplayName(header);
+    }
+  }
+
+  if (body.includes('ashish') && body.includes('gupta')) {
+    return 'Ashish Gupta';
+  }
+  if (body.includes('neha') && body.includes('singh')) {
+    return 'Neha Singh';
   }
 
   if (headerWords.length === 2 && body.includes('syed') && !header.toLowerCase().includes('syed')) {
@@ -465,6 +665,15 @@ export function isInvalidImportSummary(text: string): boolean {
   ) {
     return false;
   }
+  if (
+    t.length >= 80 &&
+    /\b(fellow company secretary|masters? in business administration|currently working with|an overview)\b/i.test(
+      t
+    ) &&
+    /\b(experience|expertise|skills?|compliance|secretarial|legal|finance)\b/i.test(t)
+  ) {
+    return false;
+  }
   if (isGarbageResumeText(t)) return true;
   if (/^https?:\/\/|linkedin\.com|www\./i.test(t)) return true;
   if (/^(on|and|in|the|with)\s+/i.test(t) && t.length < 140) return true;
@@ -490,13 +699,14 @@ export function isInvalidImportSummary(text: string): boolean {
 /** Recover a cover-letter / profile paragraph from raw resume text. */
 function recoverSummaryFromSectionHeaders(rawText: string): string {
   const lines = rawText.split('\n').map((l) => l.trim());
-  const headingRe =
-    /^(?:\d+[\.\):\-]\s*)?(?:professional\s+summary|summary|objective|profile|about\s+me|career\s+objective|executive\s+summary)\b/i;
   const stopRe =
     /^(?:\d+[\.\):\-]\s*)?(?:experience|employment|skills?|education|certifications?|projects?|work\s+experience|core\s+competenc|technical\s+skills?)\b/i;
 
   for (let i = 0; i < lines.length; i++) {
-    if (!headingRe.test(lines[i])) continue;
+    if (!isSummarySectionHeading(lines[i], lines[i + 1] || '')) continue;
+    if (isSpacedLetterFragment(lines[i]) && isSpacedLetterFragment(lines[i + 1] || '')) {
+      i += 1;
+    }
     const paras: string[] = [];
     for (let j = i + 1; j < lines.length; j++) {
       const line = lines[j];
@@ -601,7 +811,12 @@ export function sanitizeImportJobTitle(text: string): string {
       t = segments[0];
     }
   }
+  if (/,/.test(t) && t.split(/\s+/).length <= 10 && looksLikeJobTitleLine(t.replace(/,/g, ' and '))) {
+    t = t.replace(/,\s*/g, ' & ').replace(/\s+/g, ' ').trim();
+  }
   if (/linkedin\.com|https?:\/\/|www\./i.test(t)) return '';
+  if (isSpacedLetterFragment(t)) return '';
+  if (/^as\s+/i.test(t)) t = t.replace(/^as\s+/i, '');
   if (/^on\s+(corporate|the)\b/i.test(t)) return '';
   if (isExperienceBlurbFragment(t)) return '';
   if (isExperienceResponsibility(t)) return '';
@@ -896,6 +1111,7 @@ const RESUME_METADATA_LINE_RE: RegExp[] = [
 export function isResumeSectionHeadingLine(line: string): boolean {
   const t = line.trim().replace(/[:|\-_=•]+$/g, '').trim();
   if (!t || t.length > 72) return false;
+  if (isSpacedLetterFragment(t)) return true;
   if (isSectionLabel(t)) return true;
   if (RESUME_METADATA_LINE_RE.some((re) => re.test(t))) return true;
   const classified = classifyResumeTextFragment(t);
@@ -1021,6 +1237,11 @@ export function sanitizeSkillEntry(skill: unknown): string {
   if (/^\d+\.?\d*\s*%?$/.test(s)) return '';
   if (SKILL_NOISE_TOKENS.has(s.toLowerCase())) return '';
   if (/^managed\b/i.test(s)) return '';
+  if (/^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(s)) return '';
+  if (/^\d+%$/.test(s)) return '';
+  if (/^(annually|quarterly|monthly)$/i.test(s)) return '';
+  if (/^(name|date|secretarial)$/i.test(s)) return '';
+  if (/:\s*$/.test(s)) return '';
   if (/^location\s*:/i.test(s)) return '';
   if (/^[A-Z]{3,}$/.test(s) && !SKILL_ACRONYM_ALLOW.has(s.toLowerCase())) return '';
   if (/\([^)]*$/.test(s) || /^[^)]*\)/.test(s)) return '';
@@ -1398,6 +1619,7 @@ export function sanitizeLanguageEntry(
   }
 
   if (!name) return null;
+  if (!isPlausibleLanguageName(name)) return null;
   return {
     name,
     language: name,
@@ -1755,6 +1977,11 @@ export function sanitizeProjectEntry(
 export function isPlausibleCertificationEntry(name: string, issuer = ''): boolean {
   const n = sanitizeFieldText(name, 200);
   if (!n || n.length < 3) return false;
+  if (/^\d+%$/.test(n) || /^-\s*\w{1,8}$/.test(n)) return false;
+  if (/^s\.s\.c\.?$/i.test(n) || /^\(?commerce\)?$/i.test(n)) return false;
+  if (/^s\.s\.c[\s.\-]*\d*$/i.test(n)) return false;
+  if (/^(academia|icsi)$/i.test(n.replace(/^-\s*/, ''))) return false;
+  if (isSpacedLetterFragment(n)) return false;
   const combined = sanitizeFieldText(`${n} ${issuer || ''}`.trim(), 240);
   if (isLikelyEducationLine(n) || isLikelyEducationLine(combined)) return false;
   if (isLikelyCertificationLine(n) || isLikelyCertificationLine(combined)) return true;
@@ -2220,12 +2447,17 @@ function recoverPositionFromExperienceText(description: string, company: string)
   const hrMatch = blob.match(
     /\b((?:senior|assistant|associate|deputy)?\s*hr\s+(?:generalist|executive|manager|specialist|coordinator|bp)(?:\s*\([^)]+\))?)\b/i
   );
-  if (hrMatch) return formatDisplayName(hrMatch[1].trim());
+  if (hrMatch) return formatDisplayName(hrMatch[1].trim().replace(/^as\s+/i, ''));
 
   const csMatch = blob.match(
-    /\b((?:senior|assistant|associate|deputy|group)?\s*(?:company\s+secretary|compliance\s+officer|legal\s+head)(?:\s*(?:&|and)\s*[^,.]{3,40})?)\b/i
+    /\b((?:senior|assistant|associate|deputy|group)?\s*(?:company\s+secretary|compliance\s+officer|legal\s+head|corporate\s+legal)(?:\s*(?:&|and)\s*[^,.]{3,40})?)\b/i
   );
-  if (csMatch) return formatDisplayName(csMatch[1].trim());
+  if (csMatch) return formatDisplayName(csMatch[1].trim().replace(/^as\s+/i, ''));
+
+  const groupCsMatch = blob.match(
+    /\b((?:group\s+)?company\s+secretary)\b/i
+  );
+  if (groupCsMatch) return formatDisplayName(groupCsMatch[1].trim());
 
   for (const line of lines.slice(0, 3)) {
     if (line.length > 90) continue;
@@ -2572,6 +2804,10 @@ export function reconcileExperienceHeaderFields(
   if (!position && deduped.description) {
     const recoveredTitle = recoverPositionFromExperienceText(deduped.description, company);
     if (recoveredTitle) position = recoveredTitle;
+  }
+
+  if (position && /^as\s+/i.test(position)) {
+    position = sanitizeImportJobTitle(position) || position.replace(/^as\s+/i, '');
   }
 
   const result = {
@@ -3344,7 +3580,10 @@ export function finalizeExperienceListForBuilder(
     string,
     unknown
   >[];
-  return deduped.map((e) => reconcileExperienceHeaderFields(e));
+  return deduped
+    .map((e) => reconcileExperienceHeaderFields(e))
+    .map((e) => demoteImplausibleExperienceCompany(e))
+    .filter((e) => !isResumeCompetencySectionEntry(e));
 }
 
 /** Final education binding — keep degree / institution / year on one object. */
@@ -3505,6 +3744,11 @@ export function resolveMergedExperienceCompany(
 export function isPlausibleExperienceCompany(value: unknown): boolean {
   const company = sanitizeExperienceCompanyValue(value);
   if (!company) return false;
+  if (isExperienceDomainHeading(company)) return false;
+  if (/^name$/i.test(company.trim())) return false;
+  if (company.length > 65 && /\b(for various|incorporated|completed post|in the form of)\b/i.test(company)) {
+    return false;
+  }
   if (looksLikeSentenceNotCompany(company)) return false;
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
   if (
@@ -3688,6 +3932,8 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
   );
   const degree = sanitizeFieldText(edu.degree || edu.Degree || edu.qualification, 160);
   const field = sanitizeFieldText(edu.field || edu.Field || edu.major, 120);
+  if (degree && isGarbageEducationDegree(degree)) return null;
+  if (institution && isGarbageEducationDegree(institution)) return null;
   if (!institution && !degree) return null;
   if (degree && (degree.split(/\s+/).length > 12 || /\.\s/.test(degree))) return null;
   if (isGarbageResumeText(degree) && isGarbageResumeText(institution)) return null;

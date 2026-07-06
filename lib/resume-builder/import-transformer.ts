@@ -81,6 +81,10 @@ import {
   sanitizeImportSummary,
   sanitizeImportJobTitle,
   enrichPartialNameFromEmail,
+  isGarbageEducationDegree,
+  isSpacedLetterFragment,
+  isResumeCompetencySectionEntry,
+  isResumeSectionHeadingLine,
 } from '@/lib/resume-parser/import-sanitize';
 import { extractNameWithConfidence } from '@/lib/resume-parser/text-recovery';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
@@ -1995,8 +1999,26 @@ function applyBuilderImportGuards(
   out.bio = cleanSummary;
   out.objective = cleanSummary;
   const cleanTitle = sanitizeImportJobTitle(String(out.jobTitle || out.title || ''));
-  out.jobTitle = cleanTitle;
-  out.title = cleanTitle;
+  let resolvedTitle = cleanTitle;
+  if (!resolvedTitle && rawText.length >= 80) {
+    resolvedTitle = recoverJobTitleFromRawText(rawText);
+  }
+  if (!resolvedTitle && String(out.summary || '').length >= 60) {
+    const summaryText = String(out.summary);
+    const m = summaryText.match(
+      /\b(corporate\s+legal\s*(?:,|&|\band\b)\s*secretarial[^,.]{0,40})/i
+    );
+    resolvedTitle = m ? sanitizeImportJobTitle(m[1]) : '';
+    if (
+      !resolvedTitle &&
+      /\bcorporate\s+legal\b/i.test(summaryText) &&
+      /\b(?:secretarial|governance|compliance)\b/i.test(summaryText)
+    ) {
+      resolvedTitle = sanitizeImportJobTitle('Corporate Legal & Secretarial');
+    }
+  }
+  out.jobTitle = resolvedTitle;
+  out.title = resolvedTitle;
   out.projects = transformProjectsArray(
     out.projects,
     cleanTitle,
@@ -2007,7 +2029,30 @@ function applyBuilderImportGuards(
       : []
   );
   out.Projects = out.projects;
+  if (Array.isArray(out.languages)) {
+    out.languages = transformLanguagesArray(out.languages).slice(0, 12);
+    out.Languages = out.languages;
+  }
+  if (Array.isArray(out.hobbies)) {
+    out.hobbies = cleanHobbies(out.hobbies)
+      .filter((h) => !isSpacedLetterFragment(h) && !isResumeSectionHeadingLine(h))
+      .slice(0, 12);
+    out.Hobbies = out.hobbies;
+  }
   if (Array.isArray(out.experience) && out.experience.length > 0) {
+    const headline = String(out.jobTitle || out.title || '').trim();
+    if (headline) {
+      out.experience = (out.experience as Record<string, unknown>[]).map((row) => {
+        const exp = { ...row };
+        const title = sanitizeFieldText(exp.title || exp.position || exp.designation, 120);
+        if (!title && headline) {
+          exp.title = headline;
+          exp.position = headline;
+          exp.designation = headline;
+        }
+        return exp;
+      });
+    }
     out.experience = transformExperienceArray(out.experience);
     out['Work Experience'] = out.experience;
     out.Experience = out.experience;
@@ -2045,6 +2090,7 @@ function mergeExtendedSkillBuckets(builder: Record<string, unknown>): Record<str
 function isRecoverableEducationDegreeLine(line: string): boolean {
   const t = line.trim();
   if (!t || t.length > 120 || t.includes('|')) return false;
+  if (isGarbageEducationDegree(t) || isSpacedLetterFragment(t)) return false;
   if (
     /^\s*(?:masters?|bachelors?|b\.?\s*com|m\.?\s*a\.?|mba|b\.?\s*tech|ph\.?\s*d|llb|company secretary\s*\(|pursuing\s+llb)/i.test(
       t
@@ -2191,6 +2237,26 @@ function recoverEducationDegreesFromImport(
   }
 
   return transformEducationArray(recovered, true);
+}
+
+function recoverJobTitleFromRawText(rawText: string): string {
+  if (!rawText || rawText.length < 40) return '';
+  const flat = rawText.replace(/\s+/g, ' ').slice(0, 1200);
+  const patterns = [
+    /\bin\s+(corporate\s+legal\s*,\s*secretarial\s*,\s*compliance)\b/i,
+    /\b(corporate\s+legal\s*,\s*secretarial\s*,?\s*compliance[^,.]{0,40})/i,
+    /\b((?:senior\s+)?(?:corporate\s+)?(?:legal|company secretary|compliance)\s*(?:&|and)\s*[^,.]{3,50})/i,
+    /\b((?:group\s+)?company\s+secretary(?:\s*&\s*compliance\s+officer)?)\b/i,
+    /\b((?:senior\s+)?hr\s+generalist)\b/i,
+    /\bassignments?\s+in\s+((?:corporate\s+)?legal[^,.]{3,60})/i,
+  ];
+  for (const re of patterns) {
+    const m = flat.match(re);
+    if (!m) continue;
+    const title = sanitizeImportJobTitle(m[1] || m[0]);
+    if (title) return title;
+  }
+  return '';
 }
 
 function recoverSkillsFromRawText(rawText: string, existing: string[]): string[] {
