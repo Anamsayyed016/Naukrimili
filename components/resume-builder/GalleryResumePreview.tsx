@@ -57,7 +57,14 @@ export default function GalleryResumePreview({
     iframeDoc.open();
     iframeDoc.write(previewHtml);
     iframeDoc.close();
-    requestAnimationFrame(updateScale);
+    requestAnimationFrame(() => {
+      import('@/lib/resume-builder/dynamic-layout-engine')
+        .then(({ applyDomAwareLayoutToDocument }) => {
+          applyDomAwareLayoutToDocument(iframeDoc, {}, {});
+        })
+        .catch(() => {})
+        .finally(updateScale);
+    });
   }, [previewHtml, loading, error, iframeRef, updateScale]);
 
   return (

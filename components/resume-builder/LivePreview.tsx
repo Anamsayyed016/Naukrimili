@@ -580,8 +580,19 @@ export default function LivePreview({
           iframeDoc.write(fullHtml);
           iframeDoc.close();
 
-          // Wait for content to load
-          setTimeout(() => {
+          // DOM-aware layout refinement after first paint
+          setTimeout(async () => {
+            try {
+              const { applyDomAwareLayoutToDocument } = await import(
+                '@/lib/resume-builder/dynamic-layout-engine'
+              );
+              applyDomAwareLayoutToDocument(iframeDoc, currentFormData, {
+                templateId,
+                htmlTemplate: html,
+              });
+            } catch {
+              /* refinement is best-effort */
+            }
             adjustIframeHeight();
           }, 300);
         } else {
@@ -597,8 +608,18 @@ export default function LivePreview({
               // Smooth update
               resumeContainer.innerHTML = newContainer.innerHTML;
               
-              // Adjust height after update
-              setTimeout(() => {
+              setTimeout(async () => {
+                try {
+                  const { applyDomAwareLayoutToDocument } = await import(
+                    '@/lib/resume-builder/dynamic-layout-engine'
+                  );
+                  applyDomAwareLayoutToDocument(iframeDoc, currentFormData, {
+                    templateId,
+                    htmlTemplate: html,
+                  });
+                } catch {
+                  /* refinement is best-effort */
+                }
                 adjustIframeHeight();
               }, 50);
             }
