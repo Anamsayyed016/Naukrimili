@@ -7,8 +7,8 @@ import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import type { Template } from '@/lib/resume-builder/types';
-import { writeImportSession, ensureBuilderContactFields } from '@/lib/resume-builder/builder-hydration';
-import { coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
+import { writeImportSession, ensureBuilderContactFields, resolveEditorFormFromImport } from '@/lib/resume-builder/builder-hydration';
+import { hasImportableContent } from '@/lib/resume-builder/import-transformer';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';
@@ -66,14 +66,32 @@ export default function TemplateSelectionPage() {
   }, []);
 
   useEffect(() => {
-    void import('@/lib/resume-builder/import-transformer').then(
-      ({ coalesceBuilderImportPayload }) => {
-        const raw = loadGalleryPreviewFormData();
-        if (Object.keys(raw).length > 0) {
-          setPreviewFormData(ensureBuilderContactFields(coalesceBuilderImportPayload(raw)));
-        }
+    try {
+      const resolved = resolveEditorFormFromImport();
+      if (resolved && hasImportableContent(resolved)) {
+        setPreviewFormData(resolved);
+        return;
       }
-    );
+
+      const raw = loadGalleryPreviewFormData();
+      if (Object.keys(raw).length > 0) {
+        void import('@/lib/resume-builder/import-transformer').then(({ coalesceBuilderImportPayload }) => {
+          try {
+            const coalesced = ensureBuilderContactFields(coalesceBuilderImportPayload(raw));
+            setPreviewFormData(hasImportableContent(coalesced) ? coalesced : raw);
+          } catch (err) {
+            console.error('[template-gallery] coalesce failed, using session payload', err);
+            setPreviewFormData(raw);
+          }
+        });
+      }
+    } catch (err) {
+      console.error('[template-gallery] import preview hydration failed', err);
+      const raw = loadGalleryPreviewFormData();
+      if (Object.keys(raw).length > 0) {
+        setPreviewFormData(raw);
+      }
+    }
   }, [source]);
 
   // Template filters state
@@ -113,7 +131,7 @@ export default function TemplateSelectionPage() {
         const payload = ensureBuilderContactFields(
           Object.keys(previewFormData).length > 0
             ? previewFormData
-            : coalesceBuilderImportPayload(raw)
+            : resolveEditorFormFromImport() || raw
         );
         if (!writeImportSession(payload)) {
           console.warn('[templates] Failed to persist import session before editor');

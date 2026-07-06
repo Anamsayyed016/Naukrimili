@@ -620,21 +620,42 @@ export function coalesceBuilderImportPayload(
     });
   }
 
-  // Upload / editor already coalesced — re-run full mapping so guards stay current.
+  // Upload / editor already coalesced — re-apply section recovery + import guards.
   if (parsed._imported === true) {
+    const email = String(parsed.email || '');
+    const locationHint = String(parsed.location || parsed.address || '');
+
     if (parsed._userEdited === true) {
-      const email = String(parsed.email || '');
-      const locationHint = String(parsed.location || parsed.address || '');
       return applySummaryHygieneToBuilderForm(
         applyBuilderImportGuards(parsed as Record<string, any>, parsed, email, locationHint)
       );
     }
-    const { builderFormData: _drop, _importSessionId, ...profile } = parsed;
+
+    const rawText = String(parsed.rawText ?? '').trim();
+    if (isSparseSectionImport(parsed) && rawText.length >= 80) {
+      const { builderFormData: _drop, ...profile } = parsed;
+      return transformImportDataToBuilder({ ...profile, _imported: true });
+    }
+
+    let out = { ...(parsed as Record<string, any>) };
+    if (Array.isArray(out.experience) && out.experience.length > 0) {
+      out.experience = enrichExperienceFromParserAliases(out.experience, out);
+    }
+    out = overlaySparseSectionsFromTextRecovery({
+      ...out,
+      rawText: out.rawText ?? parsed.rawText,
+    }) as Record<string, any>;
+    delete out.builderFormData;
+    if (Array.isArray(out.experience) && out.experience.length > 0) {
+      out.experience = normalizeMergedExperienceList(out.experience, out);
+    }
+    const { builder: recoveredOut, report: rehydrateReport } = recoverBuilderFormSections(out, {
+      mergedImport: out,
+      rawImport: parsed,
+    });
+    logBuilderFieldMappingReport(rehydrateReport);
     return applySummaryHygieneToBuilderForm(
-      transformImportDataToBuilder({
-        ...profile,
-        rawText: parsed.rawText ?? profile.rawText,
-      })
+      applyBuilderImportGuards(recoveredOut, out, email, locationHint)
     );
   }
 
@@ -736,15 +757,19 @@ function partitionSpilloverLines(lines: string[]): {
   return { achievements, education, experience, skills };
 }
 
+function readImportTextField(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 function enrichIdentityFromText(
   data: Record<string, unknown>,
   textParsed?: ReturnType<typeof extractResumeFromText>,
   recovered?: Partial<ReturnType<typeof recoverFromRawText>>
 ): Record<string, unknown> {
   const personal = (data.personalInformation || {}) as Record<string, unknown>;
-  const rawFull = String(
+  const rawFull = readImportTextField(
     data.fullName || data.name || textParsed?.fullName || personal.fullName || ''
-  ).trim();
+  );
   const safeFull = sanitizePersonName(rawFull, 120) || '';
   return {
     ...data,
@@ -968,6 +993,7 @@ function mergeAdditionalResumeData(
     const seen = new Set<string>();
     const out: string[] = [];
     for (const item of items) {
+      if (typeof item !== 'string') continue;
       const key = item.toLowerCase();
       if (!item.trim() || seen.has(key)) continue;
       seen.add(key);
@@ -1688,8 +1714,8 @@ function resolveClassifiedName(
   const additionalResumeData = emptyAdditionalResumeData();
   const personal = importedData.personalInformation || {};
 
-  const profileFirst = String(importedData.firstName || personal.firstName || '').trim();
-  const profileLast = String(importedData.lastName || personal.lastName || '').trim();
+  const profileFirst = readImportTextField(importedData.firstName || personal.firstName);
+  const profileLast = readImportTextField(importedData.lastName || personal.lastName);
   const acceptedProfile = acceptProfileNameParts(
     profileFirst,
     profileLast,
@@ -1706,8 +1732,8 @@ function resolveClassifiedName(
 
   const textHeaderName = sanitizePersonName(headerNameFromText, 120);
 
-  const parserFirst = String(importedData.firstName || personal.firstName || '').trim();
-  const parserLast = String(importedData.lastName || personal.lastName || '').trim();
+  const parserFirst = readImportTextField(importedData.firstName || personal.firstName);
+  const parserLast = readImportTextField(importedData.lastName || personal.lastName);
 
   for (const fragment of [parserFirst, parserLast]) {
     if (!fragment) continue;

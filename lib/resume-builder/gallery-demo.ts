@@ -583,5 +583,34 @@ export function buildGallerySampleFormData(templateId?: string): Record<string, 
 }
 
 export function isGalleryEmptyFormData(formData: Record<string, unknown>): boolean {
-  return Object.keys(formData).length === 0;
+  if (!formData || typeof formData !== 'object') return true;
+
+  const hasContact = Boolean(
+    readImportTextField(formData.firstName) ||
+      readImportTextField(formData.lastName) ||
+      readImportTextField(formData.fullName) ||
+      readImportTextField(formData.name) ||
+      readImportTextField(formData.email) ||
+      readImportTextField(formData.phone)
+  );
+  const hasSummary = readImportTextField(formData.summary || formData.bio).length > 0;
+  const hasSections = [
+    'experience',
+    'education',
+    'skills',
+    'projects',
+    'certifications',
+    'languages',
+    'achievements',
+  ].some((key) => Array.isArray(formData[key]) && (formData[key] as unknown[]).length > 0);
+
+  if (formData._imported === true && (hasContact || hasSummary || hasSections)) {
+    return false;
+  }
+
+  return !hasContact && !hasSummary && !hasSections;
+}
+
+function readImportTextField(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
 }

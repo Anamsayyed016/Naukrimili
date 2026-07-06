@@ -57,6 +57,7 @@ export function isGarbageResumeText(value: unknown): boolean {
 }
 
 export function sanitizeFieldText(value: unknown, maxLen = 500): string {
+  if (typeof value === 'boolean') return '';
   if (isGarbageResumeText(value)) return '';
   const s = cleanString(value);
   if (!s) return '';

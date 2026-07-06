@@ -22,12 +22,15 @@ export function extendBuilderSchema(
 
   const additional = (builder.additionalResumeData || {}) as Record<string, unknown>;
   const mergeUnique = (arr: string[], items: string[]) => {
-    const seen = new Set(arr.map((s) => s.toLowerCase()));
+    const seen = new Set(arr.map((s) => String(s).toLowerCase()));
     for (const item of items) {
-      const key = item.toLowerCase();
+      if (typeof item !== 'string' && typeof item !== 'number') continue;
+      const text = String(item).trim();
+      if (!text) continue;
+      const key = text.toLowerCase();
       if (!seen.has(key)) {
         seen.add(key);
-        arr.push(item);
+        arr.push(text);
       }
     }
   };
