@@ -17,6 +17,7 @@ import {
   resolveMergedExperienceCompany,
   demoteImplausibleExperienceCompany,
   finalizeExperienceListForCustomParserImport,
+  recoverStructuredExperienceFromRawText,
   isPlausibleExperienceCompany,
   isExperienceDateOrDurationToken,
   preferWholeExperienceField,
@@ -665,6 +666,56 @@ export function overlaySparseSectionsFromTextRecovery(
     (e): e is Record<string, unknown> => !!e && typeof e === 'object'
   );
   const recExp = (recovered.experience || []) as unknown as Record<string, unknown>[];
+  const parserPlausible = countPlausibleExperienceCompanies(parserExp);
+  const recPlausible = countPlausibleExperienceCompanies(recExp);
+  const structuredExp = recoverStructuredExperienceFromRawText(text);
+  const structuredPlausible = countPlausibleExperienceCompanies(structuredExp);
+  const underRepresented =
+    recExp.length > 0 &&
+    (parserExp.length === 0 ||
+      (parserPlausible <= 1 &&
+        recPlausible >= 2 &&
+        (parserExp.length >= 2 || recExp.length > parserPlausible)));
+
+  if (parserPlausible <= 1 && structuredExp.length >= 2 && structuredPlausible >= 2) {
+    const colonSplitFromParser =
+      parserExp.length > 0
+        ? finalizeExperienceListForCustomParserImport(
+            parserExp.map(demoteImplausibleExperienceCompany)
+          )
+        : [];
+    out.experience =
+      colonSplitFromParser.length >= 2
+        ? colonSplitFromParser
+        : finalizeExperienceListForCustomParserImport(structuredExp);
+  } else if (underRepresented) {
+    const colonSplitFromParser =
+      parserExp.length > 0
+        ? finalizeExperienceListForCustomParserImport(
+            parserExp.map(demoteImplausibleExperienceCompany)
+          )
+        : [];
+    if (colonSplitFromParser.length >= 2) {
+      out.experience = colonSplitFromParser;
+    } else {
+    const usedRec = new Set<number>();
+    const seed = parserPlausible > 0 ? parserExp : [];
+    const merged = mergeListWithRecoveredWording(
+      seed,
+      recExp,
+      experienceSectionMatch,
+      experienceMatchScore,
+      (p, r) => applyExperienceStructuralMerge(p, r),
+      true,
+      usedRec
+    );
+    out.experience = finalizeExperienceListForCustomParserImport(
+      (mergeOrphanExperienceEntries(
+        fillMissingExperienceFromRecovered(merged, recExp, usedRec)
+      ) as Record<string, unknown>[]).map(demoteImplausibleExperienceCompany)
+    );
+    }
+  } else {
   const missingCompany =
     parserExp.length > 0 &&
     recExp.length > 0 &&
@@ -711,6 +762,7 @@ export function overlaySparseSectionsFromTextRecovery(
         )
       );
     }
+  }
   }
 
   const parserProj = (Array.isArray(out.projects) ? out.projects : []).filter(

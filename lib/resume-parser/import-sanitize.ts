@@ -2986,10 +2986,105 @@ function pairHeaderFragmentOrphans<T extends ExperienceLike>(entries: T[]): T[] 
   return out;
 }
 
+function stripForeignCompanyLeadLines(description: string, company: string): string {
+  const companyKey = sanitizeFieldText(company, 160).toLowerCase();
+  const lines = description
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  while (lines.length > 0) {
+    const line = lines[0];
+    const colonAt = line.indexOf(':');
+    if (colonAt < 8) break;
+    const left = line.slice(0, colonAt).trim().toLowerCase();
+    if (left === companyKey) {
+      lines[0] = line.slice(colonAt + 1).trim();
+      if (!lines[0]) lines.shift();
+      break;
+    }
+    if (looksLikeCompanyNameLine(line.slice(0, colonAt)) || /\b(ltd|limited|pvt|company|group)\b/i.test(left)) {
+      lines.shift();
+      continue;
+    }
+    break;
+  }
+  return lines.join('\n').trim();
+}
+
 /**
  * When one parser row embeds multiple jobs in description, split before orphan merge.
  * Preserves block integrity: header lines + dates stay with their bullets.
  */
+function splitExperienceOnCompanyColonLines(
+  entry: Record<string, unknown>
+): Record<string, unknown>[] {
+  const body = collectExperienceBodyFields(entry);
+  const lines = body.description
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (lines.length < 2) return [entry];
+
+  type ColonRow = { company: string; lead: string; lineIdx: number };
+  const colonRows: ColonRow[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const colonAt = line.indexOf(':');
+    if (colonAt < 8 || colonAt > 100) continue;
+    const left = line.slice(0, colonAt).trim();
+    const right = line.slice(colonAt + 1).trim();
+    if (!right || right.length < 8) continue;
+    if (!looksLikeCompanyNameLine(left) && !/\b(ltd|limited|pvt|llp|inc|corp|company|group)\b/i.test(left)) continue;
+    if (isExperienceDomainHeading(left) || isResumeCompetencySectionEntry({ company: left })) continue;
+    colonRows.push({ company: left, lead: right, lineIdx: i });
+  }
+
+  if (colonRows.length < 2) return [entry];
+
+  const headerTitle = sanitizeFieldText(readExperiencePositionSlot(entry), 120);
+  const out: Record<string, unknown>[] = [];
+  colonRows.forEach((row, idx) => {
+    const nextLineIdx = colonRows[idx + 1]?.lineIdx ?? lines.length;
+    const tail: string[] = [];
+    for (let j = row.lineIdx + 1; j < nextLineIdx; j++) {
+      const line = lines[j];
+      const c = line.indexOf(':');
+      if (c >= 8) {
+        const left = line.slice(0, c).trim();
+        if (looksLikeCompanyNameLine(left) || /\b(ltd|limited|pvt|company|group)\b/i.test(left)) {
+          break;
+        }
+      }
+      tail.push(line);
+    }
+    const description = stripForeignCompanyLeadLines([row.lead, ...tail].join('\n').trim(), row.company);
+    out.push(
+      reconcileExperienceHeaderFields({
+        ...entry,
+        company: row.company,
+        position: headerTitle,
+        title: headerTitle,
+        designation: headerTitle,
+        description,
+        Description: description,
+        startDate: idx === 0 ? entry.startDate : '',
+        endDate: idx === 0 ? entry.endDate : '',
+        current: idx === 0 ? entry.current : false,
+      })
+    );
+  });
+
+  const seen = new Set<string>();
+  const deduped = out.filter((row) => {
+    const key = sanitizeFieldText(readExperienceCompanySlot(row), 160).toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return deduped.length > 0 ? deduped : [entry];
+}
+
 export function splitExperienceEntriesWithEmbeddedJobs(
   entries: Record<string, unknown>[]
 ): Record<string, unknown>[] {
@@ -2997,7 +3092,10 @@ export function splitExperienceEntriesWithEmbeddedJobs(
   for (const entry of entries) {
     if (!entry || typeof entry !== 'object') continue;
     const splits = splitSingleExperienceOnEmbeddedJobs(entry);
-    result.push(...splits);
+    for (const split of splits) {
+      const colonSplits = splitExperienceOnCompanyColonLines(split);
+      result.push(...colonSplits);
+    }
   }
   return result;
 }
@@ -3532,6 +3630,124 @@ export function dedupeAdjacentExperienceEntries<T extends ExperienceLike>(entrie
   }
 
   return out;
+}
+
+const NAUKRI_MONTH_TOKEN =
+  'Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?';
+
+function collapseSpacedLettersInText(text: string): string {
+  return String(text || '').replace(/(?:\b[A-Z]\s+){2,}[A-Z]\b/g, (m) => m.replace(/\s+/g, ''));
+}
+
+function flattenExperienceSectionBlob(rawText: string): string {
+  const collapsed = collapseSpacedLettersInText(rawText.replace(/\f/g, '\n'));
+  const sectionStart = collapsed.search(
+    /\b(?:organisational|organizational)\s*experience\b|\bwork\s*experience\b|\bemployment\s*history\b/i
+  );
+  let blob =
+    sectionStart >= 0
+      ? collapsed.slice(sectionStart)
+      : collapsed.slice(Math.max(0, collapsed.search(/\bexperience\b/i)));
+  const sectionEnd = blob.search(
+    /\b(?:education|academic|skills|certifications|languages|projects|achievements|personal\s+details)\b/i
+  );
+  if (sectionEnd > 120) blob = blob.slice(0, sectionEnd);
+  return blob.replace(/\s+/g, ' ').trim();
+}
+
+function splitCompanyAndLocation(raw: string): { company: string; location: string } {
+  const text = sanitizeFieldText(raw, 200);
+  if (!text) return { company: '', location: '' };
+  const parts = text.split(',').map((p) => p.trim()).filter(Boolean);
+  if (parts.length < 2) return { company: text, location: '' };
+  const last = parts[parts.length - 1];
+  if (isLikelyLocationFragment(last) || (last.length <= 40 && !/\b(ltd|limited|pvt|inc|corp|llp|group|industries)\b/i.test(last))) {
+    return {
+      company: parts.slice(0, -1).join(', '),
+      location: last,
+    };
+  }
+  return { company: text, location: '' };
+}
+
+/**
+ * Recover Naukri-style dated employment lines from raw text when the parser
+ * collapses experience into competency stubs (e.g. "Dec 2002 – Jul 2004 with X as Y").
+ */
+export function recoverStructuredExperienceFromRawText(
+  rawText: string
+): Record<string, unknown>[] {
+  const blob = flattenExperienceSectionBlob(rawText);
+  if (blob.length < 40) return [];
+
+  const withAsRe = new RegExp(
+    `(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+(\\d{4})\\s*[-–—]\\s*(?:(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+)?(\\d{4}|Present|Current|Now|present|current)\\s+with\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards\\b|$)`,
+    'gi'
+  );
+
+  const out: Record<string, unknown>[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = withAsRe.exec(blob)) !== null) {
+    const startDate = normalizeDate(`${match[1]} ${match[2]}`);
+    const endMonth = match[3] ? `${match[3]} ` : '';
+    const endToken = String(match[4] || '').trim();
+    const endDate = /^(present|current|now)$/i.test(endToken)
+      ? 'Present'
+      : normalizeDate(`${endMonth}${endToken}`.trim());
+    const { company, location } = splitCompanyAndLocation(match[5]);
+    const title = sanitizeFieldText(match[6].replace(/\s+/g, ' ').trim(), 120);
+    if (!company || !title) continue;
+    out.push({
+      company,
+      Company: company,
+      title,
+      position: title,
+      designation: title,
+      startDate,
+      endDate,
+      current: /^(present|current|now)$/i.test(endToken),
+      location,
+      Location: location,
+    });
+  }
+
+  const onwardsRe = new RegExp(
+    `(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+(\\d{4})\\s+onwards\\s+(working\\s+.+?)(?=\\s+[A-Z][a-z]+\\s+[A-Z][a-z]+\\s+E-?Mail:|$)`,
+    'i'
+  );
+  const onwardsMatch = onwardsRe.exec(blob);
+  if (onwardsMatch) {
+    const startDate = normalizeDate(`${onwardsMatch[1]} ${onwardsMatch[2]}`);
+    const description = sanitizeMultilineFieldText(onwardsMatch[3], 2000);
+    if (description.length >= 12) {
+      out.push({
+        company: 'Independent / Retainer',
+        Company: 'Independent / Retainer',
+        title: 'Company Secretary & Legal Consultant',
+        position: 'Company Secretary & Legal Consultant',
+        designation: 'Company Secretary & Legal Consultant',
+        description,
+        Description: description,
+        startDate,
+        endDate: 'Present',
+        current: true,
+      });
+    }
+  }
+
+  const seen = new Set<string>();
+  return out
+    .map((row) => reconcileExperienceHeaderFields(row))
+    .filter((row) => {
+      const company = sanitizeFieldText(readExperienceCompanySlot(row), 160);
+      const title = sanitizeFieldText(readExperiencePositionSlot(row), 120);
+      if (!company && !title) return false;
+      const key = `${company.toLowerCase()}|${title.toLowerCase()}|${String(row.startDate || '')}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      if (company && !isPlausibleExperienceCompany(company)) return false;
+      return true;
+    });
 }
 
 /** Custom-parser import — pair title/company fragments and merge date/location stubs, then reconcile. */

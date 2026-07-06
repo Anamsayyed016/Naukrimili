@@ -880,11 +880,13 @@ export function coalesceFormDataForTemplateRender(
     'Work Experience',
     'Experience',
   ]);
-  const skipHeaderReconcile = isCustomParserImport(formData);
+  const skipHeaderReconcile =
+    isCustomParserImport(formData) || formData._builderCoalesced === true;
   const experienceRepaired = repairExperienceForTemplateBinding(formData, experienceRaw);
+  // Custom-parser imports are finalized in transformImportDataToBuilder — do not re-split here.
   const experiencePrepared = skipHeaderReconcile
-    ? finalizeExperienceListForCustomParserImport(experienceRepaired)
-    : experienceRepaired;
+    ? experienceRepaired
+    : finalizeExperienceListForCustomParserImport(experienceRepaired);
   const experience = experiencePrepared
     .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
     .map((entry) =>

@@ -1506,6 +1506,13 @@ export function transformImportDataToBuilder(
     _resumeId: mergedImport.resumeId || importedData.resumeId || null,
     _confidence: mergedImport.confidence || importedData.confidence || 85,
     _atsScore: mergedImport.atsScore || importedData.atsScore || 90,
+    _builderCoalesced: true,
+    customParserUsed: isCustomParser ? true : importedData.customParserUsed,
+    selectedParser: importedData.selectedParser ?? (isCustomParser ? 'custom' : undefined),
+    _aiProvider:
+      importedData._aiProvider ??
+      importedData.aiProvider ??
+      (isCustomParser ? 'custom-parser' : undefined),
   };
 
   // Template-loader legacy keys (preview + PDF coalesce reads these too)
@@ -1981,7 +1988,12 @@ function applyBuilderImportGuards(
       /^(and|company|rtas?|due)$/i.test(String(s).trim())
     );
 
-    if (sparseCompanies || eduWithDegree < 2 || noisySkills) {
+    const expRows = Array.isArray(out.experience) ? (out.experience as unknown[]) : [];
+    const plausibleExp = countExperienceWithPlausibleCompany(expRows);
+    const experienceUnderRepresented =
+      expRows.length <= 1 && plausibleExp <= 1 && /\b(?:experience|employment)\b/i.test(rawText);
+
+    if (sparseCompanies || eduWithDegree < 2 || noisySkills || experienceUnderRepresented) {
       const overlaid = overlaySparseSectionsFromTextRecovery({ ...out, rawText }) as Record<
         string,
         unknown
