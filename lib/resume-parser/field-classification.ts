@@ -138,6 +138,9 @@ export const SECTION_HEADER_WORDS = new Set([
   'synopsis',
   'legal',
   'board',
+  'manufacturing',
+  'industry',
+  'sector',
 ]);
 
 const SECTION_HEADER_PHRASES: RegExp[] = [
@@ -191,6 +194,16 @@ const NON_PERSON_NAME_WORDS = new Set([
   'academia',
   'academic',
   'academics',
+  'manufacturing',
+  'logistics',
+  'banking',
+  'insurance',
+  'automotive',
+  'pharmaceutical',
+  'healthcare',
+  'telecom',
+  'retail',
+  'construction',
   'professional',
   'qualification',
   'qualifications',

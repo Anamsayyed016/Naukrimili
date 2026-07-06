@@ -3133,6 +3133,15 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
   const field = sanitizeFieldText(edu.field || edu.Field || edu.major, 120);
   if (!institution && !degree) return null;
   if (isGarbageResumeText(degree) && isGarbageResumeText(institution)) return null;
+  if (
+    institution &&
+    !degree &&
+    (looksLikeCompanyNameLine(institution) ||
+      isLikelyCompanyNameFragment(institution) ||
+      classifyResumeTextFragment(institution).kind === 'COMPANY_NAME')
+  ) {
+    return null;
+  }
 
   return {
     ...edu,

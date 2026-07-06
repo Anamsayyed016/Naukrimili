@@ -81,6 +81,7 @@ import {
   classifyResumeTextFragment,
   emptyAdditionalResumeData,
   isFirmOrLocationNamePhrase,
+  isLikelyCompanyNameFragment,
   nameOverlapsLocation,
   shouldKeepAsGlobalAchievement,
   stashUnclassifiedFragment,
@@ -782,9 +783,17 @@ function relocateMisplacedEducationEntries(data: Record<string, unknown>): Recor
       continue;
     }
     const rec = item as Record<string, unknown>;
-    const inst = String(rec.institution || rec.school || '');
-    const degree = String(rec.degree || '');
-    if (ACHIEVEMENT_FIRM_LINE_RE.test(inst) && !ACHIEVEMENT_DEGREE_LINE_RE.test(degree)) {
+    const inst = String(rec.institution || rec.school || rec.college || rec.university || '');
+    const degree = String(rec.degree || rec.qualification || '');
+    const instClass = inst ? classifyResumeTextFragment(inst) : null;
+    const firmLike =
+      !!inst &&
+      !ACHIEVEMENT_DEGREE_LINE_RE.test(degree) &&
+      (ACHIEVEMENT_FIRM_LINE_RE.test(inst) ||
+        isLikelyCompanyNameFragment(inst) ||
+        looksLikeCompanyNameLine(inst) ||
+        instClass?.kind === 'COMPANY_NAME');
+    if (firmLike) {
       extraExp.push({ company: inst, title: degree || '', position: degree || '' });
       continue;
     }
@@ -1314,7 +1323,7 @@ export function transformImportDataToBuilder(
 
   let jobTitle = extractJobTitleFromImport(mergedImport, professional, experience);
   if (!jobTitle) {
-    jobTitle = inferProfessionFromResume({
+    const inferred = inferProfessionFromResume({
       summary,
       skills,
       experience,
@@ -1323,6 +1332,9 @@ export function transformImportDataToBuilder(
         120
       ),
     });
+    if (isUsableJobHeadline(inferred)) {
+      jobTitle = inferred;
+    }
   }
 
   // 3. Build form data shaped exactly for each step
@@ -1592,6 +1604,75 @@ export function previewTransformation(importedData: any): {
 /*  Section transformers                                              */
 /* ------------------------------------------------------------------ */
 
+/** Generic section / industry tokens that must never bind as contact name fields. */
+const GENERIC_BUILDER_JOB_TITLES = new Set([
+  'professional',
+  'manufacturing',
+  'executive',
+  'consultant',
+  'employee',
+  'officer',
+  'manager',
+  'specialist',
+  'associate',
+  'director',
+]);
+
+function stashRejectedNameFragments(
+  additionalResumeData: AdditionalResumeData,
+  fragments: string[]
+): void {
+  for (const fragment of fragments) {
+    if (!fragment) continue;
+    const classified = classifyResumeTextFragment(fragment);
+    stashUnclassifiedFragment(
+      additionalResumeData,
+      fragment,
+      classified.kind === 'PERSON_NAME' ? 'UNKNOWN' : classified.kind
+    );
+  }
+}
+
+function acceptProfileNameParts(
+  profileFirst: string,
+  profileLast: string,
+  email: string,
+  locationHint: string,
+  additionalResumeData: AdditionalResumeData
+): { firstName: string; lastName: string; displayName: string } | null {
+  const first = sanitizePersonName(sanitizeFieldText(profileFirst, 80), 80);
+  const last = sanitizePersonName(sanitizeFieldText(profileLast, 80), 80);
+  const combined = [first, last].filter(Boolean).join(' ').trim();
+  if (!combined) return null;
+
+  for (const fragment of [first, last, combined]) {
+    if (!fragment) continue;
+    const classified = classifyResumeTextFragment(fragment);
+    if (classified.kind !== 'PERSON_NAME') {
+      stashRejectedNameFragments(additionalResumeData, [first, last]);
+      return null;
+    }
+  }
+
+  if (
+    !isPlausiblePersonName(combined) ||
+    !isValidatedContactName(combined) ||
+    isFirmOrLocationNamePhrase(combined, locationHint) ||
+    nameOverlapsLocation(combined, locationHint) ||
+    isGarbageResumeText(combined)
+  ) {
+    stashRejectedNameFragments(additionalResumeData, [first, last]);
+    return null;
+  }
+
+  const safeFirst = formatDisplayName(first);
+  const safeLast = formatDisplayName(last);
+  const displayName = [safeFirst, safeLast].filter(Boolean).join(' ').trim();
+  if (!displayName) return null;
+
+  return { firstName: safeFirst, lastName: safeLast, displayName };
+}
+
 function resolveClassifiedName(
   importedData: any,
   email: string,
@@ -1606,18 +1687,20 @@ function resolveClassifiedName(
   const additionalResumeData = emptyAdditionalResumeData();
   const personal = importedData.personalInformation || {};
 
-  const profileFirst = sanitizeFieldText(importedData.firstName || personal.firstName, 80);
-  const profileLast = sanitizeFieldText(importedData.lastName || personal.lastName, 80);
-  if (profileFirst || profileLast) {
-    const combined = [profileFirst, profileLast].filter(Boolean).join(' ').trim();
-    if (combined) {
-      return {
-        firstName: profileFirst,
-        lastName: profileLast,
-        displayName: combined,
-        additionalResumeData,
-      };
-    }
+  const profileFirst = String(importedData.firstName || personal.firstName || '').trim();
+  const profileLast = String(importedData.lastName || personal.lastName || '').trim();
+  const acceptedProfile = acceptProfileNameParts(
+    profileFirst,
+    profileLast,
+    email,
+    locationHint,
+    additionalResumeData
+  );
+  if (acceptedProfile) {
+    return {
+      ...acceptedProfile,
+      additionalResumeData,
+    };
   }
 
   const textHeaderName = sanitizePersonName(headerNameFromText, 120);
@@ -1729,6 +1812,18 @@ function resolveClassifiedName(
 
 function isUsableJobHeadline(value: string): boolean {
   if (!value || isGarbageResumeText(value) || isExperienceBlurbFragment(value)) return false;
+  const norm = value.trim();
+  const lower = norm.toLowerCase();
+  if (GENERIC_BUILDER_JOB_TITLES.has(lower)) return false;
+  const classified = classifyResumeTextFragment(norm);
+  if (classified.kind === 'SECTION_HEADER') return false;
+  if (
+    /^(?:profile|summary|experience|education|skills?|projects?|certifications?|achievements?|languages?|qualifications?)$/i.test(
+      lower
+    )
+  ) {
+    return false;
+  }
   return true;
 }
 

@@ -129,6 +129,38 @@ describe('transformImportDataToBuilder name safety', () => {
     );
   });
 
+  it('rejects industry section header mapped as firstName', () => {
+    const transformed = transformImportDataToBuilder({
+      firstName: 'MANUFACTURING',
+      email: 'anam.khan@example.com',
+      experience: [{ company: 'Deloitte', position: 'Audit Manager', description: 'Led audits' }],
+      skills: ['Taxation'],
+    });
+    expect(transformed.firstName).not.toMatch(/manufacturing/i);
+    expect(transformed.jobTitle).not.toMatch(/manufacturing/i);
+  });
+
+  it('does not use generic Professional as jobTitle when experience has a role', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'cs.candidate@example.com',
+      skills: ['ROC', 'RBI filings', 'MCA21'],
+      experience: [
+        {
+          company: 'MA, ASP & ASSOCIATES',
+          position: 'Company Secretary',
+          description: 'Handled compliance and board meetings',
+        },
+      ],
+      education: [{ institution: 'MA, ASP & ASSOCIATES', degree: '' }],
+    });
+    expect(transformed.jobTitle).not.toBe('Professional');
+    expect(transformed.jobTitle).toMatch(/secretary/i);
+    const eduInstitutions = (transformed.education || []).map((e: { institution?: string; school?: string }) =>
+      String(e.institution || e.school || '')
+    );
+    expect(eduInstitutions.join(' ')).not.toMatch(/associates/i);
+  });
+
   it('rejects Self Practise Bhopal and uses email-derived name for anamsayyed58@gmail.com', () => {
     const transformed = transformImportDataToBuilder({
       fullName: 'Self Practise Bhopal',
