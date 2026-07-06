@@ -50,9 +50,11 @@ async function main() {
   const rendered = injectResumeData(html, builder, { templateId, mode: 'preview' });
   const rows = auditRenderedSections(coalesced, rendered);
   const report = formatSectionAuditReport(rows);
+  const handlebarsLeaks = (rendered.match(/\{\{[#/]?[A-Za-z_][A-Za-z0-9_]*\}\}/g) || []).length;
 
   console.log(`Template: ${templateId}`);
   console.log(`Import mode: ${builder.customParserUsed === true}`);
+  console.log(`Handlebars leaks: ${handlebarsLeaks}`);
   console.log('');
   console.log(report);
 

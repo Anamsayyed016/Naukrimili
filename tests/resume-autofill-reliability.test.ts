@@ -1279,6 +1279,77 @@ describe('dynamic layout engine', () => {
   });
 });
 
+describe('processHandlebarsConditionals', () => {
+  const {
+    processHandlebarsConditionals,
+    stripRemainingHandlebarsSyntax,
+  } = require('@/lib/resume-builder/section-visibility');
+
+  it('resolves nested {{#if PHONE}} inside {{#if CONTACT}}', () => {
+    const template = `
+      {{#if CONTACT}}
+      <section>
+        {{#if PHONE}}<div class="phone">{{PHONE}}</div>{{/if}}
+        {{#if EMAIL}}<div class="email">{{EMAIL}}</div>{{/if}}
+      </section>
+      {{/if}}
+    `;
+    const placeholders = {
+      '{{CONTACT}}': '<div class="contact-item">x</div>',
+      '{{PHONE}}': '+1 555 0100',
+      '{{EMAIL}}': '',
+    };
+    let result = processHandlebarsConditionals(template, placeholders, {});
+    result = stripRemainingHandlebarsSyntax(
+      result.replace(/\{\{PHONE\}\}/g, placeholders['{{PHONE}}'])
+    );
+    expect(result).not.toMatch(/\{\{#if/);
+    expect(result).not.toMatch(/\{\{\/if\}\}/);
+    expect(result).toContain('+1 555 0100');
+    expect(result).not.toContain('{{EMAIL}}');
+    expect(result).not.toMatch(/class="email"/);
+  });
+
+  it('resolves {{#unless PROFILE_IMAGE}} for initials fallback', () => {
+    const template = `{{#unless PROFILE_IMAGE}}<span class="initials">AB</span>{{/unless}}`;
+    const placeholders = { '{{PROFILE_IMAGE}}': '' };
+    const result = stripRemainingHandlebarsSyntax(
+      processHandlebarsConditionals(template, placeholders, {})
+    );
+    expect(result).toContain('initials');
+    expect(result).not.toMatch(/\{\{#unless/);
+  });
+
+  it('injectResumeData leaves no handlebars in executive-sidebar-elite', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const { injectResumeData } = require('@/lib/resume-builder/template-loader');
+    const templateId = 'executive-sidebar-elite';
+    const full = fs.readFileSync(
+      path.join(process.cwd(), 'public', 'templates', templateId, 'index.html'),
+      'utf8'
+    );
+    const body = full.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] || full;
+    const html = injectResumeData(
+      body,
+      {
+        customParserUsed: true,
+        firstName: 'Anam',
+        lastName: 'Sayyed',
+        phone: '+91 98765 43210',
+        email: 'anam@example.com',
+        experience: [{ company: 'Co', title: 'Dev', description: 'Work.' }],
+        skills: ['React'],
+      },
+      { templateId }
+    );
+    expect(html).not.toMatch(/\{\{#if/);
+    expect(html).not.toMatch(/\{\{\/if\}\}/);
+    expect(html).not.toMatch(/\{\{PHONE\}\}/);
+    expect(html).toContain('+91 98765 43210');
+  });
+});
+
 describe('appendMissingImportSections', () => {
   const {
     appendMissingImportSections,

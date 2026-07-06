@@ -22,6 +22,7 @@ import {
   shouldPreserveFullContentForRender,
 } from './section-visibility';
 import { collectExperienceBodyFields } from '@/lib/resume-parser/import-sanitize';
+import { isPremiumTemplate } from './ats-content-balance-css';
 
 export interface DynamicLayoutPlan {
   /** Section vertical gap (px) */
@@ -216,16 +217,24 @@ export function computeDynamicLayoutPlan(
   };
 }
 
+export interface BuildDynamicLayoutCssOptions {
+  /** Premium templates keep designer typography — only structural balance is applied */
+  preservePremiumTypography?: boolean;
+}
+
 /**
  * Build scoped CSS that applies the layout plan via custom properties.
- * Neutral plan values (~1 page of content) produce near-default spacing.
+ * Premium templates receive column/skill-grid balance only (no spacing/font overrides).
  */
-export function buildDynamicLayoutCss(plan: DynamicLayoutPlan): string {
+export function buildDynamicLayoutCss(
+  plan: DynamicLayoutPlan,
+  options?: BuildDynamicLayoutCssOptions
+): string {
+  const preservePremium = options?.preservePremiumTypography === true;
   const lh = (1.45 * plan.lineHeightMul).toFixed(3);
-  const fontPct = (100 * plan.fontScale).toFixed(2);
 
-  return `
-/* Dynamic layout engine — content-density spacing & column balance */
+  const structureCss = `
+/* Dynamic layout engine — column balance & CSS variables */
 .resume-container {
   --dl-section-gap: ${plan.sectionGap}px;
   --dl-block-gap: ${plan.blockGap}px;
@@ -238,7 +247,7 @@ export function buildDynamicLayoutCss(plan: DynamicLayoutPlan): string {
   --dl-sidebar-flex: ${plan.sidebarFlexGrow};
 }
 
-/* Column shells — prevent empty-column stretch */
+/* Column shells — prevent empty-column stretch without flattening template rhythm */
 .resume-container .resume-wrapper,
 .resume-container [class*='-layout'],
 .resume-container [class*='-body']:not(body):not(html),
@@ -272,7 +281,43 @@ export function buildDynamicLayoutCss(plan: DynamicLayoutPlan): string {
   flex-grow: var(--dl-sidebar-flex, 1) !important;
 }
 
-/* Adaptive section spacing */
+/* Skill chips — auto-wrap grid without empty panels */
+.resume-container .skills-list:not(:has(.psp-skill-item)),
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)),
+.resume-container [class*='skills-grid']:not(:has(.psp-skill-item)) {
+  display: grid !important;
+  grid-template-columns: repeat(var(--dl-skill-cols), minmax(0, 1fr)) !important;
+  gap: calc(var(--dl-block-gap) * 0.6) calc(var(--dl-block-gap) * 0.9) !important;
+  align-items: start !important;
+  width: 100% !important;
+}
+
+.resume-container .skills-list:not(:has(.psp-skill-item)) > .skill-tag,
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) > .skill-tag {
+  min-height: auto !important;
+  height: auto !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+.resume-container .summary-text,
+.resume-container [class*='summary-text'],
+.resume-container .professional-summary,
+.resume-container .objective-text {
+  min-height: auto !important;
+  max-height: none !important;
+  height: auto !important;
+}
+`.trim();
+
+  if (preservePremium) {
+    return structureCss;
+  }
+
+  return `
+${structureCss}
+
+/* Non-premium import spacing adaptation */
 .resume-container section,
 .resume-container .content-section,
 .resume-container .sidebar-section,
@@ -287,7 +332,6 @@ export function buildDynamicLayoutCss(plan: DynamicLayoutPlan): string {
   margin-bottom: var(--dl-heading-gap) !important;
 }
 
-/* Experience / project / education blocks */
 .resume-container .experience-item,
 .resume-container .education-item,
 .resume-container .project-item,
@@ -309,36 +353,6 @@ export function buildDynamicLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container [class*='summary-text'],
 .resume-container .professional-summary {
   line-height: var(--dl-line-height) !important;
-  font-size: calc(1em * var(--dl-font-scale)) !important;
-}
-
-/* Skill chips — auto-wrap grid without empty panels */
-.resume-container .skills-list:not(:has(.psp-skill-item)),
-.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)),
-.resume-container [class*='skills-grid']:not(:has(.psp-skill-item)) {
-  display: grid !important;
-  grid-template-columns: repeat(var(--dl-skill-cols), minmax(0, 1fr)) !important;
-  gap: calc(var(--dl-block-gap) * 0.6) calc(var(--dl-block-gap) * 0.9) !important;
-  align-items: start !important;
-  width: 100% !important;
-}
-
-.resume-container .skills-list:not(:has(.psp-skill-item)) > .skill-tag,
-.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) > .skill-tag {
-  min-height: auto !important;
-  height: auto !important;
-  white-space: normal !important;
-  word-break: break-word !important;
-}
-
-/* Summary — no reserved empty container */
-.resume-container .summary-text,
-.resume-container [class*='summary-text'],
-.resume-container .professional-summary,
-.resume-container .objective-text {
-  min-height: auto !important;
-  max-height: none !important;
-  height: auto !important;
 }
 
 .resume-container .experience-list > .experience-item:last-child,
@@ -352,8 +366,11 @@ export function buildDynamicLayoutCss(plan: DynamicLayoutPlan): string {
 `.trim();
 }
 
-export function getDynamicLayoutStyleBlock(plan: DynamicLayoutPlan): string {
-  const css = buildDynamicLayoutCss(plan);
+export function getDynamicLayoutStyleBlock(
+  plan: DynamicLayoutPlan,
+  options?: BuildDynamicLayoutCssOptions
+): string {
+  const css = buildDynamicLayoutCss(plan, options);
   if (!css) return '';
   return `<style data-injected="dynamic-layout">\n${css}\n</style>`;
 }
@@ -382,7 +399,8 @@ export function injectDynamicLayoutIntoHtml(
     result = rebalanceImportSectionPlacement(result, options.htmlTemplate, formData);
   }
   const plan = computeDynamicLayoutPlan(formData, options);
-  const block = getDynamicLayoutStyleBlock(plan);
+  const preservePremiumTypography = isPremiumTemplate(options?.templateId);
+  const block = getDynamicLayoutStyleBlock(plan, { preservePremiumTypography });
   return appendStyleBlockToHtml(result, block);
 }
 
@@ -444,12 +462,17 @@ export function rebalanceImportSectionPlacement(
   if (!detectHasSidebar(htmlTemplate)) return renderedHtml;
 
   const asideMatch = renderedHtml.match(/(<aside[^>]*>)([\s\S]*?)(<\/aside>)/i);
-  if (!asideMatch) return renderedHtml;
+  const sidebarDivMatch =
+    asideMatch ||
+    renderedHtml.match(
+      /(<div[^>]*class="[^"]*\bsidebar[^"]*"[^>]*>)([\s\S]*?)(<\/div>)(?=[\s\S]*<main)/i
+    );
+  if (!sidebarDivMatch) return renderedHtml;
 
   const mainMatch = renderedHtml.match(/(<main[^>]*>)([\s\S]*?)(<\/main>)/i);
   if (!mainMatch) return renderedHtml;
 
-  const sidebarInner = asideMatch[2];
+  const sidebarInner = sidebarDivMatch[2];
   const mainInner = mainMatch[2];
   const sidebarVol = estimateHtmlVolume(sidebarInner);
   const mainVol = estimateHtmlVolume(mainInner);
@@ -490,7 +513,7 @@ export function rebalanceImportSectionPlacement(
   }
 
   return renderedHtml
-    .replace(asideMatch[0], `${asideMatch[1]}${newSidebarInner}${asideMatch[3]}`)
+    .replace(sidebarDivMatch[0], `${sidebarDivMatch[1]}${newSidebarInner}${sidebarDivMatch[3]}`)
     .replace(mainMatch[0], `${mainMatch[1]}${newMainInner}${mainMatch[3]}`);
 }
 

@@ -1414,8 +1414,92 @@ export function optimizeResumeDataForRender(
   return optimized;
 }
 
+type HandlebarsBlockType = 'if' | 'unless';
+
+function findMatchingHandlebarsClose(
+  html: string,
+  openIndex: number,
+  blockType: HandlebarsBlockType
+): number {
+  const openRe = blockType === 'if' ? /\{\{#if\s+\w+\}\}/g : /\{\{#unless\s+\w+\}\}/g;
+  const closeStr = blockType === 'if' ? '{{/if}}' : '{{/unless}}';
+  const firstOpen = html.slice(openIndex).match(openRe);
+  if (!firstOpen) return -1;
+
+  let pos = openIndex + firstOpen[0].length;
+  let depth = 1;
+
+  while (pos < html.length && depth > 0) {
+    const rest = html.slice(pos);
+    const nestedOpen = rest.match(openRe);
+    const openIdx = nestedOpen ? rest.indexOf(nestedOpen[0]) : -1;
+    const closeIdx = rest.indexOf(closeStr);
+    if (closeIdx === -1) return -1;
+
+    if (openIdx !== -1 && openIdx < closeIdx) {
+      depth += 1;
+      pos += openIdx + nestedOpen![0].length;
+    } else {
+      depth -= 1;
+      if (depth === 0) return pos + closeIdx;
+      pos += closeIdx + closeStr.length;
+    }
+  }
+
+  return -1;
+}
+
+function findInnermostHandlebarsBlock(html: string): {
+  start: number;
+  end: number;
+  type: HandlebarsBlockType;
+  name: string;
+  inner: string;
+} | null {
+  const openRe = /\{\{#(if|unless)\s+(\w+)\}\}/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = openRe.exec(html)) !== null) {
+    const type = match[1].toLowerCase() as HandlebarsBlockType;
+    const name = match[2];
+    const openStart = match.index;
+    const innerStart = openStart + match[0].length;
+    const closeStart = findMatchingHandlebarsClose(html, openStart, type);
+    if (closeStart === -1) continue;
+
+    const closeTag = type === 'if' ? '{{/if}}' : '{{/unless}}';
+    const inner = html.slice(innerStart, closeStart);
+    if (!/\{\{#(if|unless)\s+\w+\}\}/i.test(inner)) {
+      return {
+        start: openStart,
+        end: closeStart + closeTag.length,
+        type,
+        name,
+        inner,
+      };
+    }
+  }
+
+  return null;
+}
+
+function evaluateHandlebarsBlock(
+  type: HandlebarsBlockType,
+  name: string,
+  inner: string,
+  placeholders: Record<string, string>,
+  formData: Record<string, unknown>
+): string {
+  const sectionPlaceholder = `{{${name.toUpperCase()}}}`;
+  const renderedContent = placeholders[sectionPlaceholder];
+  const hasContent = shouldRenderSection(name, renderedContent, formData);
+  if (type === 'if') return hasContent ? inner : '';
+  return hasContent ? '' : inner;
+}
+
 /**
  * Process Handlebars-style {{#if}} / {{#unless}} blocks using shared visibility rules.
+ * Handles nested conditionals (e.g. {{#if CONTACT}} wrapping {{#if PHONE}}).
  */
 export function processHandlebarsConditionals(
   htmlTemplate: string,
@@ -1423,22 +1507,46 @@ export function processHandlebarsConditionals(
   formData: Record<string, unknown>
 ): string {
   let result = htmlTemplate;
+  let guard = 0;
 
-  result = result.replace(/\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/gi, (_match, sectionName, content) => {
-    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-    const renderedContent = placeholders[sectionPlaceholder];
-    return shouldRenderSection(sectionName, renderedContent, formData) ? content : '';
-  });
+  while (guard++ < 1000) {
+    const block = findInnermostHandlebarsBlock(result);
+    if (!block) break;
+    const replacement = evaluateHandlebarsBlock(
+      block.type,
+      block.name,
+      block.inner,
+      placeholders,
+      formData
+    );
+    result = result.slice(0, block.start) + replacement + result.slice(block.end);
+  }
 
-  result = result.replace(
-    /\{\{#unless\s+(\w+)\}\}([\s\S]*?)\{\{\/unless\}\}/gi,
-    (_match, sectionName, content) => {
-      const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-      const renderedContent = placeholders[sectionPlaceholder];
-      const hasContent = shouldRenderSection(sectionName, renderedContent, formData);
-      return hasContent ? '' : content;
+  return result;
+}
+
+/**
+ * Final safety pass — remove any orphaned Handlebars syntax after placeholder substitution.
+ */
+export function stripRemainingHandlebarsSyntax(html: string): string {
+  let result = html;
+
+  for (let pass = 0; pass < 32; pass++) {
+    const before = result;
+    const block = findInnermostHandlebarsBlock(result);
+    if (block) {
+      result = result.slice(0, block.start) + result.slice(block.end);
+      continue;
     }
-  );
+    if (before === result) break;
+  }
+
+  result = result.replace(/\{\{#if\s+\w+\}\}/gi, '');
+  result = result.replace(/\{\{\/if\}\}/gi, '');
+  result = result.replace(/\{\{#unless\s+\w+\}\}/gi, '');
+  result = result.replace(/\{\{\/unless\}\}/gi, '');
+  result = result.replace(/\{\{else\}\}/gi, '');
+  result = result.replace(/\{\{[A-Za-z_][A-Za-z0-9_]*\}\}/g, '');
 
   return result;
 }

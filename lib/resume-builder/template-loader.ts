@@ -29,6 +29,7 @@ import {
   normalizeSkillsForRender,
   isSectionForcedHidden,
   processHandlebarsConditionals,
+  stripRemainingHandlebarsSyntax,
   renderContactListHtml,
   resolveProfileImageForRender,
   coalesceFormDataForTemplateRender,
@@ -559,16 +560,7 @@ export function injectResumeData(
     // (temporary debug logs removed)
   });
   
-  // Clean up any remaining placeholder-like syntax (only simple placeholders, not conditional syntax)
-  // Only remove placeholders that look like {{PLACEHOLDER_NAME}} (single word, uppercase)
-  // This prevents removing conditional syntax like {{#if}} or {{/if}} if they somehow remain
-  const beforeCleanup = result;
-  result = result.replace(/\{\{([A-Z_][A-Z0-9_]*)\}\}/g, '');
-  
-  const remainingPlaceholders = beforeCleanup.match(/\{\{[A-Z_][A-Z0-9_]*\}\}/g);
-  if (remainingPlaceholders && remainingPlaceholders.length > 0) {
-    // no-op (temporary debug logs removed)
-  }
+  result = stripRemainingHandlebarsSyntax(result);
 
   result = appendHobbiesSectionIfMissing(
     result,
