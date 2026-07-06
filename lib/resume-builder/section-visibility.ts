@@ -991,6 +991,21 @@ export interface OptimizeResumeForRenderOptions {
   mode?: 'preview' | 'pdf';
   /** Gallery/demo previews skip aggressive trimming */
   galleryPreview?: boolean;
+  /** When true, all section content is kept for render (no bullet/skill/summary caps). */
+  preserveFullContent?: boolean;
+}
+
+/**
+ * Parser-imported and gallery previews keep full content visible at render time.
+ * Manual-entry resumes still use layout-aware trimming unless explicitly overridden.
+ */
+export function shouldPreserveFullContentForRender(
+  formData: Record<string, unknown>,
+  options?: Pick<OptimizeResumeForRenderOptions, 'galleryPreview' | 'preserveFullContent'>
+): boolean {
+  if (options?.galleryPreview) return true;
+  if (options?.preserveFullContent === true) return true;
+  return formData.customParserUsed === true;
 }
 
 /** Derive per-template display budgets from HTML structure (no template file edits). */
@@ -1209,7 +1224,7 @@ export function optimizeResumeDataForRender(
   formData: Record<string, unknown>,
   options?: OptimizeResumeForRenderOptions
 ): Record<string, unknown> {
-  if (options?.galleryPreview) {
+  if (shouldPreserveFullContentForRender(formData, options)) {
     return formData;
   }
 

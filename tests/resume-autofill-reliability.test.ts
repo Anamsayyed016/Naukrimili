@@ -1196,6 +1196,72 @@ describe('optimizeResumeDataForRender', () => {
     optimizeResumeDataForRender(formData, { htmlTemplate: '<div></div>' });
     expect(JSON.stringify(formData)).toBe(snapshot);
   });
+
+  it('preserves full content for parser-imported resumes', () => {
+    const formData = {
+      customParserUsed: true,
+      experience: [
+        {
+          company: 'Google',
+          title: 'Senior Engineer',
+          achievements: ['A', 'B', 'C', 'D', 'E', 'F'],
+        },
+      ],
+      skills: Array.from({ length: 25 }, (_, i) => `Skill${i}`),
+      summary: Array.from({ length: 120 }, (_, i) => `word${i}`).join(' '),
+      projects: Array.from({ length: 6 }, (_, i) => ({ name: `Project ${i}`, description: `Impact ${i}` })),
+    };
+
+    const optimized = optimizeResumeDataForRender(formData, {
+      htmlTemplate: '<aside class="sidebar"></aside>',
+    });
+
+    expect(optimized).toBe(formData);
+    expect((optimized.experience as unknown[])[0].achievements).toHaveLength(6);
+    expect((optimized.skills as string[]).length).toBe(25);
+    expect((optimized.projects as unknown[]).length).toBe(6);
+    expect(String(optimized.summary).split(/\s+/).length).toBe(120);
+  });
+});
+
+describe('dynamic layout engine', () => {
+  const {
+    computeDynamicLayoutPlan,
+    injectDynamicLayoutIntoHtml,
+  } = require('@/lib/resume-builder/dynamic-layout-engine');
+
+  it('expands spacing for sparse resumes', () => {
+    const sparse = computeDynamicLayoutPlan(
+      { experience: [], skills: ['React', 'Node.js'], summary: 'Short summary.' },
+      { htmlTemplate: '<div class="sidebar"></div>' }
+    );
+    const dense = computeDynamicLayoutPlan(
+      {
+        experience: Array.from({ length: 8 }, (_, i) => ({
+          company: `Co ${i}`,
+          title: 'Engineer',
+          achievements: ['Built APIs', 'Reduced latency 30%', 'Led team of 5'],
+        })),
+        skills: Array.from({ length: 40 }, (_, i) => `Skill${i}`),
+        summary: Array.from({ length: 150 }, (_, i) => `word${i}`).join(' '),
+        projects: Array.from({ length: 5 }, (_, i) => ({ name: `P${i}`, description: 'Desc' })),
+      },
+      { htmlTemplate: '<aside class="sidebar"></aside>' }
+    );
+
+    expect(sparse.sectionGap).toBeGreaterThan(dense.sectionGap);
+    expect(sparse.fontScale).toBeGreaterThanOrEqual(dense.fontScale);
+    expect(sparse.skillColumns).toBeLessThanOrEqual(3);
+  });
+
+  it('injects dynamic-layout style block into rendered HTML', () => {
+    const html = injectDynamicLayoutIntoHtml(
+      '<html><body><div class="resume-container">x</div></body></html>',
+      { experience: [{ company: 'Acme', title: 'Dev', description: 'Built things.' }] }
+    );
+    expect(html).toContain('data-injected="dynamic-layout"');
+    expect(html).toContain('--dl-section-gap');
+  });
 });
 
 describe('experience header mapping', () => {

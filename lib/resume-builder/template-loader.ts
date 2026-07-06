@@ -34,6 +34,7 @@ import {
   coalesceFormDataForTemplateRender,
   optimizeResumeDataForRender,
   appendHobbiesSectionIfMissing,
+  shouldPreserveFullContentForRender,
 } from './section-visibility';
 import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
 import {
@@ -47,6 +48,7 @@ import {
   getAtsContentBalanceStyleBlock,
   isPremiumTemplate,
 } from './ats-content-balance-css';
+import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
 
 /**
  * Load template metadata from JSON
@@ -415,6 +417,8 @@ export interface InjectResumeDataOptions {
   galleryTemplateId?: string;
   /** Active template id — informs layout capacity heuristics */
   templateId?: string;
+  /** Preview vs PDF export — informs dynamic layout planning */
+  mode?: 'preview' | 'pdf';
 }
 
 /**
@@ -425,11 +429,15 @@ export function injectResumeData(
   formData: Record<string, unknown>,
   options?: InjectResumeDataOptions
 ): string {
-  const data = optimizeResumeDataForRender(coalesceFormDataForTemplateRender(formData), {
+  const coalesced = coalesceFormDataForTemplateRender(formData);
+  const renderMode = options?.mode ?? 'preview';
+  const preserveFullContent = shouldPreserveFullContentForRender(coalesced, options);
+  const data = optimizeResumeDataForRender(coalesced, {
     htmlTemplate,
     templateId: options?.templateId ?? options?.galleryTemplateId,
     galleryPreview: options?.galleryPreview,
-    mode: 'preview',
+    mode: renderMode,
+    preserveFullContent,
   });
 
   // Helper function to safely extract string values
@@ -532,7 +540,7 @@ export function injectResumeData(
     '{{CONTACT}}': renderContactListHtml(data, escapeHtml),
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
-    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
+    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile, preserveFullContent),
     '{{PROJECTS}}': renderProjects(projectsData),
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
@@ -583,6 +591,12 @@ export function injectResumeData(
       result = result + injectedStyles;
     }
   }
+
+  result = injectDynamicLayoutIntoHtml(result, coalesced, {
+    htmlTemplate,
+    templateId: options?.templateId ?? options?.galleryTemplateId,
+    mode: renderMode,
+  });
 
   return result;
 }
@@ -806,7 +820,11 @@ function resolveSkillRenderLimit(total: number, useProgressBars: boolean): numbe
   return undefined;
 }
 
-function renderSkills(skills: string[], useProgressBars: boolean = false): string {
+function renderSkills(
+  skills: string[],
+  useProgressBars: boolean = false,
+  preserveFullContent: boolean = false
+): string {
   if (!Array.isArray(skills) || skills.length === 0) {
     return '';
   }
@@ -826,7 +844,9 @@ function renderSkills(skills: string[], useProgressBars: boolean = false): strin
     .slice()
     .sort((a, b) => scoreSkillConfidence(b) - scoreSkillConfidence(a));
 
-  const limit = resolveSkillRenderLimit(validSkills.length, useProgressBars);
+  const limit = preserveFullContent
+    ? undefined
+    : resolveSkillRenderLimit(validSkills.length, useProgressBars);
   const displaySkills = limit ? validSkills.slice(0, limit) : validSkills;
 
   if (displaySkills.length === 0) {

@@ -92,7 +92,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
   const typographyCss = buildTypographyCss(readTypographyFromFormData(formData));
 
   // Inject resume data into HTML (same as LivePreview)
-  const dataInjectedHtml = injectResumeData(html, formData, { templateId });
+  const dataInjectedHtml = injectResumeData(html, formData, { templateId, mode: 'pdf' });
 
   // Convert emoji icons to inline SVG for better PDF compatibility
   // Wrap in try-catch to prevent emoji conversion from breaking export

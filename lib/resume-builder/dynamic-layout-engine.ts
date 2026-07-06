@@ -1,0 +1,379 @@
+/**
+ * Dynamic layout engine — shared content-density planning for all resume templates.
+ *
+ * Computes spacing, typography scale, and column-balance CSS variables from resume
+ * content volume. Injected at render time via `injectResumeData` (preview + PDF).
+ *
+ * Complements (does not replace):
+ *   - typography.ts          — user Design Studio overrides
+ *   - ats-content-balance-css  — premium template typography
+ *   - preview-content-flow.ts  — preview overflow visibility
+ *   - pdf-pagination-overrides — export pagination rules
+ */
+
+import {
+  estimateExperienceYears,
+  filterMeaningfulExperiences,
+  filterMeaningfulProjects,
+  filterMeaningfulCertifications,
+  filterMeaningfulAchievements,
+  normalizeSkillsForRender,
+  filterMeaningfulSkills,
+} from './section-visibility';
+import { collectExperienceBodyFields } from '@/lib/resume-parser/import-sanitize';
+
+export interface DynamicLayoutPlan {
+  /** Section vertical gap (px) */
+  sectionGap: number;
+  /** Item block gap within sections (px) */
+  blockGap: number;
+  /** Bullet list item gap (em) */
+  bulletGap: number;
+  /** Heading-to-body gap (px) */
+  headingGap: number;
+  /** Body font scale multiplier (0.92 – 1.06) */
+  fontScale: number;
+  /** Line-height multiplier (0.9 – 1.15) */
+  lineHeightMul: number;
+  /** Skill chip grid columns (2 – 4) */
+  skillColumns: number;
+  /** Main column flex grow weight */
+  mainFlexGrow: number;
+  /** Sidebar column flex grow weight */
+  sidebarFlexGrow: number;
+  /** Estimated content density 0 (sparse) – 1 (very dense) */
+  density: number;
+}
+
+export interface ComputeDynamicLayoutOptions {
+  htmlTemplate?: string;
+  templateId?: string;
+  mode?: 'preview' | 'pdf';
+}
+
+const BASE_SECTION_GAP = 14;
+const BASE_BLOCK_GAP = 10;
+const BASE_BULLET_GAP = 0.35;
+const BASE_HEADING_GAP = 8;
+const TARGET_FILL_UNITS = 52;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getStringField(formData: Record<string, unknown>, keys: string[]): string {
+  for (const key of keys) {
+    const value = formData[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return '';
+}
+
+function countSummaryWords(formData: Record<string, unknown>): number {
+  const text = getStringField(formData, [
+    'summary',
+    'professionalSummary',
+    'Professional Summary',
+    'Career Objective',
+    'Objective',
+    'Executive Summary',
+  ]);
+  if (!text) return 0;
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+function countExperienceBullets(experiences: Array<Record<string, unknown>>): number {
+  let total = 0;
+  for (const exp of experiences) {
+    const body = collectExperienceBodyFields(exp);
+    const bullets = body.achievements.length
+      ? body.achievements
+      : String(body.description || '')
+          .split(/\n|•|·/)
+          .map((s) => s.trim())
+          .filter((s) => s.length >= 3);
+    total += Math.max(bullets.length, body.description.trim() ? 1 : 0);
+  }
+  return total;
+}
+
+function detectHasSidebar(htmlTemplate: string): boolean {
+  return /\bsidebar\b|tm-sidebar|<aside[\s>]/i.test(htmlTemplate);
+}
+
+/**
+ * Weighted content units — higher-priority sections contribute more to density.
+ * Mirrors section priority: experience > projects > summary > education > skills > …
+ */
+function estimateContentUnits(formData: Record<string, unknown>): number {
+  const experience = filterMeaningfulExperiences(
+    (Array.isArray(formData.experience) ? formData.experience : []) as Array<
+      Record<string, unknown>
+    >
+  );
+  const projects = filterMeaningfulProjects(
+    (Array.isArray(formData.projects) ? formData.projects : []) as Array<Record<string, unknown>>
+  );
+  const skills = filterMeaningfulSkills(normalizeSkillsForRender(formData)) as string[];
+  const certifications = filterMeaningfulCertifications(
+    (Array.isArray(formData.certifications) ? formData.certifications : []) as Array<
+      Record<string, unknown>
+    >
+  );
+  const achievements = filterMeaningfulAchievements(
+    Array.isArray(formData.achievements) ? formData.achievements : []
+  );
+  const languages = Array.isArray(formData.languages) ? formData.languages : [];
+  const summaryWords = countSummaryWords(formData);
+  const bullets = countExperienceBullets(experience);
+  const eduCount = Array.isArray(formData.education) ? formData.education.length : 0;
+  const expYears = estimateExperienceYears(experience);
+
+  let units = 0;
+  units += experience.length * 6;
+  units += bullets * 1.8;
+  units += expYears * 2.5;
+  units += projects.length * 4;
+  units += summaryWords * 0.12;
+  units += eduCount * 2.5;
+  units += skills.length * 0.35;
+  units += certifications.length * 1.5;
+  units += achievements.length * 1.2;
+  units += languages.length * 0.8;
+
+  return units;
+}
+
+/**
+ * Pure layout plan from form data — no DOM measurement required.
+ * Sparse resumes expand spacing; dense resumes compress gaps before font scale.
+ */
+export function computeDynamicLayoutPlan(
+  formData: Record<string, unknown>,
+  options?: ComputeDynamicLayoutOptions
+): DynamicLayoutPlan {
+  const htmlTemplate = options?.htmlTemplate ?? '';
+  const hasSidebar = detectHasSidebar(htmlTemplate);
+  const units = estimateContentUnits(formData);
+  const fillRatio = units / TARGET_FILL_UNITS;
+  const density = clamp(fillRatio, 0, 1.35) / 1.35;
+
+  let sectionGapMul = 1;
+  let blockGapMul = 1;
+  let bulletGapMul = 1;
+  let headingGapMul = 1;
+  let fontScale = 1;
+  let lineHeightMul = 1;
+
+  if (fillRatio < 0.55) {
+    const expand = clamp((0.55 - fillRatio) / 0.55, 0, 1);
+    sectionGapMul = 1 + expand * 0.22;
+    blockGapMul = 1 + expand * 0.18;
+    bulletGapMul = 1 + expand * 0.15;
+    headingGapMul = 1 + expand * 0.12;
+    lineHeightMul = 1 + expand * 0.08;
+    fontScale = 1 + expand * 0.04;
+  } else if (fillRatio > 0.92) {
+    const compress = clamp((fillRatio - 0.92) / 0.48, 0, 1);
+    sectionGapMul = 1 - compress * 0.18;
+    blockGapMul = 1 - compress * 0.2;
+    bulletGapMul = 1 - compress * 0.22;
+    headingGapMul = 1 - compress * 0.12;
+    lineHeightMul = 1 - compress * 0.1;
+    fontScale = 1 - compress * 0.06;
+  }
+
+  const skillCount = filterMeaningfulSkills(normalizeSkillsForRender(formData)).length;
+  let skillColumns = 3;
+  if (hasSidebar) {
+    skillColumns = skillCount <= 6 ? 2 : skillCount <= 14 ? 2 : 3;
+  } else if (skillCount <= 8) {
+    skillColumns = 2;
+  } else if (skillCount <= 20) {
+    skillColumns = 3;
+  } else {
+    skillColumns = 4;
+  }
+
+  const mainFlexGrow = hasSidebar ? 1.65 : 1;
+  const sidebarFlexGrow = hasSidebar ? 1 : 0;
+
+  return {
+    sectionGap: Math.round(BASE_SECTION_GAP * sectionGapMul * 10) / 10,
+    blockGap: Math.round(BASE_BLOCK_GAP * blockGapMul * 10) / 10,
+    bulletGap: Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100,
+    headingGap: Math.round(BASE_HEADING_GAP * headingGapMul * 10) / 10,
+    fontScale: Math.round(clamp(fontScale, 0.92, 1.06) * 1000) / 1000,
+    lineHeightMul: Math.round(clamp(lineHeightMul, 0.9, 1.15) * 1000) / 1000,
+    skillColumns,
+    mainFlexGrow,
+    sidebarFlexGrow,
+    density: Math.round(density * 1000) / 1000,
+  };
+}
+
+/**
+ * Build scoped CSS that applies the layout plan via custom properties.
+ * Neutral plan values (~1 page of content) produce near-default spacing.
+ */
+export function buildDynamicLayoutCss(plan: DynamicLayoutPlan): string {
+  const lh = (1.45 * plan.lineHeightMul).toFixed(3);
+  const fontPct = (100 * plan.fontScale).toFixed(2);
+
+  return `
+/* Dynamic layout engine — content-density spacing & column balance */
+.resume-container {
+  --dl-section-gap: ${plan.sectionGap}px;
+  --dl-block-gap: ${plan.blockGap}px;
+  --dl-bullet-gap: ${plan.bulletGap}em;
+  --dl-heading-gap: ${plan.headingGap}px;
+  --dl-font-scale: ${plan.fontScale};
+  --dl-line-height: ${lh};
+  --dl-skill-cols: ${plan.skillColumns};
+  --dl-main-flex: ${plan.mainFlexGrow};
+  --dl-sidebar-flex: ${plan.sidebarFlexGrow};
+}
+
+/* Column shells — prevent empty-column stretch */
+.resume-container .resume-wrapper,
+.resume-container [class*='-layout'],
+.resume-container [class*='-body']:not(body):not(html),
+.resume-container [class*='-columns'],
+.resume-container [class*='-main'],
+.resume-container [class*='-sidebar'],
+.resume-container main[class*='-'],
+.resume-container aside[class*='-'],
+.resume-container .main-content,
+.resume-container .sidebar,
+.resume-container .content-column,
+.resume-container .side-column {
+  align-items: flex-start !important;
+  align-self: auto !important;
+  justify-content: flex-start !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container [class*='-layout'] > main,
+.resume-container [class*='-layout'] > [class*='-main'],
+.resume-container .main-content,
+.resume-container .content-column {
+  flex-grow: var(--dl-main-flex, 1) !important;
+}
+
+.resume-container [class*='-layout'] > aside,
+.resume-container [class*='-layout'] > [class*='-sidebar'],
+.resume-container .sidebar,
+.resume-container .side-column {
+  flex-grow: var(--dl-sidebar-flex, 1) !important;
+}
+
+/* Adaptive section spacing */
+.resume-container section,
+.resume-container .content-section,
+.resume-container .sidebar-section,
+.resume-container [class*='-section']:not([class*='section-title']):not([class*='-section-head']) {
+  margin-bottom: var(--dl-section-gap) !important;
+}
+
+.resume-container section > h2,
+.resume-container .section-title,
+.resume-container [class*='section-title'],
+.resume-container [class*='-section-head'] {
+  margin-bottom: var(--dl-heading-gap) !important;
+}
+
+/* Experience / project / education blocks */
+.resume-container .experience-item,
+.resume-container .education-item,
+.resume-container .project-item,
+.resume-container .certification-item,
+.resume-container .achievement-item {
+  margin-bottom: var(--dl-block-gap) !important;
+}
+
+.resume-container .experience-item .description li,
+.resume-container .description li,
+.resume-container .project-item li {
+  margin-bottom: var(--dl-bullet-gap) !important;
+  line-height: var(--dl-line-height) !important;
+}
+
+.resume-container .experience-item .description,
+.resume-container .project-item .description,
+.resume-container .summary-text,
+.resume-container [class*='summary-text'],
+.resume-container .professional-summary {
+  line-height: var(--dl-line-height) !important;
+  font-size: calc(1em * var(--dl-font-scale)) !important;
+}
+
+/* Skill chips — auto-wrap grid without empty panels */
+.resume-container .skills-list:not(:has(.psp-skill-item)),
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)),
+.resume-container [class*='skills-grid']:not(:has(.psp-skill-item)) {
+  display: grid !important;
+  grid-template-columns: repeat(var(--dl-skill-cols), minmax(0, 1fr)) !important;
+  gap: calc(var(--dl-block-gap) * 0.6) calc(var(--dl-block-gap) * 0.9) !important;
+  align-items: start !important;
+  width: 100% !important;
+}
+
+.resume-container .skills-list:not(:has(.psp-skill-item)) > .skill-tag,
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) > .skill-tag {
+  min-height: auto !important;
+  height: auto !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+/* Summary — no reserved empty container */
+.resume-container .summary-text,
+.resume-container [class*='summary-text'],
+.resume-container .professional-summary,
+.resume-container .objective-text {
+  min-height: auto !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.resume-container .experience-list > .experience-item:last-child,
+.resume-container .education-list > .education-item:last-child,
+.resume-container .projects-list > .project-item:last-child,
+.resume-container section:last-child,
+.resume-container .content-section:last-child,
+.resume-container .sidebar-section:last-child {
+  margin-bottom: 0 !important;
+}
+`.trim();
+}
+
+export function getDynamicLayoutStyleBlock(plan: DynamicLayoutPlan): string {
+  const css = buildDynamicLayoutCss(plan);
+  if (!css) return '';
+  return `<style data-injected="dynamic-layout">\n${css}\n</style>`;
+}
+
+function appendStyleBlockToHtml(html: string, styleBlock: string): string {
+  if (!styleBlock) return html;
+  if (/<\/body>/i.test(html)) {
+    return html.replace(/<\/body>/i, `${styleBlock}</body>`);
+  }
+  if (/<\/html>/i.test(html)) {
+    return html.replace(/<\/html>/i, `${styleBlock}</html>`);
+  }
+  return html + styleBlock;
+}
+
+/**
+ * Compute layout plan from form data and inject scoped CSS into rendered HTML.
+ */
+export function injectDynamicLayoutIntoHtml(
+  html: string,
+  formData: Record<string, unknown>,
+  options?: ComputeDynamicLayoutOptions
+): string {
+  const plan = computeDynamicLayoutPlan(formData, options);
+  const block = getDynamicLayoutStyleBlock(plan);
+  return appendStyleBlockToHtml(html, block);
+}
