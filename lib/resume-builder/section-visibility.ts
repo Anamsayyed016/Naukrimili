@@ -882,7 +882,10 @@ export function coalesceFormDataForTemplateRender(
   ]);
   const skipHeaderReconcile = isCustomParserImport(formData);
   const experienceRepaired = repairExperienceForTemplateBinding(formData, experienceRaw);
-  const experience = experienceRepaired
+  const experiencePrepared = skipHeaderReconcile
+    ? finalizeExperienceListForCustomParserImport(experienceRepaired)
+    : experienceRepaired;
+  const experience = experiencePrepared
     .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
     .map((entry) =>
       syncExperienceEntryAliases(entry, { reconcileHeaders: !skipHeaderReconcile })

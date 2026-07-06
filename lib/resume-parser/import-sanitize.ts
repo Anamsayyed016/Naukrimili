@@ -3542,7 +3542,8 @@ export function finalizeExperienceListForCustomParserImport(
   const demoted = entries
     .filter((e): e is Record<string, unknown> => !!e && typeof e === 'object')
     .map(demoteImplausibleExperienceCompany);
-  const paired = pairHeaderFragmentOrphans(demoted as ExperienceLike[]) as Record<
+  const split = splitExperienceEntriesWithEmbeddedJobs(demoted);
+  const paired = pairHeaderFragmentOrphans(split as ExperienceLike[]) as Record<
     string,
     unknown
   >[];
@@ -3554,9 +3555,9 @@ export function finalizeExperienceListForCustomParserImport(
     string,
     unknown
   >[];
-  return deduped.map((e) =>
-    demoteImplausibleExperienceCompany(reconcileExperienceHeaderFields(e))
-  );
+  return deduped
+    .map((e) => demoteImplausibleExperienceCompany(reconcileExperienceHeaderFields(e)))
+    .filter((e) => !isResumeCompetencySectionEntry(e));
 }
 
 /** Final binding pass before Builder state — orphan merge + semantic header reconciliation. */

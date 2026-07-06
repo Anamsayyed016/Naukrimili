@@ -46,12 +46,8 @@ export function readExperienceTitleForForm(entry: Record<string, unknown>): stri
  * Resolve canonical title for blur/save — prefer live `title`, then parser aliases.
  */
 export function readExperienceTitleForSync(entry: Record<string, unknown>): string {
-  if (
-    Object.prototype.hasOwnProperty.call(entry, 'title') ||
-    Object.prototype.hasOwnProperty.call(entry, 'Title')
-  ) {
-    return readExperienceTitleForForm(entry).trim();
-  }
+  const fromForm = readExperienceTitleForForm(entry).trim();
+  if (fromForm) return fromForm;
   return readExperiencePositionSlot(entry).trim();
 }
 

@@ -661,6 +661,19 @@ export function coalesceBuilderImportPayload(
     if (Array.isArray(out.experience) && out.experience.length > 0) {
       out.experience = normalizeMergedExperienceList(out.experience, out);
     }
+
+    // Re-coalesce of gallery/editor session — skip field-mapper re-recovery (inflates achievements).
+    if (isAlreadyBuilderCoalescedImport(out) && hasImportableContent(out)) {
+      return applySummaryHygieneToBuilderForm(
+        applyBuilderImportGuards(
+          out,
+          { ...out, rawText: out.rawText ?? parsed.rawText },
+          email,
+          locationHint
+        )
+      );
+    }
+
     const { builder: recoveredOut, report: rehydrateReport } = recoverBuilderFormSections(out, {
       mergedImport: out,
       rawImport: parsed,
@@ -672,6 +685,21 @@ export function coalesceBuilderImportPayload(
   }
 
   return transformImportDataToBuilder(parsed);
+}
+
+function isAlreadyBuilderCoalescedImport(parsed: Record<string, unknown>): boolean {
+  if (parsed._builderCoalesced === true) return true;
+  const experience = parsed.experience;
+  if (!Array.isArray(experience) || experience.length === 0) return false;
+  return experience.some(
+    (entry) =>
+      entry &&
+      typeof entry === 'object' &&
+      (Object.prototype.hasOwnProperty.call(entry, 'title') ||
+        Object.prototype.hasOwnProperty.call(entry, 'designation')) &&
+      (Object.prototype.hasOwnProperty.call(entry, 'company') ||
+        Object.prototype.hasOwnProperty.call(entry, 'organization'))
+  );
 }
 
 function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unknown[] {

@@ -54,6 +54,7 @@ import {
   builderFormChecksum,
   logBuilderHydration,
   shouldForceImportHydration,
+  normalizeImportedFormForEditor,
   resolveEditorFormFromImport,
   ensureBuilderContactFields,
 } from '@/lib/resume-builder/builder-hydration';
@@ -245,11 +246,12 @@ export default function ResumeEditorPage() {
 
     setFormData((prev) => {
       if (prev._userEdited === true) return prev;
-      if (explicitGalleryImport) return resolved;
+      const normalized = normalizeImportedFormForEditor(resolved);
+      if (explicitGalleryImport) return normalized;
       if (hasImportableContent(prev)) return ensureBuilderContactFields(prev);
-      return resolved;
+      return normalized;
     });
-    commitBuilderDraft(templateId, resolved);
+    commitBuilderDraft(templateId, normalizeImportedFormForEditor(resolved));
     const importMeta = readImportMeta();
     if (importMeta?.importId) {
       lastAppliedImportIdRef.current = importMeta.importId;
@@ -368,8 +370,9 @@ export default function ResumeEditorPage() {
 
               if (importOk) {
                 const checksum = builderFormChecksum(formPayload);
-                setFormData(formPayload);
-                commitBuilderDraft(templateId, formPayload);
+                const normalized = normalizeImportedFormForEditor(formPayload);
+                setFormData(normalized);
+                commitBuilderDraft(templateId, normalized);
                 logBuilderHydration('import', { templateId, importId, checksum });
                 formLoaded = true;
                 if (importId) {

@@ -7,8 +7,8 @@ import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import type { Template } from '@/lib/resume-builder/types';
-import { writeImportSession, ensureBuilderContactFields, resolveEditorFormFromImport } from '@/lib/resume-builder/builder-hydration';
-import { hasImportableContent } from '@/lib/resume-builder/import-transformer';
+import { writeImportSession, ensureBuilderContactFields, resolveEditorFormFromImport, prepareBuilderSessionPayload } from '@/lib/resume-builder/builder-hydration';
+import { hasImportableContent, coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';
@@ -128,11 +128,21 @@ export default function TemplateSelectionPage() {
     if (source === 'import') {
       const raw = loadGalleryPreviewFormData();
       if (Object.keys(raw).length > 0) {
-        const payload = ensureBuilderContactFields(
-          Object.keys(previewFormData).length > 0
-            ? previewFormData
-            : resolveEditorFormFromImport() || raw
-        );
+        let payload: Record<string, unknown> | null = resolveEditorFormFromImport();
+        if (!payload || !hasImportableContent(payload)) {
+          try {
+            payload = ensureBuilderContactFields(coalesceBuilderImportPayload(raw));
+          } catch {
+            payload = ensureBuilderContactFields(raw);
+          }
+        }
+        payload = prepareBuilderSessionPayload({
+          ...payload,
+          rawText: payload.rawText ?? raw.rawText,
+          customParserUsed: payload.customParserUsed ?? raw.customParserUsed,
+          selectedParser: payload.selectedParser ?? raw.selectedParser,
+          _aiProvider: payload._aiProvider ?? raw._aiProvider,
+        });
         if (!writeImportSession(payload)) {
           console.warn('[templates] Failed to persist import session before editor');
         }

@@ -7,10 +7,15 @@ import {
   coalesceBuilderImportPayload,
   hasImportableContent,
 } from './import-transformer';
+import { syncExperienceEntryAliases } from './experience-entry-sync';
 import {
   isValidatedContactName,
   sanitizePersonName,
 } from '@/lib/resume-parser/import-sanitize';
+
+const MAX_SESSION_EXPERIENCE_DESC = 6000;
+const MAX_SESSION_ACHIEVEMENTS = 24;
+const MAX_SESSION_RAW_TEXT = 120_000;
 
 export const RESUME_IMPORT_STORAGE_KEY = 'resume-import-data';
 export const RESUME_IMPORT_META_KEY = 'resume-import-meta';
@@ -51,25 +56,89 @@ export function readImportMeta(): ResumeImportMeta | null {
   }
 }
 
+/** Shrink oversized import payloads so sessionStorage writes succeed in the browser. */
+export function prepareBuilderSessionPayload(
+  payload: Record<string, unknown>
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...payload, _builderCoalesced: true };
+
+  if (Array.isArray(out.experience)) {
+    out.experience = (out.experience as Record<string, unknown>[]).map((exp) => {
+      if (!exp || typeof exp !== 'object') return exp;
+      const row = { ...exp };
+      const desc = String(row.description ?? row.Description ?? '');
+      if (desc.length > MAX_SESSION_EXPERIENCE_DESC) {
+        const trimmed = desc.slice(0, MAX_SESSION_EXPERIENCE_DESC);
+        row.description = trimmed;
+        row.Description = trimmed;
+      }
+      for (const key of ['achievements', 'bullets', 'bulletPoints', 'Achievements'] as const) {
+        if (Array.isArray(row[key]) && (row[key] as unknown[]).length > 12) {
+          row[key] = (row[key] as unknown[]).slice(0, 12);
+        }
+      }
+      return row;
+    });
+    out['Work Experience'] = out.experience;
+    out.Experience = out.experience;
+  }
+
+  if (Array.isArray(out.achievements) && out.achievements.length > MAX_SESSION_ACHIEVEMENTS) {
+    out.achievements = out.achievements.slice(0, MAX_SESSION_ACHIEVEMENTS);
+    out.Achievements = out.achievements;
+  }
+
+  if (typeof out.rawText === 'string' && out.rawText.length > MAX_SESSION_RAW_TEXT) {
+    out.rawText = out.rawText.slice(0, MAX_SESSION_RAW_TEXT);
+  }
+
+  return out;
+}
+
+function tryWriteSessionJson(key: string, data: Record<string, unknown>): boolean {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(data));
+    return true;
+  } catch (error) {
+    const isQuota =
+      (error instanceof DOMException &&
+        (error.name === 'QuotaExceededError' || error.code === 22)) ||
+      (error instanceof Error && /quota/i.test(error.message));
+    if (!isQuota) return false;
+
+    const { rawText: _rawText, ...withoutRawText } = data;
+    try {
+      sessionStorage.setItem(key, JSON.stringify(withoutRawText));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
 export function writeImportSession(
   payload: Record<string, unknown>,
   meta?: Partial<ResumeImportMeta>
 ): boolean {
   if (typeof window === 'undefined') return false;
+  const importId =
+    meta?.importId ||
+    (typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `import-${Date.now()}`);
+  const importedAt = meta?.importedAt ?? Date.now();
+  const enriched = prepareBuilderSessionPayload({
+    ...payload,
+    _imported: true,
+    _importedAt: importedAt,
+    _importSessionId: importId,
+  });
+
+  if (!tryWriteSessionJson(RESUME_IMPORT_STORAGE_KEY, enriched)) {
+    return false;
+  }
+
   try {
-    const importId =
-      meta?.importId ||
-      (typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `import-${Date.now()}`);
-    const importedAt = meta?.importedAt ?? Date.now();
-    const enriched = {
-      ...payload,
-      _imported: true,
-      _importedAt: importedAt,
-      _importSessionId: importId,
-    };
-    sessionStorage.setItem(RESUME_IMPORT_STORAGE_KEY, JSON.stringify(enriched));
     const metaPayload: ResumeImportMeta = {
       importId,
       importedAt,
@@ -205,6 +274,24 @@ export function ensureBuilderContactFields(
   return out;
 }
 
+/** Sync experience aliases so editor forms match template preview fields. */
+export function normalizeImportedFormForEditor(
+  data: Record<string, unknown>
+): Record<string, unknown> {
+  const out = ensureBuilderContactFields({ ...data });
+  if (Array.isArray(out.experience)) {
+    const normalized = (out.experience as Record<string, unknown>[]).map((entry) =>
+      syncExperienceEntryAliases(entry && typeof entry === 'object' ? entry : {}, {
+        reconcileHeaders: false,
+      })
+    );
+    out.experience = normalized;
+    out['Work Experience'] = normalized;
+    out.Experience = normalized;
+  }
+  return out;
+}
+
 /**
  * Gallery + editor must use the same coalesced builder payload.
  * Safe to call synchronously on the client before template load.
@@ -215,7 +302,7 @@ export function resolveEditorFormFromImport(): Record<string, unknown> | null {
   try {
     const coalesced = coalesceBuilderImportPayload(raw);
     if (!hasImportableContent(coalesced)) return null;
-    return ensureBuilderContactFields(coalesced);
+    return normalizeImportedFormForEditor(coalesced);
   } catch {
     return null;
   }
