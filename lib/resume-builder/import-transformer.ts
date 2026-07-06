@@ -78,7 +78,6 @@ import {
   isCorporateStructurePhrase,
   isMisclassifiedExperienceProject,
   isAcceptedEmailDerivedName,
-  sanitizeSkillEntry,
 } from '@/lib/resume-parser/import-sanitize';
 import { extractNameWithConfidence } from '@/lib/resume-parser/text-recovery';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
