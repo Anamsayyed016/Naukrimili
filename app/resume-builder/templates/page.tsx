@@ -70,7 +70,7 @@ export default function TemplateSelectionPage() {
       ({ coalesceBuilderImportPayload }) => {
         const raw = loadGalleryPreviewFormData();
         if (Object.keys(raw).length > 0) {
-          setPreviewFormData(coalesceBuilderImportPayload(raw));
+          setPreviewFormData(ensureBuilderContactFields(coalesceBuilderImportPayload(raw)));
         }
       }
     );

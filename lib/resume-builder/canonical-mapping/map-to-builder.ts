@@ -2,7 +2,7 @@
  * Map validated canonical nodes onto Builder form fields.
  */
 
-import { sanitizeFieldText, sanitizeExperienceCompanyValue, preferWholeExperienceField } from '@/lib/resume-parser/import-sanitize';
+import { sanitizeFieldText, sanitizeExperienceCompanyValue, preferWholeExperienceField, sanitizePersonName, isValidatedContactName } from '@/lib/resume-parser/import-sanitize';
 import { bestNodeValue, findNodes } from './ingest';
 import type { CanonicalFieldNode, CanonicalNodeType } from './types';
 
@@ -104,12 +104,26 @@ function buildStringListFromNodes(
   return out;
 }
 
+function setValidatedIdentity(
+  target: Record<string, unknown>,
+  key: string,
+  value: string,
+  locationHint = ''
+): boolean {
+  const v = sanitizePersonName(value, 120);
+  if (!v || !isValidatedContactName(v, locationHint)) return false;
+  if (hasText(target[key])) return false;
+  target[key] = v;
+  return true;
+}
+
 export function mapCanonicalNodesToBuilder(
   nodes: CanonicalFieldNode[],
   builderDraft: Record<string, unknown>
 ): { builder: Record<string, unknown>; matched: string[] } {
   const builder = { ...builderDraft };
   const matched: string[] = [];
+  const locationHint = String(builder.location || builder.address || '');
 
   const identityMap: Array<{ key: string; types: CanonicalNodeType[] }> = [
     { key: 'fullName', types: ['PERSON_NAME'] },
@@ -124,17 +138,23 @@ export function mapCanonicalNodesToBuilder(
   ];
 
   for (const { key, types } of identityMap) {
+    if (key === 'fullName') {
+      const value = bestNodeValue(nodes, types);
+      if (setValidatedIdentity(builder, key, value, locationHint)) matched.push(`identity:${key}`);
+      continue;
+    }
     const value = bestNodeValue(nodes, types);
     if (setIfEmpty(builder, key, value)) matched.push(`identity:${key}`);
   }
 
   const nameNode = bestNodeValue(nodes, ['PERSON_NAME']);
-  if (nameNode && !hasText(builder.firstName)) {
-    const parts = nameNode.split(/\s+/);
+  const safeName = sanitizePersonName(nameNode, 120);
+  if (safeName && isValidatedContactName(safeName, locationHint) && !hasText(builder.firstName)) {
+    const parts = safeName.split(/\s+/);
     if (parts.length >= 2) {
       builder.firstName = parts[0];
       builder.lastName = parts.slice(1).join(' ');
-      builder.name = nameNode;
+      builder.name = safeName;
       matched.push('identity:name-split');
     }
   }

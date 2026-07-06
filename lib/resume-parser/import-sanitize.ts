@@ -220,10 +220,24 @@ export function stripCredentialPrefix(value: string): string {
 /**
  * True when a string looks like a real person name (not a bullet, sentence, or metric).
  */
+/** Corporate-action / firm-conversion phrases misclassified as personal names or skills. */
+export function isCorporateStructurePhrase(value: unknown): boolean {
+  const s = sanitizeFieldText(value, 160);
+  if (!s) return false;
+  if (/\bcompany\s+into\b/i.test(s)) return true;
+  if (/\bconversion\b/i.test(s) && /\b(?:private|public)\s+limited\b/i.test(s)) return true;
+  if (/\bconversion\s+from\b/i.test(s) && /\bto\b/i.test(s)) return true;
+  if (/\b(?:private|public)\s+limited\b/i.test(s) && /\b(?:conversion|converted|merger|amalgamation)\b/i.test(s)) {
+    return true;
+  }
+  return false;
+}
+
 export function isPlausiblePersonName(value: unknown): boolean {
   const s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
   if (!s || isGarbageResumeText(s)) return false;
   if (isEmailOrDomainFragment(s)) return false;
+  if (isCorporateStructurePhrase(s)) return false;
   if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(s)) return false;
   return isClassifiedPersonName(s);
 }
@@ -529,9 +543,11 @@ export function sanitizeSkillEntry(skill: unknown): string {
   if (/@/.test(s) || /\b\d{7,}\b/.test(s)) return '';
   if (isLikelyCertificationLine(s)) return '';
   if (isLikelyEducationLine(s) && s.length < 120) return '';
+  const skillWords = s.split(/\s+/).filter(Boolean).length;
+  if (isCorporateStructurePhrase(s)) return '';
+  if (looksLikeSentenceNotCompany(s) && skillWords >= 3) return '';
 
   const classified = classifyResumeTextFragment(s);
-  const skillWords = s.split(/\s+/).filter(Boolean).length;
   if (classified.kind === 'SECTION_HEADER') return '';
   if (classified.kind === 'EDUCATION' || classified.kind === 'CERTIFICATION') return '';
   if (classified.kind === 'LOCATION') return '';
@@ -935,6 +951,7 @@ export function isPlausibleProjectName(value: unknown): boolean {
   const s = sanitizeFieldText(value, 120);
   if (!s || s.length < 2) return false;
   if (isGarbageResumeText(s)) return false;
+  if (isCorporateStructurePhrase(s)) return false;
   if (s.length > 90) return false;
 
   const words = s.split(/\s+/).filter(Boolean);
@@ -1345,6 +1362,7 @@ export function sanitizeCertificationEntry(value: unknown): Record<string, unkno
 export function isExperienceBlurbFragment(text: string): boolean {
   const s = sanitizeFieldText(text, 120);
   if (!s) return false;
+  if (isCorporateStructurePhrase(s)) return true;
   if (/\b(?:turnover|crores?|lakhs?|millions?|billions?|revenue)\b/i.test(s)) return true;
   if (/^\([^)]*$/.test(s)) return true;
   if (/^[^()]*\)\s*$/.test(s) && !s.includes('(')) return true;
@@ -3060,6 +3078,12 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
     safeCompany = '';
   }
   let safePosition = isResumeSectionHeadingLine(position) ? '' : position;
+  if (safeCompany && (isCorporateStructurePhrase(safeCompany) || (looksLikeSentenceNotCompany(safeCompany) && !looksLikeCompanyNameLine(safeCompany)))) {
+    safeCompany = '';
+  }
+  if (safePosition && (isCorporateStructurePhrase(safePosition) || (looksLikeSentenceNotCompany(safePosition) && !looksLikeJobTitleLine(safePosition)))) {
+    safePosition = '';
+  }
   const description = sanitizeMultilineFieldText(
     reconciled.description || reconciled.Description,
     8000

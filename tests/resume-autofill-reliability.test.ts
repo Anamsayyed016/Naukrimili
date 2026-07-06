@@ -161,6 +161,28 @@ describe('transformImportDataToBuilder name safety', () => {
     expect(eduInstitutions.join(' ')).not.toMatch(/associates/i);
   });
 
+  it('rejects corporate conversion phrase as contact name and filters skill bleed', () => {
+    const transformed = transformImportDataToBuilder({
+      fullName: 'Company Into Public Limited',
+      firstName: 'Company',
+      lastName: 'Into Public Limited',
+      email: 'cs.candidate@example.com',
+      skills: ['AMFI', 'Compliance', 'Conversion From Private To'],
+      experience: [
+        {
+          company: 'Company Into Public Limited',
+          position: 'conversion of Private Limited',
+          description: 'Handled conversion filings',
+        },
+      ],
+      achievements: ['MASTER OF BUSINESS ADMINISTRATION (MBA)', 'Conversion From Private To'],
+    });
+    expect(transformed.fullName).not.toMatch(/company into public/i);
+    expect(transformed.firstName).not.toMatch(/company/i);
+    expect((transformed.skills || []).join(' ')).not.toMatch(/conversion from private/i);
+    expect((transformed.achievements || []).join(' ')).not.toMatch(/master of business/i);
+  });
+
   it('rejects Self Practise Bhopal and uses email-derived name for anamsayyed58@gmail.com', () => {
     const transformed = transformImportDataToBuilder({
       fullName: 'Self Practise Bhopal',

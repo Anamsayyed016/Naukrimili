@@ -7,6 +7,10 @@ import {
   coalesceBuilderImportPayload,
   hasImportableContent,
 } from './import-transformer';
+import {
+  isValidatedContactName,
+  sanitizePersonName,
+} from '@/lib/resume-parser/import-sanitize';
 
 export const RESUME_IMPORT_STORAGE_KEY = 'resume-import-data';
 export const RESUME_IMPORT_META_KEY = 'resume-import-meta';
@@ -173,16 +177,31 @@ export function ensureBuilderContactFields(
   const out = { ...data };
   const first = String(out.firstName ?? '').trim();
   const last = String(out.lastName ?? '').trim();
-  if (first || last) return out;
+  const combined = [first, last].filter(Boolean).join(' ').trim();
+  const locationHint = String(out.location || out.address || '');
+
+  if (combined && isValidatedContactName(combined, locationHint)) {
+    return out;
+  }
 
   const full = String(out.fullName || out.name || '').trim();
   if (!full) return out;
 
-  const parts = full.split(/\s+/).filter(Boolean);
+  const safeFull = sanitizePersonName(full, 120);
+  if (!safeFull) {
+    out.firstName = '';
+    out.lastName = '';
+    out.fullName = '';
+    out.name = '';
+    return out;
+  }
+
+  const parts = safeFull.split(/\s+/).filter(Boolean);
   out.firstName = parts[0] ?? '';
   out.lastName = parts.slice(1).join(' ');
-  out.name = full;
-  out['Full Name'] = full;
+  out.name = safeFull;
+  out.fullName = safeFull;
+  out['Full Name'] = safeFull;
   return out;
 }
 

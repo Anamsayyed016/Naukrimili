@@ -75,6 +75,7 @@ import {
   countPlausibleProjects,
   isPlausibleExperienceCompany,
   sanitizeExperienceCompanyValue,
+  isCorporateStructurePhrase,
 } from '@/lib/resume-parser/import-sanitize';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
@@ -619,32 +620,22 @@ export function coalesceBuilderImportPayload(
     });
   }
 
-  // Upload / editor already coalesced — re-run full mapping when sections are still sparse.
+  // Upload / editor already coalesced — re-run full mapping so guards stay current.
   if (parsed._imported === true) {
-    const rawText = String(parsed.rawText ?? '').trim();
-    if (isSparseSectionImport(parsed) && rawText.length >= 80) {
-      const { builderFormData: _drop, ...profile } = parsed;
-      return transformImportDataToBuilder({ ...profile, _imported: true });
+    if (parsed._userEdited === true) {
+      const email = String(parsed.email || '');
+      const locationHint = String(parsed.location || parsed.address || '');
+      return applySummaryHygieneToBuilderForm(
+        applyBuilderImportGuards(parsed as Record<string, any>, parsed, email, locationHint)
+      );
     }
-
-    let out = { ...(parsed as Record<string, any>) };
-    if (Array.isArray(out.experience) && out.experience.length > 0) {
-      out.experience = enrichExperienceFromParserAliases(out.experience, out);
-    }
-    out = overlaySparseSectionsFromTextRecovery({
-      ...out,
-      rawText: out.rawText ?? parsed.rawText,
-    }) as Record<string, any>;
-    delete out.builderFormData;
-    if (Array.isArray(out.experience) && out.experience.length > 0) {
-      out.experience = normalizeMergedExperienceList(out.experience, out);
-    }
-    const { builder: recoveredOut, report: rehydrateReport } = recoverBuilderFormSections(out, {
-      mergedImport: out,
-      rawImport: parsed,
-    });
-    logBuilderFieldMappingReport(rehydrateReport);
-    return applySummaryHygieneToBuilderForm(recoveredOut);
+    const { builderFormData: _drop, _importSessionId, ...profile } = parsed;
+    return applySummaryHygieneToBuilderForm(
+      transformImportDataToBuilder({
+        ...profile,
+        rawText: parsed.rawText ?? profile.rawText,
+      })
+    );
   }
 
   return transformImportDataToBuilder(parsed);
@@ -671,6 +662,7 @@ const ACHIEVEMENT_FIRM_LINE_RE =
 function isMisplacedAchievementLine(line: string): boolean {
   const t = line.trim();
   if (!t || t.length > 280) return true;
+  if (isCorporateStructurePhrase(t)) return true;
   if (ACHIEVEMENT_SECTION_HEADER_RE.test(t)) return true;
   if (/^\d+[\.\):\-]\s+\S/.test(t) && t.length < 100) return true;
   if (ACHIEVEMENT_DEGREE_LINE_RE.test(t) && !/\b(achieved|award|won|recognized|completed project)\b/i.test(t)) {
@@ -750,10 +742,14 @@ function enrichIdentityFromText(
   recovered?: Partial<ReturnType<typeof recoverFromRawText>>
 ): Record<string, unknown> {
   const personal = (data.personalInformation || {}) as Record<string, unknown>;
+  const rawFull = String(
+    data.fullName || data.name || textParsed?.fullName || personal.fullName || ''
+  ).trim();
+  const safeFull = sanitizePersonName(rawFull, 120) || '';
   return {
     ...data,
-    fullName: String(data.fullName || data.name || textParsed?.fullName || personal.fullName || '').trim(),
-    name: String(data.name || data.fullName || textParsed?.fullName || personal.fullName || '').trim(),
+    fullName: safeFull,
+    name: safeFull,
     email: String(data.email || personal.email || textParsed?.email || recovered?.email || '').trim(),
     phone: String(data.phone || personal.phone || textParsed?.phone || recovered?.phone || '').trim(),
     location: String(data.location || data.address || textParsed?.location || '').trim(),
@@ -1082,7 +1078,7 @@ function supplementImportFromRawText(
   return {
     ...importedData,
     fullName: fullName || apiName || '',
-    name: fullName || apiName || importedData.name || '',
+    name: fullName || apiName || '',
     email: importedData.email || textParsed.email || '',
     phone: importedData.phone || textParsed.phone || '',
     location: importedData.location || importedData.address || textParsed.location || '',
@@ -1494,6 +1490,11 @@ export function transformImportDataToBuilder(
   transformed.Languages = transformed.languages;
   transformed.Hobbies = transformed.hobbies;
 
+  Object.assign(
+    transformed,
+    applyBuilderImportGuards(transformed, mergedImport, email, locationHint)
+  );
+
   logBuilderImportPipelineTrace({
     raw: importedData as Record<string, unknown>,
     merged: mergedImport,
@@ -1801,13 +1802,103 @@ function resolveClassifiedName(
 
   const safeFirst = sanitizePersonName(firstName, 80);
   const safeLast = sanitizePersonName(lastName, 80);
+  const safeCombined = [safeFirst, safeLast].filter(Boolean).join(' ').trim();
+  let finalDisplay = safeCombined;
+  if (!finalDisplay && combined && isValidatedContactName(combined, locationHint)) {
+    finalDisplay = combined;
+  }
+  if (!finalDisplay && textHeaderName && isValidatedContactName(textHeaderName, locationHint)) {
+    finalDisplay = formatDisplayName(textHeaderName);
+  }
 
   return {
     firstName: safeFirst,
     lastName: safeLast,
-    displayName: [safeFirst, safeLast].filter(Boolean).join(' ') || displayName,
+    displayName: finalDisplay,
     additionalResumeData,
   };
+}
+
+function applyBuilderImportGuards(
+  builder: Record<string, unknown>,
+  mergedImport: Record<string, unknown>,
+  email: string,
+  locationHint: string
+): Record<string, unknown> {
+  let out = finalizeBuilderContactIdentity(builder, mergedImport, email, locationHint);
+  out.skills = cleanSkills(out.skills);
+  out.Skills = out.skills;
+  out.achievements = transformAchievementsArray(out.achievements, false);
+  out.Achievements = out.achievements;
+  if (Array.isArray(out.experience) && out.experience.length > 0) {
+    out.experience = transformExperienceArray(out.experience);
+    out['Work Experience'] = out.experience;
+    out.Experience = out.experience;
+  }
+  return out;
+}
+
+function finalizeBuilderContactIdentity(
+  builder: Record<string, unknown>,
+  mergedImport: Record<string, unknown>,
+  email: string,
+  locationHint: string
+): Record<string, unknown> {
+  const out = { ...builder };
+  const current =
+    [out.firstName, out.lastName]
+      .map((v) => String(v || '').trim())
+      .filter(Boolean)
+      .join(' ')
+      .trim() || String(out.fullName || out.name || '').trim();
+
+  if (current && isValidatedContactName(current, locationHint)) {
+    const first = sanitizePersonName(out.firstName, 80);
+    const last = sanitizePersonName(out.lastName, 80);
+    const display = [first, last].filter(Boolean).join(' ').trim() || current;
+    out.firstName = first;
+    out.lastName = last;
+    out.fullName = display;
+    out.name = display;
+    out['Full Name'] = display;
+    return out;
+  }
+
+  if (current) {
+    const additional =
+      (out.additionalResumeData as AdditionalResumeData) || emptyAdditionalResumeData();
+    const classified = classifyResumeTextFragment(current);
+    stashUnclassifiedFragment(
+      additional,
+      current,
+      classified.kind === 'PERSON_NAME' ? 'UNKNOWN' : classified.kind
+    );
+    out.additionalResumeData = additional;
+  }
+
+  const personal = (mergedImport.personalInformation || {}) as Record<string, unknown>;
+  const strippedProfile = {
+    ...mergedImport,
+    firstName: '',
+    lastName: '',
+    fullName: '',
+    name: '',
+    personalInformation: { ...personal, firstName: '', lastName: '', fullName: '' },
+  };
+
+  const resolved = resolveClassifiedName(strippedProfile, email, '', locationHint);
+  out.firstName = resolved.firstName;
+  out.lastName = resolved.lastName;
+  out.fullName = resolved.displayName;
+  out.name = resolved.displayName;
+  out['Full Name'] = resolved.displayName;
+  if (resolved.additionalResumeData) {
+    out.additionalResumeData = mergeAdditionalResumeData(
+      (out.additionalResumeData as AdditionalResumeData) || emptyAdditionalResumeData(),
+      resolved.additionalResumeData
+    );
+  }
+  return out;
 }
 
 function isUsableJobHeadline(value: string): boolean {
