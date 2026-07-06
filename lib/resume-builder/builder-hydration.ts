@@ -6,6 +6,7 @@
 import {
   coalesceBuilderImportPayload,
   hasImportableContent,
+  backfillImportedExperienceForDisplay,
 } from './import-transformer';
 import { syncExperienceEntryAliases } from './experience-entry-sync';
 import {
@@ -60,7 +61,19 @@ export function readImportMeta(): ResumeImportMeta | null {
 export function prepareBuilderSessionPayload(
   payload: Record<string, unknown>
 ): Record<string, unknown> {
-  const out: Record<string, unknown> = { ...payload, _builderCoalesced: true };
+  const out: Record<string, unknown> = {
+    ...backfillImportedExperienceForDisplay(payload),
+    _builderCoalesced: true,
+  };
+
+  if (out.customParserUsed !== true) {
+    const provider = String(out._aiProvider || out.aiProvider || '')
+      .trim()
+      .toLowerCase();
+    if (provider === 'custom-parser' || provider === 'custom' || out.selectedParser === 'custom') {
+      out.customParserUsed = true;
+    }
+  }
 
   if (Array.isArray(out.experience)) {
     out.experience = (out.experience as Record<string, unknown>[]).map((exp) => {
@@ -279,17 +292,18 @@ export function normalizeImportedFormForEditor(
   data: Record<string, unknown>
 ): Record<string, unknown> {
   const out = ensureBuilderContactFields({ ...data });
-  if (Array.isArray(out.experience)) {
-    const normalized = (out.experience as Record<string, unknown>[]).map((entry) =>
+  const withExperience = backfillImportedExperienceForDisplay(out);
+  if (Array.isArray(withExperience.experience)) {
+    const normalized = (withExperience.experience as Record<string, unknown>[]).map((entry) =>
       syncExperienceEntryAliases(entry && typeof entry === 'object' ? entry : {}, {
         reconcileHeaders: false,
       })
     );
-    out.experience = normalized;
-    out['Work Experience'] = normalized;
-    out.Experience = normalized;
+    withExperience.experience = normalized;
+    withExperience['Work Experience'] = normalized;
+    withExperience.Experience = normalized;
   }
-  return out;
+  return withExperience;
 }
 
 /**

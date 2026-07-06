@@ -8,7 +8,7 @@ import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import type { Template } from '@/lib/resume-builder/types';
 import { writeImportSession, ensureBuilderContactFields, resolveEditorFormFromImport, prepareBuilderSessionPayload, readImportMeta } from '@/lib/resume-builder/builder-hydration';
-import { hasImportableContent, coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
+import { hasImportableContent, coalesceBuilderImportPayload, backfillImportedExperienceForDisplay } from '@/lib/resume-builder/import-transformer';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';
@@ -75,15 +75,15 @@ export default function TemplateSelectionPage() {
 
       const raw = loadGalleryPreviewFormData();
       if (Object.keys(raw).length > 0) {
-        void import('@/lib/resume-builder/import-transformer').then(({ coalesceBuilderImportPayload }) => {
-          try {
-            const coalesced = ensureBuilderContactFields(coalesceBuilderImportPayload(raw));
-            setPreviewFormData(hasImportableContent(coalesced) ? coalesced : raw);
-          } catch (err) {
-            console.error('[template-gallery] coalesce failed, using session payload', err);
-            setPreviewFormData(raw);
-          }
-        });
+        try {
+          const coalesced = backfillImportedExperienceForDisplay(
+            ensureBuilderContactFields(coalesceBuilderImportPayload(raw))
+          );
+          setPreviewFormData(hasImportableContent(coalesced) ? coalesced : raw);
+        } catch (err) {
+          console.error('[template-gallery] coalesce failed, using session payload', err);
+          setPreviewFormData(raw);
+        }
       }
     } catch (err) {
       console.error('[template-gallery] import preview hydration failed', err);

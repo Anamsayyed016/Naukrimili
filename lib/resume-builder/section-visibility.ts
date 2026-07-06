@@ -12,6 +12,7 @@ import {
   countPlausibleProjects,
   demoteImplausibleExperienceCompany,
   finalizeExperienceListForCustomParserImport,
+  recoverStructuredExperienceFromRawText,
 } from '@/lib/resume-parser/import-sanitize';
 import { overlaySparseSectionsFromTextRecovery } from '@/lib/resume-parser/prefer-recovered-wording';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
@@ -820,9 +821,40 @@ export function repairExperienceForTemplateBinding(
   formData: Record<string, unknown>,
   experience: Record<string, unknown>[]
 ): Record<string, unknown>[] {
+  const rawText = String(formData.rawText ?? '').trim();
+  const meaningful = filterMeaningfulExperiences(
+    Array.isArray(experience)
+      ? experience.filter((e): e is Record<string, unknown> => !!e && typeof e === 'object')
+      : []
+  );
+  const plausible = countPlausibleExperienceCompanies(experience);
+
+  if (
+    formData._userEdited !== true &&
+    rawText.length >= 80 &&
+    (meaningful.length === 0 || (plausible <= 1 && formData._imported === true))
+  ) {
+    const structured = recoverStructuredExperienceFromRawText(rawText);
+    if (structured.length > 0) {
+      const finalized = finalizeExperienceListForCustomParserImport(structured);
+      const recovered = filterMeaningfulExperiences(finalized);
+      if (recovered.length > meaningful.length || (meaningful.length === 0 && recovered.length > 0)) {
+        return recovered;
+      }
+    }
+    const overlaid = overlaySparseSectionsFromTextRecovery({ ...formData, experience: meaningful });
+    const fromOverlay = Array.isArray(overlaid.experience)
+      ? (overlaid.experience as Record<string, unknown>[])
+      : [];
+    const overlayMeaningful = filterMeaningfulExperiences(fromOverlay);
+    if (overlayMeaningful.length > meaningful.length) {
+      return overlayMeaningful;
+    }
+  }
+
   if (!Array.isArray(experience) || experience.length === 0) return experience;
 
-  const sparseCompanies = countPlausibleExperienceCompanies(experience) < experience.length;
+  const sparseCompanies = plausible < experience.length;
   const needsRepair =
     formData._userEdited !== true &&
     !isCustomParserImport(formData) &&
@@ -830,7 +862,6 @@ export function repairExperienceForTemplateBinding(
   if (!needsRepair) return experience;
 
   let working = experience;
-  const rawText = String(formData.rawText ?? '').trim();
   if (rawText.length >= 80 && sparseCompanies && !isCustomParserImport(formData)) {
     const overlaid = overlaySparseSectionsFromTextRecovery({ ...formData, experience });
     if (Array.isArray(overlaid.experience) && overlaid.experience.length > 0) {

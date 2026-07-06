@@ -66,6 +66,7 @@ import {
   finalizeExperienceListForCustomParserImport,
   finalizeEducationListForBuilder,
   finalizeEducationListForCustomParserImport,
+  recoverStructuredExperienceFromRawText,
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
   stripRedundantExperienceDateBodyLines,
@@ -80,6 +81,10 @@ import {
   isAcceptedEmailDerivedName,
   sanitizeImportSummary,
   sanitizeImportJobTitle,
+  recoverLocationFromImportText,
+  recoverSkillsFromTechnicalSkillsSection,
+  skillsLookLikeAddressContamination,
+  normalizePdfLigatureText,
   enrichPartialNameFromEmail,
   isGarbageEducationDegree,
   isSpacedLetterFragment,
@@ -1964,6 +1969,77 @@ function resolveClassifiedName(
   };
 }
 
+/**
+ * Last-resort experience backfill for imports when parser/competency filtering
+ * left the section empty or with a single stub row.
+ */
+function ensureImportedExperiencePopulated(
+  builder: Record<string, unknown>,
+  rawText: string
+): Record<string, unknown> {
+  if (builder._userEdited === true) return builder;
+
+  const expRows = Array.isArray(builder.experience) ? (builder.experience as unknown[]) : [];
+  const meaningful = filterMeaningfulExperiences(
+    expRows.filter((e): e is Record<string, unknown> => !!e && typeof e === 'object')
+  );
+  const plausible = countExperienceWithPlausibleCompany(expRows);
+  const text = String(rawText || builder.rawText || '').trim();
+  const isImport =
+    builder._imported === true ||
+    isCustomParserImport(builder) ||
+    builder._builderCoalesced === true;
+
+  if (!isImport || text.length < 80) return builder;
+  if (meaningful.length >= 2 && plausible >= 2) return builder;
+
+  const structured = recoverStructuredExperienceFromRawText(text);
+  if (structured.length > 0) {
+    const finalized = finalizeExperienceListForCustomParserImport(structured);
+    const structuredMeaningful = filterMeaningfulExperiences(finalized);
+    if (
+      structuredMeaningful.length > meaningful.length ||
+      (meaningful.length === 0 && structuredMeaningful.length > 0)
+    ) {
+      const experience = transformExperienceArray(finalized);
+      return {
+        ...builder,
+        experience,
+        Experience: experience,
+        'Work Experience': experience,
+        customParserUsed:
+          builder.customParserUsed === true || isCustomParserImport(builder) || undefined,
+        _builderCoalesced: true,
+      };
+    }
+  }
+
+  if (meaningful.length > 0 && plausible >= 1) return builder;
+
+  const overlaid = overlaySparseSectionsFromTextRecovery({
+    ...builder,
+    rawText: text,
+    experience: expRows,
+  }) as Record<string, unknown>;
+  const overlayExp = Array.isArray(overlaid.experience) ? overlaid.experience : [];
+  const overlayMeaningful = filterMeaningfulExperiences(
+    overlayExp.filter((e): e is Record<string, unknown> => !!e && typeof e === 'object')
+  );
+  if (overlayMeaningful.length > meaningful.length) {
+    const experience = transformExperienceArray(overlayExp);
+    return {
+      ...builder,
+      ...overlaid,
+      experience,
+      Experience: experience,
+      'Work Experience': experience,
+      _builderCoalesced: true,
+    };
+  }
+
+  return builder;
+}
+
 function applyBuilderImportGuards(
   builder: Record<string, unknown>,
   mergedImport: Record<string, unknown>,
@@ -2014,11 +2090,26 @@ function applyBuilderImportGuards(
   }
 
   out = mergeExtendedSkillBuckets(out);
-  out.skills = recoverSkillsFromRawText(
-    rawText,
-    cleanSkills(out.skills) as string[]
-  );
+  const existingSkills = cleanSkills(out.skills) as string[];
+  if (skillsLookLikeAddressContamination(existingSkills) && rawText.length >= 80) {
+    const fromSection = recoverSkillsFromTechnicalSkillsSection(rawText);
+    if (fromSection.length >= 2) {
+      out.skills = fromSection;
+    } else {
+      out.skills = recoverSkillsFromRawText(rawText, []);
+    }
+  } else {
+    out.skills = recoverSkillsFromRawText(rawText, existingSkills);
+  }
   out.Skills = out.skills;
+  if (!String(out.location || out.address || '').trim() && rawText.length >= 40) {
+    const recoveredLocation = recoverLocationFromImportText(rawText);
+    if (recoveredLocation) {
+      out.location = recoveredLocation;
+      out.Location = recoveredLocation;
+      out.address = recoveredLocation;
+    }
+  }
   out.education = recoverEducationDegreesFromImport(out, rawText);
   out.Education = out.education;
   const relocated = relocateMisplacedEducationEntries(out);
@@ -2044,11 +2135,19 @@ function applyBuilderImportGuards(
     resolvedTitle = recoverJobTitleFromRawText(rawText);
   }
   if (!resolvedTitle && String(out.summary || '').length >= 60) {
-    const summaryText = String(out.summary);
-    const m = summaryText.match(
-      /\b(corporate\s+legal\s*(?:,|&|\band\b)\s*secretarial[^,.]{0,40})/i
+    const summaryText = normalizePdfLigatureText(String(out.summary));
+    const supervisorMatch = summaryText.match(
+      /\b((?:senior\s+|assistant\s+)?(?:production|operations|dispatch|warehouse|logistics|maintenance|quality)\s+supervisor)\b/i
     );
-    resolvedTitle = m ? sanitizeImportJobTitle(m[1]) : '';
+    if (supervisorMatch) {
+      resolvedTitle = sanitizeImportJobTitle(supervisorMatch[1]);
+    }
+    if (!resolvedTitle) {
+      const m = summaryText.match(
+        /\b(corporate\s+legal\s*(?:,|&|\band\b)\s*secretarial[^,.]{0,40})/i
+      );
+      if (m) resolvedTitle = sanitizeImportJobTitle(m[1]);
+    }
     if (
       !resolvedTitle &&
       /\bcorporate\s+legal\b/i.test(summaryText) &&
@@ -2097,7 +2196,15 @@ function applyBuilderImportGuards(
     out['Work Experience'] = out.experience;
     out.Experience = out.experience;
   }
-  return out;
+  return ensureImportedExperiencePopulated(out, rawText);
+}
+
+/** Gallery/editor display — backfill experience when import session is sparse. */
+export function backfillImportedExperienceForDisplay(
+  data: Record<string, unknown>
+): Record<string, unknown> {
+  const rawText = String(data.rawText ?? '').trim();
+  return ensureImportedExperiencePopulated(data, rawText);
 }
 
 function mergeExtendedSkillBuckets(builder: Record<string, unknown>): Record<string, unknown> {
@@ -2132,13 +2239,14 @@ function isRecoverableEducationDegreeLine(line: string): boolean {
   if (!t || t.length > 120 || t.includes('|')) return false;
   if (isGarbageEducationDegree(t) || isSpacedLetterFragment(t)) return false;
   if (
-    /^\s*(?:masters?|bachelors?|b\.?\s*com|m\.?\s*a\.?|mba|b\.?\s*tech|ph\.?\s*d|llb|company secretary\s*\(|pursuing\s+llb)/i.test(
+    /^\s*(?:masters?|bachelors?|b\.?\s*com|m\.?\s*a\.?|mba|b\.?\s*tech|ph\.?\s*d|llb|pgdca|company secretary\s*\(|pursuing\s+llb)/i.test(
       t
     ) &&
     t.length <= 90
   ) {
     return !/\b(with extensive|in my current role)\b/i.test(t);
   }
+  if (/\bpost\s+graduate\s+diploma\b/i.test(t) && t.length <= 120) return true;
   if (!isLikelyEducationLine(t)) return false;
   if (/\b(with extensive|in my current role|managed and|advising|conducting|experience|filings?|portal)\b/i.test(t)) {
     return false;
@@ -2281,7 +2389,29 @@ function recoverEducationDegreesFromImport(
 
 function recoverJobTitleFromRawText(rawText: string): string {
   if (!rawText || rawText.length < 40) return '';
-  const flat = rawText.replace(/\s+/g, ' ').slice(0, 1200);
+  const normalized = normalizePdfLigatureText(rawText);
+  const lines = normalized
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  for (let i = 1; i < Math.min(lines.length, 5); i++) {
+    const line = lines[i];
+    if (line.length < 4 || line.length > 140) continue;
+    if (/^(address|mobile|email|phone|professional\s+summary|summary|objective)\b/i.test(line)) {
+      continue;
+    }
+    if (line.includes('|')) {
+      const title = sanitizeImportJobTitle(line);
+      if (title) return title;
+    }
+    if (looksLikeJobTitleLine(line) && !isPlausiblePersonName(line)) {
+      const title = sanitizeImportJobTitle(line);
+      if (title) return title;
+    }
+  }
+
+  const flat = normalized.replace(/\s+/g, ' ').slice(0, 1200);
   const patterns = [
     /\bin\s+(corporate\s+legal\s*,\s*secretarial\s*,\s*compliance)\b/i,
     /\b(corporate\s+legal\s*,\s*secretarial\s*,?\s*compliance[^,.]{0,40})/i,

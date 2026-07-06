@@ -5,6 +5,14 @@
 
 import { stripAiCommentaryFromJobDescription } from '@/lib/jobs/clean-job-description';
 import { cleanString, cleanMultiline, isSectionLabel, normalizeDate, isPlausibleResumeYear } from './normalize-extracted';
+
+/** Common PDF font ligature / glyph corruption (e.g. ProducƟon → Production). */
+export function normalizePdfLigatureText(text: string): string {
+  return String(text || '')
+    .replace(/\u019f/gi, 'ti')
+    .replace(/\ufb01/g, 'fi')
+    .replace(/\ufb02/g, 'fl');
+}
 import {
   classifyResumeTextFragment,
   isClassifiedPersonName,
@@ -60,7 +68,7 @@ export function isGarbageResumeText(value: unknown): boolean {
 export function sanitizeFieldText(value: unknown, maxLen = 500): string {
   if (typeof value === 'boolean') return '';
   if (isGarbageResumeText(value)) return '';
-  const s = cleanString(value);
+  const s = normalizePdfLigatureText(cleanString(value));
   if (!s) return '';
   return s.length > maxLen ? s.slice(0, maxLen).trim() : s;
 }
@@ -68,7 +76,7 @@ export function sanitizeFieldText(value: unknown, maxLen = 500): string {
 /** Preserve newlines for experience/education descriptions (mapping layer). */
 export function sanitizeMultilineFieldText(value: unknown, maxLen = 4000): string {
   if (isGarbageResumeText(value)) return '';
-  const s = cleanMultiline(value);
+  const s = normalizePdfLigatureText(cleanMultiline(value));
   if (!s) return '';
   return s.length > maxLen ? s.slice(0, maxLen).trim() : s;
 }
@@ -678,7 +686,13 @@ export function isInvalidImportSummary(text: string): boolean {
   if (/^https?:\/\/|linkedin\.com|www\./i.test(t)) return true;
   if (/^(on|and|in|the|with)\s+/i.test(t) && t.length < 140) return true;
   if (isExperienceResponsibility(t)) return true;
-  if (isMisclassifiedExperienceProject(t)) return true;
+  const isMultiSentenceProfile =
+    t.length >= 70 &&
+    /[.!?]/.test(t) &&
+    /\b(dedicated|result-oriented|skilled|experienced|motivated|professional|hands-on|abilities|committed|dynamic|proactive|team player)\b/i.test(
+      t
+    );
+  if (!isMultiSentenceProfile && isMisclassifiedExperienceProject(t)) return true;
   if (isCorporateStructurePhrase(t)) return true;
   if (
     /\b(allotment|bonus issue|right issue|private placement|preferential|capital market|drhp coordination)\b/i.test(
@@ -790,6 +804,69 @@ export function recoverSummaryFromRawText(rawText: string): string {
   return '';
 }
 
+/** Recover location from common resume address lines (e.g. Address: H.No. 14, Bhopal). */
+export function recoverLocationFromImportText(rawText: string): string {
+  const text = normalizePdfLigatureText(String(rawText || ''));
+  if (text.length < 20) return '';
+  const flat = text.replace(/\s+/g, ' ');
+  const addressMatch = flat.match(
+    /\bAddress:\s*(.+?)(?=\s+Mobile:|\s+Email:|\s+Phone:|\s+E-?mail:|\s+PROFESSIONAL\b|$)/i
+  );
+  if (addressMatch) {
+    const loc = sanitizeFieldText(addressMatch[1], 200);
+    if (loc.length >= 8) return loc;
+  }
+  const locMatch = flat.match(/\b(?:location|current\s+location)\s*[:\-]\s*(.+?)(?=\s+Mobile:|\s+Email:|$)/i);
+  if (locMatch) {
+    const loc = sanitizeFieldText(locMatch[1], 200);
+    if (loc.length >= 4) return loc;
+  }
+  return '';
+}
+
+/** Recover bullet skills listed under TECHNICAL SKILLS / SKILLS headings. */
+export function recoverSkillsFromTechnicalSkillsSection(rawText: string): string[] {
+  const lines = normalizePdfLigatureText(String(rawText || '')).split('\n');
+  let inSection = false;
+  const out: string[] = [];
+  const stopRe =
+    /^(?:education|experience|employment|projects?|certifications?|declaration|languages?|achievements?|hobbies?|interests?)\b/i;
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) {
+      if (inSection && out.length > 0) break;
+      continue;
+    }
+    if (/^(?:technical\s+)?skills?\b/i.test(line.replace(/[:.\s]+$/g, ''))) {
+      inSection = true;
+      continue;
+    }
+    if (!inSection) continue;
+    if (stopRe.test(line)) break;
+    const skill = line.replace(/^[\s•\-–—*·▪]+\s*/, '').trim();
+    if (skill.length < 3 || skill.length > 90) continue;
+    if (/^(address|mobile|email|phone)\b/i.test(skill)) continue;
+    if (isResumeSectionHeadingLine(skill)) continue;
+    out.push(skill);
+    if (out.length >= 24) break;
+  }
+
+  return normalizeCustomParserSkillsList(out);
+}
+
+/** True when parser misclassified address fragments as skills. */
+export function skillsLookLikeAddressContamination(skills: unknown[]): boolean {
+  if (!Array.isArray(skills) || skills.length === 0) return false;
+  return skills.some((s) => {
+    const t = String(s || '').trim();
+    return (
+      /\b(address|h\.?\s*no\.?|near\s+\d+\s+mile|d\s+block|residency)\b/i.test(t) ||
+      /^address:/i.test(t)
+    );
+  });
+}
+
 /** Keep only plausible professional summaries for SummaryStep. */
 export function sanitizeImportSummary(text: string, rawText = ''): string {
   const t = sanitizeMultilineFieldText(text, 4000);
@@ -810,6 +887,9 @@ export function sanitizeImportJobTitle(text: string): string {
     if (segments.length > 0) {
       t = segments[0];
     }
+  }
+  if (looksLikeJobTitleLine(t) && t.split(/\s+/).filter(Boolean).length <= 8) {
+    return t;
   }
   if (/,/.test(t) && t.split(/\s+/).length <= 10 && looksLikeJobTitleLine(t.replace(/,/g, ' and '))) {
     t = t.replace(/,\s*/g, ' & ').replace(/\s+/g, ' ').trim();
@@ -2317,7 +2397,7 @@ export function sanitizeExperienceDateValue(value: unknown): string {
 }
 
 const JOB_TITLE_HINT_RE =
-  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources)\b/i;
+  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources|production|dispatch|warehouse|logistics)\b/i;
 
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
@@ -2513,6 +2593,14 @@ export function reconcileExperienceHeaderFields(
     if (pipeSplit) {
       company = pipeSplit.company;
       if (!location) location = pipeSplit.location;
+    }
+    const embeddedDate = company.match(/^(.+?)\s*[-–—]\s*((?:19|20)\d{2})\s*$/);
+    if (embeddedDate && embeddedDate[1].trim().length >= 4) {
+      company = embeddedDate[1].trim();
+      if (!String(exp.startDate || exp.StartDate || '').trim()) {
+        exp.startDate = embeddedDate[2];
+        exp.StartDate = embeddedDate[2];
+      }
     }
   }
   if (!company && slotOrg) {
