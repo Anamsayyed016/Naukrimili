@@ -76,13 +76,18 @@ import {
   isPlausibleExperienceCompany,
   sanitizeExperienceCompanyValue,
   isCorporateStructurePhrase,
+  isMisclassifiedExperienceProject,
+  isAcceptedEmailDerivedName,
+  sanitizeSkillEntry,
 } from '@/lib/resume-parser/import-sanitize';
+import { extractNameWithConfidence } from '@/lib/resume-parser/text-recovery';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
 import {
   classifyResumeTextFragment,
   emptyAdditionalResumeData,
   isFirmOrLocationNamePhrase,
   isLikelyCompanyNameFragment,
+  isLikelyEducationLine,
   nameOverlapsLocation,
   shouldKeepAsGlobalAchievement,
   stashUnclassifiedFragment,
@@ -676,7 +681,7 @@ function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unkn
 const ACHIEVEMENT_SECTION_HEADER_RE =
   /^(?:\d+[\.\):\-]\s*)?(?:education|experience|employment|work history|skills|certifications|projects|languages|achievements|professional profile|contact|summary|objective|messenger)\b/i;
 const ACHIEVEMENT_DEGREE_LINE_RE =
-  /\b(b\.?\s*a\.?|b\.?\s*com|b\.?\s*tech|m\.?\s*a\.?|m\.?\s*com|mba|mca|company secretary|\bcs\b|llb|llm|ph\.?\s*d|bachelor|master|doctorate|intermediate|graduation)\b/i;
+  /\b(b\.?\s*a\.?|b\.?\s*com|b\.?\s*tech|m\.?\s*a\.?|m\.?\s*com|mba|mca|company secretary|\bcs\b|llb|llm|ph\.?\s*d|bachelors?|masters?|doctorate|intermediate|graduation)\b/i;
 const ACHIEVEMENT_FIRM_LINE_RE =
   /\b(m\/s\.?|pcs\s+firm|associates|chartered|consultancy|pvt\.?\s*ltd|limited)\b/i;
 
@@ -759,6 +764,10 @@ function partitionSpilloverLines(lines: string[]): {
 
 function readImportTextField(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function textParsedNameFromImport(data: Record<string, unknown>): string {
+  return readImportTextField(data.fullName || data.name || data.FullName || '');
 }
 
 function enrichIdentityFromText(
@@ -1804,18 +1813,31 @@ function resolveClassifiedName(
     !nameOverlapsLocation(splitCombined, locationHint)
   );
 
-  if (!hasUsableName && email) {
+  if (email) {
     const fromEmail = parseIntelligentNameFromEmail(email);
-    if (fromEmail) {
+    const emailCombined = fromEmail
+      ? [fromEmail.firstName, fromEmail.lastName].filter(Boolean).join(' ').trim()
+      : deriveDisplayNameFromEmail(email);
+    const currentCombined = splitCombined;
+    const richer = emailCombined
+      ? pickRicherFullName(currentCombined, emailCombined, email)
+      : currentCombined;
+    if (richer && richer !== currentCombined) {
+      const split = splitFullNameWithRejected(richer);
+      firstName = split.firstName;
+      lastName = split.lastName;
+      for (const rejected of split.rejected) {
+        stashUnclassifiedFragment(additionalResumeData, rejected.value, rejected.kind);
+      }
+    } else if (!hasUsableName && fromEmail) {
       firstName = fromEmail.firstName;
       lastName = fromEmail.lastName;
-    } else {
-      const derived = deriveDisplayNameFromEmail(email);
-      if (derived) {
-        const split = splitFullNameWithRejected(derived);
-        firstName = split.firstName;
-        lastName = split.lastName;
-        rawFullName = derived;
+    } else if (!hasUsableName && emailCombined) {
+      const split = splitFullNameWithRejected(emailCombined);
+      firstName = split.firstName;
+      lastName = split.lastName;
+      for (const rejected of split.rejected) {
+        stashUnclassifiedFragment(additionalResumeData, rejected.value, rejected.kind);
       }
     }
   }
@@ -1826,10 +1848,15 @@ function resolveClassifiedName(
   const combined = [firstName, lastName].filter(Boolean).join(' ').trim();
   const displayName = combined || formatDisplayName(textHeaderName);
 
-  const safeFirst = sanitizePersonName(firstName, 80);
-  const safeLast = sanitizePersonName(lastName, 80);
-  const safeCombined = [safeFirst, safeLast].filter(Boolean).join(' ').trim();
-  let finalDisplay = safeCombined;
+  let safeFirst = sanitizePersonName(firstName, 80);
+  let safeLast = sanitizePersonName(lastName, 80);
+  let finalDisplay = [safeFirst, safeLast].filter(Boolean).join(' ').trim();
+  if (combined && isAcceptedEmailDerivedName(combined) && isValidatedContactName(combined, locationHint)) {
+    finalDisplay = formatDisplayName(combined);
+    const split = splitFullNameWithRejected(finalDisplay);
+    safeFirst = split.firstName || safeFirst;
+    safeLast = split.lastName || safeLast;
+  }
   if (!finalDisplay && combined && isValidatedContactName(combined, locationHint)) {
     finalDisplay = combined;
   }
@@ -1851,9 +1878,63 @@ function applyBuilderImportGuards(
   email: string,
   locationHint: string
 ): Record<string, unknown> {
-  let out = finalizeBuilderContactIdentity(builder, mergedImport, email, locationHint);
-  out.skills = cleanSkills(out.skills);
+  const rawText = String(mergedImport.rawText || builder.rawText || '').trim();
+  let out = finalizeBuilderContactIdentity(builder, mergedImport, email, locationHint, rawText);
+
+  if (rawText.length >= 80) {
+    const sparseCompanies =
+      countExperienceWithPlausibleCompany(
+        Array.isArray(out.experience) ? (out.experience as unknown[]) : []
+      ) <
+      (Array.isArray(out.experience) ? out.experience.length : 0) * 0.5;
+    const eduRows = Array.isArray(out.education) ? (out.education as Record<string, unknown>[]) : [];
+    const eduWithDegree = eduRows.filter((e) =>
+      String(e.degree || e.Degree || '').trim()
+    ).length;
+    const skills = Array.isArray(out.skills) ? (out.skills as string[]) : [];
+    const noisySkills = skills.some((s) =>
+      /^(and|company|rtas?|due)$/i.test(String(s).trim())
+    );
+
+    if (sparseCompanies || eduWithDegree < 2 || noisySkills) {
+      const overlaid = overlaySparseSectionsFromTextRecovery({ ...out, rawText }) as Record<
+        string,
+        unknown
+      >;
+      if (Array.isArray(overlaid.experience) && overlaid.experience.length > 0) {
+        out.experience = transformExperienceArray(overlaid.experience);
+        out['Work Experience'] = out.experience;
+        out.Experience = out.experience;
+      }
+      if (Array.isArray(overlaid.education) && overlaid.education.length > 0) {
+        out.education = transformEducationArray(overlaid.education, isCustomParserImport(out));
+        out.Education = out.education;
+      }
+      if (Array.isArray(overlaid.skills) && overlaid.skills.length > 0) {
+        out.skills = overlaid.skills;
+      }
+    }
+  }
+
+  out = mergeExtendedSkillBuckets(out);
+  out.skills = recoverSkillsFromRawText(
+    rawText,
+    cleanSkills(out.skills) as string[]
+  );
   out.Skills = out.skills;
+  out.education = recoverEducationDegreesFromImport(out, rawText);
+  out.Education = out.education;
+  const relocated = relocateMisplacedEducationEntries(out);
+  if (Array.isArray(relocated.education)) {
+    out.education = transformEducationArray(relocated.education, true);
+    out.Education = out.education;
+  }
+  if (Array.isArray(relocated.experience) && relocated.experience.length > 0) {
+    out.experience = transformExperienceArray(relocated.experience);
+    out['Work Experience'] = out.experience;
+    out.Experience = out.experience;
+  }
+  out = rehomeMisclassifiedProjects(out);
   out.achievements = transformAchievementsArray(out.achievements, false);
   out.Achievements = out.achievements;
   if (Array.isArray(out.experience) && out.experience.length > 0) {
@@ -1864,11 +1945,269 @@ function applyBuilderImportGuards(
   return out;
 }
 
+function mergeExtendedSkillBuckets(builder: Record<string, unknown>): Record<string, unknown> {
+  const extended =
+    builder.extendedSections && typeof builder.extendedSections === 'object'
+      ? (builder.extendedSections as Record<string, unknown>)
+      : {};
+  const buckets: unknown[] = [
+    builder.skills,
+    builder.Skills,
+    builder.technicalSkills,
+    builder.coreCompetencies,
+    builder.softSkills,
+    builder.industryExpertise,
+    extended.technicalSkills,
+    extended.coreCompetencies,
+    extended.softSkills,
+    extended.industryExpertise,
+  ];
+  const flat: unknown[] = [];
+  for (const bucket of buckets) {
+    if (Array.isArray(bucket)) flat.push(...bucket);
+    else if (typeof bucket === 'string' && bucket.trim()) flat.push(bucket);
+  }
+  if (!flat.length) return builder;
+  const merged = cleanSkills([...(Array.isArray(builder.skills) ? builder.skills : []), ...flat]);
+  return { ...builder, skills: merged, Skills: merged };
+}
+
+function isRecoverableEducationDegreeLine(line: string): boolean {
+  const t = line.trim();
+  if (!t || t.length > 120 || t.includes('|')) return false;
+  if (
+    /^\s*(?:masters?|bachelors?|b\.?\s*com|m\.?\s*a\.?|mba|b\.?\s*tech|ph\.?\s*d|llb|company secretary\s*\(|pursuing\s+llb)/i.test(
+      t
+    ) &&
+    t.length <= 90
+  ) {
+    return !/\b(with extensive|in my current role)\b/i.test(t);
+  }
+  if (!isLikelyEducationLine(t)) return false;
+  if (/\b(with extensive|in my current role|managed and|advising|conducting|experience|filings?|portal)\b/i.test(t)) {
+    return false;
+  }
+  if (looksLikeCompanyNameLine(t) && !/\b(bachelor|master|mba|b\.?\s*com|m\.?\s*a|b\.?\s*tech|ph\.?\s*d|llb)\b/i.test(t)) {
+    return false;
+  }
+  if (isCorporateStructurePhrase(t) && !/\b(bachelor|master|mba|b\.?\s*com|m\.?\s*a)\b/i.test(t)) {
+    return false;
+  }
+  if (
+    ACHIEVEMENT_FIRM_LINE_RE.test(t) &&
+    !/\b(bachelor|master|mba|b\.?\s*com|m\.?\s*a|institute of|articleship|company secretary\s*\()\b/i.test(t)
+  ) {
+    return false;
+  }
+  const kind = classifyResumeTextFragment(t).kind;
+  if (kind === 'DESIGNATION' || kind === 'COMPANY_NAME') {
+    if (!/\b(bachelor|master|mba|b\.?\s*com|m\.?\s*a|b\.?\s*tech|ph\.?\s*d|llb|institute of|articleship)\b/i.test(t)) {
+      return false;
+    }
+  }
+  if (/^from\s+/i.test(t) && !/\b(university|college|institute|school)\b/i.test(t)) return false;
+  if (t.split(/\s+/).length > 12 || /\.\s/.test(t)) return false;
+  if (/^(managed|successfully|matters|including|appointment|manufacturing|management)\b/i.test(t)) {
+    return false;
+  }
+  return true;
+}
+
+function extractEducationSectionLines(rawText: string): string[] {
+  const lines = rawText.split('\n');
+  const out: string[] = [];
+  let inEducation = false;
+
+  for (const raw of lines) {
+    const t = raw.trim();
+    if (!t) continue;
+    if (
+      /^(?:\d+\s*[\.\):\-]\s*)?education\s*$/i.test(t) ||
+      /^(?:\d+[\.\):\-]\s*)?education\b/i.test(t)
+    ) {
+      inEducation = true;
+      continue;
+    }
+    if (
+      inEducation &&
+      /^(?:\d+[\.\):\-]\s*)?(?:professional\s+)?(?:experience|employment|work history|skills|projects|certifications|achievements)\b/i.test(
+        t
+      )
+    ) {
+      break;
+    }
+    if (inEducation) out.push(t);
+  }
+
+  return out;
+}
+
+function parseEducationSectionEntry(line: string): Record<string, unknown> | null {
+  const t = line.trim();
+  if (!t) return null;
+
+  const fromInstitute = t.match(/^from\s+(.+)$/i);
+  if (fromInstitute) {
+    const institution = sanitizeFieldText(fromInstitute[1], 160);
+    return institution ? { degree: '', institution, school: institution, field: '', year: '' } : null;
+  }
+
+  if (!isRecoverableEducationDegreeLine(t)) return null;
+
+  if (/^company secretary\s*\(/i.test(t)) {
+    return { degree: sanitizeFieldText(t, 160), institution: '', school: '', field: '', year: '' };
+  }
+
+  const degree = sanitizeFieldText(t, 160);
+  if (!degree) return null;
+  return { degree, institution: '', school: '', field: '', year: '' };
+}
+
+function recoverEducationDegreesFromImport(
+  builder: Record<string, unknown>,
+  rawText: string
+): unknown[] {
+  const existing = Array.isArray(builder.education)
+    ? (builder.education as Record<string, unknown>[])
+    : [];
+  // Keep recovered degree rows separate — never merge orphan stubs here.
+  const sanitized = transformEducationArray(existing, true);
+  const seen = new Set(
+    sanitized.map((e) => `${e.degree}|${e.institution}`.toLowerCase())
+  );
+  const recovered: Record<string, unknown>[] = [...sanitized];
+
+  const sources = [
+    ...existing,
+    ...(Array.isArray(builder.certifications) ? builder.certifications : []),
+  ];
+  for (const item of sources) {
+    const text =
+      typeof item === 'string'
+        ? item
+        : String(
+            (item as Record<string, unknown>).degree ||
+              (item as Record<string, unknown>).name ||
+              (item as Record<string, unknown>).title ||
+              ''
+          );
+    if (!text || !isRecoverableEducationDegreeLine(text)) continue;
+    const degree = sanitizeFieldText(text, 160);
+    const key = `${degree}|`.toLowerCase();
+    if (!degree || seen.has(key)) continue;
+    recovered.push({ degree, institution: '', school: '', field: '', year: '' });
+    seen.add(key);
+  }
+
+  if (rawText.length >= 80) {
+    let sectionLines = extractEducationSectionLines(rawText);
+    if (sectionLines.length === 0) {
+      sectionLines = rawText
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((t) => t && isRecoverableEducationDegreeLine(t));
+    }
+    for (const t of sectionLines) {
+      const entry = parseEducationSectionEntry(t);
+      if (!entry) continue;
+      const degree = String(entry.degree || '').trim();
+      const institution = String(entry.institution || '').trim();
+      const key = `${degree}|${institution}`.toLowerCase();
+      if (!degree && !institution) continue;
+      if (seen.has(key)) continue;
+      recovered.push(entry);
+      seen.add(key);
+    }
+  }
+
+  return transformEducationArray(recovered, true);
+}
+
+function recoverSkillsFromRawText(rawText: string, existing: string[]): string[] {
+  const seen = new Set(existing.map((s) => s.toLowerCase()));
+  const out = [...existing];
+  if (!rawText || rawText.length < 80) return out;
+
+  for (const line of rawText.split('\n')) {
+    const t = line.trim();
+    if (t.length < 6 || t.length > 90) continue;
+    if (!/[|,]/.test(t)) continue;
+    if (
+      !/compliance|governance|sebi|ipo|fema|fdi|irda|amfi|mca|roc|rbi|secretarial|capital market|due diligence|drhp|regulatory/i.test(
+        t
+      )
+    ) {
+      continue;
+    }
+    const parts = t
+      .split(/[|,]+/)
+      .map((p) => p.trim().replace(/[*.]+$/g, ''))
+      .filter(Boolean);
+    if (parts.length < 2 || parts.length > 8) continue;
+    for (const part of parts) {
+      if (part.length > 28 || part.split(/\s+/).length > 3) continue;
+      if (/^(on|and|in|the|with|my|a|an|of|for|to|officer|legal|head|corporate|board|finance)\b/i.test(part)) {
+        continue;
+      }
+      const skill = sanitizeSkillEntry(part);
+      if (!skill) continue;
+      const key = skill.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(skill);
+    }
+  }
+
+  return cleanSkills(out).slice(0, 24) as string[];
+}
+
+function rehomeMisclassifiedProjects(
+  builder: Record<string, unknown>
+): Record<string, unknown> {
+  const projects = Array.isArray(builder.projects)
+    ? ([...builder.projects] as Record<string, unknown>[])
+    : [];
+  const experience = Array.isArray(builder.experience)
+    ? ([...builder.experience] as Record<string, unknown>[])
+    : [];
+  const kept: Record<string, unknown>[] = [];
+  const bullets: string[] = [];
+
+  for (const project of projects) {
+    const name = String(project.name || project.title || '').trim();
+    const desc = String(project.description || project.Description || '').trim();
+    if (!name || isMisclassifiedExperienceProject(name, desc)) {
+      const bullet = [name, desc].filter(Boolean).join(' — ').trim();
+      if (bullet.length >= 12) bullets.push(bullet);
+      continue;
+    }
+    kept.push(project);
+  }
+
+  if (bullets.length && experience.length > 0) {
+    const first = { ...experience[0] };
+    const existing = String(first.description || first.Description || '').trim();
+    first.description = [existing, ...bullets].filter(Boolean).join('\n');
+    first.Description = first.description;
+    experience[0] = first;
+  }
+
+  return {
+    ...builder,
+    projects: kept,
+    Projects: kept,
+    experience,
+    Experience: experience,
+    'Work Experience': experience,
+  };
+}
+
 function finalizeBuilderContactIdentity(
   builder: Record<string, unknown>,
   mergedImport: Record<string, unknown>,
   email: string,
-  locationHint: string
+  locationHint: string,
+  rawText = ''
 ): Record<string, unknown> {
   const out = { ...builder };
   const current =
@@ -1879,9 +2218,39 @@ function finalizeBuilderContactIdentity(
       .trim() || String(out.fullName || out.name || '').trim();
 
   if (current && isValidatedContactName(current, locationHint)) {
-    const first = sanitizePersonName(out.firstName, 80);
-    const last = sanitizePersonName(out.lastName, 80);
-    const display = [first, last].filter(Boolean).join(' ').trim() || current;
+    let first = sanitizePersonName(out.firstName, 80);
+    let last = sanitizePersonName(out.lastName, 80);
+    let display = [first, last].filter(Boolean).join(' ').trim() || current;
+    if (email) {
+      const fromEmail = parseIntelligentNameFromEmail(email);
+      const emailCombined = fromEmail
+        ? [fromEmail.firstName, fromEmail.lastName].filter(Boolean).join(' ')
+        : deriveDisplayNameFromEmail(email);
+      const richer = emailCombined
+        ? pickRicherFullName(display, emailCombined, email)
+        : display;
+      if (richer && richer !== display && isValidatedContactName(richer, locationHint)) {
+        const split = splitFullNameWithRejected(richer);
+        display = richer;
+        first = split.firstName || first;
+        last = split.lastName || last;
+      } else if (
+        richer &&
+        isAcceptedEmailDerivedName(richer) &&
+        isValidatedContactName(richer, locationHint)
+      ) {
+        const split = splitFullNameWithRejected(richer);
+        display = richer;
+        first = split.firstName || first;
+        last = split.lastName || last;
+      }
+    }
+    if (display && isAcceptedEmailDerivedName(display)) {
+      const split = splitFullNameWithRejected(formatDisplayName(display));
+      first = split.firstName || first;
+      last = split.lastName || last;
+      display = formatDisplayName(display);
+    }
     out.firstName = first;
     out.lastName = last;
     out.fullName = display;
@@ -1903,6 +2272,9 @@ function finalizeBuilderContactIdentity(
   }
 
   const personal = (mergedImport.personalInformation || {}) as Record<string, unknown>;
+  const headerName =
+    sanitizePersonName(extractNameWithConfidence(rawText), 120) ||
+    sanitizePersonName(textParsedNameFromImport(mergedImport), 120);
   const strippedProfile = {
     ...mergedImport,
     firstName: '',
@@ -1912,7 +2284,7 @@ function finalizeBuilderContactIdentity(
     personalInformation: { ...personal, firstName: '', lastName: '', fullName: '' },
   };
 
-  const resolved = resolveClassifiedName(strippedProfile, email, '', locationHint);
+  const resolved = resolveClassifiedName(strippedProfile, email, headerName, locationHint);
   out.firstName = resolved.firstName;
   out.lastName = resolved.lastName;
   out.fullName = resolved.displayName;

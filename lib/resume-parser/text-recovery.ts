@@ -41,6 +41,7 @@ import {
   isExperienceDateOrDurationToken,
   splitCompanyLocationPipe,
   isPlausibleExperienceCompany,
+  stripCredentialPrefix,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1211,6 +1212,17 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
 
   if (lines[0] && isPlausiblePersonName(lines[0]) && !isFirmOrLocationNamePhrase(lines[0])) {
     candidates.push({ value: lines[0], confidence: 30, source: 'first_line' });
+  }
+
+  const credentialNameRe =
+    /^(?:CS|CA|CMA|CFA|CPA|Dr|Mr|Mrs|Ms)\.?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){1,2})$/;
+  for (const line of lines) {
+    const match = line.match(credentialNameRe);
+    if (!match) continue;
+    const name = stripCredentialPrefix(match[0].trim()) || match[1].trim();
+    if (isPlausiblePersonName(name) && !isFirmOrLocationNamePhrase(name)) {
+      candidates.push({ value: name, confidence: 93, source: 'text_recovery' });
+    }
   }
 
   return candidates;

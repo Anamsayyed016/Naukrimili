@@ -154,7 +154,109 @@ export function parseIntelligentNameFromEmail(
     }
   }
 
-  return null;
+  return parseGluedEmailLocalPart(local);
+}
+
+export function isAcceptedEmailDerivedName(combined: string): boolean {
+  const words = combined.split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.length > 4) return false;
+  if (isCorporateStructurePhrase(combined) || isGarbageResumeText(combined)) return false;
+  if (/\b(company|secretary|professional|compliance|governance|manufacturing)\b/i.test(combined)) {
+    return false;
+  }
+  return words.every((w) => /^[A-Za-z][A-Za-z'-]{1,}$/.test(w));
+}
+
+const GLUED_EMAIL_CREDENTIAL_PREFIX_RE = /^(?:cs|ca|cma|cfa|cpa|mba|llb|dr)(?=[a-z]{6,})/;
+
+function gluedEmailLocalBodies(local: string): Array<{ body: string; bonus: number }> {
+  const s = local.toLowerCase().replace(/[^a-z]/g, '');
+  const out: Array<{ body: string; bonus: number }> = [];
+  const seen = new Set<string>();
+  const add = (body: string, bonus = 0) => {
+    if (body.length < 6 || seen.has(body)) return;
+    seen.add(body);
+    out.push({ body, bonus });
+  };
+
+  add(s, 0);
+
+  const dropNoise = s.replace(/^[a-z]{1,2}(?=[a-z]{6,})/, '');
+  add(dropNoise, dropNoise !== s ? 4 : 0);
+
+  let cur = s;
+  for (let i = 0; i < 2; i++) {
+    const m = cur.match(GLUED_EMAIL_CREDENTIAL_PREFIX_RE);
+    if (!m) break;
+    cur = cur.slice(m[0].length);
+    add(cur, 12);
+  }
+
+  return out;
+}
+
+function scoreGluedEmailNameParts(parts: string[]): number {
+  let score = 0;
+  for (const p of parts) {
+    if (p.length >= 3 && p.length <= 7) score += p.length + 3;
+    else if (p.length <= 9) score += 6;
+    else score += 2;
+    if (/^(cs|ca|cma|css|cssy|mba|llb|cpa|cfa)$/i.test(p)) score -= 14;
+    if (p.length <= 2) score -= 6;
+    if (p.length > 8) score -= 5;
+  }
+  score += Math.max(0, parts.length - 1) * 5;
+  return score;
+}
+
+export function parseGluedEmailLocalPart(local: string): { firstName: string; lastName: string } | null {
+  const s = local.toLowerCase().replace(/[^a-z]/g, '');
+  if (s.length < 8 || s.length > 36) return null;
+
+  let best: { firstName: string; lastName: string; score: number } | null = null;
+
+  for (const { body, bonus } of gluedEmailLocalBodies(local)) {
+    if (body.length < 6) continue;
+
+    for (let lastLen = 3; lastLen <= Math.min(12, body.length - 3); lastLen++) {
+      const last = body.slice(-lastLen);
+      if (!/^[a-z]{3,}$/.test(last)) continue;
+      const rest = body.slice(0, -lastLen);
+      if (rest.length < 3) continue;
+
+      for (let split = 3; split <= rest.length - 2; split++) {
+        const first = rest.slice(0, split);
+        const middle = rest.slice(split);
+        const parts = [first, middle, last].filter((p) => p.length >= 3);
+        if (parts.length < 2) continue;
+        const firstName = formatDisplayName(parts[0]);
+        const lastName = parts
+          .slice(1)
+          .map((p) => formatDisplayName(p))
+          .filter(Boolean)
+          .join(' ');
+        const combined = [firstName, lastName].filter(Boolean).join(' ');
+        if (!combined || !isAcceptedEmailDerivedName(combined)) continue;
+        const score = scoreGluedEmailNameParts(parts) + bonus;
+        if (!best || score > best.score) {
+          best = { firstName, lastName, score };
+        }
+      }
+
+      const twoPart = [rest, last];
+      const firstName = formatDisplayName(rest);
+      const lastName = formatDisplayName(last);
+      const combined = [firstName, lastName].filter(Boolean).join(' ');
+      if (combined && isAcceptedEmailDerivedName(combined)) {
+        const score = scoreGluedEmailNameParts(twoPart) + bonus;
+        if (!best || score > best.score) {
+          best = { firstName, lastName, score };
+        }
+      }
+    }
+  }
+
+  return best ? { firstName: best.firstName, lastName: best.lastName } : null;
 }
 
 const NAME_STOPWORDS = new Set([
@@ -240,13 +342,32 @@ export function isPlausiblePersonName(value: unknown): boolean {
   if (isEmailOrDomainFragment(s)) return false;
   if (isCorporateStructurePhrase(s)) return false;
   if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(s)) return false;
-  return isClassifiedPersonName(s);
+  if (isClassifiedPersonName(s)) return true;
+
+  const words = s.split(/\s+/).filter(Boolean);
+  if (
+    words.length >= 2 &&
+    words.length <= 3 &&
+    words.every((w) => /^[A-Za-z][a-z]{2,}$/.test(w))
+  ) {
+    if (NON_NAME_VOCAB.test(s)) return false;
+    if (/\b(company|secretary|officer|compliance|governance|legal|head|director|manager)\b/i.test(s)) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
 }
 
 /** Contact name passed all classification gates — safe to keep without second-pass override. */
 export function isValidatedContactName(name: string, locationHint = ''): boolean {
   const n = String(name || '').trim();
-  if (!n || !isPlausiblePersonName(n)) return false;
+  if (!n) return false;
+  if (isAcceptedEmailDerivedName(n)) {
+    return !isFirmOrLocationNamePhrase(n, locationHint);
+  }
+  if (!isPlausiblePersonName(n)) return false;
   if (isFirmOrLocationNamePhrase(n, locationHint)) return false;
   return true;
 }
@@ -254,7 +375,10 @@ export function isValidatedContactName(name: string, locationHint = ''): boolean
 /** Sanitize and keep only plausible personal names. */
 export function sanitizePersonName(value: unknown, maxLen = 120): string {
   const s = sanitizeFieldText(value, maxLen);
-  return isPlausiblePersonName(s) ? s : '';
+  if (!s) return '';
+  if (isPlausiblePersonName(s)) return s;
+  if (isAcceptedEmailDerivedName(s)) return s;
+  return '';
 }
 
 /**
@@ -270,6 +394,12 @@ export function deriveDisplayNameFromEmail(email: string): string {
   if (fromIntel) {
     const combined = [fromIntel.firstName, fromIntel.lastName].filter(Boolean).join(' ');
     if (isPlausiblePersonName(combined)) return combined;
+  }
+
+  const glued = parseGluedEmailLocalPart(local);
+  if (glued) {
+    const combined = [glued.firstName, glued.lastName].filter(Boolean).join(' ');
+    if (isAcceptedEmailDerivedName(combined)) return combined;
   }
 
   if (/^[a-zA-Z]{3,24}$/.test(local)) {
@@ -404,12 +534,37 @@ export function splitFullNameWithRejected(fullName: string): {
   lastName: string;
   rejected: ClassifiedText[];
 } {
+  const trimmed = String(fullName || '').replace(/\s+/g, ' ').trim();
+  if (trimmed && isAcceptedEmailDerivedName(trimmed)) {
+    const words = trimmed.split(/\s+/).filter(Boolean);
+    if (words.length >= 2 && words.length <= 4) {
+      return {
+        firstName: formatDisplayName(words[0]),
+        lastName: words
+          .slice(1)
+          .map((w) => formatDisplayName(w))
+          .filter(Boolean)
+          .join(' '),
+        rejected: [],
+      };
+    }
+  }
   return splitClassifiedFullName(fullName);
 }
 
 const SKILL_NOISE_TOKENS = new Set([
   'skill', 'skills', 'level', 'rating', 'proficiency', 'expert', 'advanced',
   'intermediate', 'beginner', 'novice', 'basic', 'fluent', 'native', 'competent',
+  'and', 'company', 'rtas', 'rta', 'due', 'the', 'with', 'for', 'from', 'into',
+  'capital', 'review', 'records', 'documentation', 'compliances', 'creation',
+  'secretarial', 'charge', 'dematerialisation', 'dematerialization', 'board',
+  'officer', 'legal', 'head', 'corporate', 'markets', 'listing', 'pit',
+  'auditors', 'financial', 'preparation', 'marketing', 'finance', 'records',
+]);
+
+const SKILL_ACRONYM_ALLOW = new Set([
+  'nse', 'roc', 'sebi', 'ipo', 'drhp', 'fema', 'mca', 'rbi', 'irda', 'amfi',
+  'fdi', 'cdsl', 'nsdl', 'llp', 'gst', 'llb', 'cs', 'ca', 'mca21',
 ]);
 
 /** Personal / metadata / section-heading lines that must not become skills or experience body. */
@@ -562,10 +717,13 @@ export function sanitizeSkillEntry(skill: unknown): string {
   // Reject pure-numeric, percentage-only, or noise tokens
   if (/^\d+\.?\d*\s*%?$/.test(s)) return '';
   if (SKILL_NOISE_TOKENS.has(s.toLowerCase())) return '';
+  if (/^[A-Z]{3,}$/.test(s) && !SKILL_ACRONYM_ALLOW.has(s.toLowerCase())) return '';
+  if (/\([^)]*$/.test(s) || /^[^)]*\)/.test(s)) return '';
 
   // Reject CSV/sentence blobs (multiple commas or newlines)
   if (s.includes('\n')) return '';
   if ((s.match(/,/g) || []).length > 2) return '';
+  if (/\s&\s/.test(s) && skillWords > 2) return '';
   if (s.length > 60 && /\s\w+\s\w+\s\w+/.test(s)) return ''; // a sentence
 
   return s;
@@ -945,7 +1103,20 @@ export function sanitizeLanguageEntry(
 const PROJECT_TITLE_SUFFIX_RE =
   /\b(Website|Web\s*Site|Portal|System|Systems|Application|Applications|App|Platform|Dashboard|API|Tool|Suite|Software)\b/i;
 const PROJECT_VERB_PREFIX_RE =
-  /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated)\b/i;
+  /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated|coordinated|successfully|handled)\b/i;
+
+export function isMisclassifiedExperienceProject(name: string, description = ''): boolean {
+  const n = sanitizeFieldText(name, 120);
+  if (!n) return true;
+  if (PROJECT_VERB_PREFIX_RE.test(n)) return true;
+  if (isCorporateStructurePhrase(n)) return true;
+  if (/^drhp\b/i.test(n)) return true;
+  if (/^company\.?$/i.test(n)) return true;
+  if (!isPlausibleProjectName(n)) return true;
+  const combined = `${n} ${description}`.trim();
+  if (combined.length >= 20 && looksLikeSentenceNotCompany(combined)) return true;
+  return false;
+}
 
 /** True when a string looks like a project title, not a description sentence. */
 export function isPlausibleProjectName(value: unknown): boolean {
@@ -3157,10 +3328,46 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
   const degree = sanitizeFieldText(edu.degree || edu.Degree || edu.qualification, 160);
   const field = sanitizeFieldText(edu.field || edu.Field || edu.major, 120);
   if (!institution && !degree) return null;
+  if (degree && (degree.split(/\s+/).length > 12 || /\.\s/.test(degree))) return null;
   if (isGarbageResumeText(degree) && isGarbageResumeText(institution)) return null;
   if (
     institution &&
     !degree &&
+    (looksLikeCompanyNameLine(institution) ||
+      isLikelyCompanyNameFragment(institution) ||
+      classifyResumeTextFragment(institution).kind === 'COMPANY_NAME')
+  ) {
+    return null;
+  }
+  if (
+    degree &&
+    !institution &&
+    (classifyResumeTextFragment(degree).kind === 'LOCATION' ||
+      /^\(?[a-z\s.]+\(?m\.?\s*p\.?\)?\)?$/i.test(degree))
+  ) {
+    return null;
+  }
+  if (
+    !degree &&
+    institution &&
+    classifyResumeTextFragment(institution).kind === 'LOCATION'
+  ) {
+    return null;
+  }
+  if (
+    degree &&
+    !institution &&
+    !isLikelyEducationLine(degree) &&
+    (looksLikeCompanyNameLine(degree) ||
+      isLikelyCompanyNameFragment(degree) ||
+      classifyResumeTextFragment(degree).kind === 'COMPANY_NAME')
+  ) {
+    return null;
+  }
+  if (
+    institution &&
+    !degree &&
+    !isLikelyEducationLine(institution) &&
     (looksLikeCompanyNameLine(institution) ||
       isLikelyCompanyNameFragment(institution) ||
       classifyResumeTextFragment(institution).kind === 'COMPANY_NAME')
