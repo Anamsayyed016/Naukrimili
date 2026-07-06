@@ -638,7 +638,12 @@ export function coalesceBuilderImportPayload(
     if (Array.isArray(out.experience) && out.experience.length > 0) {
       out.experience = normalizeMergedExperienceList(out.experience, out);
     }
-    return applySummaryHygieneToBuilderForm(out);
+    const { builder: recoveredOut, report: rehydrateReport } = recoverBuilderFormSections(out, {
+      mergedImport: out,
+      rawImport: parsed,
+    });
+    logBuilderFieldMappingReport(rehydrateReport);
+    return applySummaryHygieneToBuilderForm(recoveredOut);
   }
 
   return transformImportDataToBuilder(parsed);
@@ -1455,6 +1460,27 @@ export function transformImportDataToBuilder(
 
   const pruned = pruneAndMergeDynamicSections(transformed, DYNAMIC_SECTION_REGISTRY);
   Object.assign(transformed, pruned);
+
+  const { builder: postCanonicalBuilder, report: postCanonicalReport } = recoverBuilderFormSections(
+    transformed,
+    {
+      mergedImport,
+      rawImport: importedData as Record<string, unknown>,
+    }
+  );
+  Object.assign(transformed, postCanonicalBuilder);
+  logBuilderFieldMappingReport(postCanonicalReport);
+
+  // Re-sync template alias keys after final recovery pass.
+  transformed['Work Experience'] = transformed.experience;
+  transformed.Experience = transformed.experience;
+  transformed.Education = transformed.education;
+  transformed.Skills = transformed.skills;
+  transformed.Projects = transformed.projects;
+  transformed.Certifications = transformed.certifications;
+  transformed.Achievements = transformed.achievements;
+  transformed.Languages = transformed.languages;
+  transformed.Hobbies = transformed.hobbies;
 
   logBuilderImportPipelineTrace({
     raw: importedData as Record<string, unknown>,

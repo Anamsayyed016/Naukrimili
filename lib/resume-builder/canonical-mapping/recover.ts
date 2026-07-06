@@ -53,11 +53,15 @@ export function recoverBuilderFromNodes(
 
   const experiences = Array.isArray(out.experience) ? [...(out.experience as Record<string, unknown>[])] : [];
   const parents = findNodes(nodes, { types: ['EXPERIENCE'] }).sort((a, b) => a.position - b.position);
+  const count = Math.max(parents.length, experiences.length);
 
-  parents.forEach((parent, index) => {
+  for (let index = 0; index < count; index++) {
+    const parent = parents[index];
     if (!experiences[index] || typeof experiences[index] !== 'object') {
       experiences[index] = {};
     }
+    if (!parent) continue;
+
     const row = { ...experiences[index] } as Record<string, unknown>;
 
     if (isEmpty(row.company)) {
@@ -106,7 +110,7 @@ export function recoverBuilderFromNodes(
     }
 
     experiences[index] = row;
-  });
+  }
 
   if (experiences.length > 0) {
     out.experience = experiences;

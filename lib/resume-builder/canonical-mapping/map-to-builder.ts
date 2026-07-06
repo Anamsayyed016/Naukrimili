@@ -27,8 +27,12 @@ function buildExperienceFromNodes(
     ? existing.filter((e) => e && typeof e === 'object') as Record<string, unknown>[]
     : [];
 
-  return parents.map((parent, index) => {
+  const count = Math.max(parents.length, existingList.length);
+  return Array.from({ length: count }, (_, index) => {
     const base = { ...(existingList[index] || {}) } as Record<string, unknown>;
+    const parent = parents[index];
+    if (!parent) return base;
+
     const company = sanitizeExperienceCompanyValue(
       bestNodeValue(nodes, ['COMPANY', 'ORGANIZATION', 'EMPLOYER'], parent.id) ||
         String(base.company || '')
@@ -186,14 +190,13 @@ export function mapCanonicalNodesToBuilder(
         'Fluent';
       return { name, language: name, proficiency };
     });
-    if (
-      built.length > 0 &&
-      (!Array.isArray(builder.languages) || (builder.languages as unknown[]).length === 0)
-    ) {
-      builder.languages = built;
-      builder.Languages = built;
-      matched.push(`languages:${built.length}`);
+    const merged = [...built];
+    if (existingLangs.length > built.length) {
+      merged.push(...existingLangs.slice(built.length));
     }
+    builder.languages = merged;
+    builder.Languages = merged;
+    matched.push(`languages:${merged.length}`);
   }
 
   if (builder.summary) {

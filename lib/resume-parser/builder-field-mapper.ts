@@ -551,6 +551,74 @@ function recoverScalarField(
   report.missing.push(`identity:${key}`);
 }
 
+function normalizeLanguageEntryAliases(lang: Record<string, unknown>): Record<string, unknown> {
+  const name = readFirstString(lang, ['language', 'Language', 'name', 'Name', 'title', 'Title']);
+  const proficiency = readFirstString(lang, [
+    'proficiency',
+    'Proficiency',
+    'level',
+    'Level',
+    'fluency',
+    'Fluency',
+  ]);
+  const out = { ...lang };
+  if (name) {
+    out.name = name;
+    out.language = name;
+  }
+  if (proficiency) out.proficiency = proficiency;
+  return out;
+}
+
+function mergeRecordEntryFromSource(
+  row: Record<string, unknown>,
+  src: Record<string, unknown>,
+  fields: Array<{ key: string; aliases: string[]; maxLen?: number }>
+): Record<string, unknown> {
+  const next = { ...row };
+  for (const field of fields) {
+    if (readFirstString(next, [field.key, ...field.aliases], field.maxLen ?? 200)) continue;
+    const recovered = readFirstString(src, [field.key, ...field.aliases], field.maxLen ?? 200);
+    if (recovered) next[field.key] = recovered;
+  }
+  return next;
+}
+
+function recoverRecordListSection(
+  builderRows: Record<string, unknown>[],
+  sourceRows: Record<string, unknown>[],
+  sectionKey: string,
+  normalize: (row: Record<string, unknown>) => Record<string, unknown>,
+  fieldSpecs: Array<{ key: string; aliases: string[]; maxLen?: number }>,
+  report: BuilderFieldMappingReport
+): Record<string, unknown>[] {
+  if (sourceRows.length === 0) return builderRows;
+
+  const out = [...builderRows];
+  if (out.length < sourceRows.length) {
+    report.missing.push(`${sectionKey}:count-loss:${out.length}/${sourceRows.length}`);
+  }
+
+  for (let i = 0; i < sourceRows.length; i++) {
+    const src = normalize(sourceRows[i] || {});
+    if (!out[i] || typeof out[i] !== 'object') {
+      out[i] = src;
+      report.recovered.push(`${sectionKey}[${i}]:full-entry`);
+      continue;
+    }
+    const merged = mergeRecordEntryFromSource(out[i] as Record<string, unknown>, src, fieldSpecs);
+    const changed = fieldSpecs.some(
+      (field) =>
+        readFirstString(out[i] as Record<string, unknown>, [field.key], field.maxLen ?? 200) !==
+        readFirstString(merged, [field.key], field.maxLen ?? 200)
+    );
+    if (changed) report.recovered.push(`${sectionKey}[${i}]:fields`);
+    out[i] = merged;
+  }
+
+  return out;
+}
+
 function recoverExperienceFields(
   builderExps: Record<string, unknown>[],
   sourceExps: Record<string, unknown>[],
@@ -693,40 +761,134 @@ export function recoverBuilderFormSections(
     : [];
   out.experience = recoverExperienceFields(builderExps, sourceExps, report);
 
-  const sectionPairs: Array<[string, string[]]> = [
-    ['education', EDUCATION_SECTION_KEYS],
-    ['projects', PROJECT_SECTION_KEYS],
-    ['certifications', CERT_SECTION_KEYS],
+  const sourceEducation = readFirstArray(sources.mergedImport, EDUCATION_SECTION_KEYS)
+    .filter((e): e is Record<string, unknown> => !!e && typeof e === 'object')
+    .map(normalizeEducationEntryAliases);
+  const educationRecovered = recoverRecordListSection(
+    Array.isArray(out.education) ? (out.education as Record<string, unknown>[]) : [],
+    sourceEducation,
+    'education',
+    normalizeEducationEntryAliases,
+    [
+      { key: 'institution', aliases: ['school', 'college', 'university', 'academy', 'Institution'] },
+      { key: 'degree', aliases: ['Degree', 'qualification', 'Qualification'] },
+      { key: 'field', aliases: ['Field', 'major', 'Major', 'specialization'] },
+      { key: 'startDate', aliases: ['start_date', 'StartDate'], maxLen: 40 },
+      { key: 'endDate', aliases: ['end_date', 'EndDate', 'year', 'graduationDate'], maxLen: 40 },
+      { key: 'gpa', aliases: ['cgpa', 'CGPA', 'percentage', 'Percentage', 'grade'], maxLen: 20 },
+    ],
+    report
+  );
+  out.education = educationRecovered;
+  if (educationRecovered.length > 0) {
+    out.Education = educationRecovered;
+    report.matched.push(`education:${educationRecovered.length}`);
+  }
+
+  const sourceProjects = readFirstArray(sources.mergedImport, PROJECT_SECTION_KEYS)
+    .filter((p): p is Record<string, unknown> => !!p && typeof p === 'object')
+    .map(normalizeProjectEntryAliases);
+  const projectsRecovered = recoverRecordListSection(
+    Array.isArray(out.projects) ? (out.projects as Record<string, unknown>[]) : [],
+    sourceProjects,
+    'projects',
+    normalizeProjectEntryAliases,
+    [
+      { key: 'name', aliases: ['title', 'projectName', 'Name', 'Title'] },
+      { key: 'description', aliases: ['Description', 'summary', 'Summary', 'details'], maxLen: 8000 },
+      { key: 'role', aliases: ['Role', 'position', 'myRole'] },
+      { key: 'url', aliases: ['link', 'liveUrl', 'website'], maxLen: 300 },
+    ],
+    report
+  );
+  out.projects = projectsRecovered;
+  if (projectsRecovered.length > 0) {
+    out.Projects = projectsRecovered;
+    report.matched.push(`projects:${projectsRecovered.length}`);
+  }
+
+  const sourceCerts = readFirstArray(sources.mergedImport, CERT_SECTION_KEYS)
+    .filter((c): c is Record<string, unknown> => !!c && typeof c === 'object')
+    .map(normalizeCertificationEntryAliases);
+  const certificationsRecovered = recoverRecordListSection(
+    Array.isArray(out.certifications) ? (out.certifications as Record<string, unknown>[]) : [],
+    sourceCerts,
+    'certifications',
+    normalizeCertificationEntryAliases,
+    [
+      { key: 'name', aliases: ['title', 'certification', 'certificateName', 'Name'] },
+      { key: 'issuer', aliases: ['organization', 'issuingOrganization', 'Issuer', 'issuedBy'] },
+      { key: 'date', aliases: ['issueDate', 'issued_date', 'issuedDate', 'year'], maxLen: 40 },
+      { key: 'url', aliases: ['link', 'credentialUrl'], maxLen: 300 },
+    ],
+    report
+  );
+  out.certifications = certificationsRecovered;
+  if (certificationsRecovered.length > 0) {
+    out.Certifications = certificationsRecovered;
+    report.matched.push(`certifications:${certificationsRecovered.length}`);
+  }
+
+  const sourceLanguages = readFirstArray(sources.mergedImport, LANGUAGE_SECTION_KEYS)
+    .filter((l): l is Record<string, unknown> => !!l && typeof l === 'object')
+    .map(normalizeLanguageEntryAliases);
+  const languagesRecovered = recoverRecordListSection(
+    Array.isArray(out.languages) ? (out.languages as Record<string, unknown>[]) : [],
+    sourceLanguages,
+    'languages',
+    normalizeLanguageEntryAliases,
+    [
+      { key: 'language', aliases: ['name', 'Name', 'title'] },
+      { key: 'proficiency', aliases: ['level', 'Level', 'fluency', 'Fluency'] },
+    ],
+    report
+  );
+  out.languages = languagesRecovered;
+  if (languagesRecovered.length > 0) {
+    out.Languages = languagesRecovered;
+    report.matched.push(`languages:${languagesRecovered.length}`);
+  }
+
+  const stringListPairs: Array<[string, string[]]> = [
     ['achievements', ACHIEVEMENT_SECTION_KEYS],
     ['hobbies', HOBBY_SECTION_KEYS],
-    ['languages', LANGUAGE_SECTION_KEYS],
     ['skills', SKILL_SECTION_KEYS],
   ];
 
-  for (const [builderKey, importKeys] of sectionPairs) {
+  for (const [builderKey, importKeys] of stringListPairs) {
     const built = Array.isArray(out[builderKey]) ? (out[builderKey] as unknown[]) : [];
     const src = readFirstArray(sources.mergedImport, importKeys);
     if (built.length > 0) report.matched.push(`${builderKey}:${built.length}`);
     if (src.length > built.length) {
       report.missing.push(`${builderKey}:count-loss:${built.length}/${src.length}`);
-      if (builderKey === 'achievements' || builderKey === 'hobbies' || builderKey === 'skills') {
-        const merged = [...built];
-        const seen = new Set(built.map((x) => String(x).toLowerCase()));
-        for (const item of src) {
-          const v =
-            typeof item === 'string'
-              ? item
-              : readFirstString(item as Record<string, unknown>, ['name', 'title', 'description']);
-          if (v && !seen.has(v.toLowerCase())) {
-            merged.push(v);
-            seen.add(v.toLowerCase());
-            report.recovered.push(`${builderKey}:appended`);
-          }
+      const merged = [...built];
+      const seen = new Set(built.map((x) => String(x).toLowerCase()));
+      for (const item of src) {
+        const v =
+          typeof item === 'string'
+            ? item
+            : readFirstString(item as Record<string, unknown>, ['name', 'title', 'description']);
+        if (v && !seen.has(v.toLowerCase())) {
+          merged.push(v);
+          seen.add(v.toLowerCase());
+          report.recovered.push(`${builderKey}:appended`);
         }
-        out[builderKey] = merged;
       }
+      out[builderKey] = merged;
     } else if (built.length === 0 && src.length > 0) {
-      report.missing.push(`${builderKey}:empty-with-source:${src.length}`);
+      const restored = src
+        .map((item) =>
+          typeof item === 'string'
+            ? item
+            : readFirstString(item as Record<string, unknown>, ['name', 'title', 'description', 'language'])
+        )
+        .filter(Boolean);
+      if (restored.length > 0) {
+        out[builderKey] = restored;
+        report.recovered.push(`${builderKey}:restored-from-import:${restored.length}`);
+      } else {
+        report.missing.push(`${builderKey}:empty-with-source:${src.length}`);
+      }
     }
   }
 

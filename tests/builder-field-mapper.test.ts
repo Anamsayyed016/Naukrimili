@@ -75,6 +75,33 @@ describe('builder-field-mapper', () => {
     expect(report.recovered.some((r) => r.includes('company'))).toBe(true);
   });
 
+  it('restores education and projects dropped during mapping', () => {
+    const { builder, report } = recoverBuilderFormSections(
+      {
+        education: [],
+        projects: [{ name: 'Portal', description: '' }],
+      },
+      {
+        mergedImport: {
+          education: [
+            { school: 'MIT', degree: 'B.Tech', field: 'Computer Science', year: '2022' },
+            { university: 'Stanford', degree: 'M.S.', field: 'AI', year: '2024' },
+          ],
+          projects: [
+            { projectName: 'Portal', description: 'Built job portal' },
+            { title: 'Chat App', summary: 'Realtime messaging' },
+          ],
+        },
+      }
+    );
+    expect((builder.education as unknown[]).length).toBe(2);
+    expect((builder.education as Record<string, unknown>[])[0].institution).toBe('MIT');
+    expect((builder.projects as unknown[]).length).toBe(2);
+    expect((builder.projects as Record<string, unknown>[])[0].description).toBe('Built job portal');
+    expect(report.recovered.some((r) => r.startsWith('education'))).toBe(true);
+    expect(report.recovered.some((r) => r.startsWith('projects'))).toBe(true);
+  });
+
   it('splits multi-column title and company on one designation field', () => {
     const norm = normalizeExperienceEntryAliases({
       position: 'Full Stack Developer\tDigital Solutions Pvt Ltd',
