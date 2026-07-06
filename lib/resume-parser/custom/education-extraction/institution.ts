@@ -18,6 +18,17 @@ const INSTITUTION_MARKERS_RE =
 const GOVT_INSTITUTION_RE =
   /\b(government|public|state|central|national)\s+(?:university|college|institute|school)\b/i;
 
+const IIT_ABBREV_RE =
+  /^indian institute of technology\s+(.+)$/i;
+
+export function abbreviateInstitutionName(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return '';
+  const iit = trimmed.match(IIT_ABBREV_RE);
+  if (iit?.[1]) return `IIT ${iit[1].trim()}`;
+  return trimmed;
+}
+
 export function scoreInstitutionCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 4 || trimmed.length > 160) return 0;
@@ -44,7 +55,7 @@ export function detectInstitutionFromLine(text: string): InstitutionDetection {
   const withoutDates = trimmed.replace(/,?\s*(?:19|20)\d{2}.*$/, '').trim();
   const conf = scoreInstitutionCandidate(withoutDates);
   if (conf >= 38) {
-    return { institution: withoutDates, confidence: conf };
+    return { institution: abbreviateInstitutionName(withoutDates), confidence: conf };
   }
 
   return { institution: '', confidence: 0 };

@@ -42,6 +42,8 @@ export interface IntelligentSkill {
   frequency: number;
   yearsOfUse: number | null;
   recentUsage: boolean;
+  /** Original alias forms collected before canonical merge (repair diagnostics). */
+  rawForms?: string[];
 }
 
 export interface SkillCandidate {

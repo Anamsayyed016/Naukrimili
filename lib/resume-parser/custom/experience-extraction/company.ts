@@ -41,7 +41,7 @@ const COMPACT_EMPLOYER_RE = /^[A-Z][A-Za-z]{1,24}(?:\s+[A-Z][A-Za-z]{1,24})?\s+\
 
 /** Government and institutional employer patterns. */
 const INSTITUTIONAL_EMPLOYER_RE =
-  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay)\b/i;
+  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|railways?)\b/i;
 
 export function looksLikeInstitutionalEmployer(text: string): boolean {
   const trimmed = text.trim();
@@ -85,6 +85,7 @@ export function scoreCompanyCandidate(text: string): number {
   if (COMPACT_EMPLOYER_RE.test(trimmed)) score += 44;
   if (INSTITUTIONAL_EMPLOYER_RE.test(trimmed)) score += 36;
   if (looksLikeInstitutionalEmployer(trimmed)) score += 32;
+  if (/\b[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s+Railways?\b/.test(trimmed)) score += 44;
   if (/\b[A-Z][a-z]+\s+(?:Sons|Bros|Brothers|Holdings|Group|Industries|Enterprises|Motors|Retail)\b/.test(trimmed)) {
     score += 42;
   }

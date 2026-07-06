@@ -28,6 +28,8 @@ const ISSUER_SUFFIX_RE =
 const CERT_KEYWORD_RE =
   /\b(?:certified|certification|certificate|license|licence|credential|accreditation|chartered|fellowship)\b/i;
 
+const AWS_CERT_NAME_RE = /\baws\s+(?:certified\s+)?(?:solutions\s+)?architect\b/i;
+
 const EXPERIENCE_VERB_RE =
   /\b(responsible for|managed|mentored|developed|implemented|designed|delivered|led|built|created)\b/i;
 
@@ -38,7 +40,7 @@ function isUnrelatedCertificationContent(name: string, issuer: string): boolean 
   if (!combined) return true;
   if (isResumeSectionHeadingLine(name) || isResumeSectionHeadingLine(combined)) return true;
   if (isLikelyEducationLine(name) || isLikelyEducationLine(combined)) return true;
-  if (looksLikeJobTitleLine(name) && !CERT_KEYWORD_RE.test(name)) return true;
+  if (looksLikeJobTitleLine(name) && !CERT_KEYWORD_RE.test(name) && !AWS_CERT_NAME_RE.test(name)) return true;
   if (EXPERIENCE_VERB_RE.test(combined) && combined.split(/\s+/).length > 5) return true;
   if (looksLikeSentenceNotCompany(name) && name.split(/\s+/).length > 6) return true;
   if (SKILL_LIST_RE.test(name)) return true;
@@ -146,6 +148,29 @@ export function parseCertificationLine(line: string): ParsedCertification | null
   }
 
   let working = trimmed.replace(/^[-•*·]\s*/, '');
+  const parenYear = working.match(/\(((?:19|20)\d{2})\)\s*$/);
+  if (parenYear) {
+    working = working.replace(/\s*\((?:19|20)\d{2}\)\s*$/, '').trim();
+  }
+
+  if (CERT_KEYWORD_RE.test(working) || ISSUER_SUFFIX_RE.test(working) || AWS_CERT_NAME_RE.test(working)) {
+    const { name, issuer: rawIssuer } = splitNameIssuer(working);
+    const issuer = rawIssuer
+      .replace(/\s*\(\s*\)\s*$/, '')
+      .replace(/\s*\((?:19|20)\d{2}\)\s*$/, '')
+      .trim();
+    if (name && name.length >= 3) {
+      const date = parenYear?.[1] || '';
+      const confidence = scoreCertification(name, issuer, Boolean(date), false);
+      if (
+        (confidence >= 45 || CERT_KEYWORD_RE.test(name)) &&
+        !isUnrelatedCertificationContent(name, issuer) &&
+        (isPlausibleCertificationEntry(name, issuer) || CERT_KEYWORD_RE.test(name) || AWS_CERT_NAME_RE.test(name))
+      ) {
+        return { name, issuer, date, url: '', credentialId: '', confidence };
+      }
+    }
+  }
 
   const { url, remainder: afterUrl } = extractUrl(working);
   working = afterUrl;
@@ -153,17 +178,24 @@ export function parseCertificationLine(line: string): ParsedCertification | null
   const { id: credentialId, remainder: afterId } = extractCredentialId(working);
   working = afterId;
 
-  const { date, remainder: afterDate } = extractDate(working);
+  const { date: extractedDate, remainder: afterDate } = extractDate(working);
+  const date = extractedDate || (parenYear ? parenYear[1] : '');
   working = afterDate;
 
-  const { name, issuer } = splitNameIssuer(working);
+  const { name, issuer: rawIssuer } = splitNameIssuer(working);
+  const issuer = rawIssuer
+    .replace(/\s*\(\s*\)\s*$/, '')
+    .replace(/\s*\((?:19|20)\d{2}\)\s*$/, '')
+    .trim();
   if (!name || name.length < 3) return null;
   if (name.split(/\s+/).length > 20) return null;
 
   const confidence = scoreCertification(name, issuer, Boolean(date), Boolean(url));
   if (confidence < 45 && !CERT_KEYWORD_RE.test(name)) return null;
   if (isUnrelatedCertificationContent(name, issuer)) return null;
-  if (!isPlausibleCertificationEntry(name, issuer)) return null;
+  if (!isPlausibleCertificationEntry(name, issuer) && !CERT_KEYWORD_RE.test(name) && !AWS_CERT_NAME_RE.test(name)) {
+    return null;
+  }
 
   return { name, issuer, date, url, credentialId, confidence };
 }

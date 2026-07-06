@@ -23,6 +23,9 @@ export interface ParsedHobbyLine {
 function scoreHobbyToken(name: string): number {
   const trimmed = name.trim();
   if (!trimmed || trimmed.length < 2 || trimmed.length > 50) return 0;
+  if (HOBBY_ALLOW_RE.test(trimmed)) {
+    return Math.min(100, 80 + (trimmed.split(/\s+/).length <= 3 ? 8 : 0));
+  }
   if (SECTION_HEADING_RE.test(trimmed)) return 0;
   if (isResumeSectionHeadingLine(trimmed)) return 0;
   if (isLikelyEducationLine(trimmed)) return 0;

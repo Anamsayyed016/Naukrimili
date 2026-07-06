@@ -52,7 +52,9 @@ function pickBestDegree(lines: string[]): {
   let best = { degree: '', fieldFromDegree: '', confidence: 0 };
   for (const line of expandHeaderSegments(lines)) {
     if (parseEducationDates(line)) continue;
+    const inst = detectInstitutionFromLine(line);
     const det = detectDegreeFromLine(line);
+    if (inst.confidence >= 42 && inst.confidence > det.confidence + 8) continue;
     if (det.confidence > best.confidence) {
       best = {
         degree: det.degree,

@@ -26,6 +26,7 @@ export interface ScoredSkillAggregate {
   contextScore: number;
   confidence: number;
   recentUsage: boolean;
+  rawForms?: string[];
 }
 
 export function scoreSkillCandidate(candidate: SkillCandidate): number {
@@ -47,6 +48,7 @@ export function aggregateSkillCandidates(
     string,
     {
       name: string;
+      rawForms: Set<string>;
       sources: Set<SkillSource>;
       frequency: number;
       scores: number[];
@@ -60,9 +62,11 @@ export function aggregateSkillCandidates(
       existing.sources.add(c.source);
       existing.frequency += 1;
       existing.scores.push(scoreSkillCandidate(c));
+      if (c.raw !== c.normalized) existing.rawForms.add(c.raw);
     } else {
       map.set(key, {
         name: c.normalized,
+        rawForms: c.raw !== c.normalized ? new Set([c.raw]) : new Set(),
         sources: new Set([c.source]),
         frequency: 1,
         scores: [scoreSkillCandidate(c)],
@@ -97,6 +101,7 @@ export function aggregateSkillCandidates(
       contextScore,
       confidence,
       recentUsage: sources.includes('experience') || sources.includes('project'),
+      rawForms: entry.rawForms.size > 0 ? [...entry.rawForms] : undefined,
     });
   }
 

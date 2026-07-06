@@ -11,7 +11,20 @@ const PHONE_RE = /(?:\+?\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4
 const URL_RE = /https?:\/\/|(?:www\.)?(?:linkedin|github)\.com/i;
 
 const SKILL_LIST_RE =
-  /^(?:python|java|react|javascript|typescript|sql|aws|docker|html|css|node\.?js)(?:\s*,\s*(?:python|java|react|javascript|typescript|sql|aws|docker|html|css|node\.?js)){3,}$/i;
+  /^(?:python|java|react|javascript|typescript|sql|aws|docker|html|css|node\.?js|redis|kafka)(?:\s*,\s*(?:python|java|react|javascript|typescript|sql|aws|docker|html|css|node\.?js|redis|kafka)){2,}$/i;
+
+function looksLikeCommaSkillList(line: string): boolean {
+  if (!line.includes(',')) return false;
+  const tokens = line.split(',').map((t) => t.trim()).filter(Boolean);
+  if (tokens.length < 4) return false;
+  return tokens.every(
+    (t) =>
+      t.length >= 2 &&
+      t.length <= 28 &&
+      !/\b(with|and|the|for|years?|experience)\b/i.test(t) &&
+      !/[.!?]$/.test(t)
+  );
+}
 
 const EXPERIENCE_DATE_RE =
   /\b(?:19|20)\d{2}\s*[-–—to]+\s*(?:present|current|(?:19|20)\d{2})\b/i;
@@ -28,7 +41,7 @@ export function isValidSummaryContent(text: string): boolean {
   const lines = trimmed.split('\n').map((l) => l.trim()).filter(Boolean);
   if (lines.length === 1) {
     const line = lines[0];
-    if (SKILL_LIST_RE.test(line)) return false;
+    if (SKILL_LIST_RE.test(line) || looksLikeCommaSkillList(line)) return false;
     if (EMAIL_RE.test(line) && line.length < 80) return false;
     if (PHONE_RE.test(line) && !/[.!?]/.test(line) && line.length < 50) return false;
     if (URL_RE.test(line) && line.length < 120 && !/\b(with|experience|years?|skilled)\b/i.test(line)) {

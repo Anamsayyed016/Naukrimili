@@ -272,6 +272,7 @@ function buildRawBlock(lines: ExperienceLine[], startLine: number, endLine: numb
     const l = lines[i];
     if (l.isBullet) break;
     if (i > 0 && l.text.trim().length > 140) break;
+    if (i > 0 && looksLikeSentenceNotCompany(l.text.trim())) break;
     headerEnd = i + 1;
   }
 

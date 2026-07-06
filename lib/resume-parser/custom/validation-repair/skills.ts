@@ -45,11 +45,38 @@ export function validateAndRepairSkills(
         confidence: 85,
         reason: 'Normalized skill alias to canonical form.',
       });
+    } else if (skill.rawForms?.length) {
+      for (const alias of skill.rawForms) {
+        const aliasNorm = normalizeSkillAlias(alias);
+        if (aliasNorm !== alias) {
+          recordRepair(ctx, {
+            section: 'skills',
+            field: 'name',
+            index: i,
+            originalValue: alias,
+            recoveredValue: aliasNorm,
+            evidenceSource: 'parser_aliases',
+            confidence: 85,
+            reason: 'Normalized skill alias to canonical form.',
+          });
+          break;
+        }
+      }
     }
 
     const key = skillDedupeKey(normalized);
     const existing = seen.get(key);
     if (existing) {
+      recordRepair(ctx, {
+        section: 'skills',
+        field: 'name',
+        index: i,
+        originalValue: raw,
+        recoveredValue: normalized,
+        evidenceSource: 'parser_aliases',
+        confidence: 80,
+        reason: 'Merged duplicate skill alias.',
+      });
       recordIssue(ctx, {
         severity: 'warning',
         section: 'skills',

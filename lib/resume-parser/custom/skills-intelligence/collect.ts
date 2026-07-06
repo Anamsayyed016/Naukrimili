@@ -13,6 +13,7 @@ import type { SkillCandidate, SkillSource, SkillsIntelligenceInput } from './typ
 
 const SKILL_SUBHEADERS = new Set([
   'programming languages', 'programming language', 'programming',
+  'languages', 'language',
   'frameworks', 'framework', 'libraries', 'library',
   'databases', 'database', 'tools', 'tool', 'platforms',
   'cloud', 'devops', 'concepts', 'methodologies',
@@ -161,6 +162,9 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
       tokens.length < 2 &&
       !/:/.test(raw)
     ) {
+      if (tokens.length === 1 && isValidSkillCandidate(tokens[0])) {
+        pushCandidate(out, tokens[0], 'skills_section');
+      }
       continue;
     }
 
@@ -264,14 +268,16 @@ export function collectAllSkillCandidates(input: SkillsIntelligenceInput): Skill
     !skillsSection || fromSection.length < 3 ? collectFromPreambleText(preamble) : [];
   const hasRichSkillsSection = fromSection.length >= 3;
 
-  const crossSectionMining: SkillCandidate[] = hasRichSkillsSection
-    ? []
-    : [
-        ...collectFromTechnologyLists(input.experienceTechnologies, 'experience'),
-        ...(input.experienceTexts || []).flatMap((t) => collectFromTextScan(t, 'experience')),
-        ...collectFromTechnologyLists(input.projectTechnologies, 'project'),
-        ...(input.projectTexts || []).flatMap((t) => collectFromTextScan(t, 'project')),
-      ];
+  const crossSectionMining: SkillCandidate[] = [
+    ...collectFromTechnologyLists(input.experienceTechnologies, 'experience'),
+    ...collectFromTechnologyLists(input.projectTechnologies, 'project'),
+    ...(hasRichSkillsSection
+      ? []
+      : [
+          ...(input.experienceTexts || []).flatMap((t) => collectFromTextScan(t, 'experience')),
+          ...(input.projectTexts || []).flatMap((t) => collectFromTextScan(t, 'project')),
+        ]),
+  ];
 
   const all: SkillCandidate[] = [
     ...fromSection,

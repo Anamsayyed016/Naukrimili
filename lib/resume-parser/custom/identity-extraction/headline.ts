@@ -7,7 +7,9 @@ import {
   isPlausiblePersonName,
   isResumeSectionHeadingLine,
   looksLikeJobTitleLine,
+  looksLikeStandaloneLocationLine,
 } from '@/lib/resume-parser/import-sanitize';
+import { isLikelyLocationFragment } from '@/lib/resume-parser/field-classification';
 
 import { getZoneLines, type ScanZone } from './sources';
 
@@ -24,8 +26,19 @@ export function scoreHeadlineCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 3 || trimmed.length > 120) return 0;
   if (isResumeSectionHeadingLine(trimmed)) return 0;
-  if (isPlausiblePersonName(trimmed)) return 0;
+  if (
+    isPlausiblePersonName(trimmed) &&
+    !looksLikeJobTitleLine(trimmed) &&
+    !TITLE_KEYWORDS_RE.test(trimmed)
+  ) {
+    return 0;
+  }
   if (/[@+]|https?:\/\//i.test(trimmed)) return 0;
+  if (/linkedin\.com|github\.com|gitlab\.com|\.com\/\S+/i.test(trimmed)) return 0;
+  if (!looksLikeJobTitleLine(trimmed) && !TITLE_KEYWORDS_RE.test(trimmed)) {
+    if (looksLikeStandaloneLocationLine(trimmed)) return 0;
+    if (isLikelyLocationFragment(trimmed) && trimmed.split(/\s+/).length >= 2) return 0;
+  }
   if (/[.!?]$/.test(trimmed) && trimmed.split(/\s+/).length > 8) return 0;
 
   let score = 0;

@@ -138,6 +138,21 @@ function buildRawBlock(lines: EducationLine[], startLine: number, endLine: numbe
     const l = lines[i];
     if (l.isBullet) break;
     if (i > 0 && l.text.trim().length > 150) break;
+    if (i > 0) {
+      const t = l.text.trim();
+      const inst = detectInstitutionFromLine(t).confidence;
+      const deg = detectDegreeFromLine(t).confidence;
+      const dates = parseEducationDates(t);
+      if (
+        !dates &&
+        inst < 38 &&
+        deg < 38 &&
+        t.length >= 30 &&
+        (/\b(?:research|focused|thesis|dissertation|project)\b/i.test(t) || /[.!?]$/.test(t))
+      ) {
+        break;
+      }
+    }
     headerEnd = i + 1;
   }
 

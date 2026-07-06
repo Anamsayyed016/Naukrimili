@@ -28,10 +28,14 @@ const NAME_SUFFIX_RE = /^(dr|mr|mrs|ms|prof|sir|jr|sr|ii|iii|iv)\.?$/i;
 const TRAILING_SECTION_NOISE_RE =
   /\s+(?:skills?|technical\s+skills|experience|work\s+experience|education|summary|objective|profile|resume|cv|contact)\s*$/i;
 
-/** Strip multi-column padding and trailing section labels from a header line. */
+const HONORIFIC_PREFIX_RE = /^(?:dr|mr|mrs|ms|prof|sir)\.?\s+/i;
+
+/** Strip honorific prefixes and multi-column padding from a header line. */
 export function normalizeNameLine(line: string): string {
   let trimmed = line.trim();
   if (!trimmed) return '';
+
+  trimmed = trimmed.replace(HONORIFIC_PREFIX_RE, '').trim();
 
   const multiCol = trimmed.match(
     /^([A-Z][A-Za-z'.\-]+(?:\s+[A-Z][A-Za-z'.\-]+){0,4})\s+(.+)$/

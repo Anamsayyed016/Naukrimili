@@ -28,6 +28,7 @@ export function dedupeAndMergeSkills(candidates: SkillCandidate[]): IntelligentS
         frequency: agg.frequency,
         yearsOfUse: null,
         recentUsage: agg.recentUsage,
+        rawForms: agg.rawForms,
       });
       continue;
     }

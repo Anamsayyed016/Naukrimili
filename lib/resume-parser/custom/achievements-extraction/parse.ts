@@ -27,13 +27,20 @@ function scoreAchievementLine(text: string): number {
   if (text.length >= 20) score += 10;
   if (text.length >= 40) score += 5;
   if (/^\d+%|\$\d|₹\d|\b\d+\s*(?:%|k|lakh|million)\b/i.test(text)) score += 12;
-  if (/^(?:won|received|awarded|recognized|achieved|secured|ranked)\b/i.test(text)) score += 8;
+  if (/^(?:won|received|awarded|recognized|achieved|secured|ranked|published)\b/i.test(text)) score += 8;
+  if (/\b(?:ieee|conference|journal|patent)\b/i.test(text)) score += 10;
   if (SECTION_HEADING_RE.test(text)) return 0;
   if (isResumeSectionHeadingLine(text)) return 0;
-  if (isLikelyEducationLine(text)) return 0;
+  if (isLikelyEducationLine(text) && !/\b(?:published|award|ieee|conference|employee of the year)\b/i.test(text)) {
+    return 0;
+  }
   if (looksLikeJobTitleLine(text) && text.split(/\s+/).length <= 5) return 0;
   if (SKILL_LIST_RE.test(text) && (text.match(/,/g) || []).length >= 2) return 0;
   if (EXPERIENCE_VERB_RE.test(text) && text.split(/\s+/).length > 8) score -= 25;
+  if (/\b(?:led|managed|worked|joined|headed)\b.+\bat\s+[A-Z]/i.test(text)) return 0;
+  if (EXPERIENCE_VERB_RE.test(text) && /\bat\s+[A-Z]/i.test(text) && text.split(/\s+/).length >= 6) {
+    return 0;
+  }
   if (looksLikeSentenceNotCompany(text) && text.split(/\s+/).length > 14) score -= 20;
   return Math.min(100, Math.max(0, score));
 }

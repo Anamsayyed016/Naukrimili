@@ -3,6 +3,11 @@
  */
 
 import type { ResumeDocumentProfile } from '@/lib/resume-parser/resume-document-analysis';
+import {
+  looksLikeCompanyNameLine,
+  looksLikeJobTitleLine,
+} from '@/lib/resume-parser/import-sanitize';
+import { classifyResumeTextFragment } from '@/lib/resume-parser/field-classification';
 
 import { lineContentDensity } from './line-index';
 import { SECTION_TAXONOMY, scoreHeadingKeywords } from './taxonomy';
@@ -13,6 +18,45 @@ const CONTACT_LINE_RE =
   /@|linkedin\.com|github\.com|https?:\/\/|\+?\d[\d\s().-]{7,}\d|www\./i;
 const MIN_KNOWN_TYPE_SCORE = 38;
 const MIN_CUSTOM_HEADING_SCORE = 22;
+
+/** Section body lines that must never be promoted to headings. */
+const DEGREE_LINE_RE =
+  /\b(?:b\.?\s*tech|m\.?\s*tech|m\.?\s*b\.?a|b\.?\s*com|m\.?\s*com|b\.?\s*sc|m\.?\s*sc|ph\.?\s*d|bachelor|master\s+of|associate\s+of|doctorate)\b/i;
+
+/** Case-sensitive abbreviations — avoids false positives like "About Me". */
+const DEGREE_ABBREV_RE = /\b(?:MBA|M\.?\s*B\.?A|B\.?\s*E\.|M\.?\s*E\.|B\.?\s*Com|M\.?\s*Com)\b/;
+
+const LANGUAGE_PROFICIENCY_LINE_RE =
+  /^(?:english|hindi|french|spanish|german|arabic|chinese|japanese|korean|portuguese|italian|russian|tamil|telugu|bengali|marathi|gujarati|punjabi|urdu|malayalam|kannada|dutch|polish|turkish|vietnamese|thai|indonesian|swahili)\b\s*[-–—:(]/i;
+
+const SKILL_COMMA_LIST_LINE_RE = /(?:^|[,;|])\s*[A-Za-z+#.]+\s*[,;|]\s*[A-Za-z+#.]/;
+
+const CITY_STATE_LINE_RE =
+  /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?,\s*(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?|[A-Z]{2,})$/;
+
+function isSectionContentLineNotHeading(text: string): boolean {
+  const t = text.trim();
+  if (!t) return false;
+
+  if (DEGREE_ABBREV_RE.test(t) || DEGREE_LINE_RE.test(t)) return true;
+  if (LANGUAGE_PROFICIENCY_LINE_RE.test(t)) return true;
+  if (/\b(?:published|presented)\b.+\b(?:ieee|conference|journal|symposium|workshop)\b/i.test(t)) {
+    return true;
+  }
+  if (/\b(?:employee of the year|best employee award|increased revenue)\b/i.test(t)) return true;
+
+  const typeScores = scoreHeadingKeywords(t);
+  const bestKeyword = Math.max(0, ...Object.values(typeScores));
+  if (bestKeyword >= MIN_KNOWN_TYPE_SCORE) return false;
+
+  if (looksLikeCompanyNameLine(t) || looksLikeJobTitleLine(t)) return true;
+  if (CITY_STATE_LINE_RE.test(t)) return true;
+  if (SKILL_COMMA_LIST_LINE_RE.test(t)) return true;
+  const classified = classifyResumeTextFragment(t);
+  if (classified.kind === 'LOCATION' && classified.confidence >= 50) return true;
+  if (classified.kind === 'PERSON_NAME' && classified.confidence >= 60) return true;
+  return false;
+}
 
 export function isBulletLine(line: string): boolean {
   return BULLET_LINE_RE.test(line);
@@ -38,6 +82,7 @@ export function isTitleCaseHeading(line: string): boolean {
 export function looksLikeHeadingLine(line: string): boolean {
   const t = line.trim();
   if (!t || t.length > 80) return false;
+  if (isSectionContentLineNotHeading(t)) return false;
   if (isBulletLine(t)) return false;
   if (CONTACT_LINE_RE.test(t) && t.length < 120) return false;
   if (t.split(/\s+/).length > 12) return false;
@@ -156,13 +201,23 @@ export function scoreHeadingCandidate(
   const contextScore = scoreDocumentContext(type, lineIndex, lines.length, profile);
   const contentScore = contentDensity ? scoreContentHint(type, contentDensity) : 0;
 
-  const total = Math.min(
+  let total = Math.min(
     100,
     Math.round(keywordScore * 0.52 + capScore * 0.12 + formattingScore * 0.18 + contextScore * 0.1 + contentScore * 0.08)
   );
 
+  if (type === 'custom' && total < MIN_CUSTOM_HEADING_SCORE) {
+    const structural = capScore + formattingScore;
+    if (structural >= MIN_CUSTOM_HEADING_SCORE) {
+      total = Math.min(100, structural);
+    }
+  }
   if (type === 'custom' && total < MIN_CUSTOM_HEADING_SCORE) return null;
   if (type !== 'custom' && total < MIN_KNOWN_TYPE_SCORE) return null;
+
+  if (type !== 'custom') {
+    total = Math.max(total, MIN_KNOWN_TYPE_SCORE);
+  }
 
   const scores: SectionScoreBreakdown = {
     keyword: keywordScore,
@@ -189,7 +244,7 @@ export function rescoreWithContent(
   density: ReturnType<typeof lineContentDensity>
 ): HeadingCandidate {
   const contentScore = scoreContentHint(candidate.type, density);
-  const total = Math.min(
+  let total = Math.min(
     100,
     Math.round(
       candidate.scores.keyword * 0.5 +
@@ -199,6 +254,15 @@ export function rescoreWithContent(
         contentScore * 0.12
     )
   );
+  if (candidate.type === 'custom' && total < MIN_CUSTOM_HEADING_SCORE) {
+    const structural = candidate.scores.capitalization + candidate.scores.formatting;
+    if (structural >= MIN_CUSTOM_HEADING_SCORE) {
+      total = Math.min(100, structural);
+    }
+  }
+  if (candidate.type !== 'custom' && total < MIN_KNOWN_TYPE_SCORE) {
+    total = MIN_KNOWN_TYPE_SCORE;
+  }
   return {
     ...candidate,
     confidence: total,
