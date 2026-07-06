@@ -67,6 +67,10 @@ export interface RenderedLayoutMetrics {
   mainFillRatio: number;
   columnImbalance: number;
   sections: SectionHeightMetric[];
+  sidebarSections: SectionHeightMetric[];
+  mainSections: SectionHeightMetric[];
+  /** Sidebar has little content vs a fuller main column */
+  sidebarSparse: boolean;
   visibleSectionKinds: LayoutSectionKind[];
 }
 
@@ -89,6 +93,16 @@ export interface DynamicLayoutPlan {
   pageFillRatio: number;
   /** Extra margin distributed per section kind (px) */
   sectionExtras: Partial<Record<LayoutSectionKind, number>>;
+  /** Column flex-basis (% of row) — layout only, never changes colors */
+  mainColumnBasisPct: number;
+  sidebarColumnBasisPct: number;
+  sidebarMaxWidthPct: number;
+  /** Vertical gap between sidebar sections when sidebar is sparse */
+  sidebarInternalGap: number;
+  educationSpacing: number;
+  certificationSpacing: number;
+  languageSpacing: number;
+  projectSpacing: number;
 }
 
 export interface ComputeDynamicLayoutOptions {
@@ -207,6 +221,70 @@ function collectSectionMetricsFromHtml(html: string): SectionHeightMetric[] {
   return Array.from(byKind.values());
 }
 
+function detectSidebarSparse(
+  sidebarSections: SectionHeightMetric[],
+  mainSections: SectionHeightMetric[],
+  sidebarHeight: number,
+  mainHeight: number
+): boolean {
+  const sidebarWeight = sumSectionHeights(sidebarSections);
+  const mainWeight = sumSectionHeights(mainSections);
+  if (mainWeight <= 0) return false;
+  const fewSidebarKinds = sidebarSections.length <= 2 && mainSections.length >= 2;
+  const heightRatio = sidebarHeight > 0 && mainHeight > sidebarHeight * 1.35;
+  const weightRatio = sidebarWeight < mainWeight * 0.38;
+  return fewSidebarKinds || (heightRatio && weightRatio) || sidebarWeight < mainWeight * 0.32;
+}
+
+function computeColumnBasisPct(
+  metrics: RenderedLayoutMetrics,
+  hasSidebar: boolean,
+  sidebarSparse: boolean
+): { main: number; sidebar: number; sidebarMax: number } {
+  if (!hasSidebar) return { main: 100, sidebar: 0, sidebarMax: 0 };
+  const sidebarWeight = sumSectionHeights(metrics.sidebarSections);
+  const mainWeight = sumSectionHeights(metrics.mainSections);
+  const total = sidebarWeight + mainWeight || 1;
+  let sidebarPct = clamp((sidebarWeight / total) * 1.12 + 0.24, 0.26, 0.4);
+
+  if (sidebarSparse) {
+    sidebarPct = clamp(0.22 + (sidebarWeight / total) * 0.35, 0.22, 0.3);
+  } else if (metrics.sidebarHeight > metrics.mainHeight * 1.2) {
+    sidebarPct = clamp(sidebarPct + 0.04, 0.28, 0.42);
+  }
+
+  return {
+    main: Math.round((1 - sidebarPct) * 100),
+    sidebar: Math.round(sidebarPct * 100),
+    sidebarMax: Math.round(sidebarPct * 100 + 2),
+  };
+}
+
+function resolveSkillColumns(
+  skillCount: number,
+  hasSidebar: boolean,
+  mainColumnBasisPct: number,
+  fill: number
+): number {
+  const widthFactor = mainColumnBasisPct / 100;
+  if (skillCount <= 0) return 2;
+  if (hasSidebar) {
+    if (skillCount <= 4) return 2;
+    if (skillCount <= 10) return 2;
+    return 3;
+  }
+  const cols =
+    skillCount <= 6
+      ? 2
+      : skillCount <= 14
+        ? 3
+        : skillCount <= 28
+          ? 4
+          : 4;
+  if (fill < 0.55 && widthFactor > 0.68) return Math.max(2, cols - 1);
+  return cols;
+}
+
 /**
  * Structural synthesis from rendered HTML when a live DOM is unavailable (server export path).
  * Uses element markers and calibrated heights — not raw character volume.
@@ -228,7 +306,12 @@ export function synthesizeMetricsFromRenderedHtml(
   const remainingWhitespace = Math.max(0, pageHeight - containerHeight);
   const pageFillRatio = clamp(containerHeight / pageHeight, 0, 1.5);
   const sections = collectSectionMetricsFromHtml(renderedHtml);
+  const sidebarSections = collectSectionMetricsFromHtml(sidebar);
+  const mainSections = collectSectionMetricsFromHtml(main);
   const visibleSectionKinds = sections.map((s) => s.kind);
+  const sidebarSparse = hasSidebar
+    ? detectSidebarSparse(sidebarSections, mainSections, sidebarHeight, mainHeight)
+    : false;
 
   return {
     pageHeight,
@@ -244,6 +327,9 @@ export function synthesizeMetricsFromRenderedHtml(
     mainFillRatio: mainHeight > 0 ? mainContentHeight / mainHeight : 1,
     columnImbalance: hasSidebar ? Math.abs(sidebarHeight - mainHeight) : 0,
     sections,
+    sidebarSections,
+    mainSections,
+    sidebarSparse,
     visibleSectionKinds,
   };
 }
@@ -254,14 +340,25 @@ function sumSectionHeights(sections: SectionHeightMetric[]): number {
 
 function distributeProportionalExtras(
   sections: SectionHeightMetric[],
-  deficitPx: number
+  deficitPx: number,
+  pageFillRatio: number
 ): Partial<Record<LayoutSectionKind, number>> {
   const extras: Partial<Record<LayoutSectionKind, number>> = {};
   const distributable = sections.filter(
     (s) => s.kind !== 'contact' && s.height > 0
   );
+  if (distributable.length === 0 || deficitPx <= 0) return extras;
+
+  if (pageFillRatio < 0.5) {
+    const perKind = (deficitPx * 0.92) / distributable.length;
+    for (const sec of distributable) {
+      extras[sec.kind] = Math.round((extras[sec.kind] ?? 0) + perKind);
+    }
+    return extras;
+  }
+
   const total = sumSectionHeights(distributable);
-  if (total <= 0 || deficitPx <= 0) return extras;
+  if (total <= 0) return extras;
 
   for (const sec of distributable) {
     const share = (sec.height / total) * deficitPx * 0.88;
@@ -294,20 +391,30 @@ export function measureRenderedLayout(
   );
 
   const byKind = new Map<LayoutSectionKind, SectionHeightMetric>();
+  const sidebarByKind = new Map<LayoutSectionKind, SectionHeightMetric>();
+  const mainByKind = new Map<LayoutSectionKind, SectionHeightMetric>();
   for (const el of sectionEls) {
     const kind = classifySectionKindFromElement(el);
     if (kind === 'contact' || kind === 'other') continue;
     const height = el.getBoundingClientRect().height;
     if (height < 4) continue;
-    const prev = byKind.get(kind);
-    if (prev) {
-      prev.height += height;
-      prev.elementCount += 1;
-    } else {
-      byKind.set(kind, { kind, height, elementCount: 1 });
-    }
+    const bump = (map: Map<LayoutSectionKind, SectionHeightMetric>) => {
+      const prev = map.get(kind);
+      if (prev) {
+        prev.height += height;
+        prev.elementCount += 1;
+      } else {
+        map.set(kind, { kind, height, elementCount: 1 });
+      }
+    };
+    bump(byKind);
+    if (sidebarEl?.contains(el)) bump(sidebarByKind);
+    else if (mainEl?.contains(el)) bump(mainByKind);
+    else bump(mainByKind);
   }
   const sections = Array.from(byKind.values());
+  const sidebarSections = Array.from(sidebarByKind.values());
+  const mainSections = Array.from(mainByKind.values());
 
   const sidebarHeight = sidebarEl?.scrollHeight ?? 0;
   const mainHeight = mainEl?.scrollHeight ?? 0;
@@ -326,6 +433,9 @@ export function measureRenderedLayout(
 
   const remainingWhitespace = Math.max(0, pageHeight - containerHeight);
   const pageFillRatio = clamp(containerHeight / pageHeight, 0, 1.5);
+  const sidebarSparse = sidebarEl
+    ? detectSidebarSparse(sidebarSections, mainSections, sidebarHeight, mainHeight)
+    : false;
 
   return {
     pageHeight,
@@ -341,6 +451,9 @@ export function measureRenderedLayout(
     mainFillRatio: mainHeight > 0 ? mainContentHeight / mainHeight : 1,
     columnImbalance: sidebarEl && mainEl ? Math.abs(sidebarHeight - mainHeight) : 0,
     sections,
+    sidebarSections,
+    mainSections,
+    sidebarSparse,
     visibleSectionKinds: sections.map((s) => s.kind),
   };
 }
@@ -366,24 +479,26 @@ export function computeDynamicLayoutPlanFromMetrics(
   let sectionPaddingMul = 1;
   let paragraphSpacingMul = 1;
   let columnGapMul = 1;
+  let sidebarGapMul = 1;
   let sectionExtras: Partial<Record<LayoutSectionKind, number>> = {};
 
   if (fill < FILL_EXPAND_BELOW) {
     const expand = clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1);
-    sectionGapMul = 1 + expand * 0.42;
-    blockGapMul = 1 + expand * 0.35;
-    bulletGapMul = 1 + expand * 0.28;
-    headingGapMul = 1 + expand * 0.32;
-    lineHeightMul = 1 + expand * 0.14;
-    fontScale = 1 + expand * 0.08;
-    sectionPaddingMul = 1 + expand * 0.38;
-    paragraphSpacingMul = 1 + expand * 0.3;
-    columnGapMul = 1 + expand * 0.2;
+    sectionGapMul = 1 + expand * 0.52;
+    blockGapMul = 1 + expand * 0.42;
+    bulletGapMul = 1 + expand * 0.32;
+    headingGapMul = 1 + expand * 0.38;
+    lineHeightMul = 1 + expand * 0.16;
+    fontScale = 1 + expand * 0.09;
+    sectionPaddingMul = 1 + expand * 0.48;
+    paragraphSpacingMul = 1 + expand * 0.36;
+    columnGapMul = 1 + expand * 0.15;
+    sidebarGapMul = 1 + expand * 0.55;
     const deficitPx = Math.max(
       metrics.remainingWhitespace,
       (TARGET_PAGE_FILL - fill) * metrics.pageHeight
     );
-    sectionExtras = distributeProportionalExtras(metrics.sections, deficitPx);
+    sectionExtras = distributeProportionalExtras(metrics.sections, deficitPx, fill);
   } else if (fill > FILL_COMPRESS_ABOVE) {
     const compress = clamp((fill - FILL_COMPRESS_ABOVE) / 0.35, 0, 1);
     sectionGapMul = 1 - compress * 0.2;
@@ -405,21 +520,22 @@ export function computeDynamicLayoutPlanFromMetrics(
         options?.renderedHtml ?? '',
         /\bskill-tag\b|psp-skill-item\b/gi
       );
-  let skillColumns = 3;
-  if (hasSidebar) {
-    skillColumns = skillCount <= 6 ? 2 : skillCount <= 14 ? 2 : 3;
-  } else if (skillCount <= 8) {
-    skillColumns = 2;
-  } else if (skillCount <= 20) {
-    skillColumns = 3;
-  } else {
-    skillColumns = 4;
-  }
+
+  const columnBasis = computeColumnBasisPct(metrics, hasSidebar, metrics.sidebarSparse);
+  let skillColumns = resolveSkillColumns(
+    skillCount,
+    hasSidebar,
+    columnBasis.main,
+    fill
+  );
 
   let mainFlexGrow = hasSidebar ? 1.65 : 1;
   let sidebarFlexGrow = hasSidebar ? 1 : 0;
 
-  if (hasSidebar && metrics.columnImbalance > 40) {
+  if (hasSidebar && metrics.sidebarSparse) {
+    mainFlexGrow = 2.05;
+    sidebarFlexGrow = 0.72;
+  } else if (hasSidebar && metrics.columnImbalance > 40) {
     const taller = Math.max(metrics.sidebarHeight, metrics.mainHeight);
     const shorter = Math.min(metrics.sidebarHeight, metrics.mainHeight) || 1;
     const ratio = clamp((taller - shorter) / taller, 0, 0.45);
@@ -433,10 +549,12 @@ export function computeDynamicLayoutPlanFromMetrics(
   }
 
   const density = clamp(fill, 0, 1.35) / 1.35;
+  const blockGap = Math.round(BASE_BLOCK_GAP * blockGapMul * 10) / 10;
+  const sectionGap = Math.round(BASE_SECTION_GAP * sectionGapMul * 10) / 10;
 
   return {
-    sectionGap: Math.round(BASE_SECTION_GAP * sectionGapMul * 10) / 10,
-    blockGap: Math.round(BASE_BLOCK_GAP * blockGapMul * 10) / 10,
+    sectionGap,
+    blockGap,
     bulletGap: Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100,
     headingGap: Math.round(BASE_HEADING_GAP * headingGapMul * 10) / 10,
     fontScale: Math.round(clamp(fontScale, 0.92, 1.1) * 1000) / 1000,
@@ -449,13 +567,29 @@ export function computeDynamicLayoutPlanFromMetrics(
     paragraphSpacing: Math.round(BASE_PARAGRAPH_SPACING * paragraphSpacingMul * 10) / 10,
     columnGap: Math.round(BASE_COLUMN_GAP * columnGapMul * 10) / 10,
     summarySpacing: Math.round(
-      (BASE_BLOCK_GAP * sectionGapMul + (sectionExtras.summary ?? 0)) * 10
+      (blockGap + (sectionExtras.summary ?? 0)) * 10
     ) / 10,
     experienceSpacing: Math.round(
-      (BASE_BLOCK_GAP * blockGapMul + (sectionExtras.experience ?? 0)) * 10
+      (blockGap + (sectionExtras.experience ?? 0)) * 10
     ) / 10,
     pageFillRatio: Math.round(fill * 1000) / 1000,
     sectionExtras,
+    mainColumnBasisPct: columnBasis.main,
+    sidebarColumnBasisPct: columnBasis.sidebar,
+    sidebarMaxWidthPct: columnBasis.sidebarMax,
+    sidebarInternalGap: Math.round(sectionGap * sidebarGapMul * 10) / 10,
+    educationSpacing: Math.round(
+      (blockGap + (sectionExtras.education ?? 0)) * 10
+    ) / 10,
+    certificationSpacing: Math.round(
+      (blockGap + (sectionExtras.certifications ?? 0)) * 10
+    ) / 10,
+    languageSpacing: Math.round(
+      (blockGap + (sectionExtras.languages ?? 0)) * 10
+    ) / 10,
+    projectSpacing: Math.round(
+      (blockGap + (sectionExtras.projects ?? 0)) * 10
+    ) / 10,
   };
 }
 
@@ -593,6 +727,14 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.style.setProperty('--dl-column-gap', `${plan.columnGap}px`);
   root.style.setProperty('--dl-summary-spacing', `${plan.summarySpacing}px`);
   root.style.setProperty('--dl-experience-spacing', `${plan.experienceSpacing}px`);
+  root.style.setProperty('--dl-education-spacing', `${plan.educationSpacing}px`);
+  root.style.setProperty('--dl-certification-spacing', `${plan.certificationSpacing}px`);
+  root.style.setProperty('--dl-language-spacing', `${plan.languageSpacing}px`);
+  root.style.setProperty('--dl-project-spacing', `${plan.projectSpacing}px`);
+  root.style.setProperty('--dl-main-basis', `${plan.mainColumnBasisPct}%`);
+  root.style.setProperty('--dl-sidebar-basis', `${plan.sidebarColumnBasisPct}%`);
+  root.style.setProperty('--dl-sidebar-max', `${plan.sidebarMaxWidthPct}%`);
+  root.style.setProperty('--dl-sidebar-gap', `${plan.sidebarInternalGap}px`);
   const kinds: LayoutSectionKind[] = [
     'summary',
     'experience',
@@ -651,6 +793,14 @@ export function buildDynamicLayoutCss(
   --dl-column-gap: ${plan.columnGap}px;
   --dl-summary-spacing: ${plan.summarySpacing}px;
   --dl-experience-spacing: ${plan.experienceSpacing}px;
+  --dl-education-spacing: ${plan.educationSpacing}px;
+  --dl-certification-spacing: ${plan.certificationSpacing}px;
+  --dl-language-spacing: ${plan.languageSpacing}px;
+  --dl-project-spacing: ${plan.projectSpacing}px;
+  --dl-main-basis: ${plan.mainColumnBasisPct}%;
+  --dl-sidebar-basis: ${plan.sidebarColumnBasisPct}%;
+  --dl-sidebar-max: ${plan.sidebarMaxWidthPct}%;
+  --dl-sidebar-gap: ${plan.sidebarInternalGap}px;
 ${extraVars}
 }
 
@@ -684,14 +834,59 @@ ${extraVars}
 .resume-container [class*='-layout'] > [class*='-main'],
 .resume-container .main-content,
 .resume-container .content-column {
+  flex: var(--dl-main-flex, 1) 1 var(--dl-main-basis, auto) !important;
   flex-grow: var(--dl-main-flex, 1) !important;
+  max-width: none !important;
 }
 
 .resume-container [class*='-layout'] > aside,
 .resume-container [class*='-layout'] > [class*='-sidebar'],
 .resume-container .sidebar,
 .resume-container .side-column {
+  flex: var(--dl-sidebar-flex, 1) 1 var(--dl-sidebar-basis, auto) !important;
   flex-grow: var(--dl-sidebar-flex, 1) !important;
+  max-width: var(--dl-sidebar-max, 42%) !important;
+}
+
+.resume-container aside,
+.resume-container .sidebar,
+.resume-container [class*='-sidebar']:not([class*='-layout']) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--dl-sidebar-gap, var(--dl-section-gap)) !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container .experience-item,
+.resume-container .education-item,
+.resume-container .project-item,
+.resume-container .certification-item,
+.resume-container .achievement-item,
+.resume-container .language-item,
+.resume-container .psp-language-item,
+.resume-container [class*='-card'],
+.resume-container [class*='card-'] {
+  min-height: auto !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+.resume-container .education-item {
+  margin-bottom: var(--dl-education-spacing, var(--dl-block-gap)) !important;
+  padding-bottom: calc(var(--dl-section-padding) * 0.5) !important;
+}
+
+.resume-container .certification-item {
+  margin-bottom: var(--dl-certification-spacing, var(--dl-block-gap)) !important;
+}
+
+.resume-container .language-item,
+.resume-container .psp-language-item {
+  margin-bottom: var(--dl-language-spacing, var(--dl-block-gap)) !important;
+}
+
+.resume-container .project-item {
+  margin-bottom: var(--dl-project-spacing, var(--dl-block-gap)) !important;
 }
 
 .resume-container .skills-list:not(:has(.psp-skill-item)),
@@ -819,41 +1014,48 @@ export function getDomAwareLayoutRefinementScript(): string {
     var mn=document.querySelector('main,.main-content,[class*="-main"]');
     var ch=c?c.scrollHeight:(document.body?document.body.scrollHeight:0);
     var secs=Array.from(document.querySelectorAll('.resume-container section,.resume-container .content-section,.resume-container .sidebar-section'));
-    var sections=[], map={};
+    var sections=[], sbSecs=[], mnSecs=[], map={};
     secs.forEach(function(el){
       var k=kind(el); if(k==='other')return;
       var ht=el.getBoundingClientRect().height; if(ht<4)return;
       if(!map[k]){map[k]={kind:k,height:0,elementCount:0};sections.push(map[k]);}
       map[k].height+=ht; map[k].elementCount++;
+      if(sb&&sb.contains(el)){var sm=sbSecs.find(function(s){return s.kind===k;});if(sm)sm.height+=ht;else sbSecs.push({kind:k,height:ht,elementCount:1});}
+      else if(mn&&mn.contains(el)){var mm=mnSecs.find(function(s){return s.kind===k;});if(mm)mm.height+=ht;else mnSecs.push({kind:k,height:ht,elementCount:1});}
     });
     var sh=sb?sb.scrollHeight:0, mh=mn?mn.scrollHeight:0;
+    var sbW=sbSecs.reduce(function(a,s){return a+s.height;},0);
+    var mnW=mnSecs.reduce(function(a,s){return a+s.height;},0);
+    var sparse=sbSecs.length<=2&&mnSecs.length>=2||sbW<mnW*0.32;
     return {
-      pageHeight:PAGE, containerHeight:ch, usedPageHeight:Math.min(ch,PAGE),
-      remainingWhitespace:Math.max(0,PAGE-ch), pageFillRatio:Math.min(1.5,ch/PAGE),
-      sidebarHeight:sh, mainHeight:mh, columnImbalance:sb&&mn?Math.abs(sh-mh):0, sections:sections
+      pageHeight:PAGE, containerHeight:ch, remainingWhitespace:Math.max(0,PAGE-ch),
+      pageFillRatio:Math.min(1.5,ch/PAGE), sidebarHeight:sh, mainHeight:mh,
+      columnImbalance:sb&&mn?Math.abs(sh-mh):0, sections:sections, sidebarSparse:sparse,
+      sidebarSections:sbSecs, mainSections:mnSecs
     };
   }
   function plan(m){
-    var fill=m.pageFillRatio, sg=1,bg=1,fg=1,lh=1,pad=1,pg=1,cg=1,extras={};
+    var fill=m.pageFillRatio, sg=1,bg=1,fg=1,lh=1,pad=1,pg=1,cg=1,sgap=1,extras={};
     if(fill<0.65){
       var ex=Math.min(1,Math.max(0,(0.78-fill)/0.78));
-      sg=1+ex*0.42; bg=1+ex*0.35; fg=1+ex*0.08; lh=1+ex*0.14; pad=1+ex*0.38; pg=1+ex*0.3; cg=1+ex*0.2;
-      var def=Math.max(m.remainingWhitespace,(0.78-fill)*PAGE), tot=0;
-      m.sections.forEach(function(s){tot+=s.height;});
-      if(tot>0&&def>0){m.sections.forEach(function(s){extras[s.kind]=Math.round((s.height/tot)*def*0.88);});}
+      sg=1+ex*0.52; bg=1+ex*0.42; fg=1+ex*0.09; lh=1+ex*0.16; pad=1+ex*0.48; pg=1+ex*0.36; cg=1+ex*0.15; sgap=1+ex*0.55;
+      var def=Math.max(m.remainingWhitespace,(0.78-fill)*PAGE);
+      if(fill<0.5&&m.sections.length>0){var eq=def*0.92/m.sections.length;m.sections.forEach(function(s){extras[s.kind]=Math.round(eq);});}
+      else{var tot=0;m.sections.forEach(function(s){tot+=s.height;});if(tot>0&&def>0)m.sections.forEach(function(s){extras[s.kind]=Math.round((s.height/tot)*def*0.88);});}
     } else if(fill>0.95){
       var cp=Math.min(1,Math.max(0,(fill-0.95)/0.35));
       sg=1-cp*0.2; bg=1-cp*0.22; fg=1-cp*0.06; lh=1-cp*0.1; pad=1-cp*0.12;
     }
-    var mf=m.sidebarHeight>0?1.65:1, sf=m.sidebarHeight>0?1:0;
-    if(m.columnImbalance>40&&m.sidebarHeight>0){
+    var mf=m.sidebarHeight>0?1.65:1, sf=m.sidebarHeight>0?1:0, sbPct=32, mnPct=68, sbMax=34;
+    if(m.sidebarSparse){mf=2.05;sf=0.72;sbPct=26;mnPct=74;sbMax=28;}
+    else if(m.columnImbalance>40&&m.sidebarHeight>0){
       var t=Math.max(m.sidebarHeight,m.mainHeight), s=Math.min(m.sidebarHeight,m.mainHeight)||1;
       var r=Math.min(0.45,(t-s)/t);
-      if(m.sidebarHeight>m.mainHeight){mf=1.65+r*1.1; sf=1-r*0.35;}
-      else{sf=1+r*0.55; mf=1.65-r*0.4;}
+      if(m.sidebarHeight>m.mainHeight){mf=1.65+r*1.1;sf=1-r*0.35;}else{sf=1+r*0.55;mf=1.65-r*0.4;}
     }
     return {sectionGap:14*sg,blockGap:10*bg,fontScale:Math.min(1.1,Math.max(0.92,fg)),
-      lineHeight:1.45*lh,mainFlex:mf,sidebarFlex:sf,pad:6*pad,pg:4*pg,cg:12*cg,extras:extras};
+      lineHeight:1.45*lh,mainFlex:mf,sidebarFlex:sf,pad:6*pad,pg:4*pg,cg:12*cg,
+      sidebarGap:14*sg*sgap,mnPct:mnPct,sbPct:sbPct,sbMax:sbMax,extras:extras};
   }
   function apply(){
     var root=document.querySelector('.resume-container'); if(!root)return;
@@ -867,6 +1069,10 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-section-padding',p.pad+'px');
     root.style.setProperty('--dl-paragraph-spacing',p.pg+'px');
     root.style.setProperty('--dl-column-gap',p.cg+'px');
+    root.style.setProperty('--dl-sidebar-gap',p.sidebarGap+'px');
+    root.style.setProperty('--dl-main-basis',p.mnPct+'%');
+    root.style.setProperty('--dl-sidebar-basis',p.sbPct+'%');
+    root.style.setProperty('--dl-sidebar-max',p.sbMax+'%');
     Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,p.extras[k]+'px');});
     root.setAttribute('data-dl-refined','true');
     root.setAttribute('data-dl-fill',String(Math.round(measure().pageFillRatio*100)));

@@ -158,6 +158,10 @@ async function main() {
     ] as const) {
       const html = await buildHtml(id, builder);
       await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.waitForFunction(
+        () => document.querySelector('.resume-container')?.getAttribute('data-dl-refined') === 'true',
+        { timeout: 10000 }
+      ).catch(() => {});
       const metrics = await measureHtml(page, `${id}-${mode}`);
       (reports[mode] as Record<string, unknown>)[id] = metrics;
       console.log(

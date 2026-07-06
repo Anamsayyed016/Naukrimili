@@ -589,13 +589,11 @@ export function injectResumeData(
     }
   }
 
-  if (preserveFullContent) {
-    result = injectDynamicLayoutIntoHtml(result, coalesced, {
-      htmlTemplate,
-      templateId: options?.templateId ?? options?.galleryTemplateId,
-      mode: renderMode,
-    });
-  }
+  result = injectDynamicLayoutIntoHtml(result, coalesced, {
+    htmlTemplate,
+    templateId: options?.templateId ?? options?.galleryTemplateId,
+    mode: renderMode,
+  });
 
   return result;
 }
