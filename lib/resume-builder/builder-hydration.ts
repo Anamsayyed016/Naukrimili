@@ -12,6 +12,7 @@ import { syncExperienceEntryAliases } from './experience-entry-sync';
 import {
   isValidatedContactName,
   sanitizePersonName,
+  repairStuckContactNameParts,
 } from '@/lib/resume-parser/import-sanitize';
 
 const MAX_SESSION_EXPERIENCE_DESC = 6000;
@@ -279,11 +280,16 @@ export function ensureBuilderContactFields(
   }
 
   const parts = safeFull.split(/\s+/).filter(Boolean);
-  out.firstName = parts[0] ?? '';
-  out.lastName = parts.slice(1).join(' ');
-  out.name = safeFull;
-  out.fullName = safeFull;
-  out['Full Name'] = safeFull;
+  const repaired = repairStuckContactNameParts(
+    parts[0] ?? '',
+    parts.slice(1).join(' '),
+    safeFull
+  );
+  out.firstName = repaired.firstName || parts[0] ?? '';
+  out.lastName = repaired.lastName || parts.slice(1).join(' ');
+  out.name = [out.firstName, out.lastName].filter(Boolean).join(' ').trim() || safeFull;
+  out.fullName = out.name;
+  out['Full Name'] = out.name;
   return out;
 }
 

@@ -954,6 +954,55 @@ export function sanitizePersonName(value: unknown, maxLen = 120): string {
 }
 
 /**
+ * Repair first/last splits where a trailing letter stuck to the first name
+ * (e.g. MOHITC + HATURVEDI → Mohit + Chaturvedi).
+ */
+export function repairStuckContactNameParts(
+  firstName: string,
+  lastName: string,
+  fullNameHint?: string
+): { firstName: string; lastName: string } {
+  const hint = sanitizePersonName(fullNameHint, 120);
+  if (hint && hint.includes(' ')) {
+    const split = splitFullNameWithRejected(hint);
+    if (split.firstName && split.lastName) {
+      return { firstName: split.firstName, lastName: split.lastName };
+    }
+  }
+
+  let first = sanitizeFieldText(firstName, 80);
+  let last = sanitizeFieldText(lastName, 80);
+  if (!first || !last) return { firstName: first, lastName: last };
+
+  const tail = first.slice(-1);
+  if (
+    /[A-Za-z]/.test(tail) &&
+    last.length >= 4 &&
+    !last.toLowerCase().startsWith(tail.toLowerCase())
+  ) {
+    const recombined = `${first.slice(0, -1)} ${tail}${last}`;
+    const split = splitFullNameWithRejected(recombined);
+    if (
+      split.firstName &&
+      split.lastName &&
+      isPlausiblePersonName(`${split.firstName} ${split.lastName}`)
+    ) {
+      return { firstName: split.firstName, lastName: split.lastName };
+    }
+  }
+
+  const glued = `${first}${last}`;
+  if (!glued.includes(' ') && glued.length >= 6) {
+    const camel = glued.match(/[A-Z][a-z]+/g);
+    if (camel && camel.length >= 2 && camel.join('') === glued) {
+      return { firstName: camel[0], lastName: camel.slice(1).join(' ') };
+    }
+  }
+
+  return { firstName: first, lastName: last };
+}
+
+/**
  * Fallback display name from email when parsers return garbage (e.g. anamkhan@gmail.com).
  */
 export function deriveDisplayNameFromEmail(email: string): string {
@@ -3756,6 +3805,171 @@ function splitCompanyAndLocation(raw: string): { company: string; location: stri
     };
   }
   return { company: text, location: '' };
+}
+
+const EXPERIENCE_BODY_SECTION_END_RE =
+  /\b(?:education|academic(?:\s+background)?|technical\s+skills|core\s+skills|skills|certifications?|projects?|declaration|languages?|achievements?|personal\s+details|references?|hobbies)\b/i;
+
+const KEY_RESPONSIBILITIES_HEADING_RE = /^key\s+responsibilit/i;
+
+function experienceBodyMatchWords(value: unknown): string[] {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter((w) => w.length >= 3);
+}
+
+function looksLikeExperienceResponsibilityLine(line: string): boolean {
+  const t = sanitizeFieldText(line, 500);
+  if (!t || t.length < 12 || t.length > 500) return false;
+  if (isResumeSectionHeadingLine(t)) return false;
+  if (looksLikeJobTitleLine(t) && !isExperienceResponsibility(t)) return false;
+  if (looksLikeCompanyNameLine(t) && !isExperienceResponsibility(t)) return false;
+  if (EXPERIENCE_DATE_RANGE_RE.test(t)) return false;
+  return (
+    isExperienceResponsibility(t) ||
+    /^[\s\-–—*•·▪‣\u2023\u25aa]/.test(line) ||
+    (/^[A-Za-z]/.test(t) && t.split(/\s+/).length >= 4)
+  );
+}
+
+/**
+ * Recover Key Responsibilities / duty bullets from raw text when parser leaves
+ * experience headers populated but body text is sparse.
+ */
+export function recoverExperienceBodiesFromRawText(
+  rawText: string,
+  entries: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  if (!rawText || rawText.length < 80 || !Array.isArray(entries) || entries.length === 0) {
+    return entries;
+  }
+
+  const normalized = normalizePdfLigatureText(rawText.replace(/\f/g, '\n'));
+  const startIdx = normalized.search(
+    /\b(?:professional\s+)?(?:work\s+)?experience\b|\bemployment\s+history\b|\borganisational\s+experience\b/i
+  );
+  if (startIdx < 0) return entries;
+
+  let section = normalized.slice(startIdx);
+  const relEnd = section.search(EXPERIENCE_BODY_SECTION_END_RE);
+  if (relEnd > 60) section = section.slice(0, relEnd);
+
+  const lines = section
+    .split(/\r?\n/)
+    .map((l) => l.replace(/\t+/g, '\t').trim())
+    .filter(Boolean);
+
+  type ParsedBlock = {
+    title: string;
+    company: string;
+    bullets: string[];
+  };
+
+  const blocks: ParsedBlock[] = [];
+  let pendingTitle = '';
+  let current: ParsedBlock | null = null;
+  let collectBullets = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (i === 0 && /\bexperience\b/i.test(line) && line.length < 48) continue;
+
+    if (KEY_RESPONSIBILITIES_HEADING_RE.test(line)) {
+      collectBullets = true;
+      continue;
+    }
+
+    const companyDateMatch = line.match(
+      /^(.+?)(?:\s*[-–—]\s*)?((?:\d{4})\s*[-–—]\s*(?:\d{4}|present|current|now))/i
+    );
+    if (
+      companyDateMatch &&
+      (looksLikeCompanyNameLine(companyDateMatch[1]) ||
+        isPlausibleExperienceCompany(sanitizeFieldText(companyDateMatch[1], 160)))
+    ) {
+      if (current) blocks.push(current);
+      current = {
+        title: pendingTitle,
+        company: sanitizeFieldText(companyDateMatch[1].replace(/\s*[-–—]\s*$/, ''), 160),
+        bullets: [],
+      };
+      pendingTitle = '';
+      collectBullets = false;
+      continue;
+    }
+
+    if (
+      current &&
+      (collectBullets || looksLikeExperienceResponsibilityLine(line))
+    ) {
+      const bullet = sanitizeFieldText(line.replace(/^[\s\-–—*•·▪‣\u2023\u25aa]+/, ''), 500);
+      if (bullet.length >= 12 && !isResumeSectionHeadingLine(bullet)) {
+        current.bullets.push(bullet);
+      }
+      continue;
+    }
+
+    if (
+      looksLikeJobTitleLine(line) &&
+      !looksLikeCompanyNameLine(line) &&
+      !EXPERIENCE_DATE_RANGE_RE.test(line)
+    ) {
+      if (current && current.bullets.length === 0) {
+        blocks.push(current);
+        current = null;
+      }
+      pendingTitle = sanitizeFieldText(line.split('|')[0], 120);
+      collectBullets = false;
+    }
+  }
+  if (current) blocks.push(current);
+
+  if (blocks.length === 0) return entries;
+
+  return entries.map((entry) => {
+    const entryCo = experienceBodyMatchWords(readExperienceCompanySlot(entry));
+    const entryTi = experienceBodyMatchWords(readExperiencePositionSlot(entry));
+    const existing = collectExperienceBodyFields(entry);
+    const existingBulletCount =
+      existing.achievements.length +
+      existing.description.split(/\n/).filter((l) => l.trim().length >= 12).length;
+
+    let best: ParsedBlock | null = null;
+    let bestScore = 0;
+    for (const block of blocks) {
+      if (block.bullets.length < 2) continue;
+      let score = 0;
+      const bc = experienceBodyMatchWords(block.company);
+      const bt = experienceBodyMatchWords(block.title);
+      if (bc.length && entryCo.some((w) => bc.includes(w))) score += 40;
+      if (bt.length && entryTi.some((w) => bt.includes(w))) score += 30;
+      if (block.bullets.length >= 4) score += 10;
+      if (score > bestScore) {
+        bestScore = score;
+        best = block;
+      }
+    }
+
+    if (!best || bestScore < 30 || best.bullets.length <= existingBulletCount) {
+      return entry;
+    }
+
+    const united = unionExperienceBodyFields(existing, {
+      description: best.bullets.join('\n'),
+      achievements: best.bullets,
+    });
+    return {
+      ...entry,
+      description: united.description,
+      Description: united.description,
+      achievements: united.achievements,
+      bullets: united.achievements,
+      bulletPoints: united.achievements,
+    };
+  });
 }
 
 /**

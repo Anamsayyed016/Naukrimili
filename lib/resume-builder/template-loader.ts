@@ -36,7 +36,11 @@ import {
   appendHobbiesSectionIfMissing,
 } from './section-visibility';
 import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
-import { scoreSkillConfidence } from '@/lib/resume-parser/import-sanitize';
+import {
+  collectExperienceBodyFields,
+  dedupeExperienceBodyLines,
+  scoreSkillConfidence,
+} from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { resolveTemplateId } from './template-aliases';
 import {
@@ -693,52 +697,36 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       const location = readCanonicalString(exp, 'location', ['Location']);
       const companyWithLocation = location ? `${company}${company ? ' / ' : ''}${location}` : company;
 
-      // Render bullets when achievements/bullets array is present. Falls back to
-      // splitting the description on \n / bullet chars if no array was provided.
-      // Existing template CSS (.experience-item .description ul / li) styles this
-      // natively — no template change required.
-      const hasLiveDescription = Object.prototype.hasOwnProperty.call(exp, 'description');
-      const bulletsRaw =
-        hasLiveDescription
-          ? []
-          : Array.isArray(exp.achievements)
-            ? (exp.achievements as unknown[])
-            : Array.isArray((exp as Record<string, unknown>).bullets)
-              ? ((exp as Record<string, unknown>).bullets as unknown[])
-              : Array.isArray((exp as Record<string, unknown>).bulletPoints)
-                ? ((exp as Record<string, unknown>).bulletPoints as unknown[])
-                : Array.isArray((exp as Record<string, unknown>).Achievements)
-                  ? ((exp as Record<string, unknown>).Achievements as unknown[])
-                  : [];
-      const bullets: string[] = bulletsRaw
-        .map((b) => {
-          if (typeof b === 'string') return b;
-          const rec = b as Record<string, unknown>;
-          return String(rec?.title ?? rec?.description ?? rec?.text ?? '');
-        })
+      // Merge explicit bullet arrays with description lines — imported rows often
+      // carry achievements[] while description is a single stub line.
+      const body = collectExperienceBodyFields(exp);
+      const explicitBullets = body.achievements
         .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-        .filter((s) => s.length > 0);
+        .filter((s) => s.length >= 3);
+      const descBullets = String(body.description || description)
+        .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
+        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+        .filter((s) => s.length >= 3);
+      const mergedBody = dedupeExperienceBodyLines(body.description, [
+        ...explicitBullets,
+        ...descBullets,
+      ]);
+      const allBullets = mergedBody.achievements.length
+        ? mergedBody.achievements
+        : descBullets;
 
-      // If no explicit bullets, split the description on newlines / bullet chars
-      const fallbackBullets: string[] = bullets.length
-        ? []
-        : String(description)
-            .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
-            .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-            // Keep short but meaningful bullets ("Led team", "ATS scoring").
-            .filter((s) => s.length >= 3);
-
-      const allBullets = bullets.length ? bullets : fallbackBullets;
       const renderedBullets = allBullets.length > 1
         ? `<ul>${allBullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
-        : '';
+        : allBullets.length === 1
+          ? `<ul><li>${escapeHtml(allBullets[0])}</li></ul>`
+          : '';
 
-      // Description paragraph: only the single-line / lead text. If we DID emit
-      // bullets, suppress the paragraph to avoid rendering the same content
-      // twice (once flat, once as a list).
-      const leadDescription = allBullets.length > 1
-        ? ''
-        : String(description).trim();
+      const leadDescription =
+        allBullets.length > 1
+          ? ''
+          : allBullets.length === 1
+            ? ''
+            : String(mergedBody.description || description).trim();
 
       return `
         <div class="experience-item">

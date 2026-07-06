@@ -67,6 +67,8 @@ import {
   finalizeEducationListForBuilder,
   finalizeEducationListForCustomParserImport,
   recoverStructuredExperienceFromRawText,
+  recoverExperienceBodiesFromRawText,
+  repairStuckContactNameParts,
   dedupeExperienceBodyLines,
   dedupeAdjacentExperienceEntries,
   stripRedundantExperienceDateBodyLines,
@@ -1961,6 +1963,11 @@ function resolveClassifiedName(
     finalDisplay = formatDisplayName(textHeaderName);
   }
 
+  const repaired = repairStuckContactNameParts(safeFirst, safeLast, finalDisplay || combined);
+  safeFirst = repaired.firstName || safeFirst;
+  safeLast = repaired.lastName || safeLast;
+  finalDisplay = [safeFirst, safeLast].filter(Boolean).join(' ').trim() || finalDisplay;
+
   return {
     firstName: safeFirst,
     lastName: safeLast,
@@ -2038,6 +2045,43 @@ function ensureImportedExperiencePopulated(
   }
 
   return builder;
+}
+
+function countExperienceBodyBullets(experiences: unknown[]): number {
+  if (!Array.isArray(experiences)) return 0;
+  return experiences.reduce((total, row) => {
+    if (!row || typeof row !== 'object') return total;
+    const body = collectExperienceBodyFields(row as Record<string, unknown>);
+    const descLines = body.description.split(/\n/).filter((l) => l.trim().length >= 12).length;
+    return total + body.achievements.length + descLines;
+  }, 0);
+}
+
+function enrichExperienceBodiesForImport(
+  builder: Record<string, unknown>,
+  rawText: string
+): Record<string, unknown> {
+  if (builder._userEdited === true) return builder;
+  if (!rawText || rawText.length < 80 || !Array.isArray(builder.experience)) return builder;
+
+  const rows = (builder.experience as unknown[]).filter(
+    (e): e is Record<string, unknown> => !!e && typeof e === 'object'
+  );
+  if (rows.length === 0) return builder;
+
+  const before = countExperienceBodyBullets(rows);
+  const enriched = recoverExperienceBodiesFromRawText(rawText, rows);
+  const after = countExperienceBodyBullets(enriched);
+  if (after <= before) return builder;
+
+  const experience = transformExperienceArray(enriched);
+  return {
+    ...builder,
+    experience,
+    Experience: experience,
+    'Work Experience': experience,
+    _builderCoalesced: true,
+  };
 }
 
 function applyBuilderImportGuards(
@@ -2192,6 +2236,9 @@ function applyBuilderImportGuards(
         return exp;
       });
     }
+    if (rawText.length >= 80) {
+      out = enrichExperienceBodiesForImport(out, rawText);
+    }
     out.experience = transformExperienceArray(out.experience);
     out['Work Experience'] = out.experience;
     out.Experience = out.experience;
@@ -2204,7 +2251,11 @@ export function backfillImportedExperienceForDisplay(
   data: Record<string, unknown>
 ): Record<string, unknown> {
   const rawText = String(data.rawText ?? '').trim();
-  return ensureImportedExperiencePopulated(data, rawText);
+  let out = ensureImportedExperiencePopulated(data, rawText);
+  if (rawText.length >= 80) {
+    out = enrichExperienceBodiesForImport(out, rawText);
+  }
+  return out;
 }
 
 function mergeExtendedSkillBuckets(builder: Record<string, unknown>): Record<string, unknown> {

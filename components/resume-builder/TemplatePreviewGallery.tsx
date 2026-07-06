@@ -182,7 +182,11 @@ function EnhancedTemplateCard({
         const previewData = isGalleryEmptyFormData(formData)
           ? buildGallerySampleFormData(template.id)
           : (await import('@/lib/resume-builder/import-transformer')).backfillImportedExperienceForDisplay(
-              formData
+              (await import('@/lib/resume-builder/builder-hydration')).ensureBuilderContactFields(
+                (await import('@/lib/resume-builder/import-transformer')).coalesceBuilderImportPayload(
+                  formData
+                )
+              )
             );
 
         const dataInjectedHtml = injectResumeData(html, previewData, {
