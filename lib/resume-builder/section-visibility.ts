@@ -635,7 +635,7 @@ function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {
   });
 }
 
-type HobbiesSectionShell = {
+type TemplateSectionShell = {
   sectionClass: string;
   headingClass: string;
   listClass: string;
@@ -643,13 +643,43 @@ type HobbiesSectionShell = {
   placement: 'main' | 'sidebar';
 };
 
-function detectHobbiesSectionShell(htmlTemplate: string): HobbiesSectionShell {
-  for (const token of ['HOBBIES', 'ACHIEVEMENTS', 'PROJECTS', 'LANGUAGES', 'CERTIFICATIONS']) {
-    const re = new RegExp(`\\{\\{#if ${token}\\}\\}([\\s\\S]*?)\\{\\{/if\\}\\}`, 'i');
-    const match = htmlTemplate.match(re);
-    if (!match) continue;
+const TEMPLATE_SECTION_LABELS: Record<string, string> = {
+  EXPERIENCE: 'Professional Experience',
+  PROJECTS: 'Projects',
+  EDUCATION: 'Education',
+  SKILLS: 'Skills',
+  CERTIFICATIONS: 'Certifications',
+  LANGUAGES: 'Languages',
+  ACHIEVEMENTS: 'Achievements',
+  SUMMARY: 'Summary',
+  HOBBIES: 'Interests',
+};
 
+const TEMPLATE_SECTION_LIST_CLASS: Record<string, string> = {
+  EXPERIENCE: 'experience-list',
+  PROJECTS: 'projects-list',
+  EDUCATION: 'education-list',
+  SKILLS: 'skills-list',
+  CERTIFICATIONS: 'certifications-list',
+  LANGUAGES: 'languages-list',
+  ACHIEVEMENTS: 'achievements-list',
+  HOBBIES: 'hobbies-list',
+};
+
+/** Detect section shell markup from an existing template block (import-mode injection). */
+export function detectTemplateSectionShell(
+  htmlTemplate: string,
+  sectionToken: string
+): TemplateSectionShell {
+  const token = sectionToken.toUpperCase();
+  const re = new RegExp(`\\{\\{#if ${token}\\}\\}([\\s\\S]*?)\\{\\{/if\\}\\}`, 'i');
+  const match = htmlTemplate.match(re);
+
+  if (match) {
     const block = match[1];
+    const headingFromTemplate =
+      block.match(/<h2[^>]*>([^<]+)</i)?.[1]?.trim() ||
+      block.match(/<h3[^>]*>([^<]+)</i)?.[1]?.trim();
     const sectionClass =
       block.match(/<section[^>]*class="([^"]*)"/i)?.[1] ||
       block.match(/class="([^"]*section[^"]*)"/i)?.[1] ||
@@ -659,28 +689,170 @@ function detectHobbiesSectionShell(htmlTemplate: string): HobbiesSectionShell {
       block.match(/<h3[^>]*class="([^"]*)"/i)?.[1] ||
       'section-title';
     const listClass =
-      block.match(/<div[^>]*class="([^"]*-list[^"]*)"/i)?.[1] || 'hobbies-list';
+      block.match(/<div[^>]*class="([^"]*-list[^"]*)"/i)?.[1] ||
+      TEMPLATE_SECTION_LIST_CLASS[token] ||
+      'content-list';
     const inSidebar =
-      /sidebar-section|tm-sidebar-panel|<aside/i.test(block) ||
+      /sidebar-section|tm-sidebar-panel|ese-section--side|[\s-]side[\s-]/i.test(block) ||
+      /<aside/i.test(block) ||
       (htmlTemplate.includes('sidebar') &&
         htmlTemplate.indexOf(match[0]) < htmlTemplate.indexOf('main-content'));
 
     return {
       sectionClass,
       headingClass,
-      listClass: token === 'HOBBIES' ? listClass : listClass.replace(/achievements|projects|languages|certifications/gi, 'hobbies') || 'hobbies-list',
-      headingLabel: token === 'HOBBIES' ? 'Interests' : 'Interests',
+      listClass,
+      headingLabel: headingFromTemplate || TEMPLATE_SECTION_LABELS[token] || token,
       placement: inSidebar ? 'sidebar' : 'main',
     };
+  }
+
+  for (const fallbackToken of [
+    'EXPERIENCE',
+    'PROJECTS',
+    'EDUCATION',
+    'SKILLS',
+    'CERTIFICATIONS',
+    'LANGUAGES',
+    'ACHIEVEMENTS',
+    'HOBBIES',
+  ]) {
+    if (fallbackToken === token) continue;
+    const shell = detectTemplateSectionShell(htmlTemplate, fallbackToken);
+    if (shell.sectionClass !== 'content-section' || shell.listClass !== 'content-list') {
+      return {
+        ...shell,
+        headingLabel: TEMPLATE_SECTION_LABELS[token] || token,
+        listClass: TEMPLATE_SECTION_LIST_CLASS[token] || shell.listClass,
+      };
+    }
   }
 
   return {
     sectionClass: 'content-section',
     headingClass: 'section-title',
-    listClass: 'hobbies-list',
-    headingLabel: 'Interests',
-    placement: 'main',
+    listClass: TEMPLATE_SECTION_LIST_CLASS[token] || 'content-list',
+    headingLabel: TEMPLATE_SECTION_LABELS[token] || token,
+    placement: htmlTemplate.includes('sidebar') ? 'sidebar' : 'main',
   };
+}
+
+function detectHobbiesSectionShell(htmlTemplate: string): TemplateSectionShell {
+  return detectTemplateSectionShell(htmlTemplate, 'HOBBIES');
+}
+
+function injectSectionHtmlIntoLayout(
+  renderedHtml: string,
+  sectionHtml: string,
+  placement: 'main' | 'sidebar'
+): string {
+  if (placement === 'sidebar') {
+    const sidebarMatch = renderedHtml.match(/(<aside[^>]*>[\s\S]*?)(\s*<\/aside>)/i);
+    if (sidebarMatch) {
+      return renderedHtml.replace(sidebarMatch[0], `${sidebarMatch[1]}\n${sectionHtml}\n${sidebarMatch[2]}`);
+    }
+    const sidebarDiv = renderedHtml.match(
+      /(<div[^>]*class="[^"]*sidebar[^"]*"[^>]*>[\s\S]*?)(\s*<\/div>)/i
+    );
+    if (sidebarDiv) {
+      return renderedHtml.replace(sidebarDiv[0], `${sidebarDiv[1]}\n${sectionHtml}\n${sidebarDiv[2]}`);
+    }
+  }
+
+  const mainMatch = renderedHtml.match(/(<main[^>]*>[\s\S]*?)(\s*<\/main>)/i);
+  if (mainMatch) {
+    return renderedHtml.replace(mainMatch[0], `${mainMatch[1]}\n${sectionHtml}\n${mainMatch[2]}`);
+  }
+
+  const containerMatch = renderedHtml.match(
+    /(<div[^>]*class="[^"]*main-content[^"]*"[^>]*>[\s\S]*?)(\s*<\/div>)/i
+  );
+  if (containerMatch) {
+    return renderedHtml.replace(containerMatch[0], `${containerMatch[1]}\n${sectionHtml}\n${containerMatch[2]}`);
+  }
+
+  return `${renderedHtml}\n${sectionHtml}`;
+}
+
+function buildStandardSectionHtml(
+  shell: TemplateSectionShell,
+  innerHtml: string,
+  sectionToken: string
+): string {
+  const safeInner =
+    sectionToken === 'SUMMARY'
+      ? innerHtml
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+      : innerHtml;
+
+  if (sectionToken === 'SUMMARY') {
+    return `
+    <section class="${shell.sectionClass}" data-import-section="${sectionToken}">
+      <h2 class="${shell.headingClass}">${shell.headingLabel}</h2>
+      <p class="summary-text">${safeInner}</p>
+    </section>
+  `;
+  }
+
+  return `
+    <section class="${shell.sectionClass}" data-import-section="${sectionToken}">
+      <h2 class="${shell.headingClass}">${shell.headingLabel}</h2>
+      <div class="${shell.listClass}">
+        ${innerHtml}
+      </div>
+    </section>
+  `;
+}
+
+const IMPORT_SECTION_RENDER_SPECS: Array<{
+  token: string;
+  marker: RegExp;
+}> = [
+  { token: 'SUMMARY', marker: /\bsummary-text\b|professional-summary\b/i },
+  { token: 'EXPERIENCE', marker: /\bexperience-item\b/i },
+  { token: 'PROJECTS', marker: /\bproject-item\b/i },
+  { token: 'EDUCATION', marker: /\beducation-item\b/i },
+  { token: 'SKILLS', marker: /\bskill-tag\b|psp-skill-item\b/i },
+  { token: 'CERTIFICATIONS', marker: /\bcertification-item\b/i },
+  { token: 'LANGUAGES', marker: /\blanguage-item\b|psp-language-item\b/i },
+  { token: 'ACHIEVEMENTS', marker: /\bachievement-item\b/i },
+];
+
+/**
+ * Import mode — inject standard sections that have data but were stripped by template
+ * conditionals or missing placeholders. Reuses template shell patterns when present.
+ */
+export function appendMissingImportSections(
+  renderedHtml: string,
+  htmlTemplate: string,
+  placeholders: Record<string, string>,
+  formData: Record<string, unknown>
+): string {
+  if (!shouldPreserveFullContentForRender(formData)) {
+    return renderedHtml;
+  }
+
+  let result = renderedHtml;
+
+  for (const spec of IMPORT_SECTION_RENDER_SPECS) {
+    const placeholderKey = `{{${spec.token}}}`;
+    const renderedContent = placeholders[placeholderKey] || '';
+    if (!shouldRenderSection(spec.token, renderedContent, formData)) {
+      continue;
+    }
+    if (spec.marker.test(result)) {
+      continue;
+    }
+
+    const shell = detectTemplateSectionShell(htmlTemplate, spec.token);
+    const sectionHtml = buildStandardSectionHtml(shell, renderedContent, spec.token);
+    result = injectSectionHtmlIntoLayout(result, sectionHtml, shell.placement);
+  }
+
+  return result;
 }
 
 /**
@@ -703,7 +875,7 @@ export function appendHobbiesSectionIfMissing(
 
   const shell = detectHobbiesSectionShell(htmlTemplate);
   const sectionHtml = `
-    <section class="${shell.sectionClass}">
+    <section class="${shell.sectionClass}" data-import-section="HOBBIES">
       <h2 class="${shell.headingClass}">${shell.headingLabel}</h2>
       <div class="${shell.listClass}">
         ${hobbiesRenderedHtml}
@@ -711,28 +883,7 @@ export function appendHobbiesSectionIfMissing(
     </section>
   `;
 
-  if (shell.placement === 'sidebar') {
-    const sidebarMatch = renderedHtml.match(
-      /(<aside[^>]*>[\s\S]*?)(\s*<\/aside>)/i
-    );
-    if (sidebarMatch) {
-      return renderedHtml.replace(sidebarMatch[0], `${sidebarMatch[1]}\n${sectionHtml}\n${sidebarMatch[2]}`);
-    }
-  }
-
-  const mainMatch = renderedHtml.match(/(<main[^>]*>[\s\S]*?)(\s*<\/main>)/i);
-  if (mainMatch) {
-    return renderedHtml.replace(mainMatch[0], `${mainMatch[1]}\n${sectionHtml}\n${mainMatch[2]}`);
-  }
-
-  const containerMatch = renderedHtml.match(
-    /(<div[^>]*class="[^"]*main-content[^"]*"[^>]*>[\s\S]*?)(\s*<\/div>)/i
-  );
-  if (containerMatch) {
-    return renderedHtml.replace(containerMatch[0], `${containerMatch[1]}\n${sectionHtml}\n${containerMatch[2]}`);
-  }
-
-  return `${renderedHtml}\n${sectionHtml}`;
+  return injectSectionHtmlIntoLayout(renderedHtml, sectionHtml, shell.placement);
 }
 
 /** Coerce hobbies/interests from builder, import, or parser into a string array. */

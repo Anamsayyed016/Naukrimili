@@ -19,6 +19,7 @@ import {
   filterMeaningfulAchievements,
   normalizeSkillsForRender,
   filterMeaningfulSkills,
+  shouldPreserveFullContentForRender,
 } from './section-visibility';
 import { collectExperienceBodyFields } from '@/lib/resume-parser/import-sanitize';
 
@@ -55,7 +56,10 @@ const BASE_SECTION_GAP = 14;
 const BASE_BLOCK_GAP = 10;
 const BASE_BULLET_GAP = 0.35;
 const BASE_HEADING_GAP = 8;
-const TARGET_FILL_UNITS = 52;
+/** Target content units for ~1 A4 page at 80–95% fill */
+const TARGET_FILL_UNITS = 50;
+const TARGET_FILL_MIN = 0.8;
+const TARGET_FILL_MAX = 0.95;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -165,16 +169,16 @@ export function computeDynamicLayoutPlan(
   let fontScale = 1;
   let lineHeightMul = 1;
 
-  if (fillRatio < 0.55) {
-    const expand = clamp((0.55 - fillRatio) / 0.55, 0, 1);
-    sectionGapMul = 1 + expand * 0.22;
-    blockGapMul = 1 + expand * 0.18;
-    bulletGapMul = 1 + expand * 0.15;
-    headingGapMul = 1 + expand * 0.12;
-    lineHeightMul = 1 + expand * 0.08;
-    fontScale = 1 + expand * 0.04;
-  } else if (fillRatio > 0.92) {
-    const compress = clamp((fillRatio - 0.92) / 0.48, 0, 1);
+  if (fillRatio < TARGET_FILL_MIN) {
+    const expand = clamp((TARGET_FILL_MIN - fillRatio) / TARGET_FILL_MIN, 0, 1);
+    sectionGapMul = 1 + expand * 0.28;
+    blockGapMul = 1 + expand * 0.22;
+    bulletGapMul = 1 + expand * 0.18;
+    headingGapMul = 1 + expand * 0.14;
+    lineHeightMul = 1 + expand * 0.1;
+    fontScale = 1 + expand * 0.05;
+  } else if (fillRatio > TARGET_FILL_MAX) {
+    const compress = clamp((fillRatio - TARGET_FILL_MAX) / 0.45, 0, 1);
     sectionGapMul = 1 - compress * 0.18;
     blockGapMul = 1 - compress * 0.2;
     bulletGapMul = 1 - compress * 0.22;
@@ -371,9 +375,222 @@ function appendStyleBlockToHtml(html: string, styleBlock: string): string {
 export function injectDynamicLayoutIntoHtml(
   html: string,
   formData: Record<string, unknown>,
-  options?: ComputeDynamicLayoutOptions
+  options?: ComputeDynamicLayoutOptions & { htmlTemplate?: string }
 ): string {
+  let result = html;
+  if (shouldPreserveFullContentForRender(formData) && options?.htmlTemplate) {
+    result = rebalanceImportSectionPlacement(result, options.htmlTemplate, formData);
+  }
   const plan = computeDynamicLayoutPlan(formData, options);
   const block = getDynamicLayoutStyleBlock(plan);
-  return appendStyleBlockToHtml(html, block);
+  return appendStyleBlockToHtml(result, block);
+}
+
+/* ── Import-mode section placement (sidebar balance) ── */
+
+type RelocatableSectionKind =
+  | 'achievements'
+  | 'languages'
+  | 'certifications'
+  | 'skills'
+  | 'projects';
+
+const RELOCATABLE_SECTIONS: Array<{
+  kind: RelocatableSectionKind;
+  token: string;
+  marker: RegExp;
+  priority: number;
+}> = [
+  { kind: 'achievements', token: 'ACHIEVEMENTS', marker: /\bachievement-item\b/i, priority: 8 },
+  { kind: 'languages', token: 'LANGUAGES', marker: /\blanguage-item\b|psp-language-item\b/i, priority: 7 },
+  { kind: 'certifications', token: 'CERTIFICATIONS', marker: /\bcertification-item\b/i, priority: 6 },
+  { kind: 'skills', token: 'SKILLS', marker: /\bskill-tag\b|psp-skill-item\b/i, priority: 5 },
+  { kind: 'projects', token: 'PROJECTS', marker: /\bproject-item\b/i, priority: 3 },
+];
+
+function estimateHtmlVolume(html: string): number {
+  const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return text.length;
+}
+
+function extractSectionBlocks(containerHtml: string): Array<{ html: string; kind: RelocatableSectionKind | 'fixed' }> {
+  const blocks: Array<{ html: string; kind: RelocatableSectionKind | 'fixed' }> = [];
+  const re = /<section[^>]*>[\s\S]*?<\/section>/gi;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(containerHtml)) !== null) {
+    const block = match[0];
+    let kind: RelocatableSectionKind | 'fixed' = 'fixed';
+    for (const spec of RELOCATABLE_SECTIONS) {
+      if (spec.marker.test(block)) {
+        kind = spec.kind;
+        break;
+      }
+    }
+    blocks.push({ html: block, kind });
+  }
+  return blocks;
+}
+
+/**
+ * Move flexible low-priority sections from main → sidebar when sidebar is sparse.
+ * Import mode only. Experience, summary, and education stay in main.
+ */
+export function rebalanceImportSectionPlacement(
+  renderedHtml: string,
+  htmlTemplate: string,
+  formData: Record<string, unknown>
+): string {
+  if (!shouldPreserveFullContentForRender(formData)) return renderedHtml;
+  if (!detectHasSidebar(htmlTemplate)) return renderedHtml;
+
+  const asideMatch = renderedHtml.match(/(<aside[^>]*>)([\s\S]*?)(<\/aside>)/i);
+  if (!asideMatch) return renderedHtml;
+
+  const mainMatch = renderedHtml.match(/(<main[^>]*>)([\s\S]*?)(<\/main>)/i);
+  if (!mainMatch) return renderedHtml;
+
+  const sidebarInner = asideMatch[2];
+  const mainInner = mainMatch[2];
+  const sidebarVol = estimateHtmlVolume(sidebarInner);
+  const mainVol = estimateHtmlVolume(mainInner);
+
+  if (sidebarVol >= mainVol * 0.55) return renderedHtml;
+
+  const mainBlocks = extractSectionBlocks(mainInner);
+  const toMove: string[] = [];
+  let projectedSidebarVol = sidebarVol;
+
+  const sorted = [...mainBlocks].sort((a, b) => {
+    const pa = RELOCATABLE_SECTIONS.find((s) => s.kind === a.kind)?.priority ?? 99;
+    const pb = RELOCATABLE_SECTIONS.find((s) => s.kind === b.kind)?.priority ?? 99;
+    return pb - pa;
+  });
+
+  const targetSidebarVol = mainVol * 0.42;
+
+  for (const block of sorted) {
+    if (block.kind === 'fixed') continue;
+    const spec = RELOCATABLE_SECTIONS.find((s) => s.kind === block.kind);
+    if (!spec) continue;
+    const templateSupports = new RegExp(`\\{\\{#if ${spec.token}\\}\\}`, 'i').test(htmlTemplate);
+    if (!templateSupports) continue;
+    if (projectedSidebarVol >= targetSidebarVol) break;
+
+    toMove.push(block.html);
+    projectedSidebarVol += estimateHtmlVolume(block.html);
+  }
+
+  if (toMove.length === 0) return renderedHtml;
+
+  let newMainInner = mainInner;
+  let newSidebarInner = sidebarInner;
+  for (const blockHtml of toMove) {
+    newMainInner = newMainInner.replace(blockHtml, '');
+    newSidebarInner = `${newSidebarInner}\n${blockHtml}`;
+  }
+
+  return renderedHtml
+    .replace(asideMatch[0], `${asideMatch[1]}${newSidebarInner}${asideMatch[3]}`)
+    .replace(mainMatch[0], `${mainMatch[1]}${newMainInner}${mainMatch[3]}`);
+}
+
+/* ── Render validation audit ── */
+
+export interface SectionAuditRow {
+  section: string;
+  available: boolean;
+  rendered: boolean;
+  missing: boolean;
+  reason: string;
+}
+
+const AUDIT_SECTIONS: Array<{ key: string; marker: RegExp; hasData: (d: Record<string, unknown>) => boolean }> = [
+  {
+    key: 'summary',
+    marker: /\bsummary-text\b|professional-summary\b/i,
+    hasData: (d) =>
+      Boolean(
+        String(d.summary || d.professionalSummary || d['Professional Summary'] || '').trim()
+      ),
+  },
+  {
+    key: 'experience',
+    marker: /\bexperience-item\b/i,
+    hasData: (d) =>
+      filterMeaningfulExperiences(
+        (Array.isArray(d.experience) ? d.experience : []) as Array<Record<string, unknown>>
+      ).length > 0,
+  },
+  {
+    key: 'projects',
+    marker: /\bproject-item\b/i,
+    hasData: (d) =>
+      filterMeaningfulProjects(
+        (Array.isArray(d.projects) ? d.projects : []) as Array<Record<string, unknown>>
+      ).length > 0,
+  },
+  {
+    key: 'skills',
+    marker: /\bskill-tag\b|psp-skill-item\b/i,
+    hasData: (d) => (filterMeaningfulSkills(normalizeSkillsForRender(d)) as string[]).length > 0,
+  },
+  {
+    key: 'education',
+    marker: /\beducation-item\b/i,
+    hasData: (d) => (Array.isArray(d.education) ? d.education : []).length > 0,
+  },
+  {
+    key: 'certifications',
+    marker: /\bcertification-item\b/i,
+    hasData: (d) =>
+      filterMeaningfulCertifications(
+        (Array.isArray(d.certifications) ? d.certifications : []) as Array<Record<string, unknown>>
+      ).length > 0,
+  },
+  {
+    key: 'languages',
+    marker: /\blanguage-item\b|psp-language-item\b/i,
+    hasData: (d) => (Array.isArray(d.languages) ? d.languages : []).length > 0,
+  },
+  {
+    key: 'achievements',
+    marker: /\bachievement-item\b/i,
+    hasData: (d) =>
+      filterMeaningfulAchievements(Array.isArray(d.achievements) ? d.achievements : []).length > 0,
+  },
+];
+
+export function auditRenderedSections(
+  formData: Record<string, unknown>,
+  renderedHtml: string
+): SectionAuditRow[] {
+  return AUDIT_SECTIONS.map(({ key, marker, hasData }) => {
+    const available = hasData(formData);
+    const rendered = marker.test(renderedHtml);
+    let reason = 'ok';
+    if (!available) reason = 'no data in builder';
+    else if (!rendered) reason = 'data present but not in rendered HTML';
+  return {
+      section: key,
+      available,
+      rendered,
+      missing: available && !rendered,
+      reason,
+    };
+  });
+}
+
+export function formatSectionAuditReport(rows: SectionAuditRow[]): string {
+  const header = ['Section', 'Available', 'Rendered', 'Missing', 'Reason'].join('\t');
+  const lines = rows.map((r) =>
+    [r.section, r.available, r.rendered, r.missing, r.reason].join('\t')
+  );
+  const missing = rows.filter((r) => r.missing);
+  return [
+    header,
+    ...lines,
+    '',
+    `Missing sections: ${missing.length}`,
+    ...missing.map((r) => `- ${r.section}: ${r.reason}`),
+  ].join('\n');
 }

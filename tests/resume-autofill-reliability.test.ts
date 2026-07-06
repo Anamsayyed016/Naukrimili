@@ -1262,6 +1262,84 @@ describe('dynamic layout engine', () => {
     expect(html).toContain('data-injected="dynamic-layout"');
     expect(html).toContain('--dl-section-gap');
   });
+
+  it('audits missing sections when data exists but HTML lacks markers', () => {
+    const { auditRenderedSections } = require('@/lib/resume-builder/dynamic-layout-engine');
+    const rows = auditRenderedSections(
+      {
+        projects: [{ name: 'App', description: 'Built it' }],
+        skills: ['React'],
+      },
+      '<div class="resume-container"><div class="skill-tag">React</div></div>'
+    );
+    const projects = rows.find((r: { section: string }) => r.section === 'projects');
+    expect(projects?.missing).toBe(true);
+    const skills = rows.find((r: { section: string }) => r.section === 'skills');
+    expect(skills?.missing).toBe(false);
+  });
+});
+
+describe('appendMissingImportSections', () => {
+  const {
+    appendMissingImportSections,
+    coalesceFormDataForTemplateRender,
+  } = require('@/lib/resume-builder/section-visibility');
+  const { injectResumeData } = require('@/lib/resume-builder/template-loader');
+
+  it('injects projects into rendered HTML when template block was stripped', () => {
+    const template = `
+      <main>
+        {{#if EXPERIENCE}}<section><div class="experience-list">{{EXPERIENCE}}</div></section>{{/if}}
+      </main>
+      <aside class="sidebar"></aside>
+    `;
+    const builder = {
+      customParserUsed: true,
+      experience: [{ company: 'Acme', title: 'Dev', description: 'Built APIs.' }],
+      projects: [{ name: 'Portal', description: 'Job board' }],
+    };
+    const coalesced = coalesceFormDataForTemplateRender(builder);
+    const placeholders = {
+      '{{EXPERIENCE}}': '<div class="experience-item"><h3>Dev</h3></div>',
+      '{{PROJECTS}}': '<div class="project-item"><h3>Portal</h3></div>',
+    };
+    const out = appendMissingImportSections(
+      '<main><section><div class="experience-item">x</div></section></main><aside></aside>',
+      template,
+      placeholders,
+      coalesced
+    );
+    expect(out).toContain('project-item');
+    expect(out).toContain('data-import-section="PROJECTS"');
+  });
+
+  it('injectResumeData includes all import sections for sidebar template', async () => {
+    const fs = require('fs');
+    const path = require('path');
+    const templateId = 'executive-sidebar-elite';
+    const htmlPath = path.join(process.cwd(), 'public', 'templates', templateId, 'index.html');
+    const full = fs.readFileSync(htmlPath, 'utf8');
+    const body = full.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] || full;
+    const builder = {
+      customParserUsed: true,
+      firstName: 'Test',
+      lastName: 'User',
+      summary: 'Professional summary text.',
+      experience: [{ company: 'Co', title: 'Role', description: 'Did work.' }],
+      projects: [{ name: 'Proj', description: 'Built app' }],
+      skills: ['React', 'Node'],
+      education: [{ institution: 'Uni', degree: 'BS' }],
+      certifications: [{ name: 'AWS' }],
+      languages: [{ language: 'English' }],
+      achievements: ['Award 2024'],
+    };
+    const html = injectResumeData(body, builder, { templateId });
+    expect(html).toMatch(/project-item/);
+    expect(html).toMatch(/skill-tag|psp-skill/);
+    expect(html).toMatch(/certification-item/);
+    expect(html).toMatch(/language-item|psp-language/);
+    expect(html).toMatch(/achievement-item/);
+  });
 });
 
 describe('experience header mapping', () => {

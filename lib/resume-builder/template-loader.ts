@@ -35,6 +35,7 @@ import {
   optimizeResumeDataForRender,
   appendHobbiesSectionIfMissing,
   shouldPreserveFullContentForRender,
+  appendMissingImportSections,
 } from './section-visibility';
 import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
 import {
@@ -576,7 +577,11 @@ export function injectResumeData(
     data
   );
 
-  result = appendExtendedSectionsToHtml(result, formData);
+  if (preserveFullContent) {
+    result = appendMissingImportSections(result, htmlTemplate, placeholders, data);
+  }
+
+  result = appendExtendedSectionsToHtml(result, coalesced);
 
   // Premium typography & content-balance (spacing/hierarchy only — no layout/color changes).
   const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
@@ -592,11 +597,13 @@ export function injectResumeData(
     }
   }
 
-  result = injectDynamicLayoutIntoHtml(result, coalesced, {
-    htmlTemplate,
-    templateId: options?.templateId ?? options?.galleryTemplateId,
-    mode: renderMode,
-  });
+  if (preserveFullContent) {
+    result = injectDynamicLayoutIntoHtml(result, coalesced, {
+      htmlTemplate,
+      templateId: options?.templateId ?? options?.galleryTemplateId,
+      mode: renderMode,
+    });
+  }
 
   return result;
 }
