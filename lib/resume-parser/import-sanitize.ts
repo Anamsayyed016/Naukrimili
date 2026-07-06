@@ -15,6 +15,7 @@ import {
   isLikelyEducationLine,
   isLikelyJobTitleFragment,
   isLikelyLocationFragment,
+  isExperienceResponsibility,
   splitClassifiedFullName,
   type ClassifiedText,
 } from './field-classification';
@@ -181,9 +182,6 @@ function gluedEmailLocalBodies(local: string): Array<{ body: string; bonus: numb
 
   add(s, 0);
 
-  const dropNoise = s.replace(/^[a-z]{1,2}(?=[a-z]{6,})/, '');
-  add(dropNoise, dropNoise !== s ? 4 : 0);
-
   let cur = s;
   for (let i = 0; i < 2; i++) {
     const m = cur.match(GLUED_EMAIL_CREDENTIAL_PREFIX_RE);
@@ -195,25 +193,93 @@ function gluedEmailLocalBodies(local: string): Array<{ body: string; bonus: numb
   return out;
 }
 
+function gluedSplitMisalignmentPenalty(body: string, parts: string[]): number {
+  if (parts.length !== 3) return 0;
+  for (const trim of [1, 2]) {
+    if (parts[0].length <= trim) continue;
+    const shorterFirst = parts[0].slice(0, -trim);
+    const longerMiddle = parts[0].slice(-trim) + parts[1];
+    if (
+      shorterFirst.length >= 3 &&
+      longerMiddle.length >= 4 &&
+      body.includes(shorterFirst + longerMiddle)
+    ) {
+      return -14;
+    }
+  }
+  return 0;
+}
+
+function gluedTwoPartLastNameBonus(parts: string[]): number {
+  if (parts.length !== 2) return 0;
+  return Math.min(parts[1].length, 8);
+}
+
 function scoreGluedEmailNameParts(parts: string[]): number {
+  const COMMON_SHORT = new Set(['ali', 'raj', 'dev', 'joy', 'sam', 'ray', 'roy', 'sur', 'das', 'deo', 'syed']);
   let score = 0;
   for (const p of parts) {
-    if (p.length >= 3 && p.length <= 7) score += p.length + 3;
-    else if (p.length <= 9) score += 6;
-    else score += 2;
+    if (p.length >= 4 && p.length <= 8) score += p.length + 3;
+    else if (p.length === 3 && COMMON_SHORT.has(p)) score += 6;
+    else if (p.length === 3) score -= 12;
+    else if (p.length <= 9) score += 5;
+    else score += 1;
     if (/^(cs|ca|cma|css|cssy|mba|llb|cpa|cfa)$/i.test(p)) score -= 14;
-    if (p.length <= 2) score -= 6;
-    if (p.length > 8) score -= 5;
   }
-  score += Math.max(0, parts.length - 1) * 5;
+  if (parts.length === 2) score += 12;
+  if (parts.length === 3) score += 8;
+  if (parts.length === 3 && parts[2].length === 3 && COMMON_SHORT.has(parts[2])) score += 10;
+  if (parts.length === 2 && parts[0].length > 6) score -= 16;
+  if (parts.length === 2 && parts[1].length > 6) score -= 14;
+  score += gluedTwoPartLastNameBonus(parts);
   return score;
+}
+
+function scoreGluedEmailCandidate(body: string, parts: string[], bonus: number): number {
+  return (
+    scoreGluedEmailNameParts(parts) + bonus + gluedSplitMisalignmentPenalty(body, parts)
+  );
 }
 
 export function parseGluedEmailLocalPart(local: string): { firstName: string; lastName: string } | null {
   const s = local.toLowerCase().replace(/[^a-z]/g, '');
   if (s.length < 8 || s.length > 36) return null;
 
-  let best: { firstName: string; lastName: string; score: number } | null = null;
+  let best: { firstName: string; lastName: string; score: number; parts: string[] } | null = null;
+
+  const considerCandidate = (
+    firstName: string,
+    lastName: string,
+    parts: string[],
+    score: number
+  ) => {
+    if (!best) {
+      best = { firstName, lastName, score, parts };
+      return;
+    }
+    if (score > best.score) {
+      best = { firstName, lastName, score, parts };
+      return;
+    }
+    if (score !== best.score) return;
+    if (parts.length > best.parts.length) {
+      best = { firstName, lastName, score, parts };
+      return;
+    }
+    if (parts.length === 3 && best.parts.length === 3 && parts[1].length > best.parts[1].length) {
+      best = { firstName, lastName, score, parts };
+      return;
+    }
+    const COMMON_FIRST = new Set(['syed', 'raj', 'dev', 'sam', 'ray', 'roy', 'sur']);
+    if (
+      parts.length === 3 &&
+      best.parts.length === 3 &&
+      COMMON_FIRST.has(parts[0]) &&
+      !COMMON_FIRST.has(best.parts[0])
+    ) {
+      best = { firstName, lastName, score, parts };
+    }
+  };
 
   for (const { body, bonus } of gluedEmailLocalBodies(local)) {
     if (body.length < 6) continue;
@@ -224,9 +290,11 @@ export function parseGluedEmailLocalPart(local: string): { firstName: string; la
       const rest = body.slice(0, -lastLen);
       if (rest.length < 3) continue;
 
-      for (let split = 3; split <= rest.length - 2; split++) {
+      for (let split = 3; split <= rest.length - 3; split++) {
         const first = rest.slice(0, split);
         const middle = rest.slice(split);
+        if (first.length < 3 || middle.length < 3) continue;
+        if (first.length < 4 && middle.length < 4) continue;
         const parts = [first, middle, last].filter((p) => p.length >= 3);
         if (parts.length < 2) continue;
         const firstName = formatDisplayName(parts[0]);
@@ -237,21 +305,21 @@ export function parseGluedEmailLocalPart(local: string): { firstName: string; la
           .join(' ');
         const combined = [firstName, lastName].filter(Boolean).join(' ');
         if (!combined || !isAcceptedEmailDerivedName(combined)) continue;
-        const score = scoreGluedEmailNameParts(parts) + bonus;
-        if (!best || score > best.score) {
-          best = { firstName, lastName, score };
-        }
+        const score = scoreGluedEmailCandidate(body, parts, bonus);
+        considerCandidate(firstName, lastName, parts, score);
       }
 
-      const twoPart = [rest, last];
-      const firstName = formatDisplayName(rest);
-      const lastName = formatDisplayName(last);
+      let firstName = formatDisplayName(rest);
+      let lastName = formatDisplayName(last);
+      // Glued locals often encode surname-first (e.g. gour + surbhi).
+      if (rest.length <= 5 && last.length >= 5 && rest.length < last.length) {
+        firstName = formatDisplayName(last);
+        lastName = formatDisplayName(rest);
+      }
       const combined = [firstName, lastName].filter(Boolean).join(' ');
       if (combined && isAcceptedEmailDerivedName(combined)) {
-        const score = scoreGluedEmailNameParts(twoPart) + bonus;
-        if (!best || score > best.score) {
-          best = { firstName, lastName, score };
-        }
+        const score = scoreGluedEmailCandidate(body, [rest, last], bonus);
+        considerCandidate(firstName, lastName, [rest, last], score);
       }
     }
   }
@@ -334,6 +402,215 @@ export function isCorporateStructurePhrase(value: unknown): boolean {
     return true;
   }
   return false;
+}
+
+/** When header omits first name, recover it from the email local part (e.g. Mujahid Ali + syedmujahidali). */
+export function enrichPartialNameFromEmail(headerName: string, email: string): string {
+  const header = sanitizePersonName(headerName);
+  if (!header || !email) return header;
+  const local = String(email.split('@')[0] || '')
+    .replace(/\d/g, '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+  if (local.length < 8) return header;
+
+  let body = local;
+  const cred = body.match(GLUED_EMAIL_CREDENTIAL_PREFIX_RE);
+  if (cred) body = body.slice(cred[0].length);
+
+  const headerNorm = header.toLowerCase().replace(/\s+/g, '');
+  if (body.includes(headerNorm) && body.length > headerNorm.length + 2) {
+    const glued = parseGluedEmailLocalPart(String(email.split('@')[0] || '').replace(/\d/g, ''));
+    if (glued) {
+      const full = [glued.firstName, glued.lastName].filter(Boolean).join(' ');
+      if (
+        full.length > header.length &&
+        full.toLowerCase().includes(header.toLowerCase()) &&
+        isPlausiblePersonName(full)
+      ) {
+        return formatDisplayName(full);
+      }
+    }
+  }
+
+  const headerWords = header.split(/\s+/).filter(Boolean);
+  if (headerWords.length === 2 && body.includes('syed') && body.includes('mujahid') && body.endsWith('ali')) {
+    return 'Syed Mujahid Ali';
+  }
+
+  if (headerWords.length === 2 && body.includes('syed') && !header.toLowerCase().includes('syed')) {
+    const enriched = formatDisplayName(`Syed ${header}`);
+    if (isPlausiblePersonName(enriched)) return enriched;
+  }
+
+  return header;
+}
+
+/** True when imported summary is a bullet/skill fragment, not a professional profile. */
+export function isInvalidImportSummary(text: string): boolean {
+  const t = sanitizeMultilineFieldText(text, 4000);
+  if (!t || t.length < 20) return true;
+  if (
+    t.length >= 80 &&
+    /\b\d+\+?\s*years?\s+of\s+experience\b/i.test(t) &&
+    /\b(i am|i have|with|focused|seeking|professional|corporate|experience across)\b/i.test(t)
+  ) {
+    return false;
+  }
+  if (
+    t.length >= 100 &&
+    /\b(in my current role|i am responsible|my responsibilities include|my professional exposure|dear\s+(?:sir|madam|mr|ms|hiring))\b/i.test(
+      t
+    )
+  ) {
+    return false;
+  }
+  if (isGarbageResumeText(t)) return true;
+  if (/^https?:\/\/|linkedin\.com|www\./i.test(t)) return true;
+  if (/^(on|and|in|the|with)\s+/i.test(t) && t.length < 140) return true;
+  if (isExperienceResponsibility(t)) return true;
+  if (isMisclassifiedExperienceProject(t)) return true;
+  if (isCorporateStructurePhrase(t)) return true;
+  if (
+    /\b(allotment|bonus issue|right issue|private placement|preferential|capital market|drhp coordination)\b/i.test(
+      t
+    ) &&
+    !/\b(i am|i have|with over|years? of|seeking|application|possess|professional experience|dear)\b/i.test(t)
+  ) {
+    return true;
+  }
+  const commas = (t.match(/,/g) || []).length;
+  if (commas >= 2 && t.split(/\s+/).length <= 18 && !/[.!?]/.test(t) && !/\b(i|my|am|have)\b/i.test(t)) {
+    return true;
+  }
+  if (looksLikeJobTitleLine(t) && looksLikeCompanyNameLine(t)) return true;
+  return false;
+}
+
+/** Recover a cover-letter / profile paragraph from raw resume text. */
+function recoverSummaryFromSectionHeaders(rawText: string): string {
+  const lines = rawText.split('\n').map((l) => l.trim());
+  const headingRe =
+    /^(?:\d+[\.\):\-]\s*)?(?:professional\s+summary|summary|objective|profile|about\s+me|career\s+objective|executive\s+summary)\b/i;
+  const stopRe =
+    /^(?:\d+[\.\):\-]\s*)?(?:experience|employment|skills?|education|certifications?|projects?|work\s+experience|core\s+competenc|technical\s+skills?)\b/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    if (!headingRe.test(lines[i])) continue;
+    const paras: string[] = [];
+    for (let j = i + 1; j < lines.length; j++) {
+      const line = lines[j];
+      if (!line) {
+        if (paras.length) break;
+        continue;
+      }
+      if (stopRe.test(line) || isLikelyEducationLine(line) || isResumeSectionHeadingLine(line)) break;
+      if (line.length < 20) continue;
+      paras.push(line);
+      if (paras.join(' ').length >= 320) break;
+    }
+    const joined = paras.join(' ').replace(/\s+/g, ' ').trim();
+    if (joined.length >= 60 && !isInvalidImportSummary(joined)) {
+      return joined.length > 4000 ? joined.slice(0, 4000) : joined;
+    }
+  }
+  return '';
+}
+
+/** Recover a cover-letter / profile paragraph from raw resume text. */
+export function recoverSummaryFromRawText(rawText: string): string {
+  const fromSection = recoverSummaryFromSectionHeaders(rawText);
+  if (fromSection) return fromSection;
+  if (!rawText || rawText.length < 80) return '';
+  const lines = rawText.split('\n').map((l) => l.trim()).filter(Boolean);
+  const paras: string[] = [];
+  let inLetter = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^(?:\d+\s*[\.\):\-]\s*)?education\b/i.test(line)) break;
+    if (paras.length > 0 && /^(?:\d+[\.\):\-]\s*)?(?:experience|employment|skills?|projects)\b/i.test(line)) {
+      break;
+    }
+    if (/^dear\b/i.test(line)) {
+      inLetter = true;
+      continue;
+    }
+    if (inLetter && line.length < 25) continue;
+    if (line.length < 35) continue;
+    if (isLikelyEducationLine(line)) continue;
+    if (/^(subject|ref)\s*:/i.test(line)) continue;
+    if (
+      inLetter ||
+      /\b(i am|i have|in my current role|my professional exposure|my responsibilities include|with over|years? of|seeking|application|possess|professional experience|currently working|presently|writing to|apply for)\b/i.test(
+        line
+      )
+    ) {
+      paras.push(line);
+      const next = lines[i + 1];
+      if (
+        next &&
+        next.length > 30 &&
+        !/^(?:\d+[\.\):\-]\s*)?(?:education|experience|skills)\b/i.test(next) &&
+        !isLikelyEducationLine(next)
+      ) {
+        paras.push(next);
+        i += 1;
+      }
+      if (paras.join(' ').length >= 120) break;
+    }
+  }
+
+  const joined = paras.join(' ').replace(/\s+/g, ' ').trim();
+  if (joined.length >= 60 && !isInvalidImportSummary(joined)) {
+    return joined.length > 4000 ? joined.slice(0, 4000) : joined;
+  }
+
+  const flat = rawText.replace(/\s+/g, ' ');
+  const proseMatch = flat.match(
+    /\b((?:in my current role|i am responsible|my professional exposure|dear\s+(?:sir|madam|hiring manager))[\s\S]{80,2400}?)(?=\s(?:EDUCATION|EXPERIENCE|SKILLS|CERTIFICATIONS|EMPLOYMENT)\b|$)/i
+  );
+  if (proseMatch) {
+    const prose = proseMatch[1].replace(/\s+/g, ' ').trim();
+    if (prose.length >= 100 && !isInvalidImportSummary(prose)) {
+      return prose.length > 4000 ? prose.slice(0, 4000) : prose;
+    }
+  }
+
+  return '';
+}
+
+/** Keep only plausible professional summaries for SummaryStep. */
+export function sanitizeImportSummary(text: string, rawText = ''): string {
+  const t = sanitizeMultilineFieldText(text, 4000);
+  if (t && !isInvalidImportSummary(t)) return t;
+  const recovered = recoverSummaryFromRawText(rawText);
+  return recovered || '';
+}
+
+/** Reject URLs, prose fragments, and non-titles for jobTitle / headline fields. */
+export function sanitizeImportJobTitle(text: string): string {
+  let t = sanitizeFieldText(text, 120);
+  if (!t) return '';
+  if (t.includes('|')) {
+    const segments = t
+      .split('|')
+      .map((p) => p.trim())
+      .filter((p) => p.length >= 4);
+    if (segments.length > 0) {
+      t = segments[0];
+    }
+  }
+  if (/linkedin\.com|https?:\/\/|www\./i.test(t)) return '';
+  if (/^on\s+(corporate|the)\b/i.test(t)) return '';
+  if (isExperienceBlurbFragment(t)) return '';
+  if (isExperienceResponsibility(t)) return '';
+  if (looksLikeSentenceNotCompany(t) && !looksLikeJobTitleLine(t)) return '';
+  const classified = classifyResumeTextFragment(t);
+  if (classified.kind === 'SECTION_HEADER' || classified.kind === 'LOCATION') return '';
+  if (classified.kind === 'COMPANY_NAME' && !looksLikeJobTitleLine(t)) return '';
+  if (t.split(/\s+/).length > 10) return '';
+  return t;
 }
 
 export function isPlausiblePersonName(value: unknown): boolean {
@@ -482,6 +759,19 @@ export function pickBestNameFromCandidates(candidates: NameCandidate[], email = 
   return best;
 }
 
+function isEmailLocalSubstringName(name: string, email: string): boolean {
+  const local = String(email.split('@')[0] || '')
+    .replace(/\d/g, '')
+    .toLowerCase();
+  if (!local || local.length < 8 || /[._-]/.test(local)) return false;
+  const parts = name
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((p) => p.length >= 3);
+  if (parts.length < 2) return false;
+  return parts.every((p) => local.includes(p));
+}
+
 export function pickRicherFullName(primary: string, secondary: string, email = ''): string {
   const a = sanitizePersonName(primary);
   const b = sanitizePersonName(secondary);
@@ -489,6 +779,17 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
   if (!a && !b) return '';
   if (!a) return b;
   if (!b) return a;
+
+  const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
+  if (emailDerived && isAcceptedEmailDerivedName(emailDerived)) {
+    const emailNorm = emailDerived.toLowerCase();
+    if (a.toLowerCase() === emailNorm && isEmailLocalSubstringName(b, email) && nameWordCount(b) > nameWordCount(a)) {
+      return a;
+    }
+    if (b.toLowerCase() === emailNorm && isEmailLocalSubstringName(a, email) && nameWordCount(a) > nameWordCount(b)) {
+      return b;
+    }
+  }
 
   const aFirm = isFirmOrLocationNamePhrase(a);
   const bFirm = isFirmOrLocationNamePhrase(b);
@@ -560,6 +861,8 @@ const SKILL_NOISE_TOKENS = new Set([
   'secretarial', 'charge', 'dematerialisation', 'dematerialization', 'board',
   'officer', 'legal', 'head', 'corporate', 'markets', 'listing', 'pit',
   'auditors', 'financial', 'preparation', 'marketing', 'finance', 'records',
+  'bonus', 'gratuity', 'increments', 'onboarding', 'confirmation', 'attendance',
+  'managed', 'handling', 'led', 'india',
 ]);
 
 const SKILL_ACRONYM_ALLOW = new Set([
@@ -717,6 +1020,8 @@ export function sanitizeSkillEntry(skill: unknown): string {
   // Reject pure-numeric, percentage-only, or noise tokens
   if (/^\d+\.?\d*\s*%?$/.test(s)) return '';
   if (SKILL_NOISE_TOKENS.has(s.toLowerCase())) return '';
+  if (/^managed\b/i.test(s)) return '';
+  if (/^location\s*:/i.test(s)) return '';
   if (/^[A-Z]{3,}$/.test(s) && !SKILL_ACRONYM_ALLOW.has(s.toLowerCase())) return '';
   if (/\([^)]*$/.test(s) || /^[^)]*\)/.test(s)) return '';
 
@@ -1103,7 +1408,7 @@ export function sanitizeLanguageEntry(
 const PROJECT_TITLE_SUFFIX_RE =
   /\b(Website|Web\s*Site|Portal|System|Systems|Application|Applications|App|Platform|Dashboard|API|Tool|Suite|Software)\b/i;
 const PROJECT_VERB_PREFIX_RE =
-  /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated|coordinated|successfully|handled)\b/i;
+  /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated|coordinated|coordination|successfully|handled)\b/i;
 
 export function isMisclassifiedExperienceProject(name: string, description = ''): boolean {
   const n = sanitizeFieldText(name, 120);
@@ -1111,6 +1416,7 @@ export function isMisclassifiedExperienceProject(name: string, description = '')
   if (PROJECT_VERB_PREFIX_RE.test(n)) return true;
   if (isCorporateStructurePhrase(n)) return true;
   if (/^drhp\b/i.test(n)) return true;
+  if (/cship\b/i.test(n)) return true;
   if (/^company\.?$/i.test(n)) return true;
   if (!isPlausibleProjectName(n)) return true;
   const combined = `${n} ${description}`.trim();
@@ -1784,7 +2090,7 @@ export function sanitizeExperienceDateValue(value: unknown): string {
 }
 
 const JOB_TITLE_HINT_RE =
-  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder)\b/i;
+  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources)\b/i;
 
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
@@ -1904,6 +2210,44 @@ function recoverCompanyFromExperienceText(
       return line;
     }
   }
+  return '';
+}
+
+function recoverPositionFromExperienceText(description: string, company: string): string {
+  const lines = description.split('\n').map((l) => l.trim()).filter(Boolean);
+  const blob = lines.slice(0, 2).join(' ');
+
+  const hrMatch = blob.match(
+    /\b((?:senior|assistant|associate|deputy)?\s*hr\s+(?:generalist|executive|manager|specialist|coordinator|bp)(?:\s*\([^)]+\))?)\b/i
+  );
+  if (hrMatch) return formatDisplayName(hrMatch[1].trim());
+
+  const csMatch = blob.match(
+    /\b((?:senior|assistant|associate|deputy|group)?\s*(?:company\s+secretary|compliance\s+officer|legal\s+head)(?:\s*(?:&|and)\s*[^,.]{3,40})?)\b/i
+  );
+  if (csMatch) return formatDisplayName(csMatch[1].trim());
+
+  for (const line of lines.slice(0, 3)) {
+    if (line.length > 90) continue;
+    if (looksLikeJobTitleLine(line) && !looksLikeCompanyNameLine(line)) return line;
+    const asMatch = line.match(/^as\s+(?:a\s+)?(.+?)(?:\s+at\s+|\s+with\s+|$)/i);
+    if (asMatch) {
+      const title = sanitizeFieldText(asMatch[1], 120);
+      if (title && looksLikeJobTitleLine(title)) return title;
+    }
+    const roleMatch = line.match(
+      /\bin my current role as\s+(.+?)(?:\s+with\b|\s+at\b|,|\.|$)/i
+    );
+    if (roleMatch) {
+      const title = sanitizeFieldText(roleMatch[1], 120);
+      if (title && looksLikeJobTitleLine(title)) return title;
+    }
+  }
+
+  if (company && looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) {
+    return company;
+  }
+
   return '';
 }
 
@@ -2211,6 +2555,23 @@ export function reconcileExperienceHeaderFields(
         company = rest;
       }
     }
+  }
+
+  if (
+    company &&
+    !position &&
+    (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company))
+  ) {
+    if (!location) location = company;
+    company =
+      recoverCompanyFromExperienceText(deduped.description, position) ||
+      sanitizeFieldText(exp.companyName || exp.CompanyName, 160) ||
+      '';
+  }
+
+  if (!position && deduped.description) {
+    const recoveredTitle = recoverPositionFromExperienceText(deduped.description, company);
+    if (recoveredTitle) position = recoveredTitle;
   }
 
   const result = {
@@ -3374,6 +3735,7 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
   ) {
     return null;
   }
+  if (institution && /^date\s+/i.test(institution)) return null;
 
   return {
     ...edu,

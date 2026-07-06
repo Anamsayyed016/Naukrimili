@@ -78,6 +78,9 @@ import {
   isCorporateStructurePhrase,
   isMisclassifiedExperienceProject,
   isAcceptedEmailDerivedName,
+  sanitizeImportSummary,
+  sanitizeImportJobTitle,
+  enrichPartialNameFromEmail,
 } from '@/lib/resume-parser/import-sanitize';
 import { extractNameWithConfidence } from '@/lib/resume-parser/text-recovery';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
@@ -87,6 +90,7 @@ import {
   isFirmOrLocationNamePhrase,
   isLikelyCompanyNameFragment,
   isLikelyEducationLine,
+  isExperienceResponsibility,
   nameOverlapsLocation,
   shouldKeepAsGlobalAchievement,
   stashUnclassifiedFragment,
@@ -1297,7 +1301,13 @@ export function transformImportDataToBuilder(
   );
 
   const summaryRaw = mergeSummarySections(mergedImport, textParsed, recovered.summary);
-  const summary = summaryRaw || cleanMultiline(mergedImport.summary || mergedImport.bio || mergedImport.objective || recovered.summary || '').slice(0, 4000);
+  const summary = sanitizeImportSummary(
+    summaryRaw ||
+      cleanMultiline(
+        mergedImport.summary || mergedImport.bio || mergedImport.objective || recovered.summary || ''
+      ),
+    effectiveRawText
+  ).slice(0, 4000);
 
   // Names — classification layer before any contact field mapping
   const locationHint = String(
@@ -1309,6 +1319,17 @@ export function transformImportDataToBuilder(
     textParsed?.fullName || '',
     locationHint
   );
+  let resolvedFirstName = firstName;
+  let resolvedLastName = lastName;
+  let resolvedDisplayName = displayName;
+  if (email && displayName) {
+    resolvedDisplayName = enrichPartialNameFromEmail(displayName, email);
+    if (resolvedDisplayName !== displayName) {
+      const split = splitFullNameWithRejected(resolvedDisplayName);
+      resolvedFirstName = split.firstName || firstName;
+      resolvedLastName = split.lastName || lastName;
+    }
+  }
   const textAdditional = isCustomParser
     ? emptyAdditionalResumeData()
     : effectiveRawText.length >= 80
@@ -1366,14 +1387,15 @@ export function transformImportDataToBuilder(
       jobTitle = inferred;
     }
   }
+  jobTitle = sanitizeImportJobTitle(jobTitle);
 
   // 3. Build form data shaped exactly for each step
   const transformed: Record<string, any> = {
     // ===== ContactsStep =====
-    firstName,
-    lastName,
-    name: displayName,
-    fullName: displayName,
+    firstName: resolvedFirstName,
+    lastName: resolvedLastName,
+    name: resolvedDisplayName,
+    fullName: resolvedDisplayName,
     email,
     phone,
     location,
@@ -1465,11 +1487,14 @@ export function transformImportDataToBuilder(
   transformed.Languages = transformed.languages;
   transformed.Hobbies = transformed.hobbies;
 
-  const trimmedSummary = trimSummaryForStructuredSections(transformed.summary, {
-    experience: transformed.experience,
-    education: transformed.education,
-    skills: transformed.skills,
-  });
+  const trimmedSummary = sanitizeImportSummary(
+    trimSummaryForStructuredSections(transformed.summary, {
+      experience: transformed.experience,
+      education: transformed.education,
+      skills: transformed.skills,
+    }),
+    effectiveRawText
+  );
   transformed.summary = trimmedSummary;
   transformed.bio = trimmedSummary;
   transformed.objective = trimmedSummary;
@@ -1732,6 +1757,18 @@ function resolveClassifiedName(
     additionalResumeData
   );
   if (acceptedProfile) {
+    const displayName = email
+      ? enrichPartialNameFromEmail(acceptedProfile.displayName, email)
+      : acceptedProfile.displayName;
+    if (displayName !== acceptedProfile.displayName) {
+      const split = splitFullNameWithRejected(displayName);
+      return {
+        firstName: split.firstName || acceptedProfile.firstName,
+        lastName: split.lastName || acceptedProfile.lastName,
+        displayName,
+        additionalResumeData,
+      };
+    }
     return {
       ...acceptedProfile,
       additionalResumeData,
@@ -1775,6 +1812,12 @@ function resolveClassifiedName(
       continue;
     }
     rawFullName = pickRicherFullName(rawFullName, cleaned, email);
+  }
+
+  if (rawFullName && email) {
+    rawFullName = enrichPartialNameFromEmail(rawFullName, email);
+  } else if (!rawFullName && textHeaderName && email) {
+    rawFullName = enrichPartialNameFromEmail(textHeaderName, email);
   }
 
   const garbage =
@@ -1822,11 +1865,22 @@ function resolveClassifiedName(
       ? pickRicherFullName(currentCombined, emailCombined, email)
       : currentCombined;
     if (richer && richer !== currentCombined) {
-      const split = splitFullNameWithRejected(richer);
-      firstName = split.firstName;
-      lastName = split.lastName;
-      for (const rejected of split.rejected) {
-        stashUnclassifiedFragment(additionalResumeData, rejected.value, rejected.kind);
+      const headerValidated = isValidatedContactName(currentCombined, locationHint);
+      const richerValidated = isValidatedContactName(richer, locationHint);
+      const headerWords = currentCombined.toLowerCase().split(/\s+/).filter(Boolean);
+      const richerContainsHeader =
+        headerWords.length >= 2 &&
+        headerWords.every((w) => richer.toLowerCase().includes(w));
+      if (
+        richerValidated &&
+        (!headerValidated || richerContainsHeader || richer.split(/\s+/).length > headerWords.length)
+      ) {
+        const split = splitFullNameWithRejected(richer);
+        firstName = split.firstName;
+        lastName = split.lastName;
+        for (const rejected of split.rejected) {
+          stashUnclassifiedFragment(additionalResumeData, rejected.value, rejected.kind);
+        }
       }
     } else if (!hasUsableName && fromEmail) {
       firstName = fromEmail.firstName;
@@ -1850,11 +1904,11 @@ function resolveClassifiedName(
   let safeFirst = sanitizePersonName(firstName, 80);
   let safeLast = sanitizePersonName(lastName, 80);
   let finalDisplay = [safeFirst, safeLast].filter(Boolean).join(' ').trim();
-  if (combined && isAcceptedEmailDerivedName(combined) && isValidatedContactName(combined, locationHint)) {
-    finalDisplay = formatDisplayName(combined);
-    const split = splitFullNameWithRejected(finalDisplay);
-    safeFirst = split.firstName || safeFirst;
-    safeLast = split.lastName || safeLast;
+  if (email && finalDisplay) {
+    finalDisplay = enrichPartialNameFromEmail(finalDisplay, email);
+    const enrichedSplit = splitFullNameWithRejected(finalDisplay);
+    safeFirst = enrichedSplit.firstName || safeFirst;
+    safeLast = enrichedSplit.lastName || safeLast;
   }
   if (!finalDisplay && combined && isValidatedContactName(combined, locationHint)) {
     finalDisplay = combined;
@@ -1936,6 +1990,23 @@ function applyBuilderImportGuards(
   out = rehomeMisclassifiedProjects(out);
   out.achievements = transformAchievementsArray(out.achievements, false);
   out.Achievements = out.achievements;
+  const cleanSummary = sanitizeImportSummary(String(out.summary || out.bio || ''), rawText);
+  out.summary = cleanSummary;
+  out.bio = cleanSummary;
+  out.objective = cleanSummary;
+  const cleanTitle = sanitizeImportJobTitle(String(out.jobTitle || out.title || ''));
+  out.jobTitle = cleanTitle;
+  out.title = cleanTitle;
+  out.projects = transformProjectsArray(
+    out.projects,
+    cleanTitle,
+    Array.isArray(out.experience)
+      ? (out.experience as Record<string, unknown>[]).map((e) =>
+          String(e.title || e.position || '').trim()
+        )
+      : []
+  );
+  out.Projects = out.projects;
   if (Array.isArray(out.experience) && out.experience.length > 0) {
     out.experience = transformExperienceArray(out.experience);
     out['Work Experience'] = out.experience;
@@ -2127,12 +2198,24 @@ function recoverSkillsFromRawText(rawText: string, existing: string[]): string[]
   const out = [...existing];
   if (!rawText || rawText.length < 80) return out;
 
+  const addSkill = (part: string) => {
+    const skill = sanitizeSkillEntry(part);
+    if (!skill) return;
+    const key = skill.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(skill);
+  };
+
   for (const line of rawText.split('\n')) {
     const t = line.trim();
     if (t.length < 6 || t.length > 90) continue;
     if (!/[|,]/.test(t)) continue;
     if (
       !/compliance|governance|sebi|ipo|fema|fdi|irda|amfi|mca|roc|rbi|secretarial|capital market|due diligence|drhp|regulatory/i.test(
+        t
+      ) &&
+      !/recruitment|payroll|hris|hrms|onboarding|attendance|employee relations|performance management|naukri|linkedin|hr generalist|human resources/i.test(
         t
       )
     ) {
@@ -2142,19 +2225,20 @@ function recoverSkillsFromRawText(rawText: string, existing: string[]): string[]
       .split(/[|,]+/)
       .map((p) => p.trim().replace(/[*.]+$/g, ''))
       .filter(Boolean);
-    if (parts.length < 2 || parts.length > 8) continue;
+    if (parts.length < 2 || parts.length > 10) continue;
     for (const part of parts) {
       if (part.length > 28 || part.split(/\s+/).length > 3) continue;
-      if (/^(on|and|in|the|with|my|a|an|of|for|to|officer|legal|head|corporate|board|finance)\b/i.test(part)) {
+      if (/^(on|and|in|the|with|my|a|an|of|for|to|officer|legal|head|corporate|board|finance|managed|handling)\b/i.test(part)) {
         continue;
       }
-      const skill = sanitizeSkillEntry(part);
-      if (!skill) continue;
-      const key = skill.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push(skill);
+      addSkill(part);
     }
+  }
+
+  const hrSkillRe =
+    /\b(recruitment|talent acquisition|payroll|hris|hrms|onboarding|offboarding|employee relations|performance management|compensation|benefits|hr operations|hr generalist|human resources|naukri|linkedin hiring|attendance management|leave management|statutory compliance)\b/gi;
+  for (const match of rawText.matchAll(hrSkillRe)) {
+    addSkill(match[0]);
   }
 
   return cleanSkills(out).slice(0, 24) as string[];
@@ -2221,6 +2305,7 @@ function finalizeBuilderContactIdentity(
     let last = sanitizePersonName(out.lastName, 80);
     let display = [first, last].filter(Boolean).join(' ').trim() || current;
     if (email) {
+      display = enrichPartialNameFromEmail(display, email);
       const fromEmail = parseIntelligentNameFromEmail(email);
       const emailCombined = fromEmail
         ? [fromEmail.firstName, fromEmail.lastName].filter(Boolean).join(' ')
@@ -2228,15 +2313,14 @@ function finalizeBuilderContactIdentity(
       const richer = emailCombined
         ? pickRicherFullName(display, emailCombined, email)
         : display;
-      if (richer && richer !== display && isValidatedContactName(richer, locationHint)) {
-        const split = splitFullNameWithRejected(richer);
-        display = richer;
-        first = split.firstName || first;
-        last = split.lastName || last;
-      } else if (
+      if (
         richer &&
-        isAcceptedEmailDerivedName(richer) &&
-        isValidatedContactName(richer, locationHint)
+        richer !== display &&
+        isValidatedContactName(richer, locationHint) &&
+        (!isValidatedContactName(display, locationHint) ||
+          (richer.split(/\s+/).filter(Boolean).length >
+            display.split(/\s+/).filter(Boolean).length &&
+            !isEmailDerivedName(display, email)))
       ) {
         const split = splitFullNameWithRejected(richer);
         display = richer;
@@ -2244,11 +2328,11 @@ function finalizeBuilderContactIdentity(
         last = split.lastName || last;
       }
     }
-    if (display && isAcceptedEmailDerivedName(display)) {
+    if (display) {
       const split = splitFullNameWithRejected(formatDisplayName(display));
       first = split.firstName || first;
       last = split.lastName || last;
-      display = formatDisplayName(display);
+      display = [first, last].filter(Boolean).join(' ').trim() || display;
     }
     out.firstName = first;
     out.lastName = last;
@@ -2300,6 +2384,7 @@ function finalizeBuilderContactIdentity(
 
 function isUsableJobHeadline(value: string): boolean {
   if (!value || isGarbageResumeText(value) || isExperienceBlurbFragment(value)) return false;
+  if (!sanitizeImportJobTitle(value)) return false;
   const norm = value.trim();
   const lower = norm.toLowerCase();
   if (GENERIC_BUILDER_JOB_TITLES.has(lower)) return false;
@@ -2340,7 +2425,7 @@ function extractJobTitleFromImport(
       '',
     120
   );
-  if (direct && isUsableJobHeadline(direct)) return direct;
+  if (direct && isUsableJobHeadline(direct)) return sanitizeImportJobTitle(direct);
 
   const firstExp = experience[0];
   if (firstExp) {
@@ -2355,7 +2440,7 @@ function extractJobTitleFromImport(
       ),
       120
     );
-    if (fromExp && isUsableJobHeadline(fromExp)) return fromExp;
+    if (fromExp && isUsableJobHeadline(fromExp)) return sanitizeImportJobTitle(fromExp);
   }
 
   return '';
@@ -2665,6 +2750,9 @@ function transformProjectsArray(
       ) {
         return false;
       }
+      if (name && isMisclassifiedExperienceProject(name, desc)) {
+        return false;
+      }
       return true;
     });
   console.log('[import-transformer] final projects.length', transformed.length);
@@ -2785,12 +2873,14 @@ function transformAchievementsArray(achievements: unknown, trustParserList = fal
     const value = sanitizeAchievementEntry(a);
     if (!value || isMisplacedAchievementLine(value)) continue;
     if (!trustParserList && !shouldKeepAsGlobalAchievement(value)) continue;
+    if (isExperienceResponsibility(value) && !shouldKeepAsGlobalAchievement(value)) continue;
+    if (isMisclassifiedExperienceProject(value)) continue;
     const key = value.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(value);
   }
-  return out;
+  return out.slice(0, 12);
 }
 
 /* ------------------------------------------------------------------ */
