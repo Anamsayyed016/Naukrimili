@@ -285,7 +285,7 @@ export function ensureBuilderContactFields(
     parts.slice(1).join(' '),
     safeFull
   );
-  out.firstName = repaired.firstName || parts[0] ?? '';
+  out.firstName = (repaired.firstName || parts[0]) ?? '';
   out.lastName = repaired.lastName || parts.slice(1).join(' ');
   out.name = [out.firstName, out.lastName].filter(Boolean).join(' ').trim() || safeFull;
   out.fullName = out.name;
