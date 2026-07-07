@@ -103,6 +103,15 @@ export interface DynamicLayoutPlan {
   certificationSpacing: number;
   languageSpacing: number;
   projectSpacing: number;
+  experienceCount: number;
+  visibleSectionCount: number;
+  summaryIsShort: boolean;
+  experienceCardPadding: number;
+  experienceListGap: number;
+  experienceHeaderGap: number;
+  experienceDescPadding: number;
+  bulletIndent: number;
+  sidebarCardPadding: number;
 }
 
 export interface ComputeDynamicLayoutOptions {
@@ -260,29 +269,68 @@ function computeColumnBasisPct(
   };
 }
 
-function resolveSkillColumns(
-  skillCount: number,
-  hasSidebar: boolean,
-  mainColumnBasisPct: number,
-  fill: number
-): number {
-  const widthFactor = mainColumnBasisPct / 100;
+function resolveSkillColumns(skillCount: number, hasSidebar: boolean): number {
   if (skillCount <= 0) return 2;
   if (hasSidebar) {
-    if (skillCount <= 4) return 2;
-    if (skillCount <= 10) return 2;
+    if (skillCount <= 6) return 2;
+    if (skillCount <= 12) return 2;
     return 3;
   }
-  const cols =
-    skillCount <= 6
-      ? 2
-      : skillCount <= 14
-        ? 3
-        : skillCount <= 28
-          ? 4
-          : 4;
-  if (fill < 0.55 && widthFactor > 0.68) return Math.max(2, cols - 1);
-  return cols;
+  if (skillCount <= 4) return 2;
+  if (skillCount <= 8) return 2;
+  if (skillCount <= 12) return 3;
+  return 4;
+}
+
+function countExperienceItems(
+  formData?: Record<string, unknown>,
+  renderedHtml?: string
+): number {
+  if (formData) {
+    return filterMeaningfulExperiences(
+      (Array.isArray(formData.experience) ? formData.experience : []) as Array<
+        Record<string, unknown>
+      >
+    ).length;
+  }
+  return countMatches(renderedHtml ?? '', /\bexperience-item\b/gi);
+}
+
+function countSummaryWords(
+  formData?: Record<string, unknown>,
+  renderedHtml?: string
+): number {
+  if (formData) {
+    const text = String(
+      formData.summary || formData.professionalSummary || formData['Professional Summary'] || ''
+    ).trim();
+    if (text) return text.split(/\s+/).filter(Boolean).length;
+  }
+  const match = (renderedHtml ?? '').match(
+    /class="[^"]*summary-text[^"]*"[^>]*>([\s\S]*?)<\//i
+  );
+  if (!match) return 0;
+  const text = match[1].replace(/<[^>]+>/g, ' ').trim();
+  return text ? text.split(/\s+/).filter(Boolean).length : 0;
+}
+
+function boostSidebarExtrasWhenMainTaller(
+  extras: Partial<Record<LayoutSectionKind, number>>,
+  metrics: RenderedLayoutMetrics
+): Partial<Record<LayoutSectionKind, number>> {
+  if (metrics.sidebarHeight <= 0 || metrics.mainHeight <= metrics.sidebarHeight * 1.08) {
+    return extras;
+  }
+  const boost = Math.min(120, (metrics.mainHeight - metrics.sidebarHeight) * 0.18);
+  const kinds: LayoutSectionKind[] = ['education', 'languages', 'certifications'];
+  const present = kinds.filter((k) => metrics.sidebarSections.some((s) => s.kind === k));
+  if (present.length === 0) return extras;
+  const per = Math.round(boost / present.length);
+  const out = { ...extras };
+  for (const k of present) {
+    out[k] = (out[k] ?? 0) + per;
+  }
+  return out;
 }
 
 /**
@@ -514,6 +562,13 @@ export function computeDynamicLayoutPlanFromMetrics(
     // Hold zone — minimal adjustment
   }
 
+  const visibleSectionCount = metrics.sections.length;
+  if (visibleSectionCount <= 4 && fill < 0.72) {
+    sectionGapMul *= 1.18;
+    blockGapMul *= 1.14;
+    sectionPaddingMul *= 1.12;
+  }
+
   const skillCount = formData
     ? (filterMeaningfulSkills(normalizeSkillsForRender(formData)) as string[]).length
     : countMatches(
@@ -522,12 +577,7 @@ export function computeDynamicLayoutPlanFromMetrics(
       );
 
   const columnBasis = computeColumnBasisPct(metrics, hasSidebar, metrics.sidebarSparse);
-  let skillColumns = resolveSkillColumns(
-    skillCount,
-    hasSidebar,
-    columnBasis.main,
-    fill
-  );
+  const skillColumns = resolveSkillColumns(skillCount, hasSidebar);
 
   let mainFlexGrow = hasSidebar ? 1.65 : 1;
   let sidebarFlexGrow = hasSidebar ? 1 : 0;
@@ -551,6 +601,48 @@ export function computeDynamicLayoutPlanFromMetrics(
   const density = clamp(fill, 0, 1.35) / 1.35;
   const blockGap = Math.round(BASE_BLOCK_GAP * blockGapMul * 10) / 10;
   const sectionGap = Math.round(BASE_SECTION_GAP * sectionGapMul * 10) / 10;
+  const sectionPadding = Math.round(BASE_SECTION_PADDING * sectionPaddingMul * 10) / 10;
+
+  sectionExtras = boostSidebarExtrasWhenMainTaller(sectionExtras, metrics);
+
+  const experienceCount = countExperienceItems(formData, options?.renderedHtml);
+  const summaryWords = countSummaryWords(formData, options?.renderedHtml);
+  const summaryIsShort = summaryWords > 0 && summaryWords < 45;
+
+  let experienceCardPadding = sectionPadding;
+  let experienceListGap = blockGap;
+  let experienceHeaderGap = Math.round(BASE_HEADING_GAP * headingGapMul * 10) / 10;
+  let experienceDescPadding = Math.round(blockGap * 0.85 * 10) / 10;
+  let bulletIndent = 16;
+
+  if (experienceCount === 1) {
+    const singleMul = fill < 0.75 ? 2.1 : 1.45;
+    experienceCardPadding = Math.round(sectionPadding * singleMul * 10) / 10;
+    experienceListGap = Math.round(blockGap * (fill < 0.75 ? 1.65 : 1.25) * 10) / 10;
+    experienceDescPadding = Math.round(experienceDescPadding * (fill < 0.75 ? 1.5 : 1.2) * 10) / 10;
+    bulletIndent = 18;
+  } else if (experienceCount >= 4) {
+    const compress = clamp((experienceCount - 3) / 6, 0, 1);
+    experienceCardPadding = Math.round(sectionPadding * (1 - compress * 0.2) * 10) / 10;
+    experienceListGap = Math.round(blockGap * (1 - compress * 0.22) * 10) / 10;
+    experienceDescPadding = Math.round(experienceDescPadding * (1 - compress * 0.15) * 10) / 10;
+  }
+
+  if (summaryIsShort && fill < 0.8) {
+    lineHeightMul += 0.06;
+    paragraphSpacingMul += 0.2;
+  } else if (summaryWords > 80) {
+    lineHeightMul -= 0.04;
+    paragraphSpacingMul -= 0.08;
+  }
+
+  let sidebarCardPadding = sectionPadding;
+  if (metrics.sidebarSparse || metrics.mainHeight > metrics.sidebarHeight * 1.1) {
+    sidebarCardPadding = Math.round(
+      sectionPadding * (metrics.sidebarSparse ? 1.55 : 1.28) * 10
+    ) / 10;
+    sidebarGapMul *= metrics.sidebarSparse ? 1.25 : 1.12;
+  }
 
   return {
     sectionGap,
@@ -563,7 +655,7 @@ export function computeDynamicLayoutPlanFromMetrics(
     mainFlexGrow: Math.round(mainFlexGrow * 100) / 100,
     sidebarFlexGrow: Math.round(sidebarFlexGrow * 100) / 100,
     density: Math.round(density * 1000) / 1000,
-    sectionPadding: Math.round(BASE_SECTION_PADDING * sectionPaddingMul * 10) / 10,
+    sectionPadding,
     paragraphSpacing: Math.round(BASE_PARAGRAPH_SPACING * paragraphSpacingMul * 10) / 10,
     columnGap: Math.round(BASE_COLUMN_GAP * columnGapMul * 10) / 10,
     summarySpacing: Math.round(
@@ -590,6 +682,15 @@ export function computeDynamicLayoutPlanFromMetrics(
     projectSpacing: Math.round(
       (blockGap + (sectionExtras.projects ?? 0)) * 10
     ) / 10,
+    experienceCount,
+    visibleSectionCount,
+    summaryIsShort,
+    experienceCardPadding,
+    experienceListGap,
+    experienceHeaderGap,
+    experienceDescPadding,
+    bulletIndent,
+    sidebarCardPadding,
   };
 }
 
@@ -712,6 +813,115 @@ function buildProportionalSectionRules(): string {
 }`.trim();
 }
 
+function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
+  const summaryShortCss = plan.summaryIsShort
+    ? `
+.resume-container[data-dl-summary='short'] .summary-text,
+.resume-container[data-dl-summary='short'] [class*='summary-text'],
+.resume-container[data-dl-summary='short'] .professional-summary {
+  max-width: 100% !important;
+  line-height: calc(var(--dl-line-height, 1.5) * 1.08) !important;
+  margin-bottom: calc(var(--dl-summary-spacing, 12px) + var(--dl-paragraph-spacing, 4px)) !important;
+}`
+    : '';
+
+  return `
+/* Experience — hierarchy + adaptive card density (layout only) */
+.resume-container .experience-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--dl-exp-list-gap, var(--dl-block-gap)) !important;
+}
+
+.resume-container .experience-item {
+  padding: var(--dl-exp-card-padding, var(--dl-section-padding)) 0 !important;
+  margin-bottom: var(--dl-experience-spacing, var(--dl-block-gap)) !important;
+  flex: 1 1 auto !important;
+  min-height: auto !important;
+}
+
+.resume-container .experience-list > .experience-item:only-child,
+.resume-container[data-dl-exp-count='1'] .experience-item {
+  padding-top: calc(var(--dl-exp-card-padding, 6px) * 1.2) !important;
+  padding-bottom: calc(var(--dl-exp-card-padding, 6px) * 1.4) !important;
+}
+
+.resume-container .experience-header {
+  margin-bottom: var(--dl-exp-header-gap, var(--dl-heading-gap)) !important;
+}
+
+.resume-container .experience-header h3 {
+  margin-bottom: 2px !important;
+}
+
+.resume-container .experience-header .company {
+  display: block !important;
+}
+
+.resume-container .experience-header .duration {
+  display: inline-block !important;
+}
+
+.resume-container .experience-item .description {
+  margin-top: var(--dl-exp-desc-padding, 8px) !important;
+  padding-top: calc(var(--dl-exp-desc-padding, 8px) * 0.9) !important;
+  border-top: 1px solid color-mix(in srgb, currentColor 13%, transparent) !important;
+}
+
+.resume-container .experience-item .description ul {
+  margin: calc(var(--dl-exp-desc-padding, 8px) * 0.35) 0 0 !important;
+  padding-left: 0 !important;
+  list-style: none !important;
+}
+
+.resume-container .experience-item .description li,
+.resume-container .experience-item .description ul li {
+  position: relative !important;
+  padding-left: var(--dl-bullet-indent, 16px) !important;
+  margin-bottom: var(--dl-bullet-gap, 0.35em) !important;
+  line-height: var(--dl-line-height) !important;
+}
+
+${summaryShortCss}
+
+/* Skills — adaptive balanced grid */
+.resume-container .skills-list:not(:has(.psp-skill-item)),
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)),
+.resume-container [class*='skills-grid']:not(:has(.psp-skill-item)),
+.resume-container [class*='skills-list']:not(:has(.psp-skill-item)) {
+  justify-items: stretch !important;
+  align-content: start !important;
+}
+
+.resume-container .skills-list:not(:has(.psp-skill-item)) > .skill-tag,
+.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) > .skill-tag {
+  text-align: center !important;
+  justify-self: stretch !important;
+}
+
+/* Sidebar cards — vertical growth when sparse */
+.resume-container aside .education-item,
+.resume-container aside .certification-item,
+.resume-container aside .language-item,
+.resume-container aside .psp-language-item,
+.resume-container .sidebar .education-item,
+.resume-container .sidebar .certification-item,
+.resume-container .sidebar .language-item,
+.resume-container .sidebar .psp-language-item {
+  padding-top: calc(var(--dl-sidebar-card-padding, var(--dl-section-padding)) * 0.4) !important;
+  padding-bottom: calc(var(--dl-sidebar-card-padding, var(--dl-section-padding)) * 0.7) !important;
+  flex: 1 1 auto !important;
+}
+
+/* Flexible section shells — no fixed heights */
+.resume-container section,
+.resume-container .content-section,
+.resume-container .sidebar-section {
+  flex: 1 1 auto !important;
+  min-height: auto !important;
+}`.trim();
+}
+
 export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutPlan): void {
   root.style.setProperty('--dl-section-gap', `${plan.sectionGap}px`);
   root.style.setProperty('--dl-block-gap', `${plan.blockGap}px`);
@@ -735,6 +945,12 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.style.setProperty('--dl-sidebar-basis', `${plan.sidebarColumnBasisPct}%`);
   root.style.setProperty('--dl-sidebar-max', `${plan.sidebarMaxWidthPct}%`);
   root.style.setProperty('--dl-sidebar-gap', `${plan.sidebarInternalGap}px`);
+  root.style.setProperty('--dl-exp-card-padding', `${plan.experienceCardPadding}px`);
+  root.style.setProperty('--dl-exp-list-gap', `${plan.experienceListGap}px`);
+  root.style.setProperty('--dl-exp-header-gap', `${plan.experienceHeaderGap}px`);
+  root.style.setProperty('--dl-exp-desc-padding', `${plan.experienceDescPadding}px`);
+  root.style.setProperty('--dl-bullet-indent', `${plan.bulletIndent}px`);
+  root.style.setProperty('--dl-sidebar-card-padding', `${plan.sidebarCardPadding}px`);
   const kinds: LayoutSectionKind[] = [
     'summary',
     'experience',
@@ -751,6 +967,9 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   }
   root.setAttribute('data-dl-refined', 'true');
   root.setAttribute('data-dl-fill', String(Math.round(plan.pageFillRatio * 100)));
+  root.setAttribute('data-dl-exp-count', String(plan.experienceCount));
+  root.setAttribute('data-dl-summary', plan.summaryIsShort ? 'short' : 'normal');
+  root.setAttribute('data-dl-sections', String(plan.visibleSectionCount));
 }
 
 /**
@@ -801,6 +1020,12 @@ export function buildDynamicLayoutCss(
   --dl-sidebar-basis: ${plan.sidebarColumnBasisPct}%;
   --dl-sidebar-max: ${plan.sidebarMaxWidthPct}%;
   --dl-sidebar-gap: ${plan.sidebarInternalGap}px;
+  --dl-exp-card-padding: ${plan.experienceCardPadding}px;
+  --dl-exp-list-gap: ${plan.experienceListGap}px;
+  --dl-exp-header-gap: ${plan.experienceHeaderGap}px;
+  --dl-exp-desc-padding: ${plan.experienceDescPadding}px;
+  --dl-bullet-indent: ${plan.bulletIndent}px;
+  --dl-sidebar-card-padding: ${plan.sidebarCardPadding}px;
 ${extraVars}
 }
 
@@ -920,13 +1145,15 @@ ${extraVars}
 `.trim();
 
   if (preservePremium) {
-    return `${structureCss}\n\n${buildProportionalSectionRules()}`;
+    return `${structureCss}\n\n${buildProportionalSectionRules()}\n\n${buildRichContentLayoutCss(plan)}`;
   }
 
   return `
 ${structureCss}
 
 ${buildProportionalSectionRules()}
+
+${buildRichContentLayoutCss(plan)}
 
 .resume-container section,
 .resume-container .content-section,
@@ -1059,7 +1286,14 @@ export function getDomAwareLayoutRefinementScript(): string {
   }
   function apply(){
     var root=document.querySelector('.resume-container'); if(!root)return;
-    var p=plan(measure());
+    var m=measure();
+    var fill=m.pageFillRatio;
+    var p=plan(m);
+    var expCount=(document.querySelectorAll('.experience-item')||[]).length;
+    var expPad=6*p.pad, expGap=p.blockGap, expDesc=p.blockGap*0.85, bulletInd=16;
+    if(expCount===1){expPad=6*p.pad*(fill<0.75?2.1:1.45);expGap=p.blockGap*(fill<0.75?1.65:1.25);expDesc=expGap*0.85*(fill<0.75?1.5:1.2);bulletInd=18;}
+    else if(expCount>=4){var c=Math.min(1,(expCount-3)/6);expPad=6*p.pad*(1-c*0.2);expGap=p.blockGap*(1-c*0.22);}
+    var sbCard=6*p.pad*(m.sidebarSparse?1.55:(m.mainHeight>m.sidebarHeight*1.1?1.28:1));
     root.style.setProperty('--dl-section-gap',p.sectionGap+'px');
     root.style.setProperty('--dl-block-gap',p.blockGap+'px');
     root.style.setProperty('--dl-font-scale',String(p.fontScale));
@@ -1073,9 +1307,25 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-main-basis',p.mnPct+'%');
     root.style.setProperty('--dl-sidebar-basis',p.sbPct+'%');
     root.style.setProperty('--dl-sidebar-max',p.sbMax+'%');
+    root.style.setProperty('--dl-exp-card-padding',expPad+'px');
+    root.style.setProperty('--dl-exp-list-gap',expGap+'px');
+    root.style.setProperty('--dl-exp-desc-padding',expDesc+'px');
+    root.style.setProperty('--dl-bullet-indent',bulletInd+'px');
+    root.style.setProperty('--dl-sidebar-card-padding',sbCard+'px');
+    var skillTags=document.querySelectorAll('.skill-tag,.psp-skill-item').length;
+    var cols=2;
+    if(skillTags>12)cols=m.sidebarHeight>0?3:4;
+    else if(skillTags>8)cols=3;
+    else cols=2;
+    root.style.setProperty('--dl-skill-cols',String(cols));
     Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,p.extras[k]+'px');});
     root.setAttribute('data-dl-refined','true');
     root.setAttribute('data-dl-fill',String(Math.round(measure().pageFillRatio*100)));
+    root.setAttribute('data-dl-exp-count',String(expCount));
+    var sumEl=document.querySelector('.summary-text,.professional-summary,[class*="summary-text"]');
+    var sumShort=false;
+    if(sumEl){var w=(sumEl.textContent||'').trim().split(/\\s+/).filter(Boolean).length;sumShort=w>0&&w<45;}
+    root.setAttribute('data-dl-summary',sumShort?'short':'normal');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply);
   else apply();
@@ -1112,7 +1362,12 @@ export function injectDynamicLayoutIntoHtml(
   const block =
     getDynamicLayoutStyleBlock(plan, { preservePremiumTypography }) +
     getDomAwareLayoutRefinementScript();
-  return appendStyleBlockToHtml(html, block);
+  let result = appendStyleBlockToHtml(html, block);
+  result = result.replace(
+    /(<div[^>]*class="[^"]*\bresume-container\b[^"]*"[^>]*)(>)/i,
+    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}"$2`
+  );
+  return result;
 }
 
 /* ── Render validation audit ── */
