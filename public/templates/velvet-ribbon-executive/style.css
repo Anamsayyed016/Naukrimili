@@ -91,7 +91,7 @@
 .vre-resume .vre-header {
   position: relative;
   z-index: 2;
-  padding: 0 32px 6px 100px;
+  padding: 0 32px 12px 100px;
   min-height: 118px;
 }
 
@@ -100,7 +100,8 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 130px;
+  height: 100%;
+  min-height: 130px;
   pointer-events: none;
   z-index: 0;
 }
@@ -109,10 +110,23 @@
   position: relative;
   z-index: 1;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding-top: 18px;
+}
+
+.vre-resume .vre-header-primary {
+  display: flex;
   flex-direction: row;
   align-items: flex-start;
   gap: 20px;
-  padding-top: 18px;
+  width: 100%;
+  min-width: 0;
+}
+
+.vre-resume .vre-header-inner:not(:has(.header-photo)) .vre-header-primary {
+  padding-left: 0;
 }
 
 .vre-resume .header-photo {
@@ -160,7 +174,7 @@
 }
 
 .vre-resume .vre-identity {
-  flex: 1 1 180px;
+  flex: 1 1 auto;
   min-width: 0;
   padding-top: 8px;
 }
@@ -207,16 +221,16 @@
   max-width: 100%;
 }
 
-/* Contact zone */
+/* Contact zone — full-width row below identity for long URLs */
 .vre-resume .vre-contact-zone {
-  flex: 1 1 200px;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
-  max-width: 46%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
-  padding-top: 4px;
+  gap: 6px;
+  padding-top: 0;
 }
 
 .vre-resume .vre-contact-zone .header-contact {
@@ -649,31 +663,29 @@
   padding: 0;
 }
 
-/* Skills — name + level with thin accent line */
+/* Skills — compact executive rows with dotted leaders */
 .vre-resume .vre-panel--skills {
   border-radius: 0;
 }
 
 .vre-resume .psp-skills-progress .skills-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 28px;
+  row-gap: 0;
 }
 
 .vre-resume .psp-skill-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  column-gap: 12px;
-  row-gap: 6px;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(201, 173, 122, 0.2);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(201, 173, 122, 0.16);
+  min-width: 0;
 }
 
 .vre-resume .psp-skill-item:last-child {
   border-bottom: none;
-  padding-bottom: 0;
 }
 
 .vre-resume .psp-skill-item::before {
@@ -681,33 +693,38 @@
 }
 
 .vre-resume .psp-skill-name {
-  grid-column: 1;
-  grid-row: 1;
-  font-size: 10.5px;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  font-size: 10px;
   font-weight: 600;
   text-transform: none;
-  letter-spacing: 0.15px;
+  letter-spacing: 0.1px;
   color: var(--text-color);
+  line-height: 1.3;
 }
 
 .vre-resume .psp-skill-item::after {
-  grid-column: 2;
-  grid-row: 1;
-  font-size: 9px;
+  flex-shrink: 0;
+  font-size: 7.5px;
   font-weight: 600;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   color: var(--primary-color);
+  line-height: 1.3;
 }
 
 .vre-resume .psp-skill-name::after {
   content: '';
-  display: block;
-  grid-column: 1 / -1;
-  height: 3px;
-  margin-top: 0;
-  border-radius: 2px;
-  background: var(--bar-track);
+  flex: 1 1 auto;
+  border-bottom: 1px dotted rgba(110, 47, 78, 0.3);
+  margin: 0 4px 2px;
+  min-width: 8px;
+  height: 0;
+  background: none;
+  border-radius: 0;
 }
 
 .vre-resume .psp-skills-progress .psp-skill-item:nth-child(1)::after { content: 'Expert'; }
@@ -719,34 +736,6 @@
 .vre-resume .psp-skills-progress .psp-skill-item:nth-child(7)::after { content: 'Advanced'; }
 .vre-resume .psp-skills-progress .psp-skill-item:nth-child(8)::after { content: 'Proficient'; }
 .vre-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9)::after { content: 'Advanced'; }
-
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(1) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 88%, var(--bar-track) 88%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(2) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 78%, var(--bar-track) 78%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(3) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 82%, var(--bar-track) 82%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(4) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 68%, var(--bar-track) 68%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(5) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 90%, var(--bar-track) 90%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(6) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 55%, var(--bar-track) 55%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(7) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 75%, var(--bar-track) 75%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(8) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 70%, var(--bar-track) 70%);
-}
-.vre-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 72%, var(--bar-track) 72%);
-}
 
 /* Density */
 body[data-density='sparse'] .vre-resume .vre-sidebar-inner,

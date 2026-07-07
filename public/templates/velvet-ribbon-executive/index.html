@@ -82,29 +82,31 @@
         </svg>
 
         <div class="vre-header-inner">
-          {{#if PROFILE_IMAGE}}
-          <div class="header-photo">
-            <svg class="vre-photo-shadow" viewBox="0 0 110 110" aria-hidden="true">
-              <ellipse cx="55" cy="88" rx="42" ry="14" fill="#2e1528" opacity="0.35" />
-            </svg>
-            <div class="vre-photo-frame">
-              <div class="profile-image-wrapper">
-                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          <div class="vre-header-primary">
+            {{#if PROFILE_IMAGE}}
+            <div class="header-photo">
+              <svg class="vre-photo-shadow" viewBox="0 0 110 110" aria-hidden="true">
+                <ellipse cx="55" cy="88" rx="42" ry="14" fill="#2e1528" opacity="0.35" />
+              </svg>
+              <div class="vre-photo-frame">
+                <div class="profile-image-wrapper">
+                  <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                </div>
               </div>
             </div>
-          </div>
-          {{/if}}
-
-          <div class="vre-identity">
-            <h1 class="candidate-name">
-              <span class="name-first">{{FIRST_NAME}}</span>
-              <span class="name-space"> </span>
-              <span class="name-last">{{LAST_NAME}}</span>
-              <span class="name-fallback">{{FULL_NAME}}</span>
-            </h1>
-            {{#if JOB_TITLE}}
-            <p class="header-title">{{JOB_TITLE}}</p>
             {{/if}}
+
+            <div class="vre-identity">
+              <h1 class="candidate-name">
+                <span class="name-first">{{FIRST_NAME}}</span>
+                <span class="name-space"> </span>
+                <span class="name-last">{{LAST_NAME}}</span>
+                <span class="name-fallback">{{FULL_NAME}}</span>
+              </h1>
+              {{#if JOB_TITLE}}
+              <p class="header-title">{{JOB_TITLE}}</p>
+              {{/if}}
+            </div>
           </div>
 
           {{#if CONTACT}}
