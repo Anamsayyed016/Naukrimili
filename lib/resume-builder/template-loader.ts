@@ -51,6 +51,8 @@ import {
   isPremiumTemplate,
 } from './ats-content-balance-css';
 import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
+import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
+import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
 
 /**
  * Load template metadata from JSON
@@ -431,7 +433,10 @@ export function injectResumeData(
   formData: Record<string, unknown>,
   options?: InjectResumeDataOptions
 ): string {
-  const coalesced = coalesceFormDataForTemplateRender(formData);
+  const coalesced = pruneAndMergeDynamicSections(
+    coalesceFormDataForTemplateRender(formData),
+    DYNAMIC_SECTION_REGISTRY
+  );
   const renderMode = options?.mode ?? 'preview';
   const preserveFullContent = shouldPreserveFullContentForRender(coalesced, options);
   const data = optimizeResumeDataForRender(coalesced, {

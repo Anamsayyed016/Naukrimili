@@ -269,10 +269,9 @@ function mergeDynamicIntoStandard(
       continue;
     }
     if (standardItems.length > 0) {
-      const unique = dynamicItems.filter((item) => !standardItems.some((e) => tokensMatch(e, item)));
-      const duplicates = dynamicItems.filter((item) => standardItems.some((e) => tokensMatch(e, item)));
-      if (duplicates.length > 0) writeStandardStringList(builder, rule.target, mergeUniqueIntoTarget(standardItems, duplicates));
-      (next[rule.dynamicField] as string[]) = unique;
+      // Native sections are authoritative: always merge alias content into native and suppress duplicate dynamic section.
+      writeStandardStringList(builder, rule.target, mergeUniqueIntoTarget(standardItems, dynamicItems));
+      (next[rule.dynamicField] as string[]) = [];
     }
   }
   return next;
