@@ -587,23 +587,25 @@
   color: var(--text-color);
 }
 
-/* Skills — refined thin bars with emerald accent stripe */
+/* Skills — premium emerald pill chips in compact two-column grid */
 .eel-resume .psp-skills-progress .skills-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 8px;
 }
 
 .eel-resume .psp-skill-item {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto;
-  gap: 6px;
-  align-items: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: auto;
-  padding-left: 14px;
-  border-left: 2px solid var(--primary-color);
+  padding: 5px 10px;
+  margin: 0;
+  border: 1px solid rgba(26, 107, 99, 0.22);
+  border-left: 1px solid rgba(26, 107, 99, 0.22);
+  border-radius: 18px;
+  background: rgba(26, 107, 99, 0.06);
 }
 
 .eel-resume .psp-skill-item::before {
@@ -615,53 +617,18 @@
 }
 
 .eel-resume .psp-skill-name {
-  grid-column: 1;
-  grid-row: 1;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 500;
   text-transform: none;
-  letter-spacing: 0.01em;
-  color: var(--text-color);
+  letter-spacing: 0.02em;
+  color: var(--petroleum);
+  text-align: center;
   word-break: break-word;
+  line-height: 1.35;
 }
 
 .eel-resume .psp-skill-name::after {
-  content: '';
-  display: block;
-  height: 3px;
-  margin-top: 6px;
-  border-radius: 2px;
-  background: var(--bar-track);
-  border: none;
-  box-shadow: none;
-}
-
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(1) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 88%, var(--bar-track) 88%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(2) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 82%, var(--bar-track) 82%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(3) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 90%, var(--bar-track) 90%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(4) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 76%, var(--bar-track) 76%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(5) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 85%, var(--bar-track) 85%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(6) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 72%, var(--bar-track) 72%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(7) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 80%, var(--bar-track) 80%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(8) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 78%, var(--bar-track) 78%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 84%, var(--bar-track) 84%);
+  display: none;
 }
 
 /* Education / Certifications / Achievements */

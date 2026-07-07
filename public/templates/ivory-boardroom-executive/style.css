@@ -505,7 +505,7 @@ body {
   font-size: 10.5px;
 }
 
-/* Skills — minimal dot proficiency indicators */
+/* Skills — executive dotted leaders with proficiency labels */
 .psp-skills-progress .skills-list {
   display: flex;
   flex-direction: column;
@@ -514,11 +514,9 @@ body {
 
 .psp-skill-item {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 9px 0;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 0;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -527,7 +525,10 @@ body {
 }
 
 .psp-skill-name {
-  flex: 1;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
   min-width: 0;
   font-size: 10.5px;
   font-weight: 500;
@@ -537,31 +538,41 @@ body {
   word-break: break-word;
 }
 
+.psp-skill-name::after {
+  content: '';
+  flex: 1 1 auto;
+  border-bottom: 1px dotted rgba(184, 160, 120, 0.45);
+  margin: 0 4px;
+  min-width: 10px;
+  transform: translateY(-2px);
+}
+
 .psp-skill-item::before {
   display: none;
 }
 
 .psp-skill-item::after {
   flex-shrink: 0;
-  font-size: 7px;
-  letter-spacing: 3px;
-  line-height: 1;
-  color: var(--accent-color);
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-text);
   height: auto;
   background: none;
   border: none;
   border-radius: 0;
 }
 
-.psp-skill-item:nth-child(1)::after { content: '● ● ● ● ○'; }
-.psp-skill-item:nth-child(2)::after { content: '● ● ● ○ ○'; }
-.psp-skill-item:nth-child(3)::after { content: '● ● ● ● ○'; }
-.psp-skill-item:nth-child(4)::after { content: '● ● ● ○ ○'; }
-.psp-skill-item:nth-child(5)::after { content: '● ● ● ● ●'; }
-.psp-skill-item:nth-child(6)::after { content: '● ● ○ ○ ○'; }
-.psp-skill-item:nth-child(7)::after { content: '● ● ● ○ ○'; }
-.psp-skill-item:nth-child(8)::after { content: '● ● ● ● ○'; }
-.psp-skill-item:nth-child(n + 9)::after { content: '● ● ● ○ ○'; }
+.psp-skill-item:nth-child(1)::after { content: 'Expert'; }
+.psp-skill-item:nth-child(2)::after { content: 'Advanced'; }
+.psp-skill-item:nth-child(3)::after { content: 'Advanced'; }
+.psp-skill-item:nth-child(4)::after { content: 'Proficient'; }
+.psp-skill-item:nth-child(5)::after { content: 'Expert'; }
+.psp-skill-item:nth-child(6)::after { content: 'Intermediate'; }
+.psp-skill-item:nth-child(7)::after { content: 'Advanced'; }
+.psp-skill-item:nth-child(8)::after { content: 'Proficient'; }
+.psp-skill-item:nth-child(n + 9)::after { content: 'Advanced'; }
 
 /* Education / Certifications */
 .education-list,
@@ -706,6 +717,7 @@ body[data-density='balanced'] .column-inner {
   .profile-image-wrapper,
   .boardroom-timeline::before,
   .boardroom-timeline .experience-item::before,
+  .psp-skill-name::after,
   .psp-skill-item::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;

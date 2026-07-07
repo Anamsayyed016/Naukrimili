@@ -617,20 +617,30 @@
   font-size: 10.5px;
 }
 
-/* Skills — elegant thin progress lines */
+/* Skills — corporate compact rows with percentage + short indicators */
 .esl-resume .psp-skills-progress .skills-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0;
 }
 
 .esl-resume .psp-skill-item {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 3px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.esl-resume .psp-skill-item:last-child {
+  border-bottom: none;
 }
 
 .esl-resume .psp-skill-name {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 10.5px;
   font-weight: 500;
   text-transform: none;
@@ -640,44 +650,83 @@
 }
 
 .esl-resume .psp-skill-item::before {
-  display: none;
+  content: '';
+  display: block;
+  flex: 0 0 100%;
+  width: 58%;
+  max-width: 136px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--bar-track);
+  order: 3;
 }
 
 .esl-resume .psp-skill-item::after {
-  content: '';
-  display: block;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--bar-track);
+  flex: 0 0 auto;
+  order: 2;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--primary-color);
+  height: auto;
+  background: none;
   border: none;
+  border-radius: 0;
 }
 
-.esl-resume .psp-skill-item:nth-child(1)::after {
+.esl-resume .psp-skill-item:nth-child(1)::before {
   background: linear-gradient(90deg, var(--primary-color) 88%, var(--bar-track) 88%);
 }
-.esl-resume .psp-skill-item:nth-child(2)::after {
+.esl-resume .psp-skill-item:nth-child(1)::after {
+  content: '90%';
+}
+.esl-resume .psp-skill-item:nth-child(2)::before {
   background: linear-gradient(90deg, var(--primary-color) 82%, var(--bar-track) 82%);
 }
-.esl-resume .psp-skill-item:nth-child(3)::after {
+.esl-resume .psp-skill-item:nth-child(2)::after {
+  content: '85%';
+}
+.esl-resume .psp-skill-item:nth-child(3)::before {
   background: linear-gradient(90deg, var(--primary-color) 90%, var(--bar-track) 90%);
 }
-.esl-resume .psp-skill-item:nth-child(4)::after {
+.esl-resume .psp-skill-item:nth-child(3)::after {
+  content: '92%';
+}
+.esl-resume .psp-skill-item:nth-child(4)::before {
   background: linear-gradient(90deg, var(--primary-color) 76%, var(--bar-track) 76%);
 }
-.esl-resume .psp-skill-item:nth-child(5)::after {
+.esl-resume .psp-skill-item:nth-child(4)::after {
+  content: '78%';
+}
+.esl-resume .psp-skill-item:nth-child(5)::before {
   background: linear-gradient(90deg, var(--primary-color) 85%, var(--bar-track) 85%);
 }
-.esl-resume .psp-skill-item:nth-child(6)::after {
+.esl-resume .psp-skill-item:nth-child(5)::after {
+  content: '87%';
+}
+.esl-resume .psp-skill-item:nth-child(6)::before {
   background: linear-gradient(90deg, var(--primary-color) 72%, var(--bar-track) 72%);
 }
-.esl-resume .psp-skill-item:nth-child(7)::after {
+.esl-resume .psp-skill-item:nth-child(6)::after {
+  content: '74%';
+}
+.esl-resume .psp-skill-item:nth-child(7)::before {
   background: linear-gradient(90deg, var(--primary-color) 80%, var(--bar-track) 80%);
 }
-.esl-resume .psp-skill-item:nth-child(8)::after {
+.esl-resume .psp-skill-item:nth-child(7)::after {
+  content: '82%';
+}
+.esl-resume .psp-skill-item:nth-child(8)::before {
   background: linear-gradient(90deg, var(--primary-color) 78%, var(--bar-track) 78%);
 }
-.esl-resume .psp-skill-item:nth-child(n + 9)::after {
+.esl-resume .psp-skill-item:nth-child(8)::after {
+  content: '80%';
+}
+.esl-resume .psp-skill-item:nth-child(n + 9)::before {
   background: linear-gradient(90deg, var(--primary-color) 84%, var(--bar-track) 84%);
+}
+.esl-resume .psp-skill-item:nth-child(n + 9)::after {
+  content: '84%';
 }
 
 /* Languages — thin lines to match skills */
@@ -764,6 +813,7 @@ body[data-density='light'] .esl-resume .esl-column-inner {
   .esl-resume .esl-frame-plate,
   .esl-resume .esl-timeline::before,
   .esl-resume .esl-timeline .experience-item::before,
+  .esl-resume .psp-skill-item::before,
   .esl-resume .psp-skill-item::after,
   .esl-resume .psp-language-bar-fill {
     -webkit-print-color-adjust: exact !important;
