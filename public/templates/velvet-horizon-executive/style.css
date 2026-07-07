@@ -259,6 +259,21 @@
   margin-bottom: 0;
 }
 
+/* Section-to-section rhythm: subtle separators without redesign */
+.vhe-resume .vhe-col > .vhe-section {
+  position: relative;
+}
+
+.vhe-resume .vhe-col > .vhe-section + .vhe-section::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: -9px;
+  height: 1px;
+  background: rgba(20, 107, 98, 0.14);
+}
+
 .vhe-resume .section-title {
   font-family: var(--font-serif);
   font-size: 14px;
@@ -315,6 +330,10 @@
   margin-bottom: 0;
 }
 
+.vhe-resume .vhe-timeline .experience-item + .experience-item {
+  border-top: 1px solid rgba(20, 107, 98, 0.08);
+}
+
 .vhe-resume .vhe-timeline .experience-item::before {
   content: '';
   position: absolute;
@@ -366,6 +385,14 @@
   padding: 0;
 }
 
+.vhe-resume .experience-item .description li {
+  margin-bottom: 4px;
+}
+
+.vhe-resume .experience-item .description li:last-child {
+  margin-bottom: 0;
+}
+
 /* ── Project showcase cards ── */
 .vhe-resume .vhe-project-showcase {
   display: grid;
@@ -383,6 +410,12 @@
   box-shadow: 0 5px 14px rgba(10, 74, 68, 0.05);
   page-break-inside: avoid;
   break-inside: avoid;
+}
+
+.vhe-resume .vhe-project-showcase .project-item .description + .technologies {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(20, 107, 98, 0.1);
 }
 
 .vhe-resume .vhe-project-showcase .project-item::before {
@@ -542,6 +575,10 @@
   margin-bottom: 0;
 }
 
+.vhe-resume .vhe-achievement-cards .achievement-item + .achievement-item {
+  border-top: 1px solid rgba(20, 107, 98, 0.08);
+}
+
 .vhe-resume .vhe-achievement-cards .achievement-item::before {
   content: '';
   position: absolute;
@@ -573,6 +610,10 @@
 .vhe-resume .vhe-cert-list .certification-item:last-child {
   border-bottom: none;
   padding-bottom: 0;
+}
+
+.vhe-resume .vhe-cert-list .certification-item + .certification-item {
+  margin-top: 2px;
 }
 
 .vhe-resume .certification-item h3 {
@@ -612,6 +653,10 @@
   border-radius: 8px;
   background: rgba(20, 107, 98, 0.04);
   border: 1px solid rgba(20, 107, 98, 0.12);
+}
+
+.vhe-resume .vhe-lang-list .language-item + .language-item {
+  margin-top: 2px;
 }
 
 .vhe-resume .vhe-lang-list .language {
