@@ -1,15 +1,15 @@
 /* Ivory Boardroom Executive — midnight navy + champagne luxury resume */
 
 :root {
-  --primary-color: #0f2341;
-  --accent-color: #c4b896;
-  --text-color: #1a2332;
-  --muted-text: #5a6478;
-  --ivory-bg: #f7f5f0;
-  --ivory-panel: #faf9f6;
-  --header-deep: #0a1628;
-  --bar-track: rgba(196, 184, 150, 0.22);
-  --border-color: rgba(196, 184, 150, 0.45);
+  --primary-color: #1e2d3d;
+  --accent-color: #b8a078;
+  --text-color: #2a3340;
+  --muted-text: #6b7280;
+  --ivory-bg: #faf8f4;
+  --ivory-panel: #fdfcfa;
+  --header-deep: #1a2838;
+  --bar-track: rgba(184, 160, 120, 0.18);
+  --border-color: rgba(184, 160, 120, 0.28);
   --max-width: 210mm;
   --page-height: 297mm;
   --col-side-width: 260px;
@@ -292,7 +292,7 @@ body {
   flex-direction: row;
   align-items: stretch;
   min-height: auto;
-  padding: 16px var(--content-inset) 48px;
+  padding: 24px var(--content-inset) 52px;
   gap: 0;
 }
 
@@ -301,7 +301,7 @@ body {
   z-index: 1;
   flex: 1;
   min-width: 0;
-  padding: 8px 24px 0 0;
+  padding: 4px 32px 0 0;
 }
 
 .col-side {
@@ -310,15 +310,29 @@ body {
   width: var(--col-side-width);
   min-width: var(--col-side-width);
   flex-shrink: 0;
-  padding: 8px 0 0 20px;
-  background: linear-gradient(180deg, rgba(250, 249, 246, 0.98) 0%, var(--ivory-panel) 100%);
-  border-left: 2px solid var(--border-color);
+  padding: 4px 0 0 28px;
+  background: transparent;
+  border-left: 1px solid var(--border-color);
+}
+
+.col-side .column-inner {
+  gap: 0;
 }
 
 .column-inner {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 28px;
+}
+
+.col-side .ib-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.col-side .ib-section:first-child {
+  padding-top: 0;
+  border-top: none;
 }
 
 .ib-section {
@@ -328,101 +342,95 @@ body {
 
 .ib-heading {
   font-family: var(--font-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.2px;
   text-transform: uppercase;
   color: var(--primary-color);
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 14px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .ib-heading::after {
   content: '';
   display: block;
-  width: 48px;
-  height: 2px;
-  margin-top: 6px;
-  background: linear-gradient(90deg, var(--accent-color), transparent);
+  width: 32px;
+  height: 1px;
+  margin-top: 8px;
+  background: var(--accent-color);
 }
 
 .summary-text {
-  font-size: 11px;
-  line-height: 1.65;
+  font-size: 11.5px;
+  line-height: 1.78;
   color: var(--text-color);
   text-align: left;
+  max-width: 62ch;
 }
 
-/* Experience timeline */
+/* Experience — editorial entries, no cards */
 .boardroom-timeline {
   position: relative;
-  padding-left: 22px;
+  padding-left: 0;
 }
 
 .boardroom-timeline::before {
-  content: '';
-  position: absolute;
-  left: 5px;
-  top: 8px;
-  bottom: 8px;
-  width: 2px;
-  background: linear-gradient(180deg, var(--accent-color), var(--bar-track));
+  display: none;
 }
 
 .boardroom-timeline .experience-item {
   position: relative;
-  margin-bottom: 16px;
-  padding-left: 16px;
+  margin-bottom: 0;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.boardroom-timeline .experience-item:first-child {
+  padding-top: 4px;
 }
 
 .boardroom-timeline .experience-item:last-child {
   margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .boardroom-timeline .experience-item::before {
-  content: '';
-  position: absolute;
-  left: -22px;
-  top: 5px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  border: 2px solid var(--ivory-bg);
-  box-shadow: 0 0 0 2px var(--primary-color);
+  display: none;
 }
 
 .boardroom-timeline .experience-header h3 {
-  font-family: var(--font-serif);
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
   color: var(--primary-color);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .boardroom-timeline .experience-header .company {
   font-size: 10.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--muted-text);
   display: block;
   margin-bottom: 4px;
 }
 
 .boardroom-timeline .experience-header .duration {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--accent-color);
-  letter-spacing: 0.3px;
-  margin-bottom: 6px;
-  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--muted-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
 }
 
 .boardroom-timeline .experience-item .description {
   font-size: 10.5px;
-  line-height: 1.62;
+  line-height: 1.72;
   color: var(--text-color);
 }
 
@@ -497,89 +505,63 @@ body {
   font-size: 10.5px;
 }
 
-/* Skills — horizontal premium bars */
+/* Skills — minimal dot proficiency indicators */
 .psp-skills-progress .skills-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
 }
 
 .psp-skill-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  column-gap: 8px;
-  row-gap: 5px;
+  display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.psp-skill-item:last-child {
+  border-bottom: none;
 }
 
 .psp-skill-name {
-  grid-column: 1;
-  grid-row: 1;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--primary-color);
+  flex: 1;
+  min-width: 0;
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--text-color);
   word-break: break-word;
 }
 
 .psp-skill-item::before {
-  grid-column: 2;
-  grid-row: 1;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--accent-color);
+  display: none;
 }
 
 .psp-skill-item::after {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  content: '';
-  display: block;
-  height: 7px;
-  border-radius: 4px;
-  background: var(--bar-track);
-  border: 1px solid rgba(196, 184, 150, 0.4);
+  flex-shrink: 0;
+  font-size: 7px;
+  letter-spacing: 3px;
+  line-height: 1;
+  color: var(--accent-color);
+  height: auto;
+  background: none;
+  border: none;
+  border-radius: 0;
 }
 
-.psp-skill-item:nth-child(1)::before { content: '92%'; }
-.psp-skill-item:nth-child(2)::before { content: '88%'; }
-.psp-skill-item:nth-child(3)::before { content: '85%'; }
-.psp-skill-item:nth-child(4)::before { content: '80%'; }
-.psp-skill-item:nth-child(5)::before { content: '90%'; }
-.psp-skill-item:nth-child(6)::before { content: '78%'; }
-.psp-skill-item:nth-child(7)::before { content: '86%'; }
-.psp-skill-item:nth-child(8)::before { content: '82%'; }
-.psp-skill-item:nth-child(n + 9)::before { content: '84%'; }
-
-.psp-skill-item:nth-child(1)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 92%, var(--bar-track) 92%);
-}
-.psp-skill-item:nth-child(2)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 88%, var(--bar-track) 88%);
-}
-.psp-skill-item:nth-child(3)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 85%, var(--bar-track) 85%);
-}
-.psp-skill-item:nth-child(4)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 80%, var(--bar-track) 80%);
-}
-.psp-skill-item:nth-child(5)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 90%, var(--bar-track) 90%);
-}
-.psp-skill-item:nth-child(6)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 78%, var(--bar-track) 78%);
-}
-.psp-skill-item:nth-child(7)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 86%, var(--bar-track) 86%);
-}
-.psp-skill-item:nth-child(8)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 82%, var(--bar-track) 82%);
-}
-.psp-skill-item:nth-child(n + 9)::after {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 84%, var(--bar-track) 84%);
-}
+.psp-skill-item:nth-child(1)::after { content: '● ● ● ● ○'; }
+.psp-skill-item:nth-child(2)::after { content: '● ● ● ○ ○'; }
+.psp-skill-item:nth-child(3)::after { content: '● ● ● ● ○'; }
+.psp-skill-item:nth-child(4)::after { content: '● ● ● ○ ○'; }
+.psp-skill-item:nth-child(5)::after { content: '● ● ● ● ●'; }
+.psp-skill-item:nth-child(6)::after { content: '● ● ○ ○ ○'; }
+.psp-skill-item:nth-child(7)::after { content: '● ● ● ○ ○'; }
+.psp-skill-item:nth-child(8)::after { content: '● ● ● ● ○'; }
+.psp-skill-item:nth-child(n + 9)::after { content: '● ● ● ○ ○'; }
 
 /* Education / Certifications */
 .education-list,
@@ -621,46 +603,49 @@ body {
   border-bottom: 1px solid var(--accent-color);
 }
 
-/* Languages */
+/* Languages — matches minimal dot style */
 .psp-languages-progress .languages-list {
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 0;
 }
 
 .psp-language-item {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.psp-language-item:last-child {
+  border-bottom: none;
 }
 
 .psp-language-name {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--primary-color);
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--text-color);
 }
 
 .psp-language-bar-container {
-  width: 100%;
-  height: 7px;
-  background: var(--bar-track);
-  border: 1px solid rgba(196, 184, 150, 0.4);
-  border-radius: 4px;
-  overflow: hidden;
+  display: none;
 }
 
 .psp-language-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-  border-radius: 3px;
+  display: none;
 }
 
 .psp-language-percentage {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--accent-color);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-text);
 }
 
 /* ── Density-aware spacing ── */

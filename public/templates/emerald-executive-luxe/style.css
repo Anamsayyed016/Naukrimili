@@ -1,16 +1,16 @@
 /* Emerald Executive Luxe — cinematic SVG-forward luxury executive resume (scoped) */
 
 .eel-resume {
-  --primary-color: #146b62;
-  --accent-color: #c4a862;
-  --text-color: #1e2a32;
-  --muted-text: #4a5c66;
-  --ivory-bg: #f5f3ec;
-  --panel-bg: rgba(255, 255, 255, 0.78);
-  --petroleum: #1a3342;
-  --emerald-deep: #0d524c;
-  --bar-track: rgba(20, 107, 98, 0.14);
-  --border-color: rgba(196, 168, 98, 0.38);
+  --primary-color: #1a6b63;
+  --accent-color: #b8a070;
+  --text-color: #243038;
+  --muted-text: #5a6b72;
+  --ivory-bg: #f8f6f0;
+  --panel-bg: transparent;
+  --petroleum: #1e3340;
+  --emerald-deep: #145a54;
+  --bar-track: rgba(26, 107, 99, 0.1);
+  --border-color: rgba(26, 107, 99, 0.14);
   --frame-width: 52px;
   --side-width: 268px;
   --max-width: 210mm;
@@ -166,24 +166,17 @@
 
 @media screen {
   .eel-resume .eel-photo-orbit {
-    animation: eelOrbitSpin 24s linear infinite;
-  }
-
-  @keyframes eelOrbitSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    display: none;
   }
 }
 
 .eel-resume .eel-photo-ring {
   position: relative;
   z-index: 1;
-  padding: 7px;
+  padding: 4px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #e8d9a8, var(--accent-color) 40%, var(--primary-color));
-  box-shadow:
-    0 10px 32px rgba(20, 107, 98, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  background: linear-gradient(145deg, rgba(184, 160, 112, 0.5), var(--primary-color));
+  box-shadow: 0 6px 20px rgba(26, 107, 99, 0.15);
 }
 
 .eel-resume .profile-image-wrapper {
@@ -268,13 +261,12 @@
   position: relative;
   z-index: 1;
   margin-top: 14px;
-  padding: 10px 16px 12px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(245, 243, 236, 0.72) 100%);
-  border: 1px solid rgba(196, 168, 98, 0.32);
-  border-radius: 0 14px 0 14px;
-  box-shadow:
-    0 6px 24px rgba(26, 51, 66, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  padding: 10px 0 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border-color);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .eel-resume .eel-contact-glass-edge {
@@ -381,23 +373,33 @@
   width: var(--side-width);
   min-width: var(--side-width);
   flex-shrink: 0;
-  padding: 0 0 0 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(245, 243, 236, 0.15) 100%);
+  padding: 0 0 0 22px;
+  background: transparent;
+  border-left: 1px solid var(--border-color);
 }
 
 .eel-resume .eel-side-accent {
-  position: absolute;
-  left: 0;
-  top: 8px;
-  width: 4px;
-  height: calc(100% - 16px);
-  pointer-events: none;
+  display: none;
 }
 
 .eel-resume .eel-column-inner {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 0;
+}
+
+.eel-resume .eel-col-side .eel-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.eel-resume .eel-col-side .eel-section:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.eel-resume .eel-col-main .eel-column-inner {
+  gap: 24px;
 }
 
 .eel-resume .eel-section {
@@ -405,47 +407,48 @@
   z-index: 1;
 }
 
-/* Section headings with SVG marks */
+.eel-resume .eel-heading--side {
+  font-size: 11px;
+}
+
+/* Section headings */
 .eel-resume .eel-heading {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-family: var(--font-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   color: var(--petroleum);
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 12px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .eel-resume .eel-heading-mark {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
-}
-
-.eel-resume .eel-heading--side {
-  font-size: 12px;
+  opacity: 0.7;
 }
 
 .eel-resume .eel-glass-panel {
-  padding: 14px 16px 12px;
-  background: var(--panel-bg);
-  border: 1px solid rgba(20, 107, 98, 0.12);
-  border-radius: 0 14px 0 14px;
-  box-shadow:
-    0 6px 28px rgba(26, 51, 66, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 0 0 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  border-left: 2px solid var(--primary-color);
+  padding-left: 14px;
 }
 
 .eel-resume .eel-panel-luxe {
-  padding: 12px 14px;
-  border-left: 3px solid transparent;
-  border-image: linear-gradient(180deg, var(--accent-color), var(--primary-color)) 1;
-  background: linear-gradient(90deg, rgba(20, 107, 98, 0.04) 0%, transparent 100%);
+  padding: 0;
+  border-left: none;
+  border-image: none;
+  background: transparent;
 }
 
 .eel-resume .summary-text {
@@ -454,88 +457,78 @@
   color: var(--text-color);
 }
 
-/* Executive timeline */
+/* Executive timeline — elegant, minimal */
 .eel-resume .eel-exec-timeline {
   position: relative;
-  padding-left: 60px;
+  padding-left: 18px;
 }
 
 .eel-resume .eel-exec-timeline::before {
   content: '';
   position: absolute;
-  left: 48px;
+  left: 3px;
   top: 8px;
   bottom: 8px;
-  width: 3px;
+  width: 1px;
   z-index: 0;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--accent-color) 0%, var(--primary-color) 45%, var(--bar-track) 100%);
-  box-shadow: 0 0 12px rgba(20, 107, 98, 0.15);
+  border-radius: 0;
+  background: var(--border-color);
+  box-shadow: none;
 }
 
 .eel-resume .eel-exec-timeline .experience-item {
   position: relative;
-  margin-bottom: 18px;
-  padding: 10px 12px 10px 0;
+  margin-bottom: 0;
+  padding: 16px 0 16px 10px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .eel-resume .eel-exec-timeline .experience-item:last-child {
   margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .eel-resume .eel-exec-timeline .experience-item::before {
   content: '';
   position: absolute;
-  left: -14px;
-  top: 14px;
-  width: 14px;
-  height: 14px;
-  transform: rotate(45deg);
-  background: linear-gradient(135deg, #e8d9a8, var(--accent-color));
+  left: -18px;
+  top: 20px;
+  width: 7px;
+  height: 7px;
+  transform: none;
+  border-radius: 50%;
+  background: var(--primary-color);
   border: 2px solid var(--ivory-bg);
-  box-shadow:
-    0 0 0 2px var(--primary-color),
-    0 4px 10px rgba(20, 107, 98, 0.2);
+  box-shadow: none;
   z-index: 1;
 }
 
 .eel-resume .eel-exec-timeline .experience-item::after {
-  content: '';
-  position: absolute;
-  left: -40px;
-  top: 22px;
-  width: 14px;
-  height: 1px;
-  z-index: 0;
-  background: linear-gradient(90deg, var(--accent-color), transparent);
-  opacity: 0.65;
-}
-
-.eel-resume .eel-exec-timeline .experience-header {
-  position: relative;
-  z-index: 2;
+  display: none;
 }
 
 .eel-resume .eel-exec-timeline .experience-header .duration {
-  position: absolute;
-  left: -60px;
-  top: 10px;
-  width: 46px;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1.25;
-  text-align: right;
-  padding-right: 8px;
-  color: var(--primary-color);
-  letter-spacing: 0.2px;
+  position: static;
+  width: auto;
+  font-size: 9.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+  padding-right: 0;
+  color: var(--muted-text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
   z-index: 2;
 }
 
 .eel-resume .eel-exec-timeline .experience-header h3 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
+  text-transform: none;
   color: var(--petroleum);
   margin-bottom: 2px;
 }
@@ -569,155 +562,103 @@
 }
 
 .eel-resume .project-item {
-  padding: 8px 10px;
-  border-radius: 0 8px 0 8px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(196, 168, 98, 0.18);
+  padding: 14px 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.eel-resume .project-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .eel-resume .project-item h3 {
   font-size: 11.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--petroleum);
   margin-bottom: 3px;
 }
 
 .eel-resume .project-item .description {
   font-size: 10.5px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--text-color);
 }
 
-/* Skills — SVG ring gauges + hybrid bars */
+/* Skills — refined thin bars with emerald accent stripe */
 .eel-resume .psp-skills-progress .skills-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .eel-resume .psp-skill-item {
   position: relative;
   display: grid;
-  grid-template-columns: 48px 1fr;
+  grid-template-columns: 1fr;
   grid-template-rows: auto auto;
-  column-gap: 12px;
-  row-gap: 6px;
-  align-items: center;
-  min-height: 48px;
+  gap: 6px;
+  align-items: start;
+  min-height: auto;
+  padding-left: 14px;
+  border-left: 2px solid var(--primary-color);
 }
 
 .eel-resume .psp-skill-item::before {
-  content: '';
-  grid-column: 1;
-  grid-row: 1 / 3;
-  align-self: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background-color: #fff;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 44px 44px;
-  box-shadow:
-    0 0 0 2px rgba(196, 168, 98, 0.28),
-    0 4px 16px rgba(20, 107, 98, 0.16);
+  display: none;
 }
 
 .eel-resume .psp-skill-item::after {
-  position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--primary-color);
-  z-index: 1;
+  display: none;
 }
 
 .eel-resume .psp-skill-name {
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 1;
   font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--petroleum);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--text-color);
   word-break: break-word;
 }
 
 .eel-resume .psp-skill-name::after {
   content: '';
   display: block;
-  height: 7px;
+  height: 3px;
   margin-top: 6px;
-  border-radius: 4px;
+  border-radius: 2px;
   background: var(--bar-track);
-  border: 1px solid rgba(20, 107, 98, 0.12);
-  box-shadow: inset 0 1px 2px rgba(26, 51, 66, 0.06);
+  border: none;
+  box-shadow: none;
 }
-
-/* SVG stroke-dasharray rings (export-safe) */
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(1)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='92 108' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(2)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='88 112' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(3)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='85 115' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(4)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='80 120' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(5)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='90 110' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(6)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='78 122' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(7)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='86 114' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(8)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='82 118' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9)::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='18' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23e8e4da' stroke-width='4'/%3E%3Ccircle cx='22' cy='22' r='16' fill='none' stroke='%23146b62' stroke-width='4' stroke-dasharray='84 116' stroke-linecap='round' transform='rotate(-90 22 22)'/%3E%3C/svg%3E");
-}
-
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(1)::after { content: '92%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(2)::after { content: '88%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(3)::after { content: '85%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(4)::after { content: '80%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(5)::after { content: '90%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(6)::after { content: '78%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(7)::after { content: '86%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(8)::after { content: '82%'; }
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9)::after { content: '84%'; }
 
 .eel-resume .psp-skills-progress .psp-skill-item:nth-child(1) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 92%, var(--bar-track) 92%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(2) .psp-skill-name::after {
   background: linear-gradient(90deg, var(--primary-color) 88%, var(--bar-track) 88%);
 }
+.eel-resume .psp-skills-progress .psp-skill-item:nth-child(2) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--primary-color) 82%, var(--bar-track) 82%);
+}
 .eel-resume .psp-skills-progress .psp-skill-item:nth-child(3) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 85%, var(--bar-track) 85%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(4) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 80%, var(--bar-track) 80%);
-}
-.eel-resume .psp-skills-progress .psp-skill-item:nth-child(5) .psp-skill-name::after {
   background: linear-gradient(90deg, var(--primary-color) 90%, var(--bar-track) 90%);
 }
+.eel-resume .psp-skills-progress .psp-skill-item:nth-child(4) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--primary-color) 76%, var(--bar-track) 76%);
+}
+.eel-resume .psp-skills-progress .psp-skill-item:nth-child(5) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--primary-color) 85%, var(--bar-track) 85%);
+}
 .eel-resume .psp-skills-progress .psp-skill-item:nth-child(6) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 78%, var(--bar-track) 78%);
+  background: linear-gradient(90deg, var(--primary-color) 72%, var(--bar-track) 72%);
 }
 .eel-resume .psp-skills-progress .psp-skill-item:nth-child(7) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 86%, var(--bar-track) 86%);
+  background: linear-gradient(90deg, var(--primary-color) 80%, var(--bar-track) 80%);
 }
 .eel-resume .psp-skills-progress .psp-skill-item:nth-child(8) .psp-skill-name::after {
-  background: linear-gradient(90deg, var(--primary-color) 82%, var(--bar-track) 82%);
+  background: linear-gradient(90deg, var(--primary-color) 78%, var(--bar-track) 78%);
 }
 .eel-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9) .psp-skill-name::after {
   background: linear-gradient(90deg, var(--primary-color) 84%, var(--bar-track) 84%);
@@ -733,14 +674,22 @@
 
 .eel-resume .education-item,
 .eel-resume .certification-item {
-  padding-left: 10px;
-  border-left: 2px solid rgba(196, 168, 98, 0.35);
+  padding: 0 0 12px;
+  margin-bottom: 0;
+  border-left: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.eel-resume .education-item:last-child,
+.eel-resume .certification-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .eel-resume .education-item h3,
 .eel-resume .certification-item h3 {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--petroleum);
   margin-bottom: 2px;
 }
@@ -753,80 +702,60 @@
 
 .eel-resume .year,
 .eel-resume .date {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--muted-text);
 }
 
 .eel-resume .achievements-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
 }
 
 .eel-resume .achievement-item {
   font-size: 10px;
   line-height: 1.55;
-  padding: 6px 10px 6px 22px;
+  padding: 0 0 0 12px;
   position: relative;
   color: var(--text-color);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 0 8px 0 8px;
-  border: 1px solid rgba(20, 107, 98, 0.08);
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  margin-bottom: 8px;
 }
 
 .eel-resume .achievement-item::before {
   content: '';
   position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
-  width: 6px;
-  height: 6px;
-  background: linear-gradient(135deg, #e8d9a8, var(--accent-color));
-  box-shadow: 0 0 0 1px var(--primary-color);
+  left: 0;
+  top: 7px;
+  transform: none;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  box-shadow: none;
 }
 
 /* Languages */
 .eel-resume .psp-languages-progress .languages-list {
   display: flex;
   flex-direction: column;
-  gap: 11px;
-}
-
-.eel-resume .psp-language-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.eel-resume .psp-language-name {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--petroleum);
+  gap: 14px;
 }
 
 .eel-resume .psp-language-bar-container {
   width: 100%;
-  height: 8px;
+  height: 3px;
   background: var(--bar-track);
-  border: 1px solid rgba(20, 107, 98, 0.15);
-  border-radius: 4px;
+  border: none;
+  border-radius: 2px;
   overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(26, 51, 66, 0.06);
-}
-
-.eel-resume .psp-language-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: none;
 }
 
 .eel-resume .psp-language-percentage {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--primary-color);
+  display: none;
 }
 
 /* Density */
