@@ -74,8 +74,9 @@
 .vhe-resume .vhe-header {
   position: relative;
   z-index: 2;
-  padding: 30px 36px 22px;
+  padding: 30px 36px 24px;
   background: linear-gradient(180deg, rgba(250, 246, 240, 0.98) 0%, var(--ivory) 100%);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .vhe-resume .vhe-header-inner {
@@ -146,7 +147,7 @@
 .vhe-resume .candidate-name {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 40px;
+  font-size: 42px;
   line-height: 1.05;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -166,9 +167,9 @@
 }
 
 .vhe-resume .header-title {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 3px;
+  letter-spacing: 2.2px;
   text-transform: uppercase;
   color: var(--forest);
   margin-bottom: 14px;
@@ -189,7 +190,7 @@
 .vhe-resume .vhe-contact-item {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border: 1px solid rgba(15, 118, 110, 0.16);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.82);
@@ -201,18 +202,18 @@
 }
 
 .vhe-resume .vhe-executive-summary {
-  margin-top: 18px;
-  padding: 16px 18px;
+  margin-top: 20px;
+  padding: 14px 16px;
   border: 1px solid rgba(15, 118, 110, 0.18);
   border-left: 3px solid var(--accent-color);
   background: rgba(255, 255, 255, 0.88);
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.05);
+  border-radius: 10px;
+  box-shadow: none;
 }
 
 .vhe-resume .vhe-executive-summary .summary-text {
-  font-size: 10.5px;
-  line-height: 1.72;
+  font-size: 10.8px;
+  line-height: 1.75;
   color: var(--text-color);
 }
 
@@ -222,7 +223,7 @@
 
 /* ── Body layout ── */
 .vhe-resume .vhe-body {
-  padding: 14px 32px 52px;
+  padding: 20px 32px 52px;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -232,7 +233,7 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 22px;
+  gap: 24px;
 }
 
 .vhe-resume .vhe-col--left {
@@ -244,15 +245,20 @@
   width: var(--right-width);
   min-width: var(--right-width);
   flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 12px 10px;
+  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.04);
 }
 
 .vhe-resume .vhe-section {
-  margin-bottom: 16px;
-  padding: 14px 14px 12px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(15, 118, 110, 0.12);
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.05);
+  margin-bottom: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .vhe-resume .vhe-section:last-child {
@@ -269,7 +275,7 @@
   position: absolute;
   left: 12px;
   right: 12px;
-  top: -9px;
+  top: -12px;
   height: 1px;
   background: rgba(15, 118, 110, 0.16);
 }
@@ -281,10 +287,30 @@
   letter-spacing: 1.2px;
   text-transform: uppercase;
   color: var(--forest);
-  margin-bottom: 10px;
-  padding-bottom: 6px;
+  margin-bottom: 12px;
+  padding-bottom: 7px;
   border-bottom: 1px solid rgba(15, 118, 110, 0.24);
   position: relative;
+}
+
+.vhe-resume .vhe-col--right .vhe-section {
+  margin-bottom: 14px;
+}
+
+.vhe-resume .vhe-col--right .vhe-section + .vhe-section {
+  padding-top: 12px;
+  border-top: 1px solid rgba(15, 118, 110, 0.12);
+}
+
+.vhe-resume .vhe-col--right .vhe-section::before,
+.vhe-resume .vhe-col--right .vhe-section + .vhe-section::before {
+  display: none;
+}
+
+.vhe-resume .vhe-col--right .section-title {
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 9px;
 }
 
 .vhe-resume .section-title::before {
@@ -300,13 +326,13 @@
 /* ── Experience luxury timeline ── */
 .vhe-resume .vhe-timeline {
   position: relative;
-  padding-left: 22px;
+  padding-left: 18px;
 }
 
 .vhe-resume .vhe-timeline::before {
   content: '';
   position: absolute;
-  left: 4px;
+  left: 2px;
   top: 8px;
   bottom: 8px;
   width: 1px;
@@ -316,31 +342,34 @@
 
 .vhe-resume .vhe-timeline .experience-item {
   position: relative;
-  margin-bottom: 12px;
-  padding: 12px 13px;
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid rgba(15, 118, 110, 0.12);
-  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.05);
+  margin-bottom: 14px;
+  padding: 0 0 10px 8px;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(15, 118, 110, 0.12);
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
 .vhe-resume .vhe-timeline .experience-item:last-child {
   margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .vhe-resume .vhe-timeline .experience-item + .experience-item {
-  border-top: 1px solid rgba(15, 118, 110, 0.08);
+  border-top: none;
 }
 
 .vhe-resume .vhe-timeline .experience-item::before {
   content: '';
   position: absolute;
-  left: -22px;
-  top: 16px;
-  width: 9px;
-  height: 9px;
+  left: -17px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, var(--copper-light), var(--accent-color) 55%, var(--copper));
   border: 1px solid #ffffff;
@@ -349,14 +378,14 @@
 
 .vhe-resume .experience-header h3 {
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 12.2px;
   font-weight: 700;
   color: var(--forest);
   margin-bottom: 2px;
 }
 
 .vhe-resume .experience-header .company {
-  font-size: 10.5px;
+  font-size: 10.2px;
   font-weight: 600;
   color: var(--primary-color);
   margin-bottom: 5px;
@@ -364,19 +393,19 @@
 }
 
 .vhe-resume .experience-header .duration {
-  font-size: 10px;
+  font-size: 8.9px;
   font-weight: 700;
   color: var(--accent-color);
   display: inline-block;
-  padding: 2px 9px;
+  padding: 2px 8px;
   border-radius: 999px;
   background: rgba(14, 165, 164, 0.1);
   border: 1px solid rgba(14, 165, 164, 0.22);
 }
 
 .vhe-resume .experience-item .description {
-  font-size: 10.5px;
-  line-height: 1.62;
+  font-size: 10.4px;
+  line-height: 1.68;
   color: var(--text-color);
 }
 
@@ -397,17 +426,17 @@
 .vhe-resume .vhe-project-showcase {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
 
 .vhe-resume .vhe-project-showcase .project-item {
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   background: #ffffff;
   border: 1px solid rgba(15, 118, 110, 0.1);
-  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.05);
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.04);
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -437,8 +466,8 @@
 
 .vhe-resume .vhe-project-showcase .project-item .description,
 .vhe-resume .vhe-project-showcase .project-item .technologies {
-  font-size: 10px;
-  line-height: 1.45;
+  font-size: 9.8px;
+  line-height: 1.55;
   color: var(--muted);
   padding: 6px 10px 0;
 }
@@ -447,7 +476,7 @@
   display: inline-block;
   margin: 8px 10px 10px;
   padding: 5px 9px;
-  font-size: 10px;
+  font-size: 8.7px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -475,8 +504,8 @@
 }
 
 .vhe-resume .vhe-edu-grid .education-item {
-  padding: 12px 14px 10px;
-  border-radius: 12px;
+  padding: 10px 12px 9px;
+  border-radius: 10px;
   page-break-inside: avoid;
   break-inside: avoid;
   border-bottom: 1px solid rgba(14, 165, 164, 0.2);
@@ -485,14 +514,14 @@
 .vhe-resume .vhe-edu-grid .education-item:nth-child(odd) {
   background: linear-gradient(180deg, #ffffff 0%, var(--cream) 100%);
   border: 1px solid rgba(15, 118, 110, 0.12);
-  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.04);
+  box-shadow: none;
 }
 
 .vhe-resume .vhe-edu-grid .education-item:nth-child(even) {
   background: linear-gradient(180deg, #ffffff 0%, var(--cream) 100%);
   color: inherit;
   border: 1px solid rgba(15, 118, 110, 0.12);
-  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.04);
+  box-shadow: none;
 }
 
 .vhe-resume .vhe-edu-grid .education-item:nth-child(even) h3,
@@ -529,17 +558,17 @@
 .vhe-resume .psp-skills-progress .skills-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .vhe-resume .psp-skill-item {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: auto 4px;
+  grid-template-rows: auto 3px;
   align-items: center;
   column-gap: 10px;
-  row-gap: 5px;
-  padding-bottom: 8px;
+  row-gap: 4px;
+  padding-bottom: 7px;
   border-bottom: 1px solid rgba(15, 118, 110, 0.08);
 }
 
@@ -551,7 +580,7 @@
 .vhe-resume .psp-skill-name {
   grid-column: 1;
   grid-row: 1;
-  font-size: 10px;
+  font-size: 9.7px;
   font-weight: 600;
   color: var(--forest);
   line-height: 1.25;
@@ -560,7 +589,7 @@
 .vhe-resume .psp-skill-item::before {
   grid-column: 2;
   grid-row: 1;
-  font-size: 9px;
+  font-size: 8.3px;
   font-weight: 600;
   color: var(--muted);
 }
@@ -569,7 +598,7 @@
   grid-column: 1 / -1;
   grid-row: 2;
   content: '';
-  height: 4px;
+  height: 3px;
   border-radius: 999px;
   background: var(--bar-track);
 }
@@ -597,10 +626,10 @@
 /* ── Achievement luxury cards ── */
 .vhe-resume .vhe-achievement-cards .achievement-item {
   position: relative;
-  padding: 10px 12px 10px 36px;
+  padding: 9px 10px 9px 30px;
   margin-bottom: 8px;
   background: #ffffff;
-  border-radius: 10px;
+  border-radius: 9px;
   border: 1px solid rgba(15, 118, 110, 0.12);
   box-shadow: 0 3px 10px rgba(15, 118, 110, 0.04);
   page-break-inside: avoid;
@@ -621,15 +650,15 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2314b8a6'%3E%3Cpath d='M12 2 L14.5 9 H22 L16 13.5 L18 21 L12 17 L6 21 L8 13.5 L2 9 H9.5 Z'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
 }
 
 .vhe-resume .vhe-achievement-cards .achievement-item h3 {
-  font-size: 10px;
+  font-size: 9.8px;
   font-weight: 600;
   line-height: 1.5;
   color: var(--text-color);
@@ -637,7 +666,7 @@
 
 /* ── Certifications ── */
 .vhe-resume .vhe-cert-list .certification-item {
-  padding: 8px 0;
+  padding: 7px 0;
   border-bottom: 1px solid rgba(15, 118, 110, 0.18);
   page-break-inside: avoid;
   break-inside: avoid;
@@ -654,20 +683,20 @@
 
 .vhe-resume .certification-item h3 {
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 10.3px;
   font-weight: 700;
   color: var(--forest);
   margin-bottom: 2px;
 }
 
 .vhe-resume .issuer {
-  font-size: 10.5px;
+  font-size: 9.8px;
   color: var(--muted);
   display: block;
 }
 
 .vhe-resume .date {
-  font-size: 10px;
+  font-size: 8.7px;
   font-weight: 600;
   color: var(--accent-color);
 }
@@ -682,11 +711,11 @@
 .vhe-resume .vhe-lang-list .language-item {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: auto 4px;
+  grid-template-rows: auto 3px;
   align-items: center;
-  gap: 5px 10px;
-  font-size: 10px;
-  padding: 6px 10px 8px;
+  gap: 4px 10px;
+  font-size: 9.7px;
+  padding: 6px 9px 7px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(15, 118, 110, 0.12);
@@ -706,7 +735,7 @@
 .vhe-resume .vhe-lang-list .proficiency {
   grid-column: 2;
   grid-row: 1;
-  font-size: 10px;
+  font-size: 8.3px;
   font-weight: 500;
   color: var(--accent-color);
 }
@@ -715,7 +744,7 @@
   grid-column: 1 / -1;
   grid-row: 2;
   content: '';
-  height: 4px;
+  height: 3px;
   border-radius: 999px;
   background: var(--bar-track);
 }
@@ -731,7 +760,7 @@
   position: relative;
   z-index: 2;
   margin-top: 2px;
-  padding: 6px 36px 14px;
+  padding: 4px 36px 10px;
   background: transparent;
   text-align: center;
 }
@@ -740,7 +769,7 @@
   display: block;
   width: 100%;
   max-width: 722px;
-  height: 12px;
+  height: 10px;
   margin: 0 auto;
 }
 
