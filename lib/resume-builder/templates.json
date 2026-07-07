@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "templates": [
-    {
+        {
       "id": "luxury-corporate",
       "name": "Luxury Corporate",
       "slug": "luxury-corporate",
@@ -25,7 +25,7 @@
       ],
       "defaultColor": "navy-gold"
     },
-    {
+        {
       "id": "executive-navy-copper",
       "name": "Executive Navy Copper",
       "slug": "executive-navy-copper",
@@ -49,7 +49,91 @@
       ],
       "defaultColor": "navy-copper"
     },
-    {
+        {
+      "id": "organic-luxe-editorial",
+      "name": "Organic Luxe Editorial",
+      "slug": "organic-luxe-editorial",
+      "description": "Ultra-premium artistic editorial layout with layered organic SVG shapes, topo texture, earthy luxury palette, and ATS-safe typography hierarchy.",
+      "thumbnail": "/templates/organic-luxe-editorial/thumbnail.svg",
+      "preview": "/templates/organic-luxe-editorial/preview.svg",
+      "html": "/templates/organic-luxe-editorial/index.html",
+      "css": "/templates/organic-luxe-editorial/style.css",
+      "categories": ["Premium", "Creative", "Modern", "Professional", "Two Column", "With Photo", "ATS", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "terracotta-sage", "name": "Terracotta & Sage", "primary": "#C16A4B", "accent": "#6F8A69", "text": "#1F2326" },
+        { "id": "forest-bronze", "name": "Forest & Bronze", "primary": "#234636", "accent": "#CAA36C", "text": "#1F2326" },
+        { "id": "sand-terracotta", "name": "Sand & Terracotta", "primary": "#E4D1B4", "accent": "#A6543C", "text": "#1F2326" }
+      ],
+      "defaultColor": "terracotta-sage"
+    },
+        {
+      "id": "ivory-boardroom-executive",
+      "name": "Ivory Boardroom Executive",
+      "slug": "ivory-boardroom-executive",
+      "description": "Ultra-premium ivory boardroom layout with midnight navy and champagne gold accents, centered executive portrait, and recruiter-first contact hierarchy.",
+      "thumbnail": "/templates/ivory-boardroom-executive/thumbnail.svg",
+      "preview": "/templates/ivory-boardroom-executive/preview.svg",
+      "html": "/templates/ivory-boardroom-executive/index.html",
+      "css": "/templates/ivory-boardroom-executive/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "midnight-champagne", "name": "Midnight & Champagne", "primary": "#0F2341", "accent": "#C4B896", "text": "#1A2332" },
+        { "id": "slate-platinum", "name": "Slate & Platinum", "primary": "#2A3342", "accent": "#A8B4C4", "text": "#1A2332" },
+        { "id": "navy-silver", "name": "Navy & Silver", "primary": "#1A2744", "accent": "#D4C5A0", "text": "#1F2937" }
+      ],
+      "defaultColor": "midnight-champagne"
+    },
+        {
+      "id": "executive-slate-luxe",
+      "name": "Executive Slate Luxe",
+      "slug": "executive-slate-luxe",
+      "description": "Luxury corporate consultancy layout with slate blue and champagne gold, top contact bar, geometric portrait frame, and ATS-friendly two-column executive grid.",
+      "thumbnail": "/templates/executive-slate-luxe/thumbnail.svg",
+      "preview": "/templates/executive-slate-luxe/preview.svg",
+      "html": "/templates/executive-slate-luxe/index.html",
+      "css": "/templates/executive-slate-luxe/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "slate-champagne", "name": "Slate & Champagne", "primary": "#526580", "accent": "#B8A574", "text": "#2C3340" },
+        { "id": "graphite-platinum", "name": "Graphite & Platinum", "primary": "#3D4654", "accent": "#A8B4C4", "text": "#2C3340" },
+        { "id": "steel-bronze", "name": "Steel & Bronze", "primary": "#5A6B82", "accent": "#C4A882", "text": "#1F2937" }
+      ],
+      "defaultColor": "slate-champagne"
+    },
+        {
+      "id": "emerald-executive-luxe",
+      "name": "Emerald Executive Luxe",
+      "slug": "emerald-executive-luxe",
+      "description": "Cinematic luxury executive layout with emerald side frame, infographic skill gauges, glass panels, and ATS-friendly two-column structure.",
+      "thumbnail": "/templates/emerald-executive-luxe/thumbnail.svg",
+      "preview": "/templates/emerald-executive-luxe/preview.svg",
+      "html": "/templates/emerald-executive-luxe/index.html",
+      "css": "/templates/emerald-executive-luxe/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "emerald-gold", "name": "Emerald & Gold", "primary": "#146B62", "accent": "#C4A862", "text": "#1E2A32" },
+        { "id": "petroleum-champagne", "name": "Petroleum & Champagne", "primary": "#1A3342", "accent": "#D4C5A0", "text": "#1E2A32" },
+        { "id": "teal-bronze", "name": "Teal & Bronze", "primary": "#0F6B63", "accent": "#B8956B", "text": "#1F2937" }
+      ],
+      "defaultColor": "emerald-gold"
+    },
+        {
       "id": "slate-executive-pro",
       "name": "Slate Executive Pro",
       "slug": "slate-executive-pro",
@@ -73,7 +157,7 @@
       ],
       "defaultColor": "slate-pro"
     },
-    {
+        {
       "id": "executive-minimal-pro",
       "name": "Executive Minimal Pro",
       "slug": "executive-minimal-pro",
@@ -97,7 +181,7 @@
       ],
       "defaultColor": "minimal-pro"
     },
-    {
+        {
       "id": "teal-modern",
       "name": "Teal Modern",
       "slug": "teal-modern",
@@ -121,7 +205,7 @@
       ],
       "defaultColor": "teal"
     },
-    {
+        {
       "id": "charcoal-premium",
       "name": "Charcoal Premium",
       "slug": "charcoal-premium",
@@ -145,7 +229,7 @@
       ],
       "defaultColor": "gold"
     },
-    {
+        {
       "id": "editorial-elegant",
       "name": "Editorial Elegant",
       "slug": "editorial-elegant",
@@ -169,7 +253,7 @@
       ],
       "defaultColor": "slate"
     },
-    {
+        {
       "id": "editorial-mauve",
       "name": "Editorial Mauve",
       "slug": "editorial-mauve",
@@ -193,7 +277,7 @@
       ],
       "defaultColor": "mauve"
     },
-    {
+        {
       "id": "executive-corporate",
       "name": "Executive Corporate",
       "slug": "executive-corporate",
@@ -217,7 +301,7 @@
       ],
       "defaultColor": "corporate-blue"
     },
-    {
+        {
       "id": "executive-modern",
       "name": "Executive Modern",
       "slug": "executive-modern",
@@ -241,7 +325,7 @@
       ],
       "defaultColor": "charcoal"
     },
-    {
+        {
       "id": "platinum-executive-edge",
       "name": "Platinum Executive Edge",
       "slug": "platinum-executive-edge",
@@ -265,7 +349,7 @@
       ],
       "defaultColor": "platinum-edge"
     },
-    {
+        {
       "id": "elegant-ivory",
       "name": "Elegant Ivory",
       "slug": "elegant-ivory",
@@ -289,7 +373,7 @@
       ],
       "defaultColor": "champagne"
     },
-    {
+        {
       "id": "luxe-executive",
       "name": "Luxe Executive",
       "slug": "luxe-executive",
@@ -313,7 +397,7 @@
       ],
       "defaultColor": "champagne"
     },
-    {
+        {
       "id": "royal-copper-executive",
       "name": "Royal Copper Executive",
       "slug": "royal-copper-executive",
@@ -337,7 +421,7 @@
       ],
       "defaultColor": "copper"
     },
-    {
+        {
       "id": "royal-edge",
       "name": "Royal Edge",
       "slug": "royal-edge",
@@ -361,70 +445,7 @@
       ],
       "defaultColor": "neon-purple"
     },
-    {
-      "id": "ivory-boardroom-executive",
-      "name": "Ivory Boardroom Executive",
-      "slug": "ivory-boardroom-executive",
-      "description": "Ultra-premium ivory boardroom layout with midnight navy and champagne gold accents, centered executive portrait, and recruiter-first contact hierarchy.",
-      "thumbnail": "/templates/ivory-boardroom-executive/thumbnail.svg",
-      "preview": "/templates/ivory-boardroom-executive/preview.svg",
-      "html": "/templates/ivory-boardroom-executive/index.html",
-      "css": "/templates/ivory-boardroom-executive/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "midnight-champagne", "name": "Midnight & Champagne", "primary": "#0F2341", "accent": "#C4B896", "text": "#1A2332" },
-        { "id": "slate-platinum", "name": "Slate & Platinum", "primary": "#2A3342", "accent": "#A8B4C4", "text": "#1A2332" },
-        { "id": "navy-silver", "name": "Navy & Silver", "primary": "#1A2744", "accent": "#D4C5A0", "text": "#1F2937" }
-      ],
-      "defaultColor": "midnight-champagne"
-    },
-    {
-      "id": "executive-slate-luxe",
-      "name": "Executive Slate Luxe",
-      "slug": "executive-slate-luxe",
-      "description": "Luxury corporate consultancy layout with slate blue and champagne gold, top contact bar, geometric portrait frame, and ATS-friendly two-column executive grid.",
-      "thumbnail": "/templates/executive-slate-luxe/thumbnail.svg",
-      "preview": "/templates/executive-slate-luxe/preview.svg",
-      "html": "/templates/executive-slate-luxe/index.html",
-      "css": "/templates/executive-slate-luxe/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "slate-champagne", "name": "Slate & Champagne", "primary": "#526580", "accent": "#B8A574", "text": "#2C3340" },
-        { "id": "graphite-platinum", "name": "Graphite & Platinum", "primary": "#3D4654", "accent": "#A8B4C4", "text": "#2C3340" },
-        { "id": "steel-bronze", "name": "Steel & Bronze", "primary": "#5A6B82", "accent": "#C4A882", "text": "#1F2937" }
-      ],
-      "defaultColor": "slate-champagne"
-    },
-    {
-      "id": "emerald-executive-luxe",
-      "name": "Emerald Executive Luxe",
-      "slug": "emerald-executive-luxe",
-      "description": "Cinematic luxury executive layout with emerald side frame, infographic skill gauges, glass panels, and ATS-friendly two-column structure.",
-      "thumbnail": "/templates/emerald-executive-luxe/thumbnail.svg",
-      "preview": "/templates/emerald-executive-luxe/preview.svg",
-      "html": "/templates/emerald-executive-luxe/index.html",
-      "css": "/templates/emerald-executive-luxe/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "emerald-gold", "name": "Emerald & Gold", "primary": "#146B62", "accent": "#C4A862", "text": "#1E2A32" },
-        { "id": "petroleum-champagne", "name": "Petroleum & Champagne", "primary": "#1A3342", "accent": "#D4C5A0", "text": "#1E2A32" },
-        { "id": "teal-bronze", "name": "Teal & Bronze", "primary": "#0F6B63", "accent": "#B8956B", "text": "#1F2937" }
-      ],
-      "defaultColor": "emerald-gold"
-    },
-    {
+        {
       "id": "velvet-ribbon-executive",
       "name": "Velvet Ribbon Executive",
       "slug": "velvet-ribbon-executive",
@@ -445,28 +466,7 @@
       ],
       "defaultColor": "velvet-champagne"
     },
-    {
-      "id": "organic-luxe-editorial",
-      "name": "Organic Luxe Editorial",
-      "slug": "organic-luxe-editorial",
-      "description": "Ultra-premium artistic editorial layout with layered organic SVG shapes, topo texture, earthy luxury palette, and ATS-safe typography hierarchy.",
-      "thumbnail": "/templates/organic-luxe-editorial/thumbnail.svg",
-      "preview": "/templates/organic-luxe-editorial/preview.svg",
-      "html": "/templates/organic-luxe-editorial/index.html",
-      "css": "/templates/organic-luxe-editorial/style.css",
-      "categories": ["Premium", "Creative", "Modern", "Professional", "Two Column", "With Photo", "ATS", "Graphics"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "terracotta-sage", "name": "Terracotta & Sage", "primary": "#C16A4B", "accent": "#6F8A69", "text": "#1F2326" },
-        { "id": "forest-bronze", "name": "Forest & Bronze", "primary": "#234636", "accent": "#CAA36C", "text": "#1F2326" },
-        { "id": "sand-terracotta", "name": "Sand & Terracotta", "primary": "#E4D1B4", "accent": "#A6543C", "text": "#1F2326" }
-      ],
-      "defaultColor": "terracotta-sage"
-    },
-    {
+        {
       "id": "organic-luxe-executive",
       "name": "Organic Luxe Executive",
       "slug": "organic-luxe-executive",
@@ -487,7 +487,7 @@
       ],
       "defaultColor": "indigo-gold"
     },
-    {
+        {
       "id": "velvet-horizon-executive",
       "name": "Velvet Horizon Executive",
       "slug": "velvet-horizon-executive",
@@ -508,7 +508,7 @@
       ],
       "defaultColor": "emerald-copper"
     },
-    {
+        {
       "id": "midnight-prestige-executive",
       "name": "Midnight Prestige Executive",
       "slug": "midnight-prestige-executive",
@@ -531,7 +531,7 @@
       ],
       "defaultColor": "champagne-gold"
     },
-    {
+        {
       "id": "frosted-glass-executive",
       "name": "Frosted Glass Executive",
       "slug": "frosted-glass-executive",
@@ -554,7 +554,7 @@
       ],
       "defaultColor": "frost-blue"
     },
-    {
+        {
       "id": "executive-burgundy-diamond",
       "name": "Executive Burgundy Diamond",
       "slug": "executive-burgundy-diamond",
@@ -578,7 +578,7 @@
       ],
       "defaultColor": "burgundy-gold"
     },
-    {
+        {
       "id": "executive-sidebar-elite",
       "name": "Executive Sidebar Elite",
       "slug": "executive-sidebar-elite",
@@ -602,7 +602,7 @@
       ],
       "defaultColor": "sidebar-elite"
     },
-    {
+        {
       "id": "aether-professional",
       "name": "Aether Professional",
       "slug": "aether-professional",
@@ -626,7 +626,7 @@
       ],
       "defaultColor": "aether-blush"
     },
-    {
+        {
       "id": "nordic-creative-executive",
       "name": "Nordic Creative Executive",
       "slug": "nordic-creative-executive",
@@ -650,7 +650,7 @@
       ],
       "defaultColor": "nordic-sage"
     },
-    {
+        {
       "id": "executive-redline-elite",
       "name": "Executive Redline Elite",
       "slug": "executive-redline-elite",
@@ -674,7 +674,7 @@
       ],
       "defaultColor": "redline-elite"
     },
-    {
+        {
       "id": "aurora-executive-glass",
       "name": "Aurora Executive Glass",
       "slug": "aurora-executive-glass",
@@ -698,7 +698,7 @@
       ],
       "defaultColor": "aurora-teal"
     },
-    {
+        {
       "id": "blush-executive-watercolor",
       "name": "Blush Executive Watercolor",
       "slug": "blush-executive-watercolor",
@@ -722,7 +722,7 @@
       ],
       "defaultColor": "blush-watercolor"
     },
-    {
+        {
       "id": "graphite-orange-executive",
       "name": "Graphite Orange Executive",
       "slug": "graphite-orange-executive",
@@ -746,7 +746,7 @@
       ],
       "defaultColor": "graphite-orange"
     },
-    {
+        {
       "id": "executive-coral-elite",
       "name": "Executive Coral Elite",
       "slug": "executive-coral-elite",
@@ -770,7 +770,7 @@
       ],
       "defaultColor": "coral-elite"
     },
-    {
+        {
       "id": "fashion-editorial-premium",
       "name": "Editorial Mauve Executive",
       "slug": "fashion-editorial-premium",
@@ -794,7 +794,7 @@
       ],
       "defaultColor": "editorial-mauve"
     },
-    {
+        {
       "id": "soft-coral-executive",
       "name": "Soft Coral Executive",
       "slug": "soft-coral-executive",
@@ -818,7 +818,7 @@
       ],
       "defaultColor": "soft-coral"
     },
-    {
+        {
       "id": "rosewood-modern",
       "name": "Rosewood Modern",
       "slug": "rosewood-modern",
@@ -842,7 +842,7 @@
       ],
       "defaultColor": "rosewood"
     },
-    {
+        {
       "id": "cascade-flow",
       "name": "Cascade Flow",
       "slug": "cascade-flow",
@@ -866,7 +866,7 @@
       ],
       "defaultColor": "soft-coral"
     },
-    {
+        {
       "id": "horizon-canvas",
       "name": "Horizon Canvas",
       "slug": "horizon-canvas",
@@ -890,7 +890,7 @@
       ],
       "defaultColor": "warm-ivory"
     },
-    {
+        {
       "id": "lumen-studio",
       "name": "Lumen Studio",
       "slug": "lumen-studio",
@@ -914,7 +914,7 @@
       ],
       "defaultColor": "scandi-sage"
     },
-    {
+        {
       "id": "soft-sage-professional",
       "name": "Soft Sage Professional",
       "slug": "soft-sage-professional",
@@ -938,7 +938,7 @@
       ],
       "defaultColor": "soft-sage"
     },
-    {
+        {
       "id": "executive-mosaic",
       "name": "Executive Mosaic",
       "slug": "executive-mosaic",
@@ -962,7 +962,7 @@
       ],
       "defaultColor": "mosaic-executive"
     },
-    {
+        {
       "id": "executive-timeline",
       "name": "Executive Timeline",
       "slug": "executive-timeline",
@@ -986,7 +986,7 @@
       ],
       "defaultColor": "timeline-executive"
     },
-    {
+        {
       "id": "nordic-fusion",
       "name": "Nordic Fusion",
       "slug": "nordic-fusion",
@@ -1010,7 +1010,7 @@
       ],
       "defaultColor": "fusion-sage"
     },
-    {
+        {
       "id": "modern-edge",
       "name": "Modern Edge",
       "slug": "modern-edge",
@@ -1034,7 +1034,7 @@
       ],
       "defaultColor": "modern-edge-plum"
     },
-    {
+        {
       "id": "prism-edition",
       "name": "Prism Edition",
       "slug": "prism-edition",
@@ -1058,7 +1058,7 @@
       ],
       "defaultColor": "prism-cinnamon"
     },
-    {
+        {
       "id": "monarch-edge",
       "name": "Monarch Edge",
       "slug": "monarch-edge",
@@ -1082,7 +1082,7 @@
       ],
       "defaultColor": "monarch-terracotta"
     },
-    {
+        {
       "id": "sterling-executive",
       "name": "Sterling Executive",
       "slug": "sterling-executive",
@@ -1106,7 +1106,7 @@
       ],
       "defaultColor": "sterling-ivory"
     },
-    {
+        {
       "id": "executive-slate",
       "name": "Executive Slate",
       "slug": "executive-slate",
@@ -1130,7 +1130,7 @@
       ],
       "defaultColor": "slate-blue-gray"
     },
-    {
+        {
       "id": "verdant-scandi-executive",
       "name": "Verdant Executive",
       "slug": "verdant-scandi-executive",
@@ -1154,6 +1154,56 @@
       ],
       "defaultColor": "forest-verdant"
     }
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   ],
   "filters": {
     "categories": [
