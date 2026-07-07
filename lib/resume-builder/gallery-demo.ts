@@ -400,10 +400,10 @@ export function resolveGalleryProfileImage(
   return getGalleryDemoProfileImage(templateId);
 }
 
-/** Shared rich resume sections for gallery previews (never persisted to user data) */
-const GALLERY_RICH_RESUME_SECTIONS = {
+/** Compact showcase sections for gallery cards (never persisted to user data). */
+const GALLERY_DEMO_RESUME_SECTIONS = {
   summary:
-    'Visionary executive leader with 18+ years driving enterprise-scale product strategy, digital transformation, and operational excellence across global technology organizations. Proven record of building high-performing teams, launching market-defining platforms, and delivering sustained revenue growth in complex B2B and SaaS environments. Expert at translating board-level objectives into actionable roadmaps that balance innovation, profitability, and customer impact. Recognized for stakeholder leadership, P&L ownership, and building cultures of accountability and continuous improvement.',
+    'Executive leader with 15+ years driving product strategy, digital transformation, and operational excellence. Proven record building high-performing teams and delivering sustained revenue growth across global markets.',
   skills: [
     'Leadership',
     'Strategy',
@@ -413,13 +413,8 @@ const GALLERY_RICH_RESUME_SECTIONS = {
     'Innovation',
     'Operations',
     'Artificial Intelligence',
-    'Technology',
     'Stakeholder Management',
-    'P&L Management',
-    'Digital Transformation',
     'Agile Methodologies',
-    'Data Analytics',
-    'Change Management',
   ],
   experience: [
     {
@@ -430,10 +425,9 @@ const GALLERY_RICH_RESUME_SECTIONS = {
       endDate: 'Present',
       current: true,
       achievements: [
-        'Directed enterprise product portfolio generating $120M+ in annual recurring revenue across 28 international markets.',
-        'Led cross-functional organization of 45+ engineers, designers, and analysts through three major platform releases.',
-        'Reduced time-to-market by 38% by implementing agile portfolio governance and executive steering cadences.',
-        'Partnered with C-suite and board directors to align innovation investments with five-year strategic growth plan.',
+        'Directed enterprise product portfolio generating $120M+ in annual recurring revenue.',
+        'Led cross-functional organization of 45+ through three major platform releases.',
+        'Reduced time-to-market by 38% through agile portfolio governance.',
       ],
     },
     {
@@ -443,45 +437,9 @@ const GALLERY_RICH_RESUME_SECTIONS = {
       startDate: 'Mar 2014',
       endDate: 'Dec 2017',
       achievements: [
-        'Scaled product organization from 12 to 34 FTEs while improving NPS by 22 points over two years.',
-        'Launched AI-powered analytics suite adopted by 180+ enterprise clients within the first 18 months.',
-        'Negotiated strategic partnerships contributing $18M in incremental pipeline and expanded market reach.',
-        'Established product ops function standardizing OKRs, roadmap reviews, and executive reporting.',
-      ],
-    },
-    {
-      title: 'Director of Product Strategy',
-      company: 'Northbridge Capital Systems',
-      location: 'Chicago, IL',
-      startDate: 'Jun 2010',
-      endDate: 'Feb 2014',
-      achievements: [
-        'Owned roadmap for compliance and risk platform serving top-tier financial institutions.',
-        'Delivered regulatory-ready features ahead of deadline, preserving $12M in at-risk renewal revenue.',
-        'Mentored six product managers promoted to senior leadership roles within 24 months.',
-      ],
-    },
-    {
-      title: 'Senior Product Manager',
-      company: 'Atlas Enterprise Software',
-      location: 'Boston, MA',
-      startDate: 'Aug 2006',
-      endDate: 'May 2010',
-      achievements: [
-        'Introduced customer discovery program influencing 70% of quarterly roadmap priorities.',
-        'Increased activation rates by 29% through onboarding redesign and behavioral analytics integration.',
-        'Collaborated with sales and customer success to reduce churn in mid-market segment by 15%.',
-      ],
-    },
-    {
-      title: 'Product Manager',
-      company: 'Summit Logic Group',
-      location: 'Austin, TX',
-      startDate: 'Jul 2004',
-      endDate: 'Jul 2006',
-      achievements: [
-        'Managed end-to-end delivery of workflow automation module used by 50,000+ daily active users.',
-        'Coordinated beta program with 12 lighthouse accounts, achieving 92% satisfaction at general availability.',
+        'Scaled product organization from 12 to 34 FTEs while improving NPS by 22 points.',
+        'Launched AI-powered analytics suite adopted by 180+ enterprise clients.',
+        'Established product ops function standardizing OKRs and executive reporting.',
       ],
     },
   ],
@@ -489,40 +447,26 @@ const GALLERY_RICH_RESUME_SECTIONS = {
     {
       name: 'Enterprise AI Platform Launch',
       description:
-        'Led cross-functional initiative to deploy machine-learning infrastructure enabling predictive insights, automated workflows, and real-time decision support for enterprise clients.',
-      technologies: 'Python, TensorFlow, AWS, Kubernetes, React',
+        'Led cross-functional initiative deploying machine-learning infrastructure for predictive insights and automated workflows.',
+      technologies: 'Python, TensorFlow, AWS, React',
     },
     {
-      name: 'Global SaaS Platform Modernization',
+      name: 'Global SaaS Modernization',
       description:
-        'Orchestrated multi-year cloud migration and microservices refactor that improved system reliability to 99.97% uptime and cut infrastructure costs by 24%.',
-      technologies: 'Node.js, PostgreSQL, Docker, Azure, GraphQL',
-    },
-    {
-      name: 'Customer 360 Analytics Dashboard',
-      description:
-        'Designed executive reporting suite consolidating product, sales, and support metrics into a single board-ready view adopted by leadership worldwide.',
-      technologies: 'Tableau, Snowflake, SQL, Figma',
-    },
-    {
-      name: 'Mobile-First Field Operations App',
-      description:
-        'Delivered offline-capable mobile application for distributed teams, reducing field reporting time by 41% and improving data accuracy across regions.',
-      technologies: 'React Native, Firebase, REST APIs',
+        'Orchestrated cloud migration improving reliability to 99.97% uptime and cutting infrastructure costs by 24%.',
+      technologies: 'Node.js, PostgreSQL, Docker, Azure',
     },
   ],
   education: [
     {
       degree: 'Master of Business Administration',
       school: 'Stanford Graduate School of Business',
-      field: 'Strategy & Leadership',
       year: '2010',
       graduationDate: '2010',
     },
     {
       degree: 'Bachelor of Science in Computer Science',
       school: 'University of Michigan',
-      field: 'Computer Science',
       year: '2004',
       graduationDate: '2004',
     },
@@ -530,25 +474,16 @@ const GALLERY_RICH_RESUME_SECTIONS = {
   certifications: [
     { name: 'Certified Scrum Product Owner (CSPO)', issuer: 'Scrum Alliance', date: '2019' },
     { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services', date: '2021' },
-    { name: 'Project Management Professional (PMP)', issuer: 'PMI', date: '2016' },
-    { name: 'Leading Digital Transformation', issuer: 'MIT Sloan Executive Education', date: '2022' },
   ],
   languages: [
     { language: 'English', proficiency: 'Native' },
     { language: 'Spanish', proficiency: 'Fluent' },
-    { language: 'French', proficiency: 'Professional Working Proficiency' },
   ],
   achievements: [
-    'Named Top 40 Under 40 in Product Leadership by Industry Executive Council, 2023',
-    'Led team awarded Corporate Innovation Excellence Award for AI platform launch, 2022',
-    'Recognized as Executive of the Year by Global Technology Forum, 2020',
-    'Drove $45M in net-new ARR through strategic product expansion initiative, 2019',
-    'Selected for Fortune 500 High-Potential Leadership Program, 2017',
-    'Published thought leadership on digital transformation in Harvard Business Review, 2018',
-    'Keynote speaker at International Product Leadership Summit, 2021',
-    'Championed diversity hiring initiative increasing leadership pipeline diversity by 35%',
+    'Named Top 40 Under 40 in Product Leadership, 2023',
+    'Led team awarded Corporate Innovation Excellence Award, 2022',
   ],
-  hobbies: ['Executive Mentorship', 'Marathon Running', 'Classical Piano', 'Global Travel', 'Strategic Reading'],
+  hobbies: ['Executive Mentorship', 'Marathon Running', 'Strategic Reading'],
 };
 
 /** Rich sample resume used only when gallery has no user form data */
@@ -557,7 +492,7 @@ export function buildGallerySampleFormData(templateId?: string): Record<string, 
     (templateId && GALLERY_PERSONA_BY_TEMPLATE[templateId]) ||
     GALLERY_PERSONA_BY_TEMPLATE['teal-modern'];
   const profileImage = DEFAULT_DEMO_PROFILE_IMAGE;
-  const sections = GALLERY_RICH_RESUME_SECTIONS;
+  const sections = GALLERY_DEMO_RESUME_SECTIONS;
 
   return {
     firstName: persona.firstName,

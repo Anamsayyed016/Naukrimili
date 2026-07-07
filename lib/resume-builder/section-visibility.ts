@@ -1136,25 +1136,50 @@ export interface TemplateRenderCapacity {
   maxSummaryWords: number;
 }
 
+/** Stricter render budgets for template gallery cards only. */
+export interface GalleryRenderCapacity extends TemplateRenderCapacity {
+  maxExperienceEntries: number;
+  maxEducationEntries: number;
+  maxCertifications: number;
+  maxLanguages: number;
+  maxAchievements: number;
+  maxHobbies: number;
+  maxProjectDescriptionChars: number;
+}
+
+export const GALLERY_RENDER_CAPACITY: GalleryRenderCapacity = {
+  maxSummaryWords: 52,
+  maxExperienceEntries: 2,
+  maxBulletsPerExperience: 3,
+  maxProjects: 2,
+  maxProjectDescriptionChars: 110,
+  maxSkills: 10,
+  maxEducationEntries: 2,
+  maxCertifications: 2,
+  maxLanguages: 2,
+  maxAchievements: 2,
+  maxHobbies: 3,
+};
+
 export interface OptimizeResumeForRenderOptions {
   htmlTemplate?: string;
   templateId?: string;
   mode?: 'preview' | 'pdf';
-  /** Gallery/demo previews skip aggressive trimming */
+  /** Gallery card previews use compact showcase content only. */
   galleryPreview?: boolean;
   /** When true, all section content is kept for render (no bullet/skill/summary caps). */
   preserveFullContent?: boolean;
 }
 
 /**
- * Parser-imported and gallery previews keep full content visible at render time.
- * Manual-entry resumes still use layout-aware trimming unless explicitly overridden.
+ * Parser-imported resumes keep full content in editor, live preview, and PDF.
+ * Gallery previews always use compact showcase trimming via optimizeResumeDataForRender.
  */
 export function shouldPreserveFullContentForRender(
   formData: Record<string, unknown>,
   options?: Pick<OptimizeResumeForRenderOptions, 'galleryPreview' | 'preserveFullContent'>
 ): boolean {
-  if (options?.galleryPreview) return true;
+  if (options?.galleryPreview) return false;
   if (options?.preserveFullContent === true) return true;
   return formData.customParserUsed === true;
 }
@@ -1367,6 +1392,194 @@ function resolveSummaryForRender(formData: Record<string, unknown>, maxWords: nu
   return '';
 }
 
+function shortenTextForGallery(text: string, maxChars: number): string {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.length <= maxChars) return trimmed;
+
+  const sentenceMatch = trimmed.match(/^[\s\S]{1,140}?[.!?](?:\s|$)/);
+  if (sentenceMatch && sentenceMatch[0].trim().length <= maxChars) {
+    return sentenceMatch[0].trim();
+  }
+
+  const cut = trimmed.slice(0, maxChars);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > maxChars * 0.55 ? cut.slice(0, lastSpace) : cut).trim();
+}
+
+function optimizeEducationListForGallery(
+  education: unknown[],
+  maxEntries: number
+): Array<Record<string, unknown>> {
+  if (!Array.isArray(education)) return [];
+
+  return education.slice(0, maxEntries).map((raw) => {
+    if (!raw || typeof raw !== 'object') return raw as Record<string, unknown>;
+    const entry = raw as Record<string, unknown>;
+    const degree = getStringValue(entry.degree ?? entry.Degree);
+    const school = getStringValue(
+      entry.school ?? entry.School ?? entry.institution ?? entry.Institution
+    );
+    const year = getStringValue(
+      entry.year ?? entry.Year ?? entry.graduationDate ?? entry.GraduationDate
+    );
+
+    return {
+      degree,
+      Degree: degree,
+      school,
+      School: school,
+      institution: school,
+      Institution: school,
+      year,
+      Year: year,
+      graduationDate: year,
+      GraduationDate: year,
+    };
+  });
+}
+
+function optimizeCertificationsListForGallery(
+  certifications: unknown[],
+  maxEntries: number
+): Array<Record<string, unknown>> {
+  if (!Array.isArray(certifications)) return [];
+
+  return certifications.slice(0, maxEntries).map((raw) => {
+    if (!raw || typeof raw !== 'object') return raw as Record<string, unknown>;
+    const cert = raw as Record<string, unknown>;
+    const name = getStringValue(cert.name ?? cert.Name ?? cert.title ?? cert.Title);
+    const issuer = getStringValue(cert.issuer ?? cert.Issuer ?? cert.organization ?? cert.Organization);
+    const date = getStringValue(cert.date ?? cert.Date ?? cert.year ?? cert.Year);
+
+    return {
+      name,
+      Name: name,
+      issuer,
+      Issuer: issuer,
+      date,
+      Date: date,
+    };
+  });
+}
+
+function optimizeLanguagesListForGallery(
+  languages: unknown[],
+  maxEntries: number
+): unknown[] {
+  if (!Array.isArray(languages)) return [];
+  return languages.slice(0, maxEntries);
+}
+
+function optimizeAchievementsListForGallery(achievements: unknown[], maxEntries: number): unknown[] {
+  if (!Array.isArray(achievements)) return [];
+  return achievements
+    .map((item) => (typeof item === 'string' ? item.trim() : String(item ?? '').trim()))
+    .filter((item) => item.length > 0)
+    .slice(0, maxEntries);
+}
+
+function optimizeHobbiesListForGallery(hobbies: unknown[], maxEntries: number): unknown[] {
+  if (!Array.isArray(hobbies)) return [];
+  return hobbies
+    .map((item) => (typeof item === 'string' ? item.trim() : String(item ?? '').trim()))
+    .filter((item) => item.length > 0)
+    .slice(0, maxEntries);
+}
+
+function optimizeProjectsListForGallery(
+  projects: unknown[],
+  capacity: GalleryRenderCapacity
+): unknown[] {
+  if (!Array.isArray(projects) || projects.length === 0) return [];
+
+  const selected = optimizeProjectsListForRender(projects, capacity.maxProjects);
+
+  return selected.map((raw) => {
+    if (!raw || typeof raw !== 'object') return raw;
+    const project = { ...(raw as Record<string, unknown>) };
+    const description = getStringValue(
+      project.description ?? project.Description ?? project.summary ?? project.Summary
+    );
+    if (description) {
+      const shortened = shortenTextForGallery(description, capacity.maxProjectDescriptionChars);
+      project.description = shortened;
+      project.Description = shortened;
+      project.summary = shortened;
+      project.Summary = shortened;
+    }
+    return project;
+  });
+}
+
+function optimizeGalleryResumeDataForRender(
+  formData: Record<string, unknown>,
+  capacity: GalleryRenderCapacity = GALLERY_RENDER_CAPACITY
+): Record<string, unknown> {
+  const experienceSource = Array.isArray(formData.experience) ? formData.experience : [];
+  const experience = optimizeExperienceListForRender(
+    experienceSource.slice(0, capacity.maxExperienceEntries),
+    capacity.maxBulletsPerExperience
+  );
+  const projects = optimizeProjectsListForGallery(
+    Array.isArray(formData.projects) ? formData.projects : [],
+    capacity
+  );
+  const skills = optimizeSkillsListForRender(
+    Array.isArray(formData.skills) ? (formData.skills as string[]) : normalizeSkillsForRender(formData),
+    capacity.maxSkills
+  );
+  const education = optimizeEducationListForGallery(
+    Array.isArray(formData.education) ? formData.education : [],
+    capacity.maxEducationEntries
+  );
+  const certifications = optimizeCertificationsListForGallery(
+    Array.isArray(formData.certifications) ? formData.certifications : [],
+    capacity.maxCertifications
+  );
+  const languages = optimizeLanguagesListForGallery(
+    Array.isArray(formData.languages) ? formData.languages : [],
+    capacity.maxLanguages
+  );
+  const achievements = optimizeAchievementsListForGallery(
+    Array.isArray(formData.achievements) ? formData.achievements : [],
+    capacity.maxAchievements
+  );
+  const hobbies = optimizeHobbiesListForGallery(
+    Array.isArray(formData.hobbies) ? formData.hobbies : [],
+    capacity.maxHobbies
+  );
+  const summary = resolveSummaryForRender(formData, capacity.maxSummaryWords);
+
+  const optimized: Record<string, unknown> = {
+    ...formData,
+    experience,
+    projects,
+    skills,
+    education,
+    certifications,
+    languages,
+    achievements,
+    hobbies,
+    Experience: experience,
+    'Work Experience': experience,
+    Projects: projects,
+    Skills: skills,
+    Education: education,
+    Certifications: certifications,
+    Languages: languages,
+    Achievements: achievements,
+    Hobbies: hobbies,
+  };
+
+  if (summary) {
+    optimized.summary = summary;
+    optimized.professionalSummary = summary;
+    optimized['Professional Summary'] = summary;
+  }
+
+  return optimized;
+}
+
 /**
  * Layout-aware content optimization for preview/PDF only.
  * Editor formData is never mutated — call on a coalesced copy from injectResumeData.
@@ -1375,6 +1588,10 @@ export function optimizeResumeDataForRender(
   formData: Record<string, unknown>,
   options?: OptimizeResumeForRenderOptions
 ): Record<string, unknown> {
+  if (options?.galleryPreview) {
+    return optimizeGalleryResumeDataForRender(formData);
+  }
+
   if (shouldPreserveFullContentForRender(formData, options)) {
     return formData;
   }
