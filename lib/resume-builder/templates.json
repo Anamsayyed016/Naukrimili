@@ -26,6 +26,30 @@
       "defaultColor": "navy-gold"
     },
     {
+      "id": "executive-navy-copper",
+      "name": "Executive Navy Copper",
+      "slug": "executive-navy-copper",
+      "description": "Premium executive corporate resume with full-width navy header, square portrait, copper ribbon accent, icon contact grid, 70/30 experience sidebar layout, and divider-style section markers for ATS-friendly PDF export.",
+      "thumbnail": "/templates/executive-navy-copper/thumbnail.svg",
+      "preview": "/templates/executive-navy-copper/preview.svg",
+      "html": "/templates/executive-navy-copper/index.html",
+      "css": "/templates/executive-navy-copper/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "navy-copper", "name": "Navy Copper", "primary": "#142331", "accent": "#C48B63", "text": "#1A1A1A" },
+        { "id": "deep-navy", "name": "Deep Navy", "primary": "#162534", "accent": "#B77A52", "text": "#1A1A1A" },
+        { "id": "bronze-executive", "name": "Bronze Executive", "primary": "#1A2A38", "accent": "#B77A52", "text": "#1A1A1A" },
+        { "id": "warm-copper", "name": "Warm Copper", "primary": "#142331", "accent": "#D49A72", "text": "#1A1A1A" },
+        { "id": "slate-command", "name": "Slate Command", "primary": "#1E3040", "accent": "#C48B63", "text": "#1A1A1A" },
+        { "id": "boardroom-navy", "name": "Boardroom Navy", "primary": "#0F1E2A", "accent": "#C48B63", "text": "#1A1A1A" }
+      ],
+      "defaultColor": "navy-copper"
+    },
+    {
       "id": "slate-executive-pro",
       "name": "Slate Executive Pro",
       "slug": "slate-executive-pro",
@@ -769,30 +793,6 @@
         { "id": "evening-mauve", "name": "Evening Mauve", "primary": "#7A6570", "accent": "#C5B6A7", "text": "#1D1D1D" }
       ],
       "defaultColor": "editorial-mauve"
-    },
-    {
-      "id": "executive-navy-copper",
-      "name": "Executive Navy Copper",
-      "slug": "executive-navy-copper",
-      "description": "Premium executive corporate resume with full-width navy header, square portrait, copper ribbon accent, icon contact grid, 70/30 experience sidebar layout, and divider-style section markers for ATS-friendly PDF export.",
-      "thumbnail": "/templates/executive-navy-copper/thumbnail.svg",
-      "preview": "/templates/executive-navy-copper/preview.svg",
-      "html": "/templates/executive-navy-copper/index.html",
-      "css": "/templates/executive-navy-copper/style.css",
-      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": false,
-      "colors": [
-        { "id": "navy-copper", "name": "Navy Copper", "primary": "#142331", "accent": "#C48B63", "text": "#1A1A1A" },
-        { "id": "deep-navy", "name": "Deep Navy", "primary": "#162534", "accent": "#B77A52", "text": "#1A1A1A" },
-        { "id": "bronze-executive", "name": "Bronze Executive", "primary": "#1A2A38", "accent": "#B77A52", "text": "#1A1A1A" },
-        { "id": "warm-copper", "name": "Warm Copper", "primary": "#142331", "accent": "#D49A72", "text": "#1A1A1A" },
-        { "id": "slate-command", "name": "Slate Command", "primary": "#1E3040", "accent": "#C48B63", "text": "#1A1A1A" },
-        { "id": "boardroom-navy", "name": "Boardroom Navy", "primary": "#0F1E2A", "accent": "#C48B63", "text": "#1A1A1A" }
-      ],
-      "defaultColor": "navy-copper"
     },
     {
       "id": "soft-coral-executive",
