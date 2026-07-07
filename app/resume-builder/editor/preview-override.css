@@ -90,12 +90,8 @@
   }
 }
 
-/* Desktop — preserve prior scale-stage behavior (>= 1200px) */
+/* Desktop — scale stage clips scaled paper; origin must stay top-left */
 @media (min-width: 1200px) {
-  .resume-preview-paper {
-    transform-origin: top center;
-  }
-
   .resume-preview-scale-stage {
     max-width: none;
   }

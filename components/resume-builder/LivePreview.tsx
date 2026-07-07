@@ -19,8 +19,8 @@ import { Maximize2, Minus, Plus } from 'lucide-react';
 import type { LoadedTemplate, Template } from '@/lib/resume-builder/types';
 import { resolveColorVariant } from '@/lib/resume-builder/color-theme';
 import { PREVIEW_CONTENT_FLOW_CSS } from '@/lib/resume-builder/preview-content-flow';
-import { PDF_PAGINATION_EXPORT_CSS } from '@/lib/resume-builder/pdf-pagination-overrides';
 import { cn } from '@/lib/utils';
+import '@/app/resume-builder/editor/preview-override.css';
 import {
   A4_WIDTH_PX,
   A4_HEIGHT_PX,
@@ -460,30 +460,29 @@ export default function LivePreview({
                   -moz-osx-font-smoothing: grayscale;
                   margin: 0 !important;
                   padding: 0 !important;
-                  background: white !important;
-                  width: 100% !important;
+                  background: transparent !important;
+                  width: 794px !important;
+                  min-width: 794px !important;
+                  max-width: 794px !important;
                   height: auto !important;
-                  overflow-x: hidden !important;
+                  overflow-x: visible !important;
                   overflow-y: visible !important;
                   transform: none !important;
                   scale: 1 !important;
                   zoom: 1 !important;
                 }
                 
-                /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
-                /* EXACTLY matches View Full Resume - no scaling, no transforms */
+                /* Lock resume container to A4 width — preserve template backgrounds/colors */
                 .resume-container {
                   width: 794px !important;
                   max-width: 794px !important;
                   min-width: 794px !important;
                   margin: 0 auto !important;
-                  background: white !important;
                   box-sizing: border-box !important;
                   position: relative !important;
-                  transform-origin: top center !important;
-                  transform: none !important; /* Explicitly no transforms to match View Full Resume */
-                  scale: 1 !important; /* Explicitly set scale to 1 to prevent any scaling */
-                  zoom: 1 !important; /* Prevent browser zoom */
+                  transform: none !important;
+                  scale: 1 !important;
+                  zoom: 1 !important;
                 }
                 
                 /* CRITICAL: Remove any scaling from parent elements or wrapper divs */
@@ -558,8 +557,6 @@ export default function LivePreview({
                   overflow-wrap: break-word !important;
                   hyphens: auto;
                 }
-
-                ${PDF_PAGINATION_EXPORT_CSS}
 
                 ${PREVIEW_CONTENT_FLOW_CSS}
                 
@@ -702,7 +699,6 @@ export default function LivePreview({
 
   const scaledWidth = A4_WIDTH_PX * displayScale;
   const scaledHeight = contentHeight * displayScale;
-  const useTopLeftScaleOrigin = displayScale < 0.999;
   const zoomLabel =
     zoom === 'fit'
       ? `Fit (${Math.round(fitScale * 100)}%)`
@@ -857,7 +853,6 @@ export default function LivePreview({
                 width: A4_WIDTH_PX,
                 height: contentHeight,
                 transform: `scale(${displayScale})`,
-                transformOrigin: useTopLeftScaleOrigin ? 'top left' : 'top center',
                 boxShadow:
                   '0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -4px rgba(15,23,42,0.12), 0 24px 48px -12px rgba(15,23,42,0.08)',
               }}
