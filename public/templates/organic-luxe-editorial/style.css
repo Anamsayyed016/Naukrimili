@@ -1,16 +1,16 @@
 /* Organic Luxe Editorial — premium paper-cut editorial resume (scoped) */
 
 .ole-resume {
-  --primary-color: #c16a4b;
-  --accent-color: #caa36c;
-  --forest: #234636;
-  --sage: #6f8a69;
-  --clay: #7d3e2f;
-  --sand: #f2e7d6;
-  --ivory: #fbf7f1;
-  --text: #1f2326;
-  --muted: #4b545a;
-  --border: rgba(202, 163, 108, 0.35);
+  --primary-color: #b85f42;
+  --accent-color: #c4a06a;
+  --forest: #2a4a3a;
+  --sage: #6a8564;
+  --clay: #7a4536;
+  --sand: #f0e6d6;
+  --ivory: #fcf9f4;
+  --text: #252a2c;
+  --muted: #5a6368;
+  --border: rgba(196, 160, 106, 0.28);
   --max-width: 210mm;
   --page-height: 297mm;
   --left-width: 300px;
@@ -131,21 +131,21 @@
 .ole-resume .candidate-name {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 36px;
-  line-height: 1.08;
-  letter-spacing: 0.8px;
+  font-size: 38px;
+  line-height: 1.06;
+  letter-spacing: 0.4px;
   text-transform: capitalize;
   color: var(--forest);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .ole-resume .header-title {
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 3.2px;
+  font-weight: 500;
+  letter-spacing: 3.6px;
   text-transform: uppercase;
-  color: rgba(125, 62, 47, 0.88);
-  margin-bottom: 14px;
+  color: rgba(122, 69, 54, 0.82);
+  margin-bottom: 18px;
 }
 
 /* Bronze star divider */
@@ -184,24 +184,26 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--muted);
   line-height: 1.35;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border);
 }
 
 .ole-resume .ole-contact-icon {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
   border-radius: 50%;
-  background-color: var(--primary-color);
-  background-size: 10px 10px;
+  background-color: var(--forest);
+  background-size: 8px 8px;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow:
-    inset 0 0 0 1px rgba(202, 163, 108, 0.45),
-    0 4px 10px rgba(19, 42, 32, 0.08);
+  box-shadow: none;
 }
 
 .ole-resume .ole-contact-icon--phone {
@@ -234,7 +236,7 @@
 .ole-resume .ole-body {
   position: relative;
   z-index: 1;
-  padding: 8px 34px 52px;
+  padding: 12px 40px 56px;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -244,7 +246,7 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 22px;
+  gap: 32px;
 }
 
 .ole-resume .ole-col--left {
@@ -259,65 +261,71 @@
 }
 
 .ole-resume .ole-section {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .ole-resume .ole-section:last-child {
   margin-bottom: 0;
 }
 
-/* Editorial section headings */
+/* Editorial section headings — magazine style */
 .ole-resume .section-title {
   font-family: var(--font-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1.2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(35, 70, 54, 0.94);
-  margin-bottom: 10px;
-  padding-bottom: 7px;
-  border-bottom: 1px solid rgba(202, 163, 108, 0.28);
+  color: var(--forest);
+  margin-bottom: 14px;
+  padding-bottom: 0;
+  border-bottom: none;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ole-resume .section-title::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196, 160, 106, 0.45));
+  order: -1;
 }
 
 .ole-resume .section-title::after {
   content: '';
-  position: absolute;
-  right: 0;
-  bottom: -3px;
-  width: 6px;
-  height: 6px;
-  background: linear-gradient(145deg, var(--accent-color), var(--primary-color));
-  transform: rotate(45deg);
-  opacity: 0.75;
+  flex: 0 0 32px;
+  height: 2px;
+  background: var(--primary-color);
+  transform: none;
+  opacity: 1;
+  position: static;
 }
 
 .ole-resume .summary-text {
   font-size: 11px;
-  line-height: 1.72;
+  line-height: 1.78;
   color: var(--text);
+  max-width: 58ch;
 }
 
-/* ── Experience & certifications timeline ── */
+/* ── Experience & certifications timeline — refined editorial ── */
 .ole-resume .ole-timeline {
   position: relative;
-  padding-left: 42px;
+  padding-left: 0;
 }
 
 .ole-resume .ole-timeline::before {
-  content: '';
-  position: absolute;
-  left: 13px;
-  top: 6px;
-  bottom: 6px;
-  width: 2px;
-  background: linear-gradient(180deg, rgba(35, 70, 54, 0.55), rgba(193, 106, 75, 0.22));
+  display: none;
 }
 
 .ole-resume .ole-timeline .experience-item,
 .ole-resume .ole-timeline .certification-item {
   position: relative;
-  margin-bottom: 14px;
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(196, 160, 106, 0.22);
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -325,53 +333,57 @@
 .ole-resume .ole-timeline .experience-item:last-child,
 .ole-resume .ole-timeline .certification-item:last-child {
   margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .ole-resume .ole-timeline .experience-item::before,
 .ole-resume .ole-timeline .certification-item::before {
-  content: '';
-  position: absolute;
-  left: -35px;
-  top: 5px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, var(--primary-color), var(--clay));
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 0 2px rgba(202, 163, 108, 0.5);
+  display: none;
 }
 
 .ole-resume .experience-header h3 {
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  color: rgba(35, 70, 54, 0.95);
-  margin-bottom: 2px;
+  color: var(--forest);
+  margin-bottom: 3px;
+  order: 1;
 }
 
 .ole-resume .experience-header .company {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
-  color: rgba(193, 106, 75, 0.9);
-  margin-bottom: 5px;
+  color: var(--primary-color);
+  margin-bottom: 4px;
   display: block;
+  order: 2;
 }
 
 .ole-resume .experience-header .duration {
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(35, 70, 54, 0.66);
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(242, 231, 214, 0.85);
-  border: 1px solid rgba(202, 163, 108, 0.25);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--muted);
+  display: block;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  order: 3;
+}
+
+.ole-resume .experience-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
 }
 
 .ole-resume .experience-item .description {
   font-size: 10.5px;
-  line-height: 1.6;
+  line-height: 1.68;
   color: var(--text);
+  padding-top: 10px;
+  border-top: 1px solid rgba(196, 160, 106, 0.15);
 }
 
 .ole-resume .experience-item .description ul {
@@ -401,75 +413,55 @@
   font-weight: 600;
 }
 
-/* ── Skills: premium expertise cards + infographic chips ── */
+/* ── Skills: elegant rounded pills ── */
 .ole-resume .ole-skill-modules {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .ole-resume .ole-skill-modules .skill-tag {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.15px;
   line-height: 1.35;
+  background: rgba(106, 133, 100, 0.1);
+  border: 1px solid rgba(106, 133, 100, 0.28);
+  color: var(--forest);
+  box-shadow: none;
+  min-height: auto;
+  text-transform: none;
+}
+
+.ole-resume .ole-skill-modules .skill-tag::before {
+  display: none;
+}
+
+.ole-resume .ole-skill-modules .skill-tag:nth-child(1),
+.ole-resume .ole-skill-modules .skill-tag:nth-child(2),
+.ole-resume .ole-skill-modules .skill-tag:nth-child(n+3) {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  min-height: auto;
+  align-items: center;
+  box-shadow: none;
+  background: rgba(106, 133, 100, 0.1);
+  border: 1px solid rgba(106, 133, 100, 0.28);
+  color: var(--forest);
 }
 
 .ole-resume .ole-skill-modules .skill-tag:nth-child(1),
 .ole-resume .ole-skill-modules .skill-tag:nth-child(2) {
-  padding: 14px 14px 12px;
-  border-radius: 16px;
-  font-size: 11px;
+  background: rgba(42, 74, 58, 0.1);
+  border-color: rgba(42, 74, 58, 0.22);
   font-weight: 700;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  min-height: 56px;
-  align-items: flex-start;
-  box-shadow: 0 10px 24px rgba(19, 42, 32, 0.1);
-}
-
-.ole-resume .ole-skill-modules .skill-tag:nth-child(1) {
-  background: linear-gradient(145deg, #2f5a45, var(--forest));
-  color: var(--ivory);
-  border: 1px solid rgba(202, 163, 108, 0.35);
-}
-
-.ole-resume .ole-skill-modules .skill-tag:nth-child(2) {
-  background: linear-gradient(145deg, var(--primary-color), var(--clay));
-  color: var(--ivory);
-  border: 1px solid rgba(202, 163, 108, 0.35);
-}
-
-.ole-resume .ole-skill-modules .skill-tag:nth-child(1)::before,
-.ole-resume .ole-skill-modules .skill-tag:nth-child(2)::before {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  box-shadow: inset 0 0 0 1px rgba(35, 70, 54, 0.2);
-  flex-shrink: 0;
-  margin-top: 3px;
-}
-
-.ole-resume .ole-skill-modules .skill-tag:nth-child(n+3) {
-  padding: 6px 11px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(111, 138, 105, 0.18) 0%, rgba(242, 231, 214, 0.75) 100%);
-  border: 1px solid rgba(111, 138, 105, 0.32);
-  color: rgba(35, 70, 54, 0.92);
-  box-shadow: 0 6px 14px rgba(19, 42, 32, 0.04);
-}
-
-.ole-resume .ole-skill-modules .skill-tag:nth-child(n+3)::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, var(--sage), var(--forest));
-  flex-shrink: 0;
 }
 
 /* ── Projects, education, achievements lists ── */
@@ -486,26 +478,40 @@
 }
 
 .ole-resume .project-item {
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(202, 163, 108, 0.22);
+  padding: 0 0 14px;
+  margin-bottom: 14px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(196, 160, 106, 0.22);
+}
+
+.ole-resume .project-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .ole-resume .project-item h3,
 .ole-resume .education-item h3 {
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  color: rgba(35, 70, 54, 0.92);
-  margin-bottom: 2px;
+  color: var(--forest);
+  margin-bottom: 4px;
 }
 
 .ole-resume .project-item .description,
 .ole-resume .project-item .technologies {
   font-size: 10.5px;
-  line-height: 1.55;
+  line-height: 1.62;
   color: var(--text);
+}
+
+.ole-resume .project-item .technologies {
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-top: 4px;
 }
 
 .ole-resume .ole-list--stars .achievement-item {
