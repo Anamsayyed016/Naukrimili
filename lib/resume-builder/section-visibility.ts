@@ -338,6 +338,238 @@ export function isPersonalOrNonSkillEntry(value: string): boolean {
   return false;
 }
 
+/** Status words, date-only tokens, and labeled personal-detail lines — not valid section content. */
+const PERSONAL_METADATA_LABEL_RE =
+  /^(marital\s*status|date\s*of\s*birth|d\.?o\.?b\.?|gender|nationality|languages?\s*known|religion|passport|blood\s*group)\s*[:.\-]/i;
+
+const INVALID_SECTION_TITLE_RE =
+  /^(single|married|unmarried|widowed|divorced|current|present|ongoing|na|n\/a)$/i;
+
+const DATE_ONLY_TITLE_RE =
+  /^((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*)?(19|20)\d{2}$/i;
+
+/** Shared render-time guard — extends skill metadata checks to all sections. */
+export function isPersonalMetadataEntry(value: string): boolean {
+  const text = value.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+  if (!text) return true;
+  if (isPersonalOrNonSkillEntry(text)) return true;
+  if (PERSONAL_METADATA_LABEL_RE.test(text)) return true;
+  if (INVALID_SECTION_TITLE_RE.test(text)) return true;
+  if (DATE_ONLY_TITLE_RE.test(text)) return true;
+  if (/^marital\s+status\s*:\s*\w+$/i.test(text)) return true;
+  return false;
+}
+
+const VOLUNTEER_CONTEXT_RE =
+  /\b(volunteer(?:ing)?|pro\s*bono|community\s+service|nonprofit|non-profit|ngo|charity|hospice|shelter|food\s+bank|mentor(?:ing)?)\b/i;
+
+const PROFESSIONAL_WORK_VOLUNTEER_RE =
+  /\b(pvt\.?\s*ltd|limited|inc\.?|corp(?:oration)?\.?|llp|plc|gmbh|consultancy|consulting|erp|sap|invoic|stakeholder|accounts?\s+payable)\b/i;
+
+/** Paid employment lines that must not render under volunteer (mirrors import reconcile rules). */
+export function isMisroutedProfessionalVolunteerLine(line: string): boolean {
+  const t = line.trim();
+  if (!t || t.length < 6) return false;
+  if (PERSONAL_METADATA_LABEL_RE.test(t) || INVALID_SECTION_TITLE_RE.test(t)) return true;
+  if (/^marital\s+status\s*:/i.test(t)) return true;
+  if (VOLUNTEER_CONTEXT_RE.test(t)) return false;
+  if (PROFESSIONAL_WORK_VOLUNTEER_RE.test(t)) return true;
+  if (
+    /\b(manager|analyst|engineer|developer|director|executive|consultant|associate|accountant|auditor|specialist)\b/i.test(
+      t
+    ) &&
+    (/\bat\s+[A-Za-z]/i.test(t) ||
+      /\|\s*(19|20)\d{2}/.test(t) ||
+      /\b(19|20)\d{2}\s*[-–—]/.test(t))
+  ) {
+    return true;
+  }
+  if (/\b(19|20)\d{2}\s*[-–—]\s*(present|current|(19|20)\d{2})\b/i.test(t) && t.length > 20) {
+    return true;
+  }
+  return false;
+}
+
+function projectDisplayName(project: Record<string, unknown>): string {
+  return String(
+    project.name ?? project.Name ?? project.title ?? project.Title ?? ''
+  ).trim();
+}
+
+export function isInvalidProjectEntry(project: Record<string, unknown>): boolean {
+  const name = projectDisplayName(project);
+  if (!hasMeaningfulText(name)) return true;
+  if (isPersonalMetadataEntry(name)) return true;
+  const desc = String(
+    project.description ?? project.Description ?? project.summary ?? project.Summary ?? ''
+  ).trim();
+  if (desc && isPersonalMetadataEntry(desc)) return true;
+  return false;
+}
+
+export function isInvalidAchievementEntry(item: unknown): boolean {
+  if (typeof item === 'string') {
+    return !hasMeaningfulText(item) || isPersonalMetadataEntry(item);
+  }
+  if (item && typeof item === 'object') {
+    const record = item as Record<string, unknown>;
+    const title = String(record.Title ?? record.title ?? record.name ?? '').trim();
+    const desc = String(record.description ?? record.Description ?? '').trim();
+    if (!hasMeaningfulText(title) && !hasMeaningfulText(desc)) return true;
+    if (title && isPersonalMetadataEntry(title)) return true;
+    if (desc && isPersonalMetadataEntry(desc)) return true;
+    return false;
+  }
+  return true;
+}
+
+function isExperiencePersonalMetadataOnly(exp: Record<string, unknown>): boolean {
+  const company = String(exp.company ?? exp.Company ?? '').trim();
+  const title = String(
+    exp.title ?? exp.Title ?? exp.position ?? exp.Position ?? ''
+  ).trim();
+  const desc = String(exp.description ?? exp.Description ?? '').trim();
+  if (company && isPersonalMetadataEntry(company)) return true;
+  if (title && isPersonalMetadataEntry(title) && !company && !desc) return true;
+  if (!company && !title && desc && isPersonalMetadataEntry(desc)) return true;
+  return false;
+}
+
+function parseVolunteerLineAsExperience(line: string): Record<string, unknown> | null {
+  const t = line.trim();
+  if (!t) return null;
+  const atMatch = t.match(/^(.+?)\s+at\s+(.+?)(?:\s*[-–—|]\s*(.+))?$/i);
+  if (atMatch) {
+    const role = atMatch[1].trim();
+    const company = atMatch[2].trim();
+    const duration = atMatch[3]?.trim() || '';
+    return {
+      title: role,
+      position: role,
+      company,
+      description: duration,
+      duration,
+    };
+  }
+  return { company: t.slice(0, 160), title: '', position: '', description: t };
+}
+
+function mergeExperienceEntries(
+  base: Record<string, unknown>[],
+  incoming: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  const out = [...base];
+  for (const row of incoming) {
+    const fp = `${String(row.company || '').trim()}|${String(row.title || row.position || '').trim()}`.toLowerCase();
+    if (!fp.replace(/\|/g, '')) continue;
+    if (
+      out.some(
+        (e) =>
+          `${String(e.company || '').trim()}|${String(e.title || e.position || '').trim()}`.toLowerCase() === fp
+      )
+    ) {
+      continue;
+    }
+    out.push(row);
+  }
+  return out;
+}
+
+function filterVolunteerStrings(items: unknown[]): {
+  kept: string[];
+  rerouteExperience: Record<string, unknown>[];
+} {
+  const kept: string[] = [];
+  const rerouteExperience: Record<string, unknown>[] = [];
+  for (const raw of items) {
+    if (typeof raw !== 'string') continue;
+    const text = raw.trim();
+    if (!text) continue;
+    if (isMisroutedProfessionalVolunteerLine(text)) {
+      const exp = parseVolunteerLineAsExperience(text);
+      if (exp) rerouteExperience.push(exp);
+      continue;
+    }
+    if (isPersonalMetadataEntry(text)) continue;
+    kept.push(text);
+  }
+  return { kept, rerouteExperience };
+}
+
+/** Reject invalid section assignments before template injection (single coalesce gate). */
+export function applyRenderSectionIntegrity(input: {
+  experience: Record<string, unknown>[];
+  projects: Record<string, unknown>[];
+  achievements: unknown[];
+  volunteer?: unknown[];
+  extendedSections?: Record<string, unknown>;
+  additionalResumeData?: Record<string, unknown>;
+}): {
+  experience: Record<string, unknown>[];
+  projects: Record<string, unknown>[];
+  achievements: unknown[];
+  volunteer: string[];
+  extendedSections: Record<string, unknown>;
+  additionalResumeData: Record<string, unknown>;
+} {
+  let experience = input.experience.filter(
+    (entry) => isMeaningfulExperience(entry) && !isExperiencePersonalMetadataOnly(entry)
+  );
+  const projects = filterMeaningfulProjects(input.projects);
+  const achievements = filterMeaningfulAchievements(input.achievements);
+
+  const reroute: Record<string, unknown>[] = [];
+  const volunteerSources: unknown[][] = [
+    Array.isArray(input.volunteer) ? input.volunteer : [],
+  ];
+  const ext =
+    input.extendedSections && typeof input.extendedSections === 'object'
+      ? { ...input.extendedSections }
+      : {};
+  if (Array.isArray(ext.volunteer)) volunteerSources.push(ext.volunteer as unknown[]);
+
+  const additional =
+    input.additionalResumeData && typeof input.additionalResumeData === 'object'
+      ? { ...input.additionalResumeData }
+      : {};
+  if (Array.isArray(additional.volunteerWork)) {
+    volunteerSources.push(additional.volunteerWork as unknown[]);
+  }
+
+  const keptVolunteer: string[] = [];
+  for (const source of volunteerSources) {
+    const { kept, rerouteExperience } = filterVolunteerStrings(source);
+    keptVolunteer.push(...kept);
+    reroute.push(...rerouteExperience);
+  }
+  const volunteer = [...new Set(keptVolunteer)];
+
+  if (reroute.length > 0) {
+    experience = mergeExperienceEntries(experience, reroute);
+  }
+
+  ext.volunteer = volunteer;
+  additional.volunteerWork = volunteer;
+
+  return {
+    experience,
+    projects,
+    achievements,
+    volunteer,
+    extendedSections: ext,
+    additionalResumeData: additional,
+  };
+}
+
+/** List-item guard for extended/native string sections (volunteer, achievements, etc.). */
+export function isInvalidStringListItemForSection(text: string, sectionLabel?: string): boolean {
+  if (isPersonalMetadataEntry(text)) return true;
+  if (sectionLabel && /volunteer/i.test(sectionLabel) && isMisroutedProfessionalVolunteerLine(text)) {
+    return true;
+  }
+  return false;
+}
+
 export function isLikelyLanguageEntry(value: string): boolean {
   const text = value.trim();
   if (!text || text.length > 80) return false;
@@ -483,10 +715,7 @@ export function filterMeaningfulProjects(
   projects: Array<Record<string, unknown>>
 ): Array<Record<string, unknown>> {
   if (!Array.isArray(projects)) return [];
-  return projects.filter((project) => {
-    const name = project.Name ?? project.name ?? project.title ?? project.Title;
-    return hasMeaningfulText(name);
-  });
+  return projects.filter((project) => !isInvalidProjectEntry(project));
 }
 
 export function filterMeaningfulCertifications(
@@ -504,6 +733,7 @@ export function filterMeaningfulAchievements(
 ): unknown[] {
   if (!Array.isArray(achievements)) return [];
   return achievements.filter((item) => {
+    if (isInvalidAchievementEntry(item)) return false;
     if (typeof item === 'string') return hasMeaningfulText(item);
     if (item && typeof item === 'object') {
       const record = item as Record<string, unknown>;
@@ -1123,10 +1353,37 @@ export function coalesceFormDataForTemplateRender(
     Interests: hobbies,
     personalInterests: hobbies,
   };
+  const integrity = applyRenderSectionIntegrity({
+    experience: experience as Record<string, unknown>[],
+    projects: projects as Record<string, unknown>[],
+    achievements,
+    volunteer: Array.isArray(formData.volunteer) ? (formData.volunteer as unknown[]) : undefined,
+    extendedSections:
+      formData.extendedSections && typeof formData.extendedSections === 'object'
+        ? (formData.extendedSections as Record<string, unknown>)
+        : undefined,
+    additionalResumeData:
+      formData.additionalResumeData && typeof formData.additionalResumeData === 'object'
+        ? (formData.additionalResumeData as Record<string, unknown>)
+        : undefined,
+  });
+  const integrityChecked = {
+    ...coalesced,
+    experience: integrity.experience,
+    projects: integrity.projects,
+    achievements: integrity.achievements,
+    volunteer: integrity.volunteer,
+    extendedSections: integrity.extendedSections,
+    additionalResumeData: integrity.additionalResumeData,
+    'Work Experience': integrity.experience,
+    Experience: integrity.experience,
+    Projects: integrity.projects,
+    Achievements: integrity.achievements,
+  };
   if (isImportFieldTraceEnabled()) {
-    traceImportStageTransform('16_template_render_input', traceInput, coalesced, 'template-render');
+    traceImportStageTransform('16_template_render_input', traceInput, integrityChecked, 'template-render');
   }
-  return coalesced;
+  return integrityChecked;
 }
 
 /** Shared skills render thresholds — single source of truth for filtering and caps. */

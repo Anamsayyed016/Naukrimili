@@ -7,7 +7,7 @@ import {
   type ExtendedBuilderSections,
 } from '@/lib/resume-builder/canonical-mapping/types';
 import { SEMANTIC_SECTION_DEFINITIONS } from '@/lib/resume-builder/semantic-registry';
-import { hasMeaningfulText } from '@/lib/resume-builder/section-visibility';
+import { hasMeaningfulText, isInvalidStringListItemForSection } from '@/lib/resume-builder/section-visibility';
 import type { DynamicSectionKind, DynamicSectionSpec } from '@/lib/resume-builder/dynamic-section-registry';
 
 const PLACEHOLDER_PATTERNS: RegExp[] = [
@@ -101,6 +101,7 @@ export function filterMeaningfulListItems(
   for (const raw of items) {
     const text = typeof raw === 'string' ? raw.trim() : String(raw ?? '').trim();
     if (!hasMeaningfulText(text) || isPlaceholderContent(text) || isHeadingOnlyContent(text, options?.sectionLabel)) continue;
+    if (isInvalidStringListItemForSection(text, options?.sectionLabel)) continue;
     const key = normalizeToken(text);
     if (!key || seen.has(key)) continue;
     if (exclude.has(key) || [...exclude].some((ex) => tokensMatch(ex, key))) continue;

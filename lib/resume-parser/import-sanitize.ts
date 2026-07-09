@@ -1237,6 +1237,24 @@ const RESUME_METADATA_LINE_RE: RegExp[] = [
   /^achievements?\s*$/i,
 ];
 
+const PERSONAL_DETAIL_STATUS_WORD_RE =
+  /^(single|married|unmarried|widowed|divorced|current|present|ongoing|na|n\/a)$/i;
+
+const PERSONAL_DETAIL_LABEL_RE =
+  /^(marital\s*status|date\s*of\s*birth|d\.?o\.?b\.?|gender|nationality|languages?\s*known|religion|passport|blood\s*group)\b/i;
+
+/** Personal-detail / status tokens that must never become project titles, achievements, or section rows. */
+export function isPersonalMetadataResumeLine(line: string): boolean {
+  const t = line.trim();
+  if (!t) return true;
+  if (RESUME_METADATA_LINE_RE.some((re) => re.test(t))) return true;
+  if (PERSONAL_DETAIL_STATUS_WORD_RE.test(t)) return true;
+  if (PERSONAL_DETAIL_LABEL_RE.test(t)) return true;
+  if (/^marital\s+status\s*:\s*\w+$/i.test(t)) return true;
+  if (/^(19|20)\d{2}\s*[-–—]\s*(present|current|(19|20)\d{2})$/i.test(t)) return true;
+  return false;
+}
+
 /** True when a line is a section heading or personal metadata — not job content or a skill. */
 export function isResumeSectionHeadingLine(line: string): boolean {
   const t = line.trim().replace(/[:|\-_=•]+$/g, '').trim();
@@ -1685,7 +1703,9 @@ export function normalizeSkillsList(
 export function sanitizeAchievementEntry(value: unknown): string {
   if (value == null) return '';
   if (typeof value === 'string') {
-    return sanitizeFieldText(value.replace(/^[\s\u2022\u25aa\u2023*\-]+/, ''), 280);
+    const cleaned = sanitizeFieldText(value.replace(/^[\s\u2022\u25aa\u2023*\-]+/, ''), 280);
+    if (isPersonalMetadataResumeLine(cleaned)) return '';
+    return cleaned;
   }
   if (typeof value === 'object') {
     const rec = value as Record<string, unknown>;
@@ -1780,6 +1800,7 @@ export function isMisclassifiedExperienceProject(name: string, description = '')
 export function isPlausibleProjectName(value: unknown): boolean {
   const s = sanitizeFieldText(value, 120);
   if (!s || s.length < 2) return false;
+  if (isPersonalMetadataResumeLine(s)) return false;
   if (isGarbageResumeText(s)) return false;
   if (isCorporateStructurePhrase(s)) return false;
   if (s.length > 90) return false;
@@ -1804,6 +1825,7 @@ export function isPlausibleProjectName(value: unknown): boolean {
 export function isEmbeddedProjectTitleLine(line: string): boolean {
   const raw = line.replace(/^[•\-\*\u2022]\s+/, '').trim();
   if (!raw || raw.length < 4 || raw.length > 100) return false;
+  if (isPersonalMetadataResumeLine(raw)) return false;
   if (PROJECT_VERB_PREFIX_RE.test(raw)) return false;
 
   const titlePart = raw.split(/\s+[-–—:]\s+/)[0]?.trim() || raw;
@@ -2012,6 +2034,7 @@ export function resolveProjectName(
     rawName &&
     rawName.length >= 2 &&
     rawName.length <= 90 &&
+    isPlausibleProjectName(rawName) &&
     !looksLikeJobTitleLine(rawName) &&
     !isLikelyJobTitleFragment(rawName)
   ) {
@@ -2046,7 +2069,7 @@ export function sanitizeProjectEntry(
 
   if (typeof value === 'string') {
     const name = sanitizeFieldText(value, 120);
-    if (!name) return null;
+    if (!name || isPersonalMetadataResumeLine(name) || !isPlausibleProjectName(name)) return null;
     return { name, title: name, description: '', technologies: '', url: '', link: '' };
   }
   if (typeof value !== 'object') return null;

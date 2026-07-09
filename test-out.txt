@@ -1,0 +1,131 @@
+﻿node.exe : [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline 
+data, please update: `npm i baseline-browser-mapping@latest -D`
+At C:\Program Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows...ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+PASS unit tests/resume-autofill-reliability.test.ts (18.784 s)
+  isPlausiblePersonName
+    Γùï skipped rejects experience sentence fragments
+    Γùï skipped rejects email domain fragments
+    Γùï skipped accepts real names
+  pickBestNameFromCandidates contact-first
+    Γùï skipped prefers email local-part over broken domain fragment near contact
+    Γùï skipped prefers real header name over email-derived when both valid
+  pickRicherFullName
+    Γùï skipped prefers plausible short name over long experience garbage
+    Γùï skipped falls back to email-derived name when parser returns garbage
+  transformImportDataToBuilder name safety
+    Γùï skipped does not use experience text as display name
+    Γùï skipped rejects section header mapped as first and last name
+    Γùï skipped rejects industry section header mapped as firstName
+    Γùï skipped does not use generic Professional as jobTitle when experience has a role
+    Γùï skipped rejects corporate conversion phrase as contact name and filters skill bleed
+    Γùï skipped rejects Self Practise Bhopal and uses email-derived name for anamsayyed58@gmail.com
+    Γùï skipped rejects Academia Th and uses email-derived name for anamsayyed58@gmail.com
+    Γùï skipped rejects compliance officer and board member as contact name
+    Γùï skipped splits Arshil Alam and Anam Sayyed correctly
+    Γùï skipped does not let client text recovery override validated API fullName
+    Γùï skipped rejects CS Articleship as contact name
+  transformImportDataToBuilder volunteer misroute reconciliation
+    Γùï skipped reroutes paid employment lines from volunteer buckets into experience
+  isAffindaPrimaryAcceptable
+    Γùï skipped rejects executive layout with stub experience for Affinda primary
+  collectNameCandidatesFromText labeled names
+    Γùï skipped finds Name : label near footer contact block
+  isUsableExtraction
+    Γùï skipped rejects summary-only Affinda parse (cover letter page)
+    Γùï skipped accepts parse with experience
+  stripLeadingNonResumeContent
+    Γùï skipped removes cover letter page before experience section
+    Γùï skipped leaves standard resumes unchanged
+  extractAdditionalResumeDataFromText
+    Γùï skipped captures professional memberships into achievements pipeline
+  extractResumeFromText achievements
+    Γùï skipped parses professional achievements section
+  extractResumeFromText aliases
+    Γùï skipped parses Professional Journey as experience
+    Γùï skipped parses Key Engagements as projects
+  isPlausibleProjectName
+    Γùï skipped rejects description sentences used as project names
+    Γùï skipped accepts short project titles
+    Γùï skipped rejects job titles misclassified as project names
+    Γùï skipped accepts short project titles without descriptions
+  sanitizeProjectEntry
+    Γùï skipped does not use description sentence as project name
+  resume preview data binding
+    ΓêÜ coalesceFormDataForTemplateRender reroutes professional lines out of volunteer (14 ms)
+    Γùï skipped coalesceFormDataForTemplateRender falls back when canonical array is empty
+    Γùï skipped coalesceFormDataForTemplateRender rejects personal metadata from projects and achievements
+    Γùï skipped injectResumeData renders project bullets and description from body fields
+    Γùï skipped injectResumeData renders experience when only Work Experience alias is populated
+    Γùï skipped mergeBuilderFormWithParent uses profile arrays when builderFormData sections are empty
+    Γùï skipped coalesceBuilderImportPayload preserves parent experience without full re-sanitize drop
+    Γùï skipped coalesceBuilderImportPayload does not re-sanitize _imported payload on second pass
+    Γùï skipped coalesceBuilderImportPayload prefers parent experience when builderFormData experience is empty 
+placeholders
+    Γùï skipped recovers sections from summary bleed when parser arrays are empty (_apiFinalized)
+    Γùï skipped transformImportDataToBuilder trims summary bleed when structured sections exist
+    Γùï skipped routes misplaced achievement bleed into education and experience sections
+    Γùï skipped splits compound languages and filters non-measurable achievements
+    Γùï skipped stripRedundantExperienceDateBodyLines removes date-only body when structured dates exist
+    Γùï skipped syncExperienceEntryAliases preserves partial company names when reconcileHeaders is false
+    Γùï skipped syncExperienceEntryAliases clears orphaned bullets when description is empty
+    Γùï skipped reconcileExperienceHeaderFields recovers company from organization when company slot holds title
+    Γùï skipped coalesceBuilderImportPayload prefers parent experience when builder rows lack company names
+    Γùï skipped coalesceBuilderImportPayload prefers parent experience when builder companies are misassigned titles
+  experience boundary and pipeline hygiene
+    Γùï skipped keeps separate experience entries with distinct descriptions
+    Γùï skipped preserves stacked title/company headers including Software Developer designation
+    Γùï skipped rejects MBA/education lines misclassified as certifications
+    Γùï skipped strips AI meta commentary from experience descriptions
+    Γùï skipped caps skills at 20 highest-confidence entries
+    Γùï skipped transformImportDataToBuilder preserves multiple experiences through the pipeline
+    Γùï skipped rejects invented epoch dates and empty end date does not imply current job
+    Γùï skipped recognizes short employer names like Infosys and TCS in text recovery
+  optimizeResumeDataForRender
+    Γùï skipped caps skills for sidebar/progress templates at 12
+    Γùï skipped prefers measurable bullets over generic responsibilities
+    Γùï skipped keeps all companies but trims bullets for template render
+    Γùï skipped does not mutate the original editor formData object
+    Γùï skipped preserves full content for parser-imported resumes
+  dynamic layout engine
+    Γùï skipped expands spacing for sparse resumes
+    Γùï skipped injects dynamic-layout style block into rendered HTML
+    Γùï skipped audits missing sections when data exists but HTML lacks markers
+  processHandlebarsConditionals
+    Γùï skipped resolves nested {{#if PHONE}} inside {{#if CONTACT}}
+    Γùï skipped resolves {{#unless PROFILE_IMAGE}} for initials fallback
+    Γùï skipped injectResumeData leaves no handlebars in executive-sidebar-elite
+  appendMissingImportSections
+    Γùï skipped injects projects into rendered HTML when template block was stripped
+    Γùï skipped injectResumeData includes all import sections for sidebar template
+  experience header mapping
+    Γùï skipped recognizes short employer names like Reliance and Adobe
+    Γùï skipped reads company from companyName alias before mapping
+    Γùï skipped merges split title fragments like Full + Stack Developer
+    Γùï skipped does not duplicate title when position already contains company fragment
+    Γùï skipped splits company and location from pipe format
+    Γùï skipped moves city lines out of company into location
+    Γùï skipped splits embedded multi-job description into separate experiences
+    Γùï skipped pairs company-only and title-only orphan fragments
+    Γùï skipped rejects tech skill and location mis-assigned as company
+    Γùï skipped hydrates experience and summary when custom parser leaves experience empty but education exists
+    Γùï skipped readExperienceTitleForForm prefers live title over stale position alias
+    Γùï skipped readExperienceEntryForForm uses Company alias when company key is empty
+    Γùï skipped readExperienceDescriptionForForm prefers live description over Description alias
+    Γùï skipped appendExperienceDescriptionSuggestion inserts directly when description is empty
+    Γùï skipped appendExperienceDescriptionSuggestion only updates the targeted experience entry
+    Γùï skipped readExperienceTitleForSync respects cleared title instead of stale position alias
+    Γùï skipped readExperienceDescriptionForSync respects cleared description instead of Description alias
+    Γùï skipped syncExperienceEntryAliases drops stale import bullets when live description is set
+
+Test Suites: 1 passed, 1 total
+Tests:       91 skipped, 1 passed, 92 total
+Snapshots:   0 total
+Time:        23.651 s, estimated 47 s
+Ran all test suites matching /tests\\resume-autofill-reliability.test.ts/i with tests matching "reroutes professional".
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after 
+all tests finished?

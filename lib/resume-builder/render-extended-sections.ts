@@ -47,6 +47,7 @@ const NATIVE_RENDER_MARKERS: Record<NativeCategory, RegExp> = {
 function inferCategoryFromHeading(heading: string): NativeCategory | null {
   const text = heading.trim();
   if (!text) return null;
+  if (/\bvolunteer\b/i.test(text)) return null;
   for (const spec of NATIVE_ALIAS_TO_CATEGORY) {
     if (spec.re.test(text)) return spec.category;
   }

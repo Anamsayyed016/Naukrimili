@@ -541,9 +541,23 @@ describe('isPlausibleProjectName', () => {
   it('accepts short project titles without descriptions', () => {
     expect(isPlausibleProjectName('Cafe Website')).toBe(true);
   });
+
+  it('rejects personal metadata and marital status tokens as project names', () => {
+    expect(isPlausibleProjectName('Single')).toBe(false);
+    expect(isPlausibleProjectName('Married')).toBe(false);
+    expect(isPlausibleProjectName('Marital Status: Single')).toBe(false);
+    expect(isPlausibleProjectName('Date of Birth')).toBe(false);
+    expect(isPlausibleProjectName('Current')).toBe(false);
+  });
 });
 
 describe('sanitizeProjectEntry', () => {
+  it('drops personal metadata string projects', () => {
+    expect(sanitizeProjectEntry('Single', 0)).toBeNull();
+    expect(sanitizeProjectEntry('Marital Status: Single', 0)).toBeNull();
+    expect(sanitizeProjectEntry({ name: 'Single', description: '' }, 0)).toBeNull();
+  });
+
   it('does not use description sentence as project name', () => {
     const entry = sanitizeProjectEntry(
       {
@@ -576,6 +590,68 @@ describe('resume preview data binding', () => {
     expect(coalesced.experience).toHaveLength(1);
     expect(coalesced.education).toHaveLength(1);
     expect(coalesced.skills).toEqual(expect.arrayContaining(['Python', 'React']));
+  });
+
+  it('coalesceFormDataForTemplateRender rejects personal metadata from projects and achievements', async () => {
+    const { coalesceFormDataForTemplateRender } = await import(
+      '@/lib/resume-builder/section-visibility'
+    );
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Test',
+      lastName: 'User',
+      projects: [
+        { name: 'Single', description: '' },
+        { name: 'ERP Migration', description: 'Led SAP rollout across finance teams' },
+      ],
+      achievements: ['Marital Status: Single', 'BPS star performer 2022'],
+      experience: [],
+      skills: ['Excel'],
+    });
+    expect((coalesced.projects as Array<{ name: string }>).map((p) => p.name)).toEqual([
+      'ERP Migration',
+    ]);
+    expect(coalesced.achievements).toEqual(['BPS star performer 2022']);
+  });
+
+  it('coalesceFormDataForTemplateRender reroutes professional lines out of volunteer', async () => {
+    const { coalesceFormDataForTemplateRender } = await import(
+      '@/lib/resume-builder/section-visibility'
+    );
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Test',
+      lastName: 'User',
+      experience: [],
+      extendedSections: {
+        volunteer: [
+          'STEM mentor at local high school',
+          'Accounts Payable Analyst at Infosys Pvt. Ltd. | 2019 - Present',
+        ],
+      },
+      skills: ['Excel'],
+    });
+    const volunteer = (coalesced.extendedSections as { volunteer?: string[] })?.volunteer || [];
+    expect(volunteer).toEqual(['STEM mentor at local high school']);
+    expect((coalesced.experience as Array<{ company?: string }>)[0]?.company).toMatch(/infosys/i);
+  });
+
+  it('injectResumeData renders project bullets and description from body fields', async () => {
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const html = '{{PROJECTS}}';
+    const result = injectResumeData(html, {
+      firstName: 'Test',
+      lastName: 'User',
+      projects: [
+        {
+          name: 'ERP Migration',
+          bullets: ['Configured SAP modules', 'Trained finance users'],
+          description: '',
+        },
+      ],
+      _imported: true,
+    });
+    expect(result).toContain('ERP Migration');
+    expect(result).toContain('Configured SAP modules');
+    expect(result).toContain('Trained finance users');
   });
 
   it('injectResumeData renders experience when only Work Experience alias is populated', async () => {

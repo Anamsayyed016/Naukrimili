@@ -635,7 +635,14 @@ function readCanonicalString(
   aliases: string[] = []
 ): string {
   if (Object.prototype.hasOwnProperty.call(record, canonical)) {
-    return coerceFieldToString(record[canonical]);
+    const direct = coerceFieldToString(record[canonical]);
+    if (direct) return direct;
+    for (const key of aliases) {
+      if (!(key in record)) continue;
+      const text = coerceFieldToString(record[key]);
+      if (text) return text;
+    }
+    return '';
   }
   for (const key of aliases) {
     if (!(key in record)) continue;
@@ -879,11 +886,24 @@ function renderProjects(projects: Array<Record<string, string>>): string {
     .map((project) => {
       const rec = project as Record<string, unknown>;
       const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title', 'projectName', 'ProjectName']);
-      const description = readCanonicalString(rec, 'description', [
-        'Description',
-        'summary',
-        'Summary',
+      const body = collectExperienceBodyFields(rec);
+      const explicitBullets = body.achievements
+        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+        .filter((s) => s.length >= 3);
+      const descBullets = String(body.description || '')
+        .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
+        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+        .filter((s) => s.length >= 3);
+      const mergedBody = dedupeExperienceBodyLines(body.description, [
+        ...explicitBullets,
+        ...descBullets,
       ]);
+      const description =
+        mergedBody.achievements.length > 1
+          ? mergedBody.achievements.join('\n')
+          : mergedBody.achievements.length === 1
+            ? mergedBody.achievements[0]
+            : mergedBody.description;
       const technologies = readCanonicalString(rec, 'technologies', [
         'Technologies',
         'tech_stack',
@@ -892,12 +912,27 @@ function renderProjects(projects: Array<Record<string, string>>): string {
         'tech',
         'Tech',
       ]);
+      const employer = readCanonicalString(rec, 'employer', [
+        'Employer',
+        'company',
+        'Company',
+        'organization',
+        'Organization',
+        'context',
+        'Context',
+      ]);
       const link = readCanonicalString(rec, 'link', ['Link', 'url', 'URL', 'github', 'Github']);
+
+      const renderedBullets =
+        mergedBody.achievements.length > 1
+          ? `<ul>${mergedBody.achievements.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
+          : '';
 
       return `
         <div class="project-item">
           <h3>${escapeHtml(name)}</h3>
-          ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
+          ${employer ? `<p class="project-employer">${escapeHtml(employer)}</p>` : ''}
+          ${renderedBullets || (description ? `<p class="description">${escapeHtml(description)}</p>` : '')}
           ${technologies ? `<p class="technologies">${escapeHtml(technologies)}</p>` : ''}
           ${link ? `<a href="${escapeHtml(link)}" target="_blank">View Project</a>` : ''}
         </div>
