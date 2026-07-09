@@ -22,11 +22,9 @@ import type { Template, ColorVariant, LoadedTemplate } from './types';
 import {
   filterMeaningfulExperiences,
   filterMeaningfulEducation,
-  filterMeaningfulSkills,
   filterMeaningfulProjects,
   filterMeaningfulCertifications,
   filterMeaningfulAchievements,
-  normalizeSkillsForRender,
   isSectionForcedHidden,
   processHandlebarsConditionals,
   stripRemainingHandlebarsSyntax,
@@ -37,12 +35,12 @@ import {
   appendHobbiesSectionIfMissing,
   shouldPreserveFullContentForRender,
   appendMissingImportSections,
+  resolveResumeRenderMode,
 } from './section-visibility';
 import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
 import {
   collectExperienceBodyFields,
   dedupeExperienceBodyLines,
-  scoreSkillConfidence,
 } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { resolveTemplateId } from './template-aliases';
@@ -437,13 +435,13 @@ export function injectResumeData(
     coalesceFormDataForTemplateRender(formData),
     DYNAMIC_SECTION_REGISTRY
   );
-  const renderMode = options?.mode ?? 'preview';
+  const renderMode = resolveResumeRenderMode(options);
   const preserveFullContent = shouldPreserveFullContentForRender(coalesced, options);
   const data = optimizeResumeDataForRender(coalesced, {
     htmlTemplate,
     templateId: options?.templateId ?? options?.galleryTemplateId,
     galleryPreview: options?.galleryPreview,
-    mode: renderMode,
+    mode: options?.mode ?? 'preview',
     preserveFullContent,
   });
 
@@ -508,7 +506,9 @@ export function injectResumeData(
   const educationData = filterMeaningfulEducation(
     (Array.isArray(data.education) ? data.education : []) as Array<Record<string, unknown>>
   );
-  const skillsData = normalizeSkillsForRender(data);
+  const skillsData = Array.isArray(data.skills)
+    ? (data.skills as string[])
+    : [];
   const projectsData = filterMeaningfulProjects(
     (Array.isArray(data.projects) ? data.projects : []) as Array<Record<string, unknown>>
   ) as Array<Record<string, string>>;
@@ -547,7 +547,7 @@ export function injectResumeData(
     '{{CONTACT}}': renderContactListHtml(data, escapeHtml),
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
-    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile, preserveFullContent),
+    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
     '{{PROJECTS}}': renderProjects(projectsData),
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
@@ -594,11 +594,13 @@ export function injectResumeData(
     }
   }
 
-  result = injectDynamicLayoutIntoHtml(result, coalesced, {
-    htmlTemplate,
-    templateId: options?.templateId ?? options?.galleryTemplateId,
-    mode: renderMode,
-  });
+  if (renderMode !== 'pdf') {
+    result = injectDynamicLayoutIntoHtml(result, coalesced, {
+      htmlTemplate,
+      templateId: options?.templateId ?? options?.galleryTemplateId,
+      mode: 'preview',
+    });
+  }
 
   return result;
 }
@@ -812,44 +814,23 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
 }
 
 /**
- * Render skills section
- * Supports both simple tags and progress bars (for templates that use progress bar classes)
+ * Render skills section — skills are finalized in prepareSkillsForRender; no re-filter here.
  */
-function resolveSkillRenderLimit(total: number, useProgressBars: boolean): number | undefined {
-  if (useProgressBars) return 12;
-  if (total > 30) return 22;
-  if (total > 22) return 18;
-  return undefined;
-}
-
-function renderSkills(
-  skills: string[],
-  useProgressBars: boolean = false,
-  preserveFullContent: boolean = false
-): string {
+function renderSkills(skills: string[], useProgressBars: boolean = false): string {
   if (!Array.isArray(skills) || skills.length === 0) {
     return '';
   }
 
-  const validSkills = (
-    filterMeaningfulSkills(
-      skills.map((skill) => {
-        if (typeof skill === 'string') return skill;
-        if (skill && typeof skill === 'object') {
-          const record = skill as Record<string, unknown>;
-          return String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? '');
-        }
-        return '';
-      })
-    ) as string[]
-  )
-    .slice()
-    .sort((a, b) => scoreSkillConfidence(b) - scoreSkillConfidence(a));
-
-  const limit = preserveFullContent
-    ? undefined
-    : resolveSkillRenderLimit(validSkills.length, useProgressBars);
-  const displaySkills = limit ? validSkills.slice(0, limit) : validSkills;
+  const displaySkills = skills
+    .map((skill) => {
+      if (typeof skill === 'string') return skill.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      if (skill && typeof skill === 'object') {
+        const record = skill as Record<string, unknown>;
+        return String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? '').trim();
+      }
+      return '';
+    })
+    .filter((name) => name.length > 0);
 
   if (displaySkills.length === 0) {
     return '';
@@ -861,18 +842,9 @@ function renderSkills(
       .join(' ');
   }
 
-  // Progress-bar templates: show skill names only (no fake parser/confidence percentages)
   return displaySkills
     .map((skill) => {
-      const raw =
-        typeof skill === 'string'
-          ? skill
-          : String(
-              (skill as Record<string, unknown>).name ||
-                (skill as Record<string, unknown>).Name ||
-                skill
-            );
-      const skillName = raw.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      const skillName = skill.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
       if (!skillName) return '';
 
       return `

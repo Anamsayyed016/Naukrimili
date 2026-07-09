@@ -1353,6 +1353,10 @@ export function injectDynamicLayoutIntoHtml(
   formData: Record<string, unknown>,
   options?: ComputeDynamicLayoutOptions & { htmlTemplate?: string }
 ): string {
+  if (options?.mode === 'pdf') {
+    return html;
+  }
+
   const metrics = synthesizeMetricsFromRenderedHtml(html);
   const plan = computeDynamicLayoutPlanFromMetrics(metrics, formData, {
     ...options,

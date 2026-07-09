@@ -196,7 +196,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         ${typographyCss}
       </style>
     </head>
-    <body>
+    <body class="resume-pdf-export">
       ${htmlWithInlineIcons}
     </body>
     </html>

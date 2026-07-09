@@ -1129,6 +1129,26 @@ export function coalesceFormDataForTemplateRender(
   return coalesced;
 }
 
+/** Shared skills render thresholds — single source of truth for filtering and caps. */
+export const SKILLS_RENDER_CONFIG = {
+  minConfidenceScore: 35,
+  progressBarDisplayMax: 12,
+  mediumSkillDisplayMax: 18,
+  denseSkillDisplayMax: 22,
+} as const;
+
+export type ResumeRenderMode = 'gallery' | 'live' | 'pdf';
+
+/** Resolve gallery / live / pdf from inject options (one entry point for render parity). */
+export function resolveResumeRenderMode(options?: {
+  galleryPreview?: boolean;
+  mode?: 'preview' | 'pdf';
+}): ResumeRenderMode {
+  if (options?.galleryPreview) return 'gallery';
+  if (options?.mode === 'pdf') return 'pdf';
+  return 'live';
+}
+
 export interface TemplateRenderCapacity {
   maxSkills: number;
   maxBulletsPerExperience: number;
@@ -1181,7 +1201,9 @@ export function shouldPreserveFullContentForRender(
 ): boolean {
   if (options?.galleryPreview) return false;
   if (options?.preserveFullContent === true) return true;
-  return formData.customParserUsed === true;
+  if (formData.customParserUsed === true) return true;
+  if (formData._imported === true) return true;
+  return false;
 }
 
 /** Derive per-template display budgets from HTML structure (no template file edits). */
@@ -1353,14 +1375,19 @@ function optimizeProjectsListForRender(
     .map((entry) => entry.item);
 }
 
-function optimizeSkillsListForRender(skills: string[], maxSkills: number): string[] {
+function rankAndCapSkills(
+  skills: string[],
+  maxSkills: number,
+  options?: { applyConfidenceFilter?: boolean }
+): string[] {
+  const applyConfidenceFilter = options?.applyConfidenceFilter !== false;
   const ranked = new Map<string, { name: string; score: number }>();
 
   for (const raw of skills) {
     const name = canonicalizeSkillName(String(raw || '').replace(/\s+\d{1,3}%?\s*$/i, '').trim());
     if (!name) continue;
     const score = scoreSkillConfidence(name);
-    if (score < 35) continue;
+    if (applyConfidenceFilter && score < SKILLS_RENDER_CONFIG.minConfidenceScore) continue;
     const key = name.toLowerCase();
     const prev = ranked.get(key);
     if (!prev || score > prev.score) {
@@ -1372,6 +1399,41 @@ function optimizeSkillsListForRender(skills: string[], maxSkills: number): strin
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
     .map((entry) => entry.name)
     .slice(0, maxSkills);
+}
+
+export interface PrepareSkillsForRenderOptions {
+  renderMode: ResumeRenderMode;
+  htmlTemplate?: string;
+  formData?: Record<string, unknown>;
+}
+
+/**
+ * Single skills pipeline — normalize/partition in coalesce; rank/cap here only.
+ * Gallery trims for cards; live/pdf share identical content (caps only for manual builder resumes).
+ */
+export function prepareSkillsForRender(
+  partitionedSkills: string[],
+  options: PrepareSkillsForRenderOptions
+): string[] {
+  const skills = partitionedSkills.filter(
+    (skill) => typeof skill === 'string' && skill.trim().length > 0
+  );
+  if (skills.length === 0) return [];
+
+  if (options.renderMode === 'gallery') {
+    return rankAndCapSkills(skills, GALLERY_RENDER_CAPACITY.maxSkills);
+  }
+
+  const formData = options.formData;
+  if (
+    formData &&
+    shouldPreserveFullContentForRender(formData, { galleryPreview: false })
+  ) {
+    return skills;
+  }
+
+  const capacity = resolveTemplateRenderCapacity(options.htmlTemplate ?? '');
+  return rankAndCapSkills(skills, capacity.maxSkills);
 }
 
 function resolveSummaryForRender(formData: Record<string, unknown>, maxWords: number): string {
@@ -1524,9 +1586,9 @@ function optimizeGalleryResumeDataForRender(
     Array.isArray(formData.projects) ? formData.projects : [],
     capacity
   );
-  const skills = optimizeSkillsListForRender(
+  const skills = prepareSkillsForRender(
     Array.isArray(formData.skills) ? (formData.skills as string[]) : normalizeSkillsForRender(formData),
-    capacity.maxSkills
+    { renderMode: 'gallery', htmlTemplate: '', formData }
   );
   const education = optimizeEducationListForGallery(
     Array.isArray(formData.education) ? formData.education : [],
@@ -1588,7 +1650,9 @@ export function optimizeResumeDataForRender(
   formData: Record<string, unknown>,
   options?: OptimizeResumeForRenderOptions
 ): Record<string, unknown> {
-  if (options?.galleryPreview) {
+  const renderMode = resolveResumeRenderMode(options);
+
+  if (renderMode === 'gallery') {
     return optimizeGalleryResumeDataForRender(formData);
   }
 
@@ -1605,9 +1669,9 @@ export function optimizeResumeDataForRender(
     Array.isArray(formData.projects) ? formData.projects : [],
     capacity.maxProjects
   );
-  const skills = optimizeSkillsListForRender(
+  const skills = prepareSkillsForRender(
     Array.isArray(formData.skills) ? (formData.skills as string[]) : normalizeSkillsForRender(formData),
-    capacity.maxSkills
+    { renderMode, htmlTemplate: options?.htmlTemplate ?? '', formData }
   );
   const summary = resolveSummaryForRender(formData, capacity.maxSummaryWords);
 

@@ -310,6 +310,51 @@ body {
   print-color-adjust: exact !important;
 }
 
+/* Export shell — applies under Puppeteer screen emulation (body.resume-pdf-export) */
+body.resume-pdf-export,
+body.resume-pdf-export html {
+  width: 794px !important;
+  max-width: 794px !important;
+  min-width: 794px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+body.resume-pdf-export .resume-container,
+body.resume-pdf-export .resume-container[class*='-'],
+body.resume-pdf-export .resume-container[class*='-resume'] {
+  width: 794px !important;
+  max-width: 794px !important;
+  min-width: 794px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+body.resume-pdf-export .resume-container,
+body.resume-pdf-export .resume-container[class*='-'],
+body.resume-pdf-export .resume-container .resume-wrapper,
+body.resume-pdf-export .resume-container [class*='-body']:not(body):not(html),
+body.resume-pdf-export .resume-container [class*='-shell'],
+body.resume-pdf-export .resume-container .sidebar,
+body.resume-pdf-export .resume-container .main-content,
+body.resume-pdf-export .resume-container .content {
+  min-height: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  align-items: flex-start !important;
+}
+
+body.resume-pdf-export .resume-container .experience-item,
+body.resume-pdf-export .resume-container .project-item,
+body.resume-pdf-export .resume-container .education-item,
+body.resume-pdf-export .resume-container .achievement-item,
+body.resume-pdf-export .resume-container [class*='-section'],
+body.resume-pdf-export .resume-container .content-section {
+  page-break-inside: auto !important;
+  break-inside: auto !important;
+}
+
 /* Reinforce when Puppeteer emulateMediaType('print') — beats template @media print min-heights */
 @media print {
   /* Match Live Preview: lock page shell to A4 width — prevents side gutters when body is 100% */
