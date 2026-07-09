@@ -286,6 +286,36 @@ describe('transformImportDataToBuilder name safety', () => {
   });
 });
 
+describe('transformImportDataToBuilder volunteer misroute reconciliation', () => {
+  it('reroutes paid employment lines from volunteer buckets into experience', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      experience: [],
+      volunteer: [
+        'Accounts Payable Analyst at Infosys Pvt. Ltd. | 2019 - Present',
+        'STEM mentor at local high school',
+      ],
+      additionalResumeData: {
+        volunteerWork: ['SAP Consultant at Deloitte | 2018 - 2020'],
+      },
+      extendedSections: {
+        volunteer: ['Manager at ABC Consultancy LLP | 2017 - 2019'],
+      },
+    });
+
+    expect(transformed.volunteer).toEqual(['STEM mentor at local high school']);
+    expect((transformed.additionalResumeData as { volunteerWork?: string[] })?.volunteerWork).toEqual([]);
+    expect((transformed.extendedSections as { volunteer?: string[] })?.volunteer).toEqual([]);
+
+    const companies = (transformed.experience || []).map((e: { company?: string }) =>
+      String(e.company || '')
+    );
+    expect(companies.join(' ')).toMatch(/infosys/i);
+    expect(companies.join(' ')).toMatch(/deloitte/i);
+    expect(companies.join(' ')).toMatch(/abc consultancy/i);
+  });
+});
+
 describe('isAffindaPrimaryAcceptable', () => {
   it('rejects executive layout with stub experience for Affinda primary', () => {
     const extracted = {

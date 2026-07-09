@@ -771,6 +771,118 @@ function spilloverExperienceFromLine(line: string): Record<string, unknown> | nu
   return { company: t, title: '', position: '' };
 }
 
+/** Genuine volunteer/community roles — do not reroute when these signals are present. */
+const VOLUNTEER_CONTEXT_RE =
+  /\b(volunteer(?:ing)?|pro\s*bono|community\s+service|nonprofit|non-profit|ngo|charity|hospice|shelter|food\s+bank|mentor(?:ing)?)\b/i;
+
+const PROFESSIONAL_WORK_IN_VOLUNTEER_RE =
+  /\b(pvt\.?\s*ltd|limited|inc\.?|corp(?:oration)?\.?|llp|plc|gmbh|consultancy|consulting|erp|sap|invoic|stakeholder|accounts?\s+payable)\b/i;
+
+/** Paid work experience lines wrongly placed in volunteer buckets during import/canonical mapping. */
+function isMisroutedVolunteerEntry(line: string): boolean {
+  const t = line.trim();
+  if (!t || t.length < 6) return false;
+  if (VOLUNTEER_CONTEXT_RE.test(t)) return false;
+  if (ACHIEVEMENT_FIRM_LINE_RE.test(t)) return true;
+  if (PROFESSIONAL_WORK_IN_VOLUNTEER_RE.test(t)) return true;
+  if (
+    /\b(manager|analyst|engineer|developer|director|executive|consultant|associate|accountant|auditor|specialist)\b/i.test(
+      t
+    ) &&
+    (/\bat\s+[A-Za-z]/i.test(t) ||
+      /\|\s*(19|20)\d{2}/.test(t) ||
+      /\b(19|20)\d{2}\s*[-–—]/.test(t))
+  ) {
+    return true;
+  }
+  if (/\b(19|20)\d{2}\s*[-–—]\s*(present|current|(19|20)\d{2})\b/i.test(t) && t.length > 20) {
+    return true;
+  }
+  return false;
+}
+
+function parseMisroutedVolunteerAsExperience(line: string): Record<string, unknown> | null {
+  const t = line.trim();
+  if (!t) return null;
+  const firmExp = spilloverExperienceFromLine(t);
+  if (firmExp) return firmExp;
+  const atMatch = t.match(/^(.+?)\s+at\s+(.+?)(?:\s*[-–—|]\s*(.+))?$/i);
+  if (atMatch) {
+    const title = atMatch[1].trim();
+    const company = atMatch[2].trim();
+    const duration = atMatch[3]?.trim() || '';
+    return {
+      title,
+      position: title,
+      company,
+      description: duration,
+      duration,
+    };
+  }
+  return { company: t.slice(0, 160), title: '', position: '', description: t };
+}
+
+function filterVolunteerListItems(items: unknown[]): {
+  kept: string[];
+  rerouteExperience: Record<string, unknown>[];
+} {
+  const kept: string[] = [];
+  const rerouteExperience: Record<string, unknown>[] = [];
+  for (const raw of items) {
+    if (typeof raw !== 'string') continue;
+    const text = raw.trim();
+    if (!text) continue;
+    if (isMisroutedVolunteerEntry(text)) {
+      const exp = parseMisroutedVolunteerAsExperience(text);
+      if (exp) rerouteExperience.push(exp);
+    } else {
+      kept.push(text);
+    }
+  }
+  return { kept, rerouteExperience };
+}
+
+/** Reroute professional work lines out of volunteer fields into experience (post-canonical). */
+function reconcileVolunteerMisroutes(builder: Record<string, unknown>): void {
+  const reroute: Record<string, unknown>[] = [];
+
+  if (Array.isArray(builder.volunteer)) {
+    const { kept, rerouteExperience } = filterVolunteerListItems(builder.volunteer);
+    builder.volunteer = kept;
+    reroute.push(...rerouteExperience);
+  }
+
+  const ext = builder.extendedSections;
+  if (ext && typeof ext === 'object' && Array.isArray((ext as Record<string, unknown>).volunteer)) {
+    const { kept, rerouteExperience } = filterVolunteerListItems(
+      (ext as Record<string, unknown>).volunteer as unknown[]
+    );
+    (ext as Record<string, unknown>).volunteer = kept;
+    reroute.push(...rerouteExperience);
+  }
+
+  const additional = builder.additionalResumeData;
+  if (additional && typeof additional === 'object') {
+    const add = additional as Record<string, unknown>;
+    if (Array.isArray(add.volunteerWork)) {
+      const { kept, rerouteExperience } = filterVolunteerListItems(add.volunteerWork);
+      add.volunteerWork = kept;
+      reroute.push(...rerouteExperience);
+    }
+  }
+
+  if (reroute.length === 0) return;
+
+  builder.experience = mergeUniqueRecords(
+    Array.isArray(builder.experience) ? builder.experience : [],
+    reroute,
+    (e) =>
+      `${String(e.company || '').trim()}|${String(e.position || e.title || '').trim()}`.toLowerCase()
+  );
+  builder['Work Experience'] = builder.experience;
+  builder.Experience = builder.experience;
+}
+
 function spilloverSkillFromLine(line: string): string | null {
   const t = line.trim();
   if (!t || t.length > 60 || t.length < 2) return null;
@@ -1592,6 +1704,7 @@ export function transformImportDataToBuilder(
 
   const pruned = pruneAndMergeDynamicSections(transformed, DYNAMIC_SECTION_REGISTRY);
   Object.assign(transformed, pruned);
+  reconcileVolunteerMisroutes(transformed);
 
   const { builder: postCanonicalBuilder, report: postCanonicalReport } = recoverBuilderFormSections(
     transformed,
