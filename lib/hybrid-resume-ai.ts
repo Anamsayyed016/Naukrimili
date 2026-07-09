@@ -7,6 +7,8 @@ import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { buildOpenAISectionClassificationRules } from '@/lib/resume-builder/semantic-registry';
 import { isPlausibleProjectName } from '@/lib/resume-parser/import-sanitize';
+import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
+import type { RepairableSectionKey } from '@/lib/resume-parser/section-confidence-repair';
 
 export interface HybridResumeData {
   personalInformation: {
@@ -831,5 +833,159 @@ ${resumeText}`;
       aiProvider: 'fallback',
       processingTime: Date.now() - this.startTime,
     };
+  }
+
+  /**
+   * Repair ONLY the listed weak sections via OpenAI.
+   * Never rewrites strong sections. Never invents placeholder project titles.
+   * Returns a partial ExtractedResumeData patch (only requested keys).
+   */
+  async repairWeakSections(
+    resumeText: string,
+    weakSections: RepairableSectionKey[],
+    existing: ExtractedResumeData
+  ): Promise<Partial<ExtractedResumeData>> {
+    if (!this.openai || !weakSections.length || !resumeText?.trim()) {
+      return {};
+    }
+
+    const sectionList = weakSections.join(', ');
+    const existingHints = weakSections
+      .map((key) => {
+        const val = (existing as unknown as Record<string, unknown>)[key];
+        if (val == null) return `${key}: (empty)`;
+        if (typeof val === 'string') return `${key}: ${val.slice(0, 200)}`;
+        if (Array.isArray(val)) return `${key}: ${val.length} entries (may be incomplete/wrong)`;
+        return `${key}: present`;
+      })
+      .join('\n');
+
+    const prompt = `You are repairing ONLY weak sections of a resume parse. Do NOT invent data.
+
+RULES:
+- Extract ONLY these sections: ${sectionList}
+- Use ONLY facts explicitly present in the resume text.
+- If a field is missing, use empty string / empty array — never guess.
+- Never invent project titles like "Project 1", "Software Project", "Untitled".
+- Never put personal details (Marital Status, DOB, Gender, Single) into projects or achievements.
+- Never move Experience into Projects or Volunteer into Experience.
+- Skills: collect distinct tools/competencies from Skills section AND from experience/project bullets.
+- Return ONLY valid JSON with keys among: ${sectionList}
+
+EXISTING (possibly incomplete) VALUES:
+${existingHints}
+
+RESUME TEXT:
+${resumeText.slice(0, 28000)}
+
+JSON shape examples (include only requested keys):
+{
+  "summary": "...",
+  "skills": ["..."],
+  "experience": [{"company":"","position":"","startDate":"","endDate":"","current":false,"description":"","achievements":[]}],
+  "education": [{"institution":"","degree":"","field":"","startDate":"","endDate":"","gpa":""}],
+  "projects": [{"name":"Real Project Name","description":"","technologies":[],"url":""}],
+  "languages": [{"name":"","proficiency":""}],
+  "certifications": [{"name":"","issuer":"","date":"","url":""}],
+  "achievements": ["..."]
+}`;
+
+    try {
+      console.log('[HybridResumeAI] repairWeakSections:', weakSections.join(', '));
+      const completion = await this.openai.chat.completions.create({
+        model: process.env.OPENAI_RESUME_MODEL || 'gpt-4o-mini',
+        temperature: 0,
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You repair incomplete resume sections. Output JSON only. Never invent companies, dates, or project titles.',
+          },
+          { role: 'user', content: prompt },
+        ],
+      });
+
+      const raw = completion.choices[0]?.message?.content || '{}';
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const patch: Partial<ExtractedResumeData> = {};
+
+      for (const key of weakSections) {
+        if (!(key in parsed)) continue;
+        const value = parsed[key];
+        if (key === 'summary' && typeof value === 'string') {
+          patch.summary = value.trim();
+        } else if (key === 'skills' && Array.isArray(value)) {
+          patch.skills = value.map((s) => String(s || '').trim()).filter(Boolean);
+        } else if (key === 'achievements' && Array.isArray(value)) {
+          patch.achievements = value.map((s) => String(s || '').trim()).filter(Boolean);
+        } else if (key === 'experience' && Array.isArray(value)) {
+          patch.experience = value.map((exp: any) => ({
+            company: String(exp?.company || '').trim(),
+            position: String(exp?.position || exp?.role || exp?.title || '').trim(),
+            location: String(exp?.location || '').trim(),
+            startDate: String(exp?.startDate || '').trim(),
+            endDate: String(exp?.endDate || '').trim(),
+            current: !!exp?.current,
+            description: String(exp?.description || '').trim(),
+            achievements: Array.isArray(exp?.achievements)
+              ? exp.achievements.map((a: unknown) => String(a || '').trim()).filter(Boolean)
+              : [],
+          }));
+        } else if (key === 'education' && Array.isArray(value)) {
+          patch.education = value.map((edu: any) => ({
+            institution: String(edu?.institution || edu?.school || '').trim(),
+            degree: String(edu?.degree || '').trim(),
+            field: String(edu?.field || '').trim(),
+            startDate: String(edu?.startDate || '').trim(),
+            endDate: String(edu?.endDate || edu?.year || '').trim(),
+            gpa: String(edu?.gpa || '').trim(),
+          }));
+        } else if (key === 'projects' && Array.isArray(value)) {
+          patch.projects = value
+            .map((p: any) => ({
+              name: String(p?.name || p?.title || '').trim(),
+              description: String(p?.description || '').trim(),
+              technologies: Array.isArray(p?.technologies)
+                ? p.technologies.map((t: unknown) => String(t || '').trim()).filter(Boolean)
+                : [],
+              url: String(p?.url || p?.link || '').trim(),
+            }))
+            .filter((p) => p.name && isPlausibleProjectName(p.name));
+        } else if (key === 'languages' && Array.isArray(value)) {
+          patch.languages = value
+            .map((l: any) =>
+              typeof l === 'string'
+                ? { name: l.trim(), proficiency: '' }
+                : {
+                    name: String(l?.name || '').trim(),
+                    proficiency: String(l?.proficiency || '').trim(),
+                  }
+            )
+            .filter((l) => l.name);
+        } else if (key === 'certifications' && Array.isArray(value)) {
+          patch.certifications = value
+            .map((c: any) =>
+              typeof c === 'string'
+                ? { name: c.trim(), issuer: '', date: '', url: '' }
+                : {
+                    name: String(c?.name || '').trim(),
+                    issuer: String(c?.issuer || '').trim(),
+                    date: String(c?.date || '').trim(),
+                    url: String(c?.url || '').trim(),
+                  }
+            )
+            .filter((c) => c.name);
+        }
+      }
+
+      return patch;
+    } catch (error) {
+      console.warn(
+        '[HybridResumeAI] repairWeakSections failed:',
+        error instanceof Error ? error.message : error
+      );
+      return {};
+    }
   }
 }

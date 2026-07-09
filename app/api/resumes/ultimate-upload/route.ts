@@ -23,6 +23,7 @@ import {
   mergeTextRecoveryIntoExtracted,
   resolveDocumentParserAutofill,
 } from '@/lib/resume-parser/merge-resume-data';
+import { repairLowConfidenceSections } from '@/lib/resume-parser/section-confidence-repair';
 import {
   normalizeUploadProfile,
   cleanMultiline,
@@ -36,6 +37,8 @@ import {
   splitMergedProjectEntries,
   logRawProjects,
   isPlausibleCertificationEntry,
+  isPlausibleProjectName,
+  isPlaceholderProjectTitle,
 } from '@/lib/resume-parser/import-sanitize';
 import {
   applyRecoveredWordingToProfile,
@@ -1661,6 +1664,61 @@ export async function POST(request: NextRequest) {
         // Re-normalize after augmentation (handles language object → string flattening, etc.)
         parsedData = normalizeUploadProfile(parsedData);
 
+        // Confidence-driven hybrid repair: OpenAI only for weak sections (never full reparse).
+        if (!customParserUsed && text.length > 100) {
+          try {
+            const hybridForRepair = new HybridResumeAI();
+            const asExtracted: ExtractedResumeData = {
+              fullName: String(parsedData.fullName || parsedData.name || ''),
+              email: String(parsedData.email || ''),
+              phone: String(parsedData.phone || ''),
+              location: String(parsedData.location || parsedData.address || ''),
+              linkedin: String(parsedData.linkedin || ''),
+              portfolio: String(parsedData.portfolio || ''),
+              summary: String(parsedData.summary || ''),
+              skills: Array.isArray(parsedData.skills) ? parsedData.skills : [],
+              experience: Array.isArray(parsedData.experience) ? parsedData.experience : [],
+              education: Array.isArray(parsedData.education) ? parsedData.education : [],
+              projects: Array.isArray(parsedData.projects) ? parsedData.projects : [],
+              certifications: Array.isArray(parsedData.certifications)
+                ? parsedData.certifications
+                : [],
+              languages: Array.isArray(parsedData.languages) ? parsedData.languages : [],
+              achievements: Array.isArray(parsedData.achievements) ? parsedData.achievements : [],
+              hobbies: Array.isArray(parsedData.hobbies) ? parsedData.hobbies : [],
+              confidence: Number(parsedData.confidence || 0),
+              rawText: text,
+            };
+            const repaired = await repairLowConfidenceSections(asExtracted, {
+              rawText: text,
+              hybridAI: hybridForRepair,
+            });
+            if (!repaired.skipped && repaired.repairedSections.length > 0) {
+              log('section-confidence OpenAI repair', {
+                repairedSections: repaired.repairedSections,
+                scores: repaired.scores,
+              });
+              parsedData = {
+                ...parsedData,
+                ...repaired.data,
+                fullName: repaired.data.fullName || parsedData.fullName,
+                name: repaired.data.fullName || parsedData.name,
+              };
+              parsedData = normalizeUploadProfile(parsedData);
+            } else {
+              log('section-confidence repair skipped', {
+                reason: repaired.reason,
+                scores: repaired.scores,
+              });
+            }
+          } catch (repairErr) {
+            warn(
+              'section-confidence repair failed',
+              repairErr instanceof Error ? repairErr.message : repairErr
+            );
+          }
+        }
+
         const after = {
           fullName: parsedData.fullName || '(empty)',
           skills: parsedData.skills?.length || 0,
@@ -2505,10 +2563,11 @@ function computeDuration(startDate: string, endDate: string): string {
   return `${startDate} - ${endDate}`;
 }
 
-function resolveProjectTitle(proj: unknown, index: number): string {
+function resolveProjectTitle(proj: unknown, _index: number): string {
   if (typeof proj === 'string') {
     const name = proj.trim();
-    return name || (index === 0 ? 'Software Project' : `Project ${index + 1}`);
+    if (name && isPlausibleProjectName(name) && !isPlaceholderProjectTitle(name)) return name;
+    return '';
   }
   if (!proj || typeof proj !== 'object') return '';
 
@@ -2522,18 +2581,9 @@ function resolveProjectTitle(proj: unknown, index: number): string {
       rec.ProjectTitle ||
       ''
   ).trim();
-  if (name) return name;
+  if (name && isPlausibleProjectName(name) && !isPlaceholderProjectTitle(name)) return name;
 
-  const description = String(rec.description || rec.summary || '').trim();
-  const techRaw = rec.technologies ?? rec.tech_stack ?? rec.techStack;
-  const hasTech = Array.isArray(techRaw)
-    ? techRaw.length > 0
-    : String(techRaw || '').trim().length > 0;
-
-  if (description || hasTech) {
-    return index === 0 ? 'Software Project' : `Project ${index + 1}`;
-  }
-
+  // Do not fabricate "Software Project" / "Project N".
   return '';
 }
 
