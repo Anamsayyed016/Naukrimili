@@ -44,6 +44,7 @@ const GARBAGE_PATTERNS = [
   /please complete your profile manually/i,
   /^resume:\s*.+\.(pdf|docx?|txt)\b/i,
   /not extracted/i,
+  
   /details not extracted/i,
   /institution not specified/i,
   /company not specified/i,
