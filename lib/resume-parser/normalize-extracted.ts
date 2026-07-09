@@ -4,7 +4,13 @@
  */
 
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
-import { sanitizeSkillEntry, normalizeSkillsList, normalizeCustomParserSkillsList } from '@/lib/resume-parser/import-sanitize';
+import {
+  sanitizeSkillEntry,
+  normalizeSkillsList,
+  normalizeCustomParserSkillsList,
+  isPlausibleProjectName,
+  isPlaceholderProjectTitle,
+} from '@/lib/resume-parser/import-sanitize';
 import { isCustomParserImport } from '@/lib/resume-parser/custom-parser-import';
 import {
   isImportFieldTraceEnabled,
@@ -589,18 +595,21 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
       ? dedupeStrings(data.achievements.map((a) => cleanString(a)).filter(Boolean))
       : [],
     projects: (data.projects || [])
-      .map((p: ExtractedResumeData['projects'][0], index: number) => {
+      .map((p: ExtractedResumeData['projects'][0]) => {
         const name =
           cleanString(p.name) ||
           cleanString((p as { title?: string }).title) ||
           cleanString((p as { projectName?: string }).projectName);
-        if (name) return { ...p, name };
+        if (name && isPlausibleProjectName(name) && !isPlaceholderProjectTitle(name)) {
+          return { ...p, name };
+        }
         const description = cleanString(p.description || (p as { summary?: string }).summary);
         const tech = (p as { technologies?: unknown[] }).technologies;
         const hasTech = Array.isArray(tech) ? tech.length > 0 : false;
         if (description || hasTech) {
-          const fallback = index === 0 ? 'Software Project' : `Project ${index + 1}`;
-          return { ...p, name: fallback };
+          // Do not fabricate "Software Project" / "Project N" — drop until a real title exists.
+          console.log('REMOVED PROJECT', p, 'reason', 'normalizeExtractedResumeData: no valid title');
+          return null;
         }
         console.log('REMOVED PROJECT', p, 'reason', 'normalizeExtractedResumeData: no name and no content');
         return null;

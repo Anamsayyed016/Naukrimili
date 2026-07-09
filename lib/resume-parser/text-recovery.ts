@@ -42,6 +42,9 @@ import {
   splitCompanyLocationPipe,
   isPlausibleExperienceCompany,
   stripCredentialPrefix,
+  isPlausibleProjectName,
+  isPersonalMetadataResumeLine,
+  isPlaceholderProjectTitle,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1940,6 +1943,7 @@ function looksLikeProjectTitle(line: string): boolean {
     .replace(/:.*$/, '')
     .trim();
   if (!cleaned || cleaned.length > 80 || cleaned.length < 2) return false;
+  if (isPersonalMetadataResumeLine(cleaned) || isPlaceholderProjectTitle(cleaned)) return false;
   if (
     /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated)\b/i.test(
       cleaned
@@ -1955,8 +1959,8 @@ function looksLikeProjectTitle(line: string): boolean {
   ) {
     return true;
   }
-  if (/^[A-Z][A-Za-z0-9 &/\-_'".]{2,}$/.test(cleaned)) return true;
-  if (/^[A-Z][A-Z0-9 &/\-_'.]{2,}$/.test(cleaned)) return true;
+  if (/^[A-Z][A-Za-z0-9 &/\-_'".]{2,}$/.test(cleaned)) return isPlausibleProjectName(cleaned);
+  if (/^[A-Z][A-Z0-9 &/\-_'.]{2,}$/.test(cleaned)) return isPlausibleProjectName(cleaned);
   return false;
 }
 
@@ -1968,14 +1972,13 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
 
   const flush = () => {
     if (!current) return;
-    if (!current.name.trim()) {
-      if (current.description.trim() || current.technologies.length > 0) {
-        current.name = out.length === 0 ? 'Software Project' : `Project ${out.length + 1}`;
-      } else {
-        current = null;
-        return;
-      }
+    const name = current.name.trim();
+    if (!name || !isPlausibleProjectName(name)) {
+      // Do not fabricate "Software Project" / "Project N" — drop untitled content.
+      current = null;
+      return;
     }
+    current.name = name;
     out.push(current);
     current = null;
   };
@@ -2005,11 +2008,14 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
     if (!current) {
       const bulletText = line.replace(/^[•\-\*\u2022]\s+/, '').trim();
       if (bulletText.length >= 8 && bulletText.length < 200) {
-        flush();
         const dashSplit = bulletText.split(/\s+[-–—]\s+/);
         const titleGuess = (dashSplit[0] || bulletText).trim();
+        if (!isPlausibleProjectName(titleGuess) || titleGuess.length > 80) {
+          continue;
+        }
+        flush();
         current = {
-          name: titleGuess.length <= 80 ? titleGuess : `Project ${out.length + 1}`,
+          name: titleGuess,
           description: dashSplit.length > 1 ? dashSplit.slice(1).join(' - ').trim() : '',
           technologies: [],
         };

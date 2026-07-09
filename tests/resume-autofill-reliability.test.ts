@@ -549,6 +549,14 @@ describe('isPlausibleProjectName', () => {
     expect(isPlausibleProjectName('Date of Birth')).toBe(false);
     expect(isPlausibleProjectName('Current')).toBe(false);
   });
+
+  it('rejects fabricated placeholder project titles', () => {
+    expect(isPlausibleProjectName('Project 1')).toBe(false);
+    expect(isPlausibleProjectName('Project 2')).toBe(false);
+    expect(isPlausibleProjectName('Software Project')).toBe(false);
+    expect(isPlausibleProjectName('Untitled')).toBe(false);
+    expect(isPlausibleProjectName('Unknown')).toBe(false);
+  });
 });
 
 describe('sanitizeProjectEntry', () => {
@@ -558,7 +566,7 @@ describe('sanitizeProjectEntry', () => {
     expect(sanitizeProjectEntry({ name: 'Single', description: '' }, 0)).toBeNull();
   });
 
-  it('does not use description sentence as project name', () => {
+  it('does not fabricate placeholder titles when name is a description sentence', () => {
     const entry = sanitizeProjectEntry(
       {
         name: 'Developed a scalable API gateway for microservices using Django',
@@ -567,8 +575,27 @@ describe('sanitizeProjectEntry', () => {
       },
       0
     );
-    expect(entry?.name).toBe('Software Project');
-    expect(entry?.description).toMatch(/API gateway|auth/i);
+    // No valid title → drop (do not invent "Software Project")
+    expect(entry).toBeNull();
+  });
+
+  it('keeps real project titles', () => {
+    const entry = sanitizeProjectEntry(
+      {
+        name: 'ERP Migration',
+        description: 'Led SAP rollout',
+        technologies: ['SAP'],
+      },
+      0
+    );
+    expect(entry?.name).toBe('ERP Migration');
+    expect(entry?.description).toMatch(/SAP/i);
+  });
+
+  it('rejects placeholder Project N / Software Project titles', () => {
+    expect(sanitizeProjectEntry({ name: 'Project 1', description: 'Built an app' }, 0)).toBeNull();
+    expect(sanitizeProjectEntry({ name: 'Software Project', description: 'Built an app' }, 0)).toBeNull();
+    expect(sanitizeProjectEntry({ name: 'Untitled', description: 'Built an app' }, 0)).toBeNull();
   });
 });
 

@@ -17,7 +17,7 @@ import {
   splitBullets,
 } from './resume-parser/normalize-extracted';
 import { normalizeExtractedResumeData } from './resume-parser/normalize-extracted';
-import { sanitizePersonName } from './resume-parser/import-sanitize';
+import { sanitizePersonName, isPlausibleProjectName } from './resume-parser/import-sanitize';
 import {
   extractAffindaResumePayload,
   normalizeAffindaResumeFields,
@@ -321,7 +321,7 @@ export class AffindaResumeParser {
       experience,
       education,
       projects: (data.projects || [])
-        .map((p, index) => {
+        .map((p) => {
           const rec = p as Record<string, unknown>;
           let name =
             cleanString(p.name) ||
@@ -333,11 +333,13 @@ export class AffindaResumeParser {
                 .map((t) => cleanString(String(t ?? '')))
                 .filter(Boolean)
             : [];
-          if (!name && (description || technologies.length > 0)) {
-            name = index === 0 ? 'Software Project' : `Project ${index + 1}`;
-          }
-          if (!name) {
-            console.log('REMOVED PROJECT', p, 'reason', 'transformAffindaToStandard: no name and no content');
+          if (!name || !isPlausibleProjectName(name)) {
+            if (description || technologies.length > 0) {
+              // Do not fabricate "Software Project" / "Project N".
+              console.log('REMOVED PROJECT', p, 'reason', 'transformAffindaToStandard: no valid title');
+            } else {
+              console.log('REMOVED PROJECT', p, 'reason', 'transformAffindaToStandard: no name and no content');
+            }
             return null;
           }
           return { name, description, technologies, url: cleanString(p.url) };

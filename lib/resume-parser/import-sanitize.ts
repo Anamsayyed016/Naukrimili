@@ -1243,6 +1243,10 @@ const PERSONAL_DETAIL_STATUS_WORD_RE =
 const PERSONAL_DETAIL_LABEL_RE =
   /^(marital\s*status|date\s*of\s*birth|d\.?o\.?b\.?|gender|nationality|languages?\s*known|religion|passport|blood\s*group)\b/i;
 
+/** Fabricated / placeholder titles — never invent these; never accept them as real project names. */
+const PLACEHOLDER_PROJECT_TITLE_RE =
+  /^(software\s+project|project\s*\d+|untitled(?:\s+project)?|unknown|n\/?a|tbd|placeholder)$/i;
+
 /** Personal-detail / status tokens that must never become project titles, achievements, or section rows. */
 export function isPersonalMetadataResumeLine(line: string): boolean {
   const t = line.trim();
@@ -1253,6 +1257,13 @@ export function isPersonalMetadataResumeLine(line: string): boolean {
   if (/^marital\s+status\s*:\s*\w+$/i.test(t)) return true;
   if (/^(19|20)\d{2}\s*[-–—]\s*(present|current|(19|20)\d{2})$/i.test(t)) return true;
   return false;
+}
+
+/** True when a project title is a fabricated placeholder (Project 1, Software Project, Untitled, …). */
+export function isPlaceholderProjectTitle(value: unknown): boolean {
+  const t = sanitizeFieldText(value, 120);
+  if (!t) return true;
+  return PLACEHOLDER_PROJECT_TITLE_RE.test(t);
 }
 
 /** True when a line is a section heading or personal metadata — not job content or a skill. */
@@ -1801,6 +1812,7 @@ export function isPlausibleProjectName(value: unknown): boolean {
   const s = sanitizeFieldText(value, 120);
   if (!s || s.length < 2) return false;
   if (isPersonalMetadataResumeLine(s)) return false;
+  if (isPlaceholderProjectTitle(s)) return false;
   if (isGarbageResumeText(s)) return false;
   if (isCorporateStructurePhrase(s)) return false;
   if (s.length > 90) return false;
@@ -2041,19 +2053,8 @@ export function resolveProjectName(
     return rawName;
   }
 
-  const description = sanitizeFieldText(
-    String(rec.description ?? rec.summary ?? rec.Description ?? ''),
-    1500
-  );
-  const techRaw = rec.technologies ?? rec.tech_stack ?? rec.techStack ?? rec.tech ?? rec.Technologies;
-  const hasTech = Array.isArray(techRaw)
-    ? techRaw.length > 0
-    : sanitizeFieldText(String(techRaw ?? ''), 300).length > 0;
-
-  if (description || hasTech) {
-    return index === 0 ? 'Software Project' : `Project ${index + 1}`;
-  }
-
+  // No valid title — do not fabricate "Software Project" / "Project N".
+  // Untitled content stays out of projects[] until a real title exists.
   return '';
 }
 

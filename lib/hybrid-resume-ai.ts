@@ -6,6 +6,7 @@
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { buildOpenAISectionClassificationRules } from '@/lib/resume-builder/semantic-registry';
+import { isPlausibleProjectName } from '@/lib/resume-parser/import-sanitize';
 
 export interface HybridResumeData {
   personalInformation: {
@@ -654,7 +655,7 @@ ${resumeText}`;
         : [],
       projects: Array.isArray(data.projects) && data.projects.length > 0
         ? data.projects
-            .map((p: any, index: number) => {
+            .map((p: any) => {
               const description = (p.description || p.summary || '').toString().trim();
               const technologies = Array.isArray(p.technologies)
                 ? p.technologies.filter((t: any) => typeof t === 'string' && t.trim().length > 0)
@@ -672,8 +673,9 @@ ${resumeText}`;
               )
                 .toString()
                 .trim();
-              if (!name && (description || technologies.length > 0)) {
-                name = index === 0 ? 'Software Project' : `Project ${index + 1}`;
+              // Do not fabricate "Software Project" / "Project N" — drop until a real title exists.
+              if (!name || !isPlausibleProjectName(name)) {
+                return { name: '', description, technologies, url: (p.url || p.link || '').toString().trim() };
               }
               return {
                 name,

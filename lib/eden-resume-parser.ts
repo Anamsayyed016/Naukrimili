@@ -14,6 +14,7 @@ import {
   splitBullets,
   normalizeExtractedResumeData,
 } from './resume-parser/normalize-extracted';
+import { isPlausibleProjectName } from './resume-parser/import-sanitize';
 
 type EdenProviderBlock = {
   status?: string;
@@ -224,20 +225,12 @@ export class EdenResumeParser {
     );
 
     const projects = asObjectArray(data.projects)
-      .map((p, index) => {
+      .map((p) => {
         const name = cleanString(p.name || p.title || p.project_name);
         const description = cleanString(p.description || p.summary);
         const technologies = asStringArray(p.technologies || p.tech_stack);
         const url = cleanString(p.link || p.url);
-        if (!name && (description || technologies.length > 0)) {
-          return {
-            name: index === 0 ? 'Software Project' : `Project ${index + 1}`,
-            description,
-            technologies,
-            url,
-          };
-        }
-        if (!name) return null;
+        if (!name || !isPlausibleProjectName(name)) return null;
         return { name, description, technologies, url };
       })
       .filter((p): p is NonNullable<typeof p> => p != null);
