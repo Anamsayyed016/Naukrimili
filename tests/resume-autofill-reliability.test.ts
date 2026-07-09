@@ -1387,6 +1387,42 @@ describe('dynamic layout engine', () => {
     expect(sparse.skillColumns).toBeLessThanOrEqual(3);
   });
 
+  it('targets professional page fill band for sparse content (expand toward ~90%)', () => {
+    const sparse = computeDynamicLayoutPlan(
+      {
+        experience: [
+          {
+            company: 'Acme',
+            title: 'Engineer',
+            description: 'Built one product feature.',
+          },
+        ],
+        skills: ['Excel', 'SAP'],
+        summary: 'Brief profile.',
+      },
+      {
+        htmlTemplate: '<aside class="sidebar"></aside><main></main>',
+        renderedHtml:
+          '<div class="resume-container" style="height:500px"><aside class="sidebar"><div class="skill-tag">Excel</div></aside><main><div class="experience-item">x</div><p class="summary-text">Brief profile.</p></main></div>',
+      }
+    );
+    // Sparse pages must expand internal spacing (not invent content).
+    expect(sparse.sectionPadding).toBeGreaterThan(6);
+    expect(sparse.experienceCardPadding).toBeGreaterThan(sparse.sectionPadding);
+    expect(sparse.lineHeightMul).toBeGreaterThan(1);
+  });
+
+  it('injects dynamic-layout CSS for PDF mode without refine script', () => {
+    const html = injectDynamicLayoutIntoHtml(
+      '<html><body><div class="resume-container">x</div></body></html>',
+      { experience: [{ company: 'Acme', title: 'Dev', description: 'Built things.' }] },
+      { mode: 'pdf' }
+    );
+    expect(html).toContain('data-injected="dynamic-layout"');
+    expect(html).toContain('--dl-section-gap');
+    expect(html).not.toContain('data-injected="dynamic-layout-refine"');
+  });
+
   it('injects dynamic-layout style block into rendered HTML', () => {
     const html = injectDynamicLayoutIntoHtml(
       '<html><body><div class="resume-container">x</div></body></html>',

@@ -594,13 +594,11 @@ export function injectResumeData(
     }
   }
 
-  if (renderMode !== 'pdf') {
-    result = injectDynamicLayoutIntoHtml(result, coalesced, {
-      htmlTemplate,
-      templateId: options?.templateId ?? options?.galleryTemplateId,
-      mode: 'preview',
-    });
-  }
+  result = injectDynamicLayoutIntoHtml(result, coalesced, {
+    htmlTemplate,
+    templateId: options?.templateId ?? options?.galleryTemplateId,
+    mode: renderMode === 'pdf' ? 'pdf' : 'preview',
+  });
 
   return result;
 }
