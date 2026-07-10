@@ -313,6 +313,65 @@ function countProjectItems(
   return countMatches(renderedHtml ?? '', /\bproject-item\b/gi);
 }
 
+function countEducationItems(formData?: Record<string, unknown>): number {
+  if (!formData) return 0;
+  const rows = Array.isArray(formData.education) ? formData.education : [];
+  return rows.filter((row) => row && typeof row === 'object').length;
+}
+
+function rebalanceSectionExtrasForSparseContent(
+  formData: Record<string, unknown> | undefined,
+  fill: number,
+  sectionExtras: Partial<Record<LayoutSectionKind, number>>,
+  metrics: RenderedLayoutMetrics,
+  counts: {
+    skillCount: number;
+    projectCount: number;
+    experienceCount: number;
+    educationCount: number;
+  }
+): Partial<Record<LayoutSectionKind, number>> {
+  if (fill >= FILL_EXPAND_BELOW || !formData) return sectionExtras;
+
+  const extras = { ...sectionExtras };
+  const deficit = Math.max(
+    metrics.remainingWhitespace,
+    (TARGET_PAGE_FILL - fill) * metrics.pageHeight
+  );
+  const share = deficit * 0.1;
+
+  const boost = (kind: LayoutSectionKind, px: number) => {
+    if (px <= 0) return;
+    extras[kind] = Math.round((extras[kind] ?? 0) + px);
+  };
+
+  if (counts.skillCount === 0) {
+    extras.skills = 0;
+    boost('experience', share);
+    if (counts.projectCount > 0) boost('projects', share * 0.65);
+    else boost('summary', share * 0.45);
+  }
+
+  if (counts.projectCount === 0) {
+    extras.projects = 0;
+    boost('experience', share * 0.75);
+    boost('summary', share * 0.35);
+  }
+
+  if (counts.educationCount <= 1) {
+    boost('experience', share * 0.45);
+    if (extras.education) extras.education = Math.round(extras.education * 0.35);
+  }
+
+  if (metrics.sidebarSparse) {
+    boost('experience', share * 0.35);
+    boost('summary', share * 0.25);
+    extras.skills = Math.min(extras.skills ?? 0, Math.round(share * 0.15));
+  }
+
+  return extras;
+}
+
 function countSummaryWords(
   formData?: Record<string, unknown>,
   renderedHtml?: string
@@ -627,8 +686,25 @@ export function computeDynamicLayoutPlanFromMetrics(
 
   const experienceCount = countExperienceItems(formData, options?.renderedHtml);
   const projectCount = countProjectItems(formData, options?.renderedHtml);
+  const educationCount = countEducationItems(formData);
   const summaryWords = countSummaryWords(formData, options?.renderedHtml);
   const summaryIsShort = summaryWords > 0 && summaryWords < 45;
+
+  if (fill < FILL_EXPAND_BELOW) {
+    sectionExtras = rebalanceSectionExtrasForSparseContent(
+      formData,
+      fill,
+      sectionExtras,
+      metrics,
+      { skillCount, projectCount, experienceCount, educationCount }
+    );
+  }
+
+  if (visibleSectionCount <= 5 && fill < 0.55) {
+    sectionGapMul *= 0.9;
+    fontScale += 0.04;
+    lineHeightMul += 0.06;
+  }
 
   if (summaryIsShort && fill < 0.88) {
     lineHeightMul += 0.08;
@@ -669,6 +745,10 @@ export function computeDynamicLayoutPlanFromMetrics(
     experienceListGap = Math.round(blockGap * (fill < 0.85 ? 1.75 : 1.3) * 10) / 10;
     experienceDescPadding = Math.round(experienceDescPadding * (fill < 0.85 ? 1.6 : 1.25) * 10) / 10;
     bulletIndent = 18;
+    if (fill < 0.55 && (skillCount === 0 || projectCount === 0)) {
+      experienceCardPadding = Math.round(experienceCardPadding * 1.2 * 10) / 10;
+      experienceDescPadding = Math.round(experienceDescPadding * 1.25 * 10) / 10;
+    }
   } else if (experienceCount >= 4) {
     const compress = clamp((experienceCount - 3) / 6, 0, 1);
     experienceCardPadding = Math.round(sectionPadding * (1 - compress * 0.2) * 10) / 10;

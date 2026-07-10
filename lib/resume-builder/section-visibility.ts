@@ -10,6 +10,8 @@ import {
   scoreSkillConfidence,
   countPlausibleExperienceCompanies,
   countPlausibleProjects,
+  isMisclassifiedExperienceProject,
+  isPlausibleProjectName,
   demoteImplausibleExperienceCompany,
   finalizeExperienceListForCustomParserImport,
   recoverStructuredExperienceFromRawText,
@@ -345,6 +347,10 @@ const PERSONAL_METADATA_LABEL_RE =
 const INVALID_SECTION_TITLE_RE =
   /^(single|married|unmarried|widowed|divorced|current|present|ongoing|na|n\/a)$/i;
 
+/** Placeholder / metadata tokens that must never render as project titles. */
+const INVALID_RENDER_PROJECT_TITLE_RE =
+  /^(single|married|unmarried|widowed|divorced|current|present|ongoing|na|n\/a|full[\s-]?time|part[\s-]?time|company\s*name|company|date|volunteer|designation|location|employment\s*type|status|title|name|project\s*name|client|role|description)$/i;
+
 const DATE_ONLY_TITLE_RE =
   /^((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*)?(19|20)\d{2}$/i;
 
@@ -400,10 +406,13 @@ export function isInvalidProjectEntry(project: Record<string, unknown>): boolean
   const name = projectDisplayName(project);
   if (!hasMeaningfulText(name)) return true;
   if (isPersonalMetadataEntry(name)) return true;
+  if (INVALID_RENDER_PROJECT_TITLE_RE.test(name)) return true;
   const desc = String(
     project.description ?? project.Description ?? project.summary ?? project.Summary ?? ''
   ).trim();
   if (desc && isPersonalMetadataEntry(desc)) return true;
+  if (isPlausibleProjectName(name)) return false;
+  if (isMisclassifiedExperienceProject(name, desc)) return true;
   return false;
 }
 
@@ -1274,6 +1283,195 @@ export function repairExperienceForTemplateBinding(
   return finalizeExperienceListForCustomParserImport(demoted);
 }
 
+function recoverProjectTitleFromDescription(project: Record<string, unknown>): string | null {
+  const desc = String(project.description ?? project.Description ?? '').trim();
+  if (!desc) return null;
+  const lines = desc
+    .split(/\n+/)
+    .map((line) => line.replace(/^[•\-\*\u2022]\s+/, '').trim())
+    .filter(Boolean);
+  for (const line of lines) {
+    if (INVALID_RENDER_PROJECT_TITLE_RE.test(line) || isPersonalMetadataEntry(line)) continue;
+    if (isMisclassifiedExperienceProject(line, '')) continue;
+    if (isPlausibleProjectName(line)) return line.slice(0, 120);
+    const head = (line.split(/\s+[-–—:]\s+/)[0] || '').trim();
+    if (head && isPlausibleProjectName(head)) return head.slice(0, 120);
+  }
+  return null;
+}
+
+function appendExperienceBullet(
+  experience: Record<string, unknown>[],
+  bullet: string
+): Record<string, unknown>[] {
+  const text = bullet.trim();
+  if (!text || experience.length === 0) return experience;
+  const out = experience.map((entry) => ({ ...entry }));
+  const row = { ...out[0] };
+  const existing = extractExperienceBullets(row);
+  const deduped = dedupeExperienceBodyLines(
+    String(row.description ?? row.Description ?? ''),
+    [...existing, text]
+  );
+  row.achievements = deduped.achievements;
+  row.bullets = deduped.achievements;
+  row.bulletPoints = deduped.achievements;
+  row.Achievements = deduped.achievements;
+  row.description = deduped.description || deduped.achievements.join('\n');
+  row.Description = row.description;
+  out[0] = row;
+  return out;
+}
+
+function looksLikeEmbeddedSkillList(text: string): boolean {
+  if (text.length > 160 || text.length < 4) return false;
+  const parts = text.split(/[,;|•]/).map((part) => part.trim()).filter(Boolean);
+  if (parts.length < 2) return false;
+  const skillish = parts.filter(
+    (part) =>
+      part.length >= 2 &&
+      part.length <= 40 &&
+      !isPersonalMetadataEntry(part) &&
+      scoreSkillConfidence(part) >= SKILLS_RENDER_CONFIG.minConfidenceScore
+  );
+  return skillish.length >= Math.max(2, Math.ceil(parts.length * 0.55));
+}
+
+function splitSkillTokensFromLine(text: string): string[] {
+  return text.split(/[,;|•\n]+/).map((part) => part.trim()).filter(Boolean);
+}
+
+function partitionSkillTokensFromProse(text: string): { skills: string[]; kept: string } {
+  const parts = splitSkillTokensFromLine(text);
+  const skills: string[] = [];
+  const kept: string[] = [];
+  for (const part of parts) {
+    if (
+      part.length <= 40 &&
+      scoreSkillConfidence(part) >= SKILLS_RENDER_CONFIG.minConfidenceScore &&
+      !/\b(and|the|with|for|using)\b/i.test(part)
+    ) {
+      skills.push(part);
+    } else {
+      kept.push(part);
+    }
+  }
+  return { skills, kept: kept.join(', ') };
+}
+
+/**
+ * Render-time recovery: fix misclassified projects, rehome experience bullets,
+ * extract embedded skills from achievements/experience, and trim bloated achievement blocks.
+ */
+export function recoverRenderableSectionsForCoalesce(input: {
+  experience: Record<string, unknown>[];
+  projects: Record<string, unknown>[];
+  skills: string[];
+  achievements: unknown[];
+}): {
+  experience: Record<string, unknown>[];
+  projects: Record<string, unknown>[];
+  skills: string[];
+  achievements: unknown[];
+} {
+  let { experience, projects, skills, achievements } = input;
+  const recoveredProjects: Record<string, unknown>[] = [];
+
+  for (const raw of projects) {
+    if (!raw || typeof raw !== 'object') continue;
+    const project = { ...raw } as Record<string, unknown>;
+    let name = projectDisplayName(project);
+    const desc = String(project.description ?? project.Description ?? '').trim();
+
+    if (
+      (!name || isPersonalMetadataEntry(name) || INVALID_RENDER_PROJECT_TITLE_RE.test(name)) &&
+      desc
+    ) {
+      const recovered = recoverProjectTitleFromDescription(project);
+      if (recovered) {
+        name = recovered;
+        project.name = recovered;
+        project.Name = recovered;
+        project.title = recovered;
+        project.Title = recovered;
+      }
+    }
+
+    if (!name || isPersonalMetadataEntry(name) || INVALID_RENDER_PROJECT_TITLE_RE.test(name)) {
+      if (desc) experience = appendExperienceBullet(experience, desc);
+      continue;
+    }
+
+    if (isPlausibleProjectName(name)) {
+      recoveredProjects.push(project);
+      continue;
+    }
+
+    if (isMisclassifiedExperienceProject(name, desc)) {
+      const bullet = [name, desc].filter(Boolean).join(' — ');
+      experience = appendExperienceBullet(experience, bullet);
+      continue;
+    }
+
+    if (desc) experience = appendExperienceBullet(experience, desc);
+  }
+
+  projects = recoveredProjects;
+
+  const skillSet = new Map<string, string>();
+  for (const skill of skills) {
+    const key = skill.toLowerCase();
+    if (!skillSet.has(key)) skillSet.set(key, skill);
+  }
+  const addSkill = (token: string) => {
+    const trimmed = token.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+    if (!trimmed || isPersonalMetadataEntry(trimmed)) return;
+    if (scoreSkillConfidence(trimmed) < SKILLS_RENDER_CONFIG.minConfidenceScore) return;
+    const canonical = canonicalizeSkillName(trimmed);
+    const key = canonical.toLowerCase();
+    if (!skillSet.has(key)) skillSet.set(key, canonical);
+  };
+
+  const cleanedAchievements: unknown[] = [];
+  for (const item of achievements) {
+    if (typeof item !== 'string') {
+      cleanedAchievements.push(item);
+      continue;
+    }
+    const text = item.trim();
+    if (!text || isPersonalMetadataEntry(text)) continue;
+
+    if (looksLikeEmbeddedSkillList(text)) {
+      for (const token of splitSkillTokensFromLine(text)) addSkill(token);
+      continue;
+    }
+
+    if (text.length > 180 && /[,;|]/.test(text)) {
+      const { skills: fromLine, kept } = partitionSkillTokensFromProse(text);
+      for (const token of fromLine) addSkill(token);
+      if (kept.trim()) cleanedAchievements.push(kept.trim().slice(0, 220));
+      continue;
+    }
+
+    cleanedAchievements.push(text.length > 220 ? text.slice(0, 220).trim() : text);
+  }
+
+  for (const exp of experience) {
+    for (const bullet of extractExperienceBullets(exp)) {
+      if (looksLikeEmbeddedSkillList(bullet)) {
+        for (const token of splitSkillTokensFromLine(bullet)) addSkill(token);
+      }
+    }
+  }
+
+  return {
+    experience,
+    projects,
+    skills: Array.from(skillSet.values()),
+    achievements: cleanedAchievements,
+  };
+}
+
 /** Backfill projects from raw-text recovery when parser/builder left the section empty. */
 export function repairProjectsForTemplateBinding(
   formData: Record<string, unknown>,
@@ -1331,37 +1529,44 @@ export function coalesceFormDataForTemplateRender(
     'Projects(optional)',
     'Academic Projects',
   ]);
-  const projectsRepaired = repairProjectsForTemplateBinding(formData, projectsRaw);
-  const projects = projectsRepaired
-    .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object');
+  const projectsRepaired = repairProjectsForTemplateBinding(
+    formData,
+    projectsRaw as Record<string, unknown>[]
+  );
   const certifications = resolveCanonicalArray(formData, 'certifications', ['Certifications']);
   const achievements = resolveCanonicalArray(formData, 'achievements', [
     'Achievements',
     'Key Achievements',
   ]);
   const hobbies = filterHobbiesExcludingPersonal(resolveHobbiesArray(formData));
-
-  if (process.env.NODE_ENV === 'development' && hobbies.length > 0) {
-    console.log('HOBBIES STATE coalesce', { hobbies, raw: formData.hobbies, interests: formData.interests });
-  }
+  const recovered = recoverRenderableSectionsForCoalesce({
+    experience: experience as Record<string, unknown>[],
+    projects: projectsRepaired,
+    skills,
+    achievements,
+  });
+  const experienceForRender = recovered.experience;
+  const projectsForRender = recovered.projects;
+  const skillsForRender = recovered.skills;
+  const achievementsForRender = recovered.achievements;
 
   const coalesced = {
     ...formData,
-    experience,
+    experience: experienceForRender,
     education,
-    skills,
-    projects,
+    skills: skillsForRender,
+    projects: projectsForRender,
     certifications,
-    achievements,
+    achievements: achievementsForRender,
     languages,
     hobbies,
-    'Work Experience': experience,
-    Experience: experience,
+    'Work Experience': experienceForRender,
+    Experience: experienceForRender,
     Education: education,
-    Skills: skills,
-    Projects: projects,
+    Skills: skillsForRender,
+    Projects: projectsForRender,
     Certifications: certifications,
-    Achievements: achievements,
+    Achievements: achievementsForRender,
     Languages: languages,
     Hobbies: hobbies,
     'Hobbies & Interests': hobbies,
@@ -1370,9 +1575,9 @@ export function coalesceFormDataForTemplateRender(
     personalInterests: hobbies,
   };
   const integrity = applyRenderSectionIntegrity({
-    experience: experience as Record<string, unknown>[],
-    projects: projects as Record<string, unknown>[],
-    achievements,
+    experience: experienceForRender,
+    projects: projectsForRender,
+    achievements: achievementsForRender,
     volunteer: Array.isArray(formData.volunteer) ? (formData.volunteer as unknown[]) : undefined,
     extendedSections:
       formData.extendedSections && typeof formData.extendedSections === 'object'

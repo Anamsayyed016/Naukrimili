@@ -692,6 +692,65 @@ describe('resume preview data binding', () => {
     expect((coalesced.experience as Array<{ company?: string }>)[0]?.company).toMatch(/infosys/i);
   });
 
+  it('recoverRenderableSectionsForCoalesce rehomes invalid projects and extracts embedded skills', async () => {
+    const {
+      recoverRenderableSectionsForCoalesce,
+      coalesceFormDataForTemplateRender,
+    } = await import('@/lib/resume-builder/section-visibility');
+
+    const recovered = recoverRenderableSectionsForCoalesce({
+      experience: [
+        {
+          title: 'Analyst',
+          company: 'Acme Corp',
+          achievements: ['Built reports'],
+          bullets: ['Built reports'],
+        },
+      ],
+      projects: [
+        { name: 'Single', description: 'Marital status metadata' },
+        {
+          name: 'Managed stakeholder communications across finance teams',
+          description: 'Led weekly status reviews',
+        },
+        {
+          name: 'ERP Portal',
+          description: 'Implemented SAP modules for AP workflow',
+        },
+      ],
+      skills: ['Excel'],
+      achievements: ['Python, SQL, Power BI, Tableau, SAP FICO'],
+    });
+
+    expect((recovered.projects as Array<{ name: string }>).map((p) => p.name)).not.toContain(
+      'Single'
+    );
+    expect((recovered.projects as Array<{ name: string }>).map((p) => p.name)).toEqual(
+      expect.arrayContaining(['ERP Portal'])
+    );
+    expect((recovered.projects as Array<{ name: string }>).length).toBe(1);
+    expect(recovered.skills).toEqual(
+      expect.arrayContaining(['Excel', 'Python', 'SQL', 'Power BI', 'Tableau'])
+    );
+
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Diksha',
+      experience: recovered.experience,
+      projects: [
+        { name: 'Current', description: '' },
+        { name: 'Inventory Dashboard', description: 'Built Flask API for stock tracking' },
+      ],
+      skills: [],
+      achievements: ['Python, SQL, Power BI, Tableau'],
+    });
+    expect((coalesced.projects as Array<{ name: string }>).map((p) => p.name)).toEqual([
+      'Inventory Dashboard',
+    ]);
+    expect(coalesced.skills).toEqual(
+      expect.arrayContaining(['Python', 'SQL', 'Power BI', 'Tableau'])
+    );
+  });
+
   it('injectResumeData renders project bullets and description from body fields', async () => {
     const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
     const html = '{{PROJECTS}}';
