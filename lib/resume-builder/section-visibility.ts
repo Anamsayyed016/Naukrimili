@@ -662,7 +662,15 @@ export function splitSkillToken(token: string): string[] {
 }
 
 function resolveSkillsRawForRender(formData: Record<string, unknown>): unknown {
-  const keys = ['skills', 'Skills', 'technicalSkills'];
+  // Canonical `skills` is authoritative when present (including []) — never revive
+  // deleted tokens from Skills / technicalSkills aliases after the user edits.
+  if (Object.prototype.hasOwnProperty.call(formData, 'skills')) {
+    const canonical = formData.skills;
+    if (Array.isArray(canonical)) return canonical;
+    if (typeof canonical === 'string') return canonical;
+  }
+
+  const keys = ['Skills', 'technicalSkills'];
   for (const key of keys) {
     const value = formData[key];
     if (Array.isArray(value) && value.length > 0) return value;
@@ -1165,13 +1173,21 @@ function resolveHobbiesArray(formData: Record<string, unknown>): unknown[] {
   return [];
 }
 
-/** Prefer non-empty canonical array; when canonical is missing or [], fall back to first non-empty alias. */
+/**
+ * Prefer non-empty canonical array; when canonical is missing or [], fall back to first non-empty alias.
+ * After the user edits (`_userEdited`), trust the canonical array even when empty so deleted
+ * rows never reappear from stale import aliases.
+ */
 function resolveCanonicalArray(
   data: Record<string, unknown>,
   canonicalKey: string,
   aliasKeys: string[]
 ): unknown[] {
   const canonical = data[canonicalKey];
+  if (data._userEdited === true && Array.isArray(canonical)) {
+    return canonical;
+  }
+
   if (Array.isArray(canonical) && canonical.length > 0) {
     return canonical;
   }

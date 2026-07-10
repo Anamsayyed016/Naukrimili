@@ -616,6 +616,37 @@ describe('resume preview data binding', () => {
     });
     expect(coalesced.experience).toHaveLength(1);
     expect(coalesced.education).toHaveLength(1);
+    // Canonical skills: [] is authoritative — do not revive Skills alias.
+    expect(coalesced.skills).toEqual([]);
+  });
+
+  it('coalesceFormDataForTemplateRender trusts empty skills after user edit', async () => {
+    const { coalesceFormDataForTemplateRender } = await import(
+      '@/lib/resume-builder/section-visibility'
+    );
+    const coalesced = coalesceFormDataForTemplateRender({
+      _userEdited: true,
+      skills: [],
+      Skills: ['Python', 'React'],
+      technicalSkills: ['Kubernetes'],
+      experience: [],
+      'Work Experience': [{ title: 'Engineer', company: 'Acme', description: 'Built APIs' }],
+    });
+    expect(coalesced.skills).toEqual([]);
+    expect(coalesced.Skills).toEqual([]);
+    // Same rule for experience: empty canonical after user edit must not revive aliases.
+    expect(coalesced.experience).toEqual([]);
+  });
+
+  it('coalesceFormDataForTemplateRender falls back to Skills only when skills key is absent', async () => {
+    const { coalesceFormDataForTemplateRender } = await import(
+      '@/lib/resume-builder/section-visibility'
+    );
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Anam',
+      Skills: ['Python', 'React'],
+      experience: [{ title: 'Engineer', company: 'Acme', description: 'Built APIs' }],
+    });
     expect(coalesced.skills).toEqual(expect.arrayContaining(['Python', 'React']));
   });
 

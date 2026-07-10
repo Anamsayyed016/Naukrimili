@@ -620,6 +620,28 @@ export default function ResumeEditorPage() {
         next.personalInterests = list;
       }
 
+      if ('skills' in patch) {
+        const list = Array.isArray(patch.skills) ? patch.skills : [];
+        next.skills = list;
+        next.Skills = list;
+        // Clear import-era skill buckets so preview cannot revive deleted skills.
+        next.technicalSkills = [];
+        next.coreCompetencies = [];
+        next.softSkills = [];
+        next.strengths = [];
+        next.industryExpertise = [];
+        if (next.extendedSections && typeof next.extendedSections === 'object') {
+          next.extendedSections = {
+            ...(next.extendedSections as Record<string, unknown>),
+            technicalSkills: [],
+            coreCompetencies: [],
+            softSkills: [],
+            strengths: [],
+            industryExpertise: [],
+          };
+        }
+      }
+
       if ('projects' in patch) {
         const list = (Array.isArray(patch.projects) ? patch.projects : []).map((item) =>
           syncProjectEntryAliases(

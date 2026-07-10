@@ -66,6 +66,24 @@ describe('dynamic-section-visibility', () => {
     expect(result.technicalSkills).toBeUndefined();
   });
 
+  it('does not revive deleted skills from technicalSkills after user edit', () => {
+    const result = pruneAndMergeDynamicSections(
+      {
+        _userEdited: true,
+        skills: ['Python'],
+        Skills: ['Python', 'React', 'Node'],
+        technicalSkills: ['Python', 'Kubernetes', 'Terraform'],
+        extendedSections: {
+          technicalSkills: ['Python', 'Kubernetes', 'Terraform'],
+        },
+      },
+      DYNAMIC_SECTION_REGISTRY
+    );
+
+    expect(result.skills).toEqual(['Python']);
+    expect(result.Skills).toEqual(['Python']);
+  });
+
   it('does not render empty dynamic sections in preview HTML', () => {
     const html = renderExtendedBuilderSections({
       skills: ['Java'],

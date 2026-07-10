@@ -256,11 +256,21 @@ function mergeDynamicIntoStandard(
   registry: DynamicSectionSpec[]
 ): ExtendedBuilderSections {
   const next = { ...extended, personalDetails: { ...extended.personalDetails } };
+  const userOwnsCanonical = builder._userEdited === true;
+
   for (const rule of DYNAMIC_MERGE_RULES) {
     const spec = registry.find((s) => s.fieldKey === rule.dynamicField);
     if (!spec || spec.kind !== 'stringList') continue;
     const dynamicItems = filterMeaningfulListItems(Array.isArray(next[rule.dynamicField]) ? next[rule.dynamicField] as string[] : [], { sectionLabel: spec.label });
     if (dynamicItems.length === 0) { (next[rule.dynamicField] as string[]) = []; continue; }
+
+    // After the user edits the form, never revive deleted tokens from dynamic
+    // buckets (technicalSkills, awards, …) into the canonical section.
+    if (userOwnsCanonical) {
+      (next[rule.dynamicField] as string[]) = [];
+      continue;
+    }
+
     const standardItems = extractStandardStringList(builder, rule.target);
     const overlap = overlapRatio(dynamicItems, standardItems);
     if (standardItems.length > 0 && overlap >= DUPLICATE_MERGE_THRESHOLD) {
@@ -342,11 +352,48 @@ export function isDynamicSectionVisible(
   return unique.length > 0;
 }
 
+/** After user edits, mirror canonical lists onto aliases so stale import snapshots cannot linger. */
+function syncCanonicalAliasesForUserEdit(builder: Record<string, unknown>): void {
+  if (builder._userEdited !== true) return;
+
+  // Prefer canonical key when present (including []); never fall back to stale aliases.
+  if (Object.prototype.hasOwnProperty.call(builder, 'skills') && Array.isArray(builder.skills)) {
+    builder.Skills = builder.skills;
+  }
+  if (Object.prototype.hasOwnProperty.call(builder, 'achievements') && Array.isArray(builder.achievements)) {
+    builder.Achievements = builder.achievements;
+  }
+  if (Object.prototype.hasOwnProperty.call(builder, 'hobbies') && Array.isArray(builder.hobbies)) {
+    builder.Hobbies = builder.hobbies;
+    builder['Hobbies & Interests'] = builder.hobbies;
+    builder.interests = builder.hobbies;
+    builder.Interests = builder.hobbies;
+    builder.personalInterests = builder.hobbies;
+  }
+  if (Object.prototype.hasOwnProperty.call(builder, 'languages') && Array.isArray(builder.languages)) {
+    builder.Languages = builder.languages;
+  }
+  if (Object.prototype.hasOwnProperty.call(builder, 'certifications') && Array.isArray(builder.certifications)) {
+    builder.Certifications = builder.certifications;
+  }
+  if (Object.prototype.hasOwnProperty.call(builder, 'experience') && Array.isArray(builder.experience)) {
+    builder['Work Experience'] = builder.experience;
+    builder.Experience = builder.experience;
+  }
+  if (Object.prototype.hasOwnProperty.call(builder, 'education') && Array.isArray(builder.education)) {
+    builder.Education = builder.education;
+  }
+  if (Object.prototype.hasOwnProperty.call(builder, 'projects') && Array.isArray(builder.projects)) {
+    builder.Projects = builder.projects;
+  }
+}
+
 export function pruneAndMergeDynamicSections(
   builder: Record<string, unknown>,
   registry: DynamicSectionSpec[] = []
 ): Record<string, unknown> {
   const next = { ...builder };
+  syncCanonicalAliasesForUserEdit(next);
   let extended: ExtendedBuilderSections = {
     ...emptyExtendedBuilderSections(),
     ...(typeof next.extendedSections === 'object' ? (next.extendedSections as ExtendedBuilderSections) : {}),

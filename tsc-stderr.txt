@@ -1,0 +1,26 @@
+
+
+#
+# Fatal process out of memory: Zone
+#
+----- Native stack trace -----
+
+ 1: 00007FF662CA711D node::SetCppgcReference+17725
+ 2: 00007FF662B8181F node::TriggerNodeReport+73231
+ 3: 00007FF663DF95C6 v8::base::FatalOOM+54
+ 4: 00007FF66377D6E1 v8::Function::Experimental_IsNopFunction+2369
+ 5: 00007FF66324C79B v8::SnapshotCreator::GetIsolate+52395
+ 6: 00007FF662FCBCC8 CrashForExceptionInNonABICompliantCodeRange+373272
+ 7: 00007FF664061FDA v8::internal::compiler::CompilationDependencies::TransitionDependencyOffTheRecord+1239610
+ 8: 00007FF663F0F67F v8::internal::compiler::CompilationDependencies::~CompilationDependencies+762111
+ 9: 00007FF663F16608 v8::internal::compiler::CompilationDependencies::~CompilationDependencies+790664
+10: 00007FF663F1064A v8::internal::compiler::CompilationDependencies::~CompilationDependencies+766154
+11: 00007FF6636F8314 v8::SharedValueConveyor::SharedValueConveyor+30596
+12: 00007FF6636B1C22 v8::Proxy::GetHandler+41490
+13: 00007FF6639824F5 v8::PropertyDescriptor::writable+1997013
+14: 00007FF662B84540 v8::CpuProfileNode::GetParent+784
+15: 00007FF662D07463 uv_poll_stop+291
+16: 00007FF664504C2E inflateValidate+159742
+17: 00007FFB09B3E957 BaseThreadInitThunk+23
+18: 00007FFB0B86AD6C RtlUserThreadStart+44
+EXIT=0 
