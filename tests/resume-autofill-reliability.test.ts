@@ -1809,6 +1809,46 @@ describe('dynamic layout engine', () => {
     expect((coalesced.projects as unknown[]).length).toBe(1);
   });
 
+  it('injectResumeData renders projects in luxury-corporate gallery path', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const html = readFileSync(
+      resolve(process.cwd(), 'public/templates/luxury-corporate/index.html'),
+      'utf8'
+    );
+    const formData = {
+      firstName: 'Test',
+      lastName: 'User',
+      _imported: true,
+      projects: [
+        {
+          name: 'Job Portal Application',
+          description: 'Built a full-stack job portal with Next.js and PostgreSQL.',
+        },
+      ],
+      experience: [{ title: 'Developer', company: 'Acme', description: 'Shipped APIs' }],
+    };
+    const result = injectResumeData(html, formData, {
+      galleryPreview: true,
+      galleryTemplateId: 'luxury-corporate',
+      templateId: 'luxury-corporate',
+    });
+    expect(result).toContain('project-item');
+    expect(result).toContain('Job Portal Application');
+    expect(result).toContain('projects-list');
+  });
+
+  it('renderProjects accepts ProjectName alias', async () => {
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const result = injectResumeData('{{PROJECTS}}', {
+      firstName: 'Test',
+      projects: [{ ProjectName: 'ERP Portal', description: 'SAP workflow modules.' }],
+    });
+    expect(result).toContain('project-item');
+    expect(result).toContain('ERP Portal');
+  });
+
   it('keeps projects with bullets-only body when title fails plausibility', () => {
     const {
       filterMeaningfulProjects,

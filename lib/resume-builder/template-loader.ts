@@ -910,7 +910,13 @@ function renderProjects(projects: Array<Record<string, string>>): string {
 
   const validProjects = projects.filter((project) => {
     const rec = project as Record<string, unknown>;
-    const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title']);
+    const name = readCanonicalString(rec, 'name', [
+      'Name',
+      'title',
+      'Title',
+      'projectName',
+      'ProjectName',
+    ]);
     return name.trim().length > 0;
   });
 

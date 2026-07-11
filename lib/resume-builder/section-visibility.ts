@@ -1665,7 +1665,13 @@ export function coalesceFormDataForTemplateRender(
     achievements,
   });
   const experienceForRender = recovered.experience;
-  const projectsForRender = recovered.projects;
+  let projectsForRender = recovered.projects;
+  // Regression guard: never zero builder/import projects that had display names before coalesce recovery.
+  if (projectsRepaired.length > 0 && projectsForRender.length === 0) {
+    projectsForRender = (projectsRepaired as Record<string, unknown>[]).filter((project) =>
+      isUserAuthoredProjectEntry(project)
+    );
+  }
   const skillsForRender = recovered.skills;
   const achievementsForRender = recovered.achievements;
 

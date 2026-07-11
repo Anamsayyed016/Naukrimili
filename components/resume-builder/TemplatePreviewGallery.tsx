@@ -10,7 +10,7 @@ import {
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
-import { prepareGalleryPreviewFormData } from '@/lib/resume-builder/builder-hydration';
+import { prepareGalleryPreviewFormData, builderFormChecksum } from '@/lib/resume-builder/builder-hydration';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
@@ -46,10 +46,11 @@ export default function TemplatePreviewGallery({
   const galleryTemplates = useMemo(() => templates, [templates]);
 
   // Coalesce import payload once for the whole gallery (not per card — avoids N× crash/latency).
+  const previewDataChecksum = useMemo(() => builderFormChecksum(formData), [formData]);
   const userPreviewData = useMemo(() => {
     if (isGalleryEmptyFormData(formData)) return null;
     return prepareGalleryPreviewFormData(formData);
-  }, [formData]);
+  }, [formData, previewDataChecksum]);
 
   if (galleryTemplates.length === 0) {
     return (
