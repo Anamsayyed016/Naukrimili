@@ -1892,6 +1892,195 @@ export function peelTechnologiesFromProjectDescription(description: string): {
   return { description: trimmed, technologies: '' };
 }
 
+const GENERIC_NON_PROJECT_SECTION_TITLE_RE =
+  /^(details?|personal\s+details?|personal\s+information|contact(?:\s+details?)?|info(?:rmation)?|profile\s+details?)$/i;
+
+/** Naukri / PDF layouts sometimes mislabel personal-detail blocks as project rows. */
+function isPersonalMetadataProjectEntry(name: string, description: string): boolean {
+  const title = name.trim();
+  if (!title && !description.trim()) return true;
+  if (title && (isGenericNonProjectSectionTitle(title) || isPersonalMetadataResumeLine(title))) {
+    return true;
+  }
+  const desc = description.trim();
+  if (!desc) return false;
+  if (isPersonalMetadataResumeLine(desc)) return true;
+  if (
+    /\bmarital\s+status\b/i.test(desc) &&
+    (/\bdate\s+of\s+birth\b/i.test(desc) || /\bd\.?o\.?b\.?\b/i.test(desc) || /\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/.test(desc))
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isGenericNonProjectSectionTitle(name: string): boolean {
+  return GENERIC_NON_PROJECT_SECTION_TITLE_RE.test(name.trim());
+}
+
+function readProjectEntryName(rec: Record<string, unknown>): string {
+  return String(rec.name ?? rec.title ?? rec.projectName ?? rec.ProjectName ?? '').trim();
+}
+
+function readProjectEntryDescription(rec: Record<string, unknown>): string {
+  return String(rec.description ?? rec.summary ?? rec.Description ?? '').trim();
+}
+
+/** Detect title lines Naukri PDFs use between stacked project descriptions. */
+function isDynamicProjectBoundaryLine(line: string, previousLine = ''): boolean {
+  if (isEmbeddedProjectTitleLine(line)) return true;
+
+  const trimmed = line.replace(/^[•\-\*\u2022]\s+/, '').trim();
+  if (!trimmed || trimmed.length > 85 || trimmed.length < 4) return false;
+  if (PROJECT_VERB_PREFIX_RE.test(trimmed)) return false;
+  if (/[.!?]$/.test(trimmed)) return false;
+  if (isPersonalMetadataResumeLine(trimmed)) return false;
+
+  const head = trimmed.split(/\s+[-–—:]\s+/)[0]?.trim() || trimmed;
+  if (!isPlausibleProjectName(head)) return false;
+  if (PROJECT_TITLE_SUFFIX_RE.test(head)) return true;
+
+  const prevIsBody = previousLine.length >= 45 || /\b(with|using|for|and|the|to)\b/i.test(previousLine);
+  if (
+    previousLine &&
+    prevIsBody &&
+    head.split(/\s+/).length <= 8 &&
+    /^[A-Z][A-Za-z0-9 &/'".-]{2,}$/.test(head)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * When multiple projects exist, peel embedded sibling titles out of bloated descriptions.
+ */
+function rebalanceMixedProjectDescriptions(
+  projects: Array<Record<string, unknown>>
+): Array<Record<string, unknown>> {
+  if (projects.length < 2) return projects;
+
+  const rebuilt = projects.map((rec) => ({ ...rec }));
+  const names = rebuilt
+    .map((rec) => readProjectEntryName(rec).toLowerCase())
+    .filter((name) => name.length >= 3);
+
+  for (let i = 0; i < rebuilt.length; i++) {
+    const desc = readProjectEntryDescription(rebuilt[i]);
+    if (!desc || desc.length < 40) continue;
+
+    const lines = desc.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+    const chunks: Array<{ owner: number; text: string }> = [];
+    let owner = i;
+    let bucket: string[] = [];
+
+    const flush = () => {
+      const text = bucket.join('\n').trim();
+      if (text) chunks.push({ owner, text });
+      bucket = [];
+    };
+
+    for (let li = 0; li < lines.length; li++) {
+      const line = lines[li];
+      const prev = li > 0 ? lines[li - 1] : '';
+      const head = line.replace(/^[•\-\*\u2022]\s+/, '').split(/\s+[-–—:]\s+/)[0]?.trim().toLowerCase();
+      const siblingIndex = names.findIndex(
+        (name, idx) => idx !== i && (head === name || line.toLowerCase().startsWith(name))
+      );
+
+      if (siblingIndex >= 0 && (bucket.length > 0 || chunks.length > 0)) {
+        flush();
+        owner = siblingIndex;
+        const inline = line.replace(/^[•\-\*\u2022]\s+/, '').split(/\s+[-–—:]\s+/).slice(1).join(' - ').trim();
+        bucket = inline ? [inline] : [];
+        continue;
+      }
+
+      if (isDynamicProjectBoundaryLine(line, prev) && bucket.length > 0) {
+        const matched = rebuilt.findIndex((rec, idx) => {
+          if (idx === i) return false;
+          const other = readProjectEntryName(rec).toLowerCase();
+          return other.length >= 3 && (head === other || line.toLowerCase().startsWith(other));
+        });
+        if (matched >= 0) {
+          flush();
+          owner = matched;
+          continue;
+        }
+      }
+
+      bucket.push(line);
+    }
+    flush();
+
+    if (chunks.length <= 1) continue;
+
+    rebuilt[i] = {
+      ...rebuilt[i],
+      description: '',
+      summary: '',
+      Description: '',
+    };
+
+    for (const chunk of chunks) {
+      const existing = readProjectEntryDescription(rebuilt[chunk.owner]);
+      const merged = existing ? `${existing}\n${chunk.text}`.trim() : chunk.text;
+      rebuilt[chunk.owner] = {
+        ...rebuilt[chunk.owner],
+        description: merged,
+        summary: merged,
+        Description: merged,
+      };
+    }
+  }
+
+  return rebuilt.filter((rec) => {
+    const name = readProjectEntryName(rec);
+    const desc = readProjectEntryDescription(rec);
+    return !isPersonalMetadataProjectEntry(name, desc);
+  });
+}
+
+function mergeDuplicateProjectEntriesByName(
+  projects: Array<Record<string, unknown>>
+): Array<Record<string, unknown>> {
+  const merged = new Map<string, Record<string, unknown>>();
+
+  for (const rec of projects) {
+    const name = readProjectEntryName(rec);
+    const key = name.toLowerCase();
+    if (!key) continue;
+
+    const existing = merged.get(key);
+    if (!existing) {
+      merged.set(key, { ...rec });
+      continue;
+    }
+
+    const descA = readProjectEntryDescription(existing);
+    const descB = readProjectEntryDescription(rec);
+    const description = descA.length >= descB.length ? descA : descB;
+    const techA = String(existing.technologies ?? existing.Technologies ?? '').trim();
+    const techB = String(rec.technologies ?? rec.Technologies ?? '').trim();
+    const technologies = mergeTechnologyStrings(techA, techB);
+
+    merged.set(key, {
+      ...existing,
+      ...rec,
+      name: existing.name || rec.name || name,
+      title: existing.title || rec.title || name,
+      description,
+      summary: description,
+      Description: description,
+      technologies,
+      Technologies: technologies,
+      tech_stack: technologies,
+    });
+  }
+
+  return Array.from(merged.values());
+}
+
 function splitDescriptionIntoProjects(
   primaryName: string,
   description: string,
@@ -1902,9 +2091,12 @@ function splitDescriptionIntoProjects(
   let sharedTech = mergeTechnologyStrings(baseTechnologies, peeled.technologies);
 
   const lines = body.split(/\n+/).map((l) => l.trim()).filter(Boolean);
-  const titleIndices = lines
-    .map((line, index) => (isEmbeddedProjectTitleLine(line) ? index : -1))
-    .filter((index) => index >= 0);
+  const titleIndices: number[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (isDynamicProjectBoundaryLine(lines[i], i > 0 ? lines[i - 1] : '')) {
+      titleIndices.push(i);
+    }
+  }
 
   if (titleIndices.length === 0) {
     return [{ name: primaryName, description: body, technologies: sharedTech }];
@@ -1929,7 +2121,7 @@ function splitDescriptionIntoProjects(
   };
 
   for (const line of lines) {
-    if (isEmbeddedProjectTitleLine(line)) {
+    if (isDynamicProjectBoundaryLine(line, currentDesc[currentDesc.length - 1] || '')) {
       const dashSplit = line.replace(/^[•\-\*\u2022]\s+/, '').split(/\s+[-–—:]\s+/);
       const nextName = (dashSplit[0] || line).trim();
       if (currentDesc.length > 0 || segments.length > 0) {
@@ -1994,7 +2186,7 @@ export function splitMergedProjectEntries(
       });
     }
   }
-  return expanded;
+  return mergeDuplicateProjectEntriesByName(rebalanceMixedProjectDescriptions(expanded));
 }
 
 export function logRawProjects(projects: unknown[], label = 'RAW PROJECTS'): void {
@@ -2089,6 +2281,13 @@ export function sanitizeProjectEntry(
     (rec.description ?? rec.summary ?? rec.Description ?? '') as string,
     1500
   );
+
+  if (isPersonalMetadataProjectEntry(name, description)) {
+    if (isImportFieldTraceEnabled()) {
+      traceSanitizeProjectDropped(index, value, 'personal metadata / non-project section', 'sanitize-project');
+    }
+    return null;
+  }
 
   const techRaw = rec.technologies ?? rec.tech_stack ?? rec.techStack ?? rec.tech ?? rec.Technologies;
   let technologies = '';

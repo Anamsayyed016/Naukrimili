@@ -17,6 +17,7 @@ import {
 const PDFS = [
   'Naukri_ASHISHGUPTA[21y_0m].pdf',
   'Naukri_NehaSingh[13y_0m].pdf',
+  'Naukri_DikshaPeswani[4y_0m] (2).pdf',
 ].map((f) => resolve(process.env.USERPROFILE || '', 'Downloads', f));
 
 async function tracePdf(pdfPath: string) {
@@ -78,7 +79,9 @@ async function tracePdf(pdfPath: string) {
   console.log('\n--- Projects ---', projs.length);
   for (const p of projs.slice(0, 8)) {
     const r = p as Record<string, unknown>;
+    const desc = String(r.description || r.Description || '').trim();
     console.log('  -', String(r.name || r.title || '?'));
+    if (desc) console.log('      desc:', desc.slice(0, 160).replace(/\n/g, ' | '));
   }
 
   const edus = Array.isArray(coalesced.education) ? coalesced.education : [];
