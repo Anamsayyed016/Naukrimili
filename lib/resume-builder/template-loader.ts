@@ -36,6 +36,7 @@ import {
   shouldPreserveFullContentForRender,
   appendMissingRenderableSections,
   resolveResumeRenderMode,
+  hasMeaningfulRenderedHtml,
 } from './section-visibility';
 import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
 import {
@@ -555,6 +556,13 @@ export function injectResumeData(
     '{{HOBBIES}}': renderHobbies(hobbiesData as Array<string | Record<string, unknown>>),
   };
 
+  if (
+    projectsData.length > 0 &&
+    !hasMeaningfulRenderedHtml(placeholders['{{PROJECTS}}'])
+  ) {
+    placeholders['{{PROJECTS}}'] = renderProjects(projectsData);
+  }
+
   let result = processHandlebarsConditionals(htmlTemplate, placeholders, data);
 
   // Replace placeholders AFTER conditionals are processed
@@ -578,7 +586,18 @@ export function injectResumeData(
     result,
     htmlTemplate,
     placeholders,
-    data
+    data,
+    {
+      resolveSectionHtml: (token) => {
+        if (token === 'PROJECTS') {
+          return (
+            placeholders['{{PROJECTS}}'] ||
+            (projectsData.length > 0 ? renderProjects(projectsData) : '')
+          );
+        }
+        return placeholders[`{{${token}}}`] || '';
+      },
+    }
   );
 
   result = appendExtendedSectionsToHtml(result, coalesced);

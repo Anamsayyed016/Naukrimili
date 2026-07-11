@@ -1692,6 +1692,47 @@ describe('dynamic layout engine', () => {
     expect(result).toContain('Flask API');
   });
 
+  it('keeps projects with bullets-only body when title fails plausibility', () => {
+    const {
+      filterMeaningfulProjects,
+      coalesceFormDataForTemplateRender,
+    } = require('@/lib/resume-builder/section-visibility');
+    const project = {
+      name: 'Web Platform for Vendor Onboarding',
+      bullets: ['Designed REST APIs in Node.js', 'Deployed on AWS with CI/CD'],
+    };
+    expect(filterMeaningfulProjects([project])).toHaveLength(1);
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Test',
+      projects: [project],
+    });
+    expect((coalesced.projects as unknown[]).length).toBe(1);
+  });
+
+  it('shouldRenderSection keeps PROJECTS when formData has projects but placeholder is empty', () => {
+    const { shouldRenderSection } = require('@/lib/resume-builder/section-visibility');
+    const formData = {
+      projects: [{ name: 'Inventory Portal', description: 'React dashboard for stock tracking.' }],
+    };
+    expect(shouldRenderSection('PROJECTS', '', formData)).toBe(true);
+    expect(shouldRenderSection('PROJECTS', '   ', formData)).toBe(true);
+  });
+
+  it('processHandlebarsConditionals preserves PROJECTS block from canonical formData', () => {
+    const { processHandlebarsConditionals } = require('@/lib/resume-builder/section-visibility');
+    const template = `{{#if PROJECTS}}<section class="projects"><div class="projects-list">{{PROJECTS}}</div></section>{{/if}}`;
+    const formData = {
+      projects: [{ name: 'Job Portal', description: 'Full-stack hiring platform with Next.js.' }],
+    };
+    const result = processHandlebarsConditionals(
+      template,
+      { '{{PROJECTS}}': '' },
+      formData
+    );
+    expect(result).toContain('projects-list');
+    expect(result).toContain('{{PROJECTS}}');
+  });
+
   it('derives gallery capacity from template structure', () => {
     const { resolveGalleryRenderCapacity } = require('@/lib/resume-builder/section-visibility');
     const sidebar = resolveGalleryRenderCapacity('<aside class="sidebar"></aside>');

@@ -143,12 +143,13 @@ export function shouldRenderSection(
     return false;
   }
 
-  if (!placeholderValue || typeof placeholderValue !== 'string') {
-    return false;
+  if (HTML_SECTIONS.has(upper)) {
+    if (hasMeaningfulRenderedHtml(placeholderValue)) return true;
+    return hasRenderableSectionDataInForm(upper, formData);
   }
 
-  if (HTML_SECTIONS.has(upper)) {
-    return hasMeaningfulRenderedHtml(placeholderValue);
+  if (!placeholderValue || typeof placeholderValue !== 'string') {
+    return false;
   }
 
   return placeholderValue.trim().length > 0;
@@ -424,6 +425,45 @@ function projectDescriptionText(project: Record<string, unknown>): string {
   ).trim();
 }
 
+function projectBodyText(project: Record<string, unknown>): string {
+  const desc = projectDescriptionText(project);
+  if (desc.length >= 10) return desc;
+  const bulletsRaw =
+    project.achievements ?? project.Achievements ?? project.bullets ?? project.Bullets;
+  if (Array.isArray(bulletsRaw)) {
+    const joined = bulletsRaw
+      .map((item) => String(item).replace(/^[\s\-–—*•·]+/, '').trim())
+      .filter((item) => item.length >= 3)
+      .join(' ');
+    if (joined.length >= 10) return joined;
+  }
+  return desc;
+}
+
+function resolveProjectsArrayFromForm(
+  formData: Record<string, unknown>
+): Array<Record<string, unknown>> {
+  if (Array.isArray(formData.projects)) {
+    return formData.projects as Array<Record<string, unknown>>;
+  }
+  if (Array.isArray(formData.Projects)) {
+    return formData.Projects as Array<Record<string, unknown>>;
+  }
+  return [];
+}
+
+function hasRenderableSectionDataInForm(
+  sectionToken: string,
+  formData: Record<string, unknown>
+): boolean {
+  switch (sectionToken) {
+    case 'PROJECTS':
+      return filterMeaningfulProjects(resolveProjectsArrayFromForm(formData)).length > 0;
+    default:
+      return false;
+  }
+}
+
 /** Title fails strict plausibility but still has a real name + body worth rendering. */
 function isSubstantiveProjectEntry(project: Record<string, unknown>): boolean {
   const name = projectDisplayName(project);
@@ -436,7 +476,7 @@ function isSubstantiveProjectEntry(project: Record<string, unknown>): boolean {
   if (looksLikeJobTitleLine(name) && !RENDER_PROJECT_TITLE_SUFFIX_RE.test(name)) {
     return false;
   }
-  return desc.length >= 10;
+  return projectBodyText(project).length >= 10;
 }
 
 export function isInvalidProjectEntry(project: Record<string, unknown>): boolean {
@@ -1108,17 +1148,29 @@ const IMPORT_SECTION_RENDER_SPECS: Array<{
  * Inject standard sections that have data but were stripped by template conditionals.
  * Respects user sectionVisibility toggles; never invents content.
  */
+export interface AppendMissingSectionsOptions {
+  /** Resolve rendered HTML when placeholders were empty but canonical data exists. */
+  resolveSectionHtml?: (sectionToken: string) => string;
+}
+
 export function appendMissingRenderableSections(
   renderedHtml: string,
   htmlTemplate: string,
   placeholders: Record<string, string>,
-  formData: Record<string, unknown>
+  formData: Record<string, unknown>,
+  options?: AppendMissingSectionsOptions
 ): string {
   let result = renderedHtml;
 
   for (const spec of IMPORT_SECTION_RENDER_SPECS) {
     const placeholderKey = `{{${spec.token}}}`;
-    const renderedContent = placeholders[placeholderKey] || '';
+    let renderedContent = placeholders[placeholderKey] || '';
+    if (!hasMeaningfulRenderedHtml(renderedContent) && options?.resolveSectionHtml) {
+      const resolved = options.resolveSectionHtml(spec.token);
+      if (hasMeaningfulRenderedHtml(resolved)) {
+        renderedContent = resolved;
+      }
+    }
     if (!shouldRenderSection(spec.token, renderedContent, formData)) {
       continue;
     }
@@ -1449,7 +1501,6 @@ export function recoverRenderableSectionsForCoalesce(input: {
       continue;
     }
 
-    // Keep before misclassified reroute — strict plausibility rejects many real project titles.
     if (isSubstantiveProjectEntry(project)) {
       recoveredProjects.push(project);
       continue;
