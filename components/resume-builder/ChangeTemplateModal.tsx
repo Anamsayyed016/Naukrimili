@@ -389,6 +389,11 @@ function EnhancedTemplateCard({
             error={error}
             templateName={template.name}
             iframeRef={iframeRef}
+            formData={
+              isGalleryEmptyFormData(formData)
+                ? buildGallerySampleFormData(template.id)
+                : formData
+            }
           />
         )}
       </div>

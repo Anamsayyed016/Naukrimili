@@ -339,6 +339,7 @@ function EnhancedTemplateCard({
             error={error}
             templateName={template.name}
             iframeRef={iframeRef}
+            formData={userPreviewData ?? buildGallerySampleFormData(template.id)}
           />
         ) : (
           // Static placeholder for cards still outside the viewport — no

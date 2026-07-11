@@ -16,6 +16,8 @@ interface GalleryResumePreviewProps {
   templateName: string;
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
   className?: string;
+  /** Enables DOM-aware priority balancing (experience emphasis, sidebar compact). */
+  formData?: Record<string, unknown>;
 }
 
 /**
@@ -29,6 +31,7 @@ export default function GalleryResumePreview({
   templateName,
   iframeRef,
   className,
+  formData,
 }: GalleryResumePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
@@ -60,12 +63,12 @@ export default function GalleryResumePreview({
     requestAnimationFrame(() => {
       import('@/lib/resume-builder/dynamic-layout-engine')
         .then(({ applyDomAwareLayoutToDocument }) => {
-          applyDomAwareLayoutToDocument(iframeDoc, {}, {});
+          applyDomAwareLayoutToDocument(iframeDoc, formData ?? {}, {});
         })
         .catch(() => {})
         .finally(updateScale);
     });
-  }, [previewHtml, loading, error, iframeRef, updateScale]);
+  }, [previewHtml, loading, error, iframeRef, updateScale, formData]);
 
   return (
     <div

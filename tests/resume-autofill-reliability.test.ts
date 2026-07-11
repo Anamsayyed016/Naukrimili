@@ -1536,6 +1536,95 @@ describe('dynamic layout engine', () => {
     const skills = rows.find((r: { section: string }) => r.section === 'skills');
     expect(skills?.missing).toBe(false);
   });
+
+  it('prioritizes experience spacing when main column dominates a sparse sidebar', () => {
+    const {
+      computeDynamicLayoutPlanFromMetrics,
+      synthesizeMetricsFromRenderedHtml,
+    } = require('@/lib/resume-builder/dynamic-layout-engine');
+
+    const renderedHtml = `
+      <div class="resume-container">
+        <aside class="sidebar">
+          <section><div class="education-item">MBA</div></section>
+          <section><span class="skill-tag">Excel</span><span class="skill-tag">SAP</span></section>
+        </aside>
+        <main>
+          <section><p class="summary-text">Executive leader with 15 years experience.</p></section>
+          <section>
+            <div class="experience-item"><ul><li>Led transformation</li><li>Managed P&amp;L</li><li>Built teams</li></ul></div>
+            <div class="experience-item"><ul><li>Drove growth</li><li>Expanded markets</li></ul></div>
+          </section>
+        </main>
+      </div>`;
+
+    const metrics = synthesizeMetricsFromRenderedHtml(renderedHtml);
+    const formData = {
+      experience: [
+        { company: 'Corp A', title: 'VP', achievements: ['Led transformation', 'Managed P&L', 'Built teams'] },
+        { company: 'Corp B', title: 'Director', achievements: ['Drove growth', 'Expanded markets'] },
+      ],
+      education: [{ institution: 'University', degree: 'MBA' }],
+      skills: ['Excel', 'SAP'],
+      summary: 'Executive leader with 15 years experience.',
+    };
+
+    const plan = computeDynamicLayoutPlanFromMetrics(metrics, formData, {
+      htmlTemplate: '<aside class="sidebar"></aside><main></main>',
+      renderedHtml,
+    });
+
+    expect(plan.sidebarCardPadding).toBeLessThan(plan.sectionPadding);
+    expect(plan.experienceSpacing).toBeGreaterThanOrEqual(plan.educationSpacing);
+    expect((plan.sectionExtras.experience ?? 0)).toBeGreaterThanOrEqual(
+      plan.sectionExtras.education ?? 0
+    );
+  });
+
+  it('does not over-compress experience-heavy pages with underfilled sidebars', () => {
+    const {
+      computeDynamicLayoutPlanFromMetrics,
+      computeLayoutFillSignals,
+      synthesizeMetricsFromRenderedHtml,
+    } = require('@/lib/resume-builder/dynamic-layout-engine');
+
+    const longExpHtml = `<div class="resume-container">
+      <aside class="sidebar"><section><div class="education-item">Degree</div></section></aside>
+      <main><section>${'<div class="experience-item"><ul><li>Item</li></ul></div>'.repeat(6)}</section></main>
+    </div>`;
+    const metrics = synthesizeMetricsFromRenderedHtml(longExpHtml);
+    const signals = computeLayoutFillSignals(metrics);
+
+    expect(signals.experienceDominant).toBe(true);
+    expect(signals.shouldCompress).toBe(false);
+
+    const densePlan = computeDynamicLayoutPlanFromMetrics(metrics, {
+      experience: Array.from({ length: 6 }, (_, i) => ({
+        company: `Co ${i}`,
+        title: 'Executive',
+        achievements: ['Achievement one', 'Achievement two'],
+      })),
+      education: [{ institution: 'School', degree: 'MBA' }],
+    }, { htmlTemplate: '<aside class="sidebar"></aside>', renderedHtml: longExpHtml });
+
+    expect(densePlan.lineHeightMul).toBeGreaterThanOrEqual(0.95);
+  });
+
+  it('injects compact sidebar density attribute for sparse sidebars', () => {
+    const { injectDynamicLayoutIntoHtml } = require('@/lib/resume-builder/dynamic-layout-engine');
+    const html = injectDynamicLayoutIntoHtml(
+      `<html><body><div class="resume-container">
+        <aside class="sidebar"><section><div class="education-item">MBA</div></section></aside>
+        <main><section><div class="experience-item">Role</div></section></main>
+      </div></body></html>`,
+      {
+        experience: [{ company: 'Acme', title: 'VP', achievements: ['Led org'] }],
+        education: [{ institution: 'Uni', degree: 'MBA' }],
+      },
+      { htmlTemplate: '<aside class="sidebar"></aside>' }
+    );
+    expect(html).toContain('data-dl-sidebar-density="compact"');
+  });
 });
 
 describe('processHandlebarsConditionals', () => {
