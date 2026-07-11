@@ -1839,6 +1839,64 @@ describe('dynamic layout engine', () => {
     expect(result).toContain('projects-list');
   });
 
+  it('renders Naukrimili and Cafe Zafran projects across gallery templates', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const { coalesceFormDataForTemplateRender } = await import(
+      '@/lib/resume-builder/section-visibility'
+    );
+
+    const formData = {
+      firstName: 'Test',
+      lastName: 'User',
+      _imported: true,
+      _userEdited: true,
+      projects: [
+        {
+          name: 'Naukrimili Job Portal',
+          description: 'Full-stack hiring platform with Next.js and PostgreSQL.',
+          technologies: 'Next.js, PostgreSQL, React',
+        },
+        {
+          name: 'Cafe Zafran Restaurant Website',
+          description: 'Restaurant website with menu, reservations, and online ordering.',
+          technologies: 'React, Node.js',
+        },
+      ],
+      experience: [{ title: 'Developer', company: 'Acme', description: 'Built APIs' }],
+    };
+
+    const coalesced = coalesceFormDataForTemplateRender(formData);
+    expect((coalesced.projects as unknown[]).length).toBe(2);
+
+    const templateIds = [
+      'executive-navy-copper',
+      'luxury-corporate',
+      'organic-luxe-editorial',
+      'executive-sidebar-elite',
+    ];
+
+    for (const templateId of templateIds) {
+      const html = readFileSync(
+        resolve(process.cwd(), `public/templates/${templateId}/index.html`),
+        'utf8'
+      );
+      const gallery = injectResumeData(html, formData, {
+        galleryPreview: true,
+        galleryTemplateId: templateId,
+        templateId,
+      });
+      const live = injectResumeData(html, formData, { templateId, mode: 'preview' });
+
+      for (const result of [gallery, live]) {
+        expect(result).toContain('Naukrimili Job Portal');
+        expect(result).toContain('Cafe Zafran Restaurant Website');
+        expect((result.match(/\bproject-item\b/gi) || []).length).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+
   it('renderProjects accepts ProjectName alias', async () => {
     const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
     const result = injectResumeData('{{PROJECTS}}', {

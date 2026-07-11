@@ -440,16 +440,39 @@ function projectBodyText(project: Record<string, unknown>): string {
   return desc;
 }
 
-function resolveProjectsArrayFromForm(
+const BUILDER_PROJECT_FORM_KEYS = [
+  'projects',
+  'Projects',
+  'PROJECTS',
+  'personalProjects',
+  'projectList',
+  'Academic Projects',
+  'Projects(optional)',
+] as const;
+
+/** Read project rows from editor/import form aliases (render pipeline only). */
+export function resolveProjectsArrayFromForm(
   formData: Record<string, unknown>
 ): Array<Record<string, unknown>> {
-  if (Array.isArray(formData.projects)) {
-    return formData.projects as Array<Record<string, unknown>>;
+  for (const key of BUILDER_PROJECT_FORM_KEYS) {
+    const value = formData[key];
+    if (Array.isArray(value) && value.length > 0) {
+      return value as Array<Record<string, unknown>>;
+    }
   }
-  if (Array.isArray(formData.Projects)) {
-    return formData.Projects as Array<Record<string, unknown>>;
+  for (const key of BUILDER_PROJECT_FORM_KEYS) {
+    const value = formData[key];
+    if (Array.isArray(value)) {
+      return value as Array<Record<string, unknown>>;
+    }
   }
   return [];
+}
+
+export function hasRenderableProjectsInForm(formData: Record<string, unknown>): boolean {
+  const raw = resolveProjectsArrayFromForm(formData);
+  if (filterMeaningfulProjects(raw).length > 0) return true;
+  return raw.some((project) => isUserAuthoredProjectEntry(project));
 }
 
 function hasRenderableSectionDataInForm(
@@ -458,7 +481,7 @@ function hasRenderableSectionDataInForm(
 ): boolean {
   switch (sectionToken) {
     case 'PROJECTS':
-      return filterMeaningfulProjects(resolveProjectsArrayFromForm(formData)).length > 0;
+      return hasRenderableProjectsInForm(formData);
     default:
       return false;
   }
@@ -1647,6 +1670,9 @@ export function coalesceFormDataForTemplateRender(
     'Projects',
     'Projects(optional)',
     'Academic Projects',
+    'personalProjects',
+    'projectList',
+    'PROJECTS',
   ]);
   const projectsRepaired = repairProjectsForTemplateBinding(
     formData,
@@ -1666,11 +1692,14 @@ export function coalesceFormDataForTemplateRender(
   });
   const experienceForRender = recovered.experience;
   let projectsForRender = recovered.projects;
-  // Regression guard: never zero builder/import projects that had display names before coalesce recovery.
-  if (projectsRepaired.length > 0 && projectsForRender.length === 0) {
-    projectsForRender = (projectsRepaired as Record<string, unknown>[]).filter((project) =>
+  // Regression guard: preserve builder/import projects with display names when recovery drops any.
+  if (projectsRepaired.length > 0) {
+    const authoritative = (projectsRepaired as Record<string, unknown>[]).filter((project) =>
       isUserAuthoredProjectEntry(project)
     );
+    if (authoritative.length > 0 && projectsForRender.length < authoritative.length) {
+      projectsForRender = authoritative;
+    }
   }
   const skillsForRender = recovered.skills;
   const achievementsForRender = recovered.achievements;

@@ -37,6 +37,7 @@ import {
   appendMissingRenderableSections,
   resolveResumeRenderMode,
   hasMeaningfulRenderedHtml,
+  resolveProjectsArrayFromForm,
 } from './section-visibility';
 import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
 import {
@@ -510,13 +511,7 @@ export function injectResumeData(
   const skillsData = Array.isArray(data.skills)
     ? (data.skills as string[])
     : [];
-  const builderProjects = (
-    Array.isArray(formData.projects)
-      ? formData.projects
-      : Array.isArray(formData.Projects)
-        ? formData.Projects
-        : []
-  ) as Array<Record<string, unknown>>;
+  const builderProjects = resolveProjectsArrayFromForm(formData);
   let projectsSource = (
     Array.isArray(data.projects) ? data.projects : []
   ) as Array<Record<string, unknown>>;
@@ -524,11 +519,9 @@ export function injectResumeData(
     projectsSource = builderProjects;
   }
   const projectsData = filterMeaningfulProjects(projectsSource) as Array<Record<string, string>>;
-  const renderFormData: Record<string, unknown> = {
-    ...data,
-    projects: projectsData.length > 0 ? projectsData : projectsSource,
-    Projects: projectsData.length > 0 ? projectsData : projectsSource,
-  };
+  const projectsForRender = (
+    projectsData.length > 0 ? projectsData : projectsSource
+  ) as Array<Record<string, string>>;
   const certificationsData = filterMeaningfulCertifications(
     (Array.isArray(data.certifications) ? data.certifications : []) as Array<Record<string, unknown>>
   ) as Array<Record<string, string>>;
@@ -565,7 +558,7 @@ export function injectResumeData(
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
     '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
-    '{{PROJECTS}}': renderProjects(projectsData),
+    '{{PROJECTS}}': renderProjects(projectsForRender),
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
     '{{LANGUAGES}}': renderLanguages(languagesData, isPremiumSideProfile),
@@ -573,13 +566,13 @@ export function injectResumeData(
   };
 
   if (
-    projectsData.length > 0 &&
+    projectsForRender.length > 0 &&
     !hasMeaningfulRenderedHtml(placeholders['{{PROJECTS}}'])
   ) {
-    placeholders['{{PROJECTS}}'] = renderProjects(projectsData);
+    placeholders['{{PROJECTS}}'] = renderProjects(projectsForRender);
   }
 
-  let result = processHandlebarsConditionals(htmlTemplate, placeholders, renderFormData);
+  let result = processHandlebarsConditionals(htmlTemplate, placeholders, formData);
 
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {
@@ -602,14 +595,14 @@ export function injectResumeData(
     result,
     htmlTemplate,
     placeholders,
-    renderFormData,
+    formData,
     {
       resolveSectionHtml: (token) => {
         if (token === 'PROJECTS') {
-          return (
-            placeholders['{{PROJECTS}}'] ||
-            (projectsData.length > 0 ? renderProjects(projectsData) : '')
-          );
+          if (hasMeaningfulRenderedHtml(placeholders['{{PROJECTS}}'])) {
+            return placeholders['{{PROJECTS}}'];
+          }
+          return projectsForRender.length > 0 ? renderProjects(projectsForRender) : '';
         }
         return placeholders[`{{${token}}}`] || '';
       },
