@@ -94,7 +94,8 @@ export function repairGapsIntoPreamble(
   lines: LineSpan[],
   preambleEndLine: number,
   sections: DetectedSectionBlock[],
-  coverage: SectionCoverageReport
+  coverage: SectionCoverageReport,
+  options?: { gapRepairMode?: 'default' | 'preamble-first' | 'infer-section' }
 ): { preamble: string; sections: DetectedSectionBlock[] } {
   if (coverage.complete || coverage.gaps.length === 0) {
     return {
@@ -109,10 +110,48 @@ export function repairGapsIntoPreamble(
     .join('\n')
     .trim();
 
+  const gapMode = options?.gapRepairMode ?? 'default';
   const repaired = sections.map((s) => ({ ...s }));
+
+  if (gapMode === 'preamble-first') {
+    return { preamble, sections: repaired };
+  }
+
   for (const gap of coverage.gaps) {
     const inside = repaired.findIndex((s) => gap.start >= s.startIndex && gap.end <= s.endIndex);
     if (inside >= 0) continue;
+
+    if (gapMode === 'infer-section') {
+      const inferred = inferSectionsFromContent(gap.text, {
+        summary: '',
+        experience: '',
+        education: '',
+        skills: '',
+        projects: '',
+        languages: '',
+        certifications: '',
+        achievements: '',
+        hobbies: '',
+        references: '',
+        volunteer: '',
+        publications: '',
+      });
+      const targetType = (
+        ['skills', 'languages', 'certifications', 'projects', 'experience', 'education'] as const
+      ).find((k) => inferred[k]?.trim());
+      if (targetType) {
+        const idx = repaired.findIndex((s) => s.type === targetType);
+        if (idx >= 0) {
+          repaired[idx] = {
+            ...repaired[idx],
+            content: `${repaired[idx].content}\n${gap.text}`.trim(),
+            endIndex: Math.max(repaired[idx].endIndex, gap.end),
+          };
+          continue;
+        }
+      }
+    }
+
     const before = repaired.filter((s) => s.endIndex <= gap.start);
     if (before.length > 0) {
       const target = before[before.length - 1];

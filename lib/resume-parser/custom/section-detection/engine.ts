@@ -6,6 +6,8 @@
  */
 
 import { prepareResumeTextForParsing } from '@/lib/resume-parser/resume-document-analysis';
+import { analyzeResumeDocument } from '@/lib/resume-parser/dynamic-document-analysis';
+import { deriveAdaptiveParseStrategy } from '@/lib/resume-parser/adaptive-parse-strategy';
 
 import { buildLineIndex, lineContentDensity, sliceTextByLines } from './line-index';
 import {
@@ -153,6 +155,8 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
  */
 export function detectResumeSections(resumeText: string): DetectedResumeSections {
   const { text, profile } = prepareResumeTextForParsing(resumeText ?? '');
+  const documentAnalysis = analyzeResumeDocument(text);
+  const parseStrategy = deriveAdaptiveParseStrategy(documentAnalysis);
   const lines = buildLineIndex(text);
 
   if (text.trim().length < 20 || lines.length === 0) {
@@ -160,6 +164,8 @@ export function detectResumeSections(resumeText: string): DetectedResumeSections
       detectionVersion: SECTION_DETECTION_VERSION,
       normalizedText: text,
       documentProfile: profile,
+      documentAnalysis,
+      parseStrategy,
       preamble: text.trim(),
       ...emptySectionMap(),
       customSections: [],
@@ -185,7 +191,9 @@ export function detectResumeSections(resumeText: string): DetectedResumeSections
   });
 
   if (!coverage.complete) {
-    const repaired = repairGapsIntoPreamble(text, lines, preambleEndLine, sections, coverage);
+    const repaired = repairGapsIntoPreamble(text, lines, preambleEndLine, sections, coverage, {
+      gapRepairMode: parseStrategy.gapRepairMode,
+    });
     preamble = repaired.preamble;
     sections = repaired.sections;
     coverage = buildCoverageReport(text, lines, sections, {
@@ -201,6 +209,8 @@ export function detectResumeSections(resumeText: string): DetectedResumeSections
     detectionVersion: SECTION_DETECTION_VERSION,
     normalizedText: text,
     documentProfile: profile,
+    documentAnalysis,
+    parseStrategy,
     preamble,
     ...fields,
     customSections,

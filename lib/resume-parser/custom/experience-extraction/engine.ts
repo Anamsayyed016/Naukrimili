@@ -38,17 +38,19 @@ export interface ExperienceExtractionResult {
  * Extract structured experiences from a detected experience section (raw text).
  */
 export function extractExperiencesFromSection(
-  experienceSectionText: string
+  experienceSectionText: string,
+  boundaryOptions?: import('./boundaries').ExperienceBoundaryOptions
 ): CustomExtractedExperience[] {
-  const result = extractExperiencesWithMeta(experienceSectionText);
+  const result = extractExperiencesWithMeta(experienceSectionText, boundaryOptions);
   return result.experiences;
 }
 
 export function extractExperiencesWithMeta(
-  experienceSectionText: string
+  experienceSectionText: string,
+  boundaryOptions?: import('./boundaries').ExperienceBoundaryOptions
 ): ExperienceExtractionResult {
   const lines = buildExperienceLines(experienceSectionText || '');
-  const blocks = partitionExperienceBlocks(lines);
+  const blocks = partitionExperienceBlocks(lines, boundaryOptions);
   const built = blocks.map(buildExperienceFromBlock);
   const experiences = inheritCompanyAcrossExperiences(filterValidExperiences(built));
 

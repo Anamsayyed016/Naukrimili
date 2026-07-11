@@ -2,6 +2,8 @@
  * Types for the custom parser section detection engine (isolated module).
  */
 
+import type { AdaptiveParseStrategy } from '@/lib/resume-parser/adaptive-parse-strategy';
+import type { DynamicDocumentAnalysis } from '@/lib/resume-parser/dynamic-document-analysis';
 import type { ResumeDocumentProfile } from '@/lib/resume-parser/resume-document-analysis';
 
 export const SECTION_DETECTION_VERSION = '1.0.0';
@@ -68,6 +70,10 @@ export interface DetectedResumeSections {
   detectionVersion: string;
   normalizedText: string;
   documentProfile: ResumeDocumentProfile;
+  /** Dynamic layout/quality analysis (optional — backward compatible). */
+  documentAnalysis?: DynamicDocumentAnalysis;
+  /** Self-adaptive parsing strategy derived from analysis. */
+  parseStrategy?: AdaptiveParseStrategy;
   /** Contact / header block before the first detected heading. */
   preamble: string;
   summary: string;

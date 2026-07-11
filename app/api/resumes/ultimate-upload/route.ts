@@ -23,7 +23,11 @@ import {
   mergeTextRecoveryIntoExtracted,
   resolveDocumentParserAutofill,
 } from '@/lib/resume-parser/merge-resume-data';
-import { repairLowConfidenceSections } from '@/lib/resume-parser/section-confidence-repair';
+import {
+  applyHybridSectionRepair,
+  augmentEmptySectionsOnly,
+} from '@/lib/resume-parser/hybrid-repair-bridge';
+import { analyzeResumeDocument } from '@/lib/resume-parser/dynamic-document-analysis';
 import {
   normalizeUploadProfile,
   cleanMultiline,
@@ -509,6 +513,7 @@ export async function POST(request: NextRequest) {
     let provenanceAffinda: ExtractedResumeData | null = null;
     let provenanceEden: ExtractedResumeData | null = null;
     let customParserUsed = false;
+    let customSectionScores: Record<string, number> | undefined;
     
     // CRITICAL: Skip AI ONLY if extracted text is truly minimal
     const isPdfParseFailure =
@@ -549,6 +554,7 @@ export async function POST(request: NextRequest) {
           aiSuccess = true;
           aiProvider = 'custom-parser';
           customParserUsed = true;
+          customSectionScores = orchResult.metrics.primary.sectionScores;
           uploadStageDebug(REQ, 'CUSTOM-PARSER', 'primary accepted', {
             confidence: orchResult.metrics.primary.confidence,
             resumeQuality: orchResult.metrics.primary.resumeQuality,
@@ -1664,61 +1670,6 @@ export async function POST(request: NextRequest) {
         // Re-normalize after augmentation (handles language object → string flattening, etc.)
         parsedData = normalizeUploadProfile(parsedData);
 
-        // Confidence-driven hybrid repair: OpenAI only for weak sections (never full reparse).
-        if (!customParserUsed && text.length > 100) {
-          try {
-            const hybridForRepair = new HybridResumeAI();
-            const asExtracted: ExtractedResumeData = {
-              fullName: String(parsedData.fullName || parsedData.name || ''),
-              email: String(parsedData.email || ''),
-              phone: String(parsedData.phone || ''),
-              location: String(parsedData.location || parsedData.address || ''),
-              linkedin: String(parsedData.linkedin || ''),
-              portfolio: String(parsedData.portfolio || ''),
-              summary: String(parsedData.summary || ''),
-              skills: Array.isArray(parsedData.skills) ? parsedData.skills : [],
-              experience: Array.isArray(parsedData.experience) ? parsedData.experience : [],
-              education: Array.isArray(parsedData.education) ? parsedData.education : [],
-              projects: Array.isArray(parsedData.projects) ? parsedData.projects : [],
-              certifications: Array.isArray(parsedData.certifications)
-                ? parsedData.certifications
-                : [],
-              languages: Array.isArray(parsedData.languages) ? parsedData.languages : [],
-              achievements: Array.isArray(parsedData.achievements) ? parsedData.achievements : [],
-              hobbies: Array.isArray(parsedData.hobbies) ? parsedData.hobbies : [],
-              confidence: Number(parsedData.confidence || 0),
-              rawText: text,
-            };
-            const repaired = await repairLowConfidenceSections(asExtracted, {
-              rawText: text,
-              hybridAI: hybridForRepair,
-            });
-            if (!repaired.skipped && repaired.repairedSections.length > 0) {
-              log('section-confidence OpenAI repair', {
-                repairedSections: repaired.repairedSections,
-                scores: repaired.scores,
-              });
-              parsedData = {
-                ...parsedData,
-                ...repaired.data,
-                fullName: repaired.data.fullName || parsedData.fullName,
-                name: repaired.data.fullName || parsedData.name,
-              };
-              parsedData = normalizeUploadProfile(parsedData);
-            } else {
-              log('section-confidence repair skipped', {
-                reason: repaired.reason,
-                scores: repaired.scores,
-              });
-            }
-          } catch (repairErr) {
-            warn(
-              'section-confidence repair failed',
-              repairErr instanceof Error ? repairErr.message : repairErr
-            );
-          }
-        }
-
         const after = {
           fullName: parsedData.fullName || '(empty)',
           skills: parsedData.skills?.length || 0,
@@ -1732,6 +1683,57 @@ export async function POST(request: NextRequest) {
       }
     } catch (augmentError) {
       warn('text-recovery augmentation failed', augmentError instanceof Error ? augmentError.message : augmentError);
+    }
+
+    // Custom parser: fill-only augmentation (never overwrite structured output).
+    if (customParserUsed) {
+      try {
+        const text = (extractedText || '').trim();
+        if (text.length > 100) {
+          parsedData = await augmentEmptySectionsOnly(parsedData, text);
+        }
+      } catch (fillErr) {
+        warn(
+          'custom-parser fill-only augmentation failed',
+          fillErr instanceof Error ? fillErr.message : fillErr
+        );
+      }
+    }
+
+    // Confidence-driven hybrid repair for ALL parser paths (custom + legacy).
+    try {
+      const text = (extractedText || '').trim();
+      if (text.length > 100) {
+        const docAnalysis = analyzeResumeDocument(text);
+        const hybridResult = await applyHybridSectionRepair({
+          parsedData,
+          rawText: text,
+          customSectionScores,
+          documentAnalysis: docAnalysis,
+        });
+        if (!hybridResult.repair.skipped && hybridResult.repair.repairedSections.length > 0) {
+          log('section-confidence OpenAI repair', {
+            customParserUsed,
+            tier: hybridResult.tier,
+            repairedSections: hybridResult.repair.repairedSections,
+            scores: hybridResult.repair.scores,
+            unifiedOverall: hybridResult.unifiedScores.overall,
+          });
+          parsedData = hybridResult.parsedData;
+        } else {
+          log('section-confidence repair skipped', {
+            customParserUsed,
+            reason: hybridResult.repair.reason,
+            tier: hybridResult.tier,
+            unifiedOverall: hybridResult.unifiedScores.overall,
+          });
+        }
+      }
+    } catch (repairErr) {
+      warn(
+        'section-confidence repair failed',
+        repairErr instanceof Error ? repairErr.message : repairErr
+      );
     }
 
     const resumeEmail = String(parsedData.email || lastRecovered?.email || '');

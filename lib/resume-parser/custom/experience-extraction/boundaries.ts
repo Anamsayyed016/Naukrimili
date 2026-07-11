@@ -80,11 +80,23 @@ export function scoreExperienceBoundaries(lines: ExperienceLine[]): ExperienceLi
   });
 }
 
-export function partitionExperienceBlocks(lines: ExperienceLine[]): ExperienceRawBlock[] {
+export interface ExperienceBoundaryOptions {
+  threshold?: number;
+  thresholdAfterBlank?: number;
+}
+
+export function partitionExperienceBlocks(
+  lines: ExperienceLine[],
+  options?: ExperienceBoundaryOptions
+): ExperienceRawBlock[] {
   const scored = scoreExperienceBoundaries(lines);
   const blocks: ExperienceRawBlock[] = [];
   let currentStart = 0;
   let prevWasBlank = false;
+
+  const boundaryThreshold = options?.threshold ?? BOUNDARY_THRESHOLD;
+  const boundaryThresholdAfterBlank =
+    options?.thresholdAfterBlank ?? BOUNDARY_THRESHOLD_AFTER_BLANK;
 
   const shouldStartNew = (
     line: ExperienceLine,
@@ -92,7 +104,7 @@ export function partitionExperienceBlocks(lines: ExperienceLine[]): ExperienceRa
     blockStart: number,
     lineIndex: number
   ): boolean => {
-    const threshold = afterBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
+    const threshold = afterBlank ? boundaryThresholdAfterBlank : boundaryThreshold;
     if (line.boundaryScore < threshold || line.isBullet) return false;
     if (isExperienceSubsectionLabel(line.text)) return false;
 

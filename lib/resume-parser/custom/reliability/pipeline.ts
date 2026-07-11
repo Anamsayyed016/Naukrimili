@@ -41,8 +41,14 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
   const t0 = performance.now();
 
   const sections = detectResumeSections(rawText);
+  const boundaryOpts = sections.parseStrategy
+    ? {
+        threshold: sections.parseStrategy.experienceBoundaryThreshold,
+        thresholdAfterBlank: sections.parseStrategy.experienceBoundaryThresholdAfterBlank,
+      }
+    : undefined;
   const experiences = sections.experience
-    ? extractExperiencesFromSection(sections.experience)
+    ? extractExperiencesFromSection(sections.experience, boundaryOpts)
     : [];
   const educations = sections.education ? extractEducationFromSection(sections.education) : [];
   const projects = sections.projects ? extractProjectsFromSection(sections.projects) : [];

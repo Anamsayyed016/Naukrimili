@@ -32,6 +32,7 @@ import {
   expandCompoundLanguages,
 } from '@/lib/resume-parser/normalize-extracted';
 import { validateAndRepairResumeExtraction } from '@/lib/resume-parser/extraction-repair';
+import { runPreBuilderValidation } from '@/lib/resume-parser/pre-builder-validation';
 import {
   splitFullName,
   splitFullNameWithRejected,
@@ -1742,6 +1743,22 @@ export function transformImportDataToBuilder(
   if (isImportFieldTraceEnabled()) {
     traceImportStageTransform('14_transform_import_data_to_builder', traceInput, transformed, 'import-transformer');
   }
+
+  try {
+    const preBuilder = runPreBuilderValidation(mergedImport as Record<string, unknown>, {
+      rawText: effectiveRawText,
+    });
+    if (!preBuilder.ok) {
+      console.warn('[import-transformer] pre-builder validation', {
+        errors: preBuilder.issues.filter((i) => i.severity === 'error').length,
+        overallConfidence: preBuilder.scores.overall,
+      });
+    }
+    transformed._pipelineConfidence = preBuilder.scores.overall;
+  } catch {
+    /* non-blocking validation gate */
+  }
+
   return transformed;
 }
 
