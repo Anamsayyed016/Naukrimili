@@ -479,6 +479,15 @@ function isSubstantiveProjectEntry(project: Record<string, unknown>): boolean {
   return projectBodyText(project).length >= 10;
 }
 
+/** Builder / user-entered project rows — trust display name unless personal-metadata garbage. */
+function isUserAuthoredProjectEntry(project: Record<string, unknown>): boolean {
+  const name = projectDisplayName(project);
+  if (!hasMeaningfulText(name)) return false;
+  if (isPersonalMetadataEntry(name)) return false;
+  if (INVALID_RENDER_PROJECT_TITLE_RE.test(name)) return false;
+  return true;
+}
+
 export function isInvalidProjectEntry(project: Record<string, unknown>): boolean {
   const name = projectDisplayName(project);
   if (!hasMeaningfulText(name)) return true;
@@ -486,6 +495,7 @@ export function isInvalidProjectEntry(project: Record<string, unknown>): boolean
   if (INVALID_RENDER_PROJECT_TITLE_RE.test(name)) return true;
   const desc = projectDescriptionText(project);
   if (desc && isPersonalMetadataEntry(desc)) return true;
+  if (isUserAuthoredProjectEntry(project)) return false;
   if (isPlausibleProjectName(name)) return false;
   if (isSubstantiveProjectEntry(project)) return false;
   if (isMisclassifiedExperienceProject(name, desc)) return true;
@@ -1493,6 +1503,11 @@ export function recoverRenderableSectionsForCoalesce(input: {
 
     if (!name || isPersonalMetadataEntry(name) || INVALID_RENDER_PROJECT_TITLE_RE.test(name)) {
       if (desc) experience = appendExperienceBullet(experience, desc);
+      continue;
+    }
+
+    if (isUserAuthoredProjectEntry(project)) {
+      recoveredProjects.push(project);
       continue;
     }
 

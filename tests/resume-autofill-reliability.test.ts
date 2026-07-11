@@ -1774,6 +1774,41 @@ describe('dynamic layout engine', () => {
     expect(result).toContain('Flask API');
   });
 
+  it('injectResumeData renders manual builder projects through coalesce and conditionals', async () => {
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const template = `
+      {{#if PROJECTS}}
+      <section class="projects-section">
+        <h2>Projects</h2>
+        <div class="projects-list">{{PROJECTS}}</div>
+      </section>
+      {{/if}}
+    `;
+    const formData = {
+      firstName: 'Manual',
+      lastName: 'User',
+      projects: [
+        { name: 'Full Stack Developer Portfolio', description: 'Personal site with Next.js.' },
+        { name: 'CRM', technologies: 'React, Node.js' },
+      ],
+    };
+    const result = injectResumeData(template, formData);
+    expect(result).toContain('project-item');
+    expect(result).toContain('projects-list');
+    expect(result).toContain('Full Stack Developer Portfolio');
+    expect(result).toContain('CRM');
+    expect(result).not.toMatch(/\{\{#if PROJECTS\}\}/);
+  });
+
+  it('coalesce preserves user-authored builder projects with title only', () => {
+    const { coalesceFormDataForTemplateRender } = require('@/lib/resume-builder/section-visibility');
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Test',
+      projects: [{ name: 'Inventory Dashboard' }],
+    });
+    expect((coalesced.projects as unknown[]).length).toBe(1);
+  });
+
   it('keeps projects with bullets-only body when title fails plausibility', () => {
     const {
       filterMeaningfulProjects,

@@ -510,9 +510,25 @@ export function injectResumeData(
   const skillsData = Array.isArray(data.skills)
     ? (data.skills as string[])
     : [];
-  const projectsData = filterMeaningfulProjects(
-    (Array.isArray(data.projects) ? data.projects : []) as Array<Record<string, unknown>>
-  ) as Array<Record<string, string>>;
+  const builderProjects = (
+    Array.isArray(formData.projects)
+      ? formData.projects
+      : Array.isArray(formData.Projects)
+        ? formData.Projects
+        : []
+  ) as Array<Record<string, unknown>>;
+  let projectsSource = (
+    Array.isArray(data.projects) ? data.projects : []
+  ) as Array<Record<string, unknown>>;
+  if (projectsSource.length === 0 && builderProjects.length > 0) {
+    projectsSource = builderProjects;
+  }
+  const projectsData = filterMeaningfulProjects(projectsSource) as Array<Record<string, string>>;
+  const renderFormData: Record<string, unknown> = {
+    ...data,
+    projects: projectsData.length > 0 ? projectsData : projectsSource,
+    Projects: projectsData.length > 0 ? projectsData : projectsSource,
+  };
   const certificationsData = filterMeaningfulCertifications(
     (Array.isArray(data.certifications) ? data.certifications : []) as Array<Record<string, unknown>>
   ) as Array<Record<string, string>>;
@@ -563,7 +579,7 @@ export function injectResumeData(
     placeholders['{{PROJECTS}}'] = renderProjects(projectsData);
   }
 
-  let result = processHandlebarsConditionals(htmlTemplate, placeholders, data);
+  let result = processHandlebarsConditionals(htmlTemplate, placeholders, renderFormData);
 
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {
@@ -586,7 +602,7 @@ export function injectResumeData(
     result,
     htmlTemplate,
     placeholders,
-    data,
+    renderFormData,
     {
       resolveSectionHtml: (token) => {
         if (token === 'PROJECTS') {
