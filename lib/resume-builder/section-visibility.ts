@@ -12,6 +12,7 @@ import {
   countPlausibleProjects,
   isMisclassifiedExperienceProject,
   isPlausibleProjectName,
+  looksLikeJobTitleLine,
   demoteImplausibleExperienceCompany,
   finalizeExperienceListForCustomParserImport,
   recoverStructuredExperienceFromRawText,
@@ -396,10 +397,46 @@ export function isMisroutedProfessionalVolunteerLine(line: string): boolean {
   return false;
 }
 
+const RENDER_PROJECT_TITLE_SUFFIX_RE =
+  /\b(Website|Web\s*Site|Portal|System|Systems|Application|Applications|App|Platform|Dashboard|API|Tool|Suite|Software)\b/i;
+const RENDER_PROJECT_VERB_PREFIX_RE =
+  /^(built|developed|implemented|created|designed|managed|led|worked|used|utilized|responsible|spearheaded|maintained|collaborated|optimized|integrated|improved|delivered|automated|coordinated|coordination|successfully|handled)\b/i;
+
 function projectDisplayName(project: Record<string, unknown>): string {
   return String(
-    project.name ?? project.Name ?? project.title ?? project.Title ?? ''
+    project.name ??
+      project.Name ??
+      project.title ??
+      project.Title ??
+      project.projectName ??
+      project.ProjectName ??
+      ''
   ).trim();
+}
+
+function projectDescriptionText(project: Record<string, unknown>): string {
+  return String(
+    project.description ??
+      project.Description ??
+      project.summary ??
+      project.Summary ??
+      ''
+  ).trim();
+}
+
+/** Title fails strict plausibility but still has a real name + body worth rendering. */
+function isSubstantiveProjectEntry(project: Record<string, unknown>): boolean {
+  const name = projectDisplayName(project);
+  if (!hasMeaningfulText(name)) return false;
+  if (isPersonalMetadataEntry(name)) return false;
+  if (INVALID_RENDER_PROJECT_TITLE_RE.test(name)) return false;
+  const desc = projectDescriptionText(project);
+  if (desc && isPersonalMetadataEntry(desc)) return false;
+  if (RENDER_PROJECT_VERB_PREFIX_RE.test(name)) return false;
+  if (looksLikeJobTitleLine(name) && !RENDER_PROJECT_TITLE_SUFFIX_RE.test(name)) {
+    return false;
+  }
+  return desc.length >= 10;
 }
 
 export function isInvalidProjectEntry(project: Record<string, unknown>): boolean {
@@ -407,11 +444,10 @@ export function isInvalidProjectEntry(project: Record<string, unknown>): boolean
   if (!hasMeaningfulText(name)) return true;
   if (isPersonalMetadataEntry(name)) return true;
   if (INVALID_RENDER_PROJECT_TITLE_RE.test(name)) return true;
-  const desc = String(
-    project.description ?? project.Description ?? project.summary ?? project.Summary ?? ''
-  ).trim();
+  const desc = projectDescriptionText(project);
   if (desc && isPersonalMetadataEntry(desc)) return true;
   if (isPlausibleProjectName(name)) return false;
+  if (isSubstantiveProjectEntry(project)) return false;
   if (isMisclassifiedExperienceProject(name, desc)) return true;
   return false;
 }
@@ -1413,14 +1449,19 @@ export function recoverRenderableSectionsForCoalesce(input: {
       continue;
     }
 
+    // Keep before misclassified reroute — strict plausibility rejects many real project titles.
+    if (isSubstantiveProjectEntry(project)) {
+      recoveredProjects.push(project);
+      continue;
+    }
+
     if (isMisclassifiedExperienceProject(name, desc)) {
       const bullet = [name, desc].filter(Boolean).join(' — ');
       experience = appendExperienceBullet(experience, bullet);
       continue;
     }
 
-    // Keep projects with real title + body — do not silently absorb into experience.
-    if (name && (desc || hasMeaningfulText(name))) {
+    if (name && hasMeaningfulText(name)) {
       recoveredProjects.push(project);
       continue;
     }

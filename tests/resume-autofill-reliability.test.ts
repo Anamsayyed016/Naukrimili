@@ -1643,6 +1643,55 @@ describe('dynamic layout engine', () => {
     expect(result.experience.length).toBe(0);
   });
 
+  it('keeps projects whose titles fail strict plausibility but have substantive descriptions', () => {
+    const {
+      recoverRenderableSectionsForCoalesce,
+      filterMeaningfulProjects,
+      coalesceFormDataForTemplateRender,
+    } = require('@/lib/resume-builder/section-visibility');
+
+    const project = {
+      name: 'Mobile App for Inventory Tracking',
+      description: 'Built Flask API and React dashboard for warehouse stock levels.',
+    };
+
+    const recovered = recoverRenderableSectionsForCoalesce({
+      experience: [],
+      projects: [project],
+      skills: [],
+      achievements: [],
+    });
+    expect(recovered.projects).toHaveLength(1);
+    expect(recovered.experience).toHaveLength(0);
+
+    expect(filterMeaningfulProjects([project])).toHaveLength(1);
+
+    const coalesced = coalesceFormDataForTemplateRender({
+      firstName: 'Test',
+      projects: [project],
+      _imported: true,
+    });
+    expect((coalesced.projects as unknown[]).length).toBe(1);
+  });
+
+  it('injectResumeData renders projects that fail strict title plausibility', async () => {
+    const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+    const result = injectResumeData('{{PROJECTS}}', {
+      firstName: 'Test',
+      lastName: 'User',
+      projects: [
+        {
+          name: 'Mobile App for Inventory Tracking',
+          description: 'Built Flask API and React dashboard for warehouse stock levels.',
+        },
+      ],
+      _imported: true,
+    });
+    expect(result).toContain('project-item');
+    expect(result).toContain('Mobile App for Inventory Tracking');
+    expect(result).toContain('Flask API');
+  });
+
   it('derives gallery capacity from template structure', () => {
     const { resolveGalleryRenderCapacity } = require('@/lib/resume-builder/section-visibility');
     const sidebar = resolveGalleryRenderCapacity('<aside class="sidebar"></aside>');
