@@ -34,7 +34,7 @@ import {
   optimizeResumeDataForRender,
   appendHobbiesSectionIfMissing,
   shouldPreserveFullContentForRender,
-  appendMissingImportSections,
+  appendMissingRenderableSections,
   resolveResumeRenderMode,
 } from './section-visibility';
 import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extended-sections';
@@ -574,9 +574,12 @@ export function injectResumeData(
     data
   );
 
-  if (preserveFullContent) {
-    result = appendMissingImportSections(result, htmlTemplate, placeholders, data);
-  }
+  result = appendMissingRenderableSections(
+    result,
+    htmlTemplate,
+    placeholders,
+    data
+  );
 
   result = appendExtendedSectionsToHtml(result, coalesced);
 

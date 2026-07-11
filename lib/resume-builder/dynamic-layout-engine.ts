@@ -14,6 +14,8 @@ import {
   filterMeaningfulAchievements,
   normalizeSkillsForRender,
   filterMeaningfulSkills,
+  resolveTemplateRenderCapacity,
+  type TemplateRenderCapacity,
 } from './section-visibility';
 import { isPremiumTemplate } from './ats-content-balance-css';
 
@@ -86,6 +88,155 @@ export interface LayoutFillSignals {
   shouldCompress: boolean;
   experienceDominant: boolean;
   sidebarUnderfilled: boolean;
+}
+
+/** Structural capacity inferred from template HTML — no per-template hardcoding. */
+export interface TemplateLayoutCapacity {
+  hasSidebar: boolean;
+  isSingleColumn: boolean;
+  isCardLayout: boolean;
+  isExecutiveLayout: boolean;
+  mainColumnBasisHint: number;
+  sidebarColumnBasisHint: number;
+  usablePageHeightPx: number;
+  headerReservePx: number;
+  footerReservePx: number;
+  renderCapacity: TemplateRenderCapacity;
+}
+
+export type TemplateLayoutProfile = 'sidebar' | 'single-column' | 'card' | 'executive' | 'standard';
+
+/**
+ * Estimate printable regions and content budgets from template structure.
+ * Reuses resolveTemplateRenderCapacity — does not duplicate capacity math.
+ */
+export function computeTemplateLayoutCapacity(
+  htmlTemplate: string = '',
+  templateId?: string
+): TemplateLayoutCapacity {
+  const hasSidebar = detectHasSidebar(htmlTemplate);
+  const isCardLayout =
+    /card-grid|bento|module-card|floating-card|[\s"'](?:card|cards)[\s"']/i.test(
+      htmlTemplate
+    );
+  const isExecutiveLayout =
+    /\btimeline\b|executive|boardroom|career-history/i.test(htmlTemplate);
+  const isSingleColumn =
+    !hasSidebar && !/columns|two-column|2-column|split-layout/i.test(htmlTemplate);
+
+  const headerReservePx =
+    /header-photo|profile-image|photo-block|ese-photo|pee-photo|portrait/i.test(
+      htmlTemplate
+    )
+      ? 190
+      : 72;
+  const footerReservePx = 36;
+  const usablePageHeightPx = Math.max(
+    720,
+    A4_PAGE_HEIGHT_PX - headerReservePx - footerReservePx
+  );
+
+  let mainColumnBasisHint = 100;
+  let sidebarColumnBasisHint = 0;
+  if (hasSidebar) {
+    const ratioMatch = htmlTemplate.match(/(\d{2})\s*\/\s*(\d{2})/);
+    if (ratioMatch) {
+      const a = parseInt(ratioMatch[1], 10);
+      const b = parseInt(ratioMatch[2], 10);
+      if (Number.isFinite(a) && Number.isFinite(b) && a + b >= 90 && a + b <= 110) {
+        const mainPct = Math.max(a, b);
+        const sidePct = Math.min(a, b);
+        mainColumnBasisHint = mainPct;
+        sidebarColumnBasisHint = sidePct;
+      }
+    }
+    if (sidebarColumnBasisHint === 0) {
+      mainColumnBasisHint = isExecutiveLayout ? 70 : 68;
+      sidebarColumnBasisHint = 100 - mainColumnBasisHint;
+    }
+  }
+
+  return {
+    hasSidebar,
+    isSingleColumn,
+    isCardLayout,
+    isExecutiveLayout,
+    mainColumnBasisHint,
+    sidebarColumnBasisHint,
+    usablePageHeightPx,
+    headerReservePx,
+    footerReservePx,
+    renderCapacity: resolveTemplateRenderCapacity(htmlTemplate, { templateId }),
+  };
+}
+
+export function resolveTemplateLayoutProfile(
+  capacity: TemplateLayoutCapacity
+): TemplateLayoutProfile {
+  if (capacity.hasSidebar) return 'sidebar';
+  if (capacity.isCardLayout) return 'card';
+  if (capacity.isExecutiveLayout) return 'executive';
+  if (capacity.isSingleColumn) return 'single-column';
+  return 'standard';
+}
+
+function applyTemplateAwareDistribution(
+  plan: Partial<DynamicLayoutPlan> & {
+    sectionExtras: Partial<Record<LayoutSectionKind, number>>;
+    mainFlexGrow: number;
+    sidebarFlexGrow: number;
+    mainColumnBasisPct: number;
+    sidebarColumnBasisPct: number;
+    sidebarCardPadding: number;
+    sidebarInternalGap: number;
+    experienceSpacing: number;
+    experienceCardPadding: number;
+  },
+  capacity: TemplateLayoutCapacity,
+  profile: TemplateLayoutProfile,
+  fillSignals: LayoutFillSignals
+): void {
+  const extras = plan.sectionExtras;
+
+  switch (profile) {
+    case 'sidebar':
+      if (fillSignals.sidebarUnderfilled) {
+        plan.sidebarCardPadding = Math.round(plan.sidebarCardPadding * 0.88 * 10) / 10;
+        plan.sidebarInternalGap = Math.round(plan.sidebarInternalGap * 0.82 * 10) / 10;
+        plan.mainFlexGrow = Math.max(plan.mainFlexGrow, 2.05);
+        plan.sidebarFlexGrow = Math.min(plan.sidebarFlexGrow, 0.7);
+      }
+      extras.experience = (extras.experience ?? 0) + 6;
+      for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
+        if (extras[kind]) extras[kind] = Math.round((extras[kind] ?? 0) * 0.85);
+      }
+      break;
+    case 'single-column':
+      plan.mainColumnBasisPct = 100;
+      plan.sidebarColumnBasisPct = 0;
+      extras.experience = (extras.experience ?? 0) + 4;
+      break;
+    case 'executive':
+      extras.experience = (extras.experience ?? 0) + 10;
+      extras.summary = (extras.summary ?? 0) + 4;
+      plan.experienceCardPadding = Math.round(plan.experienceCardPadding * 1.06 * 10) / 10;
+      break;
+    case 'card':
+      extras.projects = Math.round((extras.projects ?? 0) * 1.05);
+      plan.sidebarInternalGap = Math.round(plan.sidebarInternalGap * 0.92 * 10) / 10;
+      break;
+    default:
+      break;
+  }
+
+  if (capacity.hasSidebar && capacity.mainColumnBasisHint > 0) {
+    plan.mainColumnBasisPct = Math.round(
+      clamp(capacity.mainColumnBasisHint, 58, 78)
+    );
+    plan.sidebarColumnBasisPct = Math.round(
+      clamp(capacity.sidebarColumnBasisHint, 22, 42)
+    );
+  }
 }
 
 export type LayoutSectionKind =
@@ -1052,7 +1203,13 @@ export function computeDynamicLayoutPlanFromMetrics(
   ) / 10;
   const educationSpacingMul = adaptiveCards.educationItemMul;
 
-  return {
+  const templateCapacity = computeTemplateLayoutCapacity(
+    htmlTemplate,
+    options?.templateId
+  );
+  const layoutProfile = resolveTemplateLayoutProfile(templateCapacity);
+
+  const plan: DynamicLayoutPlan = {
     sectionGap,
     blockGap,
     bulletGap: Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100,
@@ -1100,6 +1257,21 @@ export function computeDynamicLayoutPlanFromMetrics(
     bulletIndent,
     sidebarCardPadding,
   };
+
+  applyTemplateAwareDistribution(plan, templateCapacity, layoutProfile, fillSignals);
+
+  plan.summarySpacing =
+    Math.round((plan.blockGap + (plan.sectionExtras.summary ?? 0)) * 10) / 10;
+  plan.experienceSpacing =
+    Math.round((plan.blockGap + (plan.sectionExtras.experience ?? 0)) * 10) / 10;
+  plan.educationSpacing =
+    Math.round((plan.blockGap + (plan.sectionExtras.education ?? 0)) * educationSpacingMul * 10) /
+    10;
+  plan.projectSpacing =
+    Math.round((plan.blockGap + (plan.sectionExtras.projects ?? 0)) * projectSpacingMul * 10) /
+    10;
+
+  return plan;
 }
 
 /**
@@ -1809,11 +1981,34 @@ export function injectDynamicLayoutIntoHtml(
   formData: Record<string, unknown>,
   options?: ComputeDynamicLayoutOptions & { htmlTemplate?: string }
 ): string {
-  const metrics = synthesizeMetricsFromRenderedHtml(html);
-  const plan = computeDynamicLayoutPlanFromMetrics(metrics, formData, {
+  const templateCapacity = computeTemplateLayoutCapacity(
+    options?.htmlTemplate ?? '',
+    options?.templateId
+  );
+  const metrics = synthesizeMetricsFromRenderedHtml(
+    html,
+    templateCapacity.usablePageHeightPx
+  );
+  let plan = computeDynamicLayoutPlanFromMetrics(metrics, formData, {
     ...options,
     renderedHtml: html,
   });
+
+  const auditRows = auditRenderedSections(formData, html);
+  for (const row of auditRows) {
+    if (!row.missing) continue;
+    const kind = row.section as LayoutSectionKind;
+    if (
+      kind === 'projects' ||
+      kind === 'achievements' ||
+      kind === 'skills' ||
+      kind === 'certifications' ||
+      kind === 'languages'
+    ) {
+      plan.sectionExtras[kind] = (plan.sectionExtras[kind] ?? 0) + 6;
+    }
+  }
+
   const preservePremiumTypography = isPremiumTemplate(options?.templateId);
   const isPdf = options?.mode === 'pdf';
   const block =

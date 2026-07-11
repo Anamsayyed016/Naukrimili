@@ -1625,6 +1625,43 @@ describe('dynamic layout engine', () => {
     );
     expect(html).toContain('data-dl-sidebar-density="compact"');
   });
+
+  it('keeps projects with title and description during coalesce recovery', () => {
+    const { recoverRenderableSectionsForCoalesce } = require('@/lib/resume-builder/section-visibility');
+    const result = recoverRenderableSectionsForCoalesce({
+      experience: [],
+      projects: [
+        {
+          name: 'Internal Portal',
+          description: 'Built employee self-service portal with React and Node.',
+        },
+      ],
+      skills: [],
+      achievements: [],
+    });
+    expect(result.projects.length).toBe(1);
+    expect(result.experience.length).toBe(0);
+  });
+
+  it('derives gallery capacity from template structure', () => {
+    const { resolveGalleryRenderCapacity } = require('@/lib/resume-builder/section-visibility');
+    const sidebar = resolveGalleryRenderCapacity('<aside class="sidebar"></aside>');
+    const single = resolveGalleryRenderCapacity('<main class="content"></main>');
+    expect(sidebar.maxProjects).toBeGreaterThanOrEqual(3);
+    expect(single.maxProjects).toBeGreaterThanOrEqual(3);
+  });
+
+  it('infers template layout capacity from HTML structure', () => {
+    const { computeTemplateLayoutCapacity, resolveTemplateLayoutProfile } = require(
+      '@/lib/resume-builder/dynamic-layout-engine'
+    );
+    const cap = computeTemplateLayoutCapacity(
+      '<aside class="sidebar"></aside><main class="timeline experience-list"></main>'
+    );
+    expect(cap.hasSidebar).toBe(true);
+    expect(cap.usablePageHeightPx).toBeLessThan(1123);
+    expect(resolveTemplateLayoutProfile(cap)).toBe('sidebar');
+  });
 });
 
 describe('processHandlebarsConditionals', () => {

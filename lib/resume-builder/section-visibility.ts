@@ -1069,19 +1069,15 @@ const IMPORT_SECTION_RENDER_SPECS: Array<{
 ];
 
 /**
- * Import mode — inject standard sections that have data but were stripped by template
- * conditionals or missing placeholders. Reuses template shell patterns when present.
+ * Inject standard sections that have data but were stripped by template conditionals.
+ * Respects user sectionVisibility toggles; never invents content.
  */
-export function appendMissingImportSections(
+export function appendMissingRenderableSections(
   renderedHtml: string,
   htmlTemplate: string,
   placeholders: Record<string, string>,
   formData: Record<string, unknown>
 ): string {
-  if (!shouldPreserveFullContentForRender(formData)) {
-    return renderedHtml;
-  }
-
   let result = renderedHtml;
 
   for (const spec of IMPORT_SECTION_RENDER_SPECS) {
@@ -1100,6 +1096,16 @@ export function appendMissingImportSections(
   }
 
   return result;
+}
+
+/** @deprecated Use appendMissingRenderableSections — kept for import-mode call sites. */
+export function appendMissingImportSections(
+  renderedHtml: string,
+  htmlTemplate: string,
+  placeholders: Record<string, string>,
+  formData: Record<string, unknown>
+): string {
+  return appendMissingRenderableSections(renderedHtml, htmlTemplate, placeholders, formData);
 }
 
 /**
@@ -1413,6 +1419,12 @@ export function recoverRenderableSectionsForCoalesce(input: {
       continue;
     }
 
+    // Keep projects with real title + body — do not silently absorb into experience.
+    if (name && (desc || hasMeaningfulText(name))) {
+      recoveredProjects.push(project);
+      continue;
+    }
+
     if (desc) experience = appendExperienceBullet(experience, desc);
   }
 
@@ -1658,6 +1670,31 @@ export const GALLERY_RENDER_CAPACITY: GalleryRenderCapacity = {
   maxAchievements: 2,
   maxHobbies: 3,
 };
+
+/** Gallery showcase budgets derived from template structure — not fixed for every template. */
+export function resolveGalleryRenderCapacity(
+  htmlTemplate: string = '',
+  options?: Pick<OptimizeResumeForRenderOptions, 'templateId'>
+): GalleryRenderCapacity {
+  const base = resolveTemplateRenderCapacity(htmlTemplate, options);
+  const hasSidebar = /\bsidebar\b|tm-sidebar|<aside[\s>]/i.test(htmlTemplate);
+  const denseMain =
+    /timeline|experience-list|executive/i.test(htmlTemplate) && !hasSidebar;
+
+  return {
+    maxSkills: Math.max(8, base.maxSkills - 2),
+    maxBulletsPerExperience: Math.max(3, base.maxBulletsPerExperience - 1),
+    maxProjects: Math.max(3, base.maxProjects - 1),
+    maxSummaryWords: Math.max(48, base.maxSummaryWords - 28),
+    maxExperienceEntries: denseMain ? 2 : 3,
+    maxEducationEntries: hasSidebar ? 2 : 3,
+    maxCertifications: 3,
+    maxLanguages: 3,
+    maxAchievements: 3,
+    maxHobbies: 3,
+    maxProjectDescriptionChars: 120,
+  };
+}
 
 export interface OptimizeResumeForRenderOptions {
   htmlTemplate?: string;
@@ -2131,7 +2168,10 @@ export function optimizeResumeDataForRender(
   const renderMode = resolveResumeRenderMode(options);
 
   if (renderMode === 'gallery') {
-    return optimizeGalleryResumeDataForRender(formData);
+    return optimizeGalleryResumeDataForRender(
+      formData,
+      resolveGalleryRenderCapacity(options?.htmlTemplate ?? '', options)
+    );
   }
 
   if (shouldPreserveFullContentForRender(formData, options)) {
