@@ -81,7 +81,6 @@ import {
   sanitizeExperienceCompanyValue,
   isCorporateStructurePhrase,
   isMisclassifiedExperienceProject,
-  isPlausibleProjectName,
   isAcceptedEmailDerivedName,
   sanitizeImportSummary,
   sanitizeImportJobTitle,
@@ -437,6 +436,177 @@ function enrichProjectsFromParserAliases(
   return enriched;
 }
 
+function readImportProjectField(
+  project: Record<string, unknown>,
+  keys: string[]
+): string {
+  for (const key of keys) {
+    const value = project[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return '';
+}
+
+function readImportProjectBullets(project: Record<string, unknown>): string[] {
+  const raw =
+    project.achievements ?? project.Achievements ?? project.bullets ?? project.Bullets;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => String(item).replace(/^[\s\-–—*•·]+/, '').trim())
+    .filter((item) => item.length >= 3);
+}
+
+function hasImportProjectDuration(project: Record<string, unknown>): boolean {
+  const start = readImportProjectField(project, [
+    'startDate',
+    'start_date',
+    'StartDate',
+    'Start Date',
+  ]);
+  const end = readImportProjectField(project, [
+    'endDate',
+    'end_date',
+    'EndDate',
+    'End Date',
+  ]);
+  const duration = readImportProjectField(project, ['duration', 'Duration']);
+  const combined = `${start} ${end} ${duration}`.trim();
+  if (!combined) return false;
+  return (
+    /\b(19|20)\d{2}\b/.test(combined) ||
+    /\b(present|current|ongoing)\b/i.test(combined) ||
+    /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i.test(combined)
+  );
+}
+
+function hasImportProjectResponsibilities(project: Record<string, unknown>): boolean {
+  const desc = readImportProjectField(project, [
+    'description',
+    'Description',
+    'summary',
+    'Summary',
+  ]);
+  if (desc.length >= 20) return true;
+  return readImportProjectBullets(project).join(' ').length >= 20;
+}
+
+function resolveImportProjectCompany(project: Record<string, unknown>): string {
+  const company = readImportProjectField(project, [
+    'company',
+    'Company',
+    'employer',
+    'Employer',
+    'organization',
+    'Organization',
+  ]);
+  if (company) return company;
+  const name = readImportProjectField(project, ['name', 'Name', 'title', 'Title']);
+  const atMatch = name.match(/^(.+?)\s+at\s+(.+)$/i);
+  return atMatch ? atMatch[2].trim() : '';
+}
+
+function resolveImportProjectJobTitle(project: Record<string, unknown>): string {
+  const role = readImportProjectField(project, [
+    'role',
+    'Role',
+    'position',
+    'Position',
+    'designation',
+    'Designation',
+  ]);
+  if (role && looksLikeJobTitleLine(role)) return role;
+
+  const name = readImportProjectField(project, ['name', 'Name', 'title', 'Title']);
+  const atMatch = name.match(/^(.+?)\s+at\s+(.+)$/i);
+  if (atMatch) {
+    const possibleTitle = atMatch[1].trim();
+    if (looksLikeJobTitleLine(possibleTitle)) return possibleTitle;
+  }
+  if (
+    looksLikeJobTitleLine(name) &&
+    !/\b(website|portal|system|application|app|platform|dashboard|api|tool|suite|software|e-?commerce)\b/i.test(
+      name
+    )
+  ) {
+    return name;
+  }
+  return '';
+}
+
+/** True when the entry has any legitimate project signal — not title plausibility alone. */
+function hasPreservableProjectEvidence(project: Record<string, unknown>): boolean {
+  const name = readImportProjectField(project, [
+    'name',
+    'Name',
+    'title',
+    'Title',
+    'projectName',
+    'ProjectName',
+  ]);
+  if (name.length >= 2) return true;
+
+  const desc = readImportProjectField(project, [
+    'description',
+    'Description',
+    'summary',
+    'Summary',
+    'objective',
+    'Objective',
+  ]);
+  if (desc.length >= 8) return true;
+
+  if (readImportProjectBullets(project).length > 0) return true;
+
+  const tech = project.technologies ?? project.Technologies ?? project.tech_stack ?? project.techStack;
+  if (Array.isArray(tech) ? tech.length > 0 : String(tech ?? '').trim().length > 0) {
+    return true;
+  }
+
+  const url = readImportProjectField(project, [
+    'url',
+    'link',
+    'Link',
+    'github',
+    'Github',
+    'projectUrl',
+  ]);
+  if (url.length > 0) return true;
+
+  if (
+    readImportProjectField(project, ['role', 'Role', 'position', 'Position']).length > 0
+  ) {
+    return true;
+  }
+
+  if (hasImportProjectDuration(project)) return true;
+
+  return false;
+}
+
+/**
+ * Rehome to experience only when employment signals are strong — never from title heuristics alone.
+ */
+function hasStrongEmploymentMisfileEvidence(project: Record<string, unknown>): boolean {
+  const company = resolveImportProjectCompany(project);
+  const jobTitle = resolveImportProjectJobTitle(project);
+  return (
+    company.length > 0 &&
+    isPlausibleExperienceCompany(company) &&
+    jobTitle.length > 0 &&
+    looksLikeJobTitleLine(jobTitle) &&
+    hasImportProjectDuration(project) &&
+    hasImportProjectResponsibilities(project)
+  );
+}
+
+/**
+ * Drop or rehome only when there is no project evidence, or the row is clearly paid employment.
+ */
+function shouldRejectProjectAsExperience(project: Record<string, unknown>): boolean {
+  if (!hasPreservableProjectEvidence(project)) return true;
+  return hasStrongEmploymentMisfileEvidence(project);
+}
+
 function isJobTitleMisclassifiedAsProject(
   name: string,
   jobTitle: string,
@@ -459,19 +629,6 @@ function isJobTitleMisclassifiedAsProject(
     if (tl && n === tl) return true;
   }
   return false;
-}
-
-/**
- * Project descriptions legitimately use action verbs (Developed, Built, etc.).
- * Reject only on the title when the name is a plausible project — not on combined prose.
- */
-function shouldRejectProjectAsExperience(name: string, description = ''): boolean {
-  const n = String(name || '').trim();
-  if (!n) return true;
-  if (isPlausibleProjectName(n)) {
-    return isMisclassifiedExperienceProject(n, '');
-  }
-  return isMisclassifiedExperienceProject(n, description);
 }
 
 function countExperienceWithPlausibleCompany(list: unknown[]): number {
@@ -2693,9 +2850,9 @@ function rehomeMisclassifiedProjects(
   const bullets: string[] = [];
 
   for (const project of projects) {
-    const name = String(project.name || project.title || '').trim();
-    const desc = String(project.description || project.Description || '').trim();
-    if (!name || shouldRejectProjectAsExperience(name, desc)) {
+    if (shouldRejectProjectAsExperience(project)) {
+      const name = readImportProjectField(project, ['name', 'Name', 'title', 'Title']);
+      const desc = readImportProjectField(project, ['description', 'Description']);
       const bullet = [name, desc].filter(Boolean).join(' — ').trim();
       if (bullet.length >= 12) bullets.push(bullet);
       continue;
@@ -3186,7 +3343,7 @@ function transformProjectsArray(
       ) {
         return false;
       }
-      if (name && shouldRejectProjectAsExperience(name, desc)) {
+      if (name && shouldRejectProjectAsExperience(p)) {
         return false;
       }
       return true;

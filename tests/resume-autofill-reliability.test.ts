@@ -316,6 +316,88 @@ describe('transformImportDataToBuilder volunteer misroute reconciliation', () =>
   });
 });
 
+describe('transformImportDataToBuilder project preservation', () => {
+  it('preserves projects with uncommon titles and descriptions', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      projects: [
+        {
+          name: 'Mobile App for Inventory Tracking',
+          description: 'Built Flask API and React dashboard for warehouse stock levels.',
+        },
+        {
+          name: 'Job Portal Application',
+          description: 'Full-stack hiring platform with Next.js and PostgreSQL.',
+        },
+      ],
+      experience: [{ title: 'Developer', company: 'Acme Corp', description: 'Shipped features' }],
+    });
+
+    expect(transformed.projects?.length).toBe(2);
+    expect((transformed.projects as Array<{ name: string }>).map((p) => p.name)).toEqual(
+      expect.arrayContaining(['Mobile App for Inventory Tracking', 'Job Portal Application'])
+    );
+  });
+
+  it('preserves projects with bullets only and no technologies or URL', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      projects: [
+        {
+          name: 'Vendor Onboarding Platform',
+          bullets: ['Designed REST APIs in Node.js', 'Deployed services on AWS with CI/CD'],
+        },
+      ],
+    });
+
+    expect(transformed.projects?.length).toBe(1);
+    expect((transformed.projects as Array<{ name: string }>)[0]?.name).toBe(
+      'Vendor Onboarding Platform'
+    );
+  });
+
+  it('preserves short project titles when any project evidence exists', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      projects: [{ name: 'ERP', description: 'SAP modules for accounts payable workflow.' }],
+    });
+
+    expect(transformed.projects?.length).toBe(1);
+  });
+
+  it('rehomes only strong employment misfiles with company, title, duration, and responsibilities', () => {
+    const transformed = transformImportDataToBuilder({
+      email: 'test@example.com',
+      projects: [
+        {
+          name: 'Software Engineer',
+          company: 'Digital Solutions Pvt Ltd',
+          startDate: '2022-01',
+          endDate: 'Present',
+          description:
+            'Designed secure REST APIs and led sprint planning for finance workflow modules.',
+        },
+        {
+          name: 'Full Stack Developer',
+          description: 'Built internal tools with React and Django for operations teams.',
+        },
+      ],
+      experience: [
+        {
+          title: 'Junior Developer',
+          company: 'Other Corp',
+          description: 'Maintained legacy apps',
+        },
+      ],
+    });
+
+    expect(transformed.projects?.length).toBe(1);
+    expect((transformed.projects as Array<{ name: string }>)[0]?.name).toBe('Full Stack Developer');
+    const firstExp = (transformed.experience as Array<{ description?: string }>)[0];
+    expect(String(firstExp?.description || '')).toMatch(/Software Engineer|REST APIs/i);
+  });
+});
+
 describe('isAffindaPrimaryAcceptable', () => {
   it('rejects executive layout with stub experience for Affinda primary', () => {
     const extracted = {
