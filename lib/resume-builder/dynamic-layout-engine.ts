@@ -1553,22 +1553,34 @@ function buildProportionalSectionRules(): string {
 function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   const summaryShortCss = plan.summaryIsShort
     ? `
-.resume-container[data-dl-summary='short'] .summary-text,
-.resume-container[data-dl-summary='short'] [class*='summary-text'],
-.resume-container[data-dl-summary='short'] .professional-summary {
+.resume-container[data-dl-density][data-dl-summary='short'] .summary-text,
+.resume-container[data-dl-density][data-dl-summary='short'] [class*='summary-text'],
+.resume-container[data-dl-density][data-dl-summary='short'] .professional-summary {
   max-width: 100% !important;
-  line-height: calc(var(--resume-line-height, var(--dl-lh-desc, 1.55)) * 1.04) !important;
-  margin-bottom: calc(var(--dl-summary-spacing, 12px) + var(--dl-paragraph-spacing, 4px)) !important;
+  line-height: calc(var(--resume-line-height, 1.68) * 1.04) !important;
+  margin-bottom: calc(var(--dl-summary-spacing, 12px) + var(--resume-paragraph-gap, 5px)) !important;
 }`
     : '';
 
-  // Base 1.55 leading × density multiplier — Novoresume-like body rhythm without redesign.
-  const descLh = (Math.round(1.55 * plan.descLineHeightMul * 1000) / 1000).toFixed(3);
+  // Absolute clamps beat baked ACB 9–10px floors; density scales keep short/long resumes balanced.
+  const sz = (min: number, vw: number, max: number, scale: number) => {
+    const s = Math.round(scale * 1000) / 1000;
+    return `clamp(${(min * s).toFixed(2)}px, ${(vw * s).toFixed(3)}vw, ${(max * s).toFixed(2)}px)`;
+  };
+  const nameSize = sz(26, 3.3, 40, 1);
+  const headingSize = sz(12.5, 1.25, 15, plan.headingFontScale);
+  const companySize = sz(12, 1.18, 14, plan.companyFontScale);
+  const jobSize = sz(11, 1.08, 12.5, plan.titleFontScale);
+  const bodySize = sz(10.5, 1.08, 12.5, plan.bodyFontScale);
+  const smallSize = sz(9.5, 0.98, 11, plan.metaFontScale);
+  const skillSize = sz(9.5, 1.0, 11, plan.skillFontScale);
+  const descLh = (Math.round(1.62 * plan.descLineHeightMul * 1000) / 1000).toFixed(3);
   const headingGapAbove = Math.max(2, Math.round(plan.headingGap * 0.35));
+  const bulletGap = `${Math.max(0.32, plan.bulletGap).toFixed(2)}em`;
 
   return `
-/* Shared resume typography tokens (relative — preserve each template's brand fonts/colors) */
-.resume-container {
+/* Professional resume typography — absolute clamps + density (preserves template fonts/colors) */
+.resume-container[data-dl-density] {
   --dl-fs-company: ${plan.companyFontScale};
   --dl-fs-title: ${plan.titleFontScale};
   --dl-fs-meta: ${plan.metaFontScale};
@@ -1577,156 +1589,176 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   --dl-fs-skill: ${plan.skillFontScale};
   --dl-lh-desc: ${descLh};
   --dl-summary-max-ch: ${plan.summaryMaxCh};
-  --resume-heading-size: calc(1em * var(--dl-fs-heading, 1.1));
-  --resume-body-size: calc(1em * var(--dl-fs-body, 0.98));
-  --resume-company-size: calc(1em * var(--dl-fs-company, 1.15));
-  --resume-job-size: calc(1em * var(--dl-fs-title, 1.02));
-  --resume-date-size: calc(1em * var(--dl-fs-meta, 0.84));
-  --resume-line-height: var(--dl-lh-desc, ${descLh});
-  --resume-paragraph-gap: var(--dl-paragraph-spacing, 4px);
+  --resume-name-size: ${nameSize};
+  --resume-heading-size: ${headingSize};
+  --resume-company-size: ${companySize};
+  --resume-job-size: ${jobSize};
+  --resume-body-size: ${bodySize};
+  --resume-small-size: ${smallSize};
+  --resume-date-size: ${smallSize};
+  --resume-skill-size: ${skillSize};
+  --resume-line-height: ${descLh};
+  --resume-body-weight: 400;
+  --resume-heading-weight: 700;
+  --resume-company-weight: 600;
+  --resume-job-weight: 500;
+  --resume-paragraph-gap: var(--dl-paragraph-spacing, 5px);
+  --resume-bullet-gap: ${bulletGap};
   --resume-letter-spacing: 0.012em;
   --resume-ls-name: 0.02em;
-  --resume-ls-heading: 0.06em;
-  --resume-ls-job: 0.035em;
-  --resume-word-spacing: 0.02em;
+  --resume-ls-heading: 0.08em;
+  --resume-ls-job: 0.04em;
+  --resume-word-spacing: 0.025em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Name — polish only (never absolute px; keep template display size) */
-.resume-container .candidate-name,
-.resume-container .candidate-name .name-first,
-.resume-container .candidate-name .name-last {
+/* Name — premium clamp hierarchy */
+.resume-container[data-dl-density] .candidate-name,
+.resume-container[data-dl-density] .candidate-name .name-first,
+.resume-container[data-dl-density] .candidate-name .name-last {
+  font-size: var(--resume-name-size) !important;
+  font-weight: 700 !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   letter-spacing: var(--resume-ls-name, 0.02em) !important;
-  line-height: 1.12 !important;
+  line-height: 1.1 !important;
 }
 
-/* Header job title — cleaner secondary to name */
-.resume-container .header-title {
-  font-weight: 500 !important;
-  letter-spacing: var(--resume-ls-job, 0.035em) !important;
+/* Header job title — secondary to name */
+.resume-container[data-dl-density] .header-title {
+  font-size: clamp(12px, 1.2vw, 15px) !important;
+  font-weight: var(--resume-job-weight, 500) !important;
+  letter-spacing: var(--resume-ls-job, 0.04em) !important;
   line-height: 1.35 !important;
-  margin-top: 0.15em !important;
+  margin-top: 0.2em !important;
 }
 
-/* Section headings — elegant hierarchy without redesign */
-.resume-container section > h2,
-.resume-container .section-title,
-.resume-container [class*='section-title'],
-.resume-container [class*='-section-head'] {
+/* Section headings */
+.resume-container[data-dl-density] section > h2,
+.resume-container[data-dl-density] .section-title,
+.resume-container[data-dl-density] [class*='section-title'],
+.resume-container[data-dl-density] [class*='-section-head'] {
   font-size: var(--resume-heading-size) !important;
-  font-weight: 700 !important;
-  line-height: 1.22 !important;
-  letter-spacing: var(--resume-ls-heading, 0.06em) !important;
+  font-weight: var(--resume-heading-weight, 700) !important;
+  line-height: 1.2 !important;
+  letter-spacing: var(--resume-ls-heading, 0.08em) !important;
   margin-top: ${headingGapAbove}px !important;
   margin-bottom: var(--dl-heading-gap) !important;
-  padding-bottom: 0.15em !important;
+  padding-bottom: 0.2em !important;
 }
 
-/* Company / employer — strongest role signal in experience/projects */
-.resume-container .experience-header .company,
-.resume-container .project-item .project-employer,
-.resume-container .project-item .company {
+/* Company / employer */
+.resume-container[data-dl-density] .experience-header .company,
+.resume-container[data-dl-density] .project-item .project-employer,
+.resume-container[data-dl-density] .project-item .company {
   display: block !important;
   font-size: var(--resume-company-size) !important;
-  font-weight: 600 !important;
+  font-weight: var(--resume-company-weight, 600) !important;
   line-height: 1.28 !important;
   letter-spacing: 0.015em !important;
 }
 
-/* Job title / degree / project title — lighter than company */
-.resume-container .experience-header h3,
-.resume-container .project-item > h3,
-.resume-container .education-item h3,
-.resume-container .education-item .degree {
+/* Designation / degree / project title */
+.resume-container[data-dl-density] .experience-header h3,
+.resume-container[data-dl-density] .project-item > h3,
+.resume-container[data-dl-density] .education-item h3,
+.resume-container[data-dl-density] .education-item .degree {
   font-size: var(--resume-job-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--resume-job-weight, 500) !important;
   line-height: 1.32 !important;
   letter-spacing: 0.01em !important;
-  margin-bottom: 0.15em !important;
+  margin-bottom: 0.2em !important;
 }
 
-/* Dates / years — visually secondary */
-.resume-container .experience-header .duration,
-.resume-container .education-item .duration,
-.resume-container .education-item .year,
-.resume-container .project-item .duration,
-.resume-container .certification-item .date,
-.resume-container .certification-item .year {
+/* Dates — muted secondary */
+.resume-container[data-dl-density] .experience-header .duration,
+.resume-container[data-dl-density] .education-item .duration,
+.resume-container[data-dl-density] .education-item .year,
+.resume-container[data-dl-density] .project-item .duration,
+.resume-container[data-dl-density] .certification-item .date,
+.resume-container[data-dl-density] .certification-item .year {
   display: inline-block !important;
-  font-size: var(--resume-date-size) !important;
+  font-size: var(--resume-small-size) !important;
   font-weight: 500 !important;
   line-height: 1.35 !important;
   letter-spacing: 0.02em !important;
-  color: color-mix(in srgb, currentColor 68%, transparent) !important;
+  color: color-mix(in srgb, currentColor 66%, transparent) !important;
 }
 
-/* Descriptions + summary — primary readability upgrade */
-.resume-container .experience-item .description,
-.resume-container .project-item .description,
-.resume-container .description,
-.resume-container .summary-text,
-.resume-container [class*='summary-text'],
-.resume-container .professional-summary,
-.resume-container .objective-text {
+/* Body / summary / descriptions */
+.resume-container[data-dl-density] .experience-item .description,
+.resume-container[data-dl-density] .project-item .description,
+.resume-container[data-dl-density] .description,
+.resume-container[data-dl-density] .summary-text,
+.resume-container[data-dl-density] [class*='summary-text'],
+.resume-container[data-dl-density] .professional-summary,
+.resume-container[data-dl-density] .objective-text {
   font-size: var(--resume-body-size) !important;
+  font-weight: var(--resume-body-weight, 400) !important;
   line-height: var(--resume-line-height) !important;
   letter-spacing: var(--resume-letter-spacing, 0.012em) !important;
-  word-spacing: var(--resume-word-spacing, 0.02em) !important;
+  word-spacing: var(--resume-word-spacing, 0.025em) !important;
   max-width: min(100%, calc(var(--dl-summary-max-ch, 68) * 1ch)) !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.resume-container .summary-text,
-.resume-container [class*='summary-text'],
-.resume-container .professional-summary,
-.resume-container .objective-text {
-  line-height: calc(var(--resume-line-height) * 1.02) !important;
-  margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.55 + var(--resume-paragraph-gap)) !important;
+.resume-container[data-dl-density] .summary-text,
+.resume-container[data-dl-density] [class*='summary-text'],
+.resume-container[data-dl-density] .professional-summary,
+.resume-container[data-dl-density] .objective-text {
+  line-height: calc(var(--resume-line-height) * 1.03) !important;
+  margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.45 + var(--resume-paragraph-gap)) !important;
 }
 
-.resume-container .experience-item .description p,
-.resume-container .project-item .description p,
-.resume-container .description p,
-.resume-container .summary-text p,
-.resume-container .professional-summary p {
+.resume-container[data-dl-density] .experience-item .description p,
+.resume-container[data-dl-density] .project-item .description p,
+.resume-container[data-dl-density] .description p,
+.resume-container[data-dl-density] .summary-text p,
+.resume-container[data-dl-density] .professional-summary p {
   margin: 0 0 var(--resume-paragraph-gap) !important;
   line-height: inherit !important;
 }
 
-.resume-container .experience-item .description p:last-child,
-.resume-container .project-item .description p:last-child,
-.resume-container .description p:last-child {
+.resume-container[data-dl-density] .experience-item .description p:last-child,
+.resume-container[data-dl-density] .project-item .description p:last-child,
+.resume-container[data-dl-density] .description p:last-child {
   margin-bottom: 0 !important;
 }
 
-/* Bullet lists — rhythm + indentation (preserve custom ::before markers) */
-.resume-container .experience-item .description li,
-.resume-container .experience-item .description ul li,
-.resume-container .project-item li,
-.resume-container .description li {
+/* Bullets — breathable rhythm */
+.resume-container[data-dl-density] .experience-item .description li,
+.resume-container[data-dl-density] .experience-item .description ul li,
+.resume-container[data-dl-density] .project-item li,
+.resume-container[data-dl-density] .description li {
   font-size: inherit !important;
+  font-weight: inherit !important;
   line-height: var(--resume-line-height) !important;
   letter-spacing: inherit !important;
   word-spacing: inherit !important;
-  margin-bottom: var(--dl-bullet-gap, 0.42em) !important;
-  padding-top: 0.05em !important;
-  padding-bottom: 0.05em !important;
+  margin-bottom: var(--resume-bullet-gap, 0.42em) !important;
+  padding-top: 0.08em !important;
+  padding-bottom: 0.08em !important;
+  orphans: 2;
+  widows: 2;
 }
 
-.resume-container .experience-item .description li:last-child,
-.resume-container .project-item li:last-child,
-.resume-container .description li:last-child {
-  margin-bottom: 0.1em !important;
+.resume-container[data-dl-density] .experience-item .description li:last-child,
+.resume-container[data-dl-density] .project-item li:last-child,
+.resume-container[data-dl-density] .description li:last-child {
+  margin-bottom: 0.12em !important;
 }
 
 .resume-container[data-dl-density='dense'] .experience-item .description,
 .resume-container[data-dl-density='dense'] .project-item .description {
-  letter-spacing: 0.004em !important;
-  word-spacing: 0.01em !important;
+  letter-spacing: 0.006em !important;
+  word-spacing: 0.015em !important;
 }
 
 .resume-container[data-dl-density='sparse'] .experience-item .description,
@@ -1735,82 +1767,82 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   word-spacing: 0.03em !important;
 }
 
-/* Experience — hierarchy + adaptive card density (layout only) */
-.resume-container .experience-list {
+/* Experience structure */
+.resume-container[data-dl-density] .experience-list {
   display: flex !important;
   flex-direction: column !important;
   gap: var(--dl-exp-list-gap, var(--dl-block-gap)) !important;
 }
 
-.resume-container .experience-item {
+.resume-container[data-dl-density] .experience-item {
   padding: var(--dl-exp-card-padding, var(--dl-section-padding)) 0 !important;
   margin-bottom: var(--dl-experience-spacing, var(--dl-block-gap)) !important;
   flex: 1 1 auto !important;
   min-height: auto !important;
 }
 
-.resume-container .experience-list > .experience-item:only-child,
-.resume-container[data-dl-exp-count='1'] .experience-item {
+.resume-container[data-dl-density] .experience-list > .experience-item:only-child,
+.resume-container[data-dl-density][data-dl-exp-count='1'] .experience-item {
   padding-top: calc(var(--dl-exp-card-padding, 6px) * 1.2) !important;
   padding-bottom: calc(var(--dl-exp-card-padding, 6px) * 1.4) !important;
 }
 
-.resume-container .experience-header {
+.resume-container[data-dl-density] .experience-header {
   margin-bottom: var(--dl-exp-header-gap, var(--dl-heading-gap)) !important;
 }
 
-.resume-container .experience-item .description {
+.resume-container[data-dl-density] .experience-item .description {
   margin-top: var(--dl-exp-desc-padding, 8px) !important;
   padding-top: calc(var(--dl-exp-desc-padding, 8px) * 0.9) !important;
   border-top: 1px solid color-mix(in srgb, currentColor 13%, transparent) !important;
 }
 
-.resume-container .experience-item .description ul {
+.resume-container[data-dl-density] .experience-item .description ul {
   margin: calc(var(--dl-exp-desc-padding, 8px) * 0.35) 0 0 !important;
   padding-left: 0 !important;
   list-style: none !important;
 }
 
-.resume-container .experience-item .description li,
-.resume-container .experience-item .description ul li {
+.resume-container[data-dl-density] .experience-item .description li,
+.resume-container[data-dl-density] .experience-item .description ul li {
   position: relative !important;
   padding-left: var(--dl-bullet-indent, 16px) !important;
 }
 
-/* Projects — title bold → tech muted → description comfortable */
-.resume-container .project-item > h3 {
+/* Projects */
+.resume-container[data-dl-density] .project-item > h3 {
   font-weight: 600 !important;
 }
 
-.resume-container .project-item .technologies,
-.resume-container .project-item .tech-stack,
-.resume-container .project-item .project-tech {
-  font-size: var(--resume-date-size) !important;
+.resume-container[data-dl-density] .project-item .technologies,
+.resume-container[data-dl-density] .project-item .tech-stack,
+.resume-container[data-dl-density] .project-item .project-tech {
+  font-size: var(--resume-small-size) !important;
   font-weight: 500 !important;
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   color: color-mix(in srgb, currentColor 62%, transparent) !important;
-  margin-top: 0.2em !important;
-  margin-bottom: 0.35em !important;
+  margin-top: 0.25em !important;
+  margin-bottom: 0.4em !important;
 }
 
-.resume-container .project-item .description {
-  margin-top: 0.35em !important;
+.resume-container[data-dl-density] .project-item .description {
+  margin-top: 0.4em !important;
 }
 
-/* Skills — chip typography polish (keep chip shape from template) */
-.resume-container .skill-tag,
-.resume-container .psp-skill-name {
-  font-size: calc(1em * var(--dl-fs-skill, 0.9)) !important;
+/* Skills chips — typography only */
+.resume-container[data-dl-density] .skill-tag,
+.resume-container[data-dl-density] .psp-skill-name {
+  font-size: var(--resume-skill-size) !important;
   font-weight: 500 !important;
   line-height: 1.35 !important;
   letter-spacing: 0.02em !important;
   padding-block: 0.22em !important;
-  padding-inline: 0.45em !important;
+  padding-inline: 0.5em !important;
 }
 
-/* Education — institution bold → degree regular → year muted */
-.resume-container .education-item .institution {
+/* Education */
+.resume-container[data-dl-density] .education-item .institution {
   display: block !important;
   font-size: var(--resume-company-size) !important;
   font-weight: 600 !important;
@@ -1818,53 +1850,55 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   letter-spacing: 0.01em !important;
 }
 
-.resume-container .education-item .degree,
-.resume-container .education-item h3 {
+.resume-container[data-dl-density] .education-item .degree,
+.resume-container[data-dl-density] .education-item h3 {
   font-weight: 500 !important;
 }
 
-.resume-container .education-item .cgpa {
-  font-size: var(--resume-date-size) !important;
+.resume-container[data-dl-density] .education-item .cgpa {
+  font-size: var(--resume-small-size) !important;
   color: color-mix(in srgb, currentColor 70%, transparent) !important;
 }
 
-/* Certifications — title bold → issuer secondary → year muted */
-.resume-container .certification-item > h3,
-.resume-container .certification-item .cert-title,
-.resume-container .certification-item strong {
+/* Certifications */
+.resume-container[data-dl-density] .certification-item > h3,
+.resume-container[data-dl-density] .certification-item .cert-title,
+.resume-container[data-dl-density] .certification-item strong {
+  font-size: var(--resume-company-size) !important;
   font-weight: 600 !important;
   line-height: 1.3 !important;
   letter-spacing: 0.01em !important;
 }
 
-.resume-container .certification-item .issuer {
+.resume-container[data-dl-density] .certification-item .issuer {
   display: block !important;
-  font-size: calc(1em * var(--dl-fs-title, 1.02) * 0.96) !important;
+  font-size: var(--resume-job-size) !important;
   font-weight: 500 !important;
   line-height: 1.35 !important;
   color: color-mix(in srgb, currentColor 78%, transparent) !important;
-  margin-top: 0.1em !important;
+  margin-top: 0.12em !important;
 }
 
-/* Languages — cleaner spacing/alignment */
-.resume-container .language-item,
-.resume-container .psp-language-item {
+/* Languages */
+.resume-container[data-dl-density] .language-item,
+.resume-container[data-dl-density] .psp-language-item {
+  font-size: var(--resume-body-size) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.01em !important;
 }
 
-.resume-container .language-item .proficiency,
-.resume-container .psp-language-item .proficiency,
-.resume-container .language-item .level {
-  font-size: var(--resume-date-size) !important;
+.resume-container[data-dl-density] .language-item .proficiency,
+.resume-container[data-dl-density] .psp-language-item .proficiency,
+.resume-container[data-dl-density] .language-item .level {
+  font-size: var(--resume-small-size) !important;
   font-weight: 500 !important;
   color: color-mix(in srgb, currentColor 68%, transparent) !important;
 }
 
-/* Interests / hobbies — smaller secondary */
-.resume-container .hobby-item,
-.resume-container .hobby-item .hobby {
-  font-size: calc(1em * var(--dl-fs-meta, 0.84) * 1.05) !important;
+/* Interests */
+.resume-container[data-dl-density] .hobby-item,
+.resume-container[data-dl-density] .hobby-item .hobby {
+  font-size: var(--resume-small-size) !important;
   font-weight: 500 !important;
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
@@ -1873,22 +1907,20 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 
 ${summaryShortCss}
 
-/* Skills — adaptive balanced grid */
-.resume-container .skills-list:not(:has(.psp-skill-item)),
-.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)),
-.resume-container [class*='skills-grid']:not(:has(.psp-skill-item)),
-.resume-container [class*='skills-list']:not(:has(.psp-skill-item)) {
+.resume-container[data-dl-density] .skills-list:not(:has(.psp-skill-item)),
+.resume-container[data-dl-density] .skills-chips-wrap:not(:has(.psp-skill-item)),
+.resume-container[data-dl-density] [class*='skills-grid']:not(:has(.psp-skill-item)),
+.resume-container[data-dl-density] [class*='skills-list']:not(:has(.psp-skill-item)) {
   justify-items: stretch !important;
   align-content: start !important;
 }
 
-.resume-container .skills-list:not(:has(.psp-skill-item)) > .skill-tag,
-.resume-container .skills-chips-wrap:not(:has(.psp-skill-item)) > .skill-tag {
+.resume-container[data-dl-density] .skills-list:not(:has(.psp-skill-item)) > .skill-tag,
+.resume-container[data-dl-density] .skills-chips-wrap:not(:has(.psp-skill-item)) > .skill-tag {
   text-align: center !important;
   justify-self: stretch !important;
 }
 
-/* Sidebar cards — compact when sparse, grow only with real content */
 .resume-container[data-dl-sidebar-density='compact'] aside .education-item,
 .resume-container[data-dl-sidebar-density='compact'] aside .certification-item,
 .resume-container[data-dl-sidebar-density='compact'] aside .language-item,
@@ -1899,37 +1931,35 @@ ${summaryShortCss}
   padding-bottom: calc(var(--dl-sidebar-card-padding, var(--dl-section-padding)) * 0.35) !important;
 }
 
-.resume-container aside .education-item,
-.resume-container aside .certification-item,
-.resume-container aside .language-item,
-.resume-container aside .psp-language-item,
-.resume-container .sidebar .education-item,
-.resume-container .sidebar .certification-item,
-.resume-container .sidebar .language-item,
-.resume-container .sidebar .psp-language-item {
+.resume-container[data-dl-density] aside .education-item,
+.resume-container[data-dl-density] aside .certification-item,
+.resume-container[data-dl-density] aside .language-item,
+.resume-container[data-dl-density] aside .psp-language-item,
+.resume-container[data-dl-density] .sidebar .education-item,
+.resume-container[data-dl-density] .sidebar .certification-item,
+.resume-container[data-dl-density] .sidebar .language-item,
+.resume-container[data-dl-density] .sidebar .psp-language-item {
   padding-top: calc(var(--dl-sidebar-card-padding, var(--dl-section-padding)) * 0.35) !important;
   padding-bottom: calc(var(--dl-sidebar-card-padding, var(--dl-section-padding)) * 0.55) !important;
   flex: 0 1 auto !important;
   min-height: auto !important;
 }
 
-/* Flexible section shells — no fixed heights */
-.resume-container section,
-.resume-container .content-section,
-.resume-container .sidebar-section {
+.resume-container[data-dl-density] section,
+.resume-container[data-dl-density] .content-section,
+.resume-container[data-dl-density] .sidebar-section {
   flex: 1 1 auto !important;
   min-height: auto !important;
 }
 
-/* Gallery / preview / PDF / mobile — keep type readable under scale transforms */
 @media (max-width: 640px) {
-  .resume-container {
-    --resume-ls-heading: 0.045em;
+  .resume-container[data-dl-density] {
+    --resume-ls-heading: 0.06em;
     --resume-word-spacing: 0.015em;
   }
-  .resume-container .summary-text,
-  .resume-container .professional-summary,
-  .resume-container .experience-item .description {
+  .resume-container[data-dl-density] .summary-text,
+  .resume-container[data-dl-density] .professional-summary,
+  .resume-container[data-dl-density] .experience-item .description {
     max-width: 100% !important;
   }
 }`.trim();
@@ -1972,11 +2002,12 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.style.setProperty('--dl-fs-skill', String(plan.skillFontScale));
   root.style.setProperty(
     '--dl-lh-desc',
-    String(Math.round(1.55 * plan.descLineHeightMul * 1000) / 1000)
+    String(Math.round(1.62 * plan.descLineHeightMul * 1000) / 1000)
   );
   root.style.setProperty('--dl-summary-max-ch', String(plan.summaryMaxCh));
   root.style.setProperty('--resume-line-height', `var(--dl-lh-desc)`);
   root.style.setProperty('--resume-paragraph-gap', `${plan.paragraphSpacing}px`);
+  root.style.setProperty('--resume-bullet-gap', `${plan.bulletGap}em`);
   root.style.setProperty('--resume-letter-spacing', '0.012em');
   const kinds: LayoutSectionKind[] = [
     'summary',
@@ -2063,16 +2094,16 @@ export function buildDynamicLayoutCss(
   --dl-fs-body: ${plan.bodyFontScale};
   --dl-fs-heading: ${plan.headingFontScale};
   --dl-fs-skill: ${plan.skillFontScale};
-  --dl-lh-desc: ${(Math.round(1.55 * plan.descLineHeightMul * 1000) / 1000).toFixed(3)};
+  --dl-lh-desc: ${(Math.round(1.62 * plan.descLineHeightMul * 1000) / 1000).toFixed(3)};
   --dl-summary-max-ch: ${plan.summaryMaxCh};
-  --resume-heading-size: calc(1em * var(--dl-fs-heading, 1.1));
-  --resume-body-size: calc(1em * var(--dl-fs-body, 0.98));
-  --resume-company-size: calc(1em * var(--dl-fs-company, 1.15));
-  --resume-job-size: calc(1em * var(--dl-fs-title, 1.02));
-  --resume-date-size: calc(1em * var(--dl-fs-meta, 0.84));
   --resume-line-height: var(--dl-lh-desc);
   --resume-paragraph-gap: ${plan.paragraphSpacing}px;
+  --resume-bullet-gap: ${plan.bulletGap}em;
   --resume-letter-spacing: 0.012em;
+  --resume-body-weight: 400;
+  --resume-heading-weight: 700;
+  --resume-company-weight: 600;
+  --resume-job-weight: 500;
 ${extraVars}
 }
 
@@ -2417,10 +2448,11 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-fs-body',String(fsBody));
     root.style.setProperty('--dl-fs-heading',String(fsHead));
     root.style.setProperty('--dl-fs-skill',String(fsSkill));
-    root.style.setProperty('--dl-lh-desc',String(1.55*lhDesc));
+    root.style.setProperty('--dl-lh-desc',String(1.62*lhDesc));
     root.style.setProperty('--dl-summary-max-ch',String(maxCh));
     root.style.setProperty('--resume-line-height','var(--dl-lh-desc)');
     root.style.setProperty('--resume-letter-spacing','0.012em');
+    root.style.setProperty('--resume-bullet-gap',(dens==='dense'?0.32:dens==='sparse'?0.48:0.42)+'em');
     root.style.setProperty('--dl-bullet-gap',(dens==='dense'?0.32:dens==='sparse'?0.48:0.42)+'em');
     Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,p.extras[k]+'px');});
     root.setAttribute('data-dl-refined','true');

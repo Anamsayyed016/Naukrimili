@@ -1606,6 +1606,8 @@ describe('dynamic layout engine', () => {
     expect(html).toContain('--resume-line-height');
     expect(html).toContain('--resume-body-size');
     expect(html).toContain('--resume-company-size');
+    expect(html).toContain('--resume-name-size');
+    expect(html).toContain('clamp(');
     expect(html).toContain('data-dl-density');
   });
 
@@ -1628,6 +1630,18 @@ describe('dynamic layout engine', () => {
     expect(css).toContain('.issuer');
     expect(css).toContain('word-spacing');
     expect(css).toContain('--resume-ls-heading');
+    expect(css).toContain('--resume-name-size');
+    expect(css).toContain('--resume-bullet-gap');
+    expect(css).toMatch(/clamp\([\d.]+px/);
+  });
+
+  it('raises ATS content-balance body sizes above the old 9px floor', () => {
+    const { getAtsContentBalanceCss } = require('@/lib/resume-builder/ats-content-balance-css');
+    const css = getAtsContentBalanceCss() as string;
+    expect(css).not.toMatch(/clamp\(9px/);
+    expect(css).toContain('--acb-size-body');
+    expect(css).toContain('10.5px');
+    expect(css).toContain('--acb-lh-body: 1.68');
   });
 
   it('expands spacing for sparse resumes', () => {
