@@ -24,12 +24,6 @@ export interface GalleryCardAccent {
 }
 
 export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> = {
-  'charcoal-premium': {
-    glow: 'radial-gradient(circle, rgba(196,165,116,0.4) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(154,123,79,0.22) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-400/50',
-    hoverOverlay: 'from-amber-900/20',
-  },
   'luxury-corporate': {
     glow: 'radial-gradient(circle, rgba(201,162,39,0.42) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(26,39,68,0.28) 0%, transparent 70%)',
@@ -113,12 +107,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     glowSecondary: 'radial-gradient(circle, rgba(30,35,40,0.28) 0%, transparent 70%)',
     borderTint: 'hover:border-slate-500/65',
     hoverOverlay: 'from-slate-300/25',
-  },
-  'executive-minimal-pro': {
-    glow: 'radial-gradient(circle, rgba(181,154,122,0.38) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(34,34,34,0.18) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-700/50',
-    hoverOverlay: 'from-stone-200/28',
   },
   'executive-sidebar-elite': {
     glow: 'radial-gradient(circle, rgba(156,107,79,0.4) 0%, transparent 70%)',
@@ -276,7 +264,6 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   string,
   { firstName: string; lastName: string; jobTitle: string }
 > = {
-  'charcoal-premium': { firstName: 'Marcus', lastName: 'Chen', jobTitle: 'Executive Director' },
   'luxury-corporate': { firstName: 'Michael', lastName: 'Reed', jobTitle: 'Senior Marketing Manager' },
   'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
@@ -291,7 +278,6 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'midnight-prestige-executive': { firstName: 'Alexander', lastName: 'Vance', jobTitle: 'Chief Executive Officer | Global Operations' },
   'frosted-glass-executive': { firstName: 'Julian', lastName: 'Pierce', jobTitle: 'Senior Product Strategist | Digital Innovation Leader' },
   'slate-executive-pro': { firstName: 'Ethan', lastName: 'Clark', jobTitle: 'Senior Product Manager' },
-  'executive-minimal-pro': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Senior Product Manager & Innovation Leader' },
   'executive-burgundy-diamond': { firstName: 'Victoria', lastName: 'Ashford', jobTitle: 'Chief Executive Officer | Global Operations' },
   'executive-sidebar-elite': { firstName: 'Eliza', lastName: 'Blythe', jobTitle: 'Chief Strategy Officer | Global Operations Leader' },
   'aether-professional': { firstName: 'Jordan', lastName: 'Hayes', jobTitle: 'Senior Product Manager' },
@@ -441,7 +427,7 @@ const GALLERY_DEMO_RESUME_SECTIONS = {
 export function buildGallerySampleFormData(templateId?: string): Record<string, unknown> {
   const persona =
     (templateId && GALLERY_PERSONA_BY_TEMPLATE[templateId]) ||
-    GALLERY_PERSONA_BY_TEMPLATE['charcoal-premium'];
+    GALLERY_PERSONA_BY_TEMPLATE['slate-executive-pro'];
   const profileImage = DEFAULT_DEMO_PROFILE_IMAGE;
   const sections = GALLERY_DEMO_RESUME_SECTIONS;
 

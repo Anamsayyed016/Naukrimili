@@ -138,7 +138,7 @@ async function main() {
       'executive-timeline',
       'modern-edge',
       'prism-edition',
-      'charcoal-premium',
+      'slate-executive-pro',
     ].includes(id)
   );
 

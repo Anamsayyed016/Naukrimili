@@ -76,7 +76,7 @@ function show(label: string, data: Record<string, unknown>) {
     });
   });
   const html = injectResumeData('<body>{{EXPERIENCE}}</body>', data, {
-    templateId: 'charcoal-premium',
+    templateId: 'slate-executive-pro',
   });
   const companies = [...html.matchAll(/class="company"[^>]*>([^<]+)/g)].map((m) => m[1]);
   console.log('template companies:', companies);

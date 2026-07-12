@@ -1,10 +1,12 @@
 /** Retired templates map to an active premium template for saved resumes / exports. */
 const RETIRED_TEMPLATE_ALIASES: Record<string, string> = {
-  'executive-copper': 'charcoal-premium',
-  'platinum-executive-edge': 'charcoal-premium',
+  'executive-copper': 'slate-executive-pro',
+  'platinum-executive-edge': 'slate-executive-pro',
   'editorial-mauve': 'elegant-ivory',
-  'executive-corporate': 'charcoal-premium',
-  'executive-modern': 'charcoal-premium',
+  'executive-corporate': 'slate-executive-pro',
+  'executive-modern': 'slate-executive-pro',
+  'charcoal-premium': 'slate-executive-pro',
+  'executive-minimal-pro': 'slate-executive-pro',
   'maroon-gold-executive': 'executive-burgundy-diamond',
   'executive-graphite': 'slate-executive-pro',
 };
