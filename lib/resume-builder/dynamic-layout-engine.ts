@@ -317,6 +317,19 @@ export interface DynamicLayoutPlan {
   experienceDescPadding: number;
   bulletIndent: number;
   sidebarCardPadding: number;
+  /** Adaptive typography hierarchy (relative to container 1em) */
+  companyFontScale: number;
+  titleFontScale: number;
+  metaFontScale: number;
+  bodyFontScale: number;
+  headingFontScale: number;
+  skillFontScale: number;
+  /** Description/summary line-height multiplier (walls of text stay readable) */
+  descLineHeightMul: number;
+  /** Comfortable reading measure for summary/description (ch) */
+  summaryMaxCh: number;
+  /** sparse | balanced | dense — drives data-dl-density */
+  typographyDensity: 'sparse' | 'balanced' | 'dense';
 }
 
 export interface ComputeDynamicLayoutOptions {
@@ -1000,6 +1013,127 @@ export function measureRenderedLayout(
 }
 
 /**
+ * Density-aware type hierarchy — company stays largest; body/bullets tighten first.
+ * Never truncates content; typography/spacing only.
+ */
+export function resolveAdaptiveTypography(input: {
+  experienceCount: number;
+  experienceTextUnits: number;
+  summaryWords: number;
+  skillCount: number;
+  fill: number;
+  experienceDominant: boolean;
+}): Pick<
+  DynamicLayoutPlan,
+  | 'companyFontScale'
+  | 'titleFontScale'
+  | 'metaFontScale'
+  | 'bodyFontScale'
+  | 'headingFontScale'
+  | 'skillFontScale'
+  | 'descLineHeightMul'
+  | 'summaryMaxCh'
+  | 'typographyDensity'
+> {
+  const {
+    experienceCount,
+    experienceTextUnits,
+    summaryWords,
+    skillCount,
+    fill,
+    experienceDominant,
+  } = input;
+
+  let companyFontScale = 1.14;
+  let titleFontScale = 1.02;
+  let metaFontScale = 0.86;
+  let bodyFontScale = 0.96;
+  let headingFontScale = 1.08;
+  let skillFontScale = 0.88;
+  let descLineHeightMul = 1.08;
+  let summaryMaxCh = 68;
+
+  let typographyDensity: 'sparse' | 'balanced' | 'dense' = 'balanced';
+  if (experienceCount <= 2 && fill < 0.78 && experienceTextUnits < 8) {
+    typographyDensity = 'sparse';
+  } else if (experienceCount >= 5 || experienceTextUnits >= 18 || fill > 0.98) {
+    typographyDensity = 'dense';
+  }
+
+  if (typographyDensity === 'sparse') {
+    companyFontScale = 1.18;
+    titleFontScale = 1.05;
+    bodyFontScale = 1.0;
+    headingFontScale = 1.1;
+    descLineHeightMul = 1.14;
+    summaryMaxCh = 72;
+    skillFontScale = 0.92;
+  } else if (typographyDensity === 'dense') {
+    // Tighten body/bullets first; keep company prominent.
+    const densify = clamp(
+      Math.max(experienceCount - 3, 0) / 7 + Math.max(experienceTextUnits - 12, 0) / 28,
+      0,
+      1
+    );
+    companyFontScale = 1.12 - densify * 0.02;
+    titleFontScale = 1.0 - densify * 0.04;
+    metaFontScale = 0.84 - densify * 0.04;
+    bodyFontScale = 0.94 - densify * 0.08;
+    headingFontScale = 1.04 - densify * 0.04;
+    skillFontScale = 0.84 - densify * 0.04;
+    // Longer walls need slightly more leading even when font shrinks.
+    descLineHeightMul = 1.1 + densify * 0.08;
+    summaryMaxCh = 62 - Math.round(densify * 4);
+  } else if (experienceCount >= 3) {
+    const mid = clamp((experienceCount - 2) / 4, 0, 1);
+    bodyFontScale = 0.96 - mid * 0.05;
+    titleFontScale = 1.02 - mid * 0.03;
+    metaFontScale = 0.86 - mid * 0.02;
+    descLineHeightMul = 1.08 + mid * 0.05;
+    companyFontScale = 1.14;
+  }
+
+  if (experienceTextUnits >= 14) {
+    descLineHeightMul = Math.max(descLineHeightMul, 1.12);
+    bodyFontScale = Math.min(bodyFontScale, 0.94);
+    summaryMaxCh = Math.min(summaryMaxCh, 64);
+  }
+
+  if (experienceDominant && experienceCount >= 3) {
+    // Protect hierarchy: company/title stay readable while body densifies.
+    companyFontScale = Math.max(companyFontScale, 1.1);
+    titleFontScale = Math.max(titleFontScale, 0.98);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.1);
+  }
+
+  if (summaryWords > 90) {
+    summaryMaxCh = Math.min(summaryMaxCh, 62);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.1);
+  } else if (summaryWords > 0 && summaryWords < 45) {
+    summaryMaxCh = Math.max(summaryMaxCh, 70);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.12);
+  }
+
+  if (skillCount >= 16) {
+    skillFontScale = Math.min(skillFontScale, 0.82);
+  } else if (skillCount > 0 && skillCount <= 6) {
+    skillFontScale = Math.max(skillFontScale, 0.9);
+  }
+
+  return {
+    companyFontScale: Math.round(clamp(companyFontScale, 1.02, 1.22) * 1000) / 1000,
+    titleFontScale: Math.round(clamp(titleFontScale, 0.92, 1.12) * 1000) / 1000,
+    metaFontScale: Math.round(clamp(metaFontScale, 0.78, 0.95) * 1000) / 1000,
+    bodyFontScale: Math.round(clamp(bodyFontScale, 0.84, 1.05) * 1000) / 1000,
+    headingFontScale: Math.round(clamp(headingFontScale, 0.96, 1.16) * 1000) / 1000,
+    skillFontScale: Math.round(clamp(skillFontScale, 0.76, 0.96) * 1000) / 1000,
+    descLineHeightMul: Math.round(clamp(descLineHeightMul, 1.0, 1.24) * 1000) / 1000,
+    summaryMaxCh: Math.round(clamp(summaryMaxCh, 56, 78)),
+    typographyDensity,
+  };
+}
+
+/**
  * DOM-aware layout plan from measured or synthesized metrics.
  */
 export function computeDynamicLayoutPlanFromMetrics(
@@ -1191,11 +1325,32 @@ export function computeDynamicLayoutPlanFromMetrics(
     experienceDescPadding = Math.round(
       experienceDescPadding * (1 - compress * 0.15 * dampen) * 10
     ) / 10;
+    // Dense experience: tighten bullets more than company/title rhythm.
+    bulletGapMul *= 1 - compress * 0.18 * dampen;
+    paragraphSpacingMul *= 1 - compress * 0.1 * dampen;
   }
 
   if (fillSignals.experienceDominant) {
     experienceListGap = Math.round(experienceListGap * experienceProtect * 10) / 10;
     experienceDescPadding = Math.round(experienceDescPadding * experienceProtect * 10) / 10;
+  }
+
+  const adaptiveType = resolveAdaptiveTypography({
+    experienceCount,
+    experienceTextUnits: contentMetrics.experienceTextUnits,
+    summaryWords,
+    skillCount,
+    fill,
+    experienceDominant: fillSignals.experienceDominant,
+  });
+
+  // Dense body text: slightly more description padding so walls don't feel glued.
+  if (adaptiveType.typographyDensity === 'dense') {
+    experienceDescPadding = Math.round(experienceDescPadding * 1.08 * 10) / 10;
+    bulletIndent = Math.max(14, bulletIndent - 1);
+  } else if (adaptiveType.typographyDensity === 'sparse') {
+    experienceDescPadding = Math.round(experienceDescPadding * 1.12 * 10) / 10;
+    bulletIndent = Math.min(20, bulletIndent + 2);
   }
 
   let sidebarCardPadding = Math.round(
@@ -1214,7 +1369,7 @@ export function computeDynamicLayoutPlanFromMetrics(
     blockGap,
     bulletGap: Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100,
     headingGap: Math.round(BASE_HEADING_GAP * headingGapMul * 10) / 10,
-    fontScale: Math.round(clamp(fontScale, 0.92, 1.12) * 1000) / 1000,
+    fontScale: Math.round(clamp(fontScale, 0.88, 1.12) * 1000) / 1000,
     lineHeightMul: Math.round(clamp(lineHeightMul, 0.9, 1.22) * 1000) / 1000,
     skillColumns,
     mainFlexGrow: Math.round(mainFlexGrow * 100) / 100,
@@ -1256,6 +1411,7 @@ export function computeDynamicLayoutPlanFromMetrics(
     experienceDescPadding,
     bulletIndent,
     sidebarCardPadding,
+    ...adaptiveType,
   };
 
   applyTemplateAwareDistribution(plan, templateCapacity, layoutProfile, fillSignals);
@@ -1400,12 +1556,102 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-summary='short'] [class*='summary-text'],
 .resume-container[data-dl-summary='short'] .professional-summary {
   max-width: 100% !important;
-  line-height: calc(var(--dl-line-height, 1.5) * 1.08) !important;
+  line-height: calc(var(--dl-lh-desc, var(--dl-line-height, 1.5)) * 1.06) !important;
   margin-bottom: calc(var(--dl-summary-spacing, 12px) + var(--dl-paragraph-spacing, 4px)) !important;
 }`
     : '';
 
+  const descLh = (Math.round(1.48 * plan.descLineHeightMul * 1000) / 1000).toFixed(3);
+
   return `
+/* Adaptive typography hierarchy — density-aware, template-agnostic */
+.resume-container {
+  --dl-fs-company: ${plan.companyFontScale};
+  --dl-fs-title: ${plan.titleFontScale};
+  --dl-fs-meta: ${plan.metaFontScale};
+  --dl-fs-body: ${plan.bodyFontScale};
+  --dl-fs-heading: ${plan.headingFontScale};
+  --dl-fs-skill: ${plan.skillFontScale};
+  --dl-lh-desc: ${descLh};
+  --dl-summary-max-ch: ${plan.summaryMaxCh};
+}
+
+.resume-container section > h2,
+.resume-container .section-title,
+.resume-container [class*='section-title'],
+.resume-container [class*='-section-head'] {
+  font-size: calc(1em * var(--dl-fs-heading, 1.08)) !important;
+  line-height: 1.25 !important;
+  margin-bottom: var(--dl-heading-gap) !important;
+}
+
+.resume-container .experience-header .company,
+.resume-container .project-item .project-employer,
+.resume-container .project-item .company {
+  display: block !important;
+  font-size: calc(1em * var(--dl-fs-company, 1.14)) !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.resume-container .experience-header h3,
+.resume-container .project-item > h3,
+.resume-container .education-item h3,
+.resume-container .education-item .degree {
+  font-size: calc(1em * var(--dl-fs-title, 1.02)) !important;
+  font-weight: 500 !important;
+  line-height: 1.32 !important;
+  margin-bottom: 2px !important;
+}
+
+.resume-container .experience-header .duration,
+.resume-container .education-item .duration,
+.resume-container .education-item .year,
+.resume-container .project-item .duration {
+  display: inline-block !important;
+  font-size: calc(1em * var(--dl-fs-meta, 0.86)) !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+}
+
+.resume-container .experience-item .description,
+.resume-container .project-item .description,
+.resume-container .description,
+.resume-container .summary-text,
+.resume-container [class*='summary-text'],
+.resume-container .professional-summary,
+.resume-container .objective-text {
+  font-size: calc(1em * var(--dl-fs-body, 0.96)) !important;
+  line-height: var(--dl-lh-desc, var(--dl-line-height)) !important;
+  max-width: min(100%, calc(var(--dl-summary-max-ch, 68) * 1ch)) !important;
+}
+
+.resume-container .experience-item .description li,
+.resume-container .experience-item .description ul li,
+.resume-container .project-item li,
+.resume-container .description li {
+  font-size: inherit !important;
+  line-height: var(--dl-lh-desc, var(--dl-line-height)) !important;
+  margin-bottom: var(--dl-bullet-gap, 0.35em) !important;
+}
+
+.resume-container .skill-tag,
+.resume-container .psp-skill-name {
+  font-size: calc(1em * var(--dl-fs-skill, 0.88)) !important;
+  line-height: 1.35 !important;
+}
+
+.resume-container[data-dl-density='dense'] .experience-item .description,
+.resume-container[data-dl-density='dense'] .project-item .description {
+  letter-spacing: -0.005em !important;
+}
+
+.resume-container[data-dl-density='sparse'] .experience-item .description,
+.resume-container[data-dl-density='sparse'] .summary-text {
+  letter-spacing: 0.01em !important;
+}
+
 /* Experience — hierarchy + adaptive card density (layout only) */
 .resume-container .experience-list {
   display: flex !important;
@@ -1430,18 +1676,6 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   margin-bottom: var(--dl-exp-header-gap, var(--dl-heading-gap)) !important;
 }
 
-.resume-container .experience-header h3 {
-  margin-bottom: 2px !important;
-}
-
-.resume-container .experience-header .company {
-  display: block !important;
-}
-
-.resume-container .experience-header .duration {
-  display: inline-block !important;
-}
-
 .resume-container .experience-item .description {
   margin-top: var(--dl-exp-desc-padding, 8px) !important;
   padding-top: calc(var(--dl-exp-desc-padding, 8px) * 0.9) !important;
@@ -1458,8 +1692,6 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container .experience-item .description ul li {
   position: relative !important;
   padding-left: var(--dl-bullet-indent, 16px) !important;
-  margin-bottom: var(--dl-bullet-gap, 0.35em) !important;
-  line-height: var(--dl-line-height) !important;
 }
 
 ${summaryShortCss}
@@ -1542,6 +1774,17 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.style.setProperty('--dl-exp-desc-padding', `${plan.experienceDescPadding}px`);
   root.style.setProperty('--dl-bullet-indent', `${plan.bulletIndent}px`);
   root.style.setProperty('--dl-sidebar-card-padding', `${plan.sidebarCardPadding}px`);
+  root.style.setProperty('--dl-fs-company', String(plan.companyFontScale));
+  root.style.setProperty('--dl-fs-title', String(plan.titleFontScale));
+  root.style.setProperty('--dl-fs-meta', String(plan.metaFontScale));
+  root.style.setProperty('--dl-fs-body', String(plan.bodyFontScale));
+  root.style.setProperty('--dl-fs-heading', String(plan.headingFontScale));
+  root.style.setProperty('--dl-fs-skill', String(plan.skillFontScale));
+  root.style.setProperty(
+    '--dl-lh-desc',
+    String(Math.round(1.48 * plan.descLineHeightMul * 1000) / 1000)
+  );
+  root.style.setProperty('--dl-summary-max-ch', String(plan.summaryMaxCh));
   const kinds: LayoutSectionKind[] = [
     'summary',
     'experience',
@@ -1561,6 +1804,7 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.setAttribute('data-dl-exp-count', String(plan.experienceCount));
   root.setAttribute('data-dl-summary', plan.summaryIsShort ? 'short' : 'normal');
   root.setAttribute('data-dl-sections', String(plan.visibleSectionCount));
+  root.setAttribute('data-dl-density', plan.typographyDensity);
   const sidebarCompact =
     plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal';
   root.setAttribute('data-dl-sidebar-density', sidebarCompact);
@@ -1620,6 +1864,14 @@ export function buildDynamicLayoutCss(
   --dl-exp-desc-padding: ${plan.experienceDescPadding}px;
   --dl-bullet-indent: ${plan.bulletIndent}px;
   --dl-sidebar-card-padding: ${plan.sidebarCardPadding}px;
+  --dl-fs-company: ${plan.companyFontScale};
+  --dl-fs-title: ${plan.titleFontScale};
+  --dl-fs-meta: ${plan.metaFontScale};
+  --dl-fs-body: ${plan.bodyFontScale};
+  --dl-fs-heading: ${plan.headingFontScale};
+  --dl-fs-skill: ${plan.skillFontScale};
+  --dl-lh-desc: ${(Math.round(1.48 * plan.descLineHeightMul * 1000) / 1000).toFixed(3)};
+  --dl-summary-max-ch: ${plan.summaryMaxCh};
 ${extraVars}
 }
 
@@ -1944,6 +2196,28 @@ export function getDomAwareLayoutRefinementScript(): string {
     else if(skillTags>8)cols=3;
     else cols=2;
     root.style.setProperty('--dl-skill-cols',String(cols));
+    /* Adaptive typography hierarchy (mirrors resolveAdaptiveTypography) */
+    var dens='balanced';
+    if(expCount<=2&&fill<0.78)dens='sparse';
+    else if(expCount>=5||fill>0.98)dens='dense';
+    var fsCompany=1.14, fsTitle=1.02, fsMeta=0.86, fsBody=0.96, fsHead=1.08, fsSkill=0.88, lhDesc=1.08, maxCh=68;
+    if(dens==='sparse'){fsCompany=1.18;fsTitle=1.05;fsBody=1.0;fsHead=1.1;lhDesc=1.14;maxCh=72;fsSkill=0.92;}
+    else if(dens==='dense'){
+      var d=Math.min(1,Math.max(0,(expCount-3)/7));
+      fsCompany=1.12-d*0.02;fsTitle=1.0-d*0.04;fsMeta=0.84-d*0.04;fsBody=0.94-d*0.08;fsHead=1.04-d*0.04;fsSkill=0.84-d*0.04;lhDesc=1.1+d*0.08;maxCh=62-Math.round(d*4);
+    } else if(expCount>=3){
+      var mid=Math.min(1,Math.max(0,(expCount-2)/4));
+      fsBody=0.96-mid*0.05;fsTitle=1.02-mid*0.03;lhDesc=1.08+mid*0.05;
+    }
+    if(skillTags>=16)fsSkill=Math.min(fsSkill,0.82);
+    root.style.setProperty('--dl-fs-company',String(fsCompany));
+    root.style.setProperty('--dl-fs-title',String(fsTitle));
+    root.style.setProperty('--dl-fs-meta',String(fsMeta));
+    root.style.setProperty('--dl-fs-body',String(fsBody));
+    root.style.setProperty('--dl-fs-heading',String(fsHead));
+    root.style.setProperty('--dl-fs-skill',String(fsSkill));
+    root.style.setProperty('--dl-lh-desc',String(1.48*lhDesc));
+    root.style.setProperty('--dl-summary-max-ch',String(maxCh));
     Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,p.extras[k]+'px');});
     root.setAttribute('data-dl-refined','true');
     root.setAttribute('data-dl-fill',String(Math.round(measure().pageFillRatio*100)));
@@ -1952,6 +2226,7 @@ export function getDomAwareLayoutRefinementScript(): string {
     var sumShort=false;
     if(sumEl){var w=(sumEl.textContent||'').trim().split(/\\s+/).filter(Boolean).length;sumShort=w>0&&w<45;}
     root.setAttribute('data-dl-summary',sumShort?'short':'normal');
+    root.setAttribute('data-dl-density',dens);
     root.setAttribute('data-dl-sidebar-density',p.sidebarUnder?'compact':'normal');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply);
@@ -2017,7 +2292,7 @@ export function injectDynamicLayoutIntoHtml(
   let result = appendStyleBlockToHtml(html, block);
   result = result.replace(
     /(<div[^>]*class="[^"]*\bresume-container\b[^"]*"[^>]*)(>)/i,
-    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}"$2`
+    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-density="${plan.typographyDensity}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}"$2`
   );
   return result;
 }

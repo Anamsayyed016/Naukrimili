@@ -1533,7 +1533,78 @@ describe('dynamic layout engine', () => {
   const {
     computeDynamicLayoutPlan,
     injectDynamicLayoutIntoHtml,
+    resolveAdaptiveTypography,
   } = require('@/lib/resume-builder/dynamic-layout-engine');
+
+  it('adapts typography hierarchy for sparse vs dense experience', () => {
+    const sparse = resolveAdaptiveTypography({
+      experienceCount: 1,
+      experienceTextUnits: 3,
+      summaryWords: 30,
+      skillCount: 4,
+      fill: 0.55,
+      experienceDominant: false,
+    });
+    const dense = resolveAdaptiveTypography({
+      experienceCount: 8,
+      experienceTextUnits: 28,
+      summaryWords: 120,
+      skillCount: 20,
+      fill: 1.05,
+      experienceDominant: true,
+    });
+
+    expect(sparse.typographyDensity).toBe('sparse');
+    expect(dense.typographyDensity).toBe('dense');
+    expect(sparse.companyFontScale).toBeGreaterThan(dense.bodyFontScale);
+    expect(dense.companyFontScale).toBeGreaterThan(dense.bodyFontScale);
+    expect(dense.bodyFontScale).toBeLessThan(sparse.bodyFontScale);
+    expect(dense.descLineHeightMul).toBeGreaterThanOrEqual(sparse.descLineHeightMul - 0.02);
+    expect(dense.summaryMaxCh).toBeLessThanOrEqual(sparse.summaryMaxCh);
+  });
+
+  it('keeps company larger than body when experience count grows', () => {
+    const mid = computeDynamicLayoutPlan(
+      {
+        experience: Array.from({ length: 5 }, (_, i) => ({
+          company: `Company ${i}`,
+          title: 'Analyst',
+          description: 'Led reconciliation and reporting across finance teams with ERP tools.',
+          achievements: ['Improved cycle time', 'Automated invoices', 'Trained peers'],
+        })),
+        skills: Array.from({ length: 12 }, (_, i) => `Skill${i}`),
+        summary: Array.from({ length: 80 }, (_, i) => `word${i}`).join(' '),
+      },
+      { htmlTemplate: '<aside class="sidebar"></aside><main></main>' }
+    );
+
+    expect(mid.companyFontScale).toBeGreaterThan(mid.bodyFontScale);
+    expect(mid.titleFontScale).toBeGreaterThan(mid.metaFontScale);
+    expect(mid.typographyDensity).toMatch(/balanced|dense/);
+    expect(mid.descLineHeightMul).toBeGreaterThanOrEqual(1.05);
+  });
+
+  it('injects adaptive typography CSS variables into preview HTML', () => {
+    const html = injectDynamicLayoutIntoHtml(
+      '<html><body><div class="resume-container"><div class="experience-item"><div class="experience-header"><span class="company">Acme</span><h3>Dev</h3></div><div class="description"><ul><li>Built APIs</li></ul></div></div></div></body></html>',
+      {
+        experience: [
+          {
+            company: 'Acme',
+            title: 'Dev',
+            description: 'Built APIs and services for customers.',
+            achievements: ['Shipped v1', 'Reduced latency'],
+          },
+        ],
+        summary: 'Experienced engineer.',
+      }
+    );
+    expect(html).toContain('--dl-fs-company');
+    expect(html).toContain('--dl-fs-body');
+    expect(html).toContain('--dl-lh-desc');
+    expect(html).toContain('--dl-summary-max-ch');
+    expect(html).toContain('data-dl-density');
+  });
 
   it('expands spacing for sparse resumes', () => {
     const sparse = computeDynamicLayoutPlan(
