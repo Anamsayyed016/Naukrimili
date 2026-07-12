@@ -48,12 +48,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-orange-400/55',
     hoverOverlay: 'from-orange-900/18',
   },
-  'royal-edge': {
-    glow: 'radial-gradient(circle, rgba(168,85,247,0.55) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(12,13,18,0.45) 0%, transparent 70%)',
-    borderTint: 'hover:border-purple-400/60',
-    hoverOverlay: 'from-purple-900/25',
-  },
   'ivory-boardroom-executive': {
     glow: 'radial-gradient(circle, rgba(15,35,65,0.35) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(196,184,150,0.28) 0%, transparent 70%)',
@@ -65,12 +59,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     glowSecondary: 'radial-gradient(circle, rgba(184,165,116,0.28) 0%, transparent 70%)',
     borderTint: 'hover:border-slate-400/70',
     hoverOverlay: 'from-slate-200/25',
-  },
-  'velvet-ribbon-executive': {
-    glow: 'radial-gradient(circle, rgba(122,52,86,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(212,188,142,0.32) 0%, transparent 70%)',
-    borderTint: 'hover:border-rose-400/60',
-    hoverOverlay: 'from-purple-900/20',
   },
   'organic-luxe-editorial': {
     glow: 'radial-gradient(circle, rgba(193,106,75,0.30) 0%, transparent 70%)',
@@ -268,10 +256,8 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
   'royal-copper-executive': { firstName: 'Isabella', lastName: 'Chen', jobTitle: 'Chief Operating Officer' },
-  'royal-edge': { firstName: 'Victoria', lastName: 'Ashford', jobTitle: 'Chief Executive Officer' },
   'ivory-boardroom-executive': { firstName: 'Arthur', lastName: 'Vance', jobTitle: 'Senior Executive Strategist' },
   'executive-slate-luxe': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Operations Executive' },
-  'velvet-ribbon-executive': { firstName: 'Isabelle', lastName: 'Dupont', jobTitle: 'Senior Marketing Executive & Brand Strategist' },
   'organic-luxe-editorial': { firstName: 'Nasara', lastName: 'Handson', jobTitle: 'Professional Strategist' },
   'organic-luxe-executive': { firstName: 'Isaiah J.', lastName: 'Montgomery', jobTitle: 'Executive Strategist & Creative Director' },
   'velvet-horizon-executive': { firstName: 'Oliver', lastName: 'Hayes', jobTitle: 'Chief Marketing Officer' },

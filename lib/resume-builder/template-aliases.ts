@@ -7,6 +7,8 @@ const RETIRED_TEMPLATE_ALIASES: Record<string, string> = {
   'executive-modern': 'slate-executive-pro',
   'charcoal-premium': 'slate-executive-pro',
   'executive-minimal-pro': 'slate-executive-pro',
+  'royal-edge': 'slate-executive-pro',
+  'velvet-ribbon-executive': 'elegant-ivory',
   'maroon-gold-executive': 'executive-burgundy-diamond',
   'executive-graphite': 'slate-executive-pro',
 };

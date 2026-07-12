@@ -209,51 +209,6 @@
       "defaultColor": "copper"
     },
         {
-      "id": "royal-edge",
-      "name": "Royal Edge",
-      "slug": "royal-edge",
-      "description": "Ultra-premium cyber-luxury executive resume with dark metallic theme, neon purple accents, glass sidebar, radial skill rings, and cinematic timeline",
-      "thumbnail": "/templates/royal-edge/thumbnail.svg",
-      "preview": "/templates/royal-edge/preview.svg",
-      "html": "/templates/royal-edge/index.html",
-      "css": "/templates/royal-edge/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Creative", "Two Column"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "neon-purple", "name": "Neon Purple", "primary": "#A855F7", "accent": "#C0C5D0", "text": "#E8EAF0" },
-        { "id": "electric-violet", "name": "Electric Violet", "primary": "#8B5CF6", "accent": "#C4B5FD", "text": "#E8EAF0" },
-        { "id": "cyber-cyan", "name": "Cyber Cyan", "primary": "#22D3EE", "accent": "#C0C5D0", "text": "#E8EAF0" },
-        { "id": "magenta", "name": "Neon Magenta", "primary": "#D946EF", "accent": "#E9D5FF", "text": "#E8EAF0" },
-        { "id": "silver", "name": "Chrome Silver", "primary": "#94A3B8", "accent": "#E2E8F0", "text": "#F1F5F9" },
-        { "id": "emerald", "name": "Neon Emerald", "primary": "#34D399", "accent": "#C0C5D0", "text": "#E8EAF0" }
-      ],
-      "defaultColor": "neon-purple"
-    },
-        {
-      "id": "velvet-ribbon-executive",
-      "name": "Velvet Ribbon Executive",
-      "slug": "velvet-ribbon-executive",
-      "description": "Flowing luxury executive layout with velvet wine ribbons, champagne accents, vertical tab sidebar cards, and cinematic curved header.",
-      "thumbnail": "/templates/velvet-ribbon-executive/thumbnail.svg",
-      "preview": "/templates/velvet-ribbon-executive/preview.svg",
-      "html": "/templates/velvet-ribbon-executive/index.html",
-      "css": "/templates/velvet-ribbon-executive/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Creative", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "velvet-champagne", "name": "Velvet & Champagne", "primary": "#7A3456", "accent": "#D4BC8E", "text": "#2A2230" },
-        { "id": "plum-rose-gold", "name": "Plum & Rose Gold", "primary": "#5C2848", "accent": "#C99585", "text": "#2A2230" },
-        { "id": "wine-blush", "name": "Wine & Blush", "primary": "#6B3A52", "accent": "#E8C4A8", "text": "#1F2937" }
-      ],
-      "defaultColor": "velvet-champagne"
-    },
-        {
       "id": "organic-luxe-executive",
       "name": "Organic Luxe Executive",
       "slug": "organic-luxe-executive",
