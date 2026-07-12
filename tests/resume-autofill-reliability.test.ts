@@ -1603,7 +1603,31 @@ describe('dynamic layout engine', () => {
     expect(html).toContain('--dl-fs-body');
     expect(html).toContain('--dl-lh-desc');
     expect(html).toContain('--dl-summary-max-ch');
+    expect(html).toContain('--resume-line-height');
+    expect(html).toContain('--resume-body-size');
+    expect(html).toContain('--resume-company-size');
     expect(html).toContain('data-dl-density');
+  });
+
+  it('emits professional hierarchy rules for dates, skills, and education', () => {
+    const { buildDynamicLayoutCss, computeDynamicLayoutPlan } = require('@/lib/resume-builder/dynamic-layout-engine');
+    const plan = computeDynamicLayoutPlan(
+      {
+        experience: [{ company: 'Acme', title: 'Dev', description: 'Built APIs.', achievements: ['Shipped'] }],
+        summary: 'Engineer with product sense.',
+        education: [{ institution: 'MIT', degree: 'BS CS', year: '2020' }],
+        skills: ['React', 'TypeScript'],
+      },
+      { htmlTemplate: '<aside class="sidebar"></aside><main></main>' }
+    );
+    const css = buildDynamicLayoutCss(plan);
+    expect(css).toContain('.candidate-name');
+    expect(css).toContain('.header-title');
+    expect(css).toContain('.technologies');
+    expect(css).toContain('.institution');
+    expect(css).toContain('.issuer');
+    expect(css).toContain('word-spacing');
+    expect(css).toContain('--resume-ls-heading');
   });
 
   it('expands spacing for sparse resumes', () => {

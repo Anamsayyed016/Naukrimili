@@ -24,10 +24,10 @@ export const A4_PAGE_WIDTH_PX = 794;
 
 const BASE_SECTION_GAP = 14;
 const BASE_BLOCK_GAP = 10;
-const BASE_BULLET_GAP = 0.35;
+const BASE_BULLET_GAP = 0.42;
 const BASE_HEADING_GAP = 8;
 const BASE_SECTION_PADDING = 6;
-const BASE_PARAGRAPH_SPACING = 4;
+const BASE_PARAGRAPH_SPACING = 5;
 const BASE_COLUMN_GAP = 12;
 
 /** Expand when coverage is below the professional fill band (85–95%). */
@@ -1044,13 +1044,13 @@ export function resolveAdaptiveTypography(input: {
     experienceDominant,
   } = input;
 
-  let companyFontScale = 1.14;
+  let companyFontScale = 1.15;
   let titleFontScale = 1.02;
-  let metaFontScale = 0.86;
-  let bodyFontScale = 0.96;
-  let headingFontScale = 1.08;
-  let skillFontScale = 0.88;
-  let descLineHeightMul = 1.08;
+  let metaFontScale = 0.84;
+  let bodyFontScale = 0.98;
+  let headingFontScale = 1.1;
+  let skillFontScale = 0.9;
+  let descLineHeightMul = 1.12;
   let summaryMaxCh = 68;
 
   let typographyDensity: 'sparse' | 'balanced' | 'dense' = 'balanced';
@@ -1063,11 +1063,12 @@ export function resolveAdaptiveTypography(input: {
   if (typographyDensity === 'sparse') {
     companyFontScale = 1.18;
     titleFontScale = 1.05;
-    bodyFontScale = 1.0;
-    headingFontScale = 1.1;
-    descLineHeightMul = 1.14;
+    bodyFontScale = 1.02;
+    headingFontScale = 1.12;
+    descLineHeightMul = 1.16;
     summaryMaxCh = 72;
-    skillFontScale = 0.92;
+    skillFontScale = 0.94;
+    metaFontScale = 0.86;
   } else if (typographyDensity === 'dense') {
     // Tighten body/bullets first; keep company prominent.
     const densify = clamp(
@@ -1075,59 +1076,59 @@ export function resolveAdaptiveTypography(input: {
       0,
       1
     );
-    companyFontScale = 1.12 - densify * 0.02;
+    companyFontScale = 1.13 - densify * 0.02;
     titleFontScale = 1.0 - densify * 0.04;
-    metaFontScale = 0.84 - densify * 0.04;
-    bodyFontScale = 0.94 - densify * 0.08;
-    headingFontScale = 1.04 - densify * 0.04;
-    skillFontScale = 0.84 - densify * 0.04;
+    metaFontScale = 0.82 - densify * 0.04;
+    bodyFontScale = 0.95 - densify * 0.08;
+    headingFontScale = 1.06 - densify * 0.04;
+    skillFontScale = 0.86 - densify * 0.04;
     // Longer walls need slightly more leading even when font shrinks.
-    descLineHeightMul = 1.1 + densify * 0.08;
+    descLineHeightMul = 1.12 + densify * 0.08;
     summaryMaxCh = 62 - Math.round(densify * 4);
   } else if (experienceCount >= 3) {
     const mid = clamp((experienceCount - 2) / 4, 0, 1);
-    bodyFontScale = 0.96 - mid * 0.05;
+    bodyFontScale = 0.98 - mid * 0.05;
     titleFontScale = 1.02 - mid * 0.03;
-    metaFontScale = 0.86 - mid * 0.02;
-    descLineHeightMul = 1.08 + mid * 0.05;
-    companyFontScale = 1.14;
+    metaFontScale = 0.84 - mid * 0.02;
+    descLineHeightMul = 1.12 + mid * 0.05;
+    companyFontScale = 1.15;
   }
 
   if (experienceTextUnits >= 14) {
-    descLineHeightMul = Math.max(descLineHeightMul, 1.12);
-    bodyFontScale = Math.min(bodyFontScale, 0.94);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.14);
+    bodyFontScale = Math.min(bodyFontScale, 0.95);
     summaryMaxCh = Math.min(summaryMaxCh, 64);
   }
 
   if (experienceDominant && experienceCount >= 3) {
     // Protect hierarchy: company/title stay readable while body densifies.
-    companyFontScale = Math.max(companyFontScale, 1.1);
+    companyFontScale = Math.max(companyFontScale, 1.12);
     titleFontScale = Math.max(titleFontScale, 0.98);
-    descLineHeightMul = Math.max(descLineHeightMul, 1.1);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.12);
   }
 
   if (summaryWords > 90) {
     summaryMaxCh = Math.min(summaryMaxCh, 62);
-    descLineHeightMul = Math.max(descLineHeightMul, 1.1);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.12);
   } else if (summaryWords > 0 && summaryWords < 45) {
     summaryMaxCh = Math.max(summaryMaxCh, 70);
-    descLineHeightMul = Math.max(descLineHeightMul, 1.12);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.14);
   }
 
   if (skillCount >= 16) {
-    skillFontScale = Math.min(skillFontScale, 0.82);
+    skillFontScale = Math.min(skillFontScale, 0.84);
   } else if (skillCount > 0 && skillCount <= 6) {
-    skillFontScale = Math.max(skillFontScale, 0.9);
+    skillFontScale = Math.max(skillFontScale, 0.92);
   }
 
   return {
     companyFontScale: Math.round(clamp(companyFontScale, 1.02, 1.22) * 1000) / 1000,
     titleFontScale: Math.round(clamp(titleFontScale, 0.92, 1.12) * 1000) / 1000,
-    metaFontScale: Math.round(clamp(metaFontScale, 0.78, 0.95) * 1000) / 1000,
-    bodyFontScale: Math.round(clamp(bodyFontScale, 0.84, 1.05) * 1000) / 1000,
-    headingFontScale: Math.round(clamp(headingFontScale, 0.96, 1.16) * 1000) / 1000,
-    skillFontScale: Math.round(clamp(skillFontScale, 0.76, 0.96) * 1000) / 1000,
-    descLineHeightMul: Math.round(clamp(descLineHeightMul, 1.0, 1.24) * 1000) / 1000,
+    metaFontScale: Math.round(clamp(metaFontScale, 0.76, 0.92) * 1000) / 1000,
+    bodyFontScale: Math.round(clamp(bodyFontScale, 0.84, 1.06) * 1000) / 1000,
+    headingFontScale: Math.round(clamp(headingFontScale, 0.96, 1.18) * 1000) / 1000,
+    skillFontScale: Math.round(clamp(skillFontScale, 0.76, 0.98) * 1000) / 1000,
+    descLineHeightMul: Math.round(clamp(descLineHeightMul, 1.02, 1.26) * 1000) / 1000,
     summaryMaxCh: Math.round(clamp(summaryMaxCh, 56, 78)),
     typographyDensity,
   };
@@ -1556,15 +1557,17 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-summary='short'] [class*='summary-text'],
 .resume-container[data-dl-summary='short'] .professional-summary {
   max-width: 100% !important;
-  line-height: calc(var(--dl-lh-desc, var(--dl-line-height, 1.5)) * 1.06) !important;
+  line-height: calc(var(--resume-line-height, var(--dl-lh-desc, 1.55)) * 1.04) !important;
   margin-bottom: calc(var(--dl-summary-spacing, 12px) + var(--dl-paragraph-spacing, 4px)) !important;
 }`
     : '';
 
-  const descLh = (Math.round(1.48 * plan.descLineHeightMul * 1000) / 1000).toFixed(3);
+  // Base 1.55 leading × density multiplier — Novoresume-like body rhythm without redesign.
+  const descLh = (Math.round(1.55 * plan.descLineHeightMul * 1000) / 1000).toFixed(3);
+  const headingGapAbove = Math.max(2, Math.round(plan.headingGap * 0.35));
 
   return `
-/* Adaptive typography hierarchy — density-aware, template-agnostic */
+/* Shared resume typography tokens (relative — preserve each template's brand fonts/colors) */
 .resume-container {
   --dl-fs-company: ${plan.companyFontScale};
   --dl-fs-title: ${plan.titleFontScale};
@@ -1574,47 +1577,95 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   --dl-fs-skill: ${plan.skillFontScale};
   --dl-lh-desc: ${descLh};
   --dl-summary-max-ch: ${plan.summaryMaxCh};
+  --resume-heading-size: calc(1em * var(--dl-fs-heading, 1.1));
+  --resume-body-size: calc(1em * var(--dl-fs-body, 0.98));
+  --resume-company-size: calc(1em * var(--dl-fs-company, 1.15));
+  --resume-job-size: calc(1em * var(--dl-fs-title, 1.02));
+  --resume-date-size: calc(1em * var(--dl-fs-meta, 0.84));
+  --resume-line-height: var(--dl-lh-desc, ${descLh});
+  --resume-paragraph-gap: var(--dl-paragraph-spacing, 4px);
+  --resume-letter-spacing: 0.012em;
+  --resume-ls-name: 0.02em;
+  --resume-ls-heading: 0.06em;
+  --resume-ls-job: 0.035em;
+  --resume-word-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
+/* Name — polish only (never absolute px; keep template display size) */
+.resume-container .candidate-name,
+.resume-container .candidate-name .name-first,
+.resume-container .candidate-name .name-last {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: var(--resume-ls-name, 0.02em) !important;
+  line-height: 1.12 !important;
+}
+
+/* Header job title — cleaner secondary to name */
+.resume-container .header-title {
+  font-weight: 500 !important;
+  letter-spacing: var(--resume-ls-job, 0.035em) !important;
+  line-height: 1.35 !important;
+  margin-top: 0.15em !important;
+}
+
+/* Section headings — elegant hierarchy without redesign */
 .resume-container section > h2,
 .resume-container .section-title,
 .resume-container [class*='section-title'],
 .resume-container [class*='-section-head'] {
-  font-size: calc(1em * var(--dl-fs-heading, 1.08)) !important;
-  line-height: 1.25 !important;
+  font-size: var(--resume-heading-size) !important;
+  font-weight: 700 !important;
+  line-height: 1.22 !important;
+  letter-spacing: var(--resume-ls-heading, 0.06em) !important;
+  margin-top: ${headingGapAbove}px !important;
   margin-bottom: var(--dl-heading-gap) !important;
+  padding-bottom: 0.15em !important;
 }
 
+/* Company / employer — strongest role signal in experience/projects */
 .resume-container .experience-header .company,
 .resume-container .project-item .project-employer,
 .resume-container .project-item .company {
   display: block !important;
-  font-size: calc(1em * var(--dl-fs-company, 1.14)) !important;
-  font-weight: 700 !important;
-  line-height: 1.3 !important;
-  letter-spacing: 0.01em !important;
+  font-size: var(--resume-company-size) !important;
+  font-weight: 600 !important;
+  line-height: 1.28 !important;
+  letter-spacing: 0.015em !important;
 }
 
+/* Job title / degree / project title — lighter than company */
 .resume-container .experience-header h3,
 .resume-container .project-item > h3,
 .resume-container .education-item h3,
 .resume-container .education-item .degree {
-  font-size: calc(1em * var(--dl-fs-title, 1.02)) !important;
+  font-size: var(--resume-job-size) !important;
   font-weight: 500 !important;
   line-height: 1.32 !important;
-  margin-bottom: 2px !important;
+  letter-spacing: 0.01em !important;
+  margin-bottom: 0.15em !important;
 }
 
+/* Dates / years — visually secondary */
 .resume-container .experience-header .duration,
 .resume-container .education-item .duration,
 .resume-container .education-item .year,
-.resume-container .project-item .duration {
+.resume-container .project-item .duration,
+.resume-container .certification-item .date,
+.resume-container .certification-item .year {
   display: inline-block !important;
-  font-size: calc(1em * var(--dl-fs-meta, 0.86)) !important;
+  font-size: var(--resume-date-size) !important;
   font-weight: 500 !important;
   line-height: 1.35 !important;
+  letter-spacing: 0.02em !important;
+  color: color-mix(in srgb, currentColor 68%, transparent) !important;
 }
 
+/* Descriptions + summary — primary readability upgrade */
 .resume-container .experience-item .description,
 .resume-container .project-item .description,
 .resume-container .description,
@@ -1622,34 +1673,66 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container [class*='summary-text'],
 .resume-container .professional-summary,
 .resume-container .objective-text {
-  font-size: calc(1em * var(--dl-fs-body, 0.96)) !important;
-  line-height: var(--dl-lh-desc, var(--dl-line-height)) !important;
+  font-size: var(--resume-body-size) !important;
+  line-height: var(--resume-line-height) !important;
+  letter-spacing: var(--resume-letter-spacing, 0.012em) !important;
+  word-spacing: var(--resume-word-spacing, 0.02em) !important;
   max-width: min(100%, calc(var(--dl-summary-max-ch, 68) * 1ch)) !important;
 }
 
+.resume-container .summary-text,
+.resume-container [class*='summary-text'],
+.resume-container .professional-summary,
+.resume-container .objective-text {
+  line-height: calc(var(--resume-line-height) * 1.02) !important;
+  margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.55 + var(--resume-paragraph-gap)) !important;
+}
+
+.resume-container .experience-item .description p,
+.resume-container .project-item .description p,
+.resume-container .description p,
+.resume-container .summary-text p,
+.resume-container .professional-summary p {
+  margin: 0 0 var(--resume-paragraph-gap) !important;
+  line-height: inherit !important;
+}
+
+.resume-container .experience-item .description p:last-child,
+.resume-container .project-item .description p:last-child,
+.resume-container .description p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Bullet lists — rhythm + indentation (preserve custom ::before markers) */
 .resume-container .experience-item .description li,
 .resume-container .experience-item .description ul li,
 .resume-container .project-item li,
 .resume-container .description li {
   font-size: inherit !important;
-  line-height: var(--dl-lh-desc, var(--dl-line-height)) !important;
-  margin-bottom: var(--dl-bullet-gap, 0.35em) !important;
+  line-height: var(--resume-line-height) !important;
+  letter-spacing: inherit !important;
+  word-spacing: inherit !important;
+  margin-bottom: var(--dl-bullet-gap, 0.42em) !important;
+  padding-top: 0.05em !important;
+  padding-bottom: 0.05em !important;
 }
 
-.resume-container .skill-tag,
-.resume-container .psp-skill-name {
-  font-size: calc(1em * var(--dl-fs-skill, 0.88)) !important;
-  line-height: 1.35 !important;
+.resume-container .experience-item .description li:last-child,
+.resume-container .project-item li:last-child,
+.resume-container .description li:last-child {
+  margin-bottom: 0.1em !important;
 }
 
 .resume-container[data-dl-density='dense'] .experience-item .description,
 .resume-container[data-dl-density='dense'] .project-item .description {
-  letter-spacing: -0.005em !important;
+  letter-spacing: 0.004em !important;
+  word-spacing: 0.01em !important;
 }
 
 .resume-container[data-dl-density='sparse'] .experience-item .description,
 .resume-container[data-dl-density='sparse'] .summary-text {
-  letter-spacing: 0.01em !important;
+  letter-spacing: 0.016em !important;
+  word-spacing: 0.03em !important;
 }
 
 /* Experience — hierarchy + adaptive card density (layout only) */
@@ -1692,6 +1775,100 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container .experience-item .description ul li {
   position: relative !important;
   padding-left: var(--dl-bullet-indent, 16px) !important;
+}
+
+/* Projects — title bold → tech muted → description comfortable */
+.resume-container .project-item > h3 {
+  font-weight: 600 !important;
+}
+
+.resume-container .project-item .technologies,
+.resume-container .project-item .tech-stack,
+.resume-container .project-item .project-tech {
+  font-size: var(--resume-date-size) !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.02em !important;
+  color: color-mix(in srgb, currentColor 62%, transparent) !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.35em !important;
+}
+
+.resume-container .project-item .description {
+  margin-top: 0.35em !important;
+}
+
+/* Skills — chip typography polish (keep chip shape from template) */
+.resume-container .skill-tag,
+.resume-container .psp-skill-name {
+  font-size: calc(1em * var(--dl-fs-skill, 0.9)) !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.02em !important;
+  padding-block: 0.22em !important;
+  padding-inline: 0.45em !important;
+}
+
+/* Education — institution bold → degree regular → year muted */
+.resume-container .education-item .institution {
+  display: block !important;
+  font-size: var(--resume-company-size) !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.resume-container .education-item .degree,
+.resume-container .education-item h3 {
+  font-weight: 500 !important;
+}
+
+.resume-container .education-item .cgpa {
+  font-size: var(--resume-date-size) !important;
+  color: color-mix(in srgb, currentColor 70%, transparent) !important;
+}
+
+/* Certifications — title bold → issuer secondary → year muted */
+.resume-container .certification-item > h3,
+.resume-container .certification-item .cert-title,
+.resume-container .certification-item strong {
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.resume-container .certification-item .issuer {
+  display: block !important;
+  font-size: calc(1em * var(--dl-fs-title, 1.02) * 0.96) !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+  color: color-mix(in srgb, currentColor 78%, transparent) !important;
+  margin-top: 0.1em !important;
+}
+
+/* Languages — cleaner spacing/alignment */
+.resume-container .language-item,
+.resume-container .psp-language-item {
+  line-height: 1.4 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.resume-container .language-item .proficiency,
+.resume-container .psp-language-item .proficiency,
+.resume-container .language-item .level {
+  font-size: var(--resume-date-size) !important;
+  font-weight: 500 !important;
+  color: color-mix(in srgb, currentColor 68%, transparent) !important;
+}
+
+/* Interests / hobbies — smaller secondary */
+.resume-container .hobby-item,
+.resume-container .hobby-item .hobby {
+  font-size: calc(1em * var(--dl-fs-meta, 0.84) * 1.05) !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.02em !important;
+  color: color-mix(in srgb, currentColor 75%, transparent) !important;
 }
 
 ${summaryShortCss}
@@ -1742,6 +1919,19 @@ ${summaryShortCss}
 .resume-container .sidebar-section {
   flex: 1 1 auto !important;
   min-height: auto !important;
+}
+
+/* Gallery / preview / PDF / mobile — keep type readable under scale transforms */
+@media (max-width: 640px) {
+  .resume-container {
+    --resume-ls-heading: 0.045em;
+    --resume-word-spacing: 0.015em;
+  }
+  .resume-container .summary-text,
+  .resume-container .professional-summary,
+  .resume-container .experience-item .description {
+    max-width: 100% !important;
+  }
 }`.trim();
 }
 
@@ -1782,9 +1972,12 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.style.setProperty('--dl-fs-skill', String(plan.skillFontScale));
   root.style.setProperty(
     '--dl-lh-desc',
-    String(Math.round(1.48 * plan.descLineHeightMul * 1000) / 1000)
+    String(Math.round(1.55 * plan.descLineHeightMul * 1000) / 1000)
   );
   root.style.setProperty('--dl-summary-max-ch', String(plan.summaryMaxCh));
+  root.style.setProperty('--resume-line-height', `var(--dl-lh-desc)`);
+  root.style.setProperty('--resume-paragraph-gap', `${plan.paragraphSpacing}px`);
+  root.style.setProperty('--resume-letter-spacing', '0.012em');
   const kinds: LayoutSectionKind[] = [
     'summary',
     'experience',
@@ -1870,8 +2063,16 @@ export function buildDynamicLayoutCss(
   --dl-fs-body: ${plan.bodyFontScale};
   --dl-fs-heading: ${plan.headingFontScale};
   --dl-fs-skill: ${plan.skillFontScale};
-  --dl-lh-desc: ${(Math.round(1.48 * plan.descLineHeightMul * 1000) / 1000).toFixed(3)};
+  --dl-lh-desc: ${(Math.round(1.55 * plan.descLineHeightMul * 1000) / 1000).toFixed(3)};
   --dl-summary-max-ch: ${plan.summaryMaxCh};
+  --resume-heading-size: calc(1em * var(--dl-fs-heading, 1.1));
+  --resume-body-size: calc(1em * var(--dl-fs-body, 0.98));
+  --resume-company-size: calc(1em * var(--dl-fs-company, 1.15));
+  --resume-job-size: calc(1em * var(--dl-fs-title, 1.02));
+  --resume-date-size: calc(1em * var(--dl-fs-meta, 0.84));
+  --resume-line-height: var(--dl-lh-desc);
+  --resume-paragraph-gap: ${plan.paragraphSpacing}px;
+  --resume-letter-spacing: 0.012em;
 ${extraVars}
 }
 
@@ -1985,8 +2186,8 @@ ${extraVars}
   min-height: auto !important;
   max-height: none !important;
   height: auto !important;
-  line-height: var(--dl-line-height) !important;
-  margin-bottom: var(--dl-paragraph-spacing) !important;
+  line-height: var(--resume-line-height, var(--dl-lh-desc, var(--dl-line-height))) !important;
+  margin-bottom: var(--resume-paragraph-gap, var(--dl-paragraph-spacing)) !important;
 }
 `.trim();
 
@@ -2031,7 +2232,7 @@ ${buildRichContentLayoutCss(plan)}
 .resume-container .description li,
 .resume-container .project-item li {
   margin-bottom: var(--dl-bullet-gap) !important;
-  line-height: var(--dl-line-height) !important;
+  line-height: var(--resume-line-height, var(--dl-lh-desc, var(--dl-line-height))) !important;
 }
 
 .resume-container .experience-item .description,
@@ -2039,7 +2240,7 @@ ${buildRichContentLayoutCss(plan)}
 .resume-container .summary-text,
 .resume-container [class*='summary-text'],
 .resume-container .professional-summary {
-  line-height: var(--dl-line-height) !important;
+  line-height: var(--resume-line-height, var(--dl-lh-desc, var(--dl-line-height))) !important;
 }
 
 .resume-container {
@@ -2200,24 +2401,27 @@ export function getDomAwareLayoutRefinementScript(): string {
     var dens='balanced';
     if(expCount<=2&&fill<0.78)dens='sparse';
     else if(expCount>=5||fill>0.98)dens='dense';
-    var fsCompany=1.14, fsTitle=1.02, fsMeta=0.86, fsBody=0.96, fsHead=1.08, fsSkill=0.88, lhDesc=1.08, maxCh=68;
-    if(dens==='sparse'){fsCompany=1.18;fsTitle=1.05;fsBody=1.0;fsHead=1.1;lhDesc=1.14;maxCh=72;fsSkill=0.92;}
+    var fsCompany=1.15, fsTitle=1.02, fsMeta=0.84, fsBody=0.98, fsHead=1.1, fsSkill=0.9, lhDesc=1.12, maxCh=68;
+    if(dens==='sparse'){fsCompany=1.18;fsTitle=1.05;fsBody=1.02;fsHead=1.12;lhDesc=1.16;maxCh=72;fsSkill=0.94;fsMeta=0.86;}
     else if(dens==='dense'){
       var d=Math.min(1,Math.max(0,(expCount-3)/7));
-      fsCompany=1.12-d*0.02;fsTitle=1.0-d*0.04;fsMeta=0.84-d*0.04;fsBody=0.94-d*0.08;fsHead=1.04-d*0.04;fsSkill=0.84-d*0.04;lhDesc=1.1+d*0.08;maxCh=62-Math.round(d*4);
+      fsCompany=1.13-d*0.02;fsTitle=1.0-d*0.04;fsMeta=0.82-d*0.04;fsBody=0.95-d*0.08;fsHead=1.06-d*0.04;fsSkill=0.86-d*0.04;lhDesc=1.12+d*0.08;maxCh=62-Math.round(d*4);
     } else if(expCount>=3){
       var mid=Math.min(1,Math.max(0,(expCount-2)/4));
-      fsBody=0.96-mid*0.05;fsTitle=1.02-mid*0.03;lhDesc=1.08+mid*0.05;
+      fsBody=0.98-mid*0.05;fsTitle=1.02-mid*0.03;fsMeta=0.84-mid*0.02;lhDesc=1.12+mid*0.05;
     }
-    if(skillTags>=16)fsSkill=Math.min(fsSkill,0.82);
+    if(skillTags>=16)fsSkill=Math.min(fsSkill,0.84);
     root.style.setProperty('--dl-fs-company',String(fsCompany));
     root.style.setProperty('--dl-fs-title',String(fsTitle));
     root.style.setProperty('--dl-fs-meta',String(fsMeta));
     root.style.setProperty('--dl-fs-body',String(fsBody));
     root.style.setProperty('--dl-fs-heading',String(fsHead));
     root.style.setProperty('--dl-fs-skill',String(fsSkill));
-    root.style.setProperty('--dl-lh-desc',String(1.48*lhDesc));
+    root.style.setProperty('--dl-lh-desc',String(1.55*lhDesc));
     root.style.setProperty('--dl-summary-max-ch',String(maxCh));
+    root.style.setProperty('--resume-line-height','var(--dl-lh-desc)');
+    root.style.setProperty('--resume-letter-spacing','0.012em');
+    root.style.setProperty('--dl-bullet-gap',(dens==='dense'?0.32:dens==='sparse'?0.48:0.42)+'em');
     Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,p.extras[k]+'px');});
     root.setAttribute('data-dl-refined','true');
     root.setAttribute('data-dl-fill',String(Math.round(measure().pageFillRatio*100)));
