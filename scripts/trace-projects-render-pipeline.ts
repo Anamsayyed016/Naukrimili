@@ -36,7 +36,7 @@ const TEMPLATES = [
   'luxury-corporate',
   'executive-navy-copper',
   'organic-luxe-editorial',
-  'executive-sidebar-elite',
+  'slate-executive-pro',
 ];
 
 function names(data: Record<string, unknown>): string[] {

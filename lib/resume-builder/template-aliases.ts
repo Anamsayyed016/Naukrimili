@@ -9,7 +9,13 @@ const RETIRED_TEMPLATE_ALIASES: Record<string, string> = {
   'executive-minimal-pro': 'slate-executive-pro',
   'royal-edge': 'slate-executive-pro',
   'velvet-ribbon-executive': 'elegant-ivory',
-  'maroon-gold-executive': 'executive-burgundy-diamond',
+  'aether-professional': 'elegant-ivory',
+  'nordic-creative-executive': 'organic-luxe-editorial',
+  'executive-burgundy-diamond': 'royal-copper-executive',
+  'maroon-gold-executive': 'royal-copper-executive',
+  'executive-sidebar-elite': 'slate-executive-pro',
+  'horizon-canvas': 'elegant-ivory',
+  'soft-sage-professional': 'lumen-studio',
   'executive-graphite': 'slate-executive-pro',
 };
 

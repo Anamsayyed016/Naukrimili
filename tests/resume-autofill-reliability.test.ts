@@ -2175,7 +2175,7 @@ describe('dynamic layout engine', () => {
       'executive-navy-copper',
       'luxury-corporate',
       'organic-luxe-editorial',
-      'executive-sidebar-elite',
+      'slate-executive-pro',
     ];
 
     for (const templateId of templateIds) {
@@ -2311,11 +2311,11 @@ describe('processHandlebarsConditionals', () => {
     expect(result).not.toMatch(/\{\{#unless/);
   });
 
-  it('injectResumeData leaves no handlebars in executive-sidebar-elite', () => {
+  it('injectResumeData leaves no handlebars in slate-executive-pro', () => {
     const fs = require('fs');
     const path = require('path');
     const { injectResumeData } = require('@/lib/resume-builder/template-loader');
-    const templateId = 'executive-sidebar-elite';
+    const templateId = 'slate-executive-pro';
     const full = fs.readFileSync(
       path.join(process.cwd(), 'public', 'templates', templateId, 'index.html'),
       'utf8'
@@ -2378,7 +2378,7 @@ describe('appendMissingImportSections', () => {
   it('injectResumeData includes all import sections for sidebar template', async () => {
     const fs = require('fs');
     const path = require('path');
-    const templateId = 'executive-sidebar-elite';
+    const templateId = 'slate-executive-pro';
     const htmlPath = path.join(process.cwd(), 'public', 'templates', templateId, 'index.html');
     const full = fs.readFileSync(htmlPath, 'utf8');
     const body = full.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] || full;

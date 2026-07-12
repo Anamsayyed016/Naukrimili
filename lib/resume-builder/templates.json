@@ -297,102 +297,6 @@
       "defaultColor": "frost-blue"
     },
         {
-      "id": "executive-burgundy-diamond",
-      "name": "Executive Burgundy Diamond",
-      "slug": "executive-burgundy-diamond",
-      "description": "Fortune 500 executive resume with deep burgundy luxury palette, geometric diamond photo framing, gold accents, timeline experience layout, and premium skill tags.",
-      "thumbnail": "/templates/executive-burgundy-diamond/thumbnail.svg",
-      "preview": "/templates/executive-burgundy-diamond/preview.svg",
-      "html": "/templates/executive-burgundy-diamond/index.html",
-      "css": "/templates/executive-burgundy-diamond/style.css",
-      "categories": ["Premium", "Executive", "Professional", "Leadership", "With Photo", "ATS"],
-      "layout": "One Column",
-      "hasSidebar": false,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "burgundy-gold", "name": "Burgundy Gold", "primary": "#5B1024", "accent": "#C9A26B", "text": "#2A2A2A" },
-        { "id": "wine-copper", "name": "Wine Copper", "primary": "#6B1428", "accent": "#B8894A", "text": "#2A2A2A" },
-        { "id": "crimson-champagne", "name": "Crimson Champagne", "primary": "#7A1830", "accent": "#D4BC82", "text": "#2A2A2A" },
-        { "id": "mahogany-platinum", "name": "Mahogany Platinum", "primary": "#4A0E1E", "accent": "#C8C4BC", "text": "#2A2A2A" },
-        { "id": "deep-rose-gold", "name": "Deep Rose Gold", "primary": "#5C1A2E", "accent": "#C99585", "text": "#2A2A2A" },
-        { "id": "oxblood-bronze", "name": "Oxblood Bronze", "primary": "#4F1018", "accent": "#B8934A", "text": "#2A2A2A" }
-      ],
-      "defaultColor": "burgundy-gold"
-    },
-        {
-      "id": "executive-sidebar-elite",
-      "name": "Executive Sidebar Elite",
-      "slug": "executive-sidebar-elite",
-      "description": "Boardroom executive layout with ivory sidebar, full-width portrait, labeled contact block, vertical skills list, and copper-accent main column for ATS-friendly PDF export.",
-      "thumbnail": "/templates/executive-sidebar-elite/thumbnail.svg",
-      "preview": "/templates/executive-sidebar-elite/preview.svg",
-      "html": "/templates/executive-sidebar-elite/index.html",
-      "css": "/templates/executive-sidebar-elite/style.css",
-      "categories": ["Premium", "Professional", "Executive", "Corporate", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "sidebar-elite", "name": "Executive Copper", "primary": "#9C6B4F", "accent": "#D8CFC5", "text": "#1E1E1E" },
-        { "id": "warm-ivory", "name": "Warm Ivory", "primary": "#8B5E48", "accent": "#E8DFD6", "text": "#1E1E1E" },
-        { "id": "bronze-classic", "name": "Bronze Classic", "primary": "#7A4E38", "accent": "#C4B5A8", "text": "#1E1E1E" },
-        { "id": "espresso-copper", "name": "Espresso Copper", "primary": "#5C4030", "accent": "#D8CFC5", "text": "#1E1E1E" },
-        { "id": "rose-walnut", "name": "Rose Walnut", "primary": "#8E6B5A", "accent": "#E5D8CE", "text": "#1E1E1E" },
-        { "id": "deep-copper", "name": "Deep Copper", "primary": "#6B4B3E", "accent": "#C99585", "text": "#1E1E1E" }
-      ],
-      "defaultColor": "sidebar-elite"
-    },
-        {
-      "id": "aether-professional",
-      "name": "Aether Professional",
-      "slug": "aether-professional",
-      "description": "Marketplace-style executive resume with blush corner accents, rounded summary card, experience timeline, projects and skills split layout, and ATS-friendly lower sections.",
-      "thumbnail": "/templates/aether-professional/thumbnail.svg",
-      "preview": "/templates/aether-professional/preview.svg",
-      "html": "/templates/aether-professional/index.html",
-      "css": "/templates/aether-professional/style.css",
-      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": false,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "aether-blush", "name": "Aether Blush", "primary": "#D9B2B2", "accent": "#F4F1EC", "text": "#222222" },
-        { "id": "rose-quartz", "name": "Rose Quartz", "primary": "#C9A0A0", "accent": "#F5F0EB", "text": "#222222" },
-        { "id": "mauve-soft", "name": "Mauve Soft", "primary": "#B89898", "accent": "#EDE8E4", "text": "#222222" },
-        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#A88484", "accent": "#F0EBE6", "text": "#222222" },
-        { "id": "warm-stone", "name": "Warm Stone", "primary": "#9A8B8B", "accent": "#F4F1EC", "text": "#222222" },
-        { "id": "slate-blush", "name": "Slate Blush", "primary": "#8E7A7A", "accent": "#E8E4DF", "text": "#222222" }
-      ],
-      "defaultColor": "aether-blush"
-    },
-        {
-      "id": "nordic-creative-executive",
-      "name": "Nordic Creative Executive",
-      "slug": "nordic-creative-executive",
-      "description": "Scandinavian editorial executive resume with organic sage and beige shapes, circular portrait, copper contact bar, experience-focused layout, and competency-style skills panel.",
-      "thumbnail": "/templates/nordic-creative-executive/thumbnail.svg",
-      "preview": "/templates/nordic-creative-executive/preview.svg",
-      "html": "/templates/nordic-creative-executive/index.html",
-      "css": "/templates/nordic-creative-executive/style.css",
-      "categories": ["Premium", "Professional", "Executive", "Creative", "Modern", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "nordic-sage", "name": "Nordic Sage", "primary": "#4A342A", "accent": "#8F6A56", "text": "#2A2A2A" },
-        { "id": "forest-executive", "name": "Forest Executive", "primary": "#3D3428", "accent": "#7A8F6A", "text": "#2A2A2A" },
-        { "id": "copper-earth", "name": "Copper Earth", "primary": "#4A342A", "accent": "#9A7358", "text": "#2A2A2A" },
-        { "id": "stone-minimal", "name": "Stone Minimal", "primary": "#3A3A3A", "accent": "#8B7D72", "text": "#2A2A2A" },
-        { "id": "warm-clay", "name": "Warm Clay", "primary": "#5C4030", "accent": "#A67C63", "text": "#2A2A2A" },
-        { "id": "deep-moss", "name": "Deep Moss", "primary": "#3D4535", "accent": "#6B7A58", "text": "#2A2A2A" }
-      ],
-      "defaultColor": "nordic-sage"
-    },
-        {
       "id": "executive-redline-elite",
       "name": "Executive Redline Elite",
       "slug": "executive-redline-elite",
@@ -609,30 +513,6 @@
       "defaultColor": "soft-coral"
     },
         {
-      "id": "horizon-canvas",
-      "name": "Horizon Canvas",
-      "slug": "horizon-canvas",
-      "description": "Modern editorial luxury resume with warm ivory canvas, large serif name typography, summary capsule badge, timeline floating cards with sage and peach layered accents, and three-column skills container for ATS-friendly PDF export.",
-      "thumbnail": "/templates/horizon-canvas/thumbnail.svg",
-      "preview": "/templates/horizon-canvas/preview.svg",
-      "html": "/templates/horizon-canvas/index.html",
-      "css": "/templates/horizon-canvas/style.css",
-      "categories": ["Premium", "Creative", "Executive", "Modern", "Professional", "With Photo", "ATS"],
-      "layout": "One Column",
-      "hasSidebar": false,
-      "hasPhoto": true,
-      "recommended": false,
-      "colors": [
-        { "id": "warm-ivory", "name": "Warm Ivory", "primary": "#222222", "accent": "#A5A27D", "text": "#1D1D1D" },
-        { "id": "muted-sage", "name": "Muted Sage", "primary": "#1D1D1D", "accent": "#A5A27D", "text": "#5F5A55" },
-        { "id": "warm-peach", "name": "Warm Peach", "primary": "#222222", "accent": "#E8B395", "text": "#1D1D1D" },
-        { "id": "editorial-cream", "name": "Editorial Cream", "primary": "#1D1D1D", "accent": "#F7F3EC", "text": "#1D1D1D" },
-        { "id": "charcoal-editorial", "name": "Charcoal Editorial", "primary": "#111111", "accent": "#A5A27D", "text": "#1D1D1D" },
-        { "id": "peach-accent", "name": "Peach Accent", "primary": "#222222", "accent": "#E8B395", "text": "#5F5A55" }
-      ],
-      "defaultColor": "warm-ivory"
-    },
-        {
       "id": "lumen-studio",
       "name": "Lumen Studio",
       "slug": "lumen-studio",
@@ -655,30 +535,6 @@
         { "id": "editorial-ivory", "name": "Editorial Ivory", "primary": "#2D2D2D", "accent": "#F2F4F1", "text": "#4F4F4F" }
       ],
       "defaultColor": "scandi-sage"
-    },
-        {
-      "id": "soft-sage-professional",
-      "name": "Soft Sage Professional",
-      "slug": "soft-sage-professional",
-      "description": "Modern executive two-column resume with fresh soft sage palette, horizontal header with rounded portrait, 68/32 layout, timeline experience cards, stacked sidebar skill panels, and ATS-friendly PDF export.",
-      "thumbnail": "/templates/soft-sage-professional/thumbnail.svg",
-      "preview": "/templates/soft-sage-professional/preview.svg",
-      "html": "/templates/soft-sage-professional/index.html",
-      "css": "/templates/soft-sage-professional/style.css",
-      "categories": ["Premium", "Professional", "Executive", "Modern", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": false,
-      "colors": [
-        { "id": "soft-sage", "name": "Soft Sage", "primary": "#1F2937", "accent": "#6FAF9D", "text": "#4B5563" },
-        { "id": "mint-mist", "name": "Mint Mist", "primary": "#1F2937", "accent": "#9CCBC0", "text": "#4B5563" },
-        { "id": "forest-slate", "name": "Forest Slate", "primary": "#111827", "accent": "#5A9A88", "text": "#374151" },
-        { "id": "cool-jade", "name": "Cool Jade", "primary": "#1F2937", "accent": "#4D9B8A", "text": "#4B5563" },
-        { "id": "alpine-green", "name": "Alpine Green", "primary": "#1F2937", "accent": "#6FAF9D", "text": "#6B7280" },
-        { "id": "graphite-sage", "name": "Graphite Sage", "primary": "#111827", "accent": "#6FAF9D", "text": "#4B5563" }
-      ],
-      "defaultColor": "soft-sage"
     },
         {
       "id": "executive-mosaic",

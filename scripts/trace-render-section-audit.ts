@@ -12,7 +12,7 @@ import {
   formatSectionAuditReport,
 } from '../lib/resume-builder/dynamic-layout-engine';
 
-const templateId = process.argv[2] || 'executive-sidebar-elite';
+const templateId = process.argv[2] || 'slate-executive-pro';
 
 async function main() {
   const htmlPath = path.join(process.cwd(), 'public', 'templates', templateId, 'index.html');
