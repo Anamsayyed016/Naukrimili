@@ -53,6 +53,7 @@ import {
 import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
+import { composeBulletList } from './content-composition';
 
 /**
  * Load template metadata from JSON
@@ -516,7 +517,12 @@ export function injectResumeData(
     Array.isArray(data.projects) ? data.projects : []
   ) as Array<Record<string, unknown>>;
   if (projectsSource.length === 0 && builderProjects.length > 0) {
-    projectsSource = builderProjects;
+    // Fallback only when compose left projects empty — still compose before render.
+    projectsSource = builderProjects.map((project) =>
+      project && typeof project === 'object'
+        ? { ...(project as Record<string, unknown>), __renderComposed: false }
+        : project
+    ) as Array<Record<string, unknown>>;
   }
   const projectsData = filterMeaningfulProjects(projectsSource) as Array<Record<string, string>>;
   const projectsForRender = (
@@ -625,7 +631,7 @@ export function injectResumeData(
     }
   }
 
-  result = injectDynamicLayoutIntoHtml(result, coalesced, {
+  result = injectDynamicLayoutIntoHtml(result, data, {
     htmlTemplate,
     templateId: options?.templateId ?? options?.galleryTemplateId,
     mode: renderMode === 'pdf' ? 'pdf' : 'preview',
@@ -749,36 +755,48 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       const location = readCanonicalString(exp, 'location', ['Location']);
       const companyWithLocation = location ? `${company}${company ? ' / ' : ''}${location}` : company;
 
-      // Merge explicit bullet arrays with description lines — imported rows often
-      // carry achievements[] while description is a single stub line.
-      const body = collectExperienceBodyFields(exp);
-      const explicitBullets = body.achievements
-        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-        .filter((s) => s.length >= 3);
-      const descBullets = String(body.description || description)
-        .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
-        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-        .filter((s) => s.length >= 3);
-      const mergedBody = dedupeExperienceBodyLines(body.description, [
-        ...explicitBullets,
-        ...descBullets,
-      ]);
-      const allBullets = mergedBody.achievements.length
-        ? mergedBody.achievements
-        : descBullets;
+      // Prefer composition-engine bullets when present — avoid re-dumping parser walls.
+      const precomposed = exp.__renderComposed === true;
+      const precomposedBullets = Array.isArray(exp.achievements)
+        ? (exp.achievements as unknown[])
+            .map((item) =>
+              typeof item === 'string'
+                ? item.replace(/^[\s\-–—*•·]+/, '').trim()
+                : ''
+            )
+            .filter((line) => line.length >= 3)
+        : [];
 
-      const renderedBullets = allBullets.length > 1
+      let allBullets: string[];
+      if (precomposed && precomposedBullets.length > 0) {
+        allBullets = composeBulletList(precomposedBullets, 8);
+      } else {
+        const body = collectExperienceBodyFields(exp);
+        const explicitBullets = body.achievements
+          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .filter((s) => s.length >= 3);
+        const descBullets = String(body.description || description)
+          .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
+          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .filter((s) => s.length >= 3);
+        const mergedBody = dedupeExperienceBodyLines(body.description, [
+          ...explicitBullets,
+          ...descBullets,
+        ]);
+        const merged = mergedBody.achievements.length
+          ? mergedBody.achievements
+          : descBullets;
+        allBullets = composeBulletList(merged, 8);
+      }
+
+      const renderedBullets = allBullets.length > 0
         ? `<ul>${allBullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
-        : allBullets.length === 1
-          ? `<ul><li>${escapeHtml(allBullets[0])}</li></ul>`
-          : '';
+        : '';
 
       const leadDescription =
-        allBullets.length > 1
+        allBullets.length > 0
           ? ''
-          : allBullets.length === 1
-            ? ''
-            : String(mergedBody.description || description).trim();
+          : String(description || '').trim();
 
       return `
         <div class="experience-item">
@@ -921,24 +939,43 @@ function renderProjects(projects: Array<Record<string, string>>): string {
     .map((project) => {
       const rec = project as Record<string, unknown>;
       const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title', 'projectName', 'ProjectName']);
-      const body = collectExperienceBodyFields(rec);
-      const explicitBullets = body.achievements
-        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-        .filter((s) => s.length >= 3);
-      const descBullets = String(body.description || '')
-        .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
-        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-        .filter((s) => s.length >= 3);
-      const mergedBody = dedupeExperienceBodyLines(body.description, [
-        ...explicitBullets,
-        ...descBullets,
-      ]);
-      const description =
-        mergedBody.achievements.length > 1
-          ? mergedBody.achievements.join('\n')
-          : mergedBody.achievements.length === 1
-            ? mergedBody.achievements[0]
-            : mergedBody.description;
+      const precomposed = rec.__renderComposed === true;
+      const precomposedBullets = Array.isArray(rec.achievements)
+        ? (rec.achievements as unknown[])
+            .map((item) =>
+              typeof item === 'string'
+                ? item.replace(/^[\s\-–—*•·]+/, '').trim()
+                : ''
+            )
+            .filter((line) => line.length >= 3)
+        : [];
+
+      let projectBullets: string[];
+      let description = '';
+      if (precomposed && precomposedBullets.length > 0) {
+        projectBullets = composeBulletList(precomposedBullets, 4);
+      } else {
+        const body = collectExperienceBodyFields(rec);
+        const explicitBullets = body.achievements
+          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .filter((s) => s.length >= 3);
+        const descBullets = String(body.description || '')
+          .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
+          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .filter((s) => s.length >= 3);
+        const mergedBody = dedupeExperienceBodyLines(body.description, [
+          ...explicitBullets,
+          ...descBullets,
+        ]);
+        const merged = mergedBody.achievements.length
+          ? mergedBody.achievements
+          : descBullets;
+        projectBullets = composeBulletList(merged, 4);
+        if (projectBullets.length === 0) {
+          description = String(mergedBody.description || '').trim();
+        }
+      }
+
       const technologies = readCanonicalString(rec, 'technologies', [
         'Technologies',
         'tech_stack',
@@ -959,8 +996,8 @@ function renderProjects(projects: Array<Record<string, string>>): string {
       const link = readCanonicalString(rec, 'link', ['Link', 'url', 'URL', 'github', 'Github']);
 
       const renderedBullets =
-        mergedBody.achievements.length > 1
-          ? `<ul>${mergedBody.achievements.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
+        projectBullets.length > 0
+          ? `<ul>${projectBullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
           : '';
 
       return `
@@ -1025,9 +1062,9 @@ function renderAchievements(achievements: Array<string | Record<string, string>>
 
   // Handle string array format (from AchievementsStep)
   if (typeof achievements[0] === 'string') {
-    const validAchievements = (achievements as string[]).filter(achievement => 
-      achievement && achievement.trim().length > 0
-    );
+    const validAchievements = (achievements as string[])
+      .filter((achievement) => achievement && achievement.trim().length > 0)
+      .slice(0, 5);
     
     if (validAchievements.length === 0) {
       return '';
@@ -1043,10 +1080,12 @@ function renderAchievements(achievements: Array<string | Record<string, string>>
   }
 
   // Handle object array format (legacy format)
-  const validAchievements = (achievements as Array<Record<string, string>>).filter(achievement => {
-    const title = achievement.Title || achievement.title || '';
-    return title.trim().length > 0;
-  });
+  const validAchievements = (achievements as Array<Record<string, string>>)
+    .filter((achievement) => {
+      const title = achievement.Title || achievement.title || '';
+      return title.trim().length > 0;
+    })
+    .slice(0, 5);
 
   if (validAchievements.length === 0) {
     return '';

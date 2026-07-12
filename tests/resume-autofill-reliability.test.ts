@@ -1485,7 +1485,7 @@ describe('optimizeResumeDataForRender', () => {
     expect(optimized.experience).toHaveLength(2);
     expect((optimized.experience as unknown[])[0]).toMatchObject({ company: 'Google' });
     expect((optimized.experience as unknown[])[1]).toMatchObject({ company: 'Infosys' });
-    expect((optimized.experience as unknown[])[0].achievements.length).toBeLessThanOrEqual(5);
+    expect((optimized.experience as unknown[])[0].achievements.length).toBeLessThanOrEqual(6);
     expect((optimized.skills as string[]).length).toBeLessThanOrEqual(12);
     expect((optimized.projects as unknown[]).length).toBeLessThanOrEqual(4);
     expect(String(optimized.summary).split(/\s+/).length).toBeLessThanOrEqual(90);
@@ -1502,30 +1502,111 @@ describe('optimizeResumeDataForRender', () => {
     expect(JSON.stringify(formData)).toBe(snapshot);
   });
 
-  it('preserves full content for parser-imported resumes', () => {
+  it('composes imported resumes for render without mutating editor fidelity fields source', () => {
     const formData = {
       customParserUsed: true,
       experience: [
         {
           company: 'Google',
           title: 'Senior Engineer',
-          achievements: ['A', 'B', 'C', 'D', 'E', 'F'],
+          achievements: [
+            'Implemented API gateway',
+            'Implemented rate limiting',
+            'Implemented caching layer',
+            'Managed on-call rotation',
+            'Managed incident response',
+            'Increased throughput by 40%',
+            'Assisted with daily standups',
+            'Worked on various tasks',
+            'Built dashboards',
+            'Built alerts',
+          ],
+        },
+        {
+          company: 'Infosys',
+          title: 'Developer',
+          achievements: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
         },
       ],
       skills: Array.from({ length: 25 }, (_, i) => `Skill${i}`),
-      summary: Array.from({ length: 120 }, (_, i) => `word${i}`).join(' '),
-      projects: Array.from({ length: 6 }, (_, i) => ({ name: `Project ${i}`, description: `Impact ${i}` })),
+      summary:
+        'Senior engineer.\nBuilt platforms.\nLed teams across product and engineering.\nImproved reliability.\nMentored juniors.\nDrove migrations.',
+      projects: Array.from({ length: 6 }, (_, i) => ({
+        name: `Project ${i}`,
+        description: `Built feature ${i}.\nOptimized performance ${i}.\nShipped to production ${i}.\nDocumented rollout ${i}.\nMonitored metrics ${i}.`,
+      })),
+      achievements: ['Won award', 'Patent filed', 'Conference talk', 'Open source', 'Mentorship', 'Extra'],
     };
 
+    const snapshot = JSON.stringify(formData);
     const optimized = optimizeResumeDataForRender(formData, {
       htmlTemplate: '<aside class="sidebar"></aside>',
     });
 
-    expect(optimized).toBe(formData);
-    expect((optimized.experience as unknown[])[0].achievements).toHaveLength(6);
-    expect((optimized.skills as string[]).length).toBe(25);
-    expect((optimized.projects as unknown[]).length).toBe(6);
-    expect(String(optimized.summary).split(/\s+/).length).toBe(120);
+    expect(JSON.stringify(formData)).toBe(snapshot);
+    expect(optimized).not.toBe(formData);
+    expect(optimized.__contentComposed).toBe(true);
+    expect(optimized.experience).toHaveLength(2);
+    expect((optimized.experience as unknown[])[0].achievements.length).toBeLessThanOrEqual(8);
+    expect((optimized.experience as unknown[])[0].achievements.length).toBeGreaterThanOrEqual(3);
+    expect((optimized.experience as unknown[])[1].achievements.length).toBeLessThanOrEqual(8);
+    expect((optimized.projects as unknown[]).length).toBeGreaterThan(0);
+    expect((optimized.projects as unknown[]).length).toBeLessThanOrEqual(5);
+    expect((optimized.achievements as unknown[]).length).toBeLessThanOrEqual(5);
+    expect(String(optimized.summary).split(/\s+/).length).toBeLessThanOrEqual(100);
+  });
+});
+
+describe('content composition engine', () => {
+  const {
+    composeBulletList,
+    composeSummary,
+    resolveContentCompositionBudget,
+  } = require('@/lib/resume-builder/content-composition');
+
+  it('merges related short bullets and drops near-duplicates', () => {
+    const composed = composeBulletList(
+      [
+        'Implemented payment API',
+        'Implemented refund API',
+        'Increased conversion by 18%',
+        'Increased conversion by 18% across checkout',
+        'Responsible for various tasks',
+      ],
+      4
+    );
+    expect(composed.length).toBeLessThanOrEqual(4);
+    expect(composed.some((line: string) => /18%/.test(line))).toBe(true);
+  });
+
+  it('composes summary into readable paragraph flow', () => {
+    const summary = composeSummary(
+      'Engineer with 8 years experience.\nBuilt data platforms.\nLed cross-functional teams.\nImproved reliability.\nMentored juniors.',
+      { maxWords: 60, maxSentences: 4 }
+    );
+    expect(summary.includes('\n\n') || summary.split(/(?<=[.!?])\s+/).length <= 4).toBe(true);
+    expect(summary.split(/\s+/).length).toBeLessThanOrEqual(60);
+  });
+
+  it('tightens bullet budget as experience count grows', () => {
+    const sparse = resolveContentCompositionBudget({
+      experienceCount: 1,
+      projectCount: 2,
+      baseMaxSkills: 12,
+      baseMaxBullets: 5,
+      baseMaxProjects: 4,
+      baseMaxSummaryWords: 90,
+    });
+    const dense = resolveContentCompositionBudget({
+      experienceCount: 6,
+      projectCount: 4,
+      baseMaxSkills: 12,
+      baseMaxBullets: 5,
+      baseMaxProjects: 4,
+      baseMaxSummaryWords: 90,
+    });
+    expect(sparse.maxBulletsPerExperience).toBeGreaterThan(dense.maxBulletsPerExperience);
+    expect(dense.maxProjects).toBeGreaterThanOrEqual(1);
   });
 });
 

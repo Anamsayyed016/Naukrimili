@@ -29,6 +29,13 @@ import {
   isImportFieldTraceEnabled,
   traceImportStageTransform,
 } from '@/lib/resume-parser/import-field-trace';
+import {
+  composeResumeDataForRender,
+  resolveContentCompositionBudget,
+  composeExperienceDescription,
+  composeSummary,
+  composeProjectDescription,
+} from '@/lib/resume-builder/content-composition';
 
 export type ResumeSectionKey =
   | 'contact'
@@ -1977,25 +1984,7 @@ function optimizeExperienceListForRender(
 
   return experiences.map((raw) => {
     if (!raw || typeof raw !== 'object') return raw as Record<string, unknown>;
-    const exp = { ...(raw as Record<string, unknown>) };
-    const bullets = extractExperienceBullets(exp);
-    const selected = selectTopBulletsForRender(bullets, maxBullets);
-
-    if (selected.length === 0) {
-      return exp;
-    }
-
-    const description = getStringValue(exp.description ?? exp.Description);
-
-    return {
-      ...exp,
-      achievements: selected,
-      bullets: selected,
-      bulletPoints: selected,
-      Achievements: selected,
-      description: description || selected[0] || '',
-      Description: description || selected[0] || '',
-    };
+    return composeExperienceDescription(raw as Record<string, unknown>, maxBullets);
   });
 }
 
@@ -2105,7 +2094,7 @@ function resolveSummaryForRender(formData: Record<string, unknown>, maxWords: nu
   for (const key of keys) {
     const value = formData[key];
     if (typeof value === 'string' && value.trim()) {
-      return trimSummaryForRender(value, maxWords);
+      return composeSummary(value, { maxWords, maxSentences: 4 });
     }
   }
   return '';
@@ -2215,18 +2204,19 @@ function optimizeProjectsListForGallery(
 
   return selected.map((raw) => {
     if (!raw || typeof raw !== 'object') return raw;
-    const project = { ...(raw as Record<string, unknown>) };
-    const description = getStringValue(
-      project.description ?? project.Description ?? project.summary ?? project.Summary
+    const composed = composeProjectDescription(
+      raw as Record<string, unknown>,
+      3
     );
-    if (description) {
+    const description = String(
+      composed.description ?? composed.Description ?? ''
+    ).trim();
+    if (description && !Array.isArray(composed.achievements)) {
       const shortened = shortenTextForGallery(description, capacity.maxProjectDescriptionChars);
-      project.description = shortened;
-      project.Description = shortened;
-      project.summary = shortened;
-      project.Summary = shortened;
+      composed.description = shortened;
+      composed.Description = shortened;
     }
-    return project;
+    return composed;
   });
 }
 
@@ -2302,6 +2292,10 @@ function optimizeGalleryResumeDataForRender(
 /**
  * Layout-aware content optimization for preview/PDF only.
  * Editor formData is never mutated — call on a coalesced copy from injectResumeData.
+ *
+ * Imported resumes still go through the composition engine (soft budget) so Live/PDF
+ * stay professionally typeset. Editor fidelity is preserved because this never writes
+ * back to the builder store.
  */
 export function optimizeResumeDataForRender(
   formData: Record<string, unknown>,
@@ -2316,43 +2310,39 @@ export function optimizeResumeDataForRender(
     );
   }
 
-  if (shouldPreserveFullContentForRender(formData, options)) {
-    return formData;
-  }
-
+  const softCompose = shouldPreserveFullContentForRender(formData, options);
   const capacity = resolveTemplateRenderCapacity(options?.htmlTemplate ?? '', options);
-  const experience = optimizeExperienceListForRender(
-    Array.isArray(formData.experience) ? formData.experience : [],
-    capacity.maxBulletsPerExperience
-  );
-  const projects = optimizeProjectsListForRender(
-    Array.isArray(formData.projects) ? formData.projects : [],
-    capacity.maxProjects
-  );
-  const skills = prepareSkillsForRender(
-    Array.isArray(formData.skills) ? (formData.skills as string[]) : normalizeSkillsForRender(formData),
-    { renderMode, htmlTemplate: options?.htmlTemplate ?? '', formData }
-  );
-  const summary = resolveSummaryForRender(formData, capacity.maxSummaryWords);
+  const experienceSource = Array.isArray(formData.experience) ? formData.experience : [];
+  const projectsSource = Array.isArray(formData.projects) ? formData.projects : [];
 
-  const optimized: Record<string, unknown> = {
-    ...formData,
-    experience,
-    projects,
+  const budget = resolveContentCompositionBudget({
+    experienceCount: experienceSource.length,
+    projectCount: projectsSource.length,
+    baseMaxSkills: capacity.maxSkills,
+    baseMaxBullets: softCompose
+      ? Math.max(capacity.maxBulletsPerExperience, 6)
+      : capacity.maxBulletsPerExperience,
+    baseMaxProjects: softCompose ? Math.max(capacity.maxProjects, 4) : capacity.maxProjects,
+    baseMaxSummaryWords: softCompose
+      ? Math.max(capacity.maxSummaryWords, 85)
+      : capacity.maxSummaryWords,
+    soft: softCompose,
+  });
+
+  const composed = composeResumeDataForRender(formData, budget);
+
+  const skills = prepareSkillsForRender(
+    Array.isArray(composed.skills)
+      ? (composed.skills as string[])
+      : normalizeSkillsForRender(composed),
+    { renderMode, htmlTemplate: options?.htmlTemplate ?? '', formData: composed }
+  );
+
+  return {
+    ...composed,
     skills,
-    Experience: experience,
-    'Work Experience': experience,
-    Projects: projects,
     Skills: skills,
   };
-
-  if (summary) {
-    optimized.summary = summary;
-    optimized.professionalSummary = summary;
-    optimized['Professional Summary'] = summary;
-  }
-
-  return optimized;
 }
 
 type HandlebarsBlockType = 'if' | 'unless';
