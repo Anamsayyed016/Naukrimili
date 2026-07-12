@@ -135,7 +135,6 @@ async function main() {
   const sample = ids.filter((id) =>
     [
       'executive-sidebar-elite',
-      'executive-corporate',
       'executive-timeline',
       'modern-edge',
       'prism-edition',

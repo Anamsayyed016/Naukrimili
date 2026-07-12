@@ -30,24 +30,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-amber-400/50',
     hoverOverlay: 'from-amber-900/20',
   },
-  'editorial-mauve': {
-    glow: 'radial-gradient(circle, rgba(142,115,115,0.35) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(117,96,96,0.2) 0%, transparent 70%)',
-    borderTint: 'hover:border-rose-300/70',
-    hoverOverlay: 'from-rose-900/15',
-  },
-  'executive-corporate': {
-    glow: 'radial-gradient(circle, rgba(74,124,175,0.35) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(30,50,68,0.2) 0%, transparent 70%)',
-    borderTint: 'hover:border-blue-400/70',
-    hoverOverlay: 'from-blue-800/18',
-  },
-  'executive-modern': {
-    glow: 'radial-gradient(circle, rgba(44,62,80,0.45) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(21,32,43,0.3) 0%, transparent 70%)',
-    borderTint: 'hover:border-slate-500/70',
-    hoverOverlay: 'from-slate-900/25',
-  },
   'luxury-corporate': {
     glow: 'radial-gradient(circle, rgba(201,162,39,0.42) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(26,39,68,0.28) 0%, transparent 70%)',
@@ -295,9 +277,6 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   { firstName: string; lastName: string; jobTitle: string }
 > = {
   'charcoal-premium': { firstName: 'Marcus', lastName: 'Chen', jobTitle: 'Executive Director' },
-  'editorial-mauve': { firstName: 'Sofia', lastName: 'Marin', jobTitle: 'Brand Strategist' },
-  'executive-corporate': { firstName: 'James', lastName: 'Mitchell', jobTitle: 'VP of Operations' },
-  'executive-modern': { firstName: 'Alexandra', lastName: 'Reed', jobTitle: 'Senior Product Leader' },
   'luxury-corporate': { firstName: 'Michael', lastName: 'Reed', jobTitle: 'Senior Marketing Manager' },
   'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
