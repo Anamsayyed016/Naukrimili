@@ -1,6 +1,7 @@
 /** Retired templates map to an active premium template for saved resumes / exports. */
 const RETIRED_TEMPLATE_ALIASES: Record<string, string> = {
-  'executive-copper': 'platinum-executive-edge',
+  'executive-copper': 'charcoal-premium',
+  'platinum-executive-edge': 'charcoal-premium',
   'maroon-gold-executive': 'executive-burgundy-diamond',
   'executive-graphite': 'slate-executive-pro',
 };

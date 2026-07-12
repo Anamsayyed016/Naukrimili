@@ -136,10 +136,8 @@ async function main() {
     [
       'executive-sidebar-elite',
       'executive-corporate',
-      'platinum-executive-edge',
       'executive-timeline',
       'modern-edge',
-      'teal-modern',
       'prism-edition',
       'charcoal-premium',
     ].includes(id)

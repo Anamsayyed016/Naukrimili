@@ -113,27 +113,6 @@
       "defaultColor": "slate-champagne"
     },
         {
-      "id": "emerald-executive-luxe",
-      "name": "Emerald Executive Luxe",
-      "slug": "emerald-executive-luxe",
-      "description": "Cinematic luxury executive layout with emerald side frame, infographic skill gauges, glass panels, and ATS-friendly two-column structure.",
-      "thumbnail": "/templates/emerald-executive-luxe/thumbnail.svg",
-      "preview": "/templates/emerald-executive-luxe/preview.svg",
-      "html": "/templates/emerald-executive-luxe/index.html",
-      "css": "/templates/emerald-executive-luxe/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "emerald-gold", "name": "Emerald & Gold", "primary": "#146B62", "accent": "#C4A862", "text": "#1E2A32" },
-        { "id": "petroleum-champagne", "name": "Petroleum & Champagne", "primary": "#1A3342", "accent": "#D4C5A0", "text": "#1E2A32" },
-        { "id": "teal-bronze", "name": "Teal & Bronze", "primary": "#0F6B63", "accent": "#B8956B", "text": "#1F2937" }
-      ],
-      "defaultColor": "emerald-gold"
-    },
-        {
       "id": "slate-executive-pro",
       "name": "Slate Executive Pro",
       "slug": "slate-executive-pro",
@@ -182,30 +161,6 @@
       "defaultColor": "minimal-pro"
     },
         {
-      "id": "teal-modern",
-      "name": "Teal Modern",
-      "slug": "teal-modern",
-      "description": "Premium modern two-column resume with deep teal palette, executive typography, skill progress bars, and full section support",
-      "thumbnail": "/templates/teal-modern/thumbnail.svg",
-      "preview": "/templates/teal-modern/preview.svg",
-      "html": "/templates/teal-modern/index.html",
-      "css": "/templates/teal-modern/style.css",
-      "categories": ["Modern", "Two Column", "With Photo", "Professional"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "teal", "name": "Deep Teal", "primary": "#0F766E", "accent": "#134E4A", "text": "#1E293B" },
-        { "id": "blue", "name": "Blue", "primary": "#3B82F6", "accent": "#2563EB", "text": "#1F2937" },
-        { "id": "emerald", "name": "Emerald", "primary": "#10B981", "accent": "#059669", "text": "#1F2937" },
-        { "id": "cyan", "name": "Cyan", "primary": "#06B6D4", "accent": "#0891B2", "text": "#1F2937" },
-        { "id": "green", "name": "Green", "primary": "#22C55E", "accent": "#16A34A", "text": "#1F2937" },
-        { "id": "slate", "name": "Slate", "primary": "#64748B", "accent": "#475569", "text": "#1F2937" }
-      ],
-      "defaultColor": "teal"
-    },
-        {
       "id": "charcoal-premium",
       "name": "Charcoal Premium",
       "slug": "charcoal-premium",
@@ -228,30 +183,6 @@
         { "id": "copper", "name": "Copper", "primary": "#C4876A", "accent": "#A06548", "text": "#C4876A" }
       ],
       "defaultColor": "gold"
-    },
-        {
-      "id": "editorial-elegant",
-      "name": "Editorial Elegant",
-      "slug": "editorial-elegant",
-      "description": "Luxury editorial layout with serif identity, flowing sections, and warm cream tones — no card-heavy design",
-      "thumbnail": "/templates/editorial-elegant/thumbnail.svg",
-      "preview": "/templates/editorial-elegant/preview.svg",
-      "html": "/templates/editorial-elegant/index.html",
-      "css": "/templates/editorial-elegant/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Two Column"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "slate", "name": "Slate", "primary": "#5C6778", "accent": "#4A5568", "text": "#2C2C2C" },
-        { "id": "navy", "name": "Navy", "primary": "#3D4F6B", "accent": "#2E3D54", "text": "#2C2C2C" },
-        { "id": "sage", "name": "Sage", "primary": "#6B7B6E", "accent": "#556658", "text": "#2C2C2C" },
-        { "id": "mauve", "name": "Mauve", "primary": "#7A6B7D", "accent": "#635668", "text": "#2C2C2C" },
-        { "id": "stone", "name": "Stone", "primary": "#7A7268", "accent": "#625C54", "text": "#2C2C2C" },
-        { "id": "teal", "name": "Teal", "primary": "#4A7A78", "accent": "#3A6361", "text": "#2C2C2C" }
-      ],
-      "defaultColor": "slate"
     },
         {
       "id": "editorial-mauve",
@@ -324,30 +255,6 @@
         { "id": "steel", "name": "Steel", "primary": "#4A5568", "accent": "#2D3748", "text": "#1A1A1A" }
       ],
       "defaultColor": "charcoal"
-    },
-        {
-      "id": "platinum-executive-edge",
-      "name": "Platinum Executive Edge",
-      "slug": "platinum-executive-edge",
-      "description": "Modern metallic silver executive layout with geometric corner accents, hexagonal portrait frame, timeline experience, capability skill cards, and ATS-friendly sidebar for premium PDF export.",
-      "thumbnail": "/templates/platinum-executive-edge/thumbnail.svg",
-      "preview": "/templates/platinum-executive-edge/preview.svg",
-      "html": "/templates/platinum-executive-edge/index.html",
-      "css": "/templates/platinum-executive-edge/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Executive", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "platinum-edge", "name": "Platinum Edge", "primary": "#2F3136", "accent": "#D8A28F", "text": "#1F1F1F" },
-        { "id": "graphite-rose", "name": "Graphite Rose", "primary": "#3A3D42", "accent": "#C99585", "text": "#1F1F1F" },
-        { "id": "steel-copper", "name": "Steel Copper", "primary": "#4A4E54", "accent": "#C4876A", "text": "#1F1F1F" },
-        { "id": "charcoal-champagne", "name": "Charcoal Champagne", "primary": "#2A2C30", "accent": "#C8C4BC", "text": "#1F1F1F" },
-        { "id": "slate-blush", "name": "Slate Blush", "primary": "#5D636B", "accent": "#D8A28F", "text": "#1F1F1F" },
-        { "id": "midnight-silver", "name": "Midnight Silver", "primary": "#1E2024", "accent": "#A8B4C4", "text": "#1F1F1F" }
-      ],
-      "defaultColor": "platinum-edge"
     },
         {
       "id": "elegant-ivory",
