@@ -30,21 +30,32 @@ export class EdenResumeParser {
     return isEdenEnabled();
   }
 
-  async parseResume(fileBuffer: Buffer, fileName: string): Promise<ExtractedResumeData> {
+  async parseResume(
+    fileBuffer: Buffer,
+    fileName: string,
+    options?: { timeoutMs?: number }
+  ): Promise<ExtractedResumeData> {
     const config = this.config;
     if (!config) {
       throw new Error('Eden AI API key not configured');
     }
 
     const mime = mimeTypeFromFileName(fileName);
+    const timeoutMs =
+      typeof options?.timeoutMs === 'number' && options.timeoutMs > 0
+        ? options.timeoutMs
+        : config.timeoutMs;
     console.log('🔍 Parsing resume with Eden AI...');
     console.log('   - Providers:', config.providers.join(', '));
     console.log('   - File:', fileName, '| MIME:', mime);
+    console.log('   - Timeout Ms:', timeoutMs);
 
+    // Under a capped upload budget, do not sequentially retry every provider
+    // (each attempt previously used a full 55s timeout → "Failed to fetch").
     const providerPlans =
-      config.providers.length > 1
-        ? [config.providers, ...config.providers.map((p) => [p])]
-        : [config.providers];
+      timeoutMs < 30_000 || config.providers.length <= 1
+        ? [config.providers]
+        : [config.providers, ...config.providers.map((p) => [p])];
 
     let payload: Record<string, unknown> | null = null;
     let lastEdenResult: Record<string, EdenProviderBlock> | null = null;
@@ -57,7 +68,7 @@ export class EdenResumeParser {
         providers,
         config.apiUrl,
         config.apiKey,
-        config.timeoutMs
+        timeoutMs
       );
       lastEdenResult = edenResult;
       payload = extractEdenPayload(edenResult);

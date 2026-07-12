@@ -564,7 +564,8 @@ export type DocumentParserResult = {
 export async function tryApilayerDocumentParse(
   affindaData: ExtractedResumeData | null,
   fileBuffer: Buffer,
-  fileName: string
+  fileName: string,
+  options?: { timeoutMs?: number }
 ): Promise<DocumentParserResult | null> {
   const affindaBase = affindaData || emptyExtractedResumeData();
 
@@ -574,7 +575,9 @@ export async function tryApilayerDocumentParse(
 
   try {
     const apilayerParser = new ApilayerResumeParser();
-    const apilayerData = await apilayerParser.parseResume(fileBuffer, fileName);
+    const apilayerData = await apilayerParser.parseResume(fileBuffer, fileName, {
+      timeoutMs: options?.timeoutMs,
+    });
     const merged = mergeResumeData(affindaBase, apilayerData);
     logResumeMergeStats(affindaBase, apilayerData, merged);
     const provider = affindaData ? 'affinda+apilayer' : 'apilayer';
@@ -600,7 +603,8 @@ export async function tryApilayerDocumentParse(
 export async function tryEdenAffindaDocumentParse(
   affindaData: ExtractedResumeData | null,
   fileBuffer: Buffer,
-  fileName: string
+  fileName: string,
+  options?: { timeoutMs?: number }
 ): Promise<DocumentParserResult | null> {
   const affindaBase = affindaData || emptyExtractedResumeData();
 
@@ -617,7 +621,9 @@ export async function tryEdenAffindaDocumentParse(
 
   try {
     const edenParser = new EdenResumeParser();
-    const edenData = await edenParser.parseResume(fileBuffer, fileName);
+    const edenData = await edenParser.parseResume(fileBuffer, fileName, {
+      timeoutMs: options?.timeoutMs,
+    });
     const merged = mergeResumeData(affindaBase, edenData);
     logResumeMergeStats(affindaBase, edenData, merged);
     const provider = affindaData ? 'affinda+eden' : 'eden';
@@ -700,8 +706,17 @@ export async function resolveDocumentParserAutofill(
 
   let doc: DocumentParserResult | null = null;
   if (!budget || budget.shouldRunNextParser(8000)) {
+    const edenTimeout = budget
+      ? budget.capTimeoutMs(20_000, 12_000)
+      : 20_000;
+    if (edenTimeout <= 0) {
+      console.warn('[resume-merge] No time left for Eden — text recovery');
+      return resolveTextRecoveryAutofill(affindaData, extractedText);
+    }
     const edenStart = Date.now();
-    doc = await tryEdenAffindaDocumentParse(affindaData, fileBuffer, fileName);
+    doc = await tryEdenAffindaDocumentParse(affindaData, fileBuffer, fileName, {
+      timeoutMs: edenTimeout,
+    });
     timing?.record('edenMs', Date.now() - edenStart);
   }
 
@@ -716,8 +731,17 @@ export async function resolveDocumentParserAutofill(
   }
 
   if (!doc?.provider?.includes('apilayer') && (!budget || budget.shouldRunNextParser(5000))) {
+    const apilayerTimeout = budget
+      ? budget.capTimeoutMs(15_000, 8_000)
+      : 15_000;
+    if (apilayerTimeout <= 0) {
+      console.warn('[resume-merge] No time left for Apilayer — text recovery');
+      return resolveTextRecoveryAutofill(affindaData, extractedText);
+    }
     const apilayerStart = Date.now();
-    const apilayerDoc = await tryApilayerDocumentParse(affindaData, fileBuffer, fileName);
+    const apilayerDoc = await tryApilayerDocumentParse(affindaData, fileBuffer, fileName, {
+      timeoutMs: apilayerTimeout,
+    });
     timing?.record('apilayerMs', Date.now() - apilayerStart);
     if (apilayerDoc) {
       const withText = mergeTextRecoveryIntoExtracted(apilayerDoc.data, extractedText);

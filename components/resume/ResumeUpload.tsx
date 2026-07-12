@@ -207,11 +207,13 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       });
       
       let errorMessage = 'Upload failed. Please try again.';
+      const rawMessage = String(errorObj.message || '');
       
-      if (errorObj.message) {
-        errorMessage = errorObj.message;
-      } else if (err instanceof TypeError && err.message?.includes('fetch')) {
-        errorMessage = 'Network error. Please check your connection and try again.';
+      if (/failed to fetch|networkerror|load failed|network request failed/i.test(rawMessage)) {
+        errorMessage =
+          'Connection dropped while analyzing your resume (usually a timeout on slow mobile networks). Please keep this screen open and retry — processing is faster now.';
+      } else if (rawMessage) {
+        errorMessage = rawMessage;
       } else if (err instanceof Error) {
         errorMessage = err.message;
       }

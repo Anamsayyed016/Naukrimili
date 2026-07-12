@@ -62,6 +62,7 @@ import {
   UploadPipelineTiming,
   ParserTimeBudget,
   getUploadParserBudgetMs,
+  getUploadHardDeadlineMs,
   uploadStageDebug,
 } from '@/lib/resume-parser/upload-pipeline-trace';
 import {
@@ -81,7 +82,7 @@ import {
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-// Large/image-rich PDFs: Affinda (55s) + Eden (55s) + OCR can exceed 60s — align with nginx /api/ 300s cap
+// Large/image-rich PDFs: Affinda + Eden + OCR must finish under CDN idle limits (~100s)
 export const maxDuration = 180;
 
 const ALLOWED_TYPES = [
@@ -173,14 +174,17 @@ export async function POST(request: NextRequest) {
     const pipelineStartMs = Date.now();
     const uploadTiming = new UploadPipelineTiming();
     const parserBudget = new ParserTimeBudget(getUploadParserBudgetMs());
+    const hardDeadlineMs = getUploadHardDeadlineMs();
+    const pastHardDeadline = () => Date.now() - pipelineStartMs >= hardDeadlineMs;
     log('upload timeout chain', {
       nextMaxDurationSec: maxDuration,
       clientAbortSec: 180,
       parserBudgetMs: parserBudget.budgetMs,
+      hardDeadlineMs,
       affindaTimeoutMs: parseInt(process.env.AFFINDA_TIMEOUT_MS || '55000', 10),
       edenTimeoutMs: parseInt(process.env.EDEN_AI_TIMEOUT_MS || '55000', 10),
       apilayerTimeoutMs: parseInt(process.env.APILAYER_TIMEOUT_MS || '45000', 10),
-      note: 'HTTP 504 is emitted by nginx/proxy when proxy_read_timeout is exceeded before this route returns',
+      note: 'Hard deadline keeps response under CDN/proxy idle limits; uncapped Affinda+Eden previously caused browser Failed to fetch',
     });
 
     log('parser environment', {
@@ -642,10 +646,21 @@ export async function POST(request: NextRequest) {
       if (isAffindaEnabled()) {
         try {
           console.log('🚀 Affinda enabled — trying document parse first...');
-          uploadStageDebug(REQ, 'AFFINDA', 'request started', { fileSizeBytes: file.size });
+          const affindaTimeout = parserBudget.capTimeoutMs(25_000, 20_000);
+          if (affindaTimeout <= 0 || pastHardDeadline()) {
+            warn('Skipping Affinda — hard deadline / budget exhausted', {
+              remainingMs: parserBudget.remainingMs(),
+              elapsedMs: Date.now() - pipelineStartMs,
+              hardDeadlineMs,
+            });
+          } else {
+          uploadStageDebug(REQ, 'AFFINDA', 'request started', {
+            fileSizeBytes: file.size,
+            timeoutMs: affindaTimeout,
+          });
           const affindaParser = new AffindaResumeParser();
           const affindaResult = await uploadTiming.measure('affindaMs', () =>
-            affindaParser.parseResume(fileBuffer, file.name)
+            affindaParser.parseResume(fileBuffer, file.name, { timeoutMs: affindaTimeout })
           );
           uploadStageDebug(REQ, 'AFFINDA', 'response received', {
             durationMs: uploadTiming.stages.affindaMs,
@@ -724,6 +739,7 @@ export async function POST(request: NextRequest) {
               console.warn('⚠️ Affinda not primary-acceptable — Hybrid fallback', quality);
             }
           }
+          } // end else (affindaTimeout available)
         } catch (affindaPrimaryError) {
           console.warn(
             '⚠️ Affinda primary parse failed, using AI fallback chain:',
@@ -732,7 +748,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      if (!usedAffindaPrimary) {
+      if (!usedAffindaPrimary && !pastHardDeadline()) {
         try {
           console.log('🌿 Trying Eden/ApiLayer/Affinda document parsers (no OpenAI required)...');
           const docAutofill = await runDocumentAutofill();
@@ -750,16 +766,32 @@ export async function POST(request: NextRequest) {
             docParserError instanceof Error ? docParserError.message : docParserError
           );
         }
+      } else if (!usedAffindaPrimary && pastHardDeadline()) {
+        warn('Skipping Eden/Apilayer — hard deadline reached; using text recovery');
+        const docAutofill = await resolveDocumentParserAutofill(
+          lastAffindaResult,
+          fileBuffer,
+          file.name,
+          extractedText,
+          { budget: parserBudget, timing: uploadTiming, skipExternalParsers: true }
+        );
+        if (docAutofill) {
+          applyDocAutofill(docAutofill);
+        }
       }
 
       if (!usedAffindaPrimary && !usedDocumentParser) {
       let aiExtractionStart: number | null = null;
-      if (!parserBudget.shouldRunNextParser(AI_PARSER_MIN_BUDGET_MS)) {
-        warn('Parser budget exceeded — skipping Hybrid AI', {
+      if (pastHardDeadline() || !parserBudget.shouldRunNextParser(AI_PARSER_MIN_BUDGET_MS)) {
+        warn('Parser budget / hard deadline — skipping Hybrid AI', {
           remainingMs: parserBudget.remainingMs(),
           budgetMs: parserBudget.budgetMs,
+          elapsedMs: Date.now() - pipelineStartMs,
+          hardDeadlineMs,
         });
-        hybridSkippedReason = 'parser_budget_exceeded';
+        hybridSkippedReason = pastHardDeadline()
+          ? 'hard_deadline_exceeded'
+          : 'parser_budget_exceeded';
         const docAutofill = await runDocumentAutofill();
         if (docAutofill) {
           applyDocAutofill(docAutofill);
@@ -1072,7 +1104,13 @@ export async function POST(request: NextRequest) {
             const affindaParser = new AffindaResumeParser();
 
             if (affindaParser.isAvailable()) {
-              const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
+              const fallbackTimeout = parserBudget.capTimeoutMs(20_000, 10_000);
+              if (fallbackTimeout <= 0 || pastHardDeadline()) {
+                throw new Error('No time remaining for Affinda fallback parse');
+              }
+              const affindaResult = await affindaParser.parseResume(fileBuffer, file.name, {
+                timeoutMs: fallbackTimeout,
+              });
               lastAffindaResult = affindaResult;
               console.log('📦 Affinda returned result');
 

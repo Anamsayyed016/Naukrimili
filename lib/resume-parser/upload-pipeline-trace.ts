@@ -203,6 +203,28 @@ export class ParserTimeBudget {
   shouldRunNextParser(minReserveMs = 5000): boolean {
     return this.remainingMs() > minReserveMs;
   }
+
+  /**
+   * Clamp an outbound parser HTTP timeout to remaining budget.
+   * Prevents Affinda(55s)+Eden(55s)+ApiLayer(45s) from exceeding Cloudflare (~100s)
+   * / mobile idle limits — which surface in the browser as "Failed to fetch".
+   */
+  capTimeoutMs(desiredMs: number, reserveMs = 8_000): number {
+    const desired = Number.isFinite(desiredMs) && desiredMs > 0 ? desiredMs : 15_000;
+    const remaining = this.remainingMs() - Math.max(0, reserveMs);
+    if (remaining <= 2_000) return 0;
+    return Math.max(2_000, Math.min(desired, remaining));
+  }
+}
+
+/**
+ * Soft wall-clock for the whole upload route. Stay under typical CDN/proxy
+ * idle limits (Cloudflare ~100s) so the browser receives a real JSON response
+ * instead of a dropped connection ("Failed to fetch").
+ */
+export function getUploadHardDeadlineMs(): number {
+  const parsed = parseInt(process.env.UPLOAD_HARD_DEADLINE_MS || '85000', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 85000;
 }
 
 export function getUploadParserBudgetMs(): number {

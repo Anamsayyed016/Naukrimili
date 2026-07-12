@@ -27,8 +27,8 @@ export function getAffindaConfig(): AffindaConfig | null {
     apiKey,
     workspaceId,
     apiUrl: process.env.AFFINDA_API_URL?.trim() || DEFAULT_API_URL,
-    timeoutMs: parseInt(process.env.AFFINDA_TIMEOUT_MS || '55000', 10),
-  };
+  timeoutMs: parseInt(process.env.AFFINDA_TIMEOUT_MS || '25000', 10),
+};
 }
 
 export function isAffindaEnabled(): boolean {

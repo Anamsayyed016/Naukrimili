@@ -69,16 +69,25 @@ export class AffindaResumeParser {
     return isAffindaEnabled();
   }
 
-  async parseResume(fileBuffer: Buffer, fileName: string): Promise<ExtractedResumeData> {
+  async parseResume(
+    fileBuffer: Buffer,
+    fileName: string,
+    options?: { timeoutMs?: number }
+  ): Promise<ExtractedResumeData> {
     const config = this.config;
     if (!config) {
       throw new Error('Affinda API key or workspace ID not configured');
     }
 
     const mime = mimeTypeFromFileName(fileName);
+    const timeoutMs =
+      typeof options?.timeoutMs === 'number' && options.timeoutMs > 0
+        ? options.timeoutMs
+        : config.timeoutMs;
     console.log('🔍 Parsing resume with Affinda API...');
     console.log('   - Workspace ID:', config.workspaceId);
     console.log('   - File:', fileName, '| MIME:', mime);
+    console.log('   - Timeout Ms:', timeoutMs);
 
     const blob = new Blob([fileBuffer], { type: mime });
     const formData = new FormData();
@@ -87,7 +96,7 @@ export class AffindaResumeParser {
     formData.append('wait', 'true');
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const response = await fetch(config.apiUrl, {

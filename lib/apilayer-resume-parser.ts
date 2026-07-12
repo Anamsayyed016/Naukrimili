@@ -27,7 +27,11 @@ export class ApilayerResumeParser {
     return isApilayerEnabled();
   }
 
-  async parseResume(fileBuffer: Buffer, fileName: string): Promise<ExtractedResumeData> {
+  async parseResume(
+    fileBuffer: Buffer,
+    fileName: string,
+    options?: { timeoutMs?: number }
+  ): Promise<ExtractedResumeData> {
     const config = this.config;
     if (!config) {
       throw new Error('ApiLayer API key not configured');
@@ -37,7 +41,7 @@ export class ApilayerResumeParser {
     console.log('🔍 Parsing resume with ApiLayer...');
     console.log('   - File:', fileName, '| MIME:', mime);
 
-    const payload = await this.requestApilayerParse(fileBuffer, fileName, mime, config);
+    const payload = await this.requestApilayerParse(fileBuffer, fileName, mime, config, options);
     const transformed = transformApilayerPayload(payload);
     const normalized = normalizeExtractedResumeData(transformed);
 
@@ -67,14 +71,23 @@ export class ApilayerResumeParser {
     fileBuffer: Buffer,
     fileName: string,
     mime: string,
-    config: NonNullable<ReturnType<typeof getApilayerConfig>>
+    config: NonNullable<ReturnType<typeof getApilayerConfig>>,
+    options?: { timeoutMs?: number }
   ): Promise<ApilayerResumePayload> {
     let lastError: Error | null = null;
-    const attempts = Math.max(1, config.maxRetries + 1);
+    const timeoutMs =
+      typeof options?.timeoutMs === 'number' && options.timeoutMs > 0
+        ? options.timeoutMs
+        : config.timeoutMs;
+    // Under a capped upload budget, do not retry — retries multiply wall time.
+    const attempts =
+      typeof options?.timeoutMs === 'number' && options.timeoutMs > 0
+        ? 1
+        : Math.max(1, config.maxRetries + 1);
 
     for (let attempt = 1; attempt <= attempts; attempt++) {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
         const response = await fetch(config.uploadUrl, {

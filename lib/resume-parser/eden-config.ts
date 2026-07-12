@@ -40,7 +40,7 @@ export function getEdenConfig(): EdenConfig | null {
     apiKey,
     apiUrl: process.env.EDEN_AI_RESUME_PARSER_URL?.trim() || DEFAULT_API_URL,
     providers: providers.length > 0 ? providers : DEFAULT_PROVIDERS,
-    timeoutMs: parseInt(process.env.EDEN_AI_TIMEOUT_MS || '55000', 10),
+    timeoutMs: parseInt(process.env.EDEN_AI_TIMEOUT_MS || '20000', 10),
   };
 }
 

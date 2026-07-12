@@ -20,7 +20,7 @@ export function getApilayerConfig(): ApilayerConfig | null {
   return {
     apiKey,
     uploadUrl: process.env.APILAYER_RESUME_PARSER_URL?.trim() || DEFAULT_UPLOAD_URL,
-    timeoutMs: parseInt(process.env.APILAYER_TIMEOUT_MS || '45000', 10),
+    timeoutMs: parseInt(process.env.APILAYER_TIMEOUT_MS || '15000', 10),
     maxRetries: parseInt(process.env.APILAYER_MAX_RETRIES || '1', 10),
   };
 }
