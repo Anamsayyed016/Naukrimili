@@ -88,6 +88,8 @@ export interface LayoutFillSignals {
   shouldCompress: boolean;
   experienceDominant: boolean;
   sidebarUnderfilled: boolean;
+  /** True when column-balance-engine already relocated flexible sections. */
+  columnBalanced: boolean;
 }
 
 /** Structural capacity inferred from template HTML — no per-template hardcoding. */
@@ -757,6 +759,9 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
     expSection && expSection.height >= mainWeight * 0.42
   );
 
+  /** Set by plan when HTML was already section-balanced across columns. */
+  const columnBalanced = false;
+
   const shouldExpand =
     pageFill < FILL_EXPAND_BELOW ||
     (sidebarUnderfilled && pageFill < FILL_HOLD_MAX);
@@ -772,6 +777,7 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
     shouldCompress,
     experienceDominant,
     sidebarUnderfilled,
+    columnBalanced,
   };
 }
 
@@ -825,6 +831,11 @@ function rebalanceColumnExtras(
   fillSignals: LayoutFillSignals
 ): Partial<Record<LayoutSectionKind, number>> {
   const out = { ...extras };
+
+  // After section relocation, avoid re-inflating the main column / crushing the sidebar.
+  if (fillSignals.columnBalanced) {
+    return out;
+  }
 
   if (metrics.mainHeight > metrics.sidebarHeight * 1.08) {
     const gap = metrics.mainHeight - metrics.sidebarHeight;
@@ -1144,7 +1155,13 @@ export function computeDynamicLayoutPlanFromMetrics(
 ): DynamicLayoutPlan {
   const htmlTemplate = options?.htmlTemplate ?? '';
   const hasSidebar = detectHasSidebar(htmlTemplate) || metrics.sidebarHeight > 0;
-  const fillSignals = computeLayoutFillSignals(metrics);
+  const columnBalanced = /data-column-balanced=["']true["']/i.test(
+    options?.renderedHtml ?? ''
+  );
+  const fillSignals: LayoutFillSignals = {
+    ...computeLayoutFillSignals(metrics),
+    columnBalanced,
+  };
   const fill = fillSignals.pageFill;
   const contentMetrics = computeSectionContentMetrics(formData, options?.renderedHtml);
 
@@ -1223,8 +1240,14 @@ export function computeDynamicLayoutPlanFromMetrics(
   let sidebarFlexGrow = hasSidebar ? 1 : 0;
 
   if (hasSidebar && fillSignals.sidebarUnderfilled) {
-    mainFlexGrow = 2.12;
-    sidebarFlexGrow = 0.68;
+    if (fillSignals.columnBalanced) {
+      // Sections already relocated — keep columns visually even instead of widening main.
+      mainFlexGrow = 1.72;
+      sidebarFlexGrow = 0.95;
+    } else {
+      mainFlexGrow = 2.12;
+      sidebarFlexGrow = 0.68;
+    }
   } else if (hasSidebar && metrics.columnImbalance > 40) {
     const taller = Math.max(metrics.sidebarHeight, metrics.mainHeight);
     const shorter = Math.min(metrics.sidebarHeight, metrics.mainHeight) || 1;
@@ -2369,13 +2392,16 @@ export function getDomAwareLayoutRefinementScript(): string {
     }
     if(m.sections.length<=4&&fill<0.85){sg*=1.22;bg*=1.16;pad*=1.14;}
     var mf=m.sidebarHeight>0?1.65:1, sf=m.sidebarHeight>0?1:0, sbPct=32, mnPct=68, sbMax=34;
-    if(m.sidebarUnderfilled){mf=2.12;sf=0.68;sbPct=24;mnPct=76;sbMax=26;sgap*=0.78;}
+    if(m.sidebarUnderfilled){
+      if(m.columnBalanced){mf=1.72;sf=0.95;sbPct=28;mnPct=72;sbMax=30;}
+      else{mf=2.12;sf=0.68;sbPct=24;mnPct=76;sbMax=26;sgap*=0.78;}
+    }
     else if(m.columnImbalance>40&&m.sidebarHeight>0){
       var t=Math.max(m.sidebarHeight,m.mainHeight), s=Math.min(m.sidebarHeight,m.mainHeight)||1;
       var r=Math.min(0.45,(t-s)/t);
       if(m.sidebarHeight>m.mainHeight){mf=1.65+r*1.1;sf=1-r*0.35;}else{sf=1+r*0.55;mf=1.65-r*0.4;}
     }
-    if(m.mainHeight>m.sidebarHeight*1.08){
+    if(!m.columnBalanced&&m.mainHeight>m.sidebarHeight*1.08){
       var tr=Math.min(96,(m.mainHeight-m.sidebarHeight)*0.14);
       extras.experience=(extras.experience||0)+Math.round(tr*0.62);
       extras.summary=(extras.summary||0)+Math.round(tr*0.18);
@@ -2391,6 +2417,7 @@ export function getDomAwareLayoutRefinementScript(): string {
   function apply(){
     var root=document.querySelector('.resume-container'); if(!root)return;
     var m=measure();
+    m.columnBalanced=root.getAttribute('data-column-balanced')==='true';
     var fill=m.pageFillRatio;
     var p=plan(m);
     var expCount=(document.querySelectorAll('.experience-item')||[]).length;

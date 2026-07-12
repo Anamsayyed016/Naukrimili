@@ -54,6 +54,7 @@ import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
 import { composeBulletList } from './content-composition';
+import { balanceTwoColumnLayout } from './column-balance-engine';
 
 /**
  * Load template metadata from JSON
@@ -616,6 +617,13 @@ export function injectResumeData(
   );
 
   result = appendExtendedSectionsToHtml(result, coalesced);
+
+  // Two-column balance: relocate flexible sections only (projects/achievements/interests)
+  // when main is overloaded and the template has a sidebar. Runs before layout CSS.
+  result = balanceTwoColumnLayout(result, {
+    htmlTemplate,
+    templateId: options?.templateId ?? options?.galleryTemplateId,
+  }).html;
 
   // Premium typography & content-balance (spacing/hierarchy only — no layout/color changes).
   const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;

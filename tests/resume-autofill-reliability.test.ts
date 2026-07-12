@@ -1557,6 +1557,117 @@ describe('optimizeResumeDataForRender', () => {
   });
 });
 
+describe('two-column layout balancer', () => {
+  const {
+    balanceTwoColumnLayout,
+    detectTwoColumnLayout,
+    resolveSidebarAllowedFlexibleSections,
+    estimateColumnBlockHeight,
+  } = require('@/lib/resume-builder/column-balance-engine');
+
+  const twoColumnTemplate = `
+    <div class="resume-container">
+      <main>
+        {{#if SUMMARY}}<section class="content-section"><p class="summary-text">{{SUMMARY}}</p></section>{{/if}}
+        {{#if EXPERIENCE}}<section class="content-section"><div class="experience-list">{{EXPERIENCE}}</div></section>{{/if}}
+        {{#if PROJECTS}}<section class="content-section"><div class="projects-list">{{PROJECTS}}</div></section>{{/if}}
+        {{#if ACHIEVEMENTS}}<section class="content-section"><div class="achievements-list">{{ACHIEVEMENTS}}</div></section>{{/if}}
+      </main>
+      <aside class="sidebar">
+        {{#if SKILLS}}<section class="sidebar-section"><div class="skills-list">{{SKILLS}}</div></section>{{/if}}
+        {{#if EDUCATION}}<section class="sidebar-section"><div class="education-list">{{EDUCATION}}</div></section>{{/if}}
+        {{#if LANGUAGES}}<section class="sidebar-section"><div class="languages-list">{{LANGUAGES}}</div></section>{{/if}}
+      </aside>
+    </div>
+  `;
+
+  it('detects two-column layouts and sidebar-allowed flexible sections', () => {
+    expect(detectTwoColumnLayout(twoColumnTemplate)).toBe(true);
+    const allowed = resolveSidebarAllowedFlexibleSections(twoColumnTemplate);
+    expect(allowed.has('projects')).toBe(true);
+    expect(allowed.has('achievements')).toBe(true);
+  });
+
+  it('moves projects from overloaded main into underfilled sidebar without duplicating', () => {
+    const rendered = `
+      <div class="resume-container">
+        <main>
+          <section class="content-section"><p class="summary-text">Senior engineer with deep product experience across platforms.</p></section>
+          <section class="content-section">
+            <div class="experience-list">
+              <div class="experience-item"><div class="experience-header"><span class="company">Acme</span><h3>Lead</h3></div>
+              <div class="description"><ul><li>Built APIs</li><li>Led team</li><li>Reduced latency</li><li>Shipped v2</li><li>Mentored juniors</li></ul></div></div>
+              <div class="experience-item"><div class="experience-header"><span class="company">Globex</span><h3>Engineer</h3></div>
+              <div class="description"><ul><li>Implemented services</li><li>Improved reliability</li><li>Owned on-call</li></ul></div></div>
+            </div>
+          </section>
+          <section class="content-section">
+            <div class="projects-list">
+              <div class="project-item"><h3>Platform Rebuild</h3><ul><li>Migrated services</li><li>Cut cost 30%</li></ul></div>
+              <div class="project-item"><h3>Analytics Hub</h3><ul><li>Realtime dashboards</li></ul></div>
+            </div>
+          </section>
+          <section class="content-section">
+            <div class="achievements-list">
+              <div class="achievement-item"><h3>Patent filed</h3></div>
+              <div class="achievement-item"><h3>Conference talk</h3></div>
+            </div>
+          </section>
+        </main>
+        <aside class="sidebar">
+          <section class="sidebar-section"><div class="skills-list"><span class="skill-tag">React</span><span class="skill-tag">Node</span></div></section>
+          <section class="sidebar-section"><div class="education-list"><div class="education-item"><span class="institution">MIT</span></div></div></section>
+        </aside>
+      </div>
+    `;
+
+    const beforeMain = estimateColumnBlockHeight(
+      rendered.match(/<main[\s\S]*?<\/main>/i)?.[0] || ''
+    );
+    const beforeSide = estimateColumnBlockHeight(
+      rendered.match(/<aside[\s\S]*?<\/aside>/i)?.[0] || ''
+    );
+    expect(beforeMain).toBeGreaterThan(beforeSide);
+
+    const result = balanceTwoColumnLayout(rendered, { htmlTemplate: twoColumnTemplate });
+    expect(result.moved.length).toBeGreaterThan(0);
+    expect(result.moved.every((m: { kind: string }) => ['projects', 'achievements', 'interests'].includes(m.kind))).toBe(true);
+    expect(result.html).toContain('data-column-balanced="true"');
+    expect(result.html).toContain('data-column-moved=');
+
+    const projectsInMain = (
+      result.html.match(/<main[\s\S]*?<\/main>/i)?.[0] || ''
+    ).match(/project-item/g);
+    const projectsInSide = (
+      result.html.match(/<aside[\s\S]*?<\/aside>/i)?.[0] || ''
+    ).match(/project-item/g);
+    const totalProjects = (result.html.match(/project-item/g) || []).length;
+    expect(totalProjects).toBe(2);
+    expect((projectsInMain || []).length + (projectsInSide || []).length).toBe(2);
+    expect((projectsInSide || []).length).toBeGreaterThan(0);
+  });
+
+  it('does not move fixed experience/summary sections', () => {
+    const rendered = `
+      <div class="resume-container">
+        <main>
+          <section><p class="summary-text">Summary text for the candidate profile goes here with enough words.</p></section>
+          <section><div class="experience-list"><div class="experience-item"><span class="company">Acme</span><ul><li>One</li><li>Two</li><li>Three</li></ul></div></div></section>
+          <section><div class="projects-list"><div class="project-item"><h3>App</h3><ul><li>Built it</li></ul></div></div></section>
+        </main>
+        <aside class="sidebar">
+          <section><div class="skills-list"><span class="skill-tag">Go</span></div></section>
+        </aside>
+      </div>
+    `;
+    const result = balanceTwoColumnLayout(rendered, { htmlTemplate: twoColumnTemplate });
+    const mainHtml = result.html.match(/<main[\s\S]*?<\/main>/i)?.[0] || '';
+    expect(mainHtml).toContain('summary-text');
+    expect(mainHtml).toContain('experience-item');
+    expect(result.moved.every((m: { kind: string }) => m.kind !== 'experience' && m.kind !== 'summary')).toBe(true);
+  });
+});
+
 describe('content composition engine', () => {
   const {
     composeBulletList,
