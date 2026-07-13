@@ -89,6 +89,7 @@ import {
   skillsLookLikeAddressContamination,
   normalizePdfLigatureText,
   enrichPartialNameFromEmail,
+  expandVowelDroppedNameFromEmail,
   nameWordCount,
   reconcileEducationDegreeAndField,
   isGarbageEducationDegree,
@@ -1643,10 +1644,18 @@ export function transformImportDataToBuilder(
   const locationHint = String(
     mergedImport.location || mergedImport.address || textParsed?.location || ''
   );
+  const recoveredHeaderName =
+    effectiveRawText.length >= 80
+      ? sanitizePersonName(extractNameWithConfidence(effectiveRawText), 120)
+      : '';
+  const headerNameForResolve = sanitizePersonName(
+    pickRicherFullName(textParsed?.fullName || '', recoveredHeaderName, email),
+    120
+  );
   const { firstName, lastName, displayName, additionalResumeData } = resolveClassifiedName(
     mergedImport,
     email,
-    textParsed?.fullName || '',
+    headerNameForResolve || recoveredHeaderName || textParsed?.fullName || '',
     locationHint
   );
   let resolvedFirstName = firstName;
@@ -2110,6 +2119,7 @@ function resolveClassifiedName(
   let profileFullNameEnriched = profileFullNameRaw;
   if (profileFullNameEnriched && email) {
     profileFullNameEnriched = enrichPartialNameFromEmail(profileFullNameEnriched, email);
+    profileFullNameEnriched = expandVowelDroppedNameFromEmail(profileFullNameEnriched, email);
   }
   const profileCombined = [profileFirst, profileLast].filter(Boolean).join(' ').trim();
   const richerProfileFull =
@@ -2121,6 +2131,8 @@ function resolveClassifiedName(
       ? profileFullNameEnriched
       : '';
 
+  const textHeaderName = sanitizePersonName(headerNameFromText, 120);
+
   const acceptedProfile = richerProfileFull
     ? null
     : acceptProfileNameParts(
@@ -2131,9 +2143,12 @@ function resolveClassifiedName(
         additionalResumeData
       );
   if (acceptedProfile) {
-    const displayName = email
+    let displayName = email
       ? enrichPartialNameFromEmail(acceptedProfile.displayName, email)
       : acceptedProfile.displayName;
+    if (textHeaderName) {
+      displayName = pickRicherFullName(displayName, textHeaderName, email) || displayName;
+    }
     if (displayName !== acceptedProfile.displayName) {
       const split = splitFullNameWithRejected(displayName);
       return {
@@ -2145,11 +2160,12 @@ function resolveClassifiedName(
     }
     return {
       ...acceptedProfile,
+      displayName,
+      firstName: splitFullNameWithRejected(displayName).firstName || acceptedProfile.firstName,
+      lastName: splitFullNameWithRejected(displayName).lastName || acceptedProfile.lastName,
       additionalResumeData,
     };
   }
-
-  const textHeaderName = sanitizePersonName(headerNameFromText, 120);
 
   if (richerProfileFull) {
     const split = splitFullNameWithRejected(richerProfileFull);
@@ -2290,6 +2306,7 @@ function resolveClassifiedName(
   let finalDisplay = [safeFirst, safeLast].filter(Boolean).join(' ').trim();
   if (email && finalDisplay) {
     finalDisplay = enrichPartialNameFromEmail(finalDisplay, email);
+    finalDisplay = expandVowelDroppedNameFromEmail(finalDisplay, email);
     const enrichedSplit = splitFullNameWithRejected(finalDisplay);
     safeFirst = enrichedSplit.firstName || safeFirst;
     safeLast = enrichedSplit.lastName || safeLast;
@@ -2348,10 +2365,15 @@ function ensureImportedExperiencePopulated(
   if (structured.length > 0) {
     const finalized = finalizeExperienceListForCustomParserImport(structured);
     const structuredMeaningful = filterMeaningfulExperiences(finalized);
-    if (
+    const structuredCompanies = countExperienceWithPlausibleCompany(finalized);
+    const shouldPreferStructured =
       structuredMeaningful.length > meaningful.length ||
-      (meaningful.length === 0 && structuredMeaningful.length > 0)
-    ) {
+      (meaningful.length === 0 && structuredMeaningful.length > 0) ||
+      (plausible === 0 && structuredCompanies >= 2) ||
+      (plausible < meaningful.length &&
+        structuredCompanies >= 2 &&
+        structuredCompanies > plausible);
+    if (shouldPreferStructured) {
       const experience = transformExperienceArray(finalized);
       return {
         ...builder,
@@ -2499,6 +2521,12 @@ function applyBuilderImportGuards(
     }
   } else {
     out.skills = recoverSkillsFromRawText(rawText, existingSkills);
+    if (rawText.length >= 80 && (out.skills as string[]).length < 4) {
+      const fromSection = recoverSkillsFromTechnicalSkillsSection(rawText);
+      if (fromSection.length > (out.skills as string[]).length) {
+        out.skills = fromSection;
+      }
+    }
   }
   out.Skills = out.skills;
   if (!String(out.location || out.address || '').trim() && rawText.length >= 40) {
@@ -2946,6 +2974,12 @@ function finalizeBuilderContactIdentity(
     let first = sanitizePersonName(out.firstName, 80);
     let last = sanitizePersonName(out.lastName, 80);
     let display = [first, last].filter(Boolean).join(' ').trim() || current;
+    if (rawText.length >= 80) {
+      const recovered = sanitizePersonName(extractNameWithConfidence(rawText), 120);
+      if (recovered) {
+        display = pickRicherFullName(display, recovered, email) || display;
+      }
+    }
     if (email) {
       display = enrichPartialNameFromEmail(display, email);
       const fromEmail = parseIntelligentNameFromEmail(email);

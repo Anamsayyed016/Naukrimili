@@ -1,6 +1,7 @@
 import {
   enrichPartialNameFromEmail,
   mergeEmailLeadingNameWithHeader,
+  expandVowelDroppedNameFromEmail,
   reconcileEducationDegreeAndField,
   sanitizeEducationEntry,
   sanitizeSkillEntry,
@@ -18,6 +19,13 @@ describe('import name and education fixes', () => {
   it('does not duplicate names already present in header', () => {
     const email = 'rajkumarbhawsar@gmail.com';
     expect(enrichPartialNameFromEmail('Raj Kumar Bhawsar', email)).toBe('Raj Kumar Bhawsar');
+    expect(expandVowelDroppedNameFromEmail('Raj Kumar Bhawsar', email)).toBe('Raj Kumar Bhawsar');
+    expect(mergeEmailLeadingNameWithHeader('Qamar Ali', 'qmr.ali@gmail.com')).toBe('Qamar Ali');
+    expect(enrichPartialNameFromEmail('Qamar Ali', 'qmr.ali@gmail.com')).toBe('Qamar Ali');
+  });
+
+  it('expands vowel-stripped Naukri header names from dotted email', () => {
+    expect(expandVowelDroppedNameFromEmail('Qmr Ali', 'qamar.ali@gmail.com')).toBe('Qamar Ali');
   });
 
   it('dedupes LL.B. degree and field', () => {

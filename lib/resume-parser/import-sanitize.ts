@@ -592,12 +592,48 @@ export function mergeEmailLeadingNameWithHeader(headerName: string, email: strin
   const header = sanitizePersonName(headerName);
   if (!header || !email) return header;
 
+  const headerWords = header.split(/\s+/).filter(Boolean);
+  if (headerWords.length < 2) return header;
+
+  const local = String(email.split('@')[0] || '')
+    .replace(/\d/g, '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+  const headerNorm = header.toLowerCase().replace(/\s+/g, '');
+  if (local && headerNorm && (local === headerNorm || local.endsWith(headerNorm))) {
+    return header;
+  }
+
+  const headerSurnameForPrefix = headerWords[headerWords.length - 1].toLowerCase();
+  if (
+    local.length >= headerSurnameForPrefix.length + 3 &&
+    local.endsWith(headerSurnameForPrefix)
+  ) {
+    const prefix = local.slice(0, -headerSurnameForPrefix.length);
+    const headerWordsLower = headerWords.map((w) => w.toLowerCase());
+    const prefixAlreadyRepresented = headerWordsLower.some(
+      (w) =>
+        w.startsWith(prefix) ||
+        nameConsonantSkeleton(w).startsWith(nameConsonantSkeleton(prefix))
+    );
+    if (
+      prefix.length >= 2 &&
+      prefix.length <= 12 &&
+      !header.toLowerCase().includes(prefix) &&
+      !prefixAlreadyRepresented
+    ) {
+      const fromPrefix = formatDisplayName(`${prefix} ${header}`);
+      if (isPlausiblePersonName(fromPrefix) && nameWordCount(fromPrefix) > nameWordCount(header)) {
+        return fromPrefix;
+      }
+    }
+  }
+
   const emailName = sanitizePersonName(deriveDisplayNameFromEmail(email));
   if (!emailName) return header;
 
-  const headerWords = header.split(/\s+/).filter(Boolean);
   const emailWords = emailName.split(/\s+/).filter(Boolean);
-  if (headerWords.length < 2 || emailWords.length < 2) return header;
+  if (emailWords.length < 2) return header;
 
   const headerSurname = headerWords[headerWords.length - 1].toLowerCase();
   const emailSurname = emailWords[emailWords.length - 1].toLowerCase();
@@ -605,7 +641,15 @@ export function mergeEmailLeadingNameWithHeader(headerName: string, email: strin
 
   const headerLower = header.toLowerCase();
   const emailLead = emailWords.slice(0, -1);
-  const missingLead = emailLead.filter((w) => !headerLower.includes(w.toLowerCase()));
+  const missingLead = emailLead.filter((w) => {
+    const wl = w.toLowerCase();
+    if (headerLower.includes(wl)) return false;
+    return !headerWords.some(
+      (hw) =>
+        hw.toLowerCase().startsWith(wl) ||
+        nameConsonantSkeleton(hw).startsWith(nameConsonantSkeleton(wl))
+    );
+  });
   if (!missingLead.length) return header;
 
   const merged = formatDisplayName([...missingLead, ...headerWords].join(' '));
@@ -616,10 +660,83 @@ export function mergeEmailLeadingNameWithHeader(headerName: string, email: strin
   return header;
 }
 
+/** True when a name token looks vowel-stripped (e.g. PDF "QMR" for Qamar). */
+function isVowelStrippedNameToken(token: string): boolean {
+  const t = String(token || '').trim();
+  if (!t || t.length < 2 || t.length > 5) return false;
+  const vowels = (t.match(/[aeiouAEIOU]/g) || []).length;
+  return vowels === 0;
+}
+
+function nameConsonantSkeleton(token: string): string {
+  return String(token || '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '')
+    .replace(/[aeiou]/g, '');
+}
+
+/** Expand vowel-dropped header names using the email local part (Qmr Ali + qamar.ali@…). */
+export function expandVowelDroppedNameFromEmail(headerName: string, email: string): string {
+  const header = sanitizePersonName(headerName);
+  if (!header || !email) return header;
+
+  const words = header.split(/\s+/).filter(Boolean);
+  if (words.length < 2) return header;
+
+  const first = words[0];
+  const last = words[words.length - 1];
+  if (!isVowelStrippedNameToken(first)) return header;
+
+  const local = String(email.split('@')[0] || '')
+    .replace(/\d/g, '')
+    .toLowerCase();
+  if (!local) return header;
+
+  const dotted = local.split(/[._-]+/).filter((p) => p.length >= 2);
+  let firstFromEmail = '';
+  if (dotted.length >= 2 && dotted[dotted.length - 1].toLowerCase() === last.toLowerCase()) {
+    firstFromEmail = dotted.slice(0, -1).join(' ');
+  } else {
+    const lastLower = last.toLowerCase();
+    const idx = local.lastIndexOf(lastLower);
+    if (idx > 0) firstFromEmail = local.slice(0, idx);
+  }
+
+  if (!firstFromEmail || !/[aeiou]/.test(firstFromEmail)) return header;
+
+  const firstSkeleton = nameConsonantSkeleton(first);
+  const emailSkeleton = nameConsonantSkeleton(firstFromEmail.split(/\s+/)[0] || firstFromEmail);
+  if (
+    firstSkeleton &&
+    emailSkeleton &&
+    !emailSkeleton.startsWith(firstSkeleton) &&
+    !firstSkeleton.startsWith(emailSkeleton.slice(0, firstSkeleton.length))
+  ) {
+    return header;
+  }
+
+  const merged = formatDisplayName([firstFromEmail, ...words.slice(1)].join(' '));
+  if (isPlausiblePersonName(merged) && nameWordCount(merged) >= nameWordCount(header)) {
+    return merged;
+  }
+
+  return header;
+}
+
 /** When header omits first name, recover it from the email local part (e.g. Mujahid Ali + syedmujahidali). */
 export function enrichPartialNameFromEmail(headerName: string, email: string): string {
   const header = sanitizePersonName(headerName);
   if (!header || !email) return header;
+
+  const localGlued = String(email.split('@')[0] || '')
+    .replace(/\d/g, '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+  const headerNorm = header.toLowerCase().replace(/\s+/g, '');
+  if (localGlued && headerNorm && localGlued === headerNorm) return header;
+
+  const fromVowelExpand = expandVowelDroppedNameFromEmail(header, email);
+  if (fromVowelExpand !== header) return fromVowelExpand;
 
   const fromLeadingMerge = mergeEmailLeadingNameWithHeader(header, email);
   if (fromLeadingMerge !== header) return fromLeadingMerge;
@@ -632,10 +749,13 @@ export function enrichPartialNameFromEmail(headerName: string, email: string): s
     if (dotted) {
       const body = localRaw.replace(/[^a-z]/g, '');
       const fromSuffix = recoverNameFromSurnameSuffix(body);
-      if (fromSuffix) return fromSuffix;
+      if (fromSuffix) return pickRicherFullName(header, fromSuffix, email) || header;
       const combined = [dotted.firstName, dotted.lastName].filter(Boolean).join(' ');
       if (body.includes('neha') && body.includes('singh')) return 'Neha Singh';
-      if (isPlausiblePersonName(combined)) return formatDisplayName(combined);
+      if (isPlausiblePersonName(combined)) {
+        const dottedName = formatDisplayName(combined);
+        return pickRicherFullName(header, dottedName, email) || header;
+      }
     }
   }
   const local = localRaw.replace(/[^a-z]/g, '');
@@ -646,10 +766,10 @@ export function enrichPartialNameFromEmail(headerName: string, email: string): s
   if (cred) body = body.slice(cred[0].length);
 
   const fromSuffix = recoverNameFromSurnameSuffix(body);
-  if (fromSuffix) return fromSuffix;
+  if (fromSuffix) return pickRicherFullName(header, fromSuffix, email) || header;
 
-  const headerNorm = header.toLowerCase().replace(/\s+/g, '');
-  if (body.includes(headerNorm) && body.length > headerNorm.length + 2) {
+  if (body.includes(headerNorm) && body.length >= headerNorm.length) {
+    if (body === headerNorm) return header;
     const glued = parseGluedEmailLocalPart(String(email.split('@')[0] || '').replace(/\d/g, ''));
     if (glued) {
       const full = [glued.firstName, glued.lastName].filter(Boolean).join(' ');
@@ -874,17 +994,26 @@ export function recoverSkillsFromTechnicalSkillsSection(rawText: string): string
       if (inSection && out.length > 0) break;
       continue;
     }
-    if (/^(?:technical\s+)?skills?\b/i.test(line.replace(/[:.\s]+$/g, ''))) {
+    if (/^(?:key\s+|core\s+|technical\s+)?skills?\b/i.test(line.replace(/[:.\s]+$/g, ''))) {
       inSection = true;
       continue;
     }
     if (!inSection) continue;
     if (stopRe.test(line)) break;
     const skill = line.replace(/^[\s•\-–—*·▪]+\s*/, '').trim();
-    if (skill.length < 3 || skill.length > 90) continue;
+    if (skill.length < 3 || skill.length > 400) continue;
     if (/^(address|mobile|email|phone)\b/i.test(skill)) continue;
     if (isResumeSectionHeadingLine(skill)) continue;
-    out.push(skill);
+    if (/,|;|\|/.test(skill)) {
+      for (const part of skill.split(/[,;|]/)) {
+        const piece = part.trim();
+        if (piece.length < 2 || piece.length > 80) continue;
+        if (isResumeSectionHeadingLine(piece)) continue;
+        out.push(piece);
+      }
+    } else {
+      out.push(skill);
+    }
     if (out.length >= 24) break;
   }
 
@@ -1196,6 +1325,27 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
   if (aValid && bValid && aWords > bWords) return a;
   if (!aValid && !bValid && bWords > aWords) return b;
   if (!aValid && !bValid && aWords > bWords) return a;
+
+  if (aValid && bValid && aWords === bWords && aWords >= 2) {
+    const aParts = a.split(/\s+/).filter(Boolean);
+    const bParts = b.split(/\s+/).filter(Boolean);
+    const aLast = aParts[aParts.length - 1].toLowerCase();
+    const bLast = bParts[bParts.length - 1].toLowerCase();
+    if (aLast === bLast) {
+      const aFirst = aParts[0].toLowerCase();
+      const bFirst = bParts[0].toLowerCase();
+      const aSkel = nameConsonantSkeleton(aFirst);
+      const bSkel = nameConsonantSkeleton(bFirst);
+      if (aSkel && bSkel && (aSkel === bSkel || aSkel.startsWith(bSkel) || bSkel.startsWith(aSkel))) {
+        const aVowels = (aFirst.match(/[aeiou]/g) || []).length;
+        const bVowels = (bFirst.match(/[aeiou]/g) || []).length;
+        if (bVowels > aVowels) return b;
+        if (aVowels > bVowels) return a;
+        if (bFirst.length > aFirst.length) return b;
+        if (aFirst.length > bFirst.length) return a;
+      }
+    }
+  }
 
   const al = a.toLowerCase();
   const bl = b.toLowerCase();
@@ -4042,8 +4192,17 @@ export function dedupeAdjacentExperienceEntries<T extends ExperienceLike>(entrie
   return out;
 }
 
+const NAUKRI_END_DATE_TOKEN =
+  'Present|Current|Now|present|current|till\\s*date|to\\s*till\\s*date|to\\s*date';
+
 const NAUKRI_MONTH_TOKEN =
   'Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?';
+
+function normalizeNaukriEndDateToken(token: string): string {
+  const t = String(token || '').trim();
+  if (/^(present|current|now|till\s*date|to\s*till\s*date|to\s*date)$/i.test(t)) return 'Present';
+  return normalizeDate(t);
+}
 
 function collapseSpacedLettersInText(text: string): string {
   return String(text || '').replace(/(?:\b[A-Z]\s+){2,}[A-Z]\b/g, (m) => m.replace(/\s+/g, ''));
@@ -4051,9 +4210,13 @@ function collapseSpacedLettersInText(text: string): string {
 
 function flattenExperienceSectionBlob(rawText: string): string {
   const collapsed = collapseSpacedLettersInText(rawText.replace(/\f/g, '\n'));
-  const sectionStart = collapsed.search(
+  let sectionStart = collapsed.search(
     /\b(?:organisational|organizational)\s*experience\b|\bwork\s*experience\b|\bemployment\s*(?:history|record)\b|\bcareer\s+(?:profile|history)\b/i
   );
+  const bulletStart = collapsed.search(/\b(?:●\s*)?(?:currently\s+working\s+as|worked\s+as)\b/i);
+  if (bulletStart >= 0 && (sectionStart < 0 || bulletStart < sectionStart)) {
+    sectionStart = Math.max(0, bulletStart - 40);
+  }
   let blob =
     sectionStart >= 0
       ? collapsed.slice(sectionStart)
@@ -4283,6 +4446,84 @@ export function recoverExperienceBodiesFromRawText(
   });
 }
 
+function normalizeProseBulletDateToken(token: string): string {
+  const cleaned = String(token || '')
+    .replace(/(\d)\s+(st|nd|rd|th)\b/gi, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (/^(present|current|now|till\s*date|to\s*date)$/i.test(cleaned)) return 'Present';
+  return normalizeDate(cleaned);
+}
+
+function cleanProseBulletCompany(raw: string): string {
+  let company = sanitizeFieldText(raw, 200);
+  if (!company) return '';
+  company = company
+    .replace(/\s*\([^)]*(?:turnover|listed|bse|nse|crore|work from home|sister concern)[^)]*\)/gi, '')
+    .replace(/\s+registered\s+office\s+at\s+[^.]+\.?\s*$/i, '')
+    .replace(/\s+(?:Navi Mumbai|Mumbai|Indore|Delhi|Bhopal|Bengaluru|Bangalore|Pune|Hyderabad|Chennai|Kolkata)\s*$/i, '')
+    .trim();
+  return sanitizeFieldText(company, 160);
+}
+
+const PROSE_BULLET_DATE_RANGE_RE = new RegExp(
+  `\\s(?:from|From)\\s+((?:\\d{1,2}\\s*(?:st|nd|rd|th)?\\s*)?(?:${NAUKRI_MONTH_TOKEN})[a-z]*\\.?,?\\s*\\d{4}|(?:${NAUKRI_MONTH_TOKEN})[a-z]*\\.?,?\\s*\\d{4}|\\d{4})\\s+(?:till|to)\\s+((?:${NAUKRI_MONTH_TOKEN})[a-z]*\\.?,?\\s*)?(${NAUKRI_END_DATE_TOKEN}|(?:${NAUKRI_MONTH_TOKEN})[a-z]*\\.?,?\\s*\\d{4}|\\d{4})`,
+  'i'
+);
+
+/** Recover prose bullet jobs: "● Currently working as X at COMPANY from DATE till Present". */
+function recoverProseBulletExperienceFromRawText(rawText: string): Record<string, unknown>[] {
+  const normalized = collapseSpacedLettersInText(rawText.replace(/\f/g, '\n'))
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!normalized || normalized.length < 40) return [];
+
+  const segments = normalized.split(/\s*●\s*/).filter(Boolean);
+  const out: Record<string, unknown>[] = [];
+
+  for (const segment of segments) {
+    const seg = segment.trim();
+    if (!/^(?:currently\s+working|worked)\s+as\b/i.test(seg)) continue;
+
+    const headMatch = seg.match(
+      /^(?:Currently\s+working|Worked)\s+as\s+(?:an?\s+)?(.+?)\s+at\s+(.+)$/i
+    );
+    if (!headMatch) continue;
+
+    const title = sanitizeFieldText(headMatch[1], 120);
+    const tail = headMatch[2];
+    const dateMatch = tail.match(PROSE_BULLET_DATE_RANGE_RE);
+    if (!dateMatch || !title) continue;
+
+    const dateStartIdx = tail.search(PROSE_BULLET_DATE_RANGE_RE);
+    const company = cleanProseBulletCompany(tail.slice(0, dateStartIdx));
+    if (!company || !isPlausibleExperienceCompany(company)) continue;
+
+    const startDate = normalizeProseBulletDateToken(dateMatch[1]);
+    const endMonth = dateMatch[2] ? String(dateMatch[2]).trim() : '';
+    const endToken = String(dateMatch[3] || '').trim();
+    const endDate = /^(present|current|now|till\s*date|to\s*date)$/i.test(endToken)
+      ? 'Present'
+      : normalizeProseBulletDateToken(`${endMonth}${endToken}`.trim());
+    const { company: companyName, location } = splitCompanyAndLocation(company);
+
+    out.push({
+      company: companyName,
+      Company: companyName,
+      title,
+      position: title,
+      designation: title,
+      startDate,
+      endDate,
+      current: /^(present|current|now|till\s*date|to\s*date)$/i.test(endToken),
+      location,
+      Location: location,
+    });
+  }
+
+  return out;
+}
+
 /**
  * Recover Naukri-style dated employment lines from raw text when the parser
  * collapses experience into competency stubs (e.g. "Dec 2002 – Jul 2004 with X as Y").
@@ -4294,7 +4535,7 @@ export function recoverStructuredExperienceFromRawText(
   if (blob.length < 40) return [];
 
   const withAsRe = new RegExp(
-    `(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+(\\d{4})\\s*[-–—]\\s*(?:(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+)?(\\d{4}|Present|Current|Now|present|current)\\s+with\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards\\b|$)`,
+    `(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+(\\d{4})\\s*[-–—]\\s*(?:(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+)?(${NAUKRI_END_DATE_TOKEN}|\\d{4})\\s+with\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards\\b|$)`,
     'gi'
   );
 
@@ -4304,7 +4545,7 @@ export function recoverStructuredExperienceFromRawText(
     const startDate = normalizeDate(`${match[1]} ${match[2]}`);
     const endMonth = match[3] ? `${match[3]} ` : '';
     const endToken = String(match[4] || '').trim();
-    const endDate = /^(present|current|now)$/i.test(endToken)
+    const endDate = /^(present|current|now|till\s*date|to\s*till\s*date|to\s*date)$/i.test(endToken)
       ? 'Present'
       : normalizeDate(`${endMonth}${endToken}`.trim());
     const { company, location } = splitCompanyAndLocation(match[5]);
@@ -4318,20 +4559,20 @@ export function recoverStructuredExperienceFromRawText(
       designation: title,
       startDate,
       endDate,
-      current: /^(present|current|now)$/i.test(endToken),
+      current: /^(present|current|now|till\s*date|to\s*till\s*date|to\s*date)$/i.test(endToken),
       location,
       Location: location,
     });
   }
 
   const yearWithAsRe = new RegExp(
-    `(\\d{4})\\s*[-–—]\\s*(\\d{4}|present|current|now)\\s+(?:with|at)\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards|$)`,
+    `(\\d{4})\\s*[-–—]\\s*(${NAUKRI_END_DATE_TOKEN}|\\d{4})\\s+(?:with|at)\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards|$)`,
     'gi'
   );
   while ((match = yearWithAsRe.exec(blob)) !== null) {
     const startDate = normalizeDate(match[1]);
     const endToken = String(match[2] || '').trim();
-    const endDate = /^(present|current|now)$/i.test(endToken)
+    const endDate = /^(present|current|now|till\s*date|to\s*till\s*date|to\s*date)$/i.test(endToken)
       ? 'Present'
       : normalizeDate(endToken);
     const { company, location } = splitCompanyAndLocation(match[3]);
@@ -4351,7 +4592,7 @@ export function recoverStructuredExperienceFromRawText(
       designation: title,
       startDate,
       endDate,
-      current: /^(present|current|now)$/i.test(endToken),
+      current: /^(present|current|now|till\s*date|to\s*till\s*date|to\s*date)$/i.test(endToken),
       location,
       Location: location,
     });
@@ -4379,6 +4620,22 @@ export function recoverStructuredExperienceFromRawText(
         current: true,
       });
     }
+  }
+
+  for (const row of recoverProseBulletExperienceFromRawText(rawText)) {
+    const company = String(row.company || '').toLowerCase();
+    const title = String(row.title || row.position || '').toLowerCase();
+    const key = `${company}|${title}|${String(row.startDate || '')}`;
+    if (
+      out.some((existing) => {
+        const c = String(existing.company || '').toLowerCase();
+        const t = String(existing.title || existing.position || '').toLowerCase();
+        return `${c}|${t}|${String(existing.startDate || '')}` === key;
+      })
+    ) {
+      continue;
+    }
+    out.push(row);
   }
 
   const seen = new Set<string>();
