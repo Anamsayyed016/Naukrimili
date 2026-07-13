@@ -76,7 +76,8 @@ export const GALLERY_IFRAME_HEIGHT = A4_HEIGHT_PX;
 export function computeGalleryThumbnailScale(
   containerWidth: number,
   containerHeight: number,
-  padding = 6
+  padding = 6,
+  contentHeight = GALLERY_IFRAME_HEIGHT
 ): number {
   if (containerWidth <= 0 || containerHeight <= 0) return 0.5;
 
@@ -84,7 +85,8 @@ export function computeGalleryThumbnailScale(
   const availableH = Math.max(containerHeight - padding * 2, 120);
 
   const scaleW = availableW / GALLERY_IFRAME_WIDTH;
-  const scaleH = availableH / GALLERY_IFRAME_HEIGHT;
+  const logicalHeight = Math.max(contentHeight, GALLERY_IFRAME_HEIGHT);
+  const scaleH = availableH / logicalHeight;
 
   return Math.min(scaleW, scaleH, 1);
 }

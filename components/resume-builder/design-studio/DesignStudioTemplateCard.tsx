@@ -11,6 +11,7 @@ import { Check, Star } from 'lucide-react';
 import type { Template } from '@/lib/resume-builder/types';
 import { resolveColorVariant } from '@/lib/resume-builder/color-theme';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
+import { buildGalleryPreviewDocumentHtml } from '@/lib/resume-builder/gallery-preview-render';
 import { cn } from '@/lib/utils';
 
 interface DesignStudioTemplateCardProps {
@@ -95,42 +96,16 @@ export default function DesignStudioTemplateCard({
           templateMeta.defaultColor || templateMeta.colors[0]?.id || ''
         );
         const coloredCss = applyColorVariant(css, colorVariant);
-        const dataInjectedHtml = injectResumeData(html, formData);
+        const dataInjectedHtml = injectResumeData(html, formData, {
+          templateId: template.id,
+          mode: 'preview',
+        });
 
-        const fullHtml = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              ${coloredCss}
-              ${typographyCss && isSelected ? typographyCss : ''}
-              * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-              }
-              html, body {
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-                font-size: 10px;
-                width: 100%;
-                height: 100%;
-                position: relative;
-              }
-              @page {
-                size: 8.5in 11in;
-                margin: 0;
-              }
-            </style>
-          </head>
-          <body>
-            ${dataInjectedHtml}
-          </body>
-          </html>
-        `;
+        const fullHtml = buildGalleryPreviewDocumentHtml(
+          `${coloredCss}${typographyCss && isSelected ? typographyCss : ''}`,
+          dataInjectedHtml,
+          false
+        );
 
         setPreviewHtml(fullHtml);
         setLoading(false);

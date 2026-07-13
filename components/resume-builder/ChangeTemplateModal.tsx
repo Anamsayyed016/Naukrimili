@@ -18,6 +18,11 @@ import {
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
+import {
+  buildGalleryPreviewDocumentHtml,
+  isGalleryCompactPreview,
+  resolveGalleryInjectOptions,
+} from '@/lib/resume-builder/gallery-preview-render';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 // Dynamic imports moved inside component to avoid TDZ issues
@@ -264,36 +269,17 @@ function EnhancedTemplateCard({
           ? buildGallerySampleFormData(template.id)
           : formData;
 
-        const dataInjectedHtml = injectResumeData(html, previewData, {
-          galleryPreview: true,
-          galleryTemplateId: template.id,
-        });
+        const dataInjectedHtml = injectResumeData(
+          html,
+          previewData,
+          resolveGalleryInjectOptions(template.id, previewData)
+        );
 
-        const fullHtml = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              ${coloredCss}
-              body { 
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-                font-size: 10px;
-              }
-              @page {
-                size: 8.5in 11in;
-                margin: 0;
-              }
-            </style>
-          </head>
-          <body>
-            ${dataInjectedHtml}
-          </body>
-          </html>
-        `;
+        const fullHtml = buildGalleryPreviewDocumentHtml(
+          coloredCss,
+          dataInjectedHtml,
+          isGalleryCompactPreview(previewData)
+        );
 
         setPreviewHtml(fullHtml);
         setLoading(false);

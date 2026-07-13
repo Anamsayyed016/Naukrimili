@@ -10,6 +10,11 @@ import {
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
+import {
+  buildGalleryPreviewDocumentHtml,
+  isGalleryCompactPreview,
+  resolveGalleryInjectOptions,
+} from '@/lib/resume-builder/gallery-preview-render';
 import { prepareGalleryPreviewFormData, builderFormChecksum } from '@/lib/resume-builder/builder-hydration';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
@@ -190,47 +195,17 @@ function EnhancedTemplateCard({
         const previewData =
           userPreviewData ?? buildGallerySampleFormData(template.id);
 
-        const dataInjectedHtml = injectResumeData(html, previewData, {
-          galleryPreview: true,
-          galleryTemplateId: template.id,
-        });
+        const dataInjectedHtml = injectResumeData(
+          html,
+          previewData,
+          resolveGalleryInjectOptions(template.id, previewData)
+        );
 
-        const fullHtml = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              ${coloredCss}
-              * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-              }
-              html, body { 
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-                font-size: 10px;
-                width: 100%;
-                height: 100%;
-                position: relative;
-              }
-              body {
-                -webkit-overflow-scrolling: touch;
-              }
-              @page {
-                size: 8.5in 11in;
-                margin: 0;
-              }
-            </style>
-          </head>
-          <body>
-            ${dataInjectedHtml}
-          </body>
-          </html>
-        `;
+        const fullHtml = buildGalleryPreviewDocumentHtml(
+          coloredCss,
+          dataInjectedHtml,
+          isGalleryCompactPreview(previewData)
+        );
 
         setPreviewHtml(fullHtml);
         setLoading(false);

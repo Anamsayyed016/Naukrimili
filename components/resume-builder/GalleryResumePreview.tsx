@@ -35,12 +35,42 @@ export default function GalleryResumePreview({
 }: GalleryResumePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
+  const [contentHeight, setContentHeight] = useState(GALLERY_IFRAME_HEIGHT);
+
+  const measureIframeContent = useCallback(() => {
+    const iframe = iframeRef.current;
+    const iframeDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
+    if (!iframe || !iframeDoc?.body) return GALLERY_IFRAME_HEIGHT;
+
+    const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement | null;
+    const measured = Math.ceil(
+      resumeContainer?.scrollHeight ||
+        resumeContainer?.offsetHeight ||
+        iframeDoc.body.scrollHeight ||
+        GALLERY_IFRAME_HEIGHT
+    );
+    const height = Math.max(measured, GALLERY_IFRAME_HEIGHT);
+    setContentHeight(height);
+    iframe.style.height = `${height}px`;
+    iframeDoc.body.style.overflow = 'visible';
+    iframeDoc.documentElement.style.overflow = 'visible';
+    iframeDoc.body.style.height = `${height}px`;
+    iframeDoc.documentElement.style.height = `${height}px`;
+    return height;
+  }, [iframeRef]);
 
   const updateScale = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    setScale(computeGalleryThumbnailScale(el.clientWidth, el.clientHeight));
-  }, []);
+    setScale(
+      computeGalleryThumbnailScale(
+        el.clientWidth,
+        el.clientHeight,
+        6,
+        contentHeight
+      )
+    );
+  }, [contentHeight]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -66,9 +96,12 @@ export default function GalleryResumePreview({
           applyDomAwareLayoutToDocument(iframeDoc, formData ?? {}, {});
         })
         .catch(() => {})
-        .finally(updateScale);
+        .finally(() => {
+          measureIframeContent();
+          updateScale();
+        });
     });
-  }, [previewHtml, loading, error, iframeRef, updateScale, formData]);
+  }, [previewHtml, loading, error, iframeRef, updateScale, formData, measureIframeContent]);
 
   return (
     <div
@@ -101,7 +134,7 @@ export default function GalleryResumePreview({
           scrolling="no"
           style={{
             width: `${GALLERY_IFRAME_WIDTH}px`,
-            height: `${GALLERY_IFRAME_HEIGHT}px`,
+            height: `${contentHeight}px`,
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
             border: 'none',
