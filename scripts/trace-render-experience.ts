@@ -46,7 +46,7 @@ async function run(pdf: string) {
   const rec = extractResumeFromText(rawText);
   const html = injectResumeData('<div>{{EXPERIENCE}}</div>', coalesced, {
     galleryPreview: true,
-    templateId: 'luxury-corporate',
+    templateId: 'ivory-boardroom-executive',
   });
   const expHtml = html.replace(/<\/?div>/g, '').trim();
 

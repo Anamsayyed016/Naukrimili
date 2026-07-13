@@ -33,10 +33,10 @@ const FORM = {
 };
 
 const TEMPLATES = [
-  'luxury-corporate',
-  'executive-navy-copper',
-  'organic-luxe-editorial',
-  'slate-executive-pro',
+  'ivory-boardroom-executive',
+  'luxe-executive',
+  'royal-copper-executive',
+  'elegant-ivory',
 ];
 
 function names(data: Record<string, unknown>): string[] {

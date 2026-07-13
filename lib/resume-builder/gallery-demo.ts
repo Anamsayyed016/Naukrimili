@@ -24,12 +24,6 @@ export interface GalleryCardAccent {
 }
 
 export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> = {
-  'luxury-corporate': {
-    glow: 'radial-gradient(circle, rgba(201,162,39,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(26,39,68,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-400/60',
-    hoverOverlay: 'from-amber-900/18',
-  },
   'elegant-ivory': {
     glow: 'radial-gradient(circle, rgba(184,149,107,0.35) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(232,212,240,0.35) 0%, transparent 70%)',
@@ -54,89 +48,11 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-slate-400/65',
     hoverOverlay: 'from-slate-100/28',
   },
-  'executive-slate-luxe': {
-    glow: 'radial-gradient(circle, rgba(82,101,128,0.38) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(184,165,116,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-slate-400/70',
-    hoverOverlay: 'from-slate-200/25',
-  },
-  'organic-luxe-editorial': {
-    glow: 'radial-gradient(circle, rgba(193,106,75,0.30) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(111,138,105,0.22) 0%, transparent 70%)',
-    borderTint: 'hover:border-emerald-300/55',
-    hoverOverlay: 'from-amber-700/12',
-  },
-  'organic-luxe-executive': {
-    glow: 'radial-gradient(circle, rgba(107,70,193,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(11,16,32,0.35) 0%, transparent 70%)',
-    borderTint: 'hover:border-violet-400/60',
-    hoverOverlay: 'from-indigo-900/22',
-  },
-  'velvet-horizon-executive': {
-    glow: 'radial-gradient(circle, rgba(20,107,98,0.45) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(200,120,64,0.35) 0%, transparent 70%)',
-    borderTint: 'hover:border-emerald-400/60',
-    hoverOverlay: 'from-emerald-900/20',
-  },
-  'midnight-prestige-executive': {
-    glow: 'radial-gradient(circle, rgba(201,169,98,0.48) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(17,17,20,0.55) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-400/65',
-    hoverOverlay: 'from-amber-950/28',
-  },
-  'frosted-glass-executive': {
-    glow: 'radial-gradient(circle, rgba(106,167,232,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(238,244,250,0.65) 0%, transparent 70%)',
-    borderTint: 'hover:border-sky-300/75',
-    hoverOverlay: 'from-sky-100/35',
-  },
-  'slate-executive-pro': {
-    glow: 'radial-gradient(circle, rgba(95,105,115,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(30,35,40,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-slate-500/65',
-    hoverOverlay: 'from-slate-300/25',
-  },
-  'executive-redline-elite': {
-    glow: 'radial-gradient(circle, rgba(201,31,46,0.38) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(236,236,236,0.65) 0%, transparent 70%)',
-    borderTint: 'hover:border-red-400/60',
-    hoverOverlay: 'from-red-50/30',
-  },
-  'aurora-executive-glass': {
-    glow: 'radial-gradient(circle, rgba(94,234,212,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(45,212,191,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-teal-300/70',
-    hoverOverlay: 'from-teal-50/35',
-  },
-  'blush-executive-watercolor': {
-    glow: 'radial-gradient(circle, rgba(214,167,155,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(243,227,222,0.55) 0%, transparent 70%)',
-    borderTint: 'hover:border-rose-300/60',
-    hoverOverlay: 'from-rose-50/35',
-  },
-  'graphite-orange-executive': {
-    glow: 'radial-gradient(circle, rgba(201,111,53,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(47,59,67,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-orange-400/55',
-    hoverOverlay: 'from-orange-50/30',
-  },
-  'executive-coral-elite': {
-    glow: 'radial-gradient(circle, rgba(243,166,147,0.45) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(255,230,222,0.55) 0%, transparent 70%)',
-    borderTint: 'hover:border-orange-300/60',
-    hoverOverlay: 'from-orange-50/35',
-  },
   'fashion-editorial-premium': {
     glow: 'radial-gradient(circle, rgba(155,126,135,0.42) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(243,217,210,0.55) 0%, transparent 70%)',
     borderTint: 'hover:border-rose-300/55',
     hoverOverlay: 'from-rose-50/35',
-  },
-  'executive-navy-copper': {
-    glow: 'radial-gradient(circle, rgba(196,139,99,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(22,37,52,0.35) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-400/55',
-    hoverOverlay: 'from-amber-50/30',
   },
   'soft-coral-executive': {
     glow: 'radial-gradient(circle, rgba(255,90,61,0.38) 0%, transparent 70%)',
@@ -222,25 +138,11 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   string,
   { firstName: string; lastName: string; jobTitle: string }
 > = {
-  'luxury-corporate': { firstName: 'Michael', lastName: 'Reed', jobTitle: 'Senior Marketing Manager' },
   'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
   'royal-copper-executive': { firstName: 'Isabella', lastName: 'Chen', jobTitle: 'Chief Operating Officer' },
   'ivory-boardroom-executive': { firstName: 'Arthur', lastName: 'Vance', jobTitle: 'Senior Executive Strategist' },
-  'executive-slate-luxe': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Operations Executive' },
-  'organic-luxe-editorial': { firstName: 'Nasara', lastName: 'Handson', jobTitle: 'Professional Strategist' },
-  'organic-luxe-executive': { firstName: 'Isaiah J.', lastName: 'Montgomery', jobTitle: 'Executive Strategist & Creative Director' },
-  'velvet-horizon-executive': { firstName: 'Oliver', lastName: 'Hayes', jobTitle: 'Chief Marketing Officer' },
-  'midnight-prestige-executive': { firstName: 'Alexander', lastName: 'Vance', jobTitle: 'Chief Executive Officer | Global Operations' },
-  'frosted-glass-executive': { firstName: 'Julian', lastName: 'Pierce', jobTitle: 'Senior Product Strategist | Digital Innovation Leader' },
-  'slate-executive-pro': { firstName: 'Ethan', lastName: 'Clark', jobTitle: 'Senior Product Manager' },
-  'executive-redline-elite': { firstName: 'Jonathan', lastName: 'Reed', jobTitle: 'Chief Operations Officer | Global Logistics Lead' },
-  'aurora-executive-glass': { firstName: 'Anya', lastName: 'Petrova', jobTitle: 'Lead Software Architect | AI & Distributed Systems' },
-  'blush-executive-watercolor': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director' },
-  'graphite-orange-executive': { firstName: 'Eliza', lastName: 'Vance', jobTitle: 'Senior Operations Director | Strategic Growth' },
-  'executive-coral-elite': { firstName: 'Arianna', lastName: 'Lynch', jobTitle: 'Senior Operations Manager | Growth Strategist' },
   'fashion-editorial-premium': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Creative Director | Fashion & Retail Innovator' },
-  'executive-navy-copper': { firstName: 'Jonathan', lastName: 'Clark', jobTitle: 'Senior Data Strategist' },
   'soft-coral-executive': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director & Strategist' },
   'rosewood-modern': { firstName: 'Elias', lastName: 'Vance', jobTitle: 'Global Brand Strategist & Marketing Director' },
   'cascade-flow': { firstName: 'Eliza', lastName: 'Chen', jobTitle: 'Senior Product Designer | AI Innovation' },
@@ -377,7 +279,7 @@ const GALLERY_DEMO_RESUME_SECTIONS = {
 export function buildGallerySampleFormData(templateId?: string): Record<string, unknown> {
   const persona =
     (templateId && GALLERY_PERSONA_BY_TEMPLATE[templateId]) ||
-    GALLERY_PERSONA_BY_TEMPLATE['slate-executive-pro'];
+    GALLERY_PERSONA_BY_TEMPLATE['ivory-boardroom-executive'];
   const profileImage = DEFAULT_DEMO_PROFILE_IMAGE;
   const sections = GALLERY_DEMO_RESUME_SECTIONS;
 

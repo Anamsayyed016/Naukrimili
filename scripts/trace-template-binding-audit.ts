@@ -116,7 +116,7 @@ const templatesJson = JSON.parse(
 const templates = templatesJson.templates as { id: string; html: string }[];
 
 const mini = '<html><body>{{EXPERIENCE}}{{PROJECTS}}{{EDUCATION}}{{SKILLS}}</body></html>';
-const miniHtml = injectResumeData(mini, builder, { templateId: 'slate-executive-pro' });
+const miniHtml = injectResumeData(mini, builder, { templateId: 'ivory-boardroom-executive' });
 console.log('\nMINI TEMPLATE COUNTS:', countHtml(miniHtml));
 
 const failures: string[] = [];

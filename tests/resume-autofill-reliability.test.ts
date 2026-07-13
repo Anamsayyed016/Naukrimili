@@ -2110,12 +2110,12 @@ describe('dynamic layout engine', () => {
     expect((coalesced.projects as unknown[]).length).toBe(1);
   });
 
-  it('injectResumeData renders projects in luxury-corporate gallery path', async () => {
+  it('injectResumeData renders projects in ivory-boardroom-executive gallery path', async () => {
     const { readFileSync } = await import('node:fs');
     const { resolve } = await import('node:path');
     const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
     const html = readFileSync(
-      resolve(process.cwd(), 'public/templates/luxury-corporate/index.html'),
+      resolve(process.cwd(), 'public/templates/ivory-boardroom-executive/index.html'),
       'utf8'
     );
     const formData = {
@@ -2132,8 +2132,8 @@ describe('dynamic layout engine', () => {
     };
     const result = injectResumeData(html, formData, {
       galleryPreview: true,
-      galleryTemplateId: 'luxury-corporate',
-      templateId: 'luxury-corporate',
+      galleryTemplateId: 'ivory-boardroom-executive',
+      templateId: 'ivory-boardroom-executive',
     });
     expect(result).toContain('project-item');
     expect(result).toContain('Job Portal Application');
@@ -2172,10 +2172,10 @@ describe('dynamic layout engine', () => {
     expect((coalesced.projects as unknown[]).length).toBe(2);
 
     const templateIds = [
-      'executive-navy-copper',
-      'luxury-corporate',
-      'organic-luxe-editorial',
-      'slate-executive-pro',
+      'ivory-boardroom-executive',
+      'royal-copper-executive',
+      'elegant-ivory',
+      'luxe-executive',
     ];
 
     for (const templateId of templateIds) {
@@ -2311,11 +2311,11 @@ describe('processHandlebarsConditionals', () => {
     expect(result).not.toMatch(/\{\{#unless/);
   });
 
-  it('injectResumeData leaves no handlebars in slate-executive-pro', () => {
+  it('injectResumeData leaves no handlebars in ivory-boardroom-executive', () => {
     const fs = require('fs');
     const path = require('path');
     const { injectResumeData } = require('@/lib/resume-builder/template-loader');
-    const templateId = 'slate-executive-pro';
+    const templateId = 'ivory-boardroom-executive';
     const full = fs.readFileSync(
       path.join(process.cwd(), 'public', 'templates', templateId, 'index.html'),
       'utf8'
@@ -2378,7 +2378,7 @@ describe('appendMissingImportSections', () => {
   it('injectResumeData includes all import sections for sidebar template', async () => {
     const fs = require('fs');
     const path = require('path');
-    const templateId = 'slate-executive-pro';
+    const templateId = 'ivory-boardroom-executive';
     const htmlPath = path.join(process.cwd(), 'public', 'templates', templateId, 'index.html');
     const full = fs.readFileSync(htmlPath, 'utf8');
     const body = full.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] || full;

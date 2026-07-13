@@ -9,7 +9,7 @@ import { injectResumeData } from '../lib/resume-builder/template-loader';
 import { applyColorVariant } from '../lib/resume-builder/color-theme';
 import templatesRegistry from '../lib/resume-builder/templates.json';
 
-const TEMPLATE_ID = 'slate-executive-pro';
+const TEMPLATE_ID = 'ivory-boardroom-executive';
 const OUT_DIR = join(process.cwd(), 'docs', 'typography-before-after');
 
 const fixture = {

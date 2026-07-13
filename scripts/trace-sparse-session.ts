@@ -40,9 +40,9 @@ const sparseSession = {
 const recovered = backfillImportedExperienceForDisplay(sparseSession);
 const exp = Array.isArray(recovered.experience) ? recovered.experience.length : 0;
 const html = injectResumeData(
-  readFs(resolve('public/templates/luxury-corporate/index.html'), 'utf8'),
+  readFs(resolve('public/templates/ivory-boardroom-executive/index.html'), 'utf8'),
   recovered,
-  { galleryPreview: true, templateId: 'luxury-corporate' }
+  { galleryPreview: true, templateId: 'ivory-boardroom-executive' }
 );
 const hasSection = html.includes('experience-item');
 console.log('sparse session exp after backfill:', exp);

@@ -12,7 +12,7 @@ import {
   formatSectionAuditReport,
 } from '../lib/resume-builder/dynamic-layout-engine';
 
-const templateId = process.argv[2] || 'slate-executive-pro';
+const templateId = process.argv[2] || 'ivory-boardroom-executive';
 
 async function main() {
   const htmlPath = path.join(process.cwd(), 'public', 'templates', templateId, 'index.html');

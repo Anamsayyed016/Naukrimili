@@ -106,7 +106,7 @@ async function main() {
   const html = injectResumeData(
     '<div>{{FULL_NAME}}|{{JOB_TITLE}}|{{EMAIL}}|{{PHONE}}|{{SUMMARY}}|{{EXPERIENCE}}|{{EDUCATION}}|{{SKILLS}}</div>',
     coalesced,
-    { galleryPreview: true, templateId: 'luxury-corporate' }
+    { galleryPreview: true, templateId: 'ivory-boardroom-executive' }
   );
   const parts = html.replace(/<\/?div>/g, '').split('|');
   console.log('\n--- Template inject lengths ---');

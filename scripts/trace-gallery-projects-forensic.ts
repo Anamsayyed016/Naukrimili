@@ -44,9 +44,9 @@ const SAMPLE_IMPORT = {
 };
 
 const TEMPLATES = [
-  'luxury-corporate',
-  'executive-navy-copper',
-  'organic-luxe-editorial',
+  'ivory-boardroom-executive',
+  'luxe-executive',
+  'royal-copper-executive',
 ];
 
 function projectNames(data: Record<string, unknown>): string[] {

@@ -134,11 +134,11 @@ async function main() {
   const ids = (templatesRegistry.templates as Array<{ id: string }>).map((t) => t.id);
   const sample = ids.filter((id) =>
     [
-      'slate-executive-pro',
+      'ivory-boardroom-executive',
       'executive-timeline',
       'modern-edge',
       'prism-edition',
-      'executive-redline-elite',
+      'soft-coral-executive',
     ].includes(id)
   );
 

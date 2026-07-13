@@ -65,7 +65,7 @@ async function simulatePdf(pdfName: string) {
     const resolved = coalesceBuilderImportPayload(session);
     const exp = Array.isArray(resolved.experience) ? resolved.experience.length : 0;
 
-    for (const tid of ['luxury-corporate', 'elegant-ivory', 'luxe-executive']) {
+    for (const tid of ['ivory-boardroom-executive', 'elegant-ivory', 'luxe-executive']) {
       const htmlPath = resolve('public/templates', tid, 'index.html');
       const html = readFs(htmlPath, 'utf8');
       const out = injectResumeData(html, resolved, {
