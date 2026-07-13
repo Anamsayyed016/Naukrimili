@@ -10,14 +10,11 @@
 }
 
 .resume-preview-scale-stage {
-  transition: width 0.2s ease, height 0.2s ease, min-height 0.2s ease;
   overflow: hidden;
   position: relative;
 }
 
 .resume-preview-paper {
-  transition: transform 0.2s ease;
-  will-change: transform;
   transform-origin: top left;
 }
 

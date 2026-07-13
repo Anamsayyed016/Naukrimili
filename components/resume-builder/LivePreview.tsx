@@ -69,6 +69,11 @@ export default function LivePreview({
   const previousCustomCssRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
+  const isAdjustingLayoutRef = useRef(false);
+  const contentHeightRef = useRef(A4_HEIGHT_PX);
+  const fitScaleRef = useRef(1);
+  const adjustHeightRafRef = useRef<number | null>(null);
+  const strippedIframeScaleRef = useRef(false);
 
   const displayScale = useMemo(
     () => resolvePreviewScale(zoom, fitScale),
@@ -83,15 +88,16 @@ export default function LivePreview({
     const measureWidth = inner?.clientWidth ?? container.clientWidth;
     const isNarrowViewport = measureWidth > 0 && measureWidth < 1200;
 
-    setFitScale(
-      computeFitScale(
-        measureWidth,
-        container.clientHeight,
-        contentHeight,
-        undefined,
-        isNarrowViewport ? 'width' : 'both'
-      )
+    const nextScale = computeFitScale(
+      measureWidth,
+      container.clientHeight,
+      contentHeight,
+      undefined,
+      isNarrowViewport ? 'width' : 'both'
     );
+    if (Math.abs(nextScale - fitScaleRef.current) < 0.002) return;
+    fitScaleRef.current = nextScale;
+    setFitScale(nextScale);
   }, [contentHeight]);
 
   useEffect(() => {
@@ -325,72 +331,95 @@ export default function LivePreview({
     };
   }, [templateId]);
 
-  // Adjust iframe height to match content - NO SCALING (matches View Full Resume exactly)
-  const adjustIframeHeight = useCallback(() => {
+  const measureAndApplyIframeHeight = useCallback(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!iframeDoc || !iframeDoc.body) return;
 
+    if (isAdjustingLayoutRef.current) return;
+
+    const observer = mutationObserverRef.current;
+    observer?.disconnect();
+
+    isAdjustingLayoutRef.current = true;
     try {
       const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-      if (resumeContainer) {
-        // Get actual rendered content height
-        const contentHeight = Math.ceil(
-          resumeContainer.scrollHeight || resumeContainer.offsetHeight || 1123
-        );
-        
-        // A4 dimensions in pixels (794px = actual A4 width)
-        const resumeWidth = 794;
-        const resumeHeight = contentHeight;
-        
-        setContentHeight(resumeHeight);
+      if (!resumeContainer) return;
 
-        // Fixed A4 width — scaling applied on outer paper wrapper via CSS transform
-        iframe.style.width = `${resumeWidth}px`;
-        iframe.style.height = `${resumeHeight}px`;
-        iframe.style.transform = 'none';
-        iframe.style.transformOrigin = 'top center';
-        (iframe.style as any).scale = '1';
-        (iframe.style as any).zoom = '1';
-        
-        // CRITICAL: Remove ALL scaling from resume-container inside iframe
-        resumeContainer.style.transform = 'none';
-        resumeContainer.style.width = '794px';
-        resumeContainer.style.maxWidth = '794px';
-        resumeContainer.style.minWidth = '794px';
-        (resumeContainer.style as any).scale = '1';
-        (resumeContainer.style as any).zoom = '1';
-        
-        // Remove scaling from all child elements
-        const allElements = iframeDoc.querySelectorAll('*');
-        allElements.forEach((el) => {
-          const htmlEl = el as HTMLElement;
-          if (htmlEl.style.transform && htmlEl.style.transform.includes('scale')) {
-            htmlEl.style.transform = htmlEl.style.transform.replace(/scale\([^)]*\)/g, '').trim() || 'none';
-          }
-          if ((htmlEl.style as any).scale) {
-            (htmlEl.style as any).scale = '1';
-          }
-          if ((htmlEl.style as any).zoom) {
-            (htmlEl.style as any).zoom = '1';
-          }
-        });
-        
-        // Ensure no overflow in iframe - content should never be clipped
-        iframeDoc.body.style.overflow = 'visible';
-        iframeDoc.documentElement.style.overflow = 'visible';
-        iframeDoc.body.style.height = `${contentHeight}px`;
-        iframeDoc.documentElement.style.height = `${contentHeight}px`;
-        iframeDoc.body.style.transform = 'none';
-        iframeDoc.documentElement.style.transform = 'none';
+      const resumeHeight = Math.ceil(
+        resumeContainer.scrollHeight || resumeContainer.offsetHeight || A4_HEIGHT_PX
+      );
+      const resumeWidth = A4_WIDTH_PX;
+      const heightChanged = Math.abs(resumeHeight - contentHeightRef.current) > 1;
+
+      if (heightChanged) {
+        contentHeightRef.current = resumeHeight;
+        setContentHeight(resumeHeight);
       }
+
+      iframe.style.width = `${resumeWidth}px`;
+      iframe.style.height = `${resumeHeight}px`;
+      iframe.style.transform = 'none';
+      iframe.style.transformOrigin = 'top center';
+      (iframe.style as CSSStyleDeclaration & { scale?: string }).scale = '1';
+      (iframe.style as CSSStyleDeclaration & { zoom?: string }).zoom = '1';
+
+      resumeContainer.style.transform = 'none';
+      resumeContainer.style.width = `${resumeWidth}px`;
+      resumeContainer.style.maxWidth = `${resumeWidth}px`;
+      resumeContainer.style.minWidth = `${resumeWidth}px`;
+      (resumeContainer.style as CSSStyleDeclaration & { scale?: string }).scale = '1';
+      (resumeContainer.style as CSSStyleDeclaration & { zoom?: string }).zoom = '1';
+
+      if (!strippedIframeScaleRef.current) {
+        const scaledElements = iframeDoc.querySelectorAll('[style*="scale"]');
+        scaledElements.forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          if (htmlEl.style.transform?.includes('scale')) {
+            htmlEl.style.transform =
+              htmlEl.style.transform.replace(/scale\([^)]*\)/g, '').trim() || 'none';
+          }
+          (htmlEl.style as CSSStyleDeclaration & { scale?: string }).scale = '1';
+          (htmlEl.style as CSSStyleDeclaration & { zoom?: string }).zoom = '1';
+        });
+        strippedIframeScaleRef.current = true;
+      }
+
+      iframeDoc.body.style.overflow = 'visible';
+      iframeDoc.documentElement.style.overflow = 'visible';
+      iframeDoc.body.style.height = `${resumeHeight}px`;
+      iframeDoc.documentElement.style.height = `${resumeHeight}px`;
+      iframeDoc.body.style.transform = 'none';
+      iframeDoc.documentElement.style.transform = 'none';
+
+      if (heightChanged) {
         updateFitScale();
+      }
     } catch (err) {
       console.error('[LivePreview] Error adjusting height:', err);
+    } finally {
+      isAdjustingLayoutRef.current = false;
+      const resumeContainer = iframeDoc.querySelector('.resume-container');
+      if (resumeContainer && observer) {
+        observer.observe(resumeContainer, {
+          childList: true,
+          subtree: true,
+        });
+      }
     }
   }, [updateFitScale]);
+
+  const adjustIframeHeight = useCallback(() => {
+    if (adjustHeightRafRef.current != null) {
+      cancelAnimationFrame(adjustHeightRafRef.current);
+    }
+    adjustHeightRafRef.current = requestAnimationFrame(() => {
+      adjustHeightRafRef.current = null;
+      measureAndApplyIframeHeight();
+    });
+  }, [measureAndApplyIframeHeight]);
 
   // Update preview with smooth updates
   useEffect(() => {
@@ -433,6 +462,7 @@ export default function LivePreview({
         // Full reload or first load
         // CRITICAL: Use EXACT same HTML generation as View Full Resume modal
         if (isFullReload || !iframeDoc.body || !iframeDoc.body.querySelector('.resume-container')) {
+          strippedIframeScaleRef.current = false;
           const fullHtml = `
             <!DOCTYPE html>
             <html lang="en" dir="${dir}">
@@ -608,6 +638,7 @@ export default function LivePreview({
             const newContainer = tempDiv.querySelector('.resume-container');
             
             if (newContainer) {
+              strippedIframeScaleRef.current = false;
               // Smooth update
               resumeContainer.innerHTML = newContainer.innerHTML;
               
@@ -640,21 +671,19 @@ export default function LivePreview({
     updatePreview();
     }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, adjustIframeHeight, customCss]);
 
-  // Setup MutationObserver to detect content changes and window resize
+  // Observe iframe DOM for structural content changes only (not style/attribute churn).
   useEffect(() => {
     if (!iframeRef.current || !scrollContainerRef.current) return;
 
     const iframe = iframeRef.current;
     const scrollContainer = scrollContainerRef.current;
-    
-    // Also observe the scroll container for resize
+
     const resizeObserver = new ResizeObserver(() => {
-      adjustIframeHeight();
       updateFitScale();
     });
-    
+
     resizeObserver.observe(scrollContainer);
-    
+
     const setupObserver = () => {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
       if (!iframeDoc || !iframeDoc.body) return;
@@ -664,6 +693,7 @@ export default function LivePreview({
       }
 
       mutationObserverRef.current = new MutationObserver(() => {
+        if (isAdjustingLayoutRef.current) return;
         adjustIframeHeight();
       });
 
@@ -672,8 +702,6 @@ export default function LivePreview({
         mutationObserverRef.current.observe(resumeContainer, {
           childList: true,
           subtree: true,
-          attributes: true,
-          characterData: true,
         });
       }
     };
@@ -686,9 +714,7 @@ export default function LivePreview({
       }
     }, 100);
 
-    // Handle window resize
     const handleResize = () => {
-      adjustIframeHeight();
       updateFitScale();
     };
     window.addEventListener('resize', handleResize);
@@ -697,6 +723,9 @@ export default function LivePreview({
       clearInterval(checkInterval);
       window.removeEventListener('resize', handleResize);
       resizeObserver.disconnect();
+      if (adjustHeightRafRef.current != null) {
+        cancelAnimationFrame(adjustHeightRafRef.current);
+      }
       if (mutationObserverRef.current) {
         mutationObserverRef.current.disconnect();
       }
@@ -747,10 +776,7 @@ export default function LivePreview({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+    <div
       className={cn(
         'resume-preview-shell flex flex-col h-full min-h-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 shadow-sm',
         className
@@ -841,10 +867,7 @@ export default function LivePreview({
           ref={canvasInnerRef}
           className="resume-preview-canvas-inner flex justify-center py-8 px-2 sm:px-4 min-[1200px]:px-6 min-h-full w-full max-w-full min-w-0 box-border"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
+          <div
             className="resume-preview-scale-stage shrink-0"
             style={{
               width: scaledWidth,
@@ -888,9 +911,9 @@ export default function LivePreview({
                 }}
               />
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
