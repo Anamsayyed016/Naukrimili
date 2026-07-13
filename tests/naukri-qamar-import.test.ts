@@ -173,6 +173,27 @@ Synopsis of work profile:`;
     expect(rows.length).toBeGreaterThanOrEqual(2);
   });
 
+  it('prefers prose recovery when section extraction only finds academic bleed', () => {
+    // Multi-column bleed: education "rank" line dominates section engine;
+    // real jobs appear as Currently working / Worked as bullets.
+    const contaminated = `rank in college in 1
+
+semester and 4 th in 2 .
+
+● Currently working as a company secretary at Apex Holdings Private Limited from 14 th Feb, 2022 till Present
+● Worked as a Company Secretary at Northwind Industries Limited from March 2018 till September 2020.
+● Worked as a Compliance Officer at Meridian Advisory Pvt. Ltd. from April 2017 to March 2018.`;
+    const pipeline = runCustomParserPipeline(contaminated);
+    const exps = pipeline.validation.resume.experience || [];
+    expect(exps.length).toBeGreaterThanOrEqual(3);
+    expect(
+      exps.every((e) => !/rank\s+in\s+college/i.test(String(e.company || '')))
+    ).toBe(true);
+    expect(
+      exps.some((e) => /apex holdings/i.test(String(e.company || '')))
+    ).toBe(true);
+  });
+
   it('imports multiple jobs, skills, and education from Naukri-style text', () => {
     const out = runImportPipeline(NAUKRI_QAMAR_TEXT);
     const exps = out.experience as Array<Record<string, unknown>>;

@@ -12,8 +12,14 @@ import {
 import { extractIdentityFromSections } from '../identity-extraction';
 import { extractSummaryFromSection } from '../summary-extraction';
 import { extractExperiencesFromSection } from '../experience-extraction';
-import { recoverStructuredExperienceFromRawText } from '@/lib/resume-parser/import-sanitize';
+import {
+  isPlausibleExperienceCompany,
+  recoverStructuredExperienceFromRawText,
+  recoverSummaryFromRawText,
+} from '@/lib/resume-parser/import-sanitize';
 import type { CustomExtractedExperience } from '../experience-extraction/types';
+import type { CustomExtractedSummary } from '../summary-extraction/types';
+import { createEmptySummary } from '../summary-extraction/types';
 import { extractEducationFromSection } from '../education-extraction';
 import { extractProjectsFromSection } from '../project-extraction';
 import { extractLanguagesFromSection } from '../language-extraction';
@@ -80,6 +86,65 @@ function recoverProseBulletExperiences(rawText: string): CustomExtractedExperien
   return mapRecoveredRowsToCustomExperiences(recoverStructuredExperienceFromRawText(rawText));
 }
 
+function countPlausibleExperienceRows(rows: CustomExtractedExperience[]): number {
+  return rows.filter((row) => isPlausibleExperienceCompany(row.company)).length;
+}
+
+/**
+ * Prefer section extraction when it yields real employers; otherwise use structured
+ * recovery from full text (prose bullets, Naukri-style lines, dual-company splits).
+ * Never keep a non-empty but low-quality section set that would block recovery.
+ */
+function selectBetterExperiences(
+  fromSection: CustomExtractedExperience[],
+  fromRecovery: CustomExtractedExperience[]
+): CustomExtractedExperience[] {
+  if (fromRecovery.length === 0) return fromSection;
+  if (fromSection.length === 0) return fromRecovery;
+
+  const sectionPlausible = countPlausibleExperienceRows(fromSection);
+  const recoveryPlausible = countPlausibleExperienceRows(fromRecovery);
+
+  if (sectionPlausible === 0 && recoveryPlausible >= 1) return fromRecovery;
+  if (recoveryPlausible >= sectionPlausible + 2) return fromRecovery;
+  if (
+    recoveryPlausible > sectionPlausible &&
+    recoveryPlausible >= 3 &&
+    fromRecovery.length > fromSection.length
+  ) {
+    return fromRecovery;
+  }
+  return fromSection;
+}
+
+function resolvePipelineSummary(
+  sectionSummary: string | undefined,
+  rawText: string
+): CustomExtractedSummary | null {
+  if (sectionSummary?.trim()) {
+    const extracted = extractSummaryFromSection({ summarySectionText: sectionSummary });
+    if (extracted.summary?.trim()) return extracted;
+  }
+
+  const recovered = recoverSummaryFromRawText(rawText);
+  if (!recovered.trim()) return null;
+
+  const base = createEmptySummary();
+  return {
+    ...base,
+    summary: recovered.length > 4000 ? recovered.slice(0, 4000) : recovered,
+    sourceLabel: 'recovered-profile',
+    isBulletSummary: /^[•●\-*]/.test(recovered.trim()),
+    paragraphCount: recovered.split(/\n+/).filter(Boolean).length,
+    confidence: 68,
+    fieldConfidence: {
+      sectionDetection: 40,
+      contentExtraction: 70,
+      boundaryAccuracy: 55,
+    },
+  };
+}
+
 export function runCustomParserPipeline(rawText: string): CustomParserPipelineResult {
   const cpuBefore = process.cpuUsage();
   const heapBefore = process.memoryUsage().heapUsed;
@@ -96,8 +161,7 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
     ? extractExperiencesFromSection(sections.experience, boundaryOpts)
     : [];
   const experienceFallback = recoverProseBulletExperiences(rawText);
-  const resolvedExperiences =
-    experiences.length > 0 ? experiences : experienceFallback;
+  const resolvedExperiences = selectBetterExperiences(experiences, experienceFallback);
   const educations = sections.education ? extractEducationFromSection(sections.education) : [];
   const projects = sections.projects ? extractProjectsFromSection(sections.projects) : [];
   const languages = sections.languages ? extractLanguagesFromSection(sections.languages) : [];
@@ -135,9 +199,7 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
       preambleText: rawText.slice(0, 800),
       fullResumeText: rawText,
     }),
-    summary: sections.summary
-      ? extractSummaryFromSection({ summarySectionText: sections.summary })
-      : null,
+    summary: resolvePipelineSummary(sections.summary, rawText),
     experiences: resolvedExperiences,
     educations,
     projects,

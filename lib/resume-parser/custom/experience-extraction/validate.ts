@@ -4,6 +4,7 @@
 
 import { TECH_SKILL_AS_COMPANY_RE } from './constants';
 import { looksLikeSentenceNotCompany } from './company';
+import { isPlausibleExperienceCompany } from '@/lib/resume-parser/import-sanitize';
 
 import type { CustomExtractedExperience } from './types';
 
@@ -11,6 +12,10 @@ const ORPHAN_BULLET_RE =
   /^(skills?|technologies?|tools?|languages?|certifications?|references?)\s*:?\s*$/i;
 
 const SENTENCE_ONLY_RE = /^[a-z].{40,}[.!?]$/;
+
+/** Education / exam-result lines mis-attributed as employers (multi-column bleed). */
+const ACADEMIC_BLEED_COMPANY_RE =
+  /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa|gpa)\b|(?:\d+(?:st|nd|rd|th)\s+in\s+(?:class|college|semester))|semester\s+\d+|percentage\s*(?:obtained|scored)?|marks?\s+obtained)\b/i;
 
 export function isValidExperience(exp: CustomExtractedExperience): boolean {
   const hasIdentity = Boolean(exp.company?.trim() || exp.designation?.trim());
@@ -20,6 +25,19 @@ export function isValidExperience(exp: CustomExtractedExperience): boolean {
 
   if (!hasIdentity) return false;
   if (!hasDescription && !hasDates) return false;
+
+  if (exp.company && ACADEMIC_BLEED_COMPANY_RE.test(exp.company)) {
+    return false;
+  }
+
+  if (
+    exp.company &&
+    !exp.designation &&
+    !hasDates &&
+    !isPlausibleExperienceCompany(exp.company)
+  ) {
+    return false;
+  }
 
   if (exp.company && TECH_SKILL_AS_COMPANY_RE.test(exp.company.toLowerCase())) {
     if (!exp.designation) return false;

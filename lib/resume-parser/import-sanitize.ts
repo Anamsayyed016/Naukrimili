@@ -5573,6 +5573,13 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   if (!company) return false;
   if (isExperienceDomainHeading(company)) return false;
   if (/^name$/i.test(company.trim())) return false;
+  if (
+    /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+|marks?\s+obtained|percentage\s*(?:obtained|scored)?)\b/i.test(
+      company
+    )
+  ) {
+    return false;
+  }
   if (company.length > 65 && /\b(for various|incorporated|completed post|in the form of)\b/i.test(company)) {
     return false;
   }

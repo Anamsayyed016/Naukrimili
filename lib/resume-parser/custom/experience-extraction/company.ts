@@ -54,6 +54,13 @@ export function looksLikeSentenceNotCompany(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed) return false;
   if (COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 120) return false;
+  if (
+    /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+)\b/i.test(
+      trimmed
+    )
+  ) {
+    return true;
+  }
   if (/\b(improv(?:ed|ing)|optimiz(?:ed|ing)|reduc(?:ed|ing)|increas(?:ed|ing)|develop(?:ed|ing)|design(?:ed|ing)|mentor(?:ed|ing)|administer(?:ed|ing))\b/i.test(trimmed)) {
     return true;
   }

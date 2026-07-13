@@ -132,8 +132,8 @@ async function main() {
   const pipeline = runCustomParserPipeline(rawText);
   const parserResume = pipeline.validation.resume;
   printCounts('CUSTOM PARSER OUTPUT', {
-    experience: parserResume.experiences?.length ?? 0,
-    experienceCompanies: (parserResume.experiences || []).filter((e) => e.company).length,
+    experience: parserResume.experience?.length ?? 0,
+    experienceCompanies: (parserResume.experience || []).filter((e) => e.company).length,
     projects: parserResume.projects?.length ?? 0,
     education: parserResume.education?.length ?? 0,
     certifications: parserResume.certifications?.length ?? 0,
@@ -142,6 +142,14 @@ async function main() {
     achievements: parserResume.achievements?.length ?? 0,
     hobbies: parserResume.hobbies?.length ?? 0,
     summaryChars: String(parserResume.summary || '').length,
+  });
+  printExpDetail('CUSTOM PARSER', {
+    experience: (parserResume.experience || []).map((e) => ({
+      title: e.title || e.position,
+      company: e.company,
+      description: e.description,
+      achievements: e.achievements,
+    })),
   });
 
   const uploadRaw = mapExtractedToUploadProfile(parserResume, { aiProvider: 'custom-parser' });
