@@ -814,6 +814,14 @@ export function enrichPartialNameFromEmail(headerName: string, email: string): s
 export function isInvalidImportSummary(text: string): boolean {
   const t = sanitizeMultilineFieldText(text, 4000);
   if (!t || t.length < 20) return true;
+  // Traditional career/professional objectives ("To secure a responsible position…")
+  if (
+    /^to\s+(?:secure|obtain|work|contribute|pursue|join|build|leverage|seek|find)\b/i.test(t) &&
+    t.length >= 40 &&
+    t.length <= 900
+  ) {
+    return false;
+  }
   if (
     t.length >= 80 &&
     /\b\d+\+?\s*years?\s+of\s+experience\b/i.test(t) &&
@@ -993,12 +1001,56 @@ export function recoverExecutiveProfileSummaryFromRawText(rawText: string): stri
   return '';
 }
 
+/**
+ * Recover standalone career/professional objective paragraphs that appear before
+ * qualifications / experience headings (common on traditional CV layouts).
+ */
+export function recoverCareerObjectiveFromRawText(rawText: string): string {
+  const text = normalizePdfLigatureText(String(rawText || '').replace(/\f/g, '\n'));
+  if (text.length < 40) return '';
+  const lines = text.split('\n').map((l) => l.trim());
+  const stopRe =
+    /^(?:\d+[\.\):\-]\s*)?(?:qualification|education|academic|experience|employment|skills?|technical\s+skill|work\s+exposure|certifications?|projects?|personal\s+(?:details|information)|declaration)\b/i;
+  const personalFieldRe =
+    /^(?:name|father(?:'s)?\s*name|mother(?:'s)?\s*name|date\s+of\s+birth|dob|marital\s+status|permanent\s+address|address|phone|email|mobile)\s*:/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    const headingInline = lines[i].match(
+      /^(?:\d+[\.\):\-]\s*)?(?:career\s+objective|professional\s+objective|objective)\s*:?\s*(.*)$/i
+    );
+    if (!headingInline) continue;
+
+    const paras: string[] = [];
+    if (headingInline[1] && headingInline[1].trim().length >= 25) {
+      paras.push(headingInline[1].trim());
+    }
+    for (let j = i + 1; j < lines.length; j++) {
+      const line = lines[j];
+      if (!line) {
+        if (paras.length) break;
+        continue;
+      }
+      if (stopRe.test(line) || personalFieldRe.test(line) || isResumeSectionHeadingLine(line)) break;
+      if (line.length < 20) continue;
+      paras.push(line);
+      if (paras.join(' ').length >= 400) break;
+    }
+    const joined = paras.join(' ').replace(/\s+/g, ' ').trim();
+    if (joined.length >= 40 && !isInvalidImportSummary(joined)) {
+      return joined.length > 4000 ? joined.slice(0, 4000) : joined;
+    }
+  }
+  return '';
+}
+
 /** Recover a cover-letter / profile paragraph from raw resume text. */
 export function recoverSummaryFromRawText(rawText: string): string {
   const fromCredential = recoverCredentialProfileSummaryFromRawText(rawText);
   if (fromCredential) return fromCredential;
   const fromExecutive = recoverExecutiveProfileSummaryFromRawText(rawText);
   if (fromExecutive) return fromExecutive;
+  const fromObjective = recoverCareerObjectiveFromRawText(rawText);
+  if (fromObjective) return fromObjective;
   const fromSection = recoverSummaryFromSectionHeaders(rawText);
   if (fromSection) return fromSection;
   if (!rawText || rawText.length < 80) return '';
@@ -1191,6 +1243,13 @@ export function isPlausiblePersonName(value: unknown): boolean {
     if (/\b(company|secretary|officer|compliance|governance|legal|head|director|manager)\b/i.test(s)) {
       return false;
     }
+    if (
+      /\b(examination|institution|university|council|qualification|curriculum|vitae|resume)\b/i.test(
+        s
+      )
+    ) {
+      return false;
+    }
     return true;
   }
 
@@ -1211,7 +1270,16 @@ export function isValidatedContactName(name: string, locationHint = ''): boolean
 
 /** Sanitize and keep only plausible personal names. */
 export function sanitizePersonName(value: unknown, maxLen = 120): string {
-  const s = sanitizeFieldText(value, maxLen);
+  let s = sanitizeFieldText(value, maxLen);
+  if (!s) return '';
+  // Drop trailing kinship / relative labels glued onto the name from form fields.
+  s = s
+    .replace(
+      /\s+(?:Father(?:'s)?(?:\s+Name)?|Mother(?:'s)?(?:\s+Name)?|Spouse|Husband|Wife|Guardian|S\/O|D\/O|W\/O)\b.*$/i,
+      ''
+    )
+    .replace(/\s+/g, ' ')
+    .trim();
   if (!s) return '';
   if (isPlausiblePersonName(s)) return s;
   if (isAcceptedEmailDerivedName(s)) return s;
@@ -2114,6 +2182,18 @@ export function isPlausibleProjectName(value: unknown): boolean {
   if (isPlaceholderProjectTitle(s)) return false;
   if (isGarbageResumeText(s)) return false;
   if (isCorporateStructurePhrase(s)) return false;
+  if (isResumeSectionHeadingLine(s)) return false;
+  if (
+    /^(?:practical\s+experience|work\s+experience|employment(?:\s+history)?|examination\s+(?:institution|university|council)|qualifications?|technical\s+skills?|work\s+exposure|career\s+objective)\s*:?$/i.test(
+      s
+    )
+  ) {
+    return false;
+  }
+  // Truncated location / postal bleed from multi-column CVs.
+  if (/^(?:new\s+delhi|delhi|mumbai|bengaluru|bangalore|hyderabad|chennai|kolkata|pune|gurgaon|noida)\)?$/i.test(s)) {
+    return false;
+  }
   if (s.length > 90) return false;
 
   const words = s.split(/\s+/).filter(Boolean);
@@ -4311,7 +4391,7 @@ function collapseSpacedLettersInText(text: string): string {
 function flattenExperienceSectionBlob(rawText: string): string {
   const collapsed = collapseSpacedLettersInText(rawText.replace(/\f/g, '\n'));
   let sectionStart = collapsed.search(
-    /\b(?:organisational|organizational)\s*experience\b|\bwork\s*experience\b|\bemployment\s*(?:history|record)\b|\bcareer\s+(?:profile|history)\b/i
+    /\b(?:organisational|organizational)\s*experience\b|\bpractical\s*experience\b|\bwork\s*experience\b|\bemployment\s*(?:history|record)\b|\bcareer\s+(?:profile|history)\b/i
   );
   const fromWorkingStart = collapsed.search(
     new RegExp(
@@ -4320,18 +4400,28 @@ function flattenExperienceSectionBlob(rawText: string): string {
     )
   );
   const bulletStart = collapsed.search(/\b(?:●\s*)?(?:currently\s+working\s+as|worked\s+as)\b/i);
+  // Compact "Title - Company Ltd … (Mon. Year to …)" blocks without a standard heading.
+  const titleDashCompanyStart = collapsed.search(
+    new RegExp(
+      `\\b(?:head|assistant|senior|junior|deputy|chief|company\\s+secretary|compliance\\s+officer|legal\\s+manager|manager|officer|director|trainee|associate)\\b[\\s\\S]{0,140}?[-–—]\\s*[A-Z][\\s\\S]{0,100}?\\b(?:ltd|limited|pvt|associates|group|llp|inc)\\b[\\s\\S]{0,90}?\\((?:${NAUKRI_MONTH_TOKEN})`,
+      'i'
+    )
+  );
   if (fromWorkingStart >= 0 && (sectionStart < 0 || fromWorkingStart < sectionStart)) {
     sectionStart = Math.max(0, fromWorkingStart - 30);
   }
   if (bulletStart >= 0 && (sectionStart < 0 || bulletStart < sectionStart)) {
     sectionStart = Math.max(0, bulletStart - 40);
   }
+  if (titleDashCompanyStart >= 0 && (sectionStart < 0 || titleDashCompanyStart < sectionStart)) {
+    sectionStart = Math.max(0, titleDashCompanyStart - 40);
+  }
   let blob =
     sectionStart >= 0
       ? collapsed.slice(sectionStart)
       : collapsed.slice(Math.max(0, collapsed.search(/\bexperience\b/i)));
   const sectionEnd = blob.search(
-    /\b(?:education|academic|skills|certifications|languages|projects|achievements|personal\s+details|trainings?|teaching\s+experience|synopsis\s+of|extracurricular)\b/i
+    /\b(?:education|academic|skills|certifications|languages|projects|achievements|personal\s+details|trainings?|teaching\s+experience|synopsis\s+of|extracurricular|technical\s+skill|work\s+exposure)\b/i
   );
   if (sectionEnd > 120) blob = blob.slice(0, sectionEnd);
   return blob.replace(/\s+/g, ' ').trim();
@@ -5197,6 +5287,161 @@ function recoverProseBulletExperienceFromRawText(rawText: string): Record<string
 }
 
 /**
+ * Recover compact employment lines:
+ *   "Title - Company Ltd, City (Mon. Year to Cont..... / Present / Mon. Year)"
+ *   "Title with Company Ltd., Industry. (Mon. Year to Mon. Year)"
+ * Common in practical-experience / company-secretary style CVs.
+ */
+function recoverTitleCompanyDateExperienceFromRawText(
+  rawText: string
+): Record<string, unknown>[] {
+  const normalized = collapseSpacedLettersInText(rawText.replace(/\f/g, '\n'))
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (normalized.length < 60) return [];
+
+  const dateRangeRe = new RegExp(
+    `\\(?\\s*((?:${NAUKRI_MONTH_TOKEN})[a-z]*\\.?,?\\s*\\d{4})\\s*(?:to|[-–—])\\s*((?:Cont(?:inue(?:d)?)?\\.{0,8}|Present|Current|Till\\s*Date|(?:${NAUKRI_MONTH_TOKEN})[a-z]*\\.?,?\\s*\\d{4}))\\.?\\s*\\)?`,
+    'gi'
+  );
+
+  type DateHit = {
+    index: number;
+    end: number;
+    startDate: string;
+    endDate: string;
+    current: boolean;
+  };
+  const hits: DateHit[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = dateRangeRe.exec(normalized)) !== null) {
+    const endTok = String(match[2] || '').trim();
+    const isCurrent = /^(cont|continue|continued|present|current|till\s*date)/i.test(endTok);
+    const startClean = match[1].replace(/\./g, ' ').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+    const endClean = endTok.replace(/\./g, ' ').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+    hits.push({
+      index: match.index,
+      end: match.index + match[0].length,
+      startDate: normalizeDate(startClean),
+      endDate: isCurrent ? 'Present' : normalizeDate(endClean),
+      current: isCurrent,
+    });
+  }
+  if (hits.length === 0) return [];
+
+  const out: Record<string, unknown>[] = [];
+
+  for (let i = 0; i < hits.length; i++) {
+    const prevEnd = i === 0 ? 0 : hits[i - 1].end;
+    let chunk = normalized.slice(prevEnd, hits[i].index).trim();
+    chunk = chunk
+      .replace(
+        /^(?:PRACTICAL\s+EXPERIENCE|WORK\s+EXPERIENCE|EMPLOYMENT(?:\s+HISTORY)?|EXPERIENCE|ORGANISATIONAL\s+EXPERIENCE)\s*:?\s*/i,
+        ''
+      )
+      .replace(/^[,.\s;:]+/, '')
+      .replace(/[,.\s;:]+$/, '')
+      .trim();
+
+    const parsed = parseTitleCompanyFromEmploymentChunk(chunk);
+    if (!parsed) continue;
+
+    const cleaned = cleanTitleDashCompanyBlob(parsed.companyRaw);
+    if (!cleaned.company || !isPlausibleExperienceCompany(cleaned.company)) continue;
+    if (!parsed.title || parsed.title.length < 3) continue;
+
+    out.push({
+      company: cleaned.company,
+      Company: cleaned.company,
+      title: parsed.title,
+      position: parsed.title,
+      designation: parsed.title,
+      startDate: hits[i].startDate,
+      endDate: hits[i].endDate,
+      current: hits[i].current,
+      ...(cleaned.location
+        ? { location: cleaned.location, Location: cleaned.location }
+        : {}),
+    });
+  }
+
+  return out;
+}
+
+/**
+ * Pull title + company from text immediately before a paren/date range.
+ * Avoid treating postal/phone dashes (e.g. Delhi-110054) as title separators.
+ */
+function parseTitleCompanyFromEmploymentChunk(
+  chunk: string
+): { title: string; companyRaw: string } | null {
+  const window = chunk.length > 280 ? chunk.slice(-280) : chunk;
+  if (window.length < 12 || !JOB_TITLE_HINT_RE.test(window)) return null;
+
+  const withMatch = window.match(
+    /\b((?:Head|Senior|Junior|Deputy|Chief|Assistant)\s+)?((?:Company\s+Secretary|Compliance\s+Officer|Legal\s+Manager|[A-Za-z][A-Za-z\s&/]{0,48}?(?:Manager|Officer|Secretary|Director|Trainee|Executive|Associate|Consultant|Specialist)))\s+with\s+(.+)$/i
+  );
+  if (withMatch) {
+    const title = sanitizeFieldText(`${withMatch[1] || ''}${withMatch[2]}`.trim(), 120);
+    const companyRaw = withMatch[3].trim();
+    if (title && JOB_TITLE_HINT_RE.test(title) && companyRaw.length >= 3) {
+      return { title, companyRaw };
+    }
+  }
+
+  // Title-[Company] where hyphen is not a postal/phone digit dash.
+  const dashMatches = [
+    ...window.matchAll(
+      /\b((?:(?:Head|Senior|Junior|Deputy|Chief|Assistant)\s+)?(?:Company\s+Secretary(?:\s*&\s*[A-Za-z][A-Za-z\s/]{0,40})?|Compliance\s+Officer|Legal\s+Manager|[A-Za-z][A-Za-z\s&/]{0,48}?(?:Manager|Officer|Secretary|Director|Trainee|Executive|Associate|Consultant)))\s*[-–—]\s*(?!\d)([A-Z].+)$/gi
+    ),
+  ];
+  const dashMatch = dashMatches.length ? dashMatches[dashMatches.length - 1] : null;
+  if (dashMatch) {
+    const title = sanitizeFieldText(dashMatch[1], 120);
+    const companyRaw = dashMatch[2].trim();
+    if (title && JOB_TITLE_HINT_RE.test(title) && companyRaw.length >= 3) {
+      return { title, companyRaw };
+    }
+  }
+
+  return null;
+}
+
+function cleanTitleDashCompanyBlob(raw: string): { company: string; location: string } {
+  let text = sanitizeFieldText(raw, 220);
+  if (!text) return { company: '', location: '' };
+
+  text = text
+    .replace(/\s*\.\s*$/, '')
+    .replace(
+      /\s*,?\s*(?:Stainless\s+Steel|Marble|Manufacturing|Trading|Software|IT|Services)\s+Compan(?:y|ies)\.?.*$/i,
+      ''
+    )
+    .replace(/\s*,?\s*Company\s+Secretaries\b.*$/i, '')
+    .trim();
+
+  const entity = text.match(
+    /^(.+?\b(?:Private\s+Limited|Pvt\.?\s*Ltd\.?|Limited|Ltd\.?|LLP|Inc\.?|Corp\.?|Associates|Group(?:\s+of\s+Companies)?))\b\.?/i
+  );
+  if (entity) {
+    const company = sanitizeFieldText(entity[1], 160);
+    const rest = text.slice(entity[0].length).replace(/^[\s,.\-]+/, '');
+    const locCandidate = rest.split(',')[0]?.trim() || '';
+    const location =
+      locCandidate &&
+      (looksLikeStandaloneLocationLine(locCandidate) ||
+        isLikelyLocationFragment(locCandidate) ||
+        /\b\d{5,6}\b/.test(locCandidate))
+        ? sanitizeFieldText(locCandidate, 80)
+        : '';
+    return { company, location };
+  }
+
+  const first = text.split(',')[0]?.trim() || text;
+  return { company: sanitizeFieldText(first, 160), location: '' };
+}
+
+/**
  * Recover Naukri-style dated employment lines from raw text when the parser
  * collapses experience into competency stubs (e.g. "Dec 2002 – Jul 2004 with X as Y").
  */
@@ -5330,6 +5575,22 @@ export function recoverStructuredExperienceFromRawText(
   }
 
   for (const row of recoverProseBulletExperienceFromRawText(rawText)) {
+    const company = String(row.company || '').toLowerCase();
+    const title = String(row.title || row.position || '').toLowerCase();
+    const key = `${company}|${title}|${String(row.startDate || '')}`;
+    if (
+      out.some((existing) => {
+        const c = String(existing.company || '').toLowerCase();
+        const t = String(existing.title || existing.position || '').toLowerCase();
+        return `${c}|${t}|${String(existing.startDate || '')}` === key;
+      })
+    ) {
+      continue;
+    }
+    out.push(row);
+  }
+
+  for (const row of recoverTitleCompanyDateExperienceFromRawText(rawText)) {
     const company = String(row.company || '').toLowerCase();
     const title = String(row.title || row.position || '').toLowerCase();
     const key = `${company}|${title}|${String(row.startDate || '')}`;

@@ -73,16 +73,8 @@ function mapRecoveredRowsToCustomExperiences(
 }
 
 function recoverProseBulletExperiences(rawText: string): CustomExtractedExperience[] {
-  if (!/\b(?:currently\s+working|worked)\s+as\b/i.test(rawText)) {
-    if (
-      !new RegExp(
-        `\\bfrom\\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[a-z]*['']?\\s*\\d{2,4}\\s+(?:working\\s+with|worked\\s+with)`,
-        'i'
-      ).test(rawText)
-    ) {
-      return [];
-    }
-  }
+  // Always run structured recovery — narrow pattern gates previously skipped
+  // Title–Company–(date) and other compact CV formats that have no "worked as" tokens.
   return mapRecoveredRowsToCustomExperiences(recoverStructuredExperienceFromRawText(rawText));
 }
 
