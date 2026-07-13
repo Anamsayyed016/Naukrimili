@@ -1631,7 +1631,9 @@ describe('two-column layout balancer', () => {
 
     const result = balanceTwoColumnLayout(rendered, { htmlTemplate: twoColumnTemplate });
     expect(result.moved.length).toBeGreaterThan(0);
-    expect(result.moved.every((m: { kind: string }) => ['projects', 'achievements', 'interests'].includes(m.kind))).toBe(true);
+    expect(result.moved.every((m: { kind: string }) =>
+      ['projects', 'achievements', 'interests', 'certifications', 'languages', 'extended'].includes(m.kind)
+    )).toBe(true);
     expect(result.html).toContain('data-column-balanced="true"');
     expect(result.html).toContain('data-column-moved=');
 
@@ -1666,6 +1668,32 @@ describe('two-column layout balancer', () => {
     expect(mainHtml).toContain('experience-item');
     expect(result.moved.every((m: { kind: string }) => m.kind !== 'experience' && m.kind !== 'summary')).toBe(true);
   });
+
+  it('iteratively balances until columns are closer', () => {
+    const rendered = `
+      <div class="resume-container">
+        <main>
+          <section><p class="summary-text">Summary with enough words to estimate height for balancing.</p></section>
+          <section><div class="experience-list">${Array.from({ length: 4 }, () =>
+            '<div class="experience-item"><div class="experience-header"><span class="company">Acme</span><h3>Lead</h3></div><div class="description"><ul>' +
+            Array.from({ length: 8 }, (_, i) => `<li>Impact bullet ${i}</li>`).join('') +
+            '</ul></div></div>'
+          ).join('')}</div></section>
+          <section><div class="projects-list"><div class="project-item"><h3>P1</h3><ul><li>A</li><li>B</li></ul></div></div></section>
+          <section><div class="achievements-list"><div class="achievement-item"><h3>Award</h3></div></div></section>
+        </main>
+        <aside class="sidebar">
+          <section><div class="skills-list"><span class="skill-tag">Go</span></div></section>
+        </aside>
+      </div>
+    `;
+    const result = balanceTwoColumnLayout(rendered, { htmlTemplate: twoColumnTemplate });
+    expect(result.iterations).toBeGreaterThan(0);
+    expect(result.moved.length).toBeGreaterThan(0);
+    expect(result.mainHeight).toBeLessThan(
+      estimateColumnBlockHeight(rendered.match(/<main[\s\S]*?<\/main>/i)?.[0] || '')
+    );
+  });
 });
 
 describe('content composition engine', () => {
@@ -1697,6 +1725,39 @@ describe('content composition engine', () => {
     );
     expect(summary.includes('\n\n') || summary.split(/(?<=[.!?])\s+/).length <= 4).toBe(true);
     expect(summary.split(/\s+/).length).toBeLessThanOrEqual(60);
+  });
+
+  it('adapts experience description formatting by content length', () => {
+    const {
+      resolveExperienceDescriptionRenderMode,
+      buildExperienceDescriptionMarkup,
+      groupBulletsForRender,
+    } = require('@/lib/resume-builder/content-composition');
+
+    expect(resolveExperienceDescriptionRenderMode([], 'Short role summary only.')).toBe('paragraph');
+    expect(
+      resolveExperienceDescriptionRenderMode(['Built APIs', 'Led team'], 'Also owned roadmap.')
+    ).toBe('paragraph-bullets');
+    expect(
+      resolveExperienceDescriptionRenderMode(
+        Array.from({ length: 8 }, (_, i) => `Delivered initiative ${i + 1} with measurable impact`),
+        ''
+      )
+    ).toBe('grouped-bullets');
+
+    const grouped = groupBulletsForRender(
+      Array.from({ length: 9 }, (_, i) => `Implemented feature ${i + 1} for platform reliability`),
+      4
+    );
+    expect(grouped.length).toBeGreaterThan(1);
+
+    const markup = buildExperienceDescriptionMarkup({
+      description: '',
+      bullets: Array.from({ length: 7 }, (_, i) => `Shipped release ${i + 1} across services`),
+    });
+    expect(markup).toContain('experience-desc--grouped');
+    expect(markup).toContain('experience-bullet-group');
+    expect((markup.match(/<li>/g) || []).length).toBe(7);
   });
 
   it('tightens bullet budget as experience count grows', () => {
@@ -1751,6 +1812,8 @@ describe('dynamic layout engine', () => {
     expect(sparse.companyFontScale).toBeGreaterThan(dense.bodyFontScale);
     expect(dense.companyFontScale).toBeGreaterThan(dense.bodyFontScale);
     expect(dense.bodyFontScale).toBeLessThan(sparse.bodyFontScale);
+    expect(dense.companyFontWeight).toBeGreaterThan(dense.metaFontWeight);
+    expect(sparse.headingFontWeight).toBeGreaterThan(sparse.bodyFontWeight);
     expect(dense.descLineHeightMul).toBeGreaterThanOrEqual(sparse.descLineHeightMul - 0.02);
     expect(dense.summaryMaxCh).toBeLessThanOrEqual(sparse.summaryMaxCh);
   });

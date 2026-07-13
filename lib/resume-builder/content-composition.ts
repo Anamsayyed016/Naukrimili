@@ -479,3 +479,126 @@ export function composeResumeDataForRender(
 
   return composed;
 }
+
+export type ExperienceDescriptionRenderMode =
+  | 'paragraph'
+  | 'bullets'
+  | 'paragraph-bullets'
+  | 'grouped-bullets';
+
+function escapeExperienceHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Choose adaptive formatting without truncating or inventing content.
+ */
+export function resolveExperienceDescriptionRenderMode(
+  bullets: string[],
+  description: string
+): ExperienceDescriptionRenderMode {
+  const cleanedBullets = bullets.map(stripBulletPrefix).filter((line) => line.length >= 3);
+  const prose = normalizeWhitespace(description);
+  const totalChars =
+    cleanedBullets.reduce((sum, line) => sum + line.length, 0) + prose.length;
+  const bulletCount = cleanedBullets.length;
+
+  if (bulletCount === 0) {
+    return prose.length > 0 ? 'paragraph' : 'paragraph';
+  }
+  if (bulletCount <= 2 && totalChars < 260) {
+    return prose.length > 0 ? 'paragraph-bullets' : 'paragraph';
+  }
+  if (bulletCount <= 5 && totalChars < 620) {
+    return 'bullets';
+  }
+  return 'grouped-bullets';
+}
+
+/** Group bullets into readable clusters (verb affinity, then size cap). */
+export function groupBulletsForRender(bullets: string[], maxPerGroup = 4): string[][] {
+  const cleaned = bullets.map(stripBulletPrefix).filter((line) => line.length >= 3);
+  if (cleaned.length <= maxPerGroup) return [cleaned];
+
+  const groups: string[][] = [];
+  let current: string[] = [];
+  let currentVerb = '';
+
+  for (const line of cleaned) {
+    const verb = leadingVerbGroup(line);
+    const shouldBreak =
+      current.length >= maxPerGroup ||
+      (current.length >= 2 && currentVerb && verb !== currentVerb && verb !== 'other');
+
+    if (shouldBreak && current.length > 0) {
+      groups.push(current);
+      current = [];
+    }
+
+    current.push(line);
+    currentVerb = verb;
+  }
+
+  if (current.length > 0) groups.push(current);
+  return groups.length > 0 ? groups : [cleaned];
+}
+
+/**
+ * Build experience description HTML with adaptive rhythm (paragraph / bullets / grouped).
+ */
+export function buildExperienceDescriptionMarkup(input: {
+  description: string;
+  bullets: string[];
+}): string {
+  const bullets = input.bullets.map(stripBulletPrefix).filter((line) => line.length >= 3);
+  const prose = composeParagraph(normalizeWhitespace(input.description), 120);
+  const mode = resolveExperienceDescriptionRenderMode(bullets, prose);
+
+  const bulletList = (items: string[]) =>
+    `<ul>${items.map((line) => `<li>${escapeExperienceHtml(line)}</li>`).join('')}</ul>`;
+
+  if (mode === 'paragraph') {
+    if (bullets.length === 1 && !prose) {
+      return `<p class="experience-desc experience-desc--paragraph">${escapeExperienceHtml(bullets[0])}</p>`;
+    }
+    const text = prose || bullets.join(' ');
+    return text
+      ? `<p class="experience-desc experience-desc--paragraph">${escapeExperienceHtml(text)}</p>`
+      : '';
+  }
+
+  if (mode === 'paragraph-bullets') {
+    const parts: string[] = [];
+    if (prose) {
+      parts.push(
+        `<p class="experience-desc experience-desc--lead">${escapeExperienceHtml(prose)}</p>`
+      );
+    }
+    if (bullets.length > 0) {
+      parts.push(`<div class="experience-desc experience-desc--bullets">${bulletList(bullets)}</div>`);
+    }
+    return parts.join('');
+  }
+
+  if (mode === 'bullets') {
+    return `<div class="experience-desc experience-desc--bullets">${bulletList(bullets)}</div>`;
+  }
+
+  const groups = groupBulletsForRender(bullets, 4);
+  const groupHtml = groups
+    .map(
+      (group, index) =>
+        `<div class="experience-bullet-group" data-group="${index + 1}">${bulletList(group)}</div>`
+    )
+    .join('');
+
+  const lead = prose
+    ? `<p class="experience-desc experience-desc--lead">${escapeExperienceHtml(prose)}</p>`
+    : '';
+
+  return `${lead}<div class="experience-desc experience-desc--grouped">${groupHtml}</div>`;
+}

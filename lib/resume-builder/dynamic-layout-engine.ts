@@ -332,6 +332,12 @@ export interface DynamicLayoutPlan {
   summaryMaxCh: number;
   /** sparse | balanced | dense — drives data-dl-density */
   typographyDensity: 'sparse' | 'balanced' | 'dense';
+  /** Adaptive font weights (numeric 100–900) */
+  companyFontWeight: number;
+  titleFontWeight: number;
+  metaFontWeight: number;
+  bodyFontWeight: number;
+  headingFontWeight: number;
 }
 
 export interface ComputeDynamicLayoutOptions {
@@ -1045,6 +1051,11 @@ export function resolveAdaptiveTypography(input: {
   | 'descLineHeightMul'
   | 'summaryMaxCh'
   | 'typographyDensity'
+  | 'companyFontWeight'
+  | 'titleFontWeight'
+  | 'metaFontWeight'
+  | 'bodyFontWeight'
+  | 'headingFontWeight'
 > {
   const {
     experienceCount,
@@ -1063,6 +1074,11 @@ export function resolveAdaptiveTypography(input: {
   let skillFontScale = 0.9;
   let descLineHeightMul = 1.12;
   let summaryMaxCh = 68;
+  let companyFontWeight = 650;
+  let titleFontWeight = 560;
+  let metaFontWeight = 450;
+  let bodyFontWeight = 400;
+  let headingFontWeight = 750;
 
   let typographyDensity: 'sparse' | 'balanced' | 'dense' = 'balanced';
   if (experienceCount <= 2 && fill < 0.78 && experienceTextUnits < 8) {
@@ -1080,6 +1096,11 @@ export function resolveAdaptiveTypography(input: {
     summaryMaxCh = 72;
     skillFontScale = 0.94;
     metaFontScale = 0.86;
+    companyFontWeight = 680;
+    titleFontWeight = 580;
+    metaFontWeight = 460;
+    bodyFontWeight = 420;
+    headingFontWeight = 760;
   } else if (typographyDensity === 'dense') {
     // Tighten body/bullets first; keep company prominent.
     const densify = clamp(
@@ -1096,6 +1117,11 @@ export function resolveAdaptiveTypography(input: {
     // Longer walls need slightly more leading even when font shrinks.
     descLineHeightMul = 1.12 + densify * 0.08;
     summaryMaxCh = 62 - Math.round(densify * 4);
+    companyFontWeight = 640 - Math.round(densify * 20);
+    titleFontWeight = 540 - Math.round(densify * 30);
+    metaFontWeight = 430 - Math.round(densify * 20);
+    bodyFontWeight = 390;
+    headingFontWeight = 720;
   } else if (experienceCount >= 3) {
     const mid = clamp((experienceCount - 2) / 4, 0, 1);
     bodyFontScale = 0.98 - mid * 0.05;
@@ -1142,6 +1168,11 @@ export function resolveAdaptiveTypography(input: {
     descLineHeightMul: Math.round(clamp(descLineHeightMul, 1.02, 1.26) * 1000) / 1000,
     summaryMaxCh: Math.round(clamp(summaryMaxCh, 56, 78)),
     typographyDensity,
+    companyFontWeight: Math.round(clamp(companyFontWeight, 580, 700)),
+    titleFontWeight: Math.round(clamp(titleFontWeight, 500, 620)),
+    metaFontWeight: Math.round(clamp(metaFontWeight, 400, 480)),
+    bodyFontWeight: Math.round(clamp(bodyFontWeight, 380, 440)),
+    headingFontWeight: Math.round(clamp(headingFontWeight, 680, 780)),
   };
 }
 
@@ -1621,10 +1652,11 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   --resume-date-size: ${smallSize};
   --resume-skill-size: ${skillSize};
   --resume-line-height: ${descLh};
-  --resume-body-weight: 400;
-  --resume-heading-weight: 700;
-  --resume-company-weight: 600;
-  --resume-job-weight: 500;
+  --resume-body-weight: ${plan.bodyFontWeight};
+  --resume-heading-weight: ${plan.headingFontWeight};
+  --resume-company-weight: ${plan.companyFontWeight};
+  --resume-job-weight: ${plan.titleFontWeight};
+  --resume-meta-weight: ${plan.metaFontWeight};
   --resume-paragraph-gap: var(--dl-paragraph-spacing, 5px);
   --resume-bullet-gap: ${bulletGap};
   --resume-letter-spacing: 0.012em;
@@ -1705,7 +1737,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-density] .certification-item .year {
   display: inline-block !important;
   font-size: var(--resume-small-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--resume-meta-weight, 450) !important;
   line-height: 1.35 !important;
   letter-spacing: 0.02em !important;
   color: color-mix(in srgb, currentColor 66%, transparent) !important;
@@ -1820,6 +1852,19 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   border-top: 1px solid color-mix(in srgb, currentColor 13%, transparent) !important;
 }
 
+.resume-container[data-dl-density] .experience-desc--lead {
+  margin-bottom: calc(var(--resume-paragraph-gap) * 0.85) !important;
+  font-weight: var(--resume-body-weight, 400) !important;
+}
+
+.resume-container[data-dl-density] .experience-desc--grouped .experience-bullet-group {
+  margin-bottom: calc(var(--resume-bullet-gap, 0.42em) * 1.1) !important;
+}
+
+.resume-container[data-dl-density] .experience-desc--grouped .experience-bullet-group:last-child {
+  margin-bottom: 0 !important;
+}
+
 .resume-container[data-dl-density] .experience-item .description ul {
   margin: calc(var(--dl-exp-desc-padding, 8px) * 0.35) 0 0 !important;
   padding-left: 0 !important;
@@ -1841,7 +1886,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-density] .project-item .tech-stack,
 .resume-container[data-dl-density] .project-item .project-tech {
   font-size: var(--resume-small-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--resume-meta-weight, 450) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   color: color-mix(in srgb, currentColor 62%, transparent) !important;
@@ -1857,7 +1902,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-density] .skill-tag,
 .resume-container[data-dl-density] .psp-skill-name {
   font-size: var(--resume-skill-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--resume-meta-weight, 450) !important;
   line-height: 1.35 !important;
   letter-spacing: 0.02em !important;
   padding-block: 0.22em !important;
@@ -1875,7 +1920,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 
 .resume-container[data-dl-density] .education-item .degree,
 .resume-container[data-dl-density] .education-item h3 {
-  font-weight: 500 !important;
+  font-weight: var(--resume-meta-weight, 450) !important;
 }
 
 .resume-container[data-dl-density] .education-item .cgpa {
@@ -1896,7 +1941,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-density] .certification-item .issuer {
   display: block !important;
   font-size: var(--resume-job-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--resume-meta-weight, 450) !important;
   line-height: 1.35 !important;
   color: color-mix(in srgb, currentColor 78%, transparent) !important;
   margin-top: 0.12em !important;
@@ -1914,7 +1959,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-density] .psp-language-item .proficiency,
 .resume-container[data-dl-density] .language-item .level {
   font-size: var(--resume-small-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--resume-meta-weight, 450) !important;
   color: color-mix(in srgb, currentColor 68%, transparent) !important;
 }
 
@@ -1922,7 +1967,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-density] .hobby-item,
 .resume-container[data-dl-density] .hobby-item .hobby {
   font-size: var(--resume-small-size) !important;
-  font-weight: 500 !important;
+  font-weight: var(--resume-meta-weight, 450) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   color: color-mix(in srgb, currentColor 75%, transparent) !important;
@@ -2123,10 +2168,11 @@ export function buildDynamicLayoutCss(
   --resume-paragraph-gap: ${plan.paragraphSpacing}px;
   --resume-bullet-gap: ${plan.bulletGap}em;
   --resume-letter-spacing: 0.012em;
-  --resume-body-weight: 400;
-  --resume-heading-weight: 700;
-  --resume-company-weight: 600;
-  --resume-job-weight: 500;
+  --resume-body-weight: ${plan.bodyFontWeight};
+  --resume-heading-weight: ${plan.headingFontWeight};
+  --resume-company-weight: ${plan.companyFontWeight};
+  --resume-job-weight: ${plan.titleFontWeight};
+  --resume-meta-weight: ${plan.metaFontWeight};
 ${extraVars}
 }
 

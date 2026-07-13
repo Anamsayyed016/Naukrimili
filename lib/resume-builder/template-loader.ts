@@ -53,7 +53,7 @@ import {
 import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
-import { composeBulletList } from './content-composition';
+import { composeBulletList, buildExperienceDescriptionMarkup } from './content-composition';
 import { balanceTwoColumnLayout } from './column-balance-engine';
 
 /**
@@ -618,8 +618,7 @@ export function injectResumeData(
 
   result = appendExtendedSectionsToHtml(result, coalesced);
 
-  // Two-column balance: relocate flexible sections only (projects/achievements/interests)
-  // when main is overloaded and the template has a sidebar. Runs before layout CSS.
+  // Two-column balance: iteratively relocate flexible sections when columns are imbalanced.
   result = balanceTwoColumnLayout(result, {
     htmlTemplate,
     templateId: options?.templateId ?? options?.galleryTemplateId,
@@ -797,14 +796,20 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
         allBullets = composeBulletList(merged, 8);
       }
 
-      const renderedBullets = allBullets.length > 0
-        ? `<ul>${allBullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
-        : '';
-
       const leadDescription =
         allBullets.length > 0
           ? ''
           : String(description || '').trim();
+
+      const descriptionMarkup =
+        allBullets.length > 0
+          ? buildExperienceDescriptionMarkup({ description: '', bullets: allBullets })
+          : leadDescription
+            ? buildExperienceDescriptionMarkup({
+                description: leadDescription,
+                bullets: [],
+              })
+            : '';
 
       return `
         <div class="experience-item">
@@ -813,9 +818,7 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
             <span class="company">${escapeHtml(String(companyWithLocation))}</span>
             ${finalDuration ? `<span class="duration">${escapeHtml(String(finalDuration))}</span>` : ''}
           </div>
-          ${leadDescription || renderedBullets
-            ? `<div class="description">${leadDescription ? escapeHtml(leadDescription) : ''}${renderedBullets}</div>`
-            : ''}
+          ${descriptionMarkup ? `<div class="description">${descriptionMarkup}</div>` : ''}
         </div>
       `;
     })
