@@ -4447,7 +4447,7 @@ const EXPERIENCE_BODY_SECTION_END_RE =
 
 const KEY_RESPONSIBILITIES_HEADING_RE = /^key\s+responsibilit/i;
 const KEY_EXPERIENCE_DETAIL_HEADING_RE =
-  /^key\s+(?:result\s+areas?|responsibilit|accountabilit|duties|contributions?|achievements?|highlights?)/i;
+  /^(?:key\s+(?:result\s+areas?|responsibilit|accountabilit|duties|contributions?|achievements?|highlights?)|work\s+exposure|areas?\s+of\s+exposure|professional\s+exposure|nature\s+of\s+(?:duties|work)|job\s+profile)\b/i;
 const MONTH_YEAR_DATE_LINE_RE = new RegExp(
   `^((?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4})\\s*[-–—]\\s*(?:(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+)?(\\d{4}|present|current|now)\\b`,
   'i'
@@ -4688,12 +4688,12 @@ function splitDualCompanyProseName(company: string): [string, string] | null {
 }
 
 const COMPETENCY_SYNOPSIS_HEADING_RE =
-  /^(?:synopsis\s+of\s+(?:work\s+)?(?:profile|experience)|(?:key\s+)?(?:areas?\s+of\s+)?(?:expertise|competenc(?:y|ies))|core\s+competenc(?:y|ies)|professional\s+expertise|summary\s+of\s+(?:work\s+)?(?:profile|experience)|work\s+profile\s+summary)\b/i;
+  /^(?:synopsis\s+of\s+(?:work\s+)?(?:profile|experience)|(?:key\s+)?(?:areas?\s+of\s+)?(?:expertise|competenc(?:y|ies)|exposure)|core\s+competenc(?:y|ies)|professional\s+(?:expertise|exposure)|summary\s+of\s+(?:work\s+)?(?:profile|experience)|work\s+(?:profile\s+summary|exposure)|areas?\s+of\s+exposure|nature\s+of\s+(?:duties|work)|job\s+profile|roles?\s+and\s+responsibilit(?:y|ies)|key\s+responsibilit(?:y|ies))\b/i;
 
 const SUPPLEMENTARY_EXPERIENCE_HEADING_RE =
   /^(?:trainings?|teaching\s+experience|internships?|articleship|industrial\s+training|practical\s+training)\b/i;
 
-/** Extract competency / synopsis bullets (global work profile statements). */
+/** Extract competency / synopsis / work-exposure bullets (global duty statements). */
 export function recoverCompetencyBulletsFromRawText(rawText: string): string[] {
   const text = normalizePdfLigatureText(String(rawText || '').replace(/\f/g, '\n'));
   const lines = text.split('\n').map((l) => l.trim());
@@ -4701,22 +4701,38 @@ export function recoverCompetencyBulletsFromRawText(rawText: string): string[] {
   const bullets: string[] = [];
 
   for (const line of lines) {
-    if (COMPETENCY_SYNOPSIS_HEADING_RE.test(line.replace(/[:.\s]+$/g, ''))) {
+    const headingCandidate = line.replace(/[:.\s]+$/g, '');
+    if (COMPETENCY_SYNOPSIS_HEADING_RE.test(headingCandidate)) {
       inSection = true;
       continue;
     }
     if (!inSection) continue;
     if (
-      /^(?:extracurricular|hobbies?|personal\s+information|declaration|references?)\b/i.test(
-        line
+      /^(?:extracurricular|hobbies?|personal\s+(?:information|details)|declaration|references?|education|academic|qualification|technical\s+skills?|core\s+skills?|certifications?|languages?)\b/i.test(
+        headingCandidate
       )
     ) {
-      break;
+      // Soft stop: a later work-exposure block can restart collection.
+      inSection = false;
+      continue;
+    }
+    // Topic sub-heads inside work exposure (e.g. "Secretarial Compliances:") — skip as bullets.
+    if (
+      /^[A-Z][A-Za-z0-9 /&-]{2,60}$/.test(headingCandidate) &&
+      headingCandidate.split(/\s+/).length <= 5 &&
+      !looksLikeExperienceResponsibilityLine(line) &&
+      line.endsWith(':')
+    ) {
+      continue;
     }
     const bullet = line.replace(/^[\s●•\-–—*·▪‣\u2023\u25aa]+/, '').trim();
     if (bullet.length < 12 || bullet.length > 500) continue;
     if (isResumeSectionHeadingLine(bullet)) continue;
-    if (/^(?:●|•)/.test(line) || looksLikeExperienceResponsibilityLine(line) || bullet.split(/\s+/).length >= 4) {
+    if (
+      /^(?:●|•)/.test(line) ||
+      looksLikeExperienceResponsibilityLine(line) ||
+      bullet.split(/\s+/).length >= 6
+    ) {
       bullets.push(sanitizeFieldText(bullet, 500));
     }
     if (bullets.length >= 24) break;

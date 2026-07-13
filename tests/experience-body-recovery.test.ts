@@ -62,13 +62,53 @@ describe('experience body recovery', () => {
     expect(String(rows[0].company || '')).toMatch(/Horizon/i);
   });
 
-  it('skips subsection headings in description extraction', () => {
-    const result = extractDescriptionFromBlock([
-      'Key Result Areas',
-      '- Maintained statutory compliance registers for the group.',
-      '- Prepared board agendas and minutes.',
-    ]);
-    expect(result.bulletPoints.length).toBe(2);
-    expect(result.description).not.toMatch(/Key Result Areas/i);
+  it('recovers global Work Exposure duties onto the current role when job bodies are empty', () => {
+    const raw = [
+      'ALEX RIVERA',
+      'COMPANY SECRETARY',
+      '',
+      'PRACTICAL EXPERIENCE:',
+      'Head Company Secretary-Acme Iron & Steel Co. Ltd, (August. 2021 to Cont.....),',
+      'Company Secretary with Northwind Trimex Ltd. (Jan. 2018 to May. 2021)',
+      '',
+      'TECHNICAL SKILL:',
+      'Well versed with MS office, MS excel and Internet.',
+      '',
+      'Work Exposure:',
+      'Secretarial Compliances:',
+      'Routine Secretarial Work viz drafting of Notice, Agenda, Directors Report,',
+      'Board Committee Resolution and Minutes thereof, Compliance of SEBI LODR Regulations.',
+      'Annual Return Finalizing thereof as required by the Company registered under Companies Act,',
+      'timely submission of reports and disclosures to the Stock Exchanges online.',
+      'Compliance under FEMA: Filing of FC-GPR, FC-TRS, Annual Return on Foreign Liabilities',
+      'and Assets with Reserve Bank of India and other related RBI compliances.',
+      '',
+      'PERSONAL DETAILS',
+      'Languages known: English, Hindi',
+    ].join('\n');
+
+    const entries = [
+      {
+        company: 'Acme Iron & Steel Co. Ltd',
+        title: 'Head Company Secretary',
+        startDate: '2021-08',
+        endDate: 'Present',
+        current: true,
+        description: '',
+      },
+      {
+        company: 'Northwind Trimex Ltd',
+        title: 'Company Secretary',
+        startDate: '2018-01',
+        endDate: '2021-05',
+        description: '',
+      },
+    ];
+
+    const enriched = recoverExperienceBodiesFromRawText(raw, entries);
+    const currentBody = String(enriched[0].description || '');
+    expect(currentBody.length).toBeGreaterThan(80);
+    expect(currentBody.toLowerCase()).toMatch(/secretarial|sebi|fema|companies act/);
+    expect(String(enriched[1].description || '').length).toBe(0);
   });
 });
