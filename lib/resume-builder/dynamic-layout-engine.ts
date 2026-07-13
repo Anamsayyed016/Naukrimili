@@ -33,6 +33,13 @@ const BASE_COLUMN_GAP = 12;
 
 /** Expand when coverage is below the professional fill band (85–95%). */
 const FILL_EXPAND_BELOW = 0.85;
+/** Unused printable height that triggers whitespace redistribution (px). */
+const WHITESPACE_EXPAND_THRESHOLD_PX = 72;
+/** Minimum readable rhythm — never compress below these. */
+const READABLE_BULLET_GAP_MIN = 0.5;
+const READABLE_LINE_HEIGHT_MUL_MIN = 1.05;
+const READABLE_DESC_LH_MUL_MIN = 1.16;
+const READABLE_PARAGRAPH_SPACING_MIN = 6;
 /** Soft hold only inside the elegant band — avoid both emptiness and edge-to-edge stretch. */
 const FILL_HOLD_MIN = 0.85;
 const FILL_HOLD_MAX = 0.95;
@@ -92,6 +99,8 @@ export interface LayoutFillSignals {
   /** Main column materially taller than sidebar (experience-heavy resumes). */
   columnOverload: boolean;
   columnImbalanceRatio: number;
+  /** Printable page has meaningful unused vertical space. */
+  pageUnderfill: boolean;
   /** True when column-balance-engine already relocated flexible sections. */
   columnBalanced: boolean;
 }
@@ -332,8 +341,10 @@ export interface DynamicLayoutPlan {
   skillFontScale: number;
   /** Description/summary line-height multiplier (walls of text stay readable) */
   descLineHeightMul: number;
-  /** Comfortable reading measure for summary/description (ch) */
+  /** Comfortable reading measure for summary (ch) */
   summaryMaxCh: number;
+  /** Main-column description measure (ch) — wider when page/column has room */
+  contentMeasureCh: number;
   /** sparse | balanced | dense — drives data-dl-density */
   typographyDensity: 'sparse' | 'balanced' | 'dense';
   /** Adaptive font weights (numeric 100–900) */
@@ -466,6 +477,8 @@ function computeColumnBasisPct(
 
   if (sidebarSparse) {
     sidebarPct = clamp(0.22 + (sidebarWeight / total) * 0.35, 0.22, 0.3);
+  } else if (metrics.mainHeight > metrics.sidebarHeight * 1.18) {
+    sidebarPct = clamp(sidebarPct - 0.02, 0.24, 0.36);
   } else if (metrics.sidebarHeight > metrics.mainHeight * 1.2) {
     sidebarPct = clamp(sidebarPct + 0.04, 0.28, 0.42);
   }
@@ -756,17 +769,18 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
     metrics.sidebarHeight > 0 &&
     metrics.mainHeight > metrics.sidebarHeight * 1.18 &&
     experienceDominant;
+  const pageUnderfill =
+    metrics.remainingWhitespace > WHITESPACE_EXPAND_THRESHOLD_PX && pageFill < 0.88;
 
   /** Set by plan when HTML was already section-balanced across columns. */
   const columnBalanced = false;
 
   const shouldExpand =
-    pageFill < FILL_EXPAND_BELOW &&
-    !columnOverload &&
-    !(sidebarUnderfilled && experienceDominant);
+    pageFill < FILL_EXPAND_BELOW || pageUnderfill;
   const shouldCompress =
     pageFill > FILL_COMPRESS_ABOVE &&
-    !(sidebarUnderfilled && mainColumnRatio > 0.72 && experienceDominant && !columnOverload);
+    !pageUnderfill &&
+    !(sidebarUnderfilled && mainColumnRatio > 0.72 && experienceDominant);
 
   return {
     pageFill,
@@ -778,6 +792,7 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
     sidebarUnderfilled,
     columnOverload,
     columnImbalanceRatio,
+    pageUnderfill,
     columnBalanced,
   };
 }
@@ -841,15 +856,21 @@ function rebalanceColumnExtras(
     const gap = metrics.mainHeight - metrics.sidebarHeight;
     const transfer = Math.min(120, gap * 0.18);
 
-    if (fillSignals.columnOverload) {
-      // Experience-heavy imbalance: tighten main, give sidebar breathing room.
-      out.experience = Math.round((out.experience ?? 0) - transfer * 0.35);
-      out.projects = Math.round((out.projects ?? 0) - transfer * 0.12);
+    if (fillSignals.columnOverload && !fillSignals.pageUnderfill) {
+      // Column imbalance only — tighten inter-job rhythm, not description readability.
+      out.experience = Math.round((out.experience ?? 0) - transfer * 0.15);
+      out.projects = Math.round((out.projects ?? 0) - transfer * 0.08);
       for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
         if (!metrics.sidebarSections.some((s) => s.kind === kind)) continue;
         out[kind] = Math.round((out[kind] ?? 0) + transfer * 0.22);
       }
       out.summary = Math.round((out.summary ?? 0) + transfer * 0.15);
+    } else if (fillSignals.pageUnderfill) {
+      // Redistribute unused page height into readable rhythm.
+      for (const kind of ['experience', 'summary', 'skills', 'education'] as LayoutSectionKind[]) {
+        if (!metrics.sections.some((s) => s.kind === kind)) continue;
+        out[kind] = Math.round((out[kind] ?? 0) + transfer * 0.28);
+      }
     } else {
       out.experience = (out.experience ?? 0) + Math.round(transfer * 0.22);
       out.summary = (out.summary ?? 0) + Math.round(transfer * 0.12);
@@ -1099,7 +1120,7 @@ export function resolveAdaptiveTypography(input: {
   let typographyDensity: 'sparse' | 'balanced' | 'dense' = 'balanced';
   if (experienceCount <= 2 && fill < 0.78 && experienceTextUnits < 8) {
     typographyDensity = 'sparse';
-  } else if (experienceCount >= 5 || experienceTextUnits >= 18 || fill > 0.98 || columnOverload) {
+  } else if (experienceCount >= 5 || experienceTextUnits >= 18 || fill > 0.98) {
     typographyDensity = 'dense';
   }
 
@@ -1145,13 +1166,6 @@ export function resolveAdaptiveTypography(input: {
     metaFontScale = 0.84 - mid * 0.02;
     descLineHeightMul = 1.12 + mid * 0.05;
     companyFontScale = 1.15;
-  }
-
-  if (columnOverload) {
-    const overload = clamp((experienceCount - 2) / 10 + experienceTextUnits / 40, 0, 1);
-    bodyFontScale = Math.min(bodyFontScale, 0.92 - overload * 0.06);
-    metaFontScale = Math.min(metaFontScale, 0.8 - overload * 0.04);
-    descLineHeightMul = Math.max(descLineHeightMul, 1.1 + overload * 0.06);
   }
 
   if (experienceTextUnits >= 14) {
@@ -1232,19 +1246,20 @@ export function computeDynamicLayoutPlanFromMetrics(
   let sectionExtras: Partial<Record<LayoutSectionKind, number>> = {};
 
   if (fillSignals.shouldExpand) {
-    // Stronger expansion for sparse pages; still capped so we don't stretch absurdly.
     const expand = clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1);
     const sparseBoost = fill < 0.55 ? 1.35 : fill < 0.7 ? 1.18 : 1;
-    sectionGapMul = 1 + expand * 0.72 * sparseBoost;
-    blockGapMul = 1 + expand * 0.58 * sparseBoost;
-    bulletGapMul = 1 + expand * 0.42 * sparseBoost;
-    headingGapMul = 1 + expand * 0.48 * sparseBoost;
-    lineHeightMul = 1 + expand * 0.2 * sparseBoost;
-    fontScale = 1 + expand * 0.11 * Math.min(sparseBoost, 1.2);
-    sectionPaddingMul = 1 + expand * 0.62 * sparseBoost;
-    paragraphSpacingMul = 1 + expand * 0.48 * sparseBoost;
+    const underfillBoost = fillSignals.pageUnderfill ? 1.28 : 1;
+    const boost = sparseBoost * underfillBoost;
+    sectionGapMul = 1 + expand * 0.72 * boost;
+    blockGapMul = 1 + expand * 0.58 * boost;
+    bulletGapMul = 1 + expand * 0.48 * boost;
+    headingGapMul = 1 + expand * 0.48 * boost;
+    lineHeightMul = 1 + expand * 0.24 * boost;
+    fontScale = 1 + expand * 0.08 * Math.min(boost, 1.2);
+    sectionPaddingMul = 1 + expand * 0.62 * boost;
+    paragraphSpacingMul = 1 + expand * 0.55 * boost;
     columnGapMul = 1 + expand * 0.18;
-    sidebarGapMul = 1 + expand * 0.7 * sparseBoost;
+    sidebarGapMul = 1 + expand * 0.7 * boost;
     const deficitPx = Math.max(
       metrics.remainingWhitespace,
       (TARGET_PAGE_FILL - fill) * metrics.pageHeight
@@ -1398,26 +1413,27 @@ export function computeDynamicLayoutPlanFromMetrics(
       experienceCardPadding = Math.round(experienceCardPadding * 1.2 * 10) / 10;
       experienceDescPadding = Math.round(experienceDescPadding * 1.25 * 10) / 10;
     }
-  } else if (experienceCount >= 4) {
+  } else if (experienceCount >= 4 && fillSignals.shouldCompress && !fillSignals.pageUnderfill) {
     const compress = clamp((experienceCount - 3) / 6, 0, 1);
-    const overloadBoost = fillSignals.columnOverload ? 0.35 : 0;
-    const dampen = fillSignals.experienceDominant ? 0.72 + overloadBoost : 1;
-    experienceCardPadding = Math.round(sectionPadding * (1 - compress * 0.28 * dampen) * 10) / 10;
-    experienceListGap = Math.round(blockGap * (1 - compress * 0.3 * dampen) * 10) / 10;
+    const dampen = fillSignals.experienceDominant ? 0.55 : 0.75;
+    experienceCardPadding = Math.round(sectionPadding * (1 - compress * 0.18 * dampen) * 10) / 10;
+    experienceListGap = Math.round(blockGap * (1 - compress * 0.2 * dampen) * 10) / 10;
     experienceDescPadding = Math.round(
-      experienceDescPadding * (1 - compress * 0.22 * dampen) * 10
+      experienceDescPadding * (1 - compress * 0.12 * dampen) * 10
     ) / 10;
-    experienceHeaderGap = Math.round(experienceHeaderGap * (1 - compress * 0.18 * dampen) * 10) / 10;
-    bulletGapMul *= 1 - compress * 0.24 * dampen;
-    paragraphSpacingMul *= 1 - compress * 0.14 * dampen;
+    experienceHeaderGap = Math.round(experienceHeaderGap * (1 - compress * 0.1 * dampen) * 10) / 10;
+    bulletGapMul *= 1 - compress * 0.12 * dampen;
+    paragraphSpacingMul *= 1 - compress * 0.08 * dampen;
   }
 
-  if (fillSignals.columnOverload && experienceCount >= 2) {
-    const severe = clamp((fillSignals.columnImbalanceRatio - 1.2) / 1.8, 0, 1);
-    experienceListGap = Math.round(experienceListGap * (1 - severe * 0.18) * 10) / 10;
-    experienceCardPadding = Math.round(experienceCardPadding * (1 - severe * 0.12) * 10) / 10;
-    bulletGapMul *= 1 - severe * 0.14;
-    lineHeightMul = Math.max(0.94, lineHeightMul - severe * 0.06);
+  if (fillSignals.pageUnderfill && experienceCount >= 2) {
+    const fillBoost = clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1);
+    experienceListGap = Math.round(experienceListGap * (1 + fillBoost * 0.22) * 10) / 10;
+    experienceDescPadding = Math.round(experienceDescPadding * (1 + fillBoost * 0.28) * 10) / 10;
+    experienceHeaderGap = Math.round(experienceHeaderGap * (1 + fillBoost * 0.15) * 10) / 10;
+    bulletGapMul *= 1 + fillBoost * 0.18;
+    paragraphSpacingMul *= 1 + fillBoost * 0.22;
+    lineHeightMul *= 1 + fillBoost * 0.1;
   }
 
   if (fillSignals.experienceDominant && !fillSignals.columnOverload) {
@@ -1444,6 +1460,32 @@ export function computeDynamicLayoutPlanFromMetrics(
     bulletIndent = Math.min(20, bulletIndent + 2);
   }
 
+  let contentMeasureCh = adaptiveType.summaryMaxCh;
+  if (hasSidebar && (fillSignals.columnOverload || fillSignals.sidebarUnderfilled)) {
+    contentMeasureCh = Math.max(contentMeasureCh, 76);
+  }
+  if (fillSignals.pageUnderfill) {
+    const widen = Math.round(clamp((TARGET_PAGE_FILL - fill) / 0.2, 0, 1) * 10);
+    contentMeasureCh = Math.min(84, contentMeasureCh + widen);
+  }
+
+  const finalBulletGap = Math.max(
+    READABLE_BULLET_GAP_MIN,
+    Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100
+  );
+  const finalLineHeightMul = Math.max(
+    READABLE_LINE_HEIGHT_MUL_MIN,
+    Math.round(clamp(lineHeightMul, 0.98, 1.28) * 1000) / 1000
+  );
+  const finalParagraphSpacing = Math.max(
+    READABLE_PARAGRAPH_SPACING_MIN,
+    Math.round(BASE_PARAGRAPH_SPACING * paragraphSpacingMul * 10) / 10
+  );
+  const finalDescLhMul = Math.max(
+    READABLE_DESC_LH_MUL_MIN,
+    Math.round(adaptiveType.descLineHeightMul * 1000) / 1000
+  );
+
   let sidebarCardPadding = Math.round(
     sectionPadding * adaptiveCards.sidebarCardMul * 10
   ) / 10;
@@ -1458,16 +1500,16 @@ export function computeDynamicLayoutPlanFromMetrics(
   const plan: DynamicLayoutPlan = {
     sectionGap,
     blockGap,
-    bulletGap: Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100,
+    bulletGap: finalBulletGap,
     headingGap: Math.round(BASE_HEADING_GAP * headingGapMul * 10) / 10,
     fontScale: Math.round(clamp(fontScale, 0.88, 1.12) * 1000) / 1000,
-    lineHeightMul: Math.round(clamp(lineHeightMul, 0.9, 1.22) * 1000) / 1000,
+    lineHeightMul: finalLineHeightMul,
     skillColumns,
     mainFlexGrow: Math.round(mainFlexGrow * 100) / 100,
     sidebarFlexGrow: Math.round(sidebarFlexGrow * 100) / 100,
     density: Math.round(density * 1000) / 1000,
     sectionPadding,
-    paragraphSpacing: Math.round(BASE_PARAGRAPH_SPACING * paragraphSpacingMul * 10) / 10,
+    paragraphSpacing: finalParagraphSpacing,
     columnGap: Math.round(BASE_COLUMN_GAP * columnGapMul * 10) / 10,
     summarySpacing: Math.round(
       (blockGap + (sectionExtras.summary ?? 0)) * 10
@@ -1503,6 +1545,8 @@ export function computeDynamicLayoutPlanFromMetrics(
     bulletIndent,
     sidebarCardPadding,
     ...adaptiveType,
+    descLineHeightMul: finalDescLhMul,
+    contentMeasureCh,
   };
 
   applyTemplateAwareDistribution(plan, templateCapacity, layoutProfile, fillSignals);
@@ -1666,7 +1710,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   const skillSize = sz(9.5, 1.0, 11, plan.skillFontScale);
   const descLh = (Math.round(1.62 * plan.descLineHeightMul * 1000) / 1000).toFixed(3);
   const headingGapAbove = Math.max(2, Math.round(plan.headingGap * 0.35));
-  const bulletGap = `${Math.max(0.32, plan.bulletGap).toFixed(2)}em`;
+  const bulletGap = `${Math.max(READABLE_BULLET_GAP_MIN, plan.bulletGap).toFixed(2)}em`;
 
   return `
 /* Professional resume typography — absolute clamps + density (preserves template fonts/colors) */
@@ -1679,6 +1723,7 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   --dl-fs-skill: ${plan.skillFontScale};
   --dl-lh-desc: ${descLh};
   --dl-summary-max-ch: ${plan.summaryMaxCh};
+  --dl-content-measure-ch: ${plan.contentMeasureCh};
   --resume-name-size: ${nameSize};
   --resume-heading-size: ${headingSize};
   --resume-company-size: ${companySize};
@@ -1781,12 +1826,25 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 
 /* Body / summary / descriptions */
 .resume-container[data-dl-density] .experience-item .description,
-.resume-container[data-dl-density] .project-item .description,
-.resume-container[data-dl-density] .description,
+.resume-container[data-dl-density] .project-item .description {
+  font-size: var(--resume-body-size) !important;
+  font-weight: var(--resume-body-weight, 400) !important;
+  line-height: var(--resume-line-height) !important;
+  letter-spacing: var(--resume-letter-spacing, 0.012em) !important;
+  word-spacing: var(--resume-word-spacing, 0.025em) !important;
+  max-width: min(100%, calc(var(--dl-content-measure-ch, 76) * 1ch)) !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
 .resume-container[data-dl-density] .summary-text,
 .resume-container[data-dl-density] [class*='summary-text'],
 .resume-container[data-dl-density] .professional-summary,
-.resume-container[data-dl-density] .objective-text {
+.resume-container[data-dl-density] .objective-text,
+.resume-container[data-dl-density] .description:not(.experience-item .description):not(.project-item .description) {
   font-size: var(--resume-body-size) !important;
   font-weight: var(--resume-body-weight, 400) !important;
   line-height: var(--resume-line-height) !important;
@@ -1798,6 +1856,22 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
   -webkit-hyphens: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+.resume-container[data-dl-density] .experience-item .description[data-desc-volume='short'] {
+  line-height: calc(var(--resume-line-height) * 1.04) !important;
+}
+
+.resume-container[data-dl-density] .experience-item .description[data-desc-volume='medium'] {
+  line-height: var(--resume-line-height) !important;
+}
+
+.resume-container[data-dl-density] .experience-item .description[data-desc-volume='long'] {
+  line-height: calc(var(--resume-line-height) * 1.02) !important;
+}
+
+.resume-container[data-dl-density] .experience-item .description[data-desc-volume='long'] li {
+  margin-bottom: calc(var(--resume-bullet-gap, 0.5em) * 1.05) !important;
 }
 
 .resume-container[data-dl-density] .summary-text,
@@ -2109,6 +2183,7 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
     String(Math.round(1.62 * plan.descLineHeightMul * 1000) / 1000)
   );
   root.style.setProperty('--dl-summary-max-ch', String(plan.summaryMaxCh));
+  root.style.setProperty('--dl-content-measure-ch', String(plan.contentMeasureCh));
   root.style.setProperty('--resume-line-height', `var(--dl-lh-desc)`);
   root.style.setProperty('--resume-paragraph-gap', `${plan.paragraphSpacing}px`);
   root.style.setProperty('--resume-bullet-gap', `${plan.bulletGap}em`);
@@ -2200,6 +2275,7 @@ export function buildDynamicLayoutCss(
   --dl-fs-skill: ${plan.skillFontScale};
   --dl-lh-desc: ${(Math.round(1.62 * plan.descLineHeightMul * 1000) / 1000).toFixed(3)};
   --dl-summary-max-ch: ${plan.summaryMaxCh};
+  --dl-content-measure-ch: ${plan.contentMeasureCh};
   --resume-line-height: var(--dl-lh-desc);
   --resume-paragraph-gap: ${plan.paragraphSpacing}px;
   --resume-bullet-gap: ${plan.bulletGap}em;
@@ -2236,6 +2312,11 @@ ${extraVars}
 .resume-container .resume-wrapper {
   column-gap: var(--dl-column-gap) !important;
   gap: var(--dl-column-gap) !important;
+}
+
+.resume-container[data-dl-page-underfill='true'] [class*='-body']:has(> main):has(> aside),
+.resume-container[data-dl-page-underfill='true'] [class*='-body']:has(> aside):has(> main) {
+  grid-template-columns: calc(var(--dl-main-basis, 67) * 1fr) calc(var(--dl-sidebar-basis, 33) * 1fr) !important;
 }
 
 .resume-container [class*='-layout'] > main,
@@ -2636,7 +2717,7 @@ export function injectDynamicLayoutIntoHtml(
   let result = appendStyleBlockToHtml(html, block);
   result = result.replace(
     /(<div[^>]*class="[^"]*\bresume-container\b[^"]*"[^>]*)(>)/i,
-    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-density="${plan.typographyDensity}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}"$2`
+    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-density="${plan.typographyDensity}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}" data-dl-page-underfill="${plan.pageFillRatio < 0.88 ? 'true' : 'false'}"$2`
   );
   return result;
 }

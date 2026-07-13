@@ -519,6 +519,22 @@ export function resolveExperienceDescriptionRenderMode(
   return 'grouped-bullets';
 }
 
+/** Per-role description volume for adaptive spacing (render-time only). */
+export function resolveExperienceDescriptionVolume(
+  bullets: string[],
+  description: string
+): 'short' | 'medium' | 'long' {
+  const cleanedBullets = bullets.map(stripBulletPrefix).filter((line) => line.length >= 3);
+  const prose = normalizeWhitespace(description);
+  const totalChars =
+    cleanedBullets.reduce((sum, line) => sum + line.length, 0) + prose.length;
+  const bulletCount = cleanedBullets.length;
+
+  if (bulletCount <= 2 && totalChars < 280) return 'short';
+  if (bulletCount <= 6 && totalChars < 920) return 'medium';
+  return 'long';
+}
+
 /** Group bullets into readable clusters (verb affinity, then size cap). */
 export function groupBulletsForRender(bullets: string[], maxPerGroup = 4): string[][] {
   const cleaned = bullets.map(stripBulletPrefix).filter((line) => line.length >= 3);

@@ -1730,11 +1730,19 @@ describe('content composition engine', () => {
   it('adapts experience description formatting by content length', () => {
     const {
       resolveExperienceDescriptionRenderMode,
+      resolveExperienceDescriptionVolume,
       buildExperienceDescriptionMarkup,
       groupBulletsForRender,
     } = require('@/lib/resume-builder/content-composition');
 
     expect(resolveExperienceDescriptionRenderMode([], 'Short role summary only.')).toBe('paragraph');
+    expect(resolveExperienceDescriptionVolume(['One line'], '')).toBe('short');
+    expect(
+      resolveExperienceDescriptionVolume(
+        Array.from({ length: 8 }, (_, i) => `Delivered initiative ${i + 1} with measurable impact`),
+        ''
+      )
+    ).toBe('long');
     expect(
       resolveExperienceDescriptionRenderMode(['Built APIs', 'Led team'], 'Also owned roadmap.')
     ).toBe('paragraph-bullets');
@@ -2047,7 +2055,9 @@ describe('dynamic layout engine', () => {
 
     expect(signals.experienceDominant).toBe(true);
     expect(signals.columnOverload).toBe(true);
+    expect(signals.pageUnderfill).toBe(true);
     expect(signals.shouldCompress).toBe(false);
+    expect(signals.shouldExpand).toBe(true);
 
     const densePlan = computeDynamicLayoutPlanFromMetrics(metrics, {
       experience: Array.from({ length: 6 }, (_, i) => ({
@@ -2058,8 +2068,10 @@ describe('dynamic layout engine', () => {
       education: [{ institution: 'School', degree: 'MBA' }],
     }, { htmlTemplate: '<aside class="sidebar"></aside>', renderedHtml: longExpHtml });
 
-    expect(densePlan.lineHeightMul).toBeGreaterThanOrEqual(0.95);
-    expect(densePlan.experienceListGap).toBeLessThanOrEqual(densePlan.blockGap);
+    expect(densePlan.lineHeightMul).toBeGreaterThanOrEqual(1.05);
+    expect(densePlan.bulletGap).toBeGreaterThanOrEqual(0.5);
+    expect(densePlan.experienceListGap).toBeGreaterThanOrEqual(8);
+    expect(densePlan.contentMeasureCh).toBeGreaterThanOrEqual(76);
   });
 
   it('resolves metadata-driven movable sections without template hardcoding', () => {

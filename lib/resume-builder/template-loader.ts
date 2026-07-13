@@ -53,7 +53,7 @@ import {
 import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
-import { composeBulletList, buildExperienceDescriptionMarkup } from './content-composition';
+import { composeBulletList, buildExperienceDescriptionMarkup, resolveExperienceDescriptionVolume } from './content-composition';
 import { balanceTwoColumnLayout } from './column-balance-engine';
 
 /**
@@ -811,6 +811,11 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
               })
             : '';
 
+      const descVolume = resolveExperienceDescriptionVolume(
+        allBullets.length > 0 ? allBullets : leadDescription ? [leadDescription] : [],
+        leadDescription
+      );
+
       return `
         <div class="experience-item">
           <div class="experience-header">
@@ -818,7 +823,7 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
             <span class="company">${escapeHtml(String(companyWithLocation))}</span>
             ${finalDuration ? `<span class="duration">${escapeHtml(String(finalDuration))}</span>` : ''}
           </div>
-          ${descriptionMarkup ? `<div class="description">${descriptionMarkup}</div>` : ''}
+          ${descriptionMarkup ? `<div class="description" data-desc-volume="${descVolume}">${descriptionMarkup}</div>` : ''}
         </div>
       `;
     })
