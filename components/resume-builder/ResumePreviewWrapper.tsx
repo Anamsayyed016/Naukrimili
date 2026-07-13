@@ -26,9 +26,10 @@ export default function ResumePreviewWrapper({
   selectedColorId,
   className = '',
 }: ResumePreviewWrapperProps) {
+  const formDataKey = useMemo(() => JSON.stringify(formData), [formData]);
   const typographyCss = useMemo(
     () => buildTypographyCss(readTypographyFromFormData(formData)),
-    [formData]
+    [formDataKey]
   );
   if (!templateId) {
     return (

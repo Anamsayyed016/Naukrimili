@@ -68,15 +68,18 @@ export default function LivePreview({
   const previousFormDataRef = useRef<string>('');
   const previousCustomCssRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
-  const mutationObserverRef = useRef<MutationObserver | null>(null);
   const isAdjustingLayoutRef = useRef(false);
   const contentHeightRef = useRef(A4_HEIGHT_PX);
   const fitScaleRef = useRef(1);
   const adjustHeightRafRef = useRef<number | null>(null);
   const strippedIframeScaleRef = useRef(false);
+  const layoutGenerationRef = useRef(0);
 
   const displayScale = useMemo(
-    () => resolvePreviewScale(zoom, fitScale),
+    () => {
+      const scale = resolvePreviewScale(zoom, fitScale);
+      return Math.round(scale * 10000) / 10000;
+    },
     [zoom, fitScale]
   );
 
@@ -84,31 +87,29 @@ export default function LivePreview({
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const inner = canvasInnerRef.current;
-    const measureWidth = inner?.clientWidth ?? container.clientWidth;
+    const measureWidth = container.clientWidth;
     const isNarrowViewport = measureWidth > 0 && measureWidth < 1200;
 
     const nextScale = computeFitScale(
       measureWidth,
       container.clientHeight,
-      contentHeight,
+      contentHeightRef.current,
       undefined,
       isNarrowViewport ? 'width' : 'both'
     );
-    if (Math.abs(nextScale - fitScaleRef.current) < 0.002) return;
-    fitScaleRef.current = nextScale;
-    setFitScale(nextScale);
-  }, [contentHeight]);
+    const rounded = Math.round(nextScale * 10000) / 10000;
+    if (Math.abs(rounded - fitScaleRef.current) < 0.001) return;
+    fitScaleRef.current = rounded;
+    setFitScale(rounded);
+  }, []);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
-    const inner = canvasInnerRef.current;
     if (!container) return;
 
     updateFitScale();
     const ro = new ResizeObserver(() => updateFitScale());
     ro.observe(container);
-    if (inner) ro.observe(inner);
     return () => ro.disconnect();
   }, [updateFitScale]);
 
@@ -340,9 +341,6 @@ export default function LivePreview({
 
     if (isAdjustingLayoutRef.current) return;
 
-    const observer = mutationObserverRef.current;
-    observer?.disconnect();
-
     isAdjustingLayoutRef.current = true;
     try {
       const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
@@ -351,29 +349,23 @@ export default function LivePreview({
       const resumeHeight = Math.ceil(
         resumeContainer.scrollHeight || resumeContainer.offsetHeight || A4_HEIGHT_PX
       );
+      const heightChanged =
+        Math.abs(resumeHeight - contentHeightRef.current) >= 4;
+
+      if (!heightChanged) return;
+
+      contentHeightRef.current = resumeHeight;
+      setContentHeight(resumeHeight);
+
       const resumeWidth = A4_WIDTH_PX;
-      const heightChanged = Math.abs(resumeHeight - contentHeightRef.current) > 1;
-
-      if (heightChanged) {
-        contentHeightRef.current = resumeHeight;
-        setContentHeight(resumeHeight);
-      }
-
-      iframe.style.width = `${resumeWidth}px`;
-      iframe.style.height = `${resumeHeight}px`;
-      iframe.style.transform = 'none';
-      iframe.style.transformOrigin = 'top center';
-      (iframe.style as CSSStyleDeclaration & { scale?: string }).scale = '1';
-      (iframe.style as CSSStyleDeclaration & { zoom?: string }).zoom = '1';
-
-      resumeContainer.style.transform = 'none';
-      resumeContainer.style.width = `${resumeWidth}px`;
-      resumeContainer.style.maxWidth = `${resumeWidth}px`;
-      resumeContainer.style.minWidth = `${resumeWidth}px`;
-      (resumeContainer.style as CSSStyleDeclaration & { scale?: string }).scale = '1';
-      (resumeContainer.style as CSSStyleDeclaration & { zoom?: string }).zoom = '1';
-
       if (!strippedIframeScaleRef.current) {
+        resumeContainer.style.transform = 'none';
+        resumeContainer.style.width = `${resumeWidth}px`;
+        resumeContainer.style.maxWidth = `${resumeWidth}px`;
+        resumeContainer.style.minWidth = `${resumeWidth}px`;
+        (resumeContainer.style as CSSStyleDeclaration & { scale?: string }).scale = '1';
+        (resumeContainer.style as CSSStyleDeclaration & { zoom?: string }).zoom = '1';
+
         const scaledElements = iframeDoc.querySelectorAll('[style*="scale"]');
         scaledElements.forEach((el) => {
           const htmlEl = el as HTMLElement;
@@ -387,27 +379,11 @@ export default function LivePreview({
         strippedIframeScaleRef.current = true;
       }
 
-      iframeDoc.body.style.overflow = 'visible';
-      iframeDoc.documentElement.style.overflow = 'visible';
-      iframeDoc.body.style.height = `${resumeHeight}px`;
-      iframeDoc.documentElement.style.height = `${resumeHeight}px`;
-      iframeDoc.body.style.transform = 'none';
-      iframeDoc.documentElement.style.transform = 'none';
-
-      if (heightChanged) {
-        updateFitScale();
-      }
+      updateFitScale();
     } catch (err) {
       console.error('[LivePreview] Error adjusting height:', err);
     } finally {
       isAdjustingLayoutRef.current = false;
-      const resumeContainer = iframeDoc.querySelector('.resume-container');
-      if (resumeContainer && observer) {
-        observer.observe(resumeContainer, {
-          childList: true,
-          subtree: true,
-        });
-      }
     }
   }, [updateFitScale]);
 
@@ -463,6 +439,8 @@ export default function LivePreview({
         // CRITICAL: Use EXACT same HTML generation as View Full Resume modal
         if (isFullReload || !iframeDoc.body || !iframeDoc.body.querySelector('.resume-container')) {
           strippedIframeScaleRef.current = false;
+          layoutGenerationRef.current += 1;
+          const layoutGeneration = layoutGenerationRef.current;
           const fullHtml = `
             <!DOCTYPE html>
             <html lang="en" dir="${dir}">
@@ -612,6 +590,7 @@ export default function LivePreview({
 
           // DOM-aware layout refinement after first paint
           setTimeout(async () => {
+            if (layoutGeneration !== layoutGenerationRef.current) return;
             try {
               const { applyDomAwareLayoutToDocument } = await import(
                 '@/lib/resume-builder/dynamic-layout-engine'
@@ -639,10 +618,13 @@ export default function LivePreview({
             
             if (newContainer) {
               strippedIframeScaleRef.current = false;
+              layoutGenerationRef.current += 1;
+              const layoutGeneration = layoutGenerationRef.current;
               // Smooth update
               resumeContainer.innerHTML = newContainer.innerHTML;
               
               setTimeout(async () => {
+                if (layoutGeneration !== layoutGenerationRef.current) return;
                 try {
                   const { applyDomAwareLayoutToDocument } = await import(
                     '@/lib/resume-builder/dynamic-layout-engine'
@@ -671,69 +653,19 @@ export default function LivePreview({
     updatePreview();
     }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, adjustIframeHeight, customCss]);
 
-  // Observe iframe DOM for structural content changes only (not style/attribute churn).
   useEffect(() => {
-    if (!iframeRef.current || !scrollContainerRef.current) return;
-
-    const iframe = iframeRef.current;
-    const scrollContainer = scrollContainerRef.current;
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateFitScale();
-    });
-
-    resizeObserver.observe(scrollContainer);
-
-    const setupObserver = () => {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc || !iframeDoc.body) return;
-
-      if (mutationObserverRef.current) {
-        mutationObserverRef.current.disconnect();
-      }
-
-      mutationObserverRef.current = new MutationObserver(() => {
-        if (isAdjustingLayoutRef.current) return;
-        adjustIframeHeight();
-      });
-
-      const resumeContainer = iframeDoc.querySelector('.resume-container');
-      if (resumeContainer) {
-        mutationObserverRef.current.observe(resumeContainer, {
-          childList: true,
-          subtree: true,
-        });
-      }
-    };
-
-    const checkInterval = setInterval(() => {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (iframeDoc && iframeDoc.body && iframeDoc.body.querySelector('.resume-container')) {
-        setupObserver();
-        clearInterval(checkInterval);
-      }
-    }, 100);
-
-    const handleResize = () => {
-      updateFitScale();
-    };
+    const handleResize = () => updateFitScale();
     window.addEventListener('resize', handleResize);
-
     return () => {
-      clearInterval(checkInterval);
       window.removeEventListener('resize', handleResize);
-      resizeObserver.disconnect();
       if (adjustHeightRafRef.current != null) {
         cancelAnimationFrame(adjustHeightRafRef.current);
       }
-      if (mutationObserverRef.current) {
-        mutationObserverRef.current.disconnect();
-      }
     };
-    }, [adjustIframeHeight, updateFitScale]);
+  }, [updateFitScale]);
 
-  const scaledWidth = A4_WIDTH_PX * displayScale;
-  const scaledHeight = contentHeight * displayScale;
+  const scaledWidth = Math.round(A4_WIDTH_PX * displayScale);
+  const scaledHeight = Math.round(contentHeight * displayScale);
   const zoomLabel =
     zoom === 'fit'
       ? `Fit (${Math.round(fitScale * 100)}%)`
@@ -784,10 +716,7 @@ export default function LivePreview({
     >
       <div className="resume-preview-toolbar flex-shrink-0 flex items-center justify-between gap-2 sm:gap-3 min-w-0 px-3 sm:px-4 min-[1200px]:px-4 py-2.5 bg-white border-b border-slate-200">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
+          <span className="inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           <p className="text-sm font-semibold text-slate-800 truncate">Live Preview</p>
           <span className="hidden sm:inline text-xs text-slate-400 font-medium tabular-nums">
             A4 · {zoomLabel}
@@ -907,7 +836,7 @@ export default function LivePreview({
                   pointerEvents: 'none',
                 }}
                 onLoad={() => {
-                  setTimeout(() => adjustIframeHeight(), 300);
+                  adjustIframeHeight();
                 }}
               />
             </div>

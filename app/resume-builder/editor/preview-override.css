@@ -6,12 +6,12 @@
 .resume-preview-canvas {
   background: linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 40%, #f8fafc 100%);
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
 }
 
 .resume-preview-scale-stage {
   overflow: hidden;
   position: relative;
+  contain: layout size;
 }
 
 .resume-preview-paper {
