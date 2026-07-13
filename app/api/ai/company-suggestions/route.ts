@@ -95,6 +95,7 @@ async function generateWithAI(
     location: existingData?.location || '',
     size: existingData?.size || '',
     description: existingData?.description || '',
+    mission: existingData?.mission || '',
     userTypedContent: userInput || ''
   };
 

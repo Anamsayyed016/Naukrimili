@@ -3,6 +3,11 @@ import {
   expandVowelDroppedNameFromEmail,
   pickRicherFullName,
   recoverStructuredExperienceFromRawText,
+  recoverCredentialProfileSummaryFromRawText,
+  recoverLanguagesFromPersonalDetails,
+  recoverSkillsFromCompetencySections,
+  recoverCompetencyBulletsFromRawText,
+  recoverSupplementaryExperienceFromRawText,
 } from '@/lib/resume-parser/import-sanitize';
 import { transformImportDataToBuilder, coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
 import { runCustomParserPipeline } from '@/lib/resume-parser/custom/reliability/pipeline';
@@ -117,6 +122,55 @@ describe('Naukri Qamar Ali import patterns', () => {
             .includes('present')
       )
     ).toBe(true);
+  });
+
+  it('recovers credential profile summary from preamble-style text', () => {
+    const text = `CS Qamar Ali
+(ACS Membership No. A39406)
+CS and LL. B with Strong Corporate Exposure of 8 Years including 4 Years of handling Listed
+and 20 + Group Companies.
+● Currently working as a company secretary at Example Ltd from Jan 2020 till Present`;
+    const summary = recoverCredentialProfileSummaryFromRawText(text);
+    expect(summary.toLowerCase()).toMatch(/corporate exposure/);
+    expect(summary.toLowerCase()).toMatch(/8 years/);
+  });
+
+  it('recovers languages from personal information lines', () => {
+    const langs = recoverLanguagesFromPersonalDetails(
+      'Languages known Hindi, English, Gujarati, Urdu, Arabic (Reading & Writing) Age 32 years'
+    );
+    expect(langs.length).toBeGreaterThanOrEqual(4);
+    expect(langs.map((l) => l.toLowerCase())).toEqual(
+      expect.arrayContaining(['hindi', 'english', 'urdu'])
+    );
+  });
+
+  it('recovers competency synopsis bullets and skills labels', () => {
+    const text = `Synopsis of work profile and experience gained:
+● Corporate Actions- Stock split, Change of RTA, Dividend and All IEPF Compliances.
+● Drafting and Vetting of Legal Agreements (Supply, Contractual, NDA).
+Extracurricular Activities:`;
+    const bullets = recoverCompetencyBulletsFromRawText(text);
+    expect(bullets.length).toBeGreaterThanOrEqual(2);
+    const skills = recoverSkillsFromCompetencySections(text);
+    expect(skills.some((s) => /corporate actions/i.test(s))).toBe(true);
+  });
+
+  it('recovers supplementary training and teaching experience', () => {
+    const text = `Trainings
+● Worked at Example Financial Services Ltd. as a CS trainee for 15 months.
+Teaching Experience
+● Worked as a Law Faculty in Pioneer Academy and taught foundation students.
+Synopsis of work profile:`;
+    const rows = recoverSupplementaryExperienceFromRawText(text);
+    expect(rows.length).toBeGreaterThanOrEqual(2);
+  });
+
+
+  it('splits dual-company prose employment into two entries', () => {
+    const text = `● Worked as Company Secretary at Alpha Securities Limited registered office at Mumbai and Beta Creations Pvt. Ltd. an NBFC Company from May 2015 to April 2016.`;
+    const rows = recoverStructuredExperienceFromRawText(text);
+    expect(rows.length).toBeGreaterThanOrEqual(2);
   });
 
   it('imports multiple jobs, skills, and education from Naukri-style text', () => {

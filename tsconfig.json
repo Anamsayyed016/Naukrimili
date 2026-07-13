@@ -30,6 +30,7 @@
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
     "plugins": [{ "name": "next" }],
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": { "@/*": ["./*"] }
   },

@@ -99,6 +99,10 @@ export default function GalleryResumePreview({
         .finally(() => {
           measureIframeContent();
           updateScale();
+          window.setTimeout(() => {
+            measureIframeContent();
+            updateScale();
+          }, 120);
         });
     });
   }, [previewHtml, loading, error, iframeRef, updateScale, formData, measureIframeContent]);

@@ -86,6 +86,12 @@ import {
   sanitizeImportJobTitle,
   recoverLocationFromImportText,
   recoverSkillsFromTechnicalSkillsSection,
+  recoverSkillsFromCompetencySections,
+  recoverLanguagesFromPersonalDetails,
+  recoverSupplementaryExperienceFromRawText,
+  mergeSupplementaryExperienceEntries,
+  recoverExtracurricularAchievementsFromRawText,
+  recoverCompetencyBulletsFromRawText,
   skillsLookLikeAddressContamination,
   normalizePdfLigatureText,
   enrichPartialNameFromEmail,
@@ -96,6 +102,7 @@ import {
   isSpacedLetterFragment,
   isResumeCompetencySectionEntry,
   isResumeSectionHeadingLine,
+  recoverSummaryFromRawText,
 } from '@/lib/resume-parser/import-sanitize';
 import { extractNameWithConfidence } from '@/lib/resume-parser/text-recovery';
 import { filterMeaningfulExperiences, hasMeaningfulText } from './section-visibility';
@@ -781,11 +788,16 @@ function applySummaryHygieneToBuilderForm(formData: Record<string, any>): Record
       ? formData.Skills
       : [];
 
-  const trimmed = trimSummaryForStructuredSections(String(formData.summary || formData.bio || ''), {
+  let trimmed = trimSummaryForStructuredSections(String(formData.summary || formData.bio || ''), {
     experience,
     education,
     skills,
   });
+
+  if ((!trimmed || trimmed.length < 40) && String(formData.rawText || '').length >= 80) {
+    const recovered = recoverSummaryFromRawText(String(formData.rawText));
+    if (recovered) trimmed = recovered;
+  }
 
   return {
     ...formData,
@@ -2521,7 +2533,17 @@ function applyBuilderImportGuards(
     }
   } else {
     out.skills = recoverSkillsFromRawText(rawText, existingSkills);
-    if (rawText.length >= 80 && (out.skills as string[]).length < 4) {
+    if (rawText.length >= 80 && (out.skills as string[]).length < 8) {
+      const fromCompetency = recoverSkillsFromCompetencySections(rawText);
+      if (fromCompetency.length > (out.skills as string[]).length) {
+        out.skills = fromCompetency;
+      } else {
+        const fromSection = recoverSkillsFromTechnicalSkillsSection(rawText);
+        if (fromSection.length > (out.skills as string[]).length) {
+          out.skills = fromSection;
+        }
+      }
+    } else if (rawText.length >= 80 && (out.skills as string[]).length < 4) {
       const fromSection = recoverSkillsFromTechnicalSkillsSection(rawText);
       if (fromSection.length > (out.skills as string[]).length) {
         out.skills = fromSection;
@@ -2550,7 +2572,27 @@ function applyBuilderImportGuards(
     out.Experience = out.experience;
   }
   out = rehomeMisclassifiedProjects(out);
-  out.achievements = transformAchievementsArray(out.achievements, false);
+  if (rawText.length >= 80) {
+    const supplementary = recoverSupplementaryExperienceFromRawText(rawText);
+    if (supplementary.length > 0 && Array.isArray(out.experience)) {
+      const mergedExp = mergeSupplementaryExperienceEntries(
+        out.experience as Record<string, unknown>[],
+        supplementary
+      );
+      if (mergedExp.length > (out.experience as unknown[]).length) {
+        out.experience = transformExperienceArray(mergedExp);
+        out['Work Experience'] = out.experience;
+        out.Experience = out.experience;
+      }
+    }
+  }
+  const extracurricular = rawText.length >= 80 ? recoverExtracurricularAchievementsFromRawText(rawText) : [];
+  if (extracurricular.length > 0) {
+    const existingAch = Array.isArray(out.achievements) ? (out.achievements as string[]) : [];
+    out.achievements = transformAchievementsArray([...existingAch, ...extracurricular], false);
+  } else {
+    out.achievements = transformAchievementsArray(out.achievements, false);
+  }
   out.Achievements = out.achievements;
   const cleanSummary = sanitizeImportSummary(String(out.summary || out.bio || ''), rawText);
   out.summary = cleanSummary;
@@ -2598,6 +2640,13 @@ function applyBuilderImportGuards(
   if (Array.isArray(out.languages)) {
     out.languages = transformLanguagesArray(out.languages).slice(0, 12);
     out.Languages = out.languages;
+  }
+  if ((!Array.isArray(out.languages) || out.languages.length === 0) && rawText.length >= 40) {
+    const recoveredLangs = recoverLanguagesFromPersonalDetails(rawText);
+    if (recoveredLangs.length > 0) {
+      out.languages = transformLanguagesArray(recoveredLangs);
+      out.Languages = out.languages;
+    }
   }
   if (Array.isArray(out.hobbies)) {
     out.hobbies = cleanHobbies(out.hobbies)

@@ -822,6 +822,13 @@ export function isInvalidImportSummary(text: string): boolean {
     return false;
   }
   if (
+    t.length >= 50 &&
+    /\b(?:corporate\s+exposure|professional\s+exposure|group\s+companies|listed\s+compan)/i.test(t) &&
+    /\b\d+\+?\s*(?:years?|yrs?)\b/i.test(t)
+  ) {
+    return false;
+  }
+  if (
     t.length >= 100 &&
     /\b(in my current role|i am responsible|my responsibilities include|my professional exposure|dear\s+(?:sir|madam|mr|ms|hiring))\b/i.test(
       t
@@ -841,6 +848,13 @@ export function isInvalidImportSummary(text: string): boolean {
   if (isGarbageResumeText(t)) return true;
   if (/^https?:\/\/|linkedin\.com|www\./i.test(t)) return true;
   if (/^(on|and|in|the|with)\s+/i.test(t) && t.length < 140) return true;
+  if (
+    t.length >= 80 &&
+    /\b(?:accomplished|results-driven)\b/i.test(t) &&
+    /\b\d+[\d.]*\s+years?\s+of\b/i.test(t)
+  ) {
+    return false;
+  }
   if (isExperienceResponsibility(t)) return true;
   const isMultiSentenceProfile =
     t.length >= 70 &&
@@ -897,8 +911,94 @@ function recoverSummaryFromSectionHeaders(rawText: string): string {
   return '';
 }
 
+/** Recover credential-led profile lines from preamble (CS/CA + exposure statement). */
+export function recoverCredentialProfileSummaryFromRawText(rawText: string): string {
+  const text = normalizePdfLigatureText(String(rawText || '').replace(/\f/g, '\n'));
+  if (text.length < 40) return '';
+
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const paras: string[] = [];
+  let capture = false;
+
+  for (const line of lines) {
+    if (/^(?:●|•)/.test(line)) break;
+    if (/^(?:education|experience|skills?|certifications?|employment)\b/i.test(line)) break;
+    if (/membership\s+no\.?/i.test(line)) {
+      capture = true;
+      continue;
+    }
+    if (/^(?:CS|CA|CMA|CFA|CPA|ACS|FCS)\b/i.test(line) && line.length >= 20) {
+      capture = true;
+      paras.push(line);
+      continue;
+    }
+    if (capture) {
+      if (line.length < 12) continue;
+      if (/^(?:\+?\d{10}|e-?mail:|mobile:|phone:)/i.test(line)) continue;
+      paras.push(line);
+      if (paras.join(' ').length >= 120) break;
+    }
+  }
+
+  const joined = paras.join(' ').replace(/\s+/g, ' ').trim();
+  if (joined.length >= 40 && !isInvalidImportSummary(joined)) {
+    return joined.length > 4000 ? joined.slice(0, 4000) : joined;
+  }
+
+  const flat = text.replace(/\s+/g, ' ');
+  const inline = flat.match(
+    /\b((?:CS|CA|CMA|CFA|CPA|ACS|FCS)(?:\s+and\s+)?[\w.\s]{8,}(?:with|having)\s+[\w\s,+]{12,}?\d+\+?\s*(?:years?|yrs?)[\w\s,.+]{0,200})/i
+  );
+  if (inline) {
+    const prose = inline[1].replace(/\s+/g, ' ').trim();
+    if (prose.length >= 40 && !isInvalidImportSummary(prose)) {
+      return prose.length > 4000 ? prose.slice(0, 4000) : prose;
+    }
+  }
+
+  return '';
+}
+
+/** Recover executive profile paragraphs ("An accomplished… with over N years of experience"). */
+export function recoverExecutiveProfileSummaryFromRawText(rawText: string): string {
+  const text = normalizePdfLigatureText(String(rawText || '').replace(/\f/g, '\n'));
+  const flat = text.replace(/\s+/g, ' ');
+  for (const sentence of flat.split(/(?<=\.)\s+/)) {
+    const prose = sentence.trim();
+    if (prose.length < 60) continue;
+    if (!/\b(?:accomplished|results-driven)\b/i.test(prose)) continue;
+    if (!/\b\d+[\d.]*\s+years?\s+of\b/i.test(prose)) continue;
+    if (isInvalidImportSummary(prose)) continue;
+    return prose.length > 4000 ? prose.slice(0, 4000) : prose;
+  }
+  const match = flat.match(
+    /\b((?:An?\s+)?(?:accomplished|results-driven|highly\s+(?:skilled|motivated|experienced))[\s\S]{10,1200}?over\s+\d+[\d.]*\s+years?\s+of[\s\S]{10,800}?)(?=\s*(?:Highly|Spearheading|Areas\s+of\s+Expertise|From\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|Organisational|$))/i
+  );
+  if (!match?.[1]) {
+    const alt = flat.match(
+      /\b((?:An?\s+)?(?:accomplished|results-driven)[^.]{20,400}?\b(?:specializing|specialising)\s+in\b[^.]{10,400}?\.)/i
+    );
+    if (!alt?.[1]) return '';
+    const prose = alt[1].replace(/\s+/g, ' ').trim();
+    return prose.length >= 60 && !isInvalidImportSummary(prose)
+      ? prose.length > 4000
+        ? prose.slice(0, 4000)
+        : prose
+      : '';
+  }
+  const prose = match[1].replace(/\s+/g, ' ').trim();
+  if (prose.length >= 60 && !isInvalidImportSummary(prose)) {
+    return prose.length > 4000 ? prose.slice(0, 4000) : prose;
+  }
+  return '';
+}
+
 /** Recover a cover-letter / profile paragraph from raw resume text. */
 export function recoverSummaryFromRawText(rawText: string): string {
+  const fromCredential = recoverCredentialProfileSummaryFromRawText(rawText);
+  if (fromCredential) return fromCredential;
+  const fromExecutive = recoverExecutiveProfileSummaryFromRawText(rawText);
+  if (fromExecutive) return fromExecutive;
   const fromSection = recoverSummaryFromSectionHeaders(rawText);
   if (fromSection) return fromSection;
   if (!rawText || rawText.length < 80) return '';
@@ -4213,7 +4313,16 @@ function flattenExperienceSectionBlob(rawText: string): string {
   let sectionStart = collapsed.search(
     /\b(?:organisational|organizational)\s*experience\b|\bwork\s*experience\b|\bemployment\s*(?:history|record)\b|\bcareer\s+(?:profile|history)\b/i
   );
+  const fromWorkingStart = collapsed.search(
+    new RegExp(
+      `\\bfrom\\s+(?:${NAUKRI_MONTH_TOKEN})[a-z]*['']?\\.?,?\\s*\\d{2,4}\\s+(?:working\\s+with|worked\\s+with)`,
+      'i'
+    )
+  );
   const bulletStart = collapsed.search(/\b(?:●\s*)?(?:currently\s+working\s+as|worked\s+as)\b/i);
+  if (fromWorkingStart >= 0 && (sectionStart < 0 || fromWorkingStart < sectionStart)) {
+    sectionStart = Math.max(0, fromWorkingStart - 30);
+  }
   if (bulletStart >= 0 && (sectionStart < 0 || bulletStart < sectionStart)) {
     sectionStart = Math.max(0, bulletStart - 40);
   }
@@ -4222,7 +4331,7 @@ function flattenExperienceSectionBlob(rawText: string): string {
       ? collapsed.slice(sectionStart)
       : collapsed.slice(Math.max(0, collapsed.search(/\bexperience\b/i)));
   const sectionEnd = blob.search(
-    /\b(?:education|academic|skills|certifications|languages|projects|achievements|personal\s+details)\b/i
+    /\b(?:education|academic|skills|certifications|languages|projects|achievements|personal\s+details|trainings?|teaching\s+experience|synopsis\s+of|extracurricular)\b/i
   );
   if (sectionEnd > 120) blob = blob.slice(0, sectionEnd);
   return blob.replace(/\s+/g, ' ').trim();
@@ -4397,9 +4506,16 @@ export function recoverExperienceBodiesFromRawText(
   }
   if (current) blocks.push(current);
 
-  if (blocks.length === 0) return entries;
+  const blocksWithBullets = blocks.filter((block) => block.bullets.length > 0);
+  if (blocksWithBullets.length === 0) {
+    const competencyBullets = recoverCompetencyBulletsFromRawText(rawText);
+    if (competencyBullets.length >= 2) {
+      return attachGlobalCompetencyBulletsToExperience(entries, competencyBullets);
+    }
+    return entries;
+  }
 
-  return entries.map((entry) => {
+  const enriched = entries.map((entry) => {
     const entryCo = experienceBodyMatchWords(readExperienceCompanySlot(entry));
     const entryTi = experienceBodyMatchWords(readExperiencePositionSlot(entry));
     const existing = collectExperienceBodyFields(entry);
@@ -4409,7 +4525,7 @@ export function recoverExperienceBodiesFromRawText(
 
     let best: ParsedBlock | null = null;
     let bestScore = 0;
-    for (const block of blocks) {
+    for (const block of blocksWithBullets) {
       if (block.bullets.length < 1) continue;
       let score = 0;
       const bc = experienceBodyMatchWords(block.company);
@@ -4444,6 +4560,352 @@ export function recoverExperienceBodiesFromRawText(
       bulletPoints: united.achievements,
     };
   });
+
+  const anyWithBody = enriched.some((entry) => {
+    const fields = collectExperienceBodyFields(entry);
+    return (
+      fields.achievements.length >= 2 ||
+      fields.description.split(/\n/).filter((l) => l.trim().length >= 12).length >= 2
+    );
+  });
+  if (!anyWithBody) {
+    const competencyBullets = recoverCompetencyBulletsFromRawText(rawText);
+    if (competencyBullets.length >= 2) {
+      return attachGlobalCompetencyBulletsToExperience(enriched, competencyBullets);
+    }
+  }
+
+  return enriched;
+}
+
+function splitDualCompanyProseName(company: string): [string, string] | null {
+  const parts = String(company || '').split(/\s+and\s+/i);
+  if (parts.length < 2) return null;
+  for (let i = 1; i < parts.length; i++) {
+    const left = parts.slice(0, i).join(' and ').trim();
+    const right = parts.slice(i).join(' and ').trim();
+    if (
+      right.length >= 6 &&
+      /\b(?:Ltd|Limited|Pvt|Inc|Corp|LLP|Co|Company|NBFC)\b/i.test(right) &&
+      isPlausibleExperienceCompany(cleanProseBulletCompany(right))
+    ) {
+      const leftClean = cleanProseBulletCompany(left);
+      const rightClean = cleanProseBulletCompany(right);
+      if (leftClean && rightClean) return [leftClean, rightClean];
+    }
+  }
+  return null;
+}
+
+const COMPETENCY_SYNOPSIS_HEADING_RE =
+  /^(?:synopsis\s+of\s+(?:work\s+)?(?:profile|experience)|(?:key\s+)?(?:areas?\s+of\s+)?(?:expertise|competenc(?:y|ies))|core\s+competenc(?:y|ies)|professional\s+expertise|summary\s+of\s+(?:work\s+)?(?:profile|experience)|work\s+profile\s+summary)\b/i;
+
+const SUPPLEMENTARY_EXPERIENCE_HEADING_RE =
+  /^(?:trainings?|teaching\s+experience|internships?|articleship|industrial\s+training|practical\s+training)\b/i;
+
+/** Extract competency / synopsis bullets (global work profile statements). */
+export function recoverCompetencyBulletsFromRawText(rawText: string): string[] {
+  const text = normalizePdfLigatureText(String(rawText || '').replace(/\f/g, '\n'));
+  const lines = text.split('\n').map((l) => l.trim());
+  let inSection = false;
+  const bullets: string[] = [];
+
+  for (const line of lines) {
+    if (COMPETENCY_SYNOPSIS_HEADING_RE.test(line.replace(/[:.\s]+$/g, ''))) {
+      inSection = true;
+      continue;
+    }
+    if (!inSection) continue;
+    if (
+      /^(?:extracurricular|hobbies?|personal\s+information|declaration|references?)\b/i.test(
+        line
+      )
+    ) {
+      break;
+    }
+    const bullet = line.replace(/^[\s●•\-–—*·▪‣\u2023\u25aa]+/, '').trim();
+    if (bullet.length < 12 || bullet.length > 500) continue;
+    if (isResumeSectionHeadingLine(bullet)) continue;
+    if (/^(?:●|•)/.test(line) || looksLikeExperienceResponsibilityLine(line) || bullet.split(/\s+/).length >= 4) {
+      bullets.push(sanitizeFieldText(bullet, 500));
+    }
+    if (bullets.length >= 24) break;
+  }
+
+  return dedupeStringLines(bullets);
+}
+
+function dedupeStringLines(lines: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of lines) {
+    const line = String(raw || '').trim();
+    if (!line) continue;
+    const key = experienceBodyLineKey(line);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(line);
+  }
+  return out;
+}
+
+/** Short skill labels from competency synopsis bullets (text before dash/colon). */
+export function recoverSkillsFromCompetencySections(rawText: string): string[] {
+  const bullets = recoverCompetencyBulletsFromRawText(rawText);
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const bullet of bullets) {
+    const label = bullet.split(/\s*[-–—:]\s+/)[0]?.trim() || bullet;
+    const skill = sanitizeFieldText(label, 60);
+    if (!skill || skill.length < 3) continue;
+    if (isResumeSectionHeadingLine(skill)) continue;
+    const key = skill.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(skill);
+  }
+  return normalizeCustomParserSkillsList(out);
+}
+
+/** Recover languages from personal-details lines ("Languages known: Hindi, English"). */
+export function recoverLanguagesFromPersonalDetails(rawText: string): string[] {
+  const text = normalizePdfLigatureText(String(rawText || ''));
+  const match =
+    text.match(
+      /\blanguages?\s+known\s+([A-Za-z][A-Za-z\s,&()]+?)(?=\s+(?:age|date\s+of\s+birth|dob|local\s+address|permanent\s+address|marital|nationality|father|mother)\b|$)/i
+    ) ||
+    text.match(
+      /\blanguages?\s*:?\s*([A-Za-z][A-Za-z\s,&()]+?)(?=\s*(?:address|mobile|e-?mail|academics|personal\s+details|professional)\b|$)/i
+    );
+  if (!match?.[1]) return [];
+  const chunk = match[1].replace(/\s+/g, ' ').trim();
+  const parts = chunk.split(/,\s*|\s+&\s+/).map((p) => p.trim()).filter(Boolean);
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const part of parts) {
+    const name = part.replace(/\s*\([^)]*\)\s*$/, '').trim();
+    const entry = sanitizeLanguageEntry(name);
+    if (!entry) continue;
+    const key = entry.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(entry.name);
+  }
+  return out;
+}
+
+function recoverInformalExperienceFromBlob(blob: string): Record<string, unknown>[] {
+  const normalized = collapseSpacedLettersInText(blob.replace(/\f/g, '\n'))
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!normalized || normalized.length < 30) return [];
+
+  const segments = normalized.split(/\s*[●•]\s*/).filter(Boolean);
+  const out: Record<string, unknown>[] = [];
+
+  const pushInformal = (row: Record<string, unknown>) => {
+    const company = sanitizeFieldText(readExperienceCompanySlot(row), 160);
+    const title = sanitizeFieldText(readExperiencePositionSlot(row), 120);
+    if (!company && !title) return;
+    if (company && !isPlausibleExperienceCompany(company) && !title) return;
+    out.push(reconcileExperienceHeaderFields(row));
+  };
+
+  for (const segment of segments) {
+    const seg = segment.trim();
+    if (!seg || seg.length < 20) continue;
+
+    const workedAtAs = seg.match(
+      /^Worked\s+at\s+(.+?)\s+as\s+(?:a|an)\s+(.+?)\s+for\s+(\d+)\s+months/i
+    );
+    if (workedAtAs) {
+      const { company, location } = splitCompanyAndLocation(workedAtAs[1]);
+      pushInformal({
+        company,
+        title: sanitizeFieldText(workedAtAs[2], 120),
+        description: sanitizeFieldText(seg, 600),
+        location,
+      });
+      continue;
+    }
+
+    const workedAsAt = seg.match(/^Worked\s+as\s+(?:a|an)\s+(.+?)\s+(?:at|in)\s+(.+?)(?:\.|$)/i);
+    if (workedAsAt) {
+      const title = sanitizeFieldText(workedAsAt[1], 120);
+      const { company, location } = splitCompanyAndLocation(workedAsAt[2]);
+      pushInformal({
+        company,
+        title,
+        description: sanitizeFieldText(seg, 600),
+        location,
+      });
+      continue;
+    }
+
+    const traineeUnder = seg.match(
+      /^Worked\s+as\s+(?:a|an)\s+trainee\s+for\s+(\d+)\s+months?\s+under\s+(.+?)(?:\.|,|$)/i
+    );
+    if (traineeUnder) {
+      pushInformal({
+        company: sanitizeFieldText(traineeUnder[2], 160),
+        title: 'Trainee',
+        description: sanitizeFieldText(seg, 600),
+      });
+      continue;
+    }
+
+    const beenA = seg.match(/^Been\s+a\s+(.+?)\s+for\s+(\d+)\s+months?\s+(?:at|in)\s+(.+?)(?:\.|$)/i);
+    if (beenA) {
+      pushInformal({
+        company: sanitizeFieldText(beenA[3], 160),
+        title: sanitizeFieldText(beenA[1], 120),
+        description: sanitizeFieldText(seg, 600),
+      });
+    }
+  }
+
+  const seen = new Set<string>();
+  return out.filter((row) => {
+    const key = `${String(row.company || '').toLowerCase()}|${String(row.title || row.position || '').toLowerCase()}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** Recover training / teaching / internship roles from dedicated section headings. */
+export function recoverSupplementaryExperienceFromRawText(rawText: string): Record<string, unknown>[] {
+  const text = normalizePdfLigatureText(String(rawText || '').replace(/\f/g, '\n'));
+  const lines = text.split('\n');
+  const blobs: string[] = [];
+  let inSection = false;
+  let chunk: string[] = [];
+
+  const flush = () => {
+    if (chunk.length > 0) blobs.push(chunk.join('\n'));
+    chunk = [];
+  };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (SUPPLEMENTARY_EXPERIENCE_HEADING_RE.test(line.replace(/[:.\s]+$/g, ''))) {
+      flush();
+      inSection = true;
+      continue;
+    }
+    if (!inSection) continue;
+    if (
+      COMPETENCY_SYNOPSIS_HEADING_RE.test(line) ||
+      /^(?:extracurricular|hobbies?|personal\s+information|declaration|work\s+experience)\b/i.test(
+        line
+      )
+    ) {
+      flush();
+      inSection = false;
+      continue;
+    }
+    if (line) chunk.push(line);
+  }
+  flush();
+
+  const out: Record<string, unknown>[] = [];
+  for (const blob of blobs) {
+    out.push(...recoverInformalExperienceFromBlob(blob));
+  }
+  return out;
+}
+
+export function mergeSupplementaryExperienceEntries(
+  existing: Record<string, unknown>[],
+  supplementary: Record<string, unknown>[]
+): Record<string, unknown>[] {
+  const out = [...existing];
+  const seen = new Set(
+    existing.map(
+      (e) =>
+        `${experienceFingerprintPart(readExperienceCompanySlot(e))}|${experienceFingerprintPart(readExperiencePositionSlot(e))}`
+    )
+  );
+
+  const isDuplicate = (row: Record<string, unknown>): boolean => {
+    const company = experienceFingerprintPart(readExperienceCompanySlot(row));
+    const title = experienceFingerprintPart(readExperiencePositionSlot(row));
+    const key = `${company}|${title}`;
+    if (seen.has(key)) return true;
+    for (const prior of seen) {
+      const [priorCo] = prior.split('|');
+      if (company && priorCo && (company.includes(priorCo) || priorCo.includes(company))) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  for (const row of supplementary) {
+    if (isDuplicate(row)) continue;
+    const key = `${experienceFingerprintPart(readExperienceCompanySlot(row))}|${experienceFingerprintPart(readExperiencePositionSlot(row))}`;
+    seen.add(key);
+    out.push(row);
+  }
+  return out;
+}
+
+/** Recover extracurricular achievement bullets. */
+export function recoverExtracurricularAchievementsFromRawText(rawText: string): string[] {
+  const text = normalizePdfLigatureText(String(rawText || '').replace(/\f/g, '\n'));
+  const lines = text.split('\n').map((l) => l.trim());
+  let inSection = false;
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  for (const line of lines) {
+    if (/^extracurricular\s+activit/i.test(line)) {
+      inSection = true;
+      continue;
+    }
+    if (!inSection) continue;
+    if (/^(?:hobbies?|personal\s+information|declaration)\b/i.test(line)) break;
+    const bullet = line.replace(/^[\s●•\-–—*·▪‣\u2023\u25aa]+/, '').trim();
+    if (bullet.length < 12 || bullet.length > 400) continue;
+    if (isResumeSectionHeadingLine(bullet)) continue;
+    const key = bullet.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(sanitizeFieldText(bullet, 400));
+    if (out.length >= 12) break;
+  }
+  return out;
+}
+
+function attachGlobalCompetencyBulletsToExperience(
+  entries: Record<string, unknown>[],
+  bullets: string[]
+): Record<string, unknown>[] {
+  if (!bullets.length || !entries.length) return entries;
+  const currentIdx = entries.findIndex((e) => e.current === true);
+  const targetIdx = currentIdx >= 0 ? currentIdx : 0;
+  const united = bullets.join('\n');
+
+  return entries.map((entry, index) => {
+    if (index !== targetIdx) return entry;
+    const existing = collectExperienceBodyFields(entry);
+    const existingCount =
+      existing.achievements.length +
+      existing.description.split(/\n/).filter((l) => l.trim().length >= 12).length;
+    if (existingCount >= 2) return entry;
+    const merged = unionExperienceBodyFields(existing, {
+      description: united,
+      achievements: bullets,
+    });
+    return {
+      ...entry,
+      description: merged.description,
+      Description: merged.description,
+      achievements: merged.achievements,
+      bullets: merged.achievements,
+      bulletPoints: merged.achievements,
+    };
+  });
 }
 
 function normalizeProseBulletDateToken(token: string): string {
@@ -4464,6 +4926,180 @@ function cleanProseBulletCompany(raw: string): string {
     .replace(/\s+(?:Navi Mumbai|Mumbai|Indore|Delhi|Bhopal|Bengaluru|Bangalore|Pune|Hyderabad|Chennai|Kolkata)\s*$/i, '')
     .trim();
   return sanitizeFieldText(company, 160);
+}
+
+const FROM_DATE_JOB_BOUNDARY_RE = new RegExp(
+  `(?=\\s*\\[Product:|\\bJob Profile\\b|\\bFrom\\s+(?:${NAUKRI_MONTH_TOKEN})|\\bOrganisational Experience\\b|\\bOther Trainings\\b|$)`,
+  'i'
+);
+
+function cleanFromDateWorkingCompany(raw: string): string {
+  let company = sanitizeFieldText(raw, 200);
+  if (!company) return '';
+  company = company
+    .replace(/\s*\[Product:[^\]]*\]/gi, '')
+    .replace(/\s*\[[^\]]*(?:listed on|nse|bse)[^\]]*\]/gi, '')
+    .replace(
+      /\s*\([^)]*(?:listed on|joint venture|under ipo|nse|bse|turnover|merchant banker|public ltd)[^)]*\)/gi,
+      ''
+    )
+    .replace(/,\s*$/g, '')
+    .trim();
+  return sanitizeFieldText(company, 160);
+}
+
+function normalizeFromDateMonthToken(token: string): string {
+  const cleaned = String(token || '')
+    .replace(/['']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return '';
+  if (/^\d{4}$/.test(cleaned)) return cleaned;
+  return normalizeDate(cleaned);
+}
+
+function extractJobProfileAfterAnchor(
+  rawText: string,
+  anchorIndex: number,
+  anchorLength: number
+): string {
+  const tail = String(rawText || '').slice(anchorIndex + anchorLength);
+  const profileMatch = tail.match(
+    new RegExp(
+      `\\bJob Profile\\b([\\s\\S]{0,3500}?)(?=\\bFrom\\s+(?:${NAUKRI_MONTH_TOKEN})|\\bOrganisational Experience\\b|\\bOther Trainings\\b|$)`,
+      'i'
+    )
+  );
+  if (!profileMatch?.[1]) return '';
+  const chunk = sanitizeMultilineFieldText(profileMatch[1].trim(), 4000);
+  const sentences = chunk
+    .split(/(?<=\.)\s+(?=[A-Z(])/)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 12 && !isResumeSectionHeadingLine(s));
+  return sentences.slice(0, 16).join('\n');
+}
+
+/** Recover jobs from "From DATE working with COMPANY" / "worked with … As TITLE" patterns. */
+function recoverFromDateWorkingWithExperienceFromRawText(rawText: string): Record<string, unknown>[] {
+  const normalized = collapseSpacedLettersInText(rawText.replace(/\f/g, '\n'))
+    .replace(/[\u2018\u2019\u2032]/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!normalized || normalized.length < 60) return [];
+  const hasFromPattern = new RegExp(
+    `\\bfrom\\s+(?:${NAUKRI_MONTH_TOKEN})[a-z]*['']?`,
+    'i'
+  ).test(normalized);
+  const hasCompactPattern = new RegExp(
+    `(?:${NAUKRI_MONTH_TOKEN})[a-z]*['']?\\s*\\d{2,4}\\s*[-–—]`,
+    'i'
+  ).test(normalized);
+  if (!hasFromPattern && !hasCompactPattern) return [];
+
+  const out: Record<string, unknown>[] = [];
+  const pushRow = (row: Record<string, unknown>) => {
+    const reconciled = reconcileExperienceHeaderFields(row);
+    const company = sanitizeFieldText(readExperienceCompanySlot(reconciled), 160);
+    if (!company || !isPlausibleExperienceCompany(company)) return;
+    out.push(reconciled);
+  };
+
+  const currentRe = new RegExp(
+    `From\\s+((?:${NAUKRI_MONTH_TOKEN})[a-z]*\\.?,?\\s*\\d{4})\\s+working\\s+with\\s+(.+?)(?=\\s*\\[Product:|\\bJob Profile\\b|\\bFrom\\s+(?:${NAUKRI_MONTH_TOKEN})|\\bOrganisational Experience\\b|$)`,
+    'gi'
+  );
+  let match: RegExpExecArray | null;
+  while ((match = currentRe.exec(normalized)) !== null) {
+    const startDate = normalizeFromDateMonthToken(match[1]);
+    const company = cleanFromDateWorkingCompany(match[2]);
+    const description = extractJobProfileAfterAnchor(normalized, match.index, match[0].length);
+    if (!company) continue;
+    pushRow({
+      company,
+      Company: company,
+      title: '',
+      position: '',
+      designation: '',
+      startDate,
+      endDate: 'Present',
+      current: true,
+      ...(description
+        ? {
+            description,
+            Description: description,
+            achievements: description.split('\n').filter((l) => l.length >= 12),
+          }
+        : {}),
+    });
+  }
+
+  const rangeWorkedRe = new RegExp(
+    `From\\s+((?:${NAUKRI_MONTH_TOKEN})[a-z]*['']?\\s*,?\\s*\\d{2,4})\\s+to\\s+((?:${NAUKRI_MONTH_TOKEN})[a-z]*['']?\\s*,?\\s*\\d{2,4})\\s+worked\\s+with\\s+(.+?)\\s+As\\s+(.+?)(?=\\s*\\[Product:|\\bJob Profile\\b|\\bFrom\\s+(?:${NAUKRI_MONTH_TOKEN})|$)`,
+    'gi'
+  );
+  while ((match = rangeWorkedRe.exec(normalized)) !== null) {
+    const startDate = normalizeFromDateMonthToken(match[1]);
+    const endDate = normalizeFromDateMonthToken(match[2]);
+    const company = cleanFromDateWorkingCompany(match[3]);
+    const title = sanitizeFieldText(match[4].replace(/\s*\[Product:.*$/i, '').replace(/\s*\([^)]*\)\s*$/g, ''), 120);
+    const description = extractJobProfileAfterAnchor(normalized, match.index, match[0].length);
+    if (!company || !title) continue;
+    pushRow({
+      company,
+      Company: company,
+      title,
+      position: title,
+      designation: title,
+      startDate,
+      endDate,
+      current: false,
+      ...(description
+        ? {
+            description,
+            Description: description,
+            achievements: description.split('\n').filter((l) => l.length >= 12),
+          }
+        : {}),
+    });
+  }
+
+  const compactRe = new RegExp(
+    `(?<![A-Za-z])((?:${NAUKRI_MONTH_TOKEN})[a-z]*['']?\\s*\\d{2,4})\\s*[-–—]\\s*((?:${NAUKRI_MONTH_TOKEN})[a-z]*['']?\\s*\\d{2,4})\\s+(.+?)\\s+As\\s+(.+?)(?=\\s*\\[Product:|\\bJob Profile\\b|\\bFrom\\s+(?:${NAUKRI_MONTH_TOKEN})|\\bOther Trainings\\b|$)`,
+    'gi'
+  );
+  while ((match = compactRe.exec(normalized)) !== null) {
+    const startDate = normalizeFromDateMonthToken(match[1]);
+    const endDate = normalizeFromDateMonthToken(match[2]);
+    const company = cleanFromDateWorkingCompany(match[3]);
+    const title = sanitizeFieldText(match[4].replace(/\s*\[Product:.*$/i, '').replace(/\s*\([^)]*\)\s*$/g, ''), 120);
+    const description = extractJobProfileAfterAnchor(normalized, match.index, match[0].length);
+    if (!company || !title) continue;
+    pushRow({
+      company,
+      Company: company,
+      title,
+      position: title,
+      designation: title,
+      startDate,
+      endDate,
+      current: false,
+      ...(description
+        ? {
+            description,
+            Description: description,
+            achievements: description.split('\n').filter((l) => l.length >= 12),
+          }
+        : {}),
+    });
+  }
+
+  const seen = new Set<string>();
+  return out.filter((row) => {
+    const key = `${String(readExperienceCompanySlot(row)).toLowerCase()}|${String(readExperiencePositionSlot(row)).toLowerCase()}|${String(row.startDate || '')}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 const PROSE_BULLET_DATE_RANGE_RE = new RegExp(
@@ -4507,18 +5143,54 @@ function recoverProseBulletExperienceFromRawText(rawText: string): Record<string
       : normalizeProseBulletDateToken(`${endMonth}${endToken}`.trim());
     const { company: companyName, location } = splitCompanyAndLocation(company);
 
-    out.push({
-      company: companyName,
-      Company: companyName,
-      title,
-      position: title,
-      designation: title,
-      startDate,
-      endDate,
-      current: /^(present|current|now|till\s*date|to\s*date)$/i.test(endToken),
-      location,
-      Location: location,
-    });
+    const afterDateIdx =
+      (dateMatch.index ?? tail.search(PROSE_BULLET_DATE_RANGE_RE)) +
+      dateMatch[0].length;
+    const tailNote = sanitizeMultilineFieldText(tail.slice(afterDateIdx).replace(/^[\s.)]+/, ''), 600);
+    const description =
+      tailNote.length >= 20 && !isResumeSectionHeadingLine(tailNote) ? tailNote : '';
+
+    const pushEntry = (companyValue: string, titleValue: string) => {
+      if (!companyValue || !isPlausibleExperienceCompany(companyValue)) return;
+      out.push({
+        company: companyValue,
+        Company: companyValue,
+        title: titleValue,
+        position: titleValue,
+        designation: titleValue,
+        startDate,
+        endDate,
+        current: /^(present|current|now|till\s*date|to\s*date)$/i.test(endToken),
+        location,
+        Location: location,
+        ...(description
+          ? {
+              description,
+              Description: description,
+              achievements: [description],
+              bullets: [description],
+            }
+          : {}),
+      });
+    };
+
+    const dualSplit = splitDualCompanyProseName(companyName);
+    if (dualSplit) {
+      pushEntry(dualSplit[0], title);
+      pushEntry(dualSplit[1], title);
+      continue;
+    }
+
+    const dualCompany = companyName.match(
+      /^(.+?\b(?:Ltd|Limited|Inc|Corp|LLP|Co)\.?)\s+and\s+(.+?\b(?:Ltd|Limited|Inc|Corp|LLP|Co)\.?.*)$/i
+    );
+    if (dualCompany) {
+      pushEntry(cleanProseBulletCompany(dualCompany[1]), title);
+      pushEntry(cleanProseBulletCompany(dualCompany[2]), title);
+      continue;
+    }
+
+    pushEntry(companyName, title);
   }
 
   return out;
@@ -4532,7 +5204,26 @@ export function recoverStructuredExperienceFromRawText(
   rawText: string
 ): Record<string, unknown>[] {
   const blob = flattenExperienceSectionBlob(rawText);
-  if (blob.length < 40) return [];
+  const searchBlob =
+    blob.length >= 40
+      ? blob
+      : collapseSpacedLettersInText(rawText.replace(/\f/g, '\n')).replace(/\s+/g, ' ').trim();
+  if (searchBlob.length < 40) {
+    const fromDateOnly = recoverFromDateWorkingWithExperienceFromRawText(rawText);
+    const seenEarly = new Set<string>();
+    return fromDateOnly
+      .map((row) => reconcileExperienceHeaderFields(row))
+      .filter((row) => {
+        const company = sanitizeFieldText(readExperienceCompanySlot(row), 160);
+        const title = sanitizeFieldText(readExperiencePositionSlot(row), 120);
+        if (!company && !title) return false;
+        const key = `${company.toLowerCase()}|${title.toLowerCase()}|${String(row.startDate || '')}`;
+        if (seenEarly.has(key)) return false;
+        seenEarly.add(key);
+        if (company && !isPlausibleExperienceCompany(company)) return false;
+        return true;
+      });
+  }
 
   const withAsRe = new RegExp(
     `(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+(\\d{4})\\s*[-–—]\\s*(?:(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+)?(${NAUKRI_END_DATE_TOKEN}|\\d{4})\\s+with\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards\\b|$)`,
@@ -4541,7 +5232,7 @@ export function recoverStructuredExperienceFromRawText(
 
   const out: Record<string, unknown>[] = [];
   let match: RegExpExecArray | null;
-  while ((match = withAsRe.exec(blob)) !== null) {
+  while ((match = withAsRe.exec(searchBlob)) !== null) {
     const startDate = normalizeDate(`${match[1]} ${match[2]}`);
     const endMonth = match[3] ? `${match[3]} ` : '';
     const endToken = String(match[4] || '').trim();
@@ -4569,7 +5260,7 @@ export function recoverStructuredExperienceFromRawText(
     `(\\d{4})\\s*[-–—]\\s*(${NAUKRI_END_DATE_TOKEN}|\\d{4})\\s+(?:with|at)\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards|$)`,
     'gi'
   );
-  while ((match = yearWithAsRe.exec(blob)) !== null) {
+  while ((match = yearWithAsRe.exec(searchBlob)) !== null) {
     const startDate = normalizeDate(match[1]);
     const endToken = String(match[2] || '').trim();
     const endDate = /^(present|current|now|till\s*date|to\s*till\s*date|to\s*date)$/i.test(endToken)
@@ -4602,7 +5293,7 @@ export function recoverStructuredExperienceFromRawText(
     `(${NAUKRI_MONTH_TOKEN})\\.?,?\\s+(\\d{4})\\s+onwards\\s+(working\\s+.+?)(?=\\s+[A-Z][a-z]+\\s+[A-Z][a-z]+\\s+E-?Mail:|$)`,
     'i'
   );
-  const onwardsMatch = onwardsRe.exec(blob);
+  const onwardsMatch = onwardsRe.exec(searchBlob);
   if (onwardsMatch) {
     const startDate = normalizeDate(`${onwardsMatch[1]} ${onwardsMatch[2]}`);
     const description = sanitizeMultilineFieldText(onwardsMatch[3], 2000);
@@ -4620,6 +5311,22 @@ export function recoverStructuredExperienceFromRawText(
         current: true,
       });
     }
+  }
+
+  for (const row of recoverFromDateWorkingWithExperienceFromRawText(rawText)) {
+    const company = String(row.company || '').toLowerCase();
+    const title = String(row.title || row.position || '').toLowerCase();
+    const key = `${company}|${title}|${String(row.startDate || '')}`;
+    if (
+      out.some((existing) => {
+        const c = String(existing.company || '').toLowerCase();
+        const t = String(existing.title || existing.position || '').toLowerCase();
+        return `${c}|${t}|${String(existing.startDate || '')}` === key;
+      })
+    ) {
+      continue;
+    }
+    out.push(row);
   }
 
   for (const row of recoverProseBulletExperienceFromRawText(rawText)) {
@@ -4869,8 +5576,11 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   if (company.length > 65 && /\b(for various|incorporated|completed post|in the form of)\b/i.test(company)) {
     return false;
   }
-  if (looksLikeSentenceNotCompany(company)) return false;
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (/,/.test(company) && !/\b(ltd|limited|pvt|inc|corp|llp|mills|industries|systems|company|group)\b/i.test(lower)) {
+    return false;
+  }
+  if (looksLikeSentenceNotCompany(company)) return false;
   if (
     company.length > 40 &&
     /\b(improv|optimiz|reduc|increas|develop|design|mentor|administer|engineer|construct|deliver)\w*/i.test(
