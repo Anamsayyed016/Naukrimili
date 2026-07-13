@@ -1030,6 +1030,31 @@ const TEMPLATE_SECTION_LIST_CLASS: Record<string, string> = {
 };
 
 /** Detect section shell markup from an existing template block (import-mode injection). */
+function isBlockInsideSidebarRegion(htmlTemplate: string, blockStart: number): boolean {
+  if (blockStart < 0 || blockStart > htmlTemplate.length) return false;
+  const before = htmlTemplate.slice(0, blockStart);
+
+  const asideOpens = before.match(/<aside\b/gi)?.length ?? 0;
+  const asideCloses = before.match(/<\/aside>/gi)?.length ?? 0;
+  if (asideOpens > asideCloses) return true;
+
+  // Templates that use <div class="…sidebar…"> without <aside>
+  const lastSidebarDiv = Math.max(
+    before.lastIndexOf('class="sidebar'),
+    before.lastIndexOf("class='sidebar"),
+    before.search(/class="[^"]*\bsidebar\b[^"]*"/i),
+    before.search(/class='[^']*\bsidebar\b[^']*'/i)
+  );
+  if (lastSidebarDiv < 0) return false;
+
+  const lastMainOpen = Math.max(
+    before.lastIndexOf('<main'),
+    before.search(/class="[^"]*\bmain-content\b[^"]*"/i),
+    before.search(/class='[^']*\bmain-content\b[^']*'/i)
+  );
+  return lastSidebarDiv > lastMainOpen;
+}
+
 export function detectTemplateSectionShell(
   htmlTemplate: string,
   sectionToken: string
@@ -1040,6 +1065,7 @@ export function detectTemplateSectionShell(
 
   if (match) {
     const block = match[1];
+    const blockStart = match.index ?? htmlTemplate.indexOf(match[0]);
     const headingFromTemplate =
       block.match(/<h2[^>]*>([^<]+)</i)?.[1]?.trim() ||
       block.match(/<h3[^>]*>([^<]+)</i)?.[1]?.trim();
@@ -1058,8 +1084,7 @@ export function detectTemplateSectionShell(
     const inSidebar =
       /sidebar-section|tm-sidebar-panel|ese-section--side|[\s-]side[\s-]/i.test(block) ||
       /<aside/i.test(block) ||
-      (htmlTemplate.includes('sidebar') &&
-        htmlTemplate.indexOf(match[0]) < htmlTemplate.indexOf('main-content'));
+      isBlockInsideSidebarRegion(htmlTemplate, blockStart);
 
     return {
       sectionClass,
@@ -1083,6 +1108,11 @@ export function detectTemplateSectionShell(
     if (fallbackToken === token) continue;
     const shell = detectTemplateSectionShell(htmlTemplate, fallbackToken);
     if (shell.sectionClass !== 'content-section' || shell.listClass !== 'content-list') {
+      // Prefer a sidebar donor when looking up Interests and the template
+      // has no {{HOBBIES}} block of its own.
+      if (token === 'HOBBIES' && shell.placement !== 'sidebar') {
+        continue;
+      }
       return {
         ...shell,
         headingLabel: TEMPLATE_SECTION_LABELS[token] || token,
@@ -1091,16 +1121,46 @@ export function detectTemplateSectionShell(
     }
   }
 
+  if (token === 'HOBBIES') {
+    for (const donorToken of ['SUMMARY', 'SKILLS', 'EDUCATION', 'LANGUAGES', 'ACHIEVEMENTS']) {
+      const donor = detectTemplateSectionShell(htmlTemplate, donorToken);
+      if (donor.placement === 'sidebar') {
+        return {
+          ...donor,
+          headingLabel: TEMPLATE_SECTION_LABELS.HOBBIES,
+          listClass: TEMPLATE_SECTION_LIST_CLASS.HOBBIES,
+        };
+      }
+    }
+  }
+
   return {
     sectionClass: 'content-section',
     headingClass: 'section-title',
     listClass: TEMPLATE_SECTION_LIST_CLASS[token] || 'content-list',
     headingLabel: TEMPLATE_SECTION_LABELS[token] || token,
-    placement: htmlTemplate.includes('sidebar') ? 'sidebar' : 'main',
+    placement: /<aside[\s>]|class="[^"]*\bsidebar\b/i.test(htmlTemplate)
+      ? 'sidebar'
+      : 'main',
   };
 }
 
 function detectHobbiesSectionShell(htmlTemplate: string): TemplateSectionShell {
+  if (/\{\{#if\s+HOBBIES\}\}|\{\{HOBBIES\}\}/i.test(htmlTemplate)) {
+    return detectTemplateSectionShell(htmlTemplate, 'HOBBIES');
+  }
+  // No dedicated hobbies block: prefer the sidebar when the template already
+  // keeps summary/skills/education there (Soft Coral and similar).
+  for (const donorToken of ['SUMMARY', 'SKILLS', 'EDUCATION', 'LANGUAGES', 'ACHIEVEMENTS']) {
+    const donor = detectTemplateSectionShell(htmlTemplate, donorToken);
+    if (donor.placement === 'sidebar') {
+      return {
+        ...donor,
+        headingLabel: TEMPLATE_SECTION_LABELS.HOBBIES,
+        listClass: TEMPLATE_SECTION_LIST_CLASS.HOBBIES,
+      };
+    }
+  }
   return detectTemplateSectionShell(htmlTemplate, 'HOBBIES');
 }
 

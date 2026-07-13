@@ -17,6 +17,7 @@
 
 
 import { estimateRenderableSectionHeight } from '@/lib/resume-builder/section-height-estimator';
+import { detectTemplateSectionShell } from '@/lib/resume-builder/section-visibility';
 import {
   canRelocateSection,
   resolveTemplateLayoutMetadata,
@@ -542,7 +543,12 @@ function balancePass(
 
   metadata: TemplateLayoutMetadata,
 
-  options: { imbalanceRatio: number; minGapPx: number; maxMoves: number }
+  options: {
+    imbalanceRatio: number;
+    minGapPx: number;
+    maxMoves: number;
+    htmlTemplate?: string;
+  }
 
 ): BalancePassResult {
 
@@ -551,6 +557,8 @@ function balancePass(
   let mainHeight = estimateColumnBlockHeight(mainInner);
 
   let sidebarHeight = estimateColumnBlockHeight(sidebarInner);
+
+  const htmlTemplate = options.htmlTemplate ?? '';
 
 
 
@@ -658,19 +666,31 @@ function balancePass(
 
     const candidates = sortFlexibleCandidates(
 
-      collectSectionsInColumn(sidebarInner, 'sidebar').filter(
-
-        (section) =>
-
-          FLEXIBLE_COLUMN_SECTIONS.has(section.kind) &&
-
-          allowedFlexible.has(section.kind) &&
-
-          canRelocateSection(section.kind, metadata) &&
-
-          !mainKinds.has(section.kind)
-
-      ),
+      collectSectionsInColumn(sidebarInner, 'sidebar').filter((section) => {
+        if (!FLEXIBLE_COLUMN_SECTIONS.has(section.kind)) return false;
+        if (!allowedFlexible.has(section.kind)) return false;
+        if (!canRelocateSection(section.kind, metadata)) return false;
+        if (mainKinds.has(section.kind)) return false;
+        // Keep template-native sidebar sections in the sidebar when it is taller
+        // (Soft Coral / executive sidebars — avoid peeling Certs/Languages into main).
+        const token =
+          section.kind === 'interests'
+            ? 'HOBBIES'
+            : section.kind === 'projects'
+              ? 'PROJECTS'
+              : section.kind === 'certifications'
+                ? 'CERTIFICATIONS'
+                : section.kind === 'languages'
+                  ? 'LANGUAGES'
+                  : section.kind === 'achievements'
+                    ? 'ACHIEVEMENTS'
+                    : '';
+        if (token && htmlTemplate) {
+          const native = detectTemplateSectionShell(htmlTemplate, token).placement;
+          if (native === 'sidebar') return false;
+        }
+        return true;
+      }),
 
       metadata
 
@@ -849,6 +869,8 @@ export function balanceTwoColumnLayout(
       minGapPx,
 
       maxMoves,
+
+      htmlTemplate,
 
     });
 

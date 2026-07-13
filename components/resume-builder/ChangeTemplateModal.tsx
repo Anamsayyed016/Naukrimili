@@ -380,6 +380,7 @@ function EnhancedTemplateCard({
                 ? buildGallerySampleFormData(template.id)
                 : formData
             }
+            templateId={template.id}
           />
         )}
       </div>

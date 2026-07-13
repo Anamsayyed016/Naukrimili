@@ -18,6 +18,8 @@ interface GalleryResumePreviewProps {
   className?: string;
   /** Enables DOM-aware priority balancing (experience emphasis, sidebar compact). */
   formData?: Record<string, unknown>;
+  /** When set, DOM refine uses the same template capacity path as Live Preview. */
+  templateId?: string;
 }
 
 /**
@@ -32,6 +34,7 @@ export default function GalleryResumePreview({
   iframeRef,
   className,
   formData,
+  templateId,
 }: GalleryResumePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
@@ -93,7 +96,10 @@ export default function GalleryResumePreview({
     requestAnimationFrame(() => {
       import('@/lib/resume-builder/dynamic-layout-engine')
         .then(({ applyDomAwareLayoutToDocument }) => {
-          applyDomAwareLayoutToDocument(iframeDoc, formData ?? {}, {});
+          applyDomAwareLayoutToDocument(iframeDoc, formData ?? {}, {
+            templateId,
+            renderedHtml: previewHtml,
+          });
         })
         .catch(() => {})
         .finally(() => {
@@ -105,7 +111,7 @@ export default function GalleryResumePreview({
           }, 120);
         });
     });
-  }, [previewHtml, loading, error, iframeRef, updateScale, formData, measureIframeContent]);
+  }, [previewHtml, loading, error, iframeRef, updateScale, formData, measureIframeContent, templateId]);
 
   return (
     <div

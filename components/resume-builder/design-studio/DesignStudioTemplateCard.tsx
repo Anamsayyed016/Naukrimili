@@ -151,6 +151,7 @@ export default function DesignStudioTemplateCard({
             templateName={template.name}
             iframeRef={iframeRef}
             formData={formData}
+            templateId={template.id}
           />
         ) : (
           <div className="design-studio-template-card__thumb-fallback">

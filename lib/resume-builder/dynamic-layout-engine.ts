@@ -19,6 +19,7 @@ import {
 } from './section-visibility';
 import { isPremiumTemplate } from './ats-content-balance-css';
 import { estimateRenderableSectionHeight } from './section-height-estimator';
+import { resolveTemplateLayoutMetadata } from './template-layout-metadata';
 
 export const A4_PAGE_HEIGHT_PX = 1123;
 export const A4_PAGE_WIDTH_PX = 794;
@@ -129,15 +130,22 @@ export function computeTemplateLayoutCapacity(
   htmlTemplate: string = '',
   templateId?: string
 ): TemplateLayoutCapacity {
-  const hasSidebar = detectHasSidebar(htmlTemplate);
+  const metadata = resolveTemplateLayoutMetadata({ htmlTemplate, templateId });
+  const hasSidebar =
+    detectHasSidebar(htmlTemplate) || metadata.hasSidebar === true;
   const isCardLayout =
+    metadata.layoutType === 'card' ||
     /card-grid|bento|module-card|floating-card|[\s"'](?:card|cards)[\s"']/i.test(
       htmlTemplate
     );
   const isExecutiveLayout =
+    /executive|boardroom|career-history/i.test(templateId ?? '') ||
     /\btimeline\b|executive|boardroom|career-history/i.test(htmlTemplate);
   const isSingleColumn =
-    !hasSidebar && !/columns|two-column|2-column|split-layout/i.test(htmlTemplate);
+    !hasSidebar &&
+    metadata.layoutType !== 'two-column' &&
+    metadata.layoutType !== 'sidebar' &&
+    !/columns|two-column|2-column|split-layout/i.test(htmlTemplate);
 
   const headerReservePx =
     /header-photo|profile-image|photo-block|ese-photo|pee-photo|portrait/i.test(
@@ -151,8 +159,10 @@ export function computeTemplateLayoutCapacity(
     A4_PAGE_HEIGHT_PX - headerReservePx - footerReservePx
   );
 
-  let mainColumnBasisHint = 100;
-  let sidebarColumnBasisHint = 0;
+  let mainColumnBasisHint = metadata.mainColumnBasisPct || 100;
+  let sidebarColumnBasisHint = hasSidebar
+    ? metadata.sidebarColumnBasisPct || 0
+    : 0;
   if (hasSidebar) {
     const ratioMatch = htmlTemplate.match(/(\d{2})\s*\/\s*(\d{2})/);
     if (ratioMatch) {
@@ -169,6 +179,9 @@ export function computeTemplateLayoutCapacity(
       mainColumnBasisHint = isExecutiveLayout ? 70 : 68;
       sidebarColumnBasisHint = 100 - mainColumnBasisHint;
     }
+  } else {
+    mainColumnBasisHint = 100;
+    sidebarColumnBasisHint = 0;
   }
 
   return {
@@ -1495,7 +1508,27 @@ export function computeDynamicLayoutPlanFromMetrics(
     htmlTemplate,
     options?.templateId
   );
-  const layoutProfile = resolveTemplateLayoutProfile(templateCapacity);
+  // Live DOM/metrics prove a sidebar even when callers omit htmlTemplate
+  // (gallery refine). Never collapse that to single-column (sidebar basis 0),
+  // or underfill CSS paints an empty second track.
+  const metricHasSidebar =
+    metrics.sidebarHeight > 0 || metrics.sidebarSections.length > 0;
+  const layoutCapacity: TemplateLayoutCapacity = metricHasSidebar
+    ? {
+        ...templateCapacity,
+        hasSidebar: true,
+        isSingleColumn: false,
+        mainColumnBasisHint:
+          templateCapacity.hasSidebar && templateCapacity.mainColumnBasisHint < 100
+            ? templateCapacity.mainColumnBasisHint
+            : 68,
+        sidebarColumnBasisHint:
+          templateCapacity.sidebarColumnBasisHint > 0
+            ? templateCapacity.sidebarColumnBasisHint
+            : 32,
+      }
+    : templateCapacity;
+  const layoutProfile = resolveTemplateLayoutProfile(layoutCapacity);
 
   const plan: DynamicLayoutPlan = {
     sectionGap,
@@ -1549,7 +1582,7 @@ export function computeDynamicLayoutPlanFromMetrics(
     contentMeasureCh,
   };
 
-  applyTemplateAwareDistribution(plan, templateCapacity, layoutProfile, fillSignals);
+  applyTemplateAwareDistribution(plan, layoutCapacity, layoutProfile, fillSignals);
 
   plan.summarySpacing =
     Math.round((plan.blockGap + (plan.sectionExtras.summary ?? 0)) * 10) / 10;
