@@ -2304,7 +2304,13 @@ function ensureImportedExperiencePopulated(
     builder._builderCoalesced === true;
 
   if (!isImport || text.length < 80) return builder;
-  if (meaningful.length >= 2 && plausible >= 2) return builder;
+
+  const bodyBullets = countExperienceBodyBullets(expRows);
+  const sparseBodies =
+    meaningful.length >= 2 &&
+    bodyBullets < Math.max(3, Math.floor(meaningful.length * 1.25));
+
+  if (meaningful.length >= 2 && plausible >= 2 && !sparseBodies) return builder;
 
   const structured = recoverStructuredExperienceFromRawText(text);
   if (structured.length > 0) {
@@ -2378,7 +2384,18 @@ function enrichExperienceBodiesForImport(
   const before = countExperienceBodyBullets(rows);
   const enriched = recoverExperienceBodiesFromRawText(rawText, rows);
   const after = countExperienceBodyBullets(enriched);
-  if (after <= before) return builder;
+  const anyEntryImproved = enriched.some((row, index) => {
+    const prev = collectExperienceBodyFields(rows[index] || {});
+    const next = collectExperienceBodyFields(row);
+    const prevCount =
+      prev.achievements.length +
+      prev.description.split(/\n/).filter((l) => l.trim().length >= 12).length;
+    const nextCount =
+      next.achievements.length +
+      next.description.split(/\n/).filter((l) => l.trim().length >= 12).length;
+    return nextCount > prevCount;
+  });
+  if (!anyEntryImproved && after <= before) return builder;
 
   const experience = transformExperienceArray(enriched);
   return {

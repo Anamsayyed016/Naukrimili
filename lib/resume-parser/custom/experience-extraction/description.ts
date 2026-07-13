@@ -6,6 +6,9 @@ import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
 
 import { isBulletLine, stripBulletPrefix } from './lines';
 
+const EXPERIENCE_DETAIL_HEADING_RE =
+  /^key\s+(?:result\s+areas?|responsibilit|accountabilit|duties|contributions?|highlights?)/i;
+
 export interface BlockDescription {
   description: string;
   bulletPoints: string[];
@@ -19,6 +22,7 @@ export function extractDescriptionFromBlock(bodyLines: string[]): BlockDescripti
   for (const raw of bodyLines) {
     const line = raw.trim();
     if (!line) continue;
+    if (EXPERIENCE_DETAIL_HEADING_RE.test(line)) continue;
 
     if (isBulletLine(raw)) {
       const bullet = stripBulletPrefix(raw);

@@ -2701,7 +2701,7 @@ export function looksLikeJobTitleLine(text: string): boolean {
 }
 
 const INSTITUTIONAL_EMPLOYER_HINT_RE =
-  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay)\b/i;
+  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|secretariat|registrar|stock\s*exchange|sebi|icsi|governance)\b/i;
 
 const EMPLOYER_NOT_LOCATION_RE =
   /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|asia|partners|associates|diagnostics|pathlabs?)\b|(?:sons|bros|brothers|holdings|group|industries|enterprises)\b|&\s+co\.?/i;
@@ -4003,7 +4003,7 @@ function collapseSpacedLettersInText(text: string): string {
 function flattenExperienceSectionBlob(rawText: string): string {
   const collapsed = collapseSpacedLettersInText(rawText.replace(/\f/g, '\n'));
   const sectionStart = collapsed.search(
-    /\b(?:organisational|organizational)\s*experience\b|\bwork\s*experience\b|\bemployment\s*history\b/i
+    /\b(?:organisational|organizational)\s*experience\b|\bwork\s*experience\b|\bemployment\s*(?:history|record)\b|\bcareer\s+(?:profile|history)\b/i
   );
   let blob =
     sectionStart >= 0
@@ -4035,6 +4035,12 @@ const EXPERIENCE_BODY_SECTION_END_RE =
   /\b(?:education|academic(?:\s+background)?|technical\s+skills|core\s+skills|skills|certifications?|projects?|declaration|languages?|achievements?|personal\s+details|references?|hobbies)\b/i;
 
 const KEY_RESPONSIBILITIES_HEADING_RE = /^key\s+responsibilit/i;
+const KEY_EXPERIENCE_DETAIL_HEADING_RE =
+  /^key\s+(?:result\s+areas?|responsibilit|accountabilit|duties|contributions?|achievements?|highlights?)/i;
+const MONTH_YEAR_DATE_LINE_RE = new RegExp(
+  `^((?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4})\\s*[-–—]\\s*(?:(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+)?(\\d{4}|present|current|now)\\b`,
+  'i'
+);
 
 function experienceBodyMatchWords(value: unknown): string[] {
   return String(value || '')
@@ -4094,6 +4100,7 @@ export function recoverExperienceBodiesFromRawText(
 
   const blocks: ParsedBlock[] = [];
   let pendingTitle = '';
+  let pendingCompany = '';
   let current: ParsedBlock | null = null;
   let collectBullets = false;
 
@@ -4101,7 +4108,21 @@ export function recoverExperienceBodiesFromRawText(
     const line = lines[i];
     if (i === 0 && /\bexperience\b/i.test(line) && line.length < 48) continue;
 
-    if (KEY_RESPONSIBILITIES_HEADING_RE.test(line)) {
+    if (KEY_RESPONSIBILITIES_HEADING_RE.test(line) || KEY_EXPERIENCE_DETAIL_HEADING_RE.test(line)) {
+      collectBullets = true;
+      continue;
+    }
+
+    const monthDateMatch = line.match(MONTH_YEAR_DATE_LINE_RE);
+    if (monthDateMatch && (pendingTitle || pendingCompany)) {
+      if (current) blocks.push(current);
+      current = {
+        title: pendingTitle,
+        company: pendingCompany,
+        bullets: [],
+      };
+      pendingTitle = '';
+      pendingCompany = '';
       collectBullets = true;
       continue;
     }
@@ -4126,6 +4147,18 @@ export function recoverExperienceBodiesFromRawText(
     }
 
     if (
+      pendingTitle &&
+      !collectBullets &&
+      looksLikeCompanyNameLine(line) &&
+      !MONTH_YEAR_DATE_LINE_RE.test(line) &&
+      !EXPERIENCE_DATE_RANGE_RE.test(line) &&
+      !looksLikeJobTitleLine(line)
+    ) {
+      pendingCompany = sanitizeFieldText(line.split('|')[0], 160);
+      continue;
+    }
+
+    if (
       current &&
       (collectBullets || looksLikeExperienceResponsibilityLine(line))
     ) {
@@ -4146,6 +4179,7 @@ export function recoverExperienceBodiesFromRawText(
         current = null;
       }
       pendingTitle = sanitizeFieldText(line.split('|')[0], 120);
+      pendingCompany = '';
       collectBullets = false;
     }
   }
@@ -4164,20 +4198,24 @@ export function recoverExperienceBodiesFromRawText(
     let best: ParsedBlock | null = null;
     let bestScore = 0;
     for (const block of blocks) {
-      if (block.bullets.length < 2) continue;
+      if (block.bullets.length < 1) continue;
       let score = 0;
       const bc = experienceBodyMatchWords(block.company);
       const bt = experienceBodyMatchWords(block.title);
       if (bc.length && entryCo.some((w) => bc.includes(w))) score += 40;
       if (bt.length && entryTi.some((w) => bt.includes(w))) score += 30;
+      if (bc.length && entryTi.some((w) => bc.includes(w))) score += 12;
+      if (bt.length && entryCo.some((w) => bt.includes(w))) score += 8;
       if (block.bullets.length >= 4) score += 10;
+      if (block.bullets.length >= 2) score += 6;
       if (score > bestScore) {
         bestScore = score;
         best = block;
       }
     }
 
-    if (!best || bestScore < 30 || best.bullets.length <= existingBulletCount) {
+    const minScore = existingBulletCount === 0 ? 18 : 30;
+    if (!best || bestScore < minScore || best.bullets.length <= existingBulletCount) {
       return entry;
     }
 
@@ -4223,6 +4261,39 @@ export function recoverStructuredExperienceFromRawText(
     const { company, location } = splitCompanyAndLocation(match[5]);
     const title = sanitizeFieldText(match[6].replace(/\s+/g, ' ').trim(), 120);
     if (!company || !title) continue;
+    out.push({
+      company,
+      Company: company,
+      title,
+      position: title,
+      designation: title,
+      startDate,
+      endDate,
+      current: /^(present|current|now)$/i.test(endToken),
+      location,
+      Location: location,
+    });
+  }
+
+  const yearWithAsRe = new RegExp(
+    `(\\d{4})\\s*[-–—]\\s*(\\d{4}|present|current|now)\\s+(?:with|at)\\s+(.+?)\\s+as\\s+(.+?)(?=(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s*[-–—]|\\d{4}\\s*[-–—]|(?:${NAUKRI_MONTH_TOKEN})\\.?,?\\s+\\d{4}\\s+onwards|$)`,
+    'gi'
+  );
+  while ((match = yearWithAsRe.exec(blob)) !== null) {
+    const startDate = normalizeDate(match[1]);
+    const endToken = String(match[2] || '').trim();
+    const endDate = /^(present|current|now)$/i.test(endToken)
+      ? 'Present'
+      : normalizeDate(endToken);
+    const { company, location } = splitCompanyAndLocation(match[3]);
+    const title = sanitizeFieldText(match[4].replace(/\s+/g, ' ').trim(), 120);
+    if (!company || !title) continue;
+    const key = `${company.toLowerCase()}|${title.toLowerCase()}|${startDate}`;
+    if (out.some((row) => {
+      const c = String(row.company || '').toLowerCase();
+      const t = String(row.title || row.position || '').toLowerCase();
+      return `${c}|${t}|${row.startDate}` === key;
+    })) continue;
     out.push({
       company,
       Company: company,
