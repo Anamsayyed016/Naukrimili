@@ -2,54 +2,6 @@
   "version": "1.0.0",
   "templates": [
         {
-      "id": "elegant-ivory",
-      "name": "Elegant Ivory",
-      "slug": "elegant-ivory",
-      "description": "Luxury ivory editorial two-column layout — tan sidebar, cream main panel, top-right framed portrait, and gold accents",
-      "thumbnail": "/templates/elegant-ivory/thumbnail.svg",
-      "preview": "/templates/elegant-ivory/preview.svg",
-      "html": "/templates/elegant-ivory/index.html",
-      "css": "/templates/elegant-ivory/style.css",
-      "categories": ["Premium", "Professional", "Modern", "Creative"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "champagne", "name": "Champagne Gold", "primary": "#B8956B", "accent": "#3D3832", "text": "#3A3632" },
-        { "id": "warm-taupe", "name": "Warm Taupe", "primary": "#A68B6B", "accent": "#4A433C", "text": "#3A3632" },
-        { "id": "soft-rose", "name": "Soft Rose Gold", "primary": "#C99585", "accent": "#4A3D3A", "text": "#3A3632" },
-        { "id": "sage-ivory", "name": "Sage Ivory", "primary": "#8E9A7B", "accent": "#3D4038", "text": "#3A3632" },
-        { "id": "pearl", "name": "Pearl", "primary": "#9A8F7A", "accent": "#353230", "text": "#3A3632" },
-        { "id": "antique", "name": "Antique Gold", "primary": "#C4A574", "accent": "#2C2824", "text": "#3A3632" }
-      ],
-      "defaultColor": "champagne"
-    },
-        {
-      "id": "luxe-executive",
-      "name": "Luxe Executive",
-      "slug": "luxe-executive",
-      "description": "Luxury ivory executive layout with champagne gold accents, curved section frames, rounded portrait, and recruiter-focused hierarchy",
-      "thumbnail": "/templates/luxe-executive/thumbnail.svg",
-      "preview": "/templates/luxe-executive/preview.svg",
-      "html": "/templates/luxe-executive/index.html",
-      "css": "/templates/luxe-executive/style.css",
-      "categories": ["Premium", "Professional", "Modern", "With Photo"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": true,
-      "colors": [
-        { "id": "champagne", "name": "Champagne Gold", "primary": "#C5A574", "accent": "#3D3530", "text": "#3D3530" },
-        { "id": "antique", "name": "Antique Gold", "primary": "#B8956B", "accent": "#2C2824", "text": "#3D3530" },
-        { "id": "bronze", "name": "Dark Bronze", "primary": "#A68B5B", "accent": "#4A4038", "text": "#3D3530" },
-        { "id": "pearl", "name": "Pearl Ivory", "primary": "#9A8F7A", "accent": "#353230", "text": "#3D3530" },
-        { "id": "rose-gold", "name": "Rose Gold", "primary": "#C99585", "accent": "#4A3D3A", "text": "#3D3530" },
-        { "id": "slate", "name": "Slate Executive", "primary": "#7A7268", "accent": "#2C2824", "text": "#3D3530" }
-      ],
-      "defaultColor": "champagne"
-    },
-        {
       "id": "soft-coral-executive",
       "name": "Soft Coral Executive",
       "slug": "soft-coral-executive",
@@ -62,7 +14,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "soft-coral", "name": "Soft Coral", "primary": "#111111", "accent": "#FF5A3D", "text": "#111111" },
         { "id": "warm-beige", "name": "Warm Beige", "primary": "#111111", "accent": "#F8C6B4", "text": "#1A1A1A" },
@@ -72,105 +24,7 @@
         { "id": "peach-accent", "name": "Peach Accent", "primary": "#111111", "accent": "#F8C6B4", "text": "#222222" }
       ],
       "defaultColor": "soft-coral"
-    },
-        {
-      "id": "monarch-edge",
-      "name": "Monarch Edge",
-      "slug": "monarch-edge",
-      "description": "Luxury editorial executive resume with warm ivory palette, Playfair Display typography, framed portrait header, terracotta architectural accents, experience ribbon styling, categorized skills, and achievement medal badges for ATS-friendly PDF export.",
-      "thumbnail": "/templates/monarch-edge/thumbnail.svg",
-      "preview": "/templates/monarch-edge/preview.svg",
-      "html": "/templates/monarch-edge/index.html",
-      "css": "/templates/monarch-edge/style.css",
-      "categories": ["Premium", "Executive", "Modern", "Professional", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": false,
-      "colors": [
-        { "id": "monarch-terracotta", "name": "Monarch Terracotta", "primary": "#A05840", "accent": "#6F7458", "text": "#666666" },
-        { "id": "olive-executive", "name": "Olive Executive", "primary": "#6F7458", "accent": "#A05840", "text": "#666666" },
-        { "id": "warm-ivory", "name": "Warm Ivory", "primary": "#B89078", "accent": "#6F7458", "text": "#555555" },
-        { "id": "charcoal-luxe", "name": "Charcoal Luxe", "primary": "#3A342E", "accent": "#A05840", "text": "#666666" },
-        { "id": "earth-editorial", "name": "Earth Editorial", "primary": "#907060", "accent": "#6F7458", "text": "#666666" },
-        { "id": "champagne-monarch", "name": "Champagne Monarch", "primary": "#B89078", "accent": "#EDE3D0", "text": "#5A5A5A" }
-      ],
-      "defaultColor": "monarch-terracotta"
-    },
-        {
-      "id": "sterling-executive",
-      "name": "Sterling Executive",
-      "slug": "sterling-executive",
-      "description": "Luxury editorial executive resume with warm ivory and champagne palette, Playfair Display typography, muted olive timeline, bronze-bordered experience cards, champagne skill pills, and ATS-friendly PDF export.",
-      "thumbnail": "/templates/sterling-executive/thumbnail.svg",
-      "preview": "/templates/sterling-executive/preview.svg",
-      "html": "/templates/sterling-executive/index.html",
-      "css": "/templates/sterling-executive/style.css",
-      "categories": ["Premium", "Executive", "Modern", "Professional", "Two Column", "With Photo", "ATS"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": false,
-      "colors": [
-        { "id": "sterling-ivory", "name": "Sterling Ivory", "primary": "#7A8068", "accent": "#8E7358", "text": "#5A5048" },
-        { "id": "champagne-luxe", "name": "Champagne Luxe", "primary": "#8E7358", "accent": "#EDE3D0", "text": "#5A5048" },
-        { "id": "muted-olive", "name": "Muted Olive", "primary": "#7A8068", "accent": "#B56B45", "text": "#5A5048" },
-        { "id": "warm-bronze", "name": "Warm Bronze", "primary": "#4A3F35", "accent": "#8E7358", "text": "#5A5048" },
-        { "id": "terracotta-edge", "name": "Terracotta Edge", "primary": "#B56B45", "accent": "#7A8068", "text": "#5A5048" },
-        { "id": "dark-bronze", "name": "Dark Bronze", "primary": "#4A3F35", "accent": "#B56B45", "text": "#6E6258" }
-      ],
-      "defaultColor": "sterling-ivory"
     }
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   ],
   "filters": {
     "categories": [

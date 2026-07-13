@@ -24,35 +24,11 @@ export interface GalleryCardAccent {
 }
 
 export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> = {
-  'elegant-ivory': {
-    glow: 'radial-gradient(circle, rgba(184,149,107,0.35) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(232,212,240,0.35) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-200/80',
-    hoverOverlay: 'from-amber-100/30',
-  },
-  'luxe-executive': {
-    glow: 'radial-gradient(circle, rgba(197,165,116,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(61,53,48,0.15) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-300/70',
-    hoverOverlay: 'from-amber-100/28',
-  },
   'soft-coral-executive': {
     glow: 'radial-gradient(circle, rgba(255,90,61,0.38) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(248,198,180,0.45) 0%, transparent 70%)',
     borderTint: 'hover:border-orange-300/55',
     hoverOverlay: 'from-orange-50/35',
-  },
-  'monarch-edge': {
-    glow: 'radial-gradient(circle, rgba(160,88,64,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(111,116,88,0.42) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-300/55',
-    hoverOverlay: 'from-amber-50/35',
-  },
-  'sterling-executive': {
-    glow: 'radial-gradient(circle, rgba(181,107,69,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(237,227,208,0.55) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-300/55',
-    hoverOverlay: 'from-amber-50/40',
   },
 };
 
@@ -60,11 +36,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   string,
   { firstName: string; lastName: string; jobTitle: string }
 > = {
-  'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
-  'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
   'soft-coral-executive': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director & Strategist' },
-  'monarch-edge': { firstName: 'Arthur', lastName: 'Sterling', jobTitle: 'Chief Product Strategist | Design Leader' },
-  'sterling-executive': { firstName: 'Arthur', lastName: 'Sterling', jobTitle: 'Chief Product Strategist | Design Leader' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
@@ -188,7 +160,7 @@ const GALLERY_DEMO_RESUME_SECTIONS = {
 export function buildGallerySampleFormData(templateId?: string): Record<string, unknown> {
   const persona =
     (templateId && GALLERY_PERSONA_BY_TEMPLATE[templateId]) ||
-    GALLERY_PERSONA_BY_TEMPLATE['luxe-executive'];
+    GALLERY_PERSONA_BY_TEMPLATE['soft-coral-executive'];
   const profileImage = DEFAULT_DEMO_PROFILE_IMAGE;
   const sections = GALLERY_DEMO_RESUME_SECTIONS;
 
