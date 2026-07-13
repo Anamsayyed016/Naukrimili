@@ -4,6 +4,25 @@
  * Ensures consistency across the entire application
  */
 
+function isLocalHostHostname(hostname: string): boolean {
+  return (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname.startsWith('192.168.') ||
+    hostname.startsWith('10.') ||
+    hostname.startsWith('172.')
+  );
+}
+
+/** True when a URL points at a local dev host (localhost / private IP). */
+export function isLocalHostUrl(url: string): boolean {
+  try {
+    return isLocalHostHostname(new URL(url).hostname);
+  } catch {
+    return /localhost|127\.0\.0\.1/i.test(url);
+  }
+}
+
 /**
  * Get the canonical base URL for the application
  * Uses NEXT_PUBLIC_APP_URL environment variable
@@ -16,21 +35,25 @@ export function getBaseUrl(): string {
     return (
       process.env.NEXT_PUBLIC_APP_URL ||
       process.env.NEXTAUTH_URL ||
-      (process.env.NODE_ENV === 'production' 
-        ? 'https://naukrimili.com' 
+      (process.env.NODE_ENV === 'production'
+        ? 'https://naukrimili.com'
         : 'http://localhost:3000')
     );
   }
 
-  // Client-side: Use environment variable or construct from window
-  // Always normalize to https://naukrimili.com (non-www)
+  const origin = window.location.origin;
+
+  // Client-side: prefer the live browser origin when the build baked in localhost
+  // (common when .env.local is present during `next build` on a dev machine).
   const envUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (envUrl) {
-    return normalizeUrl(envUrl);
+    const normalizedEnv = normalizeUrl(envUrl);
+    if (isLocalHostUrl(normalizedEnv) && !isLocalHostUrl(origin)) {
+      return normalizeUrl(origin);
+    }
+    return normalizedEnv;
   }
 
-  // Fallback: Use window.location but normalize it
-  const origin = window.location.origin;
   return normalizeUrl(origin);
 }
 
