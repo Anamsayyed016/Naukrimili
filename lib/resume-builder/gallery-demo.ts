@@ -36,77 +36,11 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-amber-300/70',
     hoverOverlay: 'from-amber-100/28',
   },
-  'royal-copper-executive': {
-    glow: 'radial-gradient(circle, rgba(200,120,64,0.48) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(42,46,50,0.2) 0%, transparent 70%)',
-    borderTint: 'hover:border-orange-400/55',
-    hoverOverlay: 'from-orange-900/18',
-  },
-  'ivory-boardroom-executive': {
-    glow: 'radial-gradient(circle, rgba(15,35,65,0.35) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(196,184,150,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-slate-400/65',
-    hoverOverlay: 'from-slate-100/28',
-  },
-  'fashion-editorial-premium': {
-    glow: 'radial-gradient(circle, rgba(155,126,135,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(243,217,210,0.55) 0%, transparent 70%)',
-    borderTint: 'hover:border-rose-300/55',
-    hoverOverlay: 'from-rose-50/35',
-  },
   'soft-coral-executive': {
     glow: 'radial-gradient(circle, rgba(255,90,61,0.38) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(248,198,180,0.45) 0%, transparent 70%)',
     borderTint: 'hover:border-orange-300/55',
     hoverOverlay: 'from-orange-50/35',
-  },
-  'rosewood-modern': {
-    glow: 'radial-gradient(circle, rgba(142,94,86,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(228,214,200,0.5) 0%, transparent 70%)',
-    borderTint: 'hover:border-rose-300/55',
-    hoverOverlay: 'from-rose-50/35',
-  },
-  'cascade-flow': {
-    glow: 'radial-gradient(circle, rgba(232,160,144,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(246,235,227,0.5) 0%, transparent 70%)',
-    borderTint: 'hover:border-orange-200/55',
-    hoverOverlay: 'from-orange-50/35',
-  },
-  'lumen-studio': {
-    glow: 'radial-gradient(circle, rgba(138,165,155,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(216,226,223,0.55) 0%, transparent 70%)',
-    borderTint: 'hover:border-emerald-200/55',
-    hoverOverlay: 'from-emerald-50/35',
-  },
-  'executive-mosaic': {
-    glow: 'radial-gradient(circle, rgba(201,107,124,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(232,225,216,0.55) 0%, transparent 70%)',
-    borderTint: 'hover:border-rose-200/55',
-    hoverOverlay: 'from-rose-50/35',
-  },
-  'executive-timeline': {
-    glow: 'radial-gradient(circle, rgba(74,98,130,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(107,128,153,0.4) 0%, transparent 70%)',
-    borderTint: 'hover:border-blue-200/55',
-    hoverOverlay: 'from-slate-50/35',
-  },
-  'nordic-fusion': {
-    glow: 'radial-gradient(circle, rgba(143,163,134,0.44) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(212,218,208,0.5) 0%, transparent 70%)',
-    borderTint: 'hover:border-green-200/55',
-    hoverOverlay: 'from-green-50/35',
-  },
-  'modern-edge': {
-    glow: 'radial-gradient(circle, rgba(143,108,134,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(199,212,190,0.45) 0%, transparent 70%)',
-    borderTint: 'hover:border-purple-200/55',
-    hoverOverlay: 'from-purple-50/35',
-  },
-  'prism-edition': {
-    glow: 'radial-gradient(circle, rgba(184,122,98,0.42) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(152,168,146,0.42) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-200/55',
-    hoverOverlay: 'from-stone-50/35',
   },
   'monarch-edge': {
     glow: 'radial-gradient(circle, rgba(160,88,64,0.44) 0%, transparent 70%)',
@@ -120,18 +54,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-amber-300/55',
     hoverOverlay: 'from-amber-50/40',
   },
-  'executive-slate': {
-    glow: 'radial-gradient(circle, rgba(47,69,88,0.48) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(91,117,148,0.38) 0%, transparent 70%)',
-    borderTint: 'hover:border-blue-300/55',
-    hoverOverlay: 'from-blue-50/40',
-  },
-  'verdant-scandi-executive': {
-    glow: 'radial-gradient(circle, rgba(53,92,77,0.46) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(216,177,90,0.32) 0%, transparent 70%)',
-    borderTint: 'hover:border-emerald-300/55',
-    hoverOverlay: 'from-emerald-50/40',
-  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -140,22 +62,9 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
 > = {
   'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
-  'royal-copper-executive': { firstName: 'Isabella', lastName: 'Chen', jobTitle: 'Chief Operating Officer' },
-  'ivory-boardroom-executive': { firstName: 'Arthur', lastName: 'Vance', jobTitle: 'Senior Executive Strategist' },
-  'fashion-editorial-premium': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Creative Director | Fashion & Retail Innovator' },
   'soft-coral-executive': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director & Strategist' },
-  'rosewood-modern': { firstName: 'Elias', lastName: 'Vance', jobTitle: 'Global Brand Strategist & Marketing Director' },
-  'cascade-flow': { firstName: 'Eliza', lastName: 'Chen', jobTitle: 'Senior Product Designer | AI Innovation' },
-  'lumen-studio': { firstName: 'Lumen', lastName: 'Studio', jobTitle: 'Creative Director | Scandinavian Editorial Design & Brand Strategy' },
-  'executive-mosaic': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Global Product Strategist | Enterprise Leadership & Digital Transformation' },
-  'executive-timeline': { firstName: 'Katherine', lastName: 'Reed', jobTitle: 'Chief Strategy Officer | Fashion Retail Innovator' },
-  'nordic-fusion': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Product Designer | Scandinavian Design & UX Leadership' },
-  'modern-edge': { firstName: 'Liam', lastName: 'Nguyen', jobTitle: 'Senior Product Designer | Product Strategy & UX Leadership' },
-  'prism-edition': { firstName: 'Canela', lastName: 'Name', jobTitle: 'Senior Product Designer | Scandinavian Editorial Design' },
   'monarch-edge': { firstName: 'Arthur', lastName: 'Sterling', jobTitle: 'Chief Product Strategist | Design Leader' },
   'sterling-executive': { firstName: 'Arthur', lastName: 'Sterling', jobTitle: 'Chief Product Strategist | Design Leader' },
-  'executive-slate': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Principal Product Designer | Creative Director' },
-  'verdant-scandi-executive': { firstName: 'Elena', lastName: 'Nordstrom', jobTitle: 'Executive Director | Scandinavian Strategy & Innovation' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
@@ -279,7 +188,7 @@ const GALLERY_DEMO_RESUME_SECTIONS = {
 export function buildGallerySampleFormData(templateId?: string): Record<string, unknown> {
   const persona =
     (templateId && GALLERY_PERSONA_BY_TEMPLATE[templateId]) ||
-    GALLERY_PERSONA_BY_TEMPLATE['ivory-boardroom-executive'];
+    GALLERY_PERSONA_BY_TEMPLATE['luxe-executive'];
   const profileImage = DEFAULT_DEMO_PROFILE_IMAGE;
   const sections = GALLERY_DEMO_RESUME_SECTIONS;
 
