@@ -584,10 +584,45 @@ function recoverNameFromSurnameSuffix(body: string): string {
   return '';
 }
 
+/**
+ * When the resume header omits a leading given name present in the email local part
+ * (e.g. header "Kumar Bhawsar" + rajbhawsar@… → "Raj Kumar Bhawsar").
+ */
+export function mergeEmailLeadingNameWithHeader(headerName: string, email: string): string {
+  const header = sanitizePersonName(headerName);
+  if (!header || !email) return header;
+
+  const emailName = sanitizePersonName(deriveDisplayNameFromEmail(email));
+  if (!emailName) return header;
+
+  const headerWords = header.split(/\s+/).filter(Boolean);
+  const emailWords = emailName.split(/\s+/).filter(Boolean);
+  if (headerWords.length < 2 || emailWords.length < 2) return header;
+
+  const headerSurname = headerWords[headerWords.length - 1].toLowerCase();
+  const emailSurname = emailWords[emailWords.length - 1].toLowerCase();
+  if (headerSurname !== emailSurname) return header;
+
+  const headerLower = header.toLowerCase();
+  const emailLead = emailWords.slice(0, -1);
+  const missingLead = emailLead.filter((w) => !headerLower.includes(w.toLowerCase()));
+  if (!missingLead.length) return header;
+
+  const merged = formatDisplayName([...missingLead, ...headerWords].join(' '));
+  if (isPlausiblePersonName(merged) && nameWordCount(merged) > nameWordCount(header)) {
+    return merged;
+  }
+
+  return header;
+}
+
 /** When header omits first name, recover it from the email local part (e.g. Mujahid Ali + syedmujahidali). */
 export function enrichPartialNameFromEmail(headerName: string, email: string): string {
   const header = sanitizePersonName(headerName);
   if (!header || !email) return header;
+
+  const fromLeadingMerge = mergeEmailLeadingNameWithHeader(header, email);
+  if (fromLeadingMerge !== header) return fromLeadingMerge;
   const localRaw = String(email.split('@')[0] || '')
     .replace(/\d/g, '')
     .trim()
@@ -1034,7 +1069,7 @@ export function deriveDisplayNameFromEmail(email: string): string {
   return '';
 }
 
-function nameWordCount(name: string): number {
+export function nameWordCount(name: string): number {
   return String(name || '')
     .trim()
     .split(/\s+/)
@@ -1397,6 +1432,20 @@ export function sanitizeSkillEntry(skill: unknown): string {
   if (SKILL_NOISE_TOKENS.has(s.toLowerCase())) return '';
   if (/^managed\b/i.test(s)) return '';
   if (/^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(s)) return '';
+  if (
+    /^(?:19|20)\d{2}\s*(?:to|–|—|-)\s*(?:(?:19|20)\d{2}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*|present|current)$/i.test(
+      s
+    )
+  ) {
+    return '';
+  }
+  if (
+    /^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s*(?:19|20)\d{2}$/i.test(s) &&
+    skillWords <= 3
+  ) {
+    return '';
+  }
+  if (/^(?:other\s+)?inherent\s+secretarial\b/i.test(s)) return '';
   if (/^\d+%$/.test(s)) return '';
   if (/^(annually|quarterly|monthly)$/i.test(s)) return '';
   if (/^(name|date|secretarial)$/i.test(s)) return '';
@@ -4734,6 +4783,33 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
   };
 }
 
+/** Normalize degree / field so we never duplicate "LL.B. in LL.B." style labels. */
+export function reconcileEducationDegreeAndField(
+  degreeRaw: string,
+  fieldRaw: string
+): { degree: string; field: string } {
+  let degree = sanitizeFieldText(degreeRaw, 160);
+  let field = sanitizeFieldText(fieldRaw, 120);
+
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+  if (degree && !field) {
+    const inMatch = degree.match(/^(.+?)\s+in\s+(.+)$/i);
+    if (inMatch?.[1] && inMatch[2]) {
+      degree = inMatch[1].trim();
+      field = inMatch[2].trim();
+    }
+  }
+
+  degree = degree.replace(/\s+in\s*$/i, '').trim();
+
+  if (field && norm(degree) === norm(field)) field = '';
+  if (field && norm(degree).endsWith(norm(field)) && norm(field).length >= 3) field = '';
+  if (field && norm(field).endsWith(norm(degree)) && norm(degree).length >= 3) field = '';
+
+  return { degree, field };
+}
+
 export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<string, unknown> | null {
   const institution = sanitizeFieldText(
     edu.institution ||
@@ -4744,8 +4820,12 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
       edu.university,
     160
   );
-  const degree = sanitizeFieldText(edu.degree || edu.Degree || edu.qualification, 160);
-  const field = sanitizeFieldText(edu.field || edu.Field || edu.major, 120);
+  const reconciled = reconcileEducationDegreeAndField(
+    String(edu.degree || edu.Degree || edu.qualification || ''),
+    String(edu.field || edu.Field || edu.major || '')
+  );
+  const degree = reconciled.degree;
+  const field = reconciled.field;
   if (degree && isGarbageEducationDegree(degree)) return null;
   if (institution && isGarbageEducationDegree(institution)) return null;
   if (!institution && !degree) return null;

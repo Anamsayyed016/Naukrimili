@@ -89,6 +89,8 @@ import {
   skillsLookLikeAddressContamination,
   normalizePdfLigatureText,
   enrichPartialNameFromEmail,
+  nameWordCount,
+  reconcileEducationDegreeAndField,
   isGarbageEducationDegree,
   isSpacedLetterFragment,
   isResumeCompetencySectionEntry,
@@ -2101,13 +2103,33 @@ function resolveClassifiedName(
 
   const profileFirst = readImportTextField(importedData.firstName || personal.firstName);
   const profileLast = readImportTextField(importedData.lastName || personal.lastName);
-  const acceptedProfile = acceptProfileNameParts(
-    profileFirst,
-    profileLast,
-    email,
-    locationHint,
-    additionalResumeData
+  const profileFullNameRaw = sanitizePersonName(
+    importedData.fullName || importedData.name || personal.fullName || '',
+    120
   );
+  let profileFullNameEnriched = profileFullNameRaw;
+  if (profileFullNameEnriched && email) {
+    profileFullNameEnriched = enrichPartialNameFromEmail(profileFullNameEnriched, email);
+  }
+  const profileCombined = [profileFirst, profileLast].filter(Boolean).join(' ').trim();
+  const richerProfileFull =
+    profileFullNameEnriched &&
+    (nameWordCount(profileFullNameEnriched) > nameWordCount(profileCombined) ||
+      (!!profileCombined &&
+        profileFullNameEnriched.toLowerCase().includes(profileCombined.toLowerCase()) &&
+        profileFullNameEnriched.toLowerCase() !== profileCombined.toLowerCase()))
+      ? profileFullNameEnriched
+      : '';
+
+  const acceptedProfile = richerProfileFull
+    ? null
+    : acceptProfileNameParts(
+        profileFirst,
+        profileLast,
+        email,
+        locationHint,
+        additionalResumeData
+      );
   if (acceptedProfile) {
     const displayName = email
       ? enrichPartialNameFromEmail(acceptedProfile.displayName, email)
@@ -2128,6 +2150,16 @@ function resolveClassifiedName(
   }
 
   const textHeaderName = sanitizePersonName(headerNameFromText, 120);
+
+  if (richerProfileFull) {
+    const split = splitFullNameWithRejected(richerProfileFull);
+    return {
+      firstName: split.firstName || '',
+      lastName: split.lastName || '',
+      displayName: richerProfileFull,
+      additionalResumeData,
+    };
+  }
 
   const parserFirst = readImportTextField(importedData.firstName || personal.firstName);
   const parserLast = readImportTextField(importedData.lastName || personal.lastName);
@@ -3269,8 +3301,9 @@ function transformEducationArray(education: unknown, isCustomParser = false): an
       const institution = String(
         edu.institution || edu.school || edu.college || edu.university || edu.academy || ''
       );
-      const degree = String(edu.degree || edu.Degree || edu.qualification || '');
-      const field = String(edu.field || edu.Field || edu.major || '');
+      const degreeRaw = String(edu.degree || edu.Degree || edu.qualification || '');
+      const fieldRaw = String(edu.field || edu.Field || edu.major || '');
+      const { degree, field } = reconcileEducationDegreeAndField(degreeRaw, fieldRaw);
       const gpa = String(edu.gpa || edu.cgpa || edu.GPA || edu.CGPA || edu.percentage || '');
 
       // Year MUST be a bare 4-digit string — EducationStep uses <input type="number">

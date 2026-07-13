@@ -495,7 +495,7 @@ const MEASURABLE_ACHIEVEMENT_RE =
   /\b(?:\d+\s*(?:%|percent|percentage)|(?:₹|rs\.?\s*|inr\s*|\$\s*|€\s*|£\s*)\s*\d[\d,.]*|\d[\d,.]*\s*(?:crore?s?|lakh?s?|million?s?|bn\b|k\+?)\b|team\s+of\s+\d+|\d+\+\s*(?:people|employees|clients|customers|users|projects|members)|\d{2,}\s*(?:people|employees|clients|customers|users|projects|members)|(?:increased|reduced|improved|decreased|lowered|raised|grew|boosted|saved|generated|achieved|delivered|exceeded|surpassed|cut)\s+(?:by\s+)?\d+\s*%|from\s+\d[\d,.]*\s*(?:%|to)\s+\d|within\s+\d+\s*(?:days?|weeks?|months?|years?))\b/i;
 
 const EDUCATION_LINE_RE =
-  /\b(?:university|college|school|institute|academy|b\.?\s*tech|m\.?\s*tech|bachelor|master|mba|ph\.?d|doctorate|diploma|graduation|post\s+graduation|b\.?\s*com|m\.?\s*com|b\.?\s*a\.?|m\.?\s*a\.?|hsc|ssc|intermediate|matriculation|degree|articleship)\b/i;
+  /\b(?:university|college|school|institute|academy|b\.?\s*tech|m\.?\s*tech|bachelor|master|mba|ph\.?d|doctorate|diploma|graduation|post\s+graduation|b\.?\s*com|m\.?\s*com|b\.?\s*a\.?|m\.?\s*a\.?|ll\.?\s*b\.?|ll\.?\s*m\.?|b\.?\s*all\.?\s*b\.?|hsc|ssc|intermediate|matriculation|degree|articleship)\b/i;
 
 const CERTIFICATION_LINE_RE =
   /\b(?:certif(?:ied|ication|icate)|professional\s+qualification|IATA|UFTAA|PMP|AWS|Google|Microsoft|license|licence|accredit(?:ation|ed)|credential|chartered|CPA|CFA|CMA|CS\s+executive|CA\s+final|training\s+course|diploma\s+course)\b/i;

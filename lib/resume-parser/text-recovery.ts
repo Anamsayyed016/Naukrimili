@@ -1218,7 +1218,7 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
   }
 
   const credentialNameRe =
-    /^(?:CS|CA|CMA|CFA|CPA|FCS|Dr|Mr|Mrs|Ms)\.?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){1,2})$/;
+    /^(?:CS|CA|CMA|CFA|CPA|FCS|Dr|Mr|Mrs|Ms)\.?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){1,3})$/;
   for (const line of lines) {
     const match = line.match(credentialNameRe);
     if (!match) continue;

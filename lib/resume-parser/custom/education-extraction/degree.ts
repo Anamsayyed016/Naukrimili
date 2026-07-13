@@ -12,6 +12,9 @@ export interface DegreeDetection {
 }
 
 const DEGREE_PATTERNS: Array<{ re: RegExp; confidence: number }> = [
+  { re: /\bll\.?\s*b\.?\b/i, confidence: 90 },
+  { re: /\bll\.?\s*m\.?\b/i, confidence: 90 },
+  { re: /\bb\.?\s*all\.?\s*b\.?\b/i, confidence: 92 },
   { re: /\bb\.?\s*tech\.?\b/i, confidence: 92 },
   { re: /\bb\.?\s*e\.?\b/i, confidence: 90 },
   { re: /\bb\.?\s*ca\b/i, confidence: 88 },

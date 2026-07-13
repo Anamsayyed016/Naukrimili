@@ -185,7 +185,9 @@ export default function ResumePreview({ data, template: _template, colorScheme, 
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-gray-900">
-                          {edu.degree} in {edu.field}
+                          {edu.field && edu.degree && edu.field.toLowerCase() !== edu.degree.toLowerCase()
+                            ? `${edu.degree} in ${edu.field}`
+                            : edu.degree || edu.field}
                         </h3>
                         <p className="text-gray-600">{edu.institution}</p>
                         {edu.gpa && (

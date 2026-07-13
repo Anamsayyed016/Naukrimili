@@ -2,6 +2,8 @@
  * Field of study and specialization detection.
  */
 
+import { lineHasDegreeSignal } from './degree';
+
 export interface FieldDetection {
   fieldOfStudy: string;
   specialization: string;
@@ -31,7 +33,8 @@ export function detectFieldFromLine(text: string): FieldDetection {
     trimmed.length >= 4 &&
     trimmed.length <= 80 &&
     /^[A-Z][A-Za-z ,&/-]+$/.test(trimmed) &&
-    !/\b(university|college|institute|b\.?tech|m\.?tech|mba)\b/i.test(trimmed)
+    !/\b(university|college|institute|b\.?tech|m\.?tech|mba|ll\.?b)\b/i.test(trimmed) &&
+    !lineHasDegreeSignal(trimmed)
   ) {
     return { fieldOfStudy: trimmed, specialization: '', confidence: 45 };
   }

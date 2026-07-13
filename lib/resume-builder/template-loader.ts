@@ -43,6 +43,7 @@ import { appendExtendedSectionsToHtml } from '@/lib/resume-builder/render-extend
 import {
   collectExperienceBodyFields,
   dedupeExperienceBodyLines,
+  reconcileEducationDegreeAndField,
 } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { resolveTemplateId } from './template-aliases';
@@ -864,11 +865,16 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
       ]);
       const degree = readCanonicalString(edu, 'degree', ['Degree', 'course', 'Course']);
       const year = readCanonicalString(edu, 'year', ['graduationDate', 'GraduationDate', 'Year']);
-      const field = readCanonicalString(edu, 'field', ['Field']);
+      const fieldRaw = readCanonicalString(edu, 'field', ['Field']);
       const cgpa = readCanonicalString(edu, 'cgpa', ['CGPA']);
 
-      // Build degree with field if available
-      const degreeWithField = field ? `${degree}${degree ? ' - ' : ''}${field}` : degree;
+      const { degree: degreeClean, field } = reconcileEducationDegreeAndField(degree, fieldRaw);
+
+      // Build degree with field if available — avoid "LL.B. in LL.B." duplication
+      const degreeWithField =
+        field && field.toLowerCase() !== degreeClean.toLowerCase()
+          ? `${degreeClean}${degreeClean ? ' - ' : ''}${field}`
+          : degreeClean;
 
       return `
         <div class="education-item">
