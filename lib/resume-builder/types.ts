@@ -29,6 +29,17 @@ export interface Template {
   recommended: boolean;
   colors: ColorVariant[];
   defaultColor: string;
+  layoutMetadata?: {
+    layoutType?: 'one-column' | 'two-column' | 'sidebar' | 'card' | 'standard';
+    columnCount?: number;
+    hasSidebar?: boolean;
+    mainColumnBasisPct?: number;
+    sidebarColumnBasisPct?: number;
+    movableSections?: string[];
+    fixedSections?: string[];
+    sectionPriorities?: Record<string, number>;
+    maxMovablePriority?: number;
+  };
 }
 
 export interface LoadedTemplate {

@@ -18,6 +18,7 @@ import {
   type TemplateRenderCapacity,
 } from './section-visibility';
 import { isPremiumTemplate } from './ats-content-balance-css';
+import { estimateRenderableSectionHeight } from './section-height-estimator';
 
 export const A4_PAGE_HEIGHT_PX = 1123;
 export const A4_PAGE_WIDTH_PX = 794;
@@ -40,21 +41,21 @@ const FILL_COMPRESS_ABOVE = 0.95;
 const TARGET_PAGE_FILL = 0.9;
 
 /**
- * Content priority — higher values receive more layout space when balancing.
- * Generic across all templates; never resume-specific.
+ * Content priority — lower values compress first; experience anchors last.
+ * Mirrors DEFAULT_SECTION_PRIORITIES (inverted for space distribution).
  */
 const SECTION_CONTENT_PRIORITY: Record<LayoutSectionKind, number> = {
-  experience: 1,
-  projects: 0.82,
-  summary: 0.78,
-  skills: 0.72,
-  education: 0.58,
-  certifications: 0.48,
-  achievements: 0.45,
-  languages: 0.42,
-  interests: 0.38,
-  contact: 0.2,
-  other: 0.3,
+  experience: 0.22,
+  summary: 0.28,
+  projects: 0.42,
+  skills: 0.48,
+  education: 0.52,
+  certifications: 0.58,
+  achievements: 0.62,
+  languages: 0.66,
+  interests: 0.7,
+  contact: 0.18,
+  other: 0.55,
 };
 
 /** Sidebar sections that should compress when the main column carries most content. */
@@ -88,6 +89,9 @@ export interface LayoutFillSignals {
   shouldCompress: boolean;
   experienceDominant: boolean;
   sidebarUnderfilled: boolean;
+  /** Main column materially taller than sidebar (experience-heavy resumes). */
+  columnOverload: boolean;
+  columnImbalanceRatio: number;
   /** True when column-balance-engine already relocated flexible sections. */
   columnBalanced: boolean;
 }
@@ -398,29 +402,7 @@ function countMatches(html: string, pattern: RegExp): number {
 }
 
 function estimateBlockHeight(html: string): number {
-  let h = STRUCTURAL_HEIGHTS.sectionShell + STRUCTURAL_HEIGHTS.sectionHeading;
-  const photos = countMatches(
-    html,
-    /profile-image-wrapper|photo-block|ese-photo-block|pee-photo-block|header-photo/gi
-  );
-  h += photos * STRUCTURAL_HEIGHTS.photoBlock;
-  h += countMatches(html, /\bexperience-item\b/gi) * STRUCTURAL_HEIGHTS.experienceItemBase;
-  h +=
-    countMatches(html, /<li\b/gi) * STRUCTURAL_HEIGHTS.experienceBullet;
-  h += countMatches(html, /\beducation-item\b/gi) * STRUCTURAL_HEIGHTS.educationItem;
-  h += countMatches(html, /\bproject-item\b/gi) * STRUCTURAL_HEIGHTS.projectItem;
-  h += countMatches(html, /\bskill-tag\b|psp-skill-item\b/gi) * STRUCTURAL_HEIGHTS.skillTag;
-  h +=
-    countMatches(html, /\bcertification-item\b/gi) * STRUCTURAL_HEIGHTS.certificationItem;
-  h += countMatches(html, /\blanguage-item\b|psp-language-item\b/gi) * STRUCTURAL_HEIGHTS.languageItem;
-  h += countMatches(html, /\bachievement-item\b/gi) * STRUCTURAL_HEIGHTS.achievementItem;
-  h += countMatches(html, /\bhobby-item\b/gi) * STRUCTURAL_HEIGHTS.hobbyItem;
-  const summaryText = html.replace(/<[^>]+>/g, ' ').trim();
-  if (/\bsummary-text\b|professional-summary\b/i.test(html) && summaryText) {
-    h += Math.max(STRUCTURAL_HEIGHTS.summaryLine * 2, Math.ceil(summaryText.length / 80) * STRUCTURAL_HEIGHTS.summaryLine);
-  }
-  h += countMatches(html, /\bcontact-list\b|ese-contact-list\b/gi) * STRUCTURAL_HEIGHTS.contactRow * 3;
-  return h;
+  return estimateRenderableSectionHeight(html);
 }
 
 function extractColumnHtml(renderedHtml: string): { sidebar: string; main: string } {
@@ -754,6 +736,12 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
   const mainColumnRatio = metrics.mainHeight / metrics.pageHeight;
   const sidebarColumnRatio =
     metrics.sidebarHeight > 0 ? metrics.sidebarHeight / metrics.pageHeight : 0;
+  const columnImbalanceRatio =
+    metrics.sidebarHeight > 0
+      ? metrics.mainHeight / Math.max(metrics.sidebarHeight, 1)
+      : metrics.mainHeight > 0
+        ? 99
+        : 1;
   const sidebarUnderfilled =
     metrics.sidebarSparse ||
     (metrics.sidebarHeight > 0 && metrics.sidebarFillRatio < 0.55) ||
@@ -764,16 +752,21 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
   const experienceDominant = Boolean(
     expSection && expSection.height >= mainWeight * 0.42
   );
+  const columnOverload =
+    metrics.sidebarHeight > 0 &&
+    metrics.mainHeight > metrics.sidebarHeight * 1.18 &&
+    experienceDominant;
 
   /** Set by plan when HTML was already section-balanced across columns. */
   const columnBalanced = false;
 
   const shouldExpand =
-    pageFill < FILL_EXPAND_BELOW ||
-    (sidebarUnderfilled && pageFill < FILL_HOLD_MAX);
+    pageFill < FILL_EXPAND_BELOW &&
+    !columnOverload &&
+    !(sidebarUnderfilled && experienceDominant);
   const shouldCompress =
     pageFill > FILL_COMPRESS_ABOVE &&
-    !(sidebarUnderfilled && mainColumnRatio > 0.72 && experienceDominant);
+    !(sidebarUnderfilled && mainColumnRatio > 0.72 && experienceDominant && !columnOverload);
 
   return {
     pageFill,
@@ -783,6 +776,8 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
     shouldCompress,
     experienceDominant,
     sidebarUnderfilled,
+    columnOverload,
+    columnImbalanceRatio,
     columnBalanced,
   };
 }
@@ -838,24 +833,31 @@ function rebalanceColumnExtras(
 ): Partial<Record<LayoutSectionKind, number>> {
   const out = { ...extras };
 
-  // After section relocation, avoid re-inflating the main column / crushing the sidebar.
   if (fillSignals.columnBalanced) {
     return out;
   }
 
-  if (metrics.mainHeight > metrics.sidebarHeight * 1.08) {
+  if (fillSignals.columnOverload || metrics.mainHeight > metrics.sidebarHeight * 1.08) {
     const gap = metrics.mainHeight - metrics.sidebarHeight;
-    const transfer = Math.min(96, gap * 0.14);
-    out.experience = (out.experience ?? 0) + Math.round(transfer * 0.62);
-    out.summary = (out.summary ?? 0) + Math.round(transfer * 0.18);
-    if (fillSignals.experienceDominant) {
-      out.experience = (out.experience ?? 0) + Math.round(transfer * 0.12);
-    }
+    const transfer = Math.min(120, gap * 0.18);
 
-    const compressMul = fillSignals.sidebarUnderfilled ? 0.28 : 0.55;
-    for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
-      if (!metrics.sidebarSections.some((s) => s.kind === kind)) continue;
-      out[kind] = Math.round((out[kind] ?? 0) * compressMul);
+    if (fillSignals.columnOverload) {
+      // Experience-heavy imbalance: tighten main, give sidebar breathing room.
+      out.experience = Math.round((out.experience ?? 0) - transfer * 0.35);
+      out.projects = Math.round((out.projects ?? 0) - transfer * 0.12);
+      for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
+        if (!metrics.sidebarSections.some((s) => s.kind === kind)) continue;
+        out[kind] = Math.round((out[kind] ?? 0) + transfer * 0.22);
+      }
+      out.summary = Math.round((out.summary ?? 0) + transfer * 0.15);
+    } else {
+      out.experience = (out.experience ?? 0) + Math.round(transfer * 0.22);
+      out.summary = (out.summary ?? 0) + Math.round(transfer * 0.12);
+      const compressMul = fillSignals.sidebarUnderfilled ? 0.55 : 0.72;
+      for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
+        if (!metrics.sidebarSections.some((s) => s.kind === kind)) continue;
+        out[kind] = Math.round((out[kind] ?? 0) * compressMul);
+      }
     }
   } else if (
     metrics.sidebarHeight > metrics.mainHeight * 1.18 &&
@@ -887,18 +889,30 @@ function resolveAdaptiveCardMultipliers(
   let educationItemMul = 1;
   let experienceProtectMul = 1;
 
-  if (fillSignals.sidebarUnderfilled) {
-    sidebarCardMul = contentMetrics.educationCount <= 1 ? 0.58 : 0.72;
-    sidebarGapMul = 0.78;
-    educationItemMul = contentMetrics.educationCount <= 1 ? 0.62 : 0.82;
+  if (fillSignals.sidebarUnderfilled && fillSignals.columnOverload) {
+    // Experience-heavy: expand sidebar rhythm instead of crushing it.
+    sidebarCardMul = contentMetrics.educationCount <= 1 ? 1.08 : 1.18;
+    sidebarGapMul = 1.22;
+    educationItemMul = contentMetrics.educationCount <= 1 ? 1.05 : 1.12;
+    experienceProtectMul = 0.88;
+  } else if (fillSignals.sidebarUnderfilled) {
+    sidebarCardMul = contentMetrics.educationCount <= 1 ? 0.88 : 0.95;
+    sidebarGapMul = 0.92;
+    educationItemMul = contentMetrics.educationCount <= 1 ? 0.9 : 0.95;
   } else if (metrics.sidebarHeight > metrics.mainHeight * 1.2) {
     sidebarCardMul = 1.08;
     sidebarGapMul = 1.05;
   }
 
   if (fillSignals.experienceDominant) {
-    experienceProtectMul = fillSignals.shouldCompress ? 1.08 : 1.04;
-    if (contentMetrics.experienceTextUnits >= 8) experienceProtectMul += 0.06;
+    experienceProtectMul = fillSignals.columnOverload
+      ? 0.86
+      : fillSignals.shouldCompress
+        ? 0.96
+        : 1.02;
+    if (contentMetrics.experienceTextUnits >= 8 && !fillSignals.columnOverload) {
+      experienceProtectMul += 0.04;
+    }
   }
 
   if (contentMetrics.lowValueNoiseScore >= 1) {
@@ -1040,6 +1054,7 @@ export function resolveAdaptiveTypography(input: {
   skillCount: number;
   fill: number;
   experienceDominant: boolean;
+  columnOverload?: boolean;
 }): Pick<
   DynamicLayoutPlan,
   | 'companyFontScale'
@@ -1064,6 +1079,7 @@ export function resolveAdaptiveTypography(input: {
     skillCount,
     fill,
     experienceDominant,
+    columnOverload = false,
   } = input;
 
   let companyFontScale = 1.15;
@@ -1083,7 +1099,7 @@ export function resolveAdaptiveTypography(input: {
   let typographyDensity: 'sparse' | 'balanced' | 'dense' = 'balanced';
   if (experienceCount <= 2 && fill < 0.78 && experienceTextUnits < 8) {
     typographyDensity = 'sparse';
-  } else if (experienceCount >= 5 || experienceTextUnits >= 18 || fill > 0.98) {
+  } else if (experienceCount >= 5 || experienceTextUnits >= 18 || fill > 0.98 || columnOverload) {
     typographyDensity = 'dense';
   }
 
@@ -1129,6 +1145,13 @@ export function resolveAdaptiveTypography(input: {
     metaFontScale = 0.84 - mid * 0.02;
     descLineHeightMul = 1.12 + mid * 0.05;
     companyFontScale = 1.15;
+  }
+
+  if (columnOverload) {
+    const overload = clamp((experienceCount - 2) / 10 + experienceTextUnits / 40, 0, 1);
+    bodyFontScale = Math.min(bodyFontScale, 0.92 - overload * 0.06);
+    metaFontScale = Math.min(metaFontScale, 0.8 - overload * 0.04);
+    descLineHeightMul = Math.max(descLineHeightMul, 1.1 + overload * 0.06);
   }
 
   if (experienceTextUnits >= 14) {
@@ -1272,12 +1295,15 @@ export function computeDynamicLayoutPlanFromMetrics(
 
   if (hasSidebar && fillSignals.sidebarUnderfilled) {
     if (fillSignals.columnBalanced) {
-      // Sections already relocated — keep columns visually even instead of widening main.
       mainFlexGrow = 1.72;
       sidebarFlexGrow = 0.95;
+    } else if (fillSignals.columnOverload) {
+      // Do not widen main further when experience already dominates.
+      mainFlexGrow = 1.58;
+      sidebarFlexGrow = 1.12;
     } else {
-      mainFlexGrow = 2.12;
-      sidebarFlexGrow = 0.68;
+      mainFlexGrow = 1.72;
+      sidebarFlexGrow = 0.92;
     }
   } else if (hasSidebar && metrics.columnImbalance > 40) {
     const taller = Math.max(metrics.sidebarHeight, metrics.mainHeight);
@@ -1374,18 +1400,27 @@ export function computeDynamicLayoutPlanFromMetrics(
     }
   } else if (experienceCount >= 4) {
     const compress = clamp((experienceCount - 3) / 6, 0, 1);
-    const dampen = fillSignals.experienceDominant ? 0.45 : 1;
-    experienceCardPadding = Math.round(sectionPadding * (1 - compress * 0.2 * dampen) * 10) / 10;
-    experienceListGap = Math.round(blockGap * (1 - compress * 0.22 * dampen) * 10) / 10;
+    const overloadBoost = fillSignals.columnOverload ? 0.35 : 0;
+    const dampen = fillSignals.experienceDominant ? 0.72 + overloadBoost : 1;
+    experienceCardPadding = Math.round(sectionPadding * (1 - compress * 0.28 * dampen) * 10) / 10;
+    experienceListGap = Math.round(blockGap * (1 - compress * 0.3 * dampen) * 10) / 10;
     experienceDescPadding = Math.round(
-      experienceDescPadding * (1 - compress * 0.15 * dampen) * 10
+      experienceDescPadding * (1 - compress * 0.22 * dampen) * 10
     ) / 10;
-    // Dense experience: tighten bullets more than company/title rhythm.
-    bulletGapMul *= 1 - compress * 0.18 * dampen;
-    paragraphSpacingMul *= 1 - compress * 0.1 * dampen;
+    experienceHeaderGap = Math.round(experienceHeaderGap * (1 - compress * 0.18 * dampen) * 10) / 10;
+    bulletGapMul *= 1 - compress * 0.24 * dampen;
+    paragraphSpacingMul *= 1 - compress * 0.14 * dampen;
   }
 
-  if (fillSignals.experienceDominant) {
+  if (fillSignals.columnOverload && experienceCount >= 2) {
+    const severe = clamp((fillSignals.columnImbalanceRatio - 1.2) / 1.8, 0, 1);
+    experienceListGap = Math.round(experienceListGap * (1 - severe * 0.18) * 10) / 10;
+    experienceCardPadding = Math.round(experienceCardPadding * (1 - severe * 0.12) * 10) / 10;
+    bulletGapMul *= 1 - severe * 0.14;
+    lineHeightMul = Math.max(0.94, lineHeightMul - severe * 0.06);
+  }
+
+  if (fillSignals.experienceDominant && !fillSignals.columnOverload) {
     experienceListGap = Math.round(experienceListGap * experienceProtect * 10) / 10;
     experienceDescPadding = Math.round(experienceDescPadding * experienceProtect * 10) / 10;
   }
@@ -1397,6 +1432,7 @@ export function computeDynamicLayoutPlanFromMetrics(
     skillCount,
     fill,
     experienceDominant: fillSignals.experienceDominant,
+    columnOverload: fillSignals.columnOverload,
   });
 
   // Dense body text: slightly more description padding so walls don't feel glued.
@@ -2557,8 +2593,7 @@ function appendStyleBlockToHtml(html: string, styleBlock: string): string {
 
 /**
  * Measure rendered HTML structurally, plan layout, inject CSS (+ DOM refine for preview).
- * Column balance uses flex only — sections are never relocated.
- * PDF gets the same CSS plan (no refine script) so Gallery/Live/PDF share density math.
+ * Column section relocation runs earlier in injectResumeData; this stage applies density CSS.
  */
 export function injectDynamicLayoutIntoHtml(
   html: string,

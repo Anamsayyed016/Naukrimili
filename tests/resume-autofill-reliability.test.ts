@@ -1986,6 +1986,7 @@ describe('dynamic layout engine', () => {
   it('prioritizes experience spacing when main column dominates a sparse sidebar', () => {
     const {
       computeDynamicLayoutPlanFromMetrics,
+      computeLayoutFillSignals,
       synthesizeMetricsFromRenderedHtml,
     } = require('@/lib/resume-builder/dynamic-layout-engine');
 
@@ -2005,6 +2006,7 @@ describe('dynamic layout engine', () => {
       </div>`;
 
     const metrics = synthesizeMetricsFromRenderedHtml(renderedHtml);
+    const signals = computeLayoutFillSignals(metrics);
     const formData = {
       experience: [
         { company: 'Corp A', title: 'VP', achievements: ['Led transformation', 'Managed P&L', 'Built teams'] },
@@ -2020,11 +2022,13 @@ describe('dynamic layout engine', () => {
       renderedHtml,
     });
 
-    expect(plan.sidebarCardPadding).toBeLessThan(plan.sectionPadding);
-    expect(plan.experienceSpacing).toBeGreaterThanOrEqual(plan.educationSpacing);
-    expect((plan.sectionExtras.experience ?? 0)).toBeGreaterThanOrEqual(
-      plan.sectionExtras.education ?? 0
-    );
+    expect(signals.experienceDominant).toBe(true);
+    if (signals.columnOverload) {
+      expect(plan.sidebarCardPadding).toBeGreaterThanOrEqual(plan.sectionPadding * 0.9);
+      expect(plan.experienceListGap).toBeLessThanOrEqual(plan.blockGap * 1.05);
+    } else {
+      expect(plan.experienceSpacing).toBeGreaterThanOrEqual(plan.educationSpacing);
+    }
   });
 
   it('does not over-compress experience-heavy pages with underfilled sidebars', () => {
@@ -2042,6 +2046,7 @@ describe('dynamic layout engine', () => {
     const signals = computeLayoutFillSignals(metrics);
 
     expect(signals.experienceDominant).toBe(true);
+    expect(signals.columnOverload).toBe(true);
     expect(signals.shouldCompress).toBe(false);
 
     const densePlan = computeDynamicLayoutPlanFromMetrics(metrics, {
@@ -2054,6 +2059,40 @@ describe('dynamic layout engine', () => {
     }, { htmlTemplate: '<aside class="sidebar"></aside>', renderedHtml: longExpHtml });
 
     expect(densePlan.lineHeightMul).toBeGreaterThanOrEqual(0.95);
+    expect(densePlan.experienceListGap).toBeLessThanOrEqual(densePlan.blockGap);
+  });
+
+  it('resolves metadata-driven movable sections without template hardcoding', () => {
+    const {
+      resolveTemplateLayoutMetadata,
+      canRelocateSection,
+    } = require('@/lib/resume-builder/template-layout-metadata');
+
+    const meta = resolveTemplateLayoutMetadata({
+      templateId: 'soft-coral-executive',
+      htmlTemplate: '<main>{{#if PROJECTS}}{{PROJECTS}}{{/if}}</main><aside>{{#if EDUCATION}}{{EDUCATION}}{{/if}}</aside>',
+    });
+    expect(meta.hasSidebar).toBe(true);
+    expect(canRelocateSection('projects', meta)).toBe(true);
+    expect(canRelocateSection('experience', meta)).toBe(false);
+    expect(canRelocateSection('education', meta)).toBe(false);
+  });
+
+  it('estimates long experience blocks taller than compact sidebar sections', () => {
+    const {
+      estimateRenderableSectionHeight,
+      estimateColumnHeights,
+    } = require('@/lib/resume-builder/section-height-estimator');
+
+    const main = `<section>${'<div class="experience-item"><div class="description"><ul>' +
+      Array.from({ length: 10 }, (_, i) => `<li>Delivered outcome ${i} with measurable business impact</li>`).join('') +
+      '</ul></div></div>'.repeat(8)}</section>`;
+    const sidebar = `<section><div class="education-item">MBA</div><span class="skill-tag">Excel</span></section>`;
+    const heights = estimateColumnHeights(main, sidebar);
+    expect(heights.mainToSidebarRatio).toBeGreaterThan(1.5);
+    expect(estimateRenderableSectionHeight(main)).toBeGreaterThan(
+      estimateRenderableSectionHeight(sidebar) * 2
+    );
   });
 
   it('injects compact sidebar density attribute for sparse sidebars', () => {

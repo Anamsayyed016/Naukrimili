@@ -23,7 +23,31 @@
         { "id": "sand-executive", "name": "Sand Executive", "primary": "#1A1A1A", "accent": "#EDE7E1", "text": "#111111" },
         { "id": "peach-accent", "name": "Peach Accent", "primary": "#111111", "accent": "#F8C6B4", "text": "#222222" }
       ],
-      "defaultColor": "soft-coral"
+      "defaultColor": "soft-coral",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 65,
+        "sidebarColumnBasisPct": 35,
+        "maxMovablePriority": 95,
+        "fixedSections": ["summary", "experience", "education", "skills", "contact"],
+        "movableSections": ["projects", "achievements", "certifications", "languages", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 90,
+          "projects": 70,
+          "education": 65,
+          "skills": 62,
+          "certifications": 60,
+          "languages": 50,
+          "achievements": 48,
+          "interests": 40,
+          "extended": 38
+        }
+      }
     }
   ],
   "filters": {
