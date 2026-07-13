@@ -45,6 +45,7 @@ import {
   isPlausibleProjectName,
   isPersonalMetadataResumeLine,
   isPlaceholderProjectTitle,
+  collapseDecorativeSpacedHeadings,
   type NameCandidate,
 } from '@/lib/resume-parser/import-sanitize';
 
@@ -1079,6 +1080,7 @@ function partitionSidebarForOutput(sidebar: string[]): string[] {
 export function prepareResumeTextForParsing(rawText: string): { text: string; signals: ResumeTextSignals } {
   const withColumnGaps = preserveColumnGaps(rawText || '');
   let text = cleanResumeTextPreservingLines(withColumnGaps);
+  text = collapseDecorativeSpacedHeadings(text);
   const signals = classifyResumeTextSignals(text);
 
   if (signals.coverLetterDetected || signals.executiveLayout) {

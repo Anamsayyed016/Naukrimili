@@ -670,14 +670,22 @@ export function overlaySparseSectionsFromTextRecovery(
   const recPlausible = countPlausibleExperienceCompanies(recExp);
   const structuredExp = recoverStructuredExperienceFromRawText(text);
   const structuredPlausible = countPlausibleExperienceCompanies(structuredExp);
+  const companiesMostlyStrong =
+    parserExp.length >= 2 && parserPlausible >= Math.ceil(parserExp.length * 0.75);
   const underRepresented =
+    !companiesMostlyStrong &&
     recExp.length > 0 &&
     (parserExp.length === 0 ||
       (parserPlausible <= 1 &&
         recPlausible >= 2 &&
         (parserExp.length >= 2 || recExp.length > parserPlausible)));
 
-  if (parserPlausible <= 1 && structuredExp.length >= 2 && structuredPlausible >= 2) {
+  if (
+    !companiesMostlyStrong &&
+    parserPlausible <= 1 &&
+    structuredExp.length >= 2 &&
+    structuredPlausible >= 2
+  ) {
     const colonSplitFromParser =
       parserExp.length > 0
         ? finalizeExperienceListForCustomParserImport(
@@ -723,7 +731,14 @@ export function overlaySparseSectionsFromTextRecovery(
   const missingTitle = parserExp.some(
     (e) => !String(e.position || e.title || e.jobTitle || e.designation || '').trim()
   );
-  if (parserExp.length > 0 && recExp.length > 0 && (missingCompany || missingTitle)) {
+  // Preserve strong company lists — rematching against free-text recovery often
+  // promotes city tokens into the company slot when designations collide.
+  if (
+    parserExp.length > 0 &&
+    recExp.length > 0 &&
+    (missingCompany || missingTitle) &&
+    !companiesMostlyStrong
+  ) {
     const usedRec = new Set<number>();
     const merged = mergeListWithRecoveredWording(
       parserExp,

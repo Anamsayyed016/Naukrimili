@@ -237,6 +237,7 @@ const INDIAN_CITY_TOKENS = new Set([
   'guwahati', 'ranchi', 'jodhpur', 'kota', 'udaipur', 'agra', 'nashik', 'kanpur',
   'varanasi', 'prayagraj', 'faridabad', 'ghaziabad', 'visakhapatnam', 'thiruvananthapuram',
   'mysore', 'mysuru', 'meerut', 'srinagar', 'shimla', 'panaji', 'goa',
+  'aurangabad', 'chhatrapati sambhajinagar', 'thrissur', 'madurai', 'vijayawada',
 ]);
 
 /** Allowlisted 2-letter surnames (East Asian / short legal names). */
@@ -288,6 +289,14 @@ export function isLikelyLocationFragment(value: string): boolean {
   if (JOB_TITLE_MARKERS.test(s)) return false;
   if (COMPANY_NAME_MARKERS.test(s)) return false;
   if (/\b(?:hospitals?|healthcare|chartered|assistance|generation|analytics|logistics|motors|retail|pharma|laborator(?:y|ies)|universit(?:y|ies)|colleges?|schools?|clinics?|banks?|insurance|vidyalaya|vidyalay|asia|partners|associates|diagnostics|pathlabs?)\b/i.test(s)) {
+    return false;
+  }
+  // Corporate meeting / compliance phrases from summaries — not places.
+  if (
+    /\b(?:meetings?|committees?|compliances?|governance|regulations?|policies|procedures|resolutions?|diligence|prospectus)\b/i.test(
+      s
+    )
+  ) {
     return false;
   }
   if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(s)) {

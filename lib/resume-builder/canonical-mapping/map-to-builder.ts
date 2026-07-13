@@ -33,10 +33,20 @@ function buildExperienceFromNodes(
     const parent = parents[index];
     if (!parent) return base;
 
-    const company = sanitizeExperienceCompanyValue(
-      bestNodeValue(nodes, ['COMPANY', 'ORGANIZATION', 'EMPLOYER'], parent.id) ||
-        String(base.company || '')
+    const fromNodes = sanitizeExperienceCompanyValue(
+      bestNodeValue(nodes, ['COMPANY', 'ORGANIZATION', 'EMPLOYER'], parent.id)
     );
+    const fromBase = sanitizeExperienceCompanyValue(base.company || base.Company || '');
+    // Prefer a solid existing employer over a short/city-like canonical node.
+    const nodeLooksWeak =
+      !!fromNodes &&
+      (fromNodes.split(/\s+/).length <= 2 ||
+        !/\b(ltd|limited|pvt|inc|corp|llp|group|industries|technologies|solutions|services)\b/i.test(
+          fromNodes
+        )) &&
+      !!fromBase &&
+      fromBase.split(/\s+/).length >= 2;
+    const company = nodeLooksWeak ? fromBase : fromNodes || fromBase;
     const title = preferWholeExperienceField(
       base.title || base.position || base.designation,
       bestNodeValue(nodes, ['JOB_TITLE'], parent.id)

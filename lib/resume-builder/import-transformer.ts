@@ -85,6 +85,7 @@ import {
   sanitizeImportSummary,
   sanitizeImportJobTitle,
   recoverLocationFromImportText,
+  isImplausibleResumeLocation,
   recoverSkillsFromTechnicalSkillsSection,
   recoverSkillsFromCompetencySections,
   recoverLanguagesFromPersonalDetails,
@@ -1227,6 +1228,18 @@ function isSparseSectionImport(data: Record<string, unknown>): boolean {
   return experience.length === 0 || education.length === 0 || skills.length === 0;
 }
 
+/** True when education or skills sparsity must not rewrite an already-solid experience list. */
+function experienceMostlyFilled(data: Record<string, unknown>): boolean {
+  const experience = firstNonEmptyArray(data, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]);
+  if (experience.length < 2) return false;
+  return countPlausibleExperienceCompanies(experience) >= Math.ceil(experience.length * 0.75);
+}
+
 /**
  * Prefer full PDF/text extraction; when AI leaves only a bloated summary, parse that instead.
  */
@@ -1322,7 +1335,17 @@ function applyTextRecoveryWhenSparse(data: Record<string, unknown>): Record<stri
   const effectiveRaw = resolveEffectiveRawText(data);
   if (effectiveRaw.length < 80) return data;
 
-  return supplementImportFromRawText({ ...data, rawText: effectiveRaw });
+  const supplemented = supplementImportFromRawText({ ...data, rawText: effectiveRaw });
+  // Empty education/skills must not let free-text recovery overwrite solid employers.
+  if (experienceMostlyFilled(data) && Array.isArray(data.experience)) {
+    return {
+      ...supplemented,
+      experience: data.experience,
+      Experience: data.experience,
+      'Work Experience': data.experience,
+    };
+  }
+  return supplemented;
 }
 
 function mergeUniqueStrings(existing: unknown[], recovered: string[]): string[] {
@@ -1867,35 +1890,45 @@ export function transformImportDataToBuilder(
   Object.assign(transformed, recoveredBuilder);
   logBuilderFieldMappingReport(mappingReport);
 
-  const canonical = runCanonicalBuilderMapping({
-    importProfile: mergedImport,
-    builderDraft: transformed,
-  });
-  Object.assign(transformed, canonical.builder);
-  if (canonical.report.rejected.length || canonical.report.recovered.length) {
-    console.log('[import-transformer] canonical mapping', {
-      nodes: canonical.nodes.length,
-      matched: canonical.report.matched.length,
-      recovered: canonical.report.recovered.length,
-      rejected: canonical.report.rejected.length,
-      repaired: canonical.report.repaired.length,
-      dynamicSections: canonical.report.dynamicSections.length,
+  // Already-built coalesced imports with solid employers must not be
+  // remapped by canonical nodes (those occasionally bind entry ids / cities
+  // into the company slot and wipe tenure rows on a second transform pass).
+  const skipCanonicalExperienceRemap =
+    importedData._builderCoalesced === true && experienceMostlyFilled(transformed);
+
+  if (!skipCanonicalExperienceRemap) {
+    const canonical = runCanonicalBuilderMapping({
+      importProfile: mergedImport,
+      builderDraft: transformed,
     });
+    Object.assign(transformed, canonical.builder);
+    if (canonical.report.rejected.length || canonical.report.recovered.length) {
+      console.log('[import-transformer] canonical mapping', {
+        nodes: canonical.nodes.length,
+        matched: canonical.report.matched.length,
+        recovered: canonical.report.recovered.length,
+        rejected: canonical.report.rejected.length,
+        repaired: canonical.report.repaired.length,
+        dynamicSections: canonical.report.dynamicSections.length,
+      });
+    }
   }
 
   const pruned = pruneAndMergeDynamicSections(transformed, DYNAMIC_SECTION_REGISTRY);
   Object.assign(transformed, pruned);
   reconcileVolunteerMisroutes(transformed);
 
-  const { builder: postCanonicalBuilder, report: postCanonicalReport } = recoverBuilderFormSections(
-    transformed,
-    {
-      mergedImport,
-      rawImport: importedData as Record<string, unknown>,
-    }
-  );
-  Object.assign(transformed, postCanonicalBuilder);
-  logBuilderFieldMappingReport(postCanonicalReport);
+  if (!skipCanonicalExperienceRemap) {
+    const { builder: postCanonicalBuilder, report: postCanonicalReport } = recoverBuilderFormSections(
+      transformed,
+      {
+        mergedImport,
+        rawImport: importedData as Record<string, unknown>,
+      }
+    );
+    Object.assign(transformed, postCanonicalBuilder);
+    logBuilderFieldMappingReport(postCanonicalReport);
+  }
 
   // Re-sync template alias keys after final recovery pass.
   transformed['Work Experience'] = transformed.experience;
@@ -2503,11 +2536,18 @@ function applyBuilderImportGuards(
       expRows.length <= 1 && plausibleExp <= 1 && /\b(?:experience|employment)\b/i.test(rawText);
 
     if (sparseCompanies || eduWithDegree < 2 || noisySkills || experienceUnderRepresented) {
+      const experienceNeedsOverlay = sparseCompanies || experienceUnderRepresented;
       const overlaid = overlaySparseSectionsFromTextRecovery({ ...out, rawText }) as Record<
         string,
         unknown
       >;
-      if (Array.isArray(overlaid.experience) && overlaid.experience.length > 0) {
+      // Education/skills sparsity must not rewrite solid employer lists via
+      // weak text-heuristic rematches (cities promoted into company slots).
+      if (
+        experienceNeedsOverlay &&
+        Array.isArray(overlaid.experience) &&
+        overlaid.experience.length > 0
+      ) {
         out.experience = transformExperienceArray(overlaid.experience);
         out['Work Experience'] = out.experience;
         out.Experience = out.experience;
@@ -2551,6 +2591,12 @@ function applyBuilderImportGuards(
     }
   }
   out.Skills = out.skills;
+  const currentLocation = String(out.location || out.address || '').trim();
+  if (isImplausibleResumeLocation(currentLocation)) {
+    out.location = '';
+    out.Location = '';
+    out.address = '';
+  }
   if (!String(out.location || out.address || '').trim() && rawText.length >= 40) {
     const recoveredLocation = recoverLocationFromImportText(rawText);
     if (recoveredLocation) {
@@ -2675,7 +2721,8 @@ function applyBuilderImportGuards(
     out['Work Experience'] = out.experience;
     out.Experience = out.experience;
   }
-  return ensureImportedExperiencePopulated(out, rawText);
+  const ensured = ensureImportedExperiencePopulated(out, rawText);
+  return ensured;
 }
 
 /** Gallery/editor display — backfill experience when import session is sparse. */
@@ -3477,6 +3524,12 @@ function transformProjectsArray(
         return false;
       }
       if (name && shouldRejectProjectAsExperience(p)) {
+        return false;
+      }
+      if (name && isSpacedLetterFragment(name)) {
+        return false;
+      }
+      if (name && isMisclassifiedExperienceProject(name, desc)) {
         return false;
       }
       return true;
