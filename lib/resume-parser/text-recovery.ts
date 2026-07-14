@@ -831,10 +831,6 @@ export function classifyResumeTextSignals(rawText: string): ResumeTextSignals {
   const words = text.match(/[a-zA-Z]{3,}/g) || [];
   const textDensity = words.length / Math.max(text.length, 1);
 
-  const shortLines = lines.filter((l) => l.length > 0 && l.length <= 48);
-  const longLines = lines.filter((l) => l.length >= 72);
-  const shortRatio = shortLines.length / Math.max(lines.length, 1);
-
   const alternatingPairs = lines.slice(0, 80).filter((l, i) => {
     if (i === 0) return false;
     const prev = lines[i - 1];
@@ -845,12 +841,21 @@ export function classifyResumeTextSignals(rawText: string): ResumeTextSignals {
   const sidebarShort = sidebarBlock.filter((l) => l.length <= 52).length;
   const sidebarContact = sidebarBlock.filter((l) => /@|linkedin|github|\+?\d{7,}/i.test(l)).length;
 
+  // True dual-column gutters (tabs or 3+ spaces), not title↔bullet length alternation.
+  const dualGutterLines = lines.filter((l) => {
+    if (!l) return false;
+    if (l.includes('\t')) {
+      return l.split('\t').map((p) => p.trim()).filter(Boolean).length >= 2;
+    }
+    return /^.+\s{3,}\S/.test(l);
+  }).length;
+
   return {
     coverLetterDetected: COVER_LETTER_MARKERS.some((re) => re.test(opener)),
     executiveLayout: /\b(board|chairman|chairperson|cfo|ceo|coo|cto|managing director|executive summary|board member|independent director)\b/i.test(
       text.slice(0, 2500)
     ),
-    multiColumnLikely: alternatingPairs >= 6 || (shortRatio > 0.42 && longLines.length >= 8),
+    multiColumnLikely: dualGutterLines >= 3 || (dualGutterLines >= 2 && alternatingPairs >= 4),
     sidebarLikely: sidebarContact >= 2 && sidebarShort >= 6 && sidebarShort / Math.max(sidebarBlock.length, 1) >= 0.55,
     imageHeavyLikely:
       text.length < 400 && words.length < 25 && /\[image|figure|photo|graphic/i.test(text),
@@ -1023,7 +1028,7 @@ const ROLE_CONTINUATION_TOKEN =
   /^(?:coordinator|manager|engineer|developer|administrator|analyst|specialist|executive|officer|intern|consultant|director|lead|head|associate|professional|secretary|assistant|recruiter|trainee|i{1,3}|sr|jr)$/i;
 
 const HEADING_ONLY_TOKEN =
-  /^(?:work|experience|professional|summary|key|achievements|education|skills|projects|certifications|languages|competencies|profile|objective|employment|career|work\s+experience|professional\s+summary|key\s+achievements|key\s+competencies|employment\s+history|career\s+summary)$/i;
+  /^(?:work|experience|professional|summary|key|achievements|education|skills|projects|certifications|languages|competencies|profile|objective|employment|career|qualification|qualifications|work\s+experience|professional\s+summary|key\s+achievements|key\s+competencies|employment\s+history|career\s+summary|academic\s+qualification|academic\s+qualifications|core\s+competencies|technical\s+skills|professional\s+experience)$/i;
 
 function isJobHeaderLookbackLine(prev: string): boolean {
   const t = prev.trim();
@@ -1229,6 +1234,10 @@ export function reassembleFragmentedResumeLines(text: string): string {
 
     if (isFragmentableLine(trimmed)) {
       const joinedSoFar = buffer.join(' ').trim();
+      // Complete section headings must not absorb the next company/degree line.
+      if (buffer.length === 1 && HEADING_ONLY_TOKEN.test(joinedSoFar)) {
+        flush();
+      }
       if (
         buffer.length >= 1 &&
         joinedSoFar &&

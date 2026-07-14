@@ -170,12 +170,13 @@ export const SEMANTIC_SECTION_DEFINITIONS: SemanticSectionDefinition[] = [
       'technical expertise',
       'technologies',
       'tech stack',
-      'tools',
+      // Keep multi-word only — bare "Tools"/"Frameworks" are subcategory labels
+      // inside an open skills section, not root section headings.
       'tools and technologies',
       'computer skills',
       'it skills',
     ],
-    tokens: ['technical', 'technologies', 'technology', 'tools', 'computer'],
+    tokens: ['technical', 'technologies', 'technology', 'computer'],
     nodeTypes: ['TECHNICAL_SKILL', 'TOOLS', 'FRAMEWORK', 'DATABASE'],
     builderTarget: { kind: 'extended', field: 'technicalSkills' },
     parserType: 'skills',
@@ -537,7 +538,12 @@ export function classifySectionHeading(rawHeading: string): SemanticClassificati
   for (const section of SEMANTIC_SECTION_DEFINITIONS) {
     for (const phrase of section.phrases) {
       const p = normalizeSemanticHeading(phrase);
-      if (normalized === p || normalized.includes(p) || p.includes(normalized)) {
+      const exactOrContainsPhrase = normalized === p || normalized.includes(p);
+      // Avoid "tools" matching phrase "tools and technologies" (skills sub-labels).
+      const phraseContainsHeading =
+        p.includes(normalized) &&
+        !(p.split(/\s+/).length >= 2 && normalized.split(/\s+/).length === 1 && normalized.length < p.length);
+      if (exactOrContainsPhrase || phraseContainsHeading) {
         const score = section.baseConfidence - (normalized.length > p.length + 8 ? 8 : 0);
         if (!best || score > best.confidence) {
           best = {

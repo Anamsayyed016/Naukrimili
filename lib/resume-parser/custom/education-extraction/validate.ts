@@ -32,7 +32,12 @@ export function isValidEducation(edu: CustomExtractedEducation): boolean {
     (edu.coursework?.length ?? 0) > 0;
 
   if (!hasIdentity) return false;
-  if (!hasDates && !hasPerformance && !hasDescription && !hasField) return false;
+  // Degree + institution is a complete education row even without dates/GPA.
+  if (edu.institution?.trim() && edu.degree?.trim()) {
+    // fall through to noise checks
+  } else if (!hasDates && !hasPerformance && !hasDescription && !hasField) {
+    return false;
+  }
 
   if (edu.institution && isPlausibleExperienceCompany(edu.institution) && !edu.degree) {
     return false;

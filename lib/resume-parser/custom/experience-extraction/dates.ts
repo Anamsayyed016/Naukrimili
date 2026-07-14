@@ -10,18 +10,18 @@ const MONTH_NAMES =
   'jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december';
 
 const MONTH_YEAR_RANGE_RE = new RegExp(
-  `\\b((?:${MONTH_NAMES})\\.?\\s+(?:19|20)\\d{2})\\s*(?:[-–—to]{1,3}|\\s+to\\s+)\\s*((?:${MONTH_NAMES})\\.?\\s+(?:19|20)\\d{2}|present|current|till\\s*date|running|ongoing)\\b`,
+  `\\b((?:${MONTH_NAMES})\\.?\\s+(?:19|20)\\d{2})\\s*(?:[-–—−]|\\s+to\\s+)\\s*((?:${MONTH_NAMES})\\.?\\s+(?:19|20)\\d{2}|present|current|till\\s*date|running|ongoing)\\b`,
   'i'
 );
 
 const NUMERIC_MONTH_RANGE_RE =
-  /\b(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})\s*(?:[-–—to]{1,3}|to)\s*(?:(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})|present|current|till\s*date|running|ongoing)\b/i;
+  /\b(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})\s*(?:[-–—−]|to)\s*(?:(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})|present|current|till\s*date|running|ongoing)\b/i;
 
 const YEAR_RANGE_RE =
-  /\b((?:19|20)\d{2})\s*(?:[-–—to]{1,3}|to)\s*((?:19|20)\d{2}|present|current|till\s*date|running|ongoing)\b/i;
+  /\b((?:19|20)\d{2})\s*(?:[-–—−]|\s+to\s+)\s*((?:19|20)\d{2}|present|current|till\s*date|running|ongoing)\b/i;
 
 const ISO_RANGE_RE =
-  /\b((?:19|20)\d{2}-(?:0[1-9]|1[0-2]))\s*(?:[-–—to]{1,3}|to)\s*((?:19|20)\d{2}-(?:0[1-9]|1[0-2])|present|current)\b/i;
+  /\b((?:19|20)\d{2}-(?:0[1-9]|1[0-2]))\s*(?:[-–—−]|\s+to\s+)\s*((?:19|20)\d{2}-(?:0[1-9]|1[0-2])|present|current)\b/i;
 
 const PRESENT_RE = /^(present|current|till\s*date|running|ongoing|now)$/i;
 

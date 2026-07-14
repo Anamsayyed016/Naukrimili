@@ -6,6 +6,7 @@ import {
   classifyResumeTextFragment,
   isLikelyJobTitleFragment,
 } from '@/lib/resume-parser/field-classification';
+import { splitOnFieldSeparatorDash } from '@/lib/resume-parser/field-separator-dash';
 import { looksLikeJobTitleLine } from '@/lib/resume-parser/import-sanitize';
 
 export interface DesignationDetection {
@@ -70,9 +71,10 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
     }
   }
 
-  const dashParts = trimmed.split(/\s*[-–—]\s*/);
-  if (dashParts.length === 2) {
-    const [left, right] = dashParts.map((p) => p.trim());
+  const dashSplit = splitOnFieldSeparatorDash(trimmed);
+  if (dashSplit) {
+    const left = dashSplit.left;
+    const right = dashSplit.right;
     const leftConf = scoreDesignationCandidate(left);
     const rightConf = scoreDesignationCandidate(right);
     if (leftConf >= 40 && leftConf >= rightConf + 8) {

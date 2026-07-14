@@ -14,6 +14,7 @@ import {
   isPlausibleExperienceCompany,
   isExperienceBlurbFragment,
 } from '@/lib/resume-parser/import-sanitize';
+import { splitOnFieldSeparatorDash } from '@/lib/resume-parser/field-separator-dash';
 import type {
   CustomExtractedExperience,
   ExperienceFieldConfidence,
@@ -118,9 +119,10 @@ function parseCompositeHeaderLine(line: string): {
     }
   }
 
-  const dashParts = trimmed.split(/\s*[-–—]\s*/);
-  if (dashParts.length === 2) {
-    const [a, b] = dashParts.map((p) => p.trim());
+  const dashSplit = splitOnFieldSeparatorDash(trimmed);
+  if (dashSplit) {
+    const a = dashSplit.left;
+    const b = dashSplit.right;
     const desA = detectDesignationFromLine(a);
     const compA = detectCompanyFromLine(a);
     const desB = detectDesignationFromLine(b);
@@ -187,7 +189,14 @@ function pickCompositeFields(lines: string[]): {
 function expandHeaderSegments(lines: string[]): string[] {
   const segments: string[] = [];
   for (const line of lines) {
-    const parts = line.split(/\s*[|–—]\s*/).map((p) => p.trim()).filter(Boolean);
+    // Keep date-range lines atomic — splitting on en/em dashes turns
+    // "2020 – 2024" into two orphan years (lose endDate; conf falls to 55).
+    if (parseDateRangeFromText(line)) {
+      segments.push(line);
+      continue;
+    }
+    // Pipe separators only. Title – employer dashes are handled by composite parse.
+    const parts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
     if (parts.length <= 1) {
       segments.push(line);
       continue;

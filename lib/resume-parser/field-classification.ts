@@ -351,7 +351,7 @@ export function isEmailOrDomainFragment(value: string): boolean {
   const s = normalizeFragment(value);
   if (!s) return false;
   if (/@/.test(s)) return true;
-  if (/\.(?:com|net|org|in|co|edu|gov|io|uk|au|me)\b/i.test(s)) return true;
+  if (/\.(?:com|net|org|in|co|edu|gov|io|uk|au|me|app|dev|ai|tech|info|biz)\b/i.test(s)) return true;
   if (
     /^(?:gmail|yahoo|hotmail|outlook|rediffmail|protonmail|icloud|live|msn)(?:\.[a-z]{2,})?$/i.test(
       s

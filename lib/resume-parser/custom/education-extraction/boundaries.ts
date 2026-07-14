@@ -57,9 +57,40 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
   let currentStart = 0;
   let prevWasBlank = false;
 
-  const shouldStartNew = (line: EducationLine, afterBlank: boolean): boolean => {
+  const shouldStartNew = (line: EducationLine, afterBlank: boolean, idx: number): boolean => {
     const threshold = afterBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
-    return line.boundaryScore >= threshold;
+    const text = line.text.trim();
+    const deg = detectDegreeFromLine(text);
+    const inst = detectInstitutionFromLine(text);
+    const looksPrimarilyInstitution =
+      inst.confidence >= 40 &&
+      inst.confidence >= deg.confidence &&
+      /\b(university|college|institute|institution|school|academy|polytechnic)\b/i.test(text);
+    const isStrongDegreeHeading =
+      deg.confidence >= 70 && !looksPrimarilyInstitution && !parseEducationDates(text);
+
+    // Dedicated degree headings start the next entry even when their weighted
+    // boundary score is below the normal threshold (common for "MBA" / "BCA" lines).
+    if (isStrongDegreeHeading && idx > currentStart) {
+      const openSlice = scored.slice(currentStart, idx).filter((l) => !l.isBlank);
+      const openHasDegree = openSlice.some((l) => detectDegreeFromLine(l.text).confidence >= 70);
+      if (openHasDegree) return true;
+    }
+
+    if (line.boundaryScore < threshold) return false;
+
+    // Affiliating university / college lines must not split an open degree entry.
+    if (looksPrimarilyInstitution && idx > currentStart) {
+      const openSlice = scored.slice(currentStart, idx).filter((l) => !l.isBlank);
+      const openHasDegree = openSlice.some((l) => detectDegreeFromLine(l.text).confidence >= 38);
+      const openHasInstitution = openSlice.some(
+        (l) => detectInstitutionFromLine(l.text).confidence >= 40
+      );
+      const openHasDates = openSlice.some((l) => parseEducationDates(l.text));
+      if (openHasDegree && !openHasDates) return false;
+      if (openHasDegree && !openHasInstitution) return false;
+    }
+    return true;
   };
 
   for (let i = 0; i < scored.length; i++) {
@@ -69,7 +100,7 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
       continue;
     }
 
-    if (shouldStartNew(line, prevWasBlank) && i > currentStart) {
+    if (shouldStartNew(line, prevWasBlank, i) && i > currentStart) {
       const slice = scored.slice(currentStart, i).filter((l) => !l.isBlank);
       if (slice.length > 0) blocks.push(buildRawBlock(slice, currentStart, i - 1));
       currentStart = i;

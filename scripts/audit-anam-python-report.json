@@ -1,0 +1,503 @@
+{
+  "documentProfile": "TYPE_A_ATS",
+  "rawLen": 2430,
+  "preparedLen": 2422,
+  "rawHead": "\n\nANAM SAYYED\nFull-Stack Python Developer\nခ 8107738186 | ခ anamsayyed58@gmail.com | ခ Bhopal, MP \nခ linkedin.com/in/sayyedanam | ခ anamportfolio.vercel.app \nPROFESSIONAL SUMMARY\nHighly motivated Full-Stack Python Developer with expertise in Python, Django, and React.js. Proven experience building\nresponsive web applications, developing secure RESTful APIs, and managing databases. Skilled in prompt engineering and AI\nintegration. Committed to writing clean, secure code with excellent UX design. \nWORK EXPERIENCE\nFull-Stack Python Developer\nMar 2025 – Present\nCybrom Technology Pvt. Ltd. | Bhopal, Madhya Pradesh\nLed design and deployment of full-stack web applications using Python, Django, React.js\nDesigned secure, scalable RESTful APIs reducing data retrieval time by 35%\nOptimized SQL queries and backend systems improving performance by 40%\nMentored junior developers promoting best practices in code quality\nFull Stack Developer\n2020 – 2024\nTechroot | Bhopal\nEngineered 5+ dynamic web applications using Python, Django, React.js boosting performance by 30%\nConstructed 10+ RESTful APIs cutting response times by 40%\nDeveloped responsive front-end interfaces using React.js, HTML, CSS, ",
+  "preparedFull": "ANAM SAYYED\nFull-Stack Python Developer\nခ 8107738186 | ခ anamsayyed58@gmail.com | ခ Bhopal, MP \nခ linkedin.com/in/sayyedanam | ခ anamportfolio.vercel.app \nPROFESSIONAL SUMMARY\nHighly motivated Full-Stack Python Developer with expertise in Python, Django, and React.js. Proven experience building\nresponsive web applications, developing secure RESTful APIs, and managing databases. Skilled in prompt engineering and AI\nintegration. Committed to writing clean, secure code with excellent UX design. \nWORK EXPERIENCE\nFull-Stack Python Developer\nMar 2025 – Present\nCybrom Technology Pvt. Ltd. | Bhopal, Madhya Pradesh\nLed design and deployment of full-stack web applications using Python, Django, React.js\nDesigned secure, scalable RESTful APIs reducing data retrieval time by 35%\nOptimized SQL queries and backend systems improving performance by 40%\nMentored junior developers promoting best practices in code quality\nFull Stack Developer\n2020 – 2024\nTechroot | Bhopal\nEngineered 5+ dynamic web applications using Python, Django, React.js boosting performance by 30%\nConstructed 10+ RESTful APIs cutting response times by 40%\nDeveloped responsive front-end interfaces using React.js, HTML, CSS, JavaScript\nAdministered MySQL and PostgreSQL databases trimming query times by 20%\nPROJECTS\nNaukrimili Job Portal\nTypeScript • Node.js • React.js • Google APIs\nDeveloped dynamic job portal with seamless job search and applications. Integrated Google APIs for authentication. Built\nscalable React.js front-end with robust Node.js backend. Live Demo →\nCafe Zafran Restaurant Website\nDjango • Python • MySQL • HTML • CSS\nCreated responsive restaurant website with bilingual support (English/Hindi). Implemented MySQL database for content\nmanagement. Deployed on PythonAnywhere with mobile-first optimization. Live Demo →\nTECHNICAL SKILLS\nLanguages\nPython, JavaScript, TypeScript, HTML, CSS, C++\nFrameworks\nDjango, React.js, Node.js, Tailwind CSS, SCSS\nDatabases\nMySQL, PostgreSQL\nTools\nGit, REST APIs, Postman, Figma\nEDUCATION\nMaster of Business Administration (MBA)\nAll Saints' College of Technology (ASCT)\nBarkatullah University, Bhopal\nSpecializations: HR and Finance\nBachelor of Computer Applications (BCA)\nLeo College, Govind Guru Tribal University\nJune 2015 – July 2017\nCERTIFICATIONS & LANGUAGES\nFull-Stack Python Developer – Cybrom Technology (2024–2025) \nLanguages: English (Fluent) • Hindi (Native) \n• \n• \n• \n• \n• \n• \n• \n•",
+  "headingMeta": [
+    {
+      "type": "summary",
+      "heading": "PROFESSIONAL SUMMARY",
+      "conf": 51,
+      "len": 320
+    },
+    {
+      "type": "experience",
+      "heading": "WORK EXPERIENCE",
+      "conf": 52,
+      "len": 761
+    },
+    {
+      "type": "projects",
+      "heading": "PROJECTS",
+      "conf": 42,
+      "len": 525
+    },
+    {
+      "type": "skills",
+      "heading": "TECHNICAL SKILLS",
+      "conf": 53,
+      "len": 178
+    },
+    {
+      "type": "education",
+      "heading": "EDUCATION",
+      "conf": 42,
+      "len": 248
+    },
+    {
+      "type": "certifications",
+      "heading": "CERTIFICATIONS & LANGUAGES",
+      "conf": 42,
+      "len": 108
+    }
+  ],
+  "sectionLens": {
+    "preamble": 153,
+    "summary": 320,
+    "experience": 761,
+    "education": 248,
+    "skills": 178,
+    "projects": 525,
+    "languages": 108,
+    "certifications": 108,
+    "achievements": 0
+  },
+  "sectionSnippets": {
+    "summary": "Highly motivated Full-Stack Python Developer with expertise in Python, Django, and React.js. Proven experience building\nresponsive web applications, developing secure RESTful APIs, and managing databases. Skilled in prompt engineering and AI\nintegration. Committed to writing clean, secure code with excellent UX design.",
+    "experience": "Full-Stack Python Developer\nMar 2025 – Present\nCybrom Technology Pvt. Ltd. | Bhopal, Madhya Pradesh\nLed design and deployment of full-stack web applications using Python, Django, React.js\nDesigned secure, scalable RESTful APIs reducing data retrieval time by 35%\nOptimized SQL queries and backend systems improving performance by 40%\nMentored junior developers promoting best practices in code quality\nFull Stack Developer\n2020 – 2024\nTechroot | Bhopal\nEngineered 5+ dynamic web applications using Python, Django, React.js boosting performance by 30%\nConstructed 10+ RESTful APIs cutting response times by 40%\nDeveloped responsive front-end interfaces using React.js, HTML, CSS, JavaScript\nAdministered MySQL and PostgreSQL databases trimming query times by 20%",
+    "education": "Master of Business Administration (MBA)\nAll Saints' College of Technology (ASCT)\nBarkatullah University, Bhopal\nSpecializations: HR and Finance\nBachelor of Computer Applications (BCA)\nLeo College, Govind Guru Tribal University\nJune 2015 – July 2017",
+    "skills": "Languages\nPython, JavaScript, TypeScript, HTML, CSS, C++\nFrameworks\nDjango, React.js, Node.js, Tailwind CSS, SCSS\nDatabases\nMySQL, PostgreSQL\nTools\nGit, REST APIs, Postman, Figma",
+    "projects": "Naukrimili Job Portal\nTypeScript • Node.js • React.js • Google APIs\nDeveloped dynamic job portal with seamless job search and applications. Integrated Google APIs for authentication. Built\nscalable React.js front-end with robust Node.js backend. Live Demo →\nCafe Zafran Restaurant Website\nDjango • Python • MySQL • HTML • CSS\nCreated responsive restaurant website with bilingual support (English/Hindi). Implemented MySQL database for content\nmanagement. Deployed on PythonAnywhere with mobile-first optimization. Live Demo →",
+    "languages": "Full-Stack Python Developer – Cybrom Technology (2024–2025) \nLanguages: English (Fluent) • Hindi (Native) \n•",
+    "certifications": "Full-Stack Python Developer – Cybrom Technology (2024–2025) \nLanguages: English (Fluent) • Hindi (Native) \n•",
+    "achievements": ""
+  },
+  "extractedJobs": [
+    {
+      "company": "Cybrom Technology Pvt. Ltd.",
+      "title": "Full-Stack Python Developer",
+      "start": "2025-03",
+      "end": null,
+      "conf": 75,
+      "descLen": 304,
+      "bullets": 0
+    },
+    {
+      "company": "Techroot",
+      "title": "Full Stack Developer",
+      "start": "2020",
+      "end": "2024",
+      "conf": 72,
+      "descLen": 311,
+      "bullets": 0
+    }
+  ],
+  "extractedEdu": [
+    {
+      "degree": "Master of Business Administration (MBA)",
+      "institution": "All Saints' College of Technology (ASCT)",
+      "start": null,
+      "end": null
+    },
+    {
+      "degree": "Bachelor of Computer Applications (BCA)",
+      "institution": "Leo College, Govind Guru Tribal University",
+      "start": "2015-06",
+      "end": "2017-07"
+    }
+  ],
+  "extractedProjects": [
+    {
+      "name": "Naukrimili Job Portal",
+      "descLen": 190
+    },
+    {
+      "name": "Cafe Zafran Restaurant Website",
+      "descLen": 200
+    }
+  ],
+  "extractedSkills": [
+    {
+      "name": "HTML",
+      "category": "Other",
+      "categoryConfidence": 40,
+      "confidence": 76,
+      "importance": 100,
+      "sources": [
+        "skills_section",
+        "experience",
+        "project"
+      ],
+      "frequency": 3,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "CSS",
+      "category": "Other",
+      "categoryConfidence": 40,
+      "confidence": 76,
+      "importance": 100,
+      "sources": [
+        "skills_section",
+        "experience",
+        "project"
+      ],
+      "frequency": 3,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "Python",
+      "category": "Programming Languages",
+      "categoryConfidence": 90,
+      "confidence": 75,
+      "importance": 100,
+      "sources": [
+        "skills_section",
+        "experience",
+        "project",
+        "summary"
+      ],
+      "frequency": 5,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "Django",
+      "category": "Frameworks",
+      "categoryConfidence": 88,
+      "confidence": 75,
+      "importance": 100,
+      "sources": [
+        "skills_section",
+        "experience",
+        "project",
+        "summary"
+      ],
+      "frequency": 5,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "MySQL",
+      "category": "Databases",
+      "categoryConfidence": 88,
+      "confidence": 75,
+      "importance": 100,
+      "sources": [
+        "skills_section",
+        "experience",
+        "project"
+      ],
+      "frequency": 3,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "Node.js",
+      "category": "Other",
+      "categoryConfidence": 40,
+      "confidence": 75,
+      "importance": 99,
+      "sources": [
+        "skills_section",
+        "project"
+      ],
+      "frequency": 3,
+      "yearsOfUse": null,
+      "recentUsage": true,
+      "rawForms": [
+        "Node"
+      ]
+    },
+    {
+      "name": "React",
+      "category": "Frameworks",
+      "categoryConfidence": 88,
+      "confidence": 74,
+      "importance": 97,
+      "sources": [
+        "experience",
+        "project",
+        "summary"
+      ],
+      "frequency": 4,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "JavaScript",
+      "category": "Programming Languages",
+      "categoryConfidence": 90,
+      "confidence": 76,
+      "importance": 95,
+      "sources": [
+        "skills_section",
+        "experience"
+      ],
+      "frequency": 2,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "Databases",
+      "categoryConfidence": 88,
+      "confidence": 76,
+      "importance": 95,
+      "sources": [
+        "skills_section",
+        "experience"
+      ],
+      "frequency": 2,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "TypeScript",
+      "category": "Programming Languages",
+      "categoryConfidence": 90,
+      "confidence": 75,
+      "importance": 94,
+      "sources": [
+        "skills_section",
+        "project"
+      ],
+      "frequency": 2,
+      "yearsOfUse": null,
+      "recentUsage": true
+    },
+    {
+      "name": "C++",
+      "category": "Programming Languages",
+      "categoryConfidence": 90,
+      "confidence": 73,
+      "importance": 68,
+      "sources": [
+        "skills_section"
+      ],
+      "frequency": 1,
+      "yearsOfUse": null,
+      "recentUsage": false
+    },
+    {
+      "name": "Git",
+      "category": "Version Control",
+      "categoryConfidence": 90,
+      "confidence": 73,
+      "importance": 68,
+      "sources": [
+        "skills_section"
+      ],
+      "frequency": 1,
+      "yearsOfUse": null,
+      "recentUsage": false
+    },
+    {
+      "name": "Figma",
+      "category": "Other",
+      "categoryConfidence": 40,
+      "confidence": 73,
+      "importance": 68,
+      "sources": [
+        "skills_section"
+      ],
+      "frequency": 1,
+      "yearsOfUse": null,
+      "recentUsage": false
+    },
+    {
+      "name": "Postman",
+      "category": "Other",
+      "categoryConfidence": 40,
+      "confidence": 70,
+      "importance": 67,
+      "sources": [
+        "skills_section"
+      ],
+      "frequency": 1,
+      "yearsOfUse": null,
+      "recentUsage": false
+    },
+    {
+      "name": "Tailwind CSS",
+      "category": "Libraries",
+      "categoryConfidence": 82,
+      "confidence": 67,
+      "importance": 65,
+      "sources": [
+        "skills_section"
+      ],
+      "frequency": 1,
+      "yearsOfUse": null,
+      "recentUsage": false
+    }
+  ],
+  "extractedLangs": [
+    {
+      "name": "English",
+      "proficiency": "Fluent",
+      "confidence": 80
+    },
+    {
+      "name": "Hindi",
+      "proficiency": "Native",
+      "confidence": 80
+    }
+  ],
+  "extractedCerts": [
+    {
+      "name": "Full-Stack Python Developer",
+      "issuer": "Cybrom Technology",
+      "date": "2024",
+      "url": "",
+      "credentialId": "",
+      "confidence": 82
+    }
+  ],
+  "pipelineResume": {
+    "name": "ANAM SAYYED",
+    "email": "anamsayyed58@gmail.com",
+    "phone": "(810) 773-8186",
+    "location": "",
+    "summaryLen": 320,
+    "exp": [
+      {
+        "t": "Full-Stack Python Developer",
+        "c": "Cybrom Technology Pvt. Ltd."
+      },
+      {
+        "t": "Full Stack Developer",
+        "c": "Techroot"
+      }
+    ],
+    "edu": [
+      {
+        "d": "Master of Business Administration (MBA)",
+        "i": "All Saints' College of Technology (ASCT)"
+      },
+      {
+        "d": "Bachelor of Computer Applications (BCA)",
+        "i": "Leo College, Govind Guru Tribal University"
+      }
+    ],
+    "projects": [
+      "Naukrimili Job Portal",
+      "Cafe Zafran Restaurant Website"
+    ],
+    "skills": [
+      "HTML",
+      "CSS",
+      "Python",
+      "Django",
+      "MySQL",
+      "Node.js",
+      "React",
+      "JavaScript",
+      "PostgreSQL",
+      "TypeScript",
+      "C++",
+      "Git",
+      "Figma",
+      "Postman",
+      "Tailwind CSS"
+    ],
+    "langs": [
+      {
+        "name": "English",
+        "proficiency": "Fluent"
+      },
+      {
+        "name": "Hindi",
+        "proficiency": "Native"
+      }
+    ],
+    "certs": [
+      {
+        "name": "Full-Stack Python Developer",
+        "issuer": "Cybrom Technology",
+        "date": "2024"
+      }
+    ],
+    "achievements": []
+  },
+  "builder": {
+    "name": "Anam Sayyed",
+    "email": "anamsayyed58@gmail.com",
+    "phone": "(810) 773-8186",
+    "location": "Bhopal, Madhya Pradesh",
+    "summaryLen": 320,
+    "summaryHead": "Highly motivated Full-Stack Python Developer with expertise in Python, Django, and React.js. Proven experience building\nresponsive web applications, developing secure RESTful APIs, and managing databa",
+    "exp": [
+      {
+        "t": "Full-Stack Python Developer",
+        "c": "Cybrom Technology Pvt. Ltd.",
+        "s": "2025-03",
+        "e": "",
+        "bullets": 5
+      },
+      {
+        "t": "Full Stack Developer",
+        "c": "Techroot",
+        "s": "2020-01",
+        "e": "2024-01",
+        "bullets": 5
+      }
+    ],
+    "edu": [
+      {
+        "d": "Master of Business Administration (MBA)",
+        "i": "All Saints' College of Technology (ASCT)",
+        "y": ""
+      },
+      {
+        "d": "Bachelor of Computer Applications (BCA)",
+        "i": "Leo College, Govind Guru Tribal University",
+        "y": "2017"
+      }
+    ],
+    "projects": [
+      {
+        "n": "Naukrimili Job Portal",
+        "desc": "Developed dynamic job portal with seamless job search and applications. Integrat"
+      },
+      {
+        "n": "Cafe Zafran Restaurant Website",
+        "desc": "Created responsive restaurant website with bilingual support (English/Hindi). Im"
+      }
+    ],
+    "skills": [
+      "C++",
+      "CSS",
+      "Django",
+      "Figma",
+      "Git",
+      "HTML",
+      "JavaScript",
+      "Node.js",
+      "PostgreSQL",
+      "Python",
+      "React",
+      "TypeScript",
+      "Mysql",
+      "Postman",
+      "Tailwind CSS"
+    ],
+    "langs": [
+      {
+        "name": "English",
+        "language": "English",
+        "proficiency": "Fluent"
+      },
+      {
+        "name": "Hindi",
+        "language": "Hindi",
+        "proficiency": "Native"
+      }
+    ],
+    "certs": [
+      {
+        "name": "Full-Stack Python Developer",
+        "issuer": "Cybrom Technology",
+        "date": "2024",
+        "link": "",
+        "url": "",
+        "credentialId": "",
+        "expiryDate": ""
+      }
+    ],
+    "achievements": []
+  }
+}

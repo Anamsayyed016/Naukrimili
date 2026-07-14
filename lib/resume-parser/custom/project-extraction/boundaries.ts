@@ -9,10 +9,16 @@ import { detectTitleFromLine, scoreProjectTitleCandidate } from './title';
 import { lineHasTechStackSignal } from './technologies';
 import type { ProjectLine, ProjectRawBlock } from './types';
 
-const BOUNDARY_THRESHOLD = 42;
-const BOUNDARY_THRESHOLD_AFTER_BLANK = 34;
+const BOUNDARY_THRESHOLD = 38;
+const BOUNDARY_THRESHOLD_AFTER_BLANK = 32;
+/** After a body/tech/demo line, a strong title starts the next project even without a blank. */
+const BOUNDARY_THRESHOLD_AFTER_BODY = 34;
 
-function scoreBoundaryLine(line: ProjectLine, prevBlank: boolean): number {
+function scoreBoundaryLine(
+  line: ProjectLine,
+  prevBlank: boolean,
+  afterBodyOrMeta: boolean
+): number {
   if (line.isBlank) return 0;
   if (line.isBullet) {
     if (prevBlank) {
@@ -29,7 +35,7 @@ function scoreBoundaryLine(line: ProjectLine, prevBlank: boolean): number {
   let score = 0;
 
   const title = detectTitleFromLine(text);
-  if (title.confidence >= 38) score += title.confidence * 0.4;
+  if (title.confidence >= 38) score += title.confidence * 0.45;
 
   if (lineHasLinkSignal(text)) {
     score += title.confidence >= 38 ? 36 : 8;
@@ -45,6 +51,10 @@ function scoreBoundaryLine(line: ProjectLine, prevBlank: boolean): number {
   }
 
   if (prevBlank) score += 14;
+  // Compact layouts stack projects without blank lines after tech-stack / description.
+  if (afterBodyOrMeta && title.confidence >= 42 && !lineHasTechStackSignal(text)) {
+    score += 12;
+  }
 
   if (text.split(/\s+/).length > 22 && !dateRange && title.confidence < 30) score -= 20;
 
@@ -55,10 +65,30 @@ function stripBulletTitle(text: string): string {
   return text.replace(/^[\s]*(?:[-–—•·▪‣●○◦]|\d+[\.\)])\s+/, '').split(/\s+[-–—:]\s+/)[0]?.trim() || text;
 }
 
+function previousNonBlank(lines: ProjectLine[], idx: number): ProjectLine | null {
+  for (let i = idx - 1; i >= 0; i--) {
+    if (!lines[i].isBlank) return lines[i];
+  }
+  return null;
+}
+
+function isBodyOrMetaProjectLine(line: ProjectLine | null): boolean {
+  if (!line || line.isBlank) return false;
+  const text = line.text.trim();
+  if (!text) return false;
+  if (line.isBullet) return true;
+  if (lineHasTechStackSignal(text)) return true;
+  if (lineHasLinkSignal(text) && detectTitleFromLine(text).confidence < 40) return true;
+  if (looksLikeProjectDescriptionLine(text)) return true;
+  if (extractLinksFromText(text).length > 0) return true;
+  return false;
+}
+
 export function scoreProjectBoundaries(lines: ProjectLine[]): ProjectLine[] {
   return lines.map((line, i) => {
     const prevBlank = i > 0 && lines[i - 1].isBlank;
-    return { ...line, boundaryScore: scoreBoundaryLine(line, prevBlank) };
+    const afterBodyOrMeta = isBodyOrMetaProjectLine(previousNonBlank(lines, i));
+    return { ...line, boundaryScore: scoreBoundaryLine(line, prevBlank, afterBodyOrMeta) };
   });
 }
 
@@ -72,7 +102,10 @@ export function partitionProjectBlocks(sectionText: string): ProjectRawBlock[] {
     if (idx === 0) return true;
     if (line.isBullet) return false;
     const prevBlank = idx > 0 && scored[idx - 1].isBlank;
-    const threshold = prevBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
+    const afterBodyOrMeta = isBodyOrMetaProjectLine(previousNonBlank(scored, idx));
+    let threshold = BOUNDARY_THRESHOLD;
+    if (prevBlank) threshold = BOUNDARY_THRESHOLD_AFTER_BLANK;
+    else if (afterBodyOrMeta) threshold = BOUNDARY_THRESHOLD_AFTER_BODY;
     return line.boundaryScore >= threshold;
   };
 

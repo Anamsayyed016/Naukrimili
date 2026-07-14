@@ -10,6 +10,7 @@ import {
   looksLikeJobTitleLine,
 } from '@/lib/resume-parser/import-sanitize';
 import { isLikelyEducationLine } from '@/lib/resume-parser/field-classification';
+import { splitOnFieldSeparatorDash } from '@/lib/resume-parser/field-separator-dash';
 import { looksLikeSentenceNotCompany } from '../experience-extraction/company';
 
 export interface ParsedCertification {
@@ -41,7 +42,19 @@ function isUnrelatedCertificationContent(name: string, issuer: string): boolean 
   if (!combined) return true;
   if (isResumeSectionHeadingLine(name) || isResumeSectionHeadingLine(combined)) return true;
   if (isLikelyEducationLine(name) || isLikelyEducationLine(combined)) return true;
-  if (looksLikeJobTitleLine(name) && !CERT_KEYWORD_RE.test(name) && !AWS_CERT_NAME_RE.test(name)) return true;
+  // Spoken-language CSV rows must never become certifications.
+  if (/^(?:spoken\s+)?languages?\s*:/i.test(name) || /^(?:spoken\s+)?languages?\s*:/i.test(combined)) {
+    return true;
+  }
+  // Job-title-shaped training names are valid when an issuer (or dated course) is present.
+  if (
+    looksLikeJobTitleLine(name) &&
+    !CERT_KEYWORD_RE.test(name) &&
+    !AWS_CERT_NAME_RE.test(name) &&
+    !issuer.trim()
+  ) {
+    return true;
+  }
   if (EXPERIENCE_VERB_RE.test(combined) && combined.split(/\s+/).length > 5) return true;
   if (looksLikeSentenceNotCompany(name) && name.split(/\s+/).length > 6) return true;
   if (SKILL_LIST_RE.test(name)) return true;
@@ -107,10 +120,10 @@ function splitNameIssuer(text: string): { name: string; issuer: string } {
   const trimmed = text.trim();
   if (!trimmed) return { name: '', issuer: '' };
 
-  const byDash = trimmed.match(/^(.+?)\s*[-–—]\s*(.+)$/);
+  const byDash = splitOnFieldSeparatorDash(trimmed);
   if (byDash) {
-    const left = byDash[1].trim();
-    const right = byDash[2].trim();
+    const left = byDash.left;
+    const right = byDash.right;
     if (ISSUER_SUFFIX_RE.test(right) || right.split(/\s+/).length <= 4) {
       return { name: left, issuer: right };
     }
@@ -160,9 +173,14 @@ export function parseCertificationLine(line: string): ParsedCertification | null
   }
 
   let working = trimmed.replace(/^[-•*·]\s*/, '');
-  const parenYear = working.match(/\(((?:19|20)\d{2})\)\s*$/);
+  if (/^(?:spoken\s+)?languages?\s*:/i.test(working)) return null;
+
+  // Accept (2024), (2024-2025), (2024–2025) as course year annotations.
+  const parenYear = working.match(
+    /\(((?:19|20)\d{2})(?:\s*[-–—−]\s*((?:19|20)\d{2}))?\)\s*$/
+  );
   if (parenYear) {
-    working = working.replace(/\s*\((?:19|20)\d{2}\)\s*$/, '').trim();
+    working = working.replace(/\s*\((?:19|20)\d{2}(?:\s*[-–—−]\s*(?:19|20)\d{2})?\)\s*$/, '').trim();
   }
 
   if (CERT_KEYWORD_RE.test(working) || ISSUER_SUFFIX_RE.test(working) || AWS_CERT_NAME_RE.test(working)) {
@@ -257,18 +275,17 @@ export function parseCertificationBlock(lines: string[]): ParsedCertification | 
 
   const normalized = lines
     .map((l) => l.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((l) => !/^(?:spoken\s+)?languages?\s*:/i.test(l))
+    .filter((l) => l !== '•' && !/^[•·▪◦]+$/.test(l));
+
+  if (!normalized.length) return null;
 
   const yearLines = lines.filter((l) => /^(?:19|20)\d{2}$/.test(l.trim()));
   const textLines = normalized.filter((l) => !/^(?:19|20)\d{2}$/.test(l));
 
-  const combined = textLines.join(' — ');
+  // Prefer the strongest single-line parse — avoid joining cert + leftover rows with " — ".
   let best: ParsedCertification | null = null;
-
-  const fromCombined = parseCertificationLine(
-    yearLines.length > 0 ? `${combined} (${yearLines[yearLines.length - 1]})` : combined
-  );
-  if (fromCombined) best = fromCombined;
 
   for (const line of textLines) {
     const withYear =
@@ -277,6 +294,13 @@ export function parseCertificationBlock(lines: string[]): ParsedCertification | 
     if (parsed && (!best || parsed.confidence > best.confidence)) {
       best = parsed;
     }
+  }
+
+  if (!best && textLines.length > 0) {
+    const combined = textLines.join(' — ');
+    best = parseCertificationLine(
+      yearLines.length > 0 ? `${combined} (${yearLines[yearLines.length - 1]})` : combined
+    );
   }
 
   if (best) {

@@ -18,6 +18,7 @@ import {
   toCustomSectionBlock,
 } from './partition';
 import { rescoreWithContent, scoreHeadingCandidate } from './score-heading';
+import { scoreHeadingKeywords } from './taxonomy';
 import {
   SECTION_DETECTION_VERSION,
   type DetectedResumeSections,
@@ -26,6 +27,8 @@ import {
   type LineSpan,
   type NormalizedSectionType,
 } from './types';
+
+const MIN_SECONDARY_SECTION_SCORE = 42;
 
 const KNOWN_FIELD_KEYS: Array<Exclude<NormalizedSectionType, 'custom'>> = [
   'summary',
@@ -144,6 +147,21 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
     if (section.type === 'custom') continue;
     const key = section.type;
     fields[key] = fields[key] ? `${fields[key]}\n\n${section.content}`.trim() : section.content;
+
+    // Combined headings ("Certifications & Languages") — mirror body into every
+    // strongly matched section type so secondary extractors still see the text.
+    const typeScores = scoreHeadingKeywords(section.rawHeading);
+    for (const [type, score] of Object.entries(typeScores) as Array<
+      [NormalizedSectionType, number]
+    >) {
+      if (type === key || type === 'custom') continue;
+      if ((score ?? 0) < MIN_SECONDARY_SECTION_SCORE) continue;
+      if (!(type in fields)) continue;
+      const typed = type as Exclude<NormalizedSectionType, 'custom'>;
+      fields[typed] = fields[typed]
+        ? `${fields[typed]}\n\n${section.content}`.trim()
+        : section.content;
+    }
   }
 
   return { fields, customSections };

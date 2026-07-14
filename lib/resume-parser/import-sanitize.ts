@@ -504,9 +504,12 @@ function isPlausibleLanguageName(name: string): boolean {
     return false;
   }
   const KNOWN =
-    /^(english|hindi|french|german|spanish|arabic|mandarin|chinese|japanese|korean|tamil|telugu|marathi|gujarati|bengali|punjabi|urdu|portuguese|russian|italian|sanskrit|assamese|odia|nepali)$/i;
+    /^(english|hindi|french|german|spanish|arabic|mandarin|chinese|japanese|korean|tamil|telugu|marathi|gujarati|bengali|punjabi|urdu|portuguese|russian|italian|sanskrit|assamese|odia|nepali|dutch|swedish|norwegian|danish|polish|turkish|thai|vietnamese|hebrew|persian|farsi|malayalam|kannada|odia|oriya)$/i;
   if (KNOWN.test(n)) return true;
-  return /^[A-Z][a-z]{2,14}$/.test(n);
+  // Reject ambiguous single-token adjectives / title stubs ("Full", "Stack").
+  if (/^(full|stack|front|back|end|native|fluent|basic|proficient)$/i.test(n)) return false;
+  // Multi-word unknown language names only (e.g. Scottish Gaelic).
+  return /^[A-Z][a-z]{2,14}(?:\s+[A-Z][a-z]{2,14})+$/.test(n);
 }
 
 function gluedTypoLeadingBPenalty(body: string, parts: string[]): number {
@@ -1857,6 +1860,9 @@ export function sanitizeSkillEntry(skill: unknown): string {
   if (isResumeSectionHeadingLine(s)) return '';
   if (RESUME_METADATA_LINE_RE.some((re) => re.test(s))) return '';
   if (/@/.test(s) || /\b\d{7,}\b/.test(s)) return '';
+  if (isEmailOrDomainFragment(s) || /https?:|www\./i.test(s)) return '';
+  if (/\b(?:linkedin|github|gitlab|bitbucket)\.com\b/i.test(s)) return '';
+  if (/\.[a-z]{2,}\/[^\s]*$/i.test(s) && !/\s/.test(s)) return '';
   if (isLikelyCertificationLine(s)) return '';
   if (isLikelyEducationLine(s) && s.length < 120) return '';
   const skillWords = s.split(/\s+/).filter(Boolean).length;
@@ -2155,8 +2161,12 @@ export function normalizeCustomParserSkillsList(skills: unknown[]): string[] {
     if (!trimmed || trimmed.length < 2) continue;
     if (isResumeSectionHeadingLine(trimmed)) continue;
     if (/@/.test(trimmed) || trimmed.includes('\n')) continue;
+    // Strip leading icon / PUA glyphs left by PDF bullet fonts.
+    const withoutIcons = trimmed.replace(/^[\u1000-\u109F\uE000-\uF8FF●•▪◦▹►]\s*/u, '').trim();
+    if (isEmailOrDomainFragment(withoutIcons) || /https?:|www\./i.test(withoutIcons)) continue;
+    if (/\b(?:linkedin|github|gitlab|bitbucket|portfolio)\.com\b/i.test(withoutIcons)) continue;
 
-    let cleaned = trimmed
+    let cleaned = withoutIcons
       .replace(/\s+\d{1,3}\s*%/g, '')
       .replace(/[:\-–—]\s*\d{1,3}\s*%?\s*$/i, '')
       .trim();
@@ -2169,6 +2179,8 @@ export function normalizeCustomParserSkillsList(skills: unknown[]): string[] {
       cleaned = canonicalizeSkillName(cleaned) || cleaned;
     }
     if (!cleaned) continue;
+    // Compound-adjective stubs from hyphen splits must never become skills.
+    if (/^(?:full|front|back|end|stack|senior|junior|lead|mid|entry)$/i.test(cleaned)) continue;
 
     const key = cleaned.toLowerCase();
     const score = scoreSkillConfidence(cleaned) || (PARSER_VALIDATED_SKILL_RE.test(cleaned) ? 72 : 60);
@@ -2245,10 +2257,15 @@ export function sanitizeLanguageEntry(
     if (paren) {
       return { name: paren[1].trim(), proficiency: paren[2].trim() };
     }
-    // "English - Fluent" / "English: Fluent" / "English | Fluent"
-    const sep = s.match(/^(.+?)\s*[:\-–—|]\s*(.+?)\s*\.?$/);
-    if (sep) {
-      return { name: sep[1].trim(), proficiency: sep[2].trim() };
+    // Require whitespace around dashes so "Full-Stack…" is not a language row.
+    const spacedSep = s.match(/^(.+?)\s+[:\-–—|]\s+(.+?)\s*\.?$/);
+    if (spacedSep) {
+      return { name: spacedSep[1].trim(), proficiency: spacedSep[2].trim() };
+    }
+    // Colon/pipe without spaces is still a valid proficiency separator.
+    const tightSep = s.match(/^([A-Za-z][A-Za-z\s]{1,30}?)\s*[:|]\s*(.+?)\s*\.?$/);
+    if (tightSep) {
+      return { name: tightSep[1].trim(), proficiency: tightSep[2].trim() };
     }
     return { name: s, proficiency: '' };
   };
@@ -2308,8 +2325,10 @@ export function isMisclassifiedExperienceProject(name: string, description = '')
     return true;
   }
   if (!isPlausibleProjectName(n)) return true;
-  const combined = `${n} ${description}`.trim();
-  if (combined.length >= 20 && looksLikeSentenceNotCompany(combined)) return true;
+  // Descriptions are expected prose — never treat name+description as a sentence
+  // (that deleted every real project with a normal project write-up).
+  void description;
+  if (n.length >= 20 && looksLikeSentenceNotCompany(n)) return true;
   return false;
 }
 

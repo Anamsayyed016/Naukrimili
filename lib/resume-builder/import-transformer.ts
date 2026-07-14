@@ -2887,8 +2887,20 @@ function recoverEducationDegreesFromImport(
           );
     if (!text || !isRecoverableEducationDegreeLine(text)) continue;
     const degree = sanitizeFieldText(text, 160);
+    if (!degree) continue;
+    // Do not invent orphan degree stubs when a degree+institution row already exists.
+    const alreadyPaired = sanitized.some(
+      (e) =>
+        String(e.degree || '')
+          .trim()
+          .toLowerCase() === degree.toLowerCase() &&
+        String(e.institution || e.school || '')
+          .trim()
+          .length > 0
+    );
+    if (alreadyPaired) continue;
     const key = `${degree}|`.toLowerCase();
-    if (!degree || seen.has(key)) continue;
+    if (seen.has(key)) continue;
     recovered.push({ degree, institution: '', school: '', field: '', year: '' });
     seen.add(key);
   }
@@ -2909,6 +2921,22 @@ function recoverEducationDegreesFromImport(
       const key = `${degree}|${institution}`.toLowerCase();
       if (!degree && !institution) continue;
       if (seen.has(key)) continue;
+      // Prefer existing degree+institution pairs over orphan degree-only stubs.
+      if (
+        degree &&
+        !institution &&
+        recovered.some(
+          (e) =>
+            String(e.degree || '')
+              .trim()
+              .toLowerCase() === degree.toLowerCase() &&
+            String(e.institution || e.school || '')
+              .trim()
+              .length > 0
+        )
+      ) {
+        continue;
+      }
       recovered.push(entry);
       seen.add(key);
     }
@@ -2981,12 +3009,15 @@ function recoverSkillsFromRawText(rawText: string, existing: string[]): string[]
       !/compliance|governance|sebi|ipo|fema|fdi|irda|amfi|mca|roc|rbi|secretarial|capital market|due diligence|drhp|regulatory/i.test(
         t
       ) &&
-      !/recruitment|payroll|hris|hrms|onboarding|attendance|employee relations|performance management|naukri|linkedin|hr generalist|human resources/i.test(
+      !/recruitment|payroll|hris|hrms|onboarding|attendance|employee relations|performance management|naukri|linkedin hiring|hr generalist|human resources/i.test(
         t
       )
     ) {
       continue;
     }
+    // Contact / profile URL lines must never be treated as skill CSV rows.
+    if (/https?:|www\.|\.com\/|\.app\b|@/i.test(t)) continue;
+    if (/\blinkedin\.com\b|\bgithub\.com\b/i.test(t)) continue;
     const parts = t
       .split(/[|,]+/)
       .map((p) => p.trim().replace(/[*.]+$/g, ''))

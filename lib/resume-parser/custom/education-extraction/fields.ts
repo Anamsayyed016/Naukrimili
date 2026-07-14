@@ -23,17 +23,53 @@ interface FieldPick<T> {
 function expandHeaderSegments(lines: string[]): string[] {
   const segments: string[] = [];
   for (const line of lines) {
-    const parts = line.split(/\s*[|–—,]\s*/).map((p) => p.trim()).filter(Boolean);
-    if (parts.length <= 1) {
+    // Preserve date ranges — en/em dash must not explode "June 2015 – July 2017".
+    if (parseEducationDates(line)) {
       segments.push(line);
       continue;
     }
-    for (const part of parts) segments.push(part);
+    // Pipe separators always expand.
+    if (/\s*\|\s*/.test(line)) {
+      for (const part of line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean)) {
+        segments.push(part);
+      }
+      continue;
+    }
+    // Comma: only expand "College, University" pairs when BOTH sides look like institutions.
+    if (/,/.test(line)) {
+      const parts = line.split(/\s*,\s*/).map((p) => p.trim()).filter(Boolean);
+      if (
+        parts.length === 2 &&
+        detectInstitutionFromLine(parts[0]).confidence >= 38 &&
+        detectInstitutionFromLine(parts[1]).confidence >= 38
+      ) {
+        segments.push(...parts);
+        continue;
+      }
+    }
+    segments.push(line);
   }
   return segments;
 }
 
 function pickBestInstitution(lines: string[]): FieldPick<string> {
+  // Prefer the institution line immediately under the degree (college before affiliating uni).
+  let degreeIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (detectDegreeFromLine(lines[i]).confidence >= 38) {
+      degreeIdx = i;
+      break;
+    }
+  }
+  if (degreeIdx >= 0) {
+    for (let i = degreeIdx + 1; i < Math.min(lines.length, degreeIdx + 3); i++) {
+      const det = detectInstitutionFromLine(lines[i]);
+      if (det.confidence >= 40) {
+        return { value: det.institution, confidence: Math.min(100, det.confidence + 6) };
+      }
+    }
+  }
+
   let best: FieldPick<string> = { value: '', confidence: 0 };
   for (const line of expandHeaderSegments(lines)) {
     const det = detectInstitutionFromLine(line);
