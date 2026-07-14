@@ -17,6 +17,13 @@
   --coe-font-display: 'Outfit', 'Segoe UI', sans-serif;
   --coe-font-body: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 
+  --coe-section-gap: 15px;
+  --coe-block-gap: 11px;
+  --coe-card-gap: 10px;
+  --coe-para-lh: 1.65;
+  --coe-bullet-gap: 0.4em;
+  --coe-heading-gap: 9px;
+
   --coe-lh-body: 1.62;
   --coe-lh-tight: 1.28;
   --coe-lh-name: 1.02;
@@ -110,8 +117,9 @@
   z-index: 1;
   display: grid;
   grid-template-columns: 30fr 70fr;
-  align-items: stretch;
-  min-height: 100%;
+  align-items: start;
+  min-height: 0;
+  gap: 0;
 }
 
 .coe-resume .coe-sidebar {
@@ -120,8 +128,12 @@
   padding: 28px 18px 36px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--coe-section-gap, 16px);
   min-width: 0;
+  min-height: 0;
+  height: auto;
+  align-self: stretch; /* full charcoal column only */
+  justify-content: flex-start;
 }
 
 .coe-resume .coe-main {
@@ -129,8 +141,12 @@
   padding: 28px 28px 36px 26px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--coe-section-gap, 16px);
   min-width: 0;
+  min-height: 0;
+  height: auto;
+  justify-content: flex-start;
+  align-items: stretch;
 }
 
 /* ── Photo ── */
@@ -570,12 +586,38 @@
   padding: 4px 9px;
 }
 
-/* ── Summary ── */
+/* ── Summary (intrinsic height only) ── */
+.coe-resume .coe-section--summary,
+.coe-resume section:has(> .summary-text) {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  flex: 0 0 auto;
+  display: block;
+}
+
 .coe-resume .summary-text {
+  display: block;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
   font-size: var(--coe-fs-body);
-  line-height: var(--coe-lh-body);
+  line-height: var(--coe-para-lh, var(--coe-lh-body));
+  letter-spacing: var(--coe-ws-body);
   color: var(--coe-text);
   max-width: var(--coe-measure);
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.coe-resume .summary-text p {
+  margin: 0 0 0.55em;
+  line-height: inherit;
+}
+
+.coe-resume .summary-text p:last-child {
+  margin-bottom: 0;
 }
 
 /* ── Experience ── */
@@ -588,8 +630,10 @@
 .coe-resume .coe-experience .experience-item {
   page-break-inside: avoid;
   break-inside: avoid;
-  padding-bottom: 14px;
-  margin-bottom: 12px;
+  height: auto;
+  min-height: 0;
+  padding-bottom: var(--coe-block-gap, 12px);
+  margin-bottom: var(--coe-block-gap, 12px);
   border-bottom: 1px solid var(--coe-divider);
 }
 
@@ -649,7 +693,7 @@
   margin: 4px 0 0;
   display: flex;
   flex-direction: column;
-  gap: 0.38em;
+  gap: var(--coe-bullet-gap, 0.4em);
 }
 
 .coe-resume .coe-experience .description li {
@@ -669,20 +713,67 @@
   background: var(--primary-color);
 }
 
-/* ── Projects cards ── */
-.coe-resume .coe-projects {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+/* ── Projects: adaptive cards (no fixed height) ── */
+.coe-resume .coe-projects,
+.coe-resume .projects-list.coe-projects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--coe-card-gap, 10px);
+  align-items: stretch;
+  width: 100%;
+  height: auto;
+  min-height: 0;
 }
 
-.coe-resume .coe-projects .project-item {
+/* Two projects in the wide main column → side-by-side, top-aligned */
+.coe-resume .coe-main .coe-projects:has(> .project-item:nth-child(2)):not(:has(> .project-item:nth-child(3))) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: max-content;
+  align-items: start;
+  justify-items: stretch;
+}
+
+/* Three+ projects in main → fluid auto-fit, never stretch empty space */
+.coe-resume .coe-main .coe-projects:has(> .project-item:nth-child(3)) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-auto-rows: max-content;
+  align-items: start;
+}
+
+/* Sidebar (or moved) projects always stack to content height */
+.coe-resume .coe-sidebar .coe-projects,
+.coe-resume .coe-sidebar .projects-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+
+.coe-resume .coe-projects .project-item,
+.coe-resume .project-item {
   page-break-inside: avoid;
   break-inside: avoid;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  align-self: start;
   background: var(--coe-surface);
   border: 1px solid var(--accent-color);
   border-radius: 10px;
-  padding: 12px 12px 11px;
+  padding: 10px 12px;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.coe-resume .coe-sidebar .project-item {
+  background: var(--coe-charcoal-soft);
+  border-color: rgba(245, 158, 11, 0.65);
 }
 
 .coe-resume .coe-projects .project-item h3 {
@@ -690,22 +781,34 @@
   font-size: 11px;
   font-weight: 700;
   color: var(--accent-color);
-  margin-bottom: 5px;
+  margin: 0;
   line-height: var(--coe-lh-tight);
 }
 
 .coe-resume .coe-projects .project-item .description,
 .coe-resume .coe-projects .project-item p.description {
   font-size: 9.5px;
-  line-height: var(--coe-lh-body);
+  line-height: var(--coe-para-lh, var(--coe-lh-body));
   color: var(--coe-text);
+  margin: 0;
+  height: auto;
+  flex: 0 0 auto;
+}
+
+.coe-resume .coe-sidebar .project-item .description,
+.coe-resume .coe-sidebar .project-item p.description {
+  color: var(--coe-sidebar-muted);
 }
 
 .coe-resume .coe-projects .project-item .technologies {
   font-size: 8.5px;
   color: var(--coe-muted);
-  margin-top: 6px;
+  margin: 2px 0 0;
   letter-spacing: 0.02em;
+}
+
+.coe-resume .coe-sidebar .project-item .technologies {
+  color: var(--coe-sidebar-muted);
 }
 
 .coe-resume .coe-projects .project-item .description ul {
@@ -717,7 +820,7 @@
 .coe-resume .coe-projects .project-item .description li {
   position: relative;
   padding-left: 0.9em;
-  margin-bottom: 0.28em;
+  margin-bottom: var(--coe-bullet-gap, 0.28em);
 }
 
 .coe-resume .coe-projects .project-item .description li::before {
@@ -872,8 +975,12 @@
     padding: 22px 18px 28px;
   }
 
-  .coe-resume .coe-projects {
-    grid-template-columns: 1fr;
+  .coe-resume .coe-projects,
+  .coe-resume .coe-main .coe-projects:has(> .project-item:nth-child(2)):not(:has(> .project-item:nth-child(3))),
+  .coe-resume .coe-main .coe-projects:has(> .project-item:nth-child(3)) {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
   }
 
   .coe-resume .candidate-name {
@@ -930,9 +1037,20 @@
 .resume-container.coe-resume .coe-body,
 .resume-container.coe-resume .coe-main,
 .resume-container.coe-resume .coe-sidebar {
-  min-height: auto !important;
+  min-height: 0 !important;
   height: auto !important;
-  align-items: stretch !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
+/* Sidebar still paints full column height without stretching children */
+.resume-container.coe-resume .coe-sidebar {
+  align-self: stretch !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.coe-resume .coe-main {
+  align-self: start !important;
 }
 
 /* Keep experience company-first against shared ATS balance overrides */
@@ -951,4 +1069,135 @@
   order: 3 !important;
   color: var(--coe-muted) !important;
   font-weight: 600 !important;
+}
+
+/* =========================================================
+   Adaptive content sizing — Charcoal Orange only
+   Neutralize underfill dumps into fixed summary/project boxes
+   and scale spacing from content density (:has heuristics).
+   ========================================================= */
+
+.resume-container.coe-resume {
+  --coe-section-gap: 15px;
+  --coe-block-gap: 11px;
+  --coe-card-gap: 10px;
+  --coe-para-lh: 1.65;
+  --coe-bullet-gap: 0.4em;
+  --coe-heading-gap: 9px;
+
+  /* Prevent layout engine from inventing empty space under summary/cards */
+  --dl-extra-summary: 0px !important;
+  --dl-extra-experience: 0px !important;
+  --dl-extra-projects: 0px !important;
+  --dl-extra-education: 0px !important;
+  --dl-extra-achievements: 0px !important;
+  --dl-extra-skills: 0px !important;
+  --dl-extra-languages: 0px !important;
+  --dl-extra-certifications: 0px !important;
+  --dl-extra-interests: 0px !important;
+  --dl-extra-extended: 0px !important;
+}
+
+/* Sparse resumes (≤2 experience entries) — more breathing room */
+.resume-container.coe-resume:has(.experience-item:first-child:last-child),
+.resume-container.coe-resume:has(.experience-item:nth-child(2):last-child),
+.resume-container.coe-resume[data-dl-density='sparse'],
+.resume-container.coe-resume[data-dl-page-underfill='true'] {
+  --coe-section-gap: 20px;
+  --coe-block-gap: 14px;
+  --coe-card-gap: 12px;
+  --coe-para-lh: 1.72;
+  --coe-bullet-gap: 0.48em;
+  --coe-heading-gap: 11px;
+}
+
+/* Dense resumes (5+ roles or many bullets) — compact */
+.resume-container.coe-resume:has(.experience-item:nth-child(5)),
+.resume-container.coe-resume:has(.experience-item:nth-child(4) li:nth-child(6)),
+.resume-container.coe-resume[data-dl-density='dense'],
+.resume-container.coe-resume[data-dl-density='compact'] {
+  --coe-section-gap: 11px;
+  --coe-block-gap: 8px;
+  --coe-card-gap: 8px;
+  --coe-para-lh: 1.55;
+  --coe-bullet-gap: 0.32em;
+  --coe-heading-gap: 7px;
+}
+
+.resume-container.coe-resume .coe-main,
+.resume-container.coe-resume .coe-sidebar {
+  gap: var(--coe-section-gap) !important;
+}
+
+.resume-container.coe-resume .coe-section,
+.resume-container.coe-resume section {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  flex: 0 0 auto !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.resume-container.coe-resume .coe-section-title {
+  margin-bottom: var(--coe-heading-gap) !important;
+}
+
+.resume-container.coe-resume section:has(.summary-text),
+.resume-container.coe-resume .coe-section--summary,
+.resume-container.coe-resume section:has(.summary-text) .summary-text,
+.resume-container.coe-resume [class*='summary-text'] {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  flex-grow: 0 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.resume-container.coe-resume .summary-text {
+  line-height: var(--coe-para-lh) !important;
+}
+
+.resume-container.coe-resume .project-item,
+.resume-container.coe-resume .coe-projects .project-item,
+.resume-container.coe-resume .projects-list .project-item {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  align-self: start !important;
+  margin-bottom: 0 !important;
+}
+
+.resume-container.coe-resume .projects-list,
+.resume-container.coe-resume .coe-projects {
+  height: auto !important;
+  min-height: 0 !important;
+  align-items: start !important;
+}
+
+.resume-container.coe-resume .experience-item .description,
+.resume-container.coe-resume .project-item .description {
+  line-height: var(--coe-para-lh) !important;
+  height: auto !important;
+}
+
+.resume-container.coe-resume .experience-item .description li,
+.resume-container.coe-resume .project-item .description li {
+  margin-bottom: 0 !important;
+}
+
+.resume-container.coe-resume .experience-item .description ul,
+.resume-container.coe-resume .project-item .description ul {
+  gap: var(--coe-bullet-gap) !important;
+}
+
+/* Prefer content-driven vertical rhythm over engine-injected extras */
+.resume-container.coe-resume[data-dl-page-underfill='true'] .coe-main {
+  gap: var(--coe-section-gap) !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.coe-resume[data-dl-page-underfill='true'] .coe-sidebar {
+  justify-content: flex-start !important;
 }
