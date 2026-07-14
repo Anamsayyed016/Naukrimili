@@ -38,6 +38,25 @@ function isSectionContentLineNotHeading(text: string): boolean {
   const t = text.trim();
   if (!t) return false;
 
+  // Orphan personal-detail values / colon-led labels are never section headings.
+  if (/^[:：]/.test(t)) return true;
+  // Stream/OCR debris like "like Project Experience:"
+  if (/^(?:like|and|or|with|for|the|a|an)\s+/i.test(t) && t.length < 60) return true;
+  if (
+    /^(?:male|female|other|married|unmarried|single|indian|nationality|passport|gender|dob|date of birth)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  if (
+    /^(?:father(?:'s)?\s+name|mother(?:'s)?\s+name|marital\s+status|permanent\s+add(?:ress)?|notice\s+period|current\s+salary)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+
   if (DEGREE_ABBREV_RE.test(t) || DEGREE_LINE_RE.test(t)) return true;
   if (LANGUAGE_PROFICIENCY_LINE_RE.test(t)) return true;
   if (/\b(?:published|presented)\b.+\b(?:ieee|conference|journal|symposium|workshop)\b/i.test(t)) {

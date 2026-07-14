@@ -24,7 +24,14 @@ export function isValidExperience(exp: CustomExtractedExperience): boolean {
     Boolean(exp.description?.trim()) || (exp.bulletPoints?.length ?? 0) > 0;
 
   if (!hasIdentity) return false;
-  if (!hasDescription && !hasDates) return false;
+  // Condensed tenure rows ("N years as Title at Company") are valid even without
+  // calendar dates or bullet bodies when both employer and title are present.
+  const hasCondensedTenure =
+    Boolean(exp.company?.trim()) &&
+    Boolean(exp.designation?.trim()) &&
+    isPlausibleExperienceCompany(exp.company) &&
+    exp.designation.split(/\s+/).length <= 10;
+  if (!hasDescription && !hasDates && !hasCondensedTenure) return false;
 
   if (exp.company && ACADEMIC_BLEED_COMPANY_RE.test(exp.company)) {
     return false;
@@ -61,6 +68,22 @@ export function isValidExperience(exp: CustomExtractedExperience): boolean {
     SENTENCE_ONLY_RE.test(exp.company) &&
     !exp.designation &&
     exp.bulletPoints.length === 0
+  ) {
+    return false;
+  }
+
+  if (
+    exp.designation &&
+    (/^(?:to|ensure|carry|organize|planning|taking|doing|coordinating)\b/i.test(exp.designation) ||
+      /\broles?\s*(?:&|and)?\s*responsibilit/i.test(exp.designation))
+  ) {
+    return false;
+  }
+
+  if (
+    exp.designation &&
+    looksLikeSentenceNotCompany(exp.designation) &&
+    exp.designation.split(/\s+/).length > 8
   ) {
     return false;
   }

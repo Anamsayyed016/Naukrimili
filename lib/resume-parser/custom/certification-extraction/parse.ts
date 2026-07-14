@@ -46,6 +46,17 @@ function isUnrelatedCertificationContent(name: string, issuer: string): boolean 
   if (/^(?:spoken\s+)?languages?\s*:/i.test(name) || /^(?:spoken\s+)?languages?\s*:/i.test(combined)) {
     return true;
   }
+  // Employment / soft-skill / personal-detail prose is not a credential.
+  if (
+    /^(?:at\s+present|currently|i\s+am\s+(?:working|involve)|strengths?|declaration|personal\s+details?|extra\s+details?)\b/i.test(
+      name
+    )
+  ) {
+    return true;
+  }
+  if (/^(?:father|mother|gender|nationality|marital|passport|notice\s+period)\b/i.test(name)) {
+    return true;
+  }
   // Job-title-shaped training names are valid when an issuer (or dated course) is present.
   if (
     looksLikeJobTitleLine(name) &&

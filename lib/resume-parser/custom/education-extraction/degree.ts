@@ -64,14 +64,24 @@ export function detectDegreeFromLine(text: string): DegreeDetection {
   const trimmed = text.trim();
   if (!trimmed) return { degree: '', fieldOfStudy: '', confidence: 0 };
 
-  const fieldMatch = trimmed.match(/\bin\s+([A-Za-z][A-Za-z ,&/-]+)$/i);
-  const fieldOfStudy = fieldMatch?.[1]?.trim() || '';
-  const degreeText = trimmed.replace(/\s+in\s+[A-Za-z][A-Za-z ,&/-]+$/i, '').trim();
+  // "B.E. (Electrical) From Some College" — keep degree only; institution extracted separately.
+  const fromSplit = trimmed.match(
+    /^(.+?)\s+from\s+(.+)$/i
+  );
+  let working = trimmed;
+  let fieldOfStudy = '';
+  if (fromSplit) {
+    working = fromSplit[1].trim();
+  }
 
-  const conf = scoreDegreeCandidate(degreeText || trimmed);
+  const fieldMatch = working.match(/\bin\s+([A-Za-z][A-Za-z ,&/-]+)$/i);
+  fieldOfStudy = fieldMatch?.[1]?.trim() || '';
+  const degreeText = working.replace(/\s+in\s+[A-Za-z][A-Za-z ,&/-]+$/i, '').trim();
+
+  const conf = scoreDegreeCandidate(degreeText || working);
   if (conf >= 35) {
     return {
-      degree: degreeText || trimmed,
+      degree: degreeText || working,
       fieldOfStudy,
       confidence: conf,
     };

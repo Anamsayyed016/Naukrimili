@@ -503,6 +503,14 @@ function isPlausibleLanguageName(name: string): boolean {
   if (/\b(agreement|compliance|corporate|management|automobile|packaging|process|annually|register)\b/i.test(n)) {
     return false;
   }
+  // Reject personal-detail / passport date lines as spoken languages.
+  if (
+    /^(?:date\s+of\s+(?:expiry|issue|birth)|passport|father|mother|gender|nationality|marital|personal\s+details?|declaration)\b/i.test(
+      name
+    )
+  ) {
+    return false;
+  }
   const KNOWN =
     /^(english|hindi|french|german|spanish|arabic|mandarin|chinese|japanese|korean|tamil|telugu|marathi|gujarati|bengali|punjabi|urdu|portuguese|russian|italian|sanskrit|assamese|odia|nepali|dutch|swedish|norwegian|danish|polish|turkish|thai|vietnamese|hebrew|persian|farsi|malayalam|kannada|odia|oriya)$/i;
   if (KNOWN.test(n)) return true;
@@ -2875,11 +2883,28 @@ export function isPlausibleCertificationEntry(name: string, issuer = ''): boolea
   if (isSpacedLetterFragment(n)) return false;
   const combined = sanitizeFieldText(`${n} ${issuer || ''}`.trim(), 240);
   if (isLikelyEducationLine(n) || isLikelyEducationLine(combined)) return false;
+  if (
+    /^(?:at\s+present|currently|i\s+am\s+(?:working|involve)|strengths?|declaration)\b/i.test(n)
+  ) {
+    return false;
+  }
+  if (/^(?:father|mother|gender|nationality|marital|passport|notice\s+period)\b/i.test(n)) {
+    return false;
+  }
   if (isLikelyCertificationLine(n) || isLikelyCertificationLine(combined)) return true;
   if (
     /\b(?:bachelor|master|mba|m\.?\s*a\.?|b\.?\s*tech|m\.?\s*tech|ph\.?d|doctorate|university|college|institute|school|degree|graduation|matriculation|hsc|ssc)\b/i.test(
       combined
     )
+  ) {
+    return false;
+  }
+  // Default-deny prose without credential signals.
+  if (
+    !/\b(?:certified|certification|certificate|license|licence|credential|accreditation|chartered|diploma|iso\/?iec|iso\s*\d)\b/i.test(
+      combined
+    ) &&
+    !issuer.trim()
   ) {
     return false;
   }
@@ -6478,7 +6503,11 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
   if (degree && isGarbageEducationDegree(degree)) return null;
   if (institution && isGarbageEducationDegree(institution)) return null;
   if (!institution && !degree) return null;
-  if (degree && (degree.split(/\s+/).length > 12 || /\.\s/.test(degree))) return null;
+  if (degree && degree.split(/\s+/).length > 16) return null;
+  // Reject prose sentences, but keep abbreviated degrees like "B.E. (Electrical …)".
+  if (degree && /\.\s+[A-Z]/.test(degree) && !/\b(?:b\.?e\.?|m\.?e\.?|b\.?tech|m\.?tech|m\.?b\.?a|ph\.?d)\b/i.test(degree)) {
+    return null;
+  }
   if (isGarbageResumeText(degree) && isGarbageResumeText(institution)) return null;
   if (
     institution &&

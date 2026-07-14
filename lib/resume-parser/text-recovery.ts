@@ -1629,7 +1629,12 @@ function extractNameHeuristic(text: string): string {
     /^[A-Za-z'-]{2,20}$/.test(token) && !SECTION_WORD_RE.test(token);
 
   const trySegment = (raw: string): string | null => {
-    const seg = raw.trim();
+    let seg = raw.trim();
+    if (!seg) return null;
+    // "CURRICULUM VITAE MOHAMMED SARFARAZ ALLAM" → keep the person name.
+    seg = seg
+      .replace(/^(?:curriculum\s+vitae|resume|c\.?v\.?)\s*[:\-–—]?\s*/i, '')
+      .trim();
     if (!seg) return null;
     if (seg.length < 3 || seg.length > 60) return null;
     if (/[@+]/.test(seg)) return null;

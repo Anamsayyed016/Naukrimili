@@ -217,13 +217,11 @@ export function parseLanguagesFromSectionWithStats(sectionText: string): Languag
     if (/^(?:languages?|language\s+proficiency|spoken\s+languages?)\s*:?\s*$/i.test(line)) {
       continue;
     }
-    // Combined CERTIFICATIONS & LANGUAGES bodies still contain training rows —
-    // never parse those as spoken languages.
+    // Reject personal-detail / passport lines inside language sections.
     if (
-      /\b(?:certified|certification|certificate|training|bootcamp|course)\b/i.test(line) ||
-      (/\b(?:developer|engineer|administrator|professional)\b/i.test(line) &&
-        /\s+[-–—]\s+/.test(line) &&
-        /\((?:19|20)\d{2}/.test(line))
+      /^(?:date\s+of\s+(?:expiry|issue|birth)|passport|father|mother|gender|nationality|marital|personal\s+details?|declaration|language\s+passport)\b/i.test(
+        line
+      )
     ) {
       rejectedCount += 1;
       continue;

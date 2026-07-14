@@ -7,13 +7,14 @@ import { parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine } from './designation';
 import { buildExperienceFromBlock } from './fields';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
+import { lineLooksLikeTenureExperience, parseTenureExperienceLine } from './tenure';
 import type { ExperienceLine, ExperienceRawBlock } from './types';
 
 const BOUNDARY_THRESHOLD = 48;
 const BOUNDARY_THRESHOLD_AFTER_BLANK = 38;
 
 const EXPERIENCE_SUBSECTION_RE =
-  /^(?:key\s+result\s+areas?|responsibilit(?:y|ies)|achievements?|highlights?|key\s+contributions?|duties|roles?\s+and\s+responsibilit(?:y|ies)|accountabilit(?:y|ies))(?:\s*:)?$/i;
+  /^(?:key\s+result\s+areas?|responsibilit(?:y|ies)|achievements?|highlights?|key\s+contributions?|duties|roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|(?:[\w [&/.+-]{0,40})?roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|accountabilit(?:y|ies))(?:\s*:)?$/i;
 
 function blockIdentityState(lines: ExperienceLine[], start: number, end: number) {
   let hasDesignation = false;
@@ -23,6 +24,12 @@ function blockIdentityState(lines: ExperienceLine[], start: number, end: number)
   for (let i = start; i < end; i++) {
     const line = lines[i];
     if (line.isBlank || line.isBullet) continue;
+    const tenure = parseTenureExperienceLine(line.text);
+    if (tenure) {
+      hasDesignation = true;
+      hasCompany = true;
+      if (tenure.years != null) hasDates = true;
+    }
     if (parseDateRangeFromText(line.text)) hasDates = true;
     if (detectCompanyFromLine(line.text).confidence >= 42) hasCompany = true;
     if (detectDesignationFromLine(line.text).confidence >= 40) hasDesignation = true;
@@ -32,7 +39,11 @@ function blockIdentityState(lines: ExperienceLine[], start: number, end: number)
 }
 
 function isExperienceSubsectionLabel(text: string): boolean {
-  return EXPERIENCE_SUBSECTION_RE.test(text.trim());
+  const t = text.trim();
+  if (EXPERIENCE_SUBSECTION_RE.test(t)) return true;
+  // "Quality Manager Roles & Responsibilities" — role label subsections.
+  if (/\broles?\s*(?:&|and)\s*responsibilit/i.test(t) && t.length <= 80) return true;
+  return false;
 }
 
 function scoreBoundaryLine(line: ExperienceLine, prevBlank: boolean): number {
@@ -67,8 +78,12 @@ function scoreBoundaryLine(line: ExperienceLine, prevBlank: boolean): number {
   if (/^as\s+.+\s+(?:in|at|with|for)\s+.+/i.test(text)) {
     score += 36;
   }
+  // "N years experience as {Role} at {Company}" — tenure summary job markers.
+  if (lineLooksLikeTenureExperience(text)) {
+    score += 52;
+  }
 
-  if (text.split(/\s+/).length > 18 && !dateRange) score -= 25;
+  if (text.split(/\s+/).length > 18 && !dateRange && !lineLooksLikeTenureExperience(text)) score -= 25;
   if (looksLikeSentenceNotCompany(text)) score -= 40;
   if (isExperienceSubsectionLabel(text)) score -= 45;
   if (/^(responsibilities|achievements|key contributions)/i.test(text)) score -= 30;
@@ -114,6 +129,13 @@ export function partitionExperienceBlocks(
     const isDateLine = parseDateRangeFromText(line.text) !== null;
     const isCompanyLine = detectCompanyFromLine(line.text).confidence >= 45;
     const isDesignationLine = detectDesignationFromLine(line.text).confidence >= 40;
+    const isTenureLine = lineLooksLikeTenureExperience(line.text);
+
+    // Each "N years experience as Title at Company" starts a new role
+    // (including the first tenure line after a section label).
+    if (isTenureLine && lineIndex > blockStart) {
+      return true;
+    }
 
     // A strong job title after a completed role header starts the next role even when
     // the title-only line scores below the normal boundary threshold (common on
@@ -122,6 +144,7 @@ export function partitionExperienceBlocks(
       isDesignationLine &&
       !isCompanyLine &&
       !isDateLine &&
+      !isTenureLine &&
       state.hasDesignation &&
       state.hasCompany &&
       state.hasDates
@@ -302,8 +325,12 @@ function buildRawBlock(lines: ExperienceLine[], startLine: number, endLine: numb
   for (let i = 0; i < headerLimit; i++) {
     const l = lines[i];
     if (l.isBullet) break;
+    if (i > 0 && isExperienceSubsectionLabel(l.text)) break;
+    if (i > 0 && /^experience\s+summary\s*:?\s*$/i.test(l.text.trim())) break;
     if (i > 0 && l.text.trim().length > 140) break;
-    if (i > 0 && looksLikeSentenceNotCompany(l.text.trim())) break;
+    if (i > 0 && looksLikeSentenceNotCompany(l.text.trim()) && !parseTenureExperienceLine(l.text)) {
+      break;
+    }
     headerEnd = i + 1;
   }
 

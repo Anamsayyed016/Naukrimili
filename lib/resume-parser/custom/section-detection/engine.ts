@@ -151,12 +151,31 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
     // Combined headings ("Certifications & Languages") — mirror body into every
     // strongly matched section type so secondary extractors still see the text.
     const typeScores = scoreHeadingKeywords(section.rawHeading);
+    const headingLower = section.rawHeading.toLowerCase();
+    // Role / responsibilities headings are experience subsections — never projects.
+    const isRolesHeading =
+      /\broles?\b/i.test(headingLower) && /\bresponsibilit/i.test(headingLower);
+    const isExperienceSummary =
+      /\bexperience\s+summary\b|\bsummary\s+of\s+experience\b/i.test(headingLower);
+
     for (const [type, score] of Object.entries(typeScores) as Array<
       [NormalizedSectionType, number]
     >) {
       if (type === key || type === 'custom') continue;
       if ((score ?? 0) < MIN_SECONDARY_SECTION_SCORE) continue;
       if (!(type in fields)) continue;
+      if (type === 'projects' && (isRolesHeading || isExperienceSummary || key === 'experience')) {
+        continue;
+      }
+      if (type === 'summary' && isExperienceSummary) continue;
+      // Educational qualification blocks should not flood certifications.
+      if (
+        type === 'certifications' &&
+        key === 'education' &&
+        /\beducational?\b|\bqualification/i.test(headingLower)
+      ) {
+        continue;
+      }
       const typed = type as Exclude<NormalizedSectionType, 'custom'>;
       fields[typed] = fields[typed]
         ? `${fields[typed]}\n\n${section.content}`.trim()

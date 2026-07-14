@@ -2430,6 +2430,18 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
       } catch (pdfError) {
         console.error('❌ PDF parsing library error:', pdfError);
         console.error('   - Error type:', pdfError instanceof Error ? pdfError.message : 'Unknown');
+        try {
+          const { recoverTextFromPdfContentStreams, isUsableRecoveredPdfText } = await import(
+            '@/lib/pdf-stream-text-recovery'
+          );
+          const recovered = recoverTextFromPdfContentStreams(Buffer.from(bytes));
+          if (isUsableRecoveredPdfText(recovered)) {
+            console.log('✅ PDF content-stream recovery succeeded, length:', recovered.length);
+            return recovered;
+          }
+        } catch (recoveryErr) {
+          console.error('   - Stream recovery also failed:', recoveryErr);
+        }
         console.error('   - Falling back to allow upload with manual entry');
         // CRITICAL: Don't throw - return fallback text to allow upload
         return `Resume: ${file.name}\n\n[PDF parsing failed. Please complete your profile manually.]`;

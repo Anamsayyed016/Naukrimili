@@ -9,6 +9,10 @@ import { extractDescriptionFromBlock } from './description';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
 import { extractTechnologiesFromBlock } from './technologies';
 import {
+  parseTenureExperienceLine,
+  stripRolesResponsibilitiesSuffix,
+} from './tenure';
+import {
   looksLikeCompanyNameLine,
   looksLikeStandaloneLocationLine,
   isPlausibleExperienceCompany,
@@ -394,6 +398,17 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     .map((l) => l.trim())
     .filter(Boolean);
 
+  // Prefer explicit "N years experience as Title at Company" tenure headers.
+  let tenureDesignation: FieldPick<string> = { value: '', confidence: 0 };
+  let tenureCompany: FieldPick<string> = { value: '', confidence: 0 };
+  for (const line of headerLines) {
+    const tenure = parseTenureExperienceLine(line);
+    if (tenure && tenure.confidence > tenureDesignation.confidence) {
+      tenureDesignation = { value: tenure.designation, confidence: tenure.confidence };
+      tenureCompany = { value: tenure.company, confidence: tenure.confidence };
+    }
+  }
+
   const compositePick = pickCompositeFields(headerLines);
   const designationPick = pickBestDesignation(headerLines, '');
   const companyPick = pickBestCompany(headerLines, designationPick.value);
@@ -401,20 +416,39 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   // Prefer a complete title+employer composite over a date-token company miss.
   const compositeComplete =
     Boolean(compositePick.designation.value) && Boolean(compositePick.company.value);
-  const finalDesignation =
-    compositeComplete &&
-    compositePick.designation.confidence + 8 >= designationPick.confidence
-      ? compositePick.designation
-      : compositePick.designation.confidence > designationPick.confidence
+  let finalDesignation =
+    tenureDesignation.confidence >= 70
+      ? tenureDesignation
+      : compositeComplete &&
+          compositePick.designation.confidence + 8 >= designationPick.confidence
         ? compositePick.designation
-        : designationPick;
-  const finalCompany =
-    compositeComplete &&
-    compositePick.company.confidence + 8 >= companyPick.confidence
-      ? compositePick.company
-      : compositePick.company.confidence > companyPick.confidence
+        : compositePick.designation.confidence > designationPick.confidence
+          ? compositePick.designation
+          : designationPick;
+  let finalCompany =
+    tenureCompany.confidence >= 70
+      ? tenureCompany
+      : compositeComplete &&
+          compositePick.company.confidence + 8 >= companyPick.confidence
         ? compositePick.company
-        : companyPick;
+        : compositePick.company.confidence > companyPick.confidence
+          ? compositePick.company
+          : companyPick;
+
+  finalDesignation = {
+    ...finalDesignation,
+    value: stripRolesResponsibilitiesSuffix(finalDesignation.value),
+  };
+  if (tenureDesignation.confidence >= 70) {
+    finalDesignation = {
+      value: finalDesignation.value,
+      confidence: Math.max(finalDesignation.confidence, tenureDesignation.confidence),
+    };
+    finalCompany = {
+      value: finalCompany.value,
+      confidence: Math.max(finalCompany.confidence, tenureCompany.confidence),
+    };
+  }
 
   const locationPick = pickBestLocation(headerLines, finalCompany.value);
   const datePick = pickBestDateRange(headerLines, block.bodyLines);

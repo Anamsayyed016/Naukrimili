@@ -11,11 +11,28 @@ export class PDFExtractor {
           const text = data.text;
           
           if (text && text.length > 50) {
-            console.log('✅ PDF buffer text extraction completed with pdf-parse, length:', text.length);
+            console.log(
+              '✅ PDF buffer text extraction completed with pdf-parse',
+              data.recoveredFromStreams ? '(stream recovery)' : '',
+              ', length:',
+              text.length
+            );
             return text;
           }
         } catch (pdfError) {
-          console.log('⚠️ pdf-parse failed for buffer, using fallback method:', pdfError.message);
+          console.log('⚠️ pdf-parse failed for buffer, using fallback method:', (pdfError as Error).message);
+          try {
+            const { recoverTextFromPdfContentStreams, isUsableRecoveredPdfText } = await import(
+              './pdf-stream-text-recovery'
+            );
+            const recovered = recoverTextFromPdfContentStreams(buffer);
+            if (isUsableRecoveredPdfText(recovered)) {
+              console.log('✅ PDF stream recovery succeeded, length:', recovered.length);
+              return recovered;
+            }
+          } catch {
+            /* continue to binary fallback */
+          }
         }
       }
       

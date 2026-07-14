@@ -299,6 +299,14 @@ export function isLikelyLocationFragment(value: string): boolean {
   ) {
     return false;
   }
+  // Manufacturing / surface-finish process lists are not places.
+  if (
+    /\b(?:painting|coating|welding|fabrication|winding|tanking|slitting|powder\s+coating|surface\s+preparation|strip\s+covering)\b/i.test(
+      s
+    )
+  ) {
+    return false;
+  }
   if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(s)) {
     return true;
   }

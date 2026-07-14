@@ -62,10 +62,24 @@ function pickBestInstitution(lines: string[]): FieldPick<string> {
     }
   }
   if (degreeIdx >= 0) {
+    // "Degree From Institution" on the same line.
+    const fromInst = lines[degreeIdx].match(/\bfrom\s+(.+)$/i);
+    if (fromInst) {
+      const det = detectInstitutionFromLine(fromInst[1].trim());
+      if (det.confidence >= 35) {
+        return { value: det.institution || fromInst[1].trim(), confidence: Math.max(det.confidence, 70) };
+      }
+      return { value: fromInst[1].trim(), confidence: 68 };
+    }
     for (let i = degreeIdx + 1; i < Math.min(lines.length, degreeIdx + 3); i++) {
       const det = detectInstitutionFromLine(lines[i]);
       if (det.confidence >= 40) {
         return { value: det.institution, confidence: Math.min(100, det.confidence + 6) };
+      }
+      // "(M.P) affiliated to University …"
+      const aff = lines[i].match(/\baffiliated\s+to\s+([^,]+)/i);
+      if (aff) {
+        return { value: aff[1].trim(), confidence: 72 };
       }
     }
   }
