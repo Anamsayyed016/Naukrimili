@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container coe-resume">
+    <div class="coe-deco coe-deco--tl" aria-hidden="true"></div>
+    <div class="coe-deco coe-deco--bl" aria-hidden="true"></div>
+    <div class="coe-deco coe-deco--br" aria-hidden="true"></div>
+
+    <div class="coe-body">
+      <aside class="coe-sidebar">
+        <div class="coe-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="coe-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="coe-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="coe-ini-f">{{FIRST_NAME}}</span><span class="coe-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <section class="coe-section coe-section--contact">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Contact</span>
+          </h2>
+          <div class="coe-contact-list">
+            {{#if PHONE}}
+            <div class="coe-contact-item coe-contact-item--phone">
+              <span class="coe-contact-icon" aria-hidden="true"></span>
+              <span class="coe-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="coe-contact-item coe-contact-item--email">
+              <span class="coe-contact-icon" aria-hidden="true"></span>
+              <span class="coe-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="coe-contact-item coe-contact-item--linkedin">
+              <span class="coe-contact-icon" aria-hidden="true"></span>
+              <span class="coe-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="coe-contact-item coe-contact-item--web">
+              <span class="coe-contact-icon" aria-hidden="true"></span>
+              <span class="coe-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="coe-contact-item coe-contact-item--location">
+              <span class="coe-contact-icon" aria-hidden="true"></span>
+              <span class="coe-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if SKILLS}}
+        <section class="coe-section coe-section--skills">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Technical Skills</span>
+          </h2>
+          <div class="skills-list psp-skills-progress coe-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="coe-section coe-section--languages">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Languages</span>
+          </h2>
+          <div class="languages-list coe-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="coe-section coe-section--certs">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Certifications</span>
+          </h2>
+          <div class="certifications-list coe-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="coe-section coe-section--interests">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Interests</span>
+          </h2>
+          <div class="hobbies-list coe-hobbies">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="coe-main">
+        <header class="coe-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+          <div class="coe-header-rule" aria-hidden="true"></div>
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="coe-section coe-section--summary">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Professional Summary</span>
+          </h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="coe-section coe-section--experience">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Professional Experience</span>
+          </h2>
+          <div class="experience-list coe-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="coe-section coe-section--projects">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Featured Projects</span>
+          </h2>
+          <div class="projects-list coe-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="coe-section coe-section--education">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Education</span>
+          </h2>
+          <div class="education-list coe-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="coe-section coe-section--achievements">
+          <h2 class="coe-section-title">
+            <span class="coe-section-icon" aria-hidden="true"></span>
+            <span class="coe-section-label">Achievements</span>
+          </h2>
+          <div class="achievements-list coe-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

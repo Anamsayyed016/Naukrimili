@@ -2,6 +2,53 @@
   "version": "1.0.0",
   "templates": [
     {
+      "id": "charcoal-orange-executive",
+      "name": "Charcoal Orange Executive",
+      "slug": "charcoal-orange-executive",
+      "description": "Modern executive two-column resume with dark charcoal sidebar, amber-orange accents, circular portrait, skill progress pills, orange project cards, and education timeline for ATS-friendly PDF export.",
+      "thumbnail": "/templates/charcoal-orange-executive/thumbnail.svg",
+      "preview": "/templates/charcoal-orange-executive/preview.svg",
+      "html": "/templates/charcoal-orange-executive/index.html",
+      "css": "/templates/charcoal-orange-executive/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "charcoal-orange", "name": "Charcoal Orange", "primary": "#1F232B", "accent": "#F59E0B", "text": "#1F232B" },
+        { "id": "charcoal-amber", "name": "Charcoal Amber", "primary": "#1F232B", "accent": "#FB923C", "text": "#1F232B" },
+        { "id": "onyx-flame", "name": "Onyx Flame", "primary": "#181B22", "accent": "#F59E0B", "text": "#1F232B" },
+        { "id": "graphite-citrus", "name": "Graphite Citrus", "primary": "#2A3039", "accent": "#FB923C", "text": "#1F232B" },
+        { "id": "ink-solar", "name": "Ink Solar", "primary": "#1F232B", "accent": "#E8920A", "text": "#222831" }
+      ],
+      "defaultColor": "charcoal-orange",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 70,
+        "sidebarColumnBasisPct": 30,
+        "maxMovablePriority": 95,
+        "fixedSections": ["summary", "experience", "contact", "skills"],
+        "movableSections": ["projects", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "skills": 90,
+          "summary": 94,
+          "experience": 95,
+          "projects": 72,
+          "education": 66,
+          "certifications": 58,
+          "languages": 52,
+          "achievements": 50,
+          "interests": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "navy-gold-executive",
       "name": "Navy Gold Executive",
       "slug": "navy-gold-executive",
