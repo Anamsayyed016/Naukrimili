@@ -143,6 +143,53 @@
       }
     },
     {
+      "id": "graphite-crimson-executive",
+      "name": "Graphite Crimson Executive",
+      "slug": "graphite-crimson-executive",
+      "description": "Premium editorial two-column resume with graphite navy sidebar, crimson accent rules, circular portrait with corner frames, skill pills, floating project cards, and a fixed 28/72 layout for ATS-friendly PDF export.",
+      "thumbnail": "/templates/graphite-crimson-executive/thumbnail.svg",
+      "preview": "/templates/graphite-crimson-executive/preview.svg",
+      "html": "/templates/graphite-crimson-executive/index.html",
+      "css": "/templates/graphite-crimson-executive/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS", "Sidebar", "Luxury"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "graphite-crimson", "name": "Graphite Crimson", "primary": "#24344A", "accent": "#A43646", "text": "#222222" },
+        { "id": "ink-garnet", "name": "Ink Garnet", "primary": "#1C2A3C", "accent": "#A43646", "text": "#222222" },
+        { "id": "slate-ruby", "name": "Slate Ruby", "primary": "#2A3B52", "accent": "#B84A58", "text": "#222222" },
+        { "id": "navy-wine", "name": "Navy Wine", "primary": "#24344A", "accent": "#8F2F3D", "text": "#1E1E1E" },
+        { "id": "charcoal-rose", "name": "Charcoal Rose", "primary": "#2E4058", "accent": "#A43646", "text": "#222222" }
+      ],
+      "defaultColor": "graphite-crimson",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 72,
+        "sidebarColumnBasisPct": 28,
+        "maxMovablePriority": 95,
+        "fixedSections": ["summary", "experience", "contact", "skills"],
+        "movableSections": ["projects", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "skills": 90,
+          "summary": 94,
+          "experience": 95,
+          "projects": 72,
+          "education": 66,
+          "certifications": 58,
+          "languages": 52,
+          "achievements": 50,
+          "interests": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "soft-coral-executive",
       "name": "Soft Coral Executive",
       "slug": "soft-coral-executive",
