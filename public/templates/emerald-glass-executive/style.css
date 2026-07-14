@@ -653,6 +653,8 @@
   min-height: 0 !important;
   align-self: start;
   background: var(--ege-white);
+  /* Reset text on light cards so dark-sidebar inheritance cannot paint body white. */
+  color: var(--text-color);
   border: 1px solid var(--ege-border);
   border-radius: 12px;
   padding: 12px 12px 14px;
@@ -693,28 +695,75 @@
   z-index: 1;
   font-size: 11.5px;
   font-weight: 800;
-  color: var(--ege-emerald);
+  color: var(--primary-color);
   margin-bottom: 5px;
   line-height: var(--ege-lh-tight);
 }
 
+/* Primary body — covers <p class="description"> and bare <ul>/<li> from renderProjects */
 .ege-resume .ege-projects .project-item .description,
-.ege-resume .ege-projects .project-item p.description {
+.ege-resume .ege-projects .project-item p.description,
+.ege-resume .ege-projects .project-item ul,
+.ege-resume .ege-projects .project-item li {
   position: relative;
   z-index: 1;
   font-size: 9.5px;
   line-height: var(--ege-para-lh);
-  color: var(--ege-text);
+  color: var(--text-color);
   height: auto;
   margin: 0;
 }
 
+.ege-resume .ege-projects .project-item ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ege-bullet-gap);
+}
+
+.ege-resume .ege-projects .project-item li {
+  position: relative;
+  padding-left: 0.9em;
+}
+
+.ege-resume .ege-projects .project-item li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-color);
+}
+
+/* Secondary / muted metadata on light cards */
+.ege-resume .ege-projects .project-item .project-employer,
+.ege-resume .ege-projects .project-item .duration,
 .ege-resume .ege-projects .project-item .technologies {
   position: relative;
   z-index: 1;
   font-size: 8.5px;
   color: var(--ege-muted);
   margin-top: 6px;
+}
+
+.ege-resume .ege-projects .project-item .project-employer {
+  margin-top: 0;
+  margin-bottom: 2px;
+  font-size: 9px;
+}
+
+.ege-resume .ege-projects .project-item a {
+  position: relative;
+  z-index: 1;
+  font-size: 8.5px;
+  color: var(--primary-color);
+  text-decoration: none;
+  margin-top: 4px;
+  display: inline-block;
 }
 
 /* Education — mint accent bar cards */
