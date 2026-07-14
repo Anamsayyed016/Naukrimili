@@ -49,4 +49,42 @@ describe('soft-coral column placement + gallery capacity', () => {
     expect(capacity.isSingleColumn).toBe(false);
     expect(capacity.sidebarColumnBasisHint).toBeGreaterThan(0);
   });
+
+  it('expands underfilled sidebar instead of widening main when experience dominates', () => {
+    const experienceBlock = Array.from({ length: 5 }, (_, i) =>
+      `<div class="experience-item"><div class="experience-header"><span class="company">Co${i}</span><h3>Role</h3></div>` +
+        `<div class="description"><ul><li>Bullet one for role ${i}</li><li>Bullet two for role ${i}</li><li>Bullet three for role ${i}</li></ul></div></div>`
+    ).join('');
+
+    const rendered = `
+      <div class="resume-container sce-resume" data-dl-page-underfill="true">
+        <div class="sce-body">
+          <main class="sce-main">
+            <section><div class="experience-list">${experienceBlock}</div></section>
+          </main>
+          <aside class="sce-sidebar">
+            <section><span class="skill-tag">Go</span><span class="skill-tag">React</span></section>
+            <section><div class="education-item"><span class="institution">State U</span></div></section>
+          </aside>
+        </div>
+      </div>
+    `;
+    const metrics = synthesizeMetricsFromRenderedHtml(rendered);
+    const plan = computeDynamicLayoutPlanFromMetrics(metrics, {}, {
+      htmlTemplate: html,
+      templateId: 'soft-coral-executive',
+      renderedHtml: rendered,
+    });
+
+    expect(plan.mainFlexGrow).toBeLessThanOrEqual(1.75);
+    expect(plan.sidebarFlexGrow).toBeGreaterThanOrEqual(1.0);
+    expect(plan.sidebarColumnBasisPct).toBeGreaterThanOrEqual(22);
+    expect(plan.sidebarInternalGap).toBeGreaterThanOrEqual(plan.sectionGap * 0.9);
+    const sidebarExtras =
+      (plan.sectionExtras.skills ?? 0) +
+      (plan.sectionExtras.education ?? 0);
+    const experienceExtra = plan.sectionExtras.experience ?? 0;
+    expect(sidebarExtras).toBeGreaterThanOrEqual(0);
+    expect(experienceExtra).toBeLessThanOrEqual(sidebarExtras + 40);
+  });
 });

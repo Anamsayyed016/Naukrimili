@@ -229,14 +229,33 @@ function applyTemplateAwareDistribution(
   switch (profile) {
     case 'sidebar':
       if (fillSignals.sidebarUnderfilled) {
-        plan.sidebarCardPadding = Math.round(plan.sidebarCardPadding * 0.88 * 10) / 10;
-        plan.sidebarInternalGap = Math.round(plan.sidebarInternalGap * 0.82 * 10) / 10;
-        plan.mainFlexGrow = Math.max(plan.mainFlexGrow, 2.05);
-        plan.sidebarFlexGrow = Math.min(plan.sidebarFlexGrow, 0.7);
-      }
-      extras.experience = (extras.experience ?? 0) + 6;
-      for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
-        if (extras[kind]) extras[kind] = Math.round((extras[kind] ?? 0) * 0.85);
+        // Underfill: expand sidebar rhythm so the short column catches up.
+        // Never widen main flex — that deepens the blank-sidebar look.
+        const expandSidebar =
+          fillSignals.columnOverload || fillSignals.experienceDominant;
+        if (expandSidebar) {
+          plan.sidebarCardPadding =
+            Math.round(plan.sidebarCardPadding * 1.14 * 10) / 10;
+          plan.sidebarInternalGap =
+            Math.round(plan.sidebarInternalGap * 1.18 * 10) / 10;
+          plan.sidebarFlexGrow = Math.max(plan.sidebarFlexGrow, 1.12);
+          plan.mainFlexGrow = Math.min(plan.mainFlexGrow, 1.62);
+          for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
+            extras[kind] = Math.round((extras[kind] ?? 0) + 8);
+          }
+        } else {
+          plan.sidebarCardPadding =
+            Math.round(plan.sidebarCardPadding * 1.06 * 10) / 10;
+          plan.sidebarInternalGap =
+            Math.round(plan.sidebarInternalGap * 1.08 * 10) / 10;
+          plan.sidebarFlexGrow = Math.max(plan.sidebarFlexGrow, 1.0);
+          plan.mainFlexGrow = Math.min(Math.max(plan.mainFlexGrow, 1.55), 1.75);
+        }
+      } else {
+        extras.experience = (extras.experience ?? 0) + 6;
+        for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
+          if (extras[kind]) extras[kind] = Math.round((extras[kind] ?? 0) * 0.85);
+        }
       }
       break;
     case 'single-column':
@@ -878,6 +897,16 @@ function rebalanceColumnExtras(
         out[kind] = Math.round((out[kind] ?? 0) + transfer * 0.22);
       }
       out.summary = Math.round((out.summary ?? 0) + transfer * 0.15);
+    } else if (fillSignals.sidebarUnderfilled) {
+      // Short sidebar + taller main: feed extras into sidebar sections only.
+      for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
+        if (!metrics.sidebarSections.some((s) => s.kind === kind)) continue;
+        out[kind] = Math.round((out[kind] ?? 0) + transfer * 0.28);
+      }
+      if (metrics.sidebarSections.some((s) => s.kind === 'summary')) {
+        out.summary = Math.round((out.summary ?? 0) + transfer * 0.18);
+      }
+      out.experience = Math.round((out.experience ?? 0) - transfer * 0.08);
     } else if (fillSignals.pageUnderfill) {
       // Redistribute unused page height into readable rhythm.
       for (const kind of ['experience', 'summary', 'skills', 'education'] as LayoutSectionKind[]) {
@@ -887,10 +916,9 @@ function rebalanceColumnExtras(
     } else {
       out.experience = (out.experience ?? 0) + Math.round(transfer * 0.22);
       out.summary = (out.summary ?? 0) + Math.round(transfer * 0.12);
-      const compressMul = fillSignals.sidebarUnderfilled ? 0.55 : 0.72;
       for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
         if (!metrics.sidebarSections.some((s) => s.kind === kind)) continue;
-        out[kind] = Math.round((out[kind] ?? 0) * compressMul);
+        out[kind] = Math.round((out[kind] ?? 0) * 0.72);
       }
     }
   } else if (
@@ -930,9 +958,10 @@ function resolveAdaptiveCardMultipliers(
     educationItemMul = contentMetrics.educationCount <= 1 ? 1.05 : 1.12;
     experienceProtectMul = 0.88;
   } else if (fillSignals.sidebarUnderfilled) {
-    sidebarCardMul = contentMetrics.educationCount <= 1 ? 0.88 : 0.95;
-    sidebarGapMul = 0.92;
-    educationItemMul = contentMetrics.educationCount <= 1 ? 0.9 : 0.95;
+    // Still expand sparse sidebar — compressing it widens the blank column.
+    sidebarCardMul = contentMetrics.educationCount <= 1 ? 1.06 : 1.12;
+    sidebarGapMul = 1.12;
+    educationItemMul = contentMetrics.educationCount <= 1 ? 1.04 : 1.08;
   } else if (metrics.sidebarHeight > metrics.mainHeight * 1.2) {
     sidebarCardMul = 1.08;
     sidebarGapMul = 1.05;
@@ -1441,12 +1470,20 @@ export function computeDynamicLayoutPlanFromMetrics(
 
   if (fillSignals.pageUnderfill && experienceCount >= 2) {
     const fillBoost = clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1);
-    experienceListGap = Math.round(experienceListGap * (1 + fillBoost * 0.22) * 10) / 10;
-    experienceDescPadding = Math.round(experienceDescPadding * (1 + fillBoost * 0.28) * 10) / 10;
-    experienceHeaderGap = Math.round(experienceHeaderGap * (1 + fillBoost * 0.15) * 10) / 10;
-    bulletGapMul *= 1 + fillBoost * 0.18;
-    paragraphSpacingMul *= 1 + fillBoost * 0.22;
-    lineHeightMul *= 1 + fillBoost * 0.1;
+    // When the main column is already overloaded, do not grow inter-job gaps —
+    // that deepens the blank-sidebar imbalance.
+    const listBoost = fillSignals.columnOverload ? 0.04 : 0.22;
+    const descBoost = fillSignals.columnOverload ? 0.08 : 0.28;
+    experienceListGap = Math.round(experienceListGap * (1 + fillBoost * listBoost) * 10) / 10;
+    experienceDescPadding = Math.round(experienceDescPadding * (1 + fillBoost * descBoost) * 10) / 10;
+    experienceHeaderGap = Math.round(
+      experienceHeaderGap * (1 + fillBoost * (fillSignals.columnOverload ? 0.04 : 0.15)) * 10
+    ) / 10;
+    if (!fillSignals.columnOverload) {
+      bulletGapMul *= 1 + fillBoost * 0.18;
+      paragraphSpacingMul *= 1 + fillBoost * 0.22;
+      lineHeightMul *= 1 + fillBoost * 0.1;
+    }
   }
 
   if (fillSignals.experienceDominant && !fillSignals.columnOverload) {
@@ -2589,8 +2626,9 @@ export function getDomAwareLayoutRefinementScript(): string {
     if(m.sections.length<=4&&fill<0.85){sg*=1.22;bg*=1.16;pad*=1.14;}
     var mf=m.sidebarHeight>0?1.65:1, sf=m.sidebarHeight>0?1:0, sbPct=32, mnPct=68, sbMax=34;
     if(m.sidebarUnderfilled){
-      if(m.columnBalanced){mf=1.72;sf=0.95;sbPct=28;mnPct=72;sbMax=30;}
-      else{mf=2.12;sf=0.68;sbPct=24;mnPct=76;sbMax=26;sgap*=0.78;}
+      if(m.columnBalanced){mf=1.72;sf=0.95;sbPct=28;mnPct=72;sbMax=30;sgap*=1.08;}
+      else if(m.experienceDominant){mf=1.58;sf=1.12;sbPct=30;mnPct=70;sbMax=34;sgap*=1.18;}
+      else{mf=1.65;sf=1.05;sbPct=30;mnPct=70;sbMax=32;sgap*=1.1;}
     }
     else if(m.columnImbalance>40&&m.sidebarHeight>0){
       var t=Math.max(m.sidebarHeight,m.mainHeight), s=Math.min(m.sidebarHeight,m.mainHeight)||1;
@@ -2599,12 +2637,20 @@ export function getDomAwareLayoutRefinementScript(): string {
     }
     if(!m.columnBalanced&&m.mainHeight>m.sidebarHeight*1.08){
       var tr=Math.min(96,(m.mainHeight-m.sidebarHeight)*0.14);
-      extras.experience=(extras.experience||0)+Math.round(tr*0.62);
-      extras.summary=(extras.summary||0)+Math.round(tr*0.18);
-      ['education','languages','certifications','skills'].forEach(function(k){
-        if(m.sidebarSections.some(function(s){return s.kind===k;}))
-          extras[k]=Math.round((extras[k]||0)*(m.sidebarUnderfilled?0.28:0.55));
-      });
+      if(m.sidebarUnderfilled){
+        ['education','languages','certifications','skills','summary'].forEach(function(k){
+          if(m.sidebarSections.some(function(s){return s.kind===k;}))
+            extras[k]=Math.round((extras[k]||0)+tr*0.28);
+        });
+        extras.experience=Math.round((extras.experience||0)-tr*0.08);
+      } else {
+        extras.experience=(extras.experience||0)+Math.round(tr*0.62);
+        extras.summary=(extras.summary||0)+Math.round(tr*0.18);
+        ['education','languages','certifications','skills'].forEach(function(k){
+          if(m.sidebarSections.some(function(s){return s.kind===k;}))
+            extras[k]=Math.round((extras[k]||0)*0.55);
+        });
+      }
     }
     return {sectionGap:14*sg,blockGap:10*bg,fontScale:Math.min(1.12,Math.max(0.92,fg)),
       lineHeight:1.45*lh,mainFlex:mf,sidebarFlex:sf,pad:6*pad,pg:4*pg,cg:12*cg,
@@ -2624,7 +2670,7 @@ export function getDomAwareLayoutRefinementScript(): string {
     var projMul=1;
     if(projCount===1&&fill<0.88)projMul=1.55;
     else if(projCount>=3)projMul=1-Math.min(0.28,(projCount-2)/6);
-    var sbCard=6*p.pad*(p.sidebarUnder?0.62:(m.mainHeight>m.sidebarHeight*1.1?0.88:1));
+    var sbCard=6*p.pad*(p.sidebarUnder?(m.experienceDominant?1.12:1.06):(m.mainHeight>m.sidebarHeight*1.1?0.88:1));
     root.style.setProperty('--dl-section-gap',p.sectionGap+'px');
     root.style.setProperty('--dl-block-gap',p.blockGap+'px');
     root.style.setProperty('--dl-font-scale',String(p.fontScale));
@@ -2686,7 +2732,7 @@ export function getDomAwareLayoutRefinementScript(): string {
     if(sumEl){var w=(sumEl.textContent||'').trim().split(/\\s+/).filter(Boolean).length;sumShort=w>0&&w<45;}
     root.setAttribute('data-dl-summary',sumShort?'short':'normal');
     root.setAttribute('data-dl-density',dens);
-    root.setAttribute('data-dl-sidebar-density',p.sidebarUnder?'compact':'normal');
+    root.setAttribute('data-dl-sidebar-density',p.sidebarUnder?'normal':(sbCard<p.pad*0.85?'compact':'normal'));
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply);
   else apply();

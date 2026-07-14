@@ -399,6 +399,46 @@ function columnImbalanceGap(mainHeight: number, sidebarHeight: number): number {
 
 
 
+function columnImbalanceScore(mainHeight: number, sidebarHeight: number): number {
+
+  const main = Math.max(mainHeight, 1);
+
+  const side = Math.max(sidebarHeight, 1);
+
+  return Math.max(main / side, side / main);
+
+}
+
+
+
+function moveImprovesBalance(
+
+  mainHeight: number,
+
+  sidebarHeight: number,
+
+  projectedMain: number,
+
+  projectedSidebar: number
+
+): boolean {
+
+  const beforeGap = Math.abs(mainHeight - sidebarHeight);
+
+  const afterGap = Math.abs(projectedMain - projectedSidebar);
+
+  if (afterGap < beforeGap) return true;
+
+  const beforeScore = columnImbalanceScore(mainHeight, sidebarHeight);
+
+  const afterScore = columnImbalanceScore(projectedMain, projectedSidebar);
+
+  return afterScore + 1e-6 < beforeScore;
+
+}
+
+
+
 function isMainOverloaded(
 
   mainHeight: number,
@@ -591,81 +631,55 @@ function balancePass(
   if (isMainOverloaded(mainHeight, sidebarHeight, options.imbalanceRatio, options.minGapPx)) {
 
     const candidates = sortFlexibleCandidates(
-
       collectSectionsInColumn(mainInner, 'main').filter(
-
         (section) =>
-
           FLEXIBLE_COLUMN_SECTIONS.has(section.kind) &&
-
           allowedFlexible.has(section.kind) &&
-
           canRelocateSection(section.kind, metadata) &&
-
           !sidebarKinds.has(section.kind)
-
       ),
-
       metadata
-
     );
 
-
-
     for (const candidate of candidates) {
-
       if (moves >= options.maxMoves) break;
-
       if (!isMainOverloaded(mainHeight, sidebarHeight, options.imbalanceRatio, options.minGapPx)) {
-
         break;
-
       }
+      if (sidebarKinds.has(candidate.kind)) continue;
+      if (!mainInner.includes(candidate.html)) continue;
 
-
-
-      const projectedSidebar = sidebarHeight + candidate.height;
-
-      const projectedMain = mainHeight - candidate.height;
+      const simulatedMain = removeFirstOccurrence(mainInner, candidate.html);
+      const simulatedSidebar = `${sidebarInner}\n${markMovedSection(candidate.html, candidate.kind)}\n`;
+      const projectedMain = estimateColumnBlockHeight(simulatedMain);
+      const projectedSidebar = estimateColumnBlockHeight(simulatedSidebar);
 
       if (
-
-        projectedSidebar > projectedMain * OVERSHOOT_RATIO &&
-
-        candidate.height > options.minGapPx
-
+        !moveImprovesBalance(mainHeight, sidebarHeight, projectedMain, projectedSidebar)
       ) {
-
         continue;
-
+      }
+      if (
+        projectedSidebar > projectedMain * OVERSHOOT_RATIO &&
+        candidate.height > options.minGapPx
+      ) {
+        continue;
       }
 
-
-
-      mainInner = removeFirstOccurrence(mainInner, candidate.html);
-
-      sidebarInner = `${sidebarInner}\n${markMovedSection(candidate.html, candidate.kind)}\n`;
-
+      mainInner = simulatedMain;
+      sidebarInner = simulatedSidebar;
       sidebarKinds.add(candidate.kind);
-
       moved.push({ kind: candidate.kind, from: 'main', to: 'sidebar' });
-
       moves += 1;
-
-      mainHeight = estimateColumnBlockHeight(mainInner);
-
-      sidebarHeight = estimateColumnBlockHeight(sidebarInner);
-
+      mainHeight = projectedMain;
+      sidebarHeight = projectedSidebar;
     }
 
   } else if (
-
     isSidebarOverloaded(mainHeight, sidebarHeight, options.imbalanceRatio, options.minGapPx)
-
   ) {
 
     const candidates = sortFlexibleCandidates(
-
       collectSectionsInColumn(sidebarInner, 'sidebar').filter((section) => {
         if (!FLEXIBLE_COLUMN_SECTIONS.has(section.kind)) return false;
         if (!allowedFlexible.has(section.kind)) return false;
@@ -691,61 +705,43 @@ function balancePass(
         }
         return true;
       }),
-
       metadata
-
     );
 
-
-
     for (const candidate of candidates) {
-
       if (moves >= options.maxMoves) break;
-
       if (
-
         !isSidebarOverloaded(mainHeight, sidebarHeight, options.imbalanceRatio, options.minGapPx)
-
       ) {
-
         break;
-
       }
+      if (mainKinds.has(candidate.kind)) continue;
+      if (!sidebarInner.includes(candidate.html)) continue;
 
-
-
-      const projectedMain = mainHeight + candidate.height;
-
-      const projectedSidebar = sidebarHeight - candidate.height;
+      const simulatedSidebar = removeFirstOccurrence(sidebarInner, candidate.html);
+      const simulatedMain = `${mainInner}\n${markMovedSection(candidate.html, candidate.kind)}\n`;
+      const projectedMain = estimateColumnBlockHeight(simulatedMain);
+      const projectedSidebar = estimateColumnBlockHeight(simulatedSidebar);
 
       if (
-
-        projectedMain > projectedSidebar * OVERSHOOT_RATIO &&
-
-        candidate.height > options.minGapPx
-
+        !moveImprovesBalance(mainHeight, sidebarHeight, projectedMain, projectedSidebar)
       ) {
-
         continue;
-
+      }
+      if (
+        projectedMain > projectedSidebar * OVERSHOOT_RATIO &&
+        candidate.height > options.minGapPx
+      ) {
+        continue;
       }
 
-
-
-      sidebarInner = removeFirstOccurrence(sidebarInner, candidate.html);
-
-      mainInner = `${mainInner}\n${markMovedSection(candidate.html, candidate.kind)}\n`;
-
+      sidebarInner = simulatedSidebar;
+      mainInner = simulatedMain;
       mainKinds.add(candidate.kind);
-
       moved.push({ kind: candidate.kind, from: 'sidebar', to: 'main' });
-
       moves += 1;
-
-      mainHeight = estimateColumnBlockHeight(mainInner);
-
-      sidebarHeight = estimateColumnBlockHeight(sidebarInner);
-
+      mainHeight = projectedMain;
+      sidebarHeight = projectedSidebar;
     }
 
   }

@@ -2107,7 +2107,7 @@ describe('dynamic layout engine', () => {
     );
   });
 
-  it('injects compact sidebar density attribute for sparse sidebars', () => {
+  it('injects expanded sidebar density for sparse underfilled sidebars', () => {
     const { injectDynamicLayoutIntoHtml } = require('@/lib/resume-builder/dynamic-layout-engine');
     const html = injectDynamicLayoutIntoHtml(
       `<html><body><div class="resume-container">
@@ -2120,7 +2120,8 @@ describe('dynamic layout engine', () => {
       },
       { htmlTemplate: '<aside class="sidebar"></aside>' }
     );
-    expect(html).toContain('data-dl-sidebar-density="compact"');
+    // Sparse sidebar should expand (normal), not crush to compact.
+    expect(html).toContain('data-dl-sidebar-density="normal"');
   });
 
   it('keeps projects with title and description during coalesce recovery', () => {
