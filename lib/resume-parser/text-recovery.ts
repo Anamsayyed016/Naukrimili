@@ -1161,12 +1161,12 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
   const labeledNameRe =
-    /(?:^|\n)\s*(?:name|candidate\s*name|full\s*name|applicant\s*name)\s*[:：]\s*([A-Za-z][A-Za-z\s'.-]{2,50})/gi;
+    /(?:^|\n)\s*(?:name|candidate\s*name|full\s*name|applicant\s*name)\s*(?:\n\s*)?[:：]\s*([A-Za-z][A-Za-z\s'.-]{2,50})/gi;
   let labeledMatch: RegExpExecArray | null;
   while ((labeledMatch = labeledNameRe.exec(text)) !== null) {
-    const labeled = labeledMatch[1].trim();
+    const labeled = labeledMatch[1].trim().split(/\n/)[0].trim();
     if (isPlausiblePersonName(labeled) && !isFirmOrLocationNamePhrase(labeled)) {
-      candidates.push({ value: labeled, confidence: 87, source: 'labeled_name' });
+      candidates.push({ value: labeled, confidence: 94, source: 'labeled_name' });
     }
   }
 
@@ -1175,10 +1175,20 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
     const inline = line.match(
       /^(?:name|candidate\s*name|full\s*name|applicant\s*name)\s*[:：]\s*(.+)$/i
     );
-    if (!inline) continue;
-    const labeled = inline[1].trim();
-    if (isPlausiblePersonName(labeled) && !isFirmOrLocationNamePhrase(labeled)) {
-      candidates.push({ value: labeled, confidence: 86, source: 'labeled_name' });
+    if (inline) {
+      const labeled = inline[1].trim();
+      if (isPlausiblePersonName(labeled) && !isFirmOrLocationNamePhrase(labeled)) {
+        candidates.push({ value: labeled, confidence: 92, source: 'labeled_name' });
+      }
+      continue;
+    }
+    // Split label / value lines: "Name" then ": Neha Singh" or "Neha Singh"
+    if (/^(?:name|candidate\s*name|full\s*name|applicant\s*name)$/i.test(line)) {
+      const next = lines[i + 1] || '';
+      const value = next.replace(/^[:：]\s*/, '').trim();
+      if (isPlausiblePersonName(value) && !isFirmOrLocationNamePhrase(value)) {
+        candidates.push({ value, confidence: 93, source: 'labeled_name' });
+      }
     }
   }
 

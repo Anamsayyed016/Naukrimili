@@ -42,6 +42,25 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
   const trimmed = text.trim();
   if (!trimmed) return { designation: '', confidence: 0 };
 
+  // "As {Role} in/at {Employer}" — score the role fragment only.
+  const asInMatch = trimmed.match(/^As\s+(.+?)\s+(?:in|at|with|for)\s+(.+)$/i);
+  if (asInMatch) {
+    const titlePart = asInMatch[1].replace(/^working\s+/i, '').trim();
+    const conf = scoreDesignationCandidate(titlePart);
+    if (conf >= 32) {
+      return { designation: titlePart, confidence: Math.max(conf, 55) };
+    }
+  }
+
+  const asPrefix = trimmed.match(/^As\s+(.+)$/i);
+  if (asPrefix) {
+    const titlePart = asPrefix[1].trim();
+    const conf = scoreDesignationCandidate(titlePart);
+    if (conf >= 38) {
+      return { designation: titlePart, confidence: conf };
+    }
+  }
+
   const atMatch = trimmed.match(/^(.+?)\s+at\s+(.+)$/i);
   if (atMatch) {
     const titlePart = atMatch[1].trim();

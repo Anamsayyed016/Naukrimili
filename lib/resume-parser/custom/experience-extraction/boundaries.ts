@@ -63,6 +63,10 @@ function scoreBoundaryLine(line: ExperienceLine, prevBlank: boolean): number {
   if (/[|–—]/.test(text) && (company.confidence >= 40 || designation.confidence >= 40)) {
     score += 12;
   }
+  // "As {Role} in/at {Employer}" — high-confidence new-job marker.
+  if (/^as\s+.+\s+(?:in|at|with|for)\s+.+/i.test(text)) {
+    score += 36;
+  }
 
   if (text.split(/\s+/).length > 18 && !dateRange) score -= 25;
   if (looksLikeSentenceNotCompany(text)) score -= 40;

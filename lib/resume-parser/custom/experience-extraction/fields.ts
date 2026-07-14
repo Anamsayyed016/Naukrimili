@@ -4,7 +4,7 @@
 
 import { detectCompanyFromLine, looksLikeInstitutionalEmployer } from './company';
 import { parseDateRangeFromText } from './dates';
-import { detectDesignationFromLine } from './designation';
+import { detectDesignationFromLine, scoreDesignationCandidate } from './designation';
 import { extractDescriptionFromBlock } from './description';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
 import { extractTechnologiesFromBlock } from './technologies';
@@ -12,6 +12,7 @@ import {
   looksLikeCompanyNameLine,
   looksLikeStandaloneLocationLine,
   isPlausibleExperienceCompany,
+  isExperienceBlurbFragment,
 } from '@/lib/resume-parser/import-sanitize';
 import type {
   CustomExtractedExperience,
@@ -24,13 +25,47 @@ interface FieldPick<T> {
   confidence: number;
 }
 
-/** Parse composite header lines: "Title at Company", "Title - Company", "Company - Title". */
+/** Parse composite header lines: "Title at Company", "Title - Company", "As Title in Company". */
 function parseCompositeHeaderLine(line: string): {
   designation: FieldPick<string>;
   company: FieldPick<string>;
 } | null {
   const trimmed = line.trim();
   if (!trimmed) return null;
+
+  // "As Company Secretary in Indian Steel Corporation Limited"
+  const asInMatch = trimmed.match(/^As\s+(.+?)\s+(?:in|at|with|for)\s+(.+)$/i);
+  if (asInMatch) {
+    const rolePart = asInMatch[1].replace(/^working\s+/i, '').trim();
+    let employerPart = asInMatch[2].trim().replace(/^["'“”]+|["'“”]+$/g, '');
+    const citySplit = employerPart.match(/^(.+?),\s*([A-Za-z][A-Za-z.\s]{2,40})$/);
+    if (
+      citySplit &&
+      !/\b(?:ltd|limited|pvt|llc|inc|corp|llp|group|associates)\b/i.test(citySplit[2])
+    ) {
+      employerPart = citySplit[1].trim();
+    }
+    const des = detectDesignationFromLine(rolePart);
+    const comp = detectCompanyFromLine(employerPart);
+    const roleOk = des.confidence >= 32 || scoreDesignationCandidate(rolePart) >= 32;
+    const employerOk =
+      comp.confidence >= 36 ||
+      looksLikeInstitutionalEmployer(employerPart) ||
+      isPlausibleExperienceCompany(employerPart) ||
+      looksLikeCompanyNameLine(employerPart);
+    if (roleOk && employerOk && employerPart.length >= 2) {
+      return {
+        designation: {
+          value: des.designation || rolePart,
+          confidence: Math.max(des.confidence, 58),
+        },
+        company: {
+          value: comp.company || employerPart,
+          confidence: Math.max(comp.confidence, 62),
+        },
+      };
+    }
+  }
 
   const atMatch = trimmed.match(/^(.+?)\s+at\s+(.+)$/i);
   if (atMatch) {
@@ -173,8 +208,10 @@ function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<st
 
   for (const line of expandHeaderSegments(lines)) {
     if (parseDateRangeFromText(line)) continue;
+    if (isExperienceBlurbFragment(line)) continue;
     const det = detectCompanyFromLine(line);
     if (!det.company) continue;
+    if (isExperienceBlurbFragment(det.company)) continue;
     if (exclude && det.company.toLowerCase().trim() === exclude) continue;
     if (det.confidence > best.confidence) {
       best = { value: det.company, confidence: det.confidence };

@@ -53,6 +53,8 @@ export function looksLikeInstitutionalEmployer(text: string): boolean {
 export function looksLikeSentenceNotCompany(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed) return false;
+  // Employment headers like "As Counsel in ACME Ltd" are role lines, not prose.
+  if (/^as\s+.+\s+(?:in|at|with|for)\s+.+/i.test(trimmed)) return false;
   if (COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 120) return false;
   if (
     /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+)\b/i.test(

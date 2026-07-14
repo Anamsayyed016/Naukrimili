@@ -384,7 +384,40 @@ const NAME_STOPWORDS = new Set([
 
 /** Resume / business vocabulary — never valid in a personal name. */
 const NON_NAME_VOCAB =
-  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh|achievement|achievements|accomplishment|board|director|chairman|chairperson|secretary|president|executive|officer)\b/i;
+  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh|achievement|achievements|accomplishment|board|director|chairman|chairperson|secretary|president|executive|officer|marital|status|nationality|religion|gender|husband|wife|passport|married|unmarried|divorced|widowed)\b/i;
+
+/** Personal-detail form labels glued onto contact names (label line, not the value). */
+const TRAILING_PERSONAL_DETAIL_LABEL_RE =
+  /\s+(?:Marital\s+Status|Date\s+of\s+Birth|D\.?O\.?B\.?|Husband(?:'s)?\s+Name|Wife(?:'s)?\s+Name|Father(?:'s)?\s+Name|Mother(?:'s)?\s+Name|Permanent\s+Address|Correspondence\s+Address|Blood\s+Group|Nationality|Gender|Religion|Languages?\s+Known)\b.*$/i;
+
+/**
+ * Parse role/employer headers of the form "As {Role} in/at/with/for {Employer}".
+ * Generic across CS / legal / ops resumes — not resume-specific.
+ */
+export function parseAsRoleEmployerHeader(line: string): {
+  role: string;
+  employer: string;
+} | null {
+  const trimmed = sanitizeFieldText(line, 200);
+  if (!trimmed) return null;
+  const m = trimmed.match(
+    /^As\s+(.+?)\s+(?:in|at|with|for)\s+(.+)$/i
+  );
+  if (!m) return null;
+  let role = m[1].replace(/^working\s+/i, '').trim();
+  let employer = m[2].trim();
+  // Strip surrounding quotes around the employer token.
+  employer = employer.replace(/^["'“”]+|["'“”]+$/g, '').trim();
+  // Trailing ", City" — keep employer, drop location fragment when short.
+  const citySplit = employer.match(/^(.+?),\s*([A-Za-z][A-Za-z.\s]{2,40})$/);
+  if (citySplit && !/\b(?:ltd|limited|pvt|llc|inc|corp|llp|group|associates)\b/i.test(citySplit[2])) {
+    employer = citySplit[1].trim();
+  }
+  role = role.replace(/[,\s]+$/g, '').trim();
+  if (role.length < 3 || employer.length < 2) return null;
+  if (isExperienceBlurbFragment(employer)) return null;
+  return { role, employer };
+}
 
 const CREDENTIAL_PREFIX_RE = /^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba|fcs)\.?\s+/i;
 
@@ -663,11 +696,18 @@ export function mergeEmailLeadingNameWithHeader(headerName: string, email: strin
   const missingLead = emailLead.filter((w) => {
     const wl = w.toLowerCase();
     if (headerLower.includes(wl)) return false;
-    return !headerWords.some(
-      (hw) =>
-        hw.toLowerCase().startsWith(wl) ||
-        nameConsonantSkeleton(hw).startsWith(nameConsonantSkeleton(wl))
-    );
+    return !headerWords.some((hw) => {
+      const hwl = hw.toLowerCase();
+      if (hwl.startsWith(wl) || wl.startsWith(hwl)) return true;
+      // nehas ↔ neha (email local appends a trailing letter)
+      if (wl.length >= 3 && hwl.length >= 3 && (wl.startsWith(hwl) || hwl.startsWith(wl.slice(0, -1)))) {
+        return true;
+      }
+      return (
+        nameConsonantSkeleton(hw).startsWith(nameConsonantSkeleton(w)) ||
+        nameConsonantSkeleton(w).startsWith(nameConsonantSkeleton(hw))
+      );
+    });
   });
   if (!missingLead.length) return header;
 
@@ -1260,8 +1300,12 @@ export function sanitizeImportJobTitle(text: string): string {
 }
 
 export function isPlausiblePersonName(value: unknown): boolean {
-  const s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
+  let s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
+  s = s.replace(TRAILING_PERSONAL_DETAIL_LABEL_RE, '').replace(/\s+/g, ' ').trim();
   if (!s || isGarbageResumeText(s)) return false;
+  if (/^(?:marital\s+status|date\s+of\s+birth|d\.?o\.?b\.?|nationality|gender|religion|blood\s+group)$/i.test(s)) {
+    return false;
+  }
   if (isEmailOrDomainFragment(s)) return false;
   if (isCorporateStructurePhrase(s)) return false;
   if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(s)) return false;
@@ -1321,8 +1365,44 @@ export function sanitizePersonName(value: unknown, maxLen = 120): string {
       /\s+(?:Father(?:'s)?(?:\s+Name)?|Mother(?:'s)?(?:\s+Name)?|Spouse|Husband|Wife|Guardian|S\/O|D\/O|W\/O)\b.*$/i,
       ''
     )
+    .replace(TRAILING_PERSONAL_DETAIL_LABEL_RE, '')
     .replace(/\s+/g, ' ')
     .trim();
+  // Strip professional credentials that must not appear in the displayed name.
+  s = stripCredentialPrefix(s);
+  s = s
+    .replace(/\b(?:fcs|acs|ca|cs|cma|cfa|cpa|mba|llm|llb)\.?\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  // Collapse email-local duplicates of the given name ("Nehas Neha Singh" → "Neha Singh").
+  {
+    const words = s.split(/\s+/).filter(Boolean);
+    if (words.length >= 3) {
+      const collapsed: string[] = [];
+      for (let i = 0; i < words.length; i++) {
+        const a = words[i];
+        const b = words[i + 1];
+        if (!b) {
+          collapsed.push(a);
+          break;
+        }
+        const al = a.toLowerCase();
+        const bl = b.toLowerCase();
+        const nearDuplicate =
+          al === bl ||
+          al.startsWith(bl) ||
+          bl.startsWith(al) ||
+          (al.length >= 3 && bl.length >= 3 && (al.slice(0, -1) === bl || bl.slice(0, -1) === al));
+        if (nearDuplicate) {
+          collapsed.push(a.length <= b.length ? a : b);
+          i += 1;
+          continue;
+        }
+        collapsed.push(a);
+      }
+      s = collapsed.join(' ');
+    }
+  }
   if (!s) return '';
   if (isPlausiblePersonName(s)) return s;
   if (isAcceptedEmailDerivedName(s)) return s;
@@ -1425,9 +1505,11 @@ function scoreNameCandidate(candidate: NameCandidate, email: string): number {
   const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
 
   if (candidate.source === 'email_derived' && emailDerived) {
-    confidence = Math.max(confidence, 92);
+    confidence = Math.max(confidence, 88);
   } else if (emailDerived && isEmailDerivedName(value, email)) {
-    confidence = Math.max(confidence, 92);
+    confidence = Math.max(confidence, 88);
+  } else if (candidate.source === 'labeled_name') {
+    confidence = Math.max(confidence, 94);
   }
 
   if (candidate.source === 'near_contact' && emailDerived) {
@@ -1552,6 +1634,10 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
         const bVowels = (bFirst.match(/[aeiou]/g) || []).length;
         if (bVowels > aVowels) return b;
         if (aVowels > bVowels) return a;
+        // Prefer the shorter given name when one extends the other (neha vs nehas from email).
+        if (bFirst.startsWith(aFirst) || aFirst.startsWith(bFirst)) {
+          return aFirst.length <= bFirst.length ? a : b;
+        }
         if (bFirst.length > aFirst.length) return b;
         if (aFirst.length > bFirst.length) return a;
       }
@@ -2906,6 +2992,7 @@ export function sanitizeExperienceCompanyValue(value: unknown): string {
   if (!s || isExperienceDateOrDurationToken(s)) return '';
   // Builder/canonical entry ids must never occupy the company slot.
   if (/^exp[-_]/i.test(s)) return '';
+  if (isExperienceBlurbFragment(s)) return '';
   return s;
 }
 
@@ -3296,6 +3383,24 @@ export function reconcileExperienceHeaderFields(
   let company = slotCompany || (slotOrg && slotOrg !== slotCompany ? slotOrg : '');
   let position = readExperiencePositionSlot(exp);
   let location = sanitizeFieldText(exp.location || exp.Location, 120);
+
+  // Recover role/employer from "As {Role} in/at {Employer}" headers.
+  // Parenthetical company blurbs (turnover, incomplete "(A … with") must not block this.
+  {
+    const asFromPosition = parseAsRoleEmployerHeader(position);
+    const asFromCompany = parseAsRoleEmployerHeader(company);
+    const asParsed = asFromPosition || asFromCompany;
+    if (asParsed) {
+      if (!position || asFromPosition || isExperienceBlurbFragment(company)) {
+        position = asParsed.role;
+      }
+      if (!company || isExperienceBlurbFragment(company) || asFromCompany) {
+        company = asParsed.employer;
+      }
+    } else if (company && isExperienceBlurbFragment(company)) {
+      company = '';
+    }
+  }
 
   if (company) {
     const pipeSplit = splitCompanyLocationPipe(company);
