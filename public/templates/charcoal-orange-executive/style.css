@@ -451,12 +451,27 @@
   word-break: break-word;
 }
 
-/* ── Skills progress pills ── */
+/* ── Skills progress pills (content-aware) ── */
+.coe-resume .coe-section--skills {
+  --coe-skill-gap: 8px;
+  --coe-skill-bar-min-h: 20px;
+  --coe-skill-pad-y: 5px;
+  --coe-skill-pad-x: 10px;
+  --coe-skill-fs: 8.5px;
+  --coe-skill-lh: 1.3;
+  --coe-skill-cols: 1;
+}
+
 .coe-resume .coe-skills.psp-skills-progress,
-.coe-resume .psp-skills-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+.coe-resume .psp-skills-progress,
+.coe-resume .coe-section--skills .skills-list {
+  display: grid;
+  grid-template-columns: repeat(var(--coe-skill-cols), minmax(0, 1fr));
+  gap: var(--coe-skill-gap);
+  align-items: start;
+  width: 100%;
+  height: auto;
+  min-height: 0;
 }
 
 .coe-resume .psp-skill-item {
@@ -464,9 +479,15 @@
   border-radius: 999px;
   overflow: hidden;
   background: var(--coe-charcoal-bar);
-  min-height: 22px;
+  min-height: var(--coe-skill-bar-min-h);
+  height: auto;
+  max-height: none;
   display: flex;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  flex: 0 0 auto;
 }
 
 .coe-resume .psp-skill-item::before {
@@ -479,6 +500,7 @@
   background: var(--accent-color);
   border-radius: 999px;
   z-index: 0;
+  pointer-events: none;
 }
 
 .coe-resume .psp-skill-item:nth-child(3n + 1)::before { width: 92%; }
@@ -489,24 +511,126 @@
 .coe-resume .psp-skill-name {
   position: relative;
   z-index: 1;
-  font-size: 8.5px;
+  font-size: var(--coe-skill-fs);
   font-weight: 700;
   color: var(--coe-white);
-  padding: 5px 12px;
-  line-height: 1.3;
-  letter-spacing: 0.02em;
+  padding: var(--coe-skill-pad-y) var(--coe-skill-pad-x);
+  line-height: var(--coe-skill-lh);
+  letter-spacing: 0.015em;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  max-width: 100%;
 }
 
 .coe-resume .coe-skills .skill-tag {
   display: block;
-  font-size: 8.5px;
+  font-size: var(--coe-skill-fs);
   font-weight: 600;
   color: var(--coe-white);
   background: var(--coe-charcoal-bar);
   border-radius: 999px;
-  padding: 5px 10px;
-  margin-bottom: 6px;
+  padding: var(--coe-skill-pad-y) var(--coe-skill-pad-x);
+  margin: 0;
+  line-height: var(--coe-skill-lh);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Density tiers — driven only by skill count (:has), not resume identity */
+.coe-resume .coe-section--skills:has(.psp-skill-item:nth-child(1)):not(:has(.psp-skill-item:nth-child(9))),
+.coe-resume .coe-section--skills:has(.skill-tag:nth-child(1)):not(:has(.skill-tag:nth-child(9))) {
+  --coe-skill-gap: 9px;
+  --coe-skill-bar-min-h: 22px;
+  --coe-skill-pad-y: 5px;
+  --coe-skill-pad-x: 11px;
+  --coe-skill-fs: 8.5px;
+  --coe-skill-lh: 1.35;
+}
+
+.coe-resume .coe-section--skills:has(.psp-skill-item:nth-child(9)):not(:has(.psp-skill-item:nth-child(15))),
+.coe-resume .coe-section--skills:has(.skill-tag:nth-child(9)):not(:has(.skill-tag:nth-child(15))) {
+  --coe-skill-gap: 6px;
+  --coe-skill-bar-min-h: 18px;
+  --coe-skill-pad-y: 4px;
+  --coe-skill-pad-x: 9px;
+  --coe-skill-fs: 8px;
+  --coe-skill-lh: 1.28;
+}
+
+.coe-resume .coe-section--skills:has(.psp-skill-item:nth-child(15)):not(:has(.psp-skill-item:nth-child(21))),
+.coe-resume .coe-section--skills:has(.skill-tag:nth-child(15)):not(:has(.skill-tag:nth-child(21))) {
+  --coe-skill-gap: 4.5px;
+  --coe-skill-bar-min-h: 16px;
+  --coe-skill-pad-y: 3px;
+  --coe-skill-pad-x: 8px;
+  --coe-skill-fs: 7.5px;
+  --coe-skill-lh: 1.25;
+}
+
+.coe-resume .coe-section--skills:has(.psp-skill-item:nth-child(21)),
+.coe-resume .coe-section--skills:has(.skill-tag:nth-child(21)) {
+  --coe-skill-gap: 3.5px;
+  --coe-skill-bar-min-h: 14px;
+  --coe-skill-pad-y: 2.5px;
+  --coe-skill-pad-x: 7px;
+  --coe-skill-fs: 7px;
+  --coe-skill-lh: 1.22;
+}
+
+/* Large skill lists → slightly tighten sibling sidebar sections (not skills-only crush) */
+.coe-resume .coe-sidebar:has(.psp-skill-item:nth-child(12)),
+.coe-resume .coe-sidebar:has(.skill-tag:nth-child(12)) {
+  --coe-section-gap: 12px;
+}
+
+.coe-resume .coe-sidebar:has(.psp-skill-item:nth-child(18)),
+.coe-resume .coe-sidebar:has(.skill-tag:nth-child(18)) {
+  --coe-section-gap: 10px;
+}
+
+.coe-resume .coe-sidebar:has(.psp-skill-item:nth-child(26)),
+.coe-resume .coe-sidebar:has(.skill-tag:nth-child(26)) {
+  --coe-section-gap: 8px;
+}
+
+/* Container-aware 2-column skills when sidebar is wide enough AND list is large */
+.coe-resume .coe-sidebar {
+  container-type: inline-size;
+  container-name: coe-sidebar;
+}
+
+@container coe-sidebar (min-width: 210px) {
+  .coe-section--skills:has(.psp-skill-item:nth-child(16)),
+  .coe-section--skills:has(.skill-tag:nth-child(16)) {
+    --coe-skill-cols: 2;
+    --coe-skill-gap: 5px 6px;
+    --coe-skill-bar-min-h: 15px;
+    --coe-skill-pad-y: 3px;
+    --coe-skill-pad-x: 7px;
+    --coe-skill-fs: 7px;
+  }
+}
+
+@container coe-sidebar (min-width: 210px) {
+  .coe-section--skills:has(.psp-skill-item:nth-child(28)),
+  .coe-section--skills:has(.skill-tag:nth-child(28)) {
+    --coe-skill-cols: 2;
+    --coe-skill-gap: 3.5px 5px;
+    --coe-skill-bar-min-h: 13px;
+    --coe-skill-pad-y: 2px;
+    --coe-skill-pad-x: 6px;
+    --coe-skill-fs: 6.5px;
+  }
+}
+
+@container coe-sidebar (max-width: 209px) {
+  .coe-section--skills {
+    --coe-skill-cols: 1;
+  }
 }
 
 /* ── Languages ── */
@@ -1200,4 +1324,39 @@
 
 .resume-container.coe-resume[data-dl-page-underfill='true'] .coe-sidebar {
   justify-content: flex-start !important;
+}
+
+/* Skills sidebar adaptive overrides (beat shared DL skill grid rules) */
+.resume-container.coe-resume .coe-section--skills .psp-skills-progress,
+.resume-container.coe-resume .coe-section--skills .skills-list,
+.resume-container.coe-resume .coe-skills.psp-skills-progress {
+  display: grid !important;
+  grid-template-columns: repeat(var(--coe-skill-cols, 1), minmax(0, 1fr)) !important;
+  gap: var(--coe-skill-gap, 8px) !important;
+  align-items: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.resume-container.coe-resume .psp-skill-item,
+.resume-container.coe-resume .coe-skills .skill-tag {
+  height: auto !important;
+  min-height: var(--coe-skill-bar-min-h, 18px) !important;
+  max-height: none !important;
+  margin: 0 !important;
+  align-self: start !important;
+}
+
+.resume-container.coe-resume .psp-skill-name {
+  font-size: var(--coe-skill-fs, 8.5px) !important;
+  line-height: var(--coe-skill-lh, 1.3) !important;
+  padding: var(--coe-skill-pad-y, 5px) var(--coe-skill-pad-x, 10px) !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word !important;
+}
+
+.resume-container.coe-resume .coe-sidebar {
+  gap: var(--coe-section-gap) !important;
 }
