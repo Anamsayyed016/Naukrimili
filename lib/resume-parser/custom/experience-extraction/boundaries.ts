@@ -108,22 +108,37 @@ export function partitionExperienceBlocks(
     blockStart: number,
     lineIndex: number
   ): boolean => {
-    const threshold = afterBlank ? boundaryThresholdAfterBlank : boundaryThreshold;
-    if (line.boundaryScore < threshold || line.isBullet) return false;
-    if (isExperienceSubsectionLabel(line.text)) return false;
+    if (line.isBullet || isExperienceSubsectionLabel(line.text)) return false;
 
     const state = blockIdentityState(scored, blockStart, lineIndex);
     const isDateLine = parseDateRangeFromText(line.text) !== null;
     const isCompanyLine = detectCompanyFromLine(line.text).confidence >= 45;
     const isDesignationLine = detectDesignationFromLine(line.text).confidence >= 40;
 
+    // A strong job title after a completed role header starts the next role even when
+    // the title-only line scores below the normal boundary threshold (common on
+    // ATS resumes with contiguous entries and no blank separator).
+    if (
+      isDesignationLine &&
+      !isCompanyLine &&
+      !isDateLine &&
+      state.hasDesignation &&
+      state.hasCompany &&
+      state.hasDates
+    ) {
+      return true;
+    }
+
+    const threshold = afterBlank ? boundaryThresholdAfterBlank : boundaryThreshold;
+    if (line.boundaryScore < threshold) return false;
+
     // Dates on the line after title/company belong to the same role — never split.
     if (isDateLine && (state.hasDesignation || state.hasCompany) && !state.hasDates) {
       return false;
     }
 
-    // Company on the line after designation belongs to the same role.
-    if (isCompanyLine && state.hasDesignation && !state.hasCompany && !isDateLine) {
+    // Company (± inline dates) on the line after designation belongs to the same role.
+    if (isCompanyLine && state.hasDesignation && !state.hasCompany) {
       return false;
     }
 

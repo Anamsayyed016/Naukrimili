@@ -13,7 +13,7 @@ import { lineContentDensity } from './line-index';
 import { SECTION_TAXONOMY, scoreHeadingKeywords } from './taxonomy';
 import type { HeadingCandidate, LineSpan, NormalizedSectionType, SectionScoreBreakdown } from './types';
 
-const BULLET_LINE_RE = /^[\s]*(?:[-–—•·▪‣●○◦]|\d+[\.\)])\s+/;
+const BULLET_LINE_RE = /^[\s]*(?:[-–—•·▪‣●○◦✓✔]|\d+[\.\)])\s+/;
 const CONTACT_LINE_RE =
   /@|linkedin\.com|github\.com|https?:\/\/|\+?\d[\d\s().-]{7,}\d|www\./i;
 const MIN_KNOWN_TYPE_SCORE = 38;
@@ -45,11 +45,15 @@ function isSectionContentLineNotHeading(text: string): boolean {
   }
   if (/\b(?:employee of the year|best employee award|increased revenue)\b/i.test(t)) return true;
 
+  // Job titles are never section headings — even when a shared token (e.g. "Professional")
+  // accidentally scores against a taxonomy phrase like professional-qualifications.
+  if (looksLikeJobTitleLine(t)) return true;
+
   const typeScores = scoreHeadingKeywords(t);
   const bestKeyword = Math.max(0, ...Object.values(typeScores));
   if (bestKeyword >= MIN_KNOWN_TYPE_SCORE) return false;
 
-  if (looksLikeCompanyNameLine(t) || looksLikeJobTitleLine(t)) return true;
+  if (looksLikeCompanyNameLine(t)) return true;
   if (CITY_STATE_LINE_RE.test(t)) return true;
   if (SKILL_COMMA_LIST_LINE_RE.test(t)) return true;
   const classified = classifyResumeTextFragment(t);

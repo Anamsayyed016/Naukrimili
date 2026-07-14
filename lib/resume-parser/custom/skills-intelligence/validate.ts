@@ -19,6 +19,10 @@ const PHONE_RE = /\+?\d[\d\s().-]{7,}\d/;
 const RESPONSIBILITY_RE =
   /\b(responsible for|managed|mentored|developed|implemented|designed|delivered)\b/i;
 
+/** Single past-tense duty verbs mis-extracted from achievement bullets as "skills". */
+const DUTY_VERB_SKILL_RE =
+  /^(?:led|conducted|managed|maintained|organized|organised|supported|implemented|coordinated|facilitated|handled|optimized|optimised|enhanced|streamlined|prepared|drafted|assisted|performed|executed|achieved|improved|created|built|drove|oversaw|supervised|monitored|tracked|scheduled|trained|hired|recruited)$/i;
+
 const SECTION_HEADING_RE =
   /^(?:skills?|technical\s+skills|core\s+skills|expertise|competencies|technologies|technology|tools|frameworks)$/i;
 
@@ -49,6 +53,7 @@ export function isValidSkillCandidate(raw: string): boolean {
 
   const cleaned = sanitizeSkillEntry(raw);
   if (!cleaned) return false;
+  if (DUTY_VERB_SKILL_RE.test(cleaned)) return false;
 
   if (MULTI_WORD_SKILL_ALLOW_RE.test(cleaned)) return true;
   if (SOFT_SKILL_SINGLE_RE.test(cleaned)) return true;

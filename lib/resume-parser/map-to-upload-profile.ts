@@ -142,9 +142,11 @@ export function isSuspectSummary(summary: string | undefined): boolean {
     return true;
   }
   // Section boundary lost on long/multi-column PDFs — education/experience/skills embedded in summary.
+  // Only treat as bleed when these appear as line-leading headings, not prose
+  // ("years of professional experience").
   if (s.length > 1800) return true;
   if (
-    /\b(work\s+experience|professional\s+experience|employment\s+history|education|academic\s+background|technical\s+skills|key\s+skills|core\s+competenc)/i.test(
+    /(?:^|[.!?]\s)\s*(?:work\s+experience|professional\s+experience|employment\s+history|education|academic\s+background|technical\s+skills|key\s+skills|core\s+competenc)\b/i.test(
       s
     ) &&
     s.length > 350

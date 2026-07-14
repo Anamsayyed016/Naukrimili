@@ -933,6 +933,360 @@ function isMainColumnContent(text: string): boolean {
 }
 
 /**
+ * Many designer PDFs emit one word per line. Reassemble only when the layout is
+ * clearly fragmented — never rewrite normal ATS / sentence resumes.
+ */
+const HEADING_CONTINUATION: Record<string, string[]> = {
+  work: ['experience', 'history', 'exposure'],
+  professional: ['summary', 'experience', 'profile', 'overview', 'background', 'highlights'],
+  key: ['achievements', 'competencies', 'skills', 'highlights', 'qualifications'],
+  hr: ['competencies', 'skills', 'experience', 'management'],
+  career: ['summary', 'objective', 'highlights', 'history', 'profile'],
+  technical: ['skills', 'expertise', 'competencies'],
+  core: ['skills', 'competencies', 'strengths'],
+  academic: ['background', 'qualifications', 'achievements'],
+  educational: ['qualifications', 'background'],
+  employment: ['history'],
+  personal: ['details', 'information', 'profile'],
+  areas: ['of expertise', 'of exposure'],
+  soft: ['skills'],
+};
+
+function isProficiencyOnlyToken(text: string): boolean {
+  return /^(?:native|fluent|professional|intermediate|basic|beginner|conversational|advanced|elementary|mother\s*tongue)$/i.test(
+    text.replace(/[()[\]]/g, '').trim()
+  );
+}
+
+function isFragmentableLine(line: string): boolean {
+  const t = line.trim();
+  if (!t || t.length > 48) return false;
+  if (/^[✓✔▸•·▪●○◦*+\-–—]$/.test(t)) return false;
+  if (/^[✓✔]\s*$/.test(t)) return false;
+  if (/[|•▸]/.test(t) && t.length > 8) return false;
+  if (lineHasDateRange(t)) return false;
+  if (/[.!?]$/.test(t) && t.split(/\s+/).length >= 4) return false;
+  const words = t.split(/\s+/).filter(Boolean);
+  return words.length <= 3;
+}
+
+function measureShortLineRatio(lines: string[]): number {
+  const nonEmpty = lines.map((l) => l.trim()).filter(Boolean);
+  if (nonEmpty.length < 8) return 0;
+  const short = nonEmpty.filter((l) => {
+    const words = l.split(/\s+/).filter(Boolean);
+    return words.length <= 2 && l.length <= 28;
+  }).length;
+  return short / nonEmpty.length;
+}
+
+/**
+ * Join adjacent ALL-CAPS / title tokens that form known multi-word section headings.
+ */
+export function joinSplitSectionHeadings(text: string): string {
+  const lines = text.split('\n');
+  const out: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const cur = lines[i].trim();
+    const next = (lines[i + 1] || '').trim();
+    if (!cur) {
+      out.push(lines[i]);
+      continue;
+    }
+    const curKey = cur.toLowerCase().replace(/[:\-–—|]+$/g, '').trim();
+    const nextKey = next.toLowerCase().replace(/[:\-–—|]+$/g, '').trim();
+    const continuations = HEADING_CONTINUATION[curKey];
+    if (
+      continuations &&
+      next &&
+      continuations.some((c) => nextKey === c || nextKey.startsWith(`${c} `))
+    ) {
+      out.push(`${cur} ${next}`.replace(/\s+/g, ' ').trim());
+      i += 1;
+      continue;
+    }
+    // Bare "WORK" / "EMPLOYMENT" before a role line → promote to experience heading.
+    if (
+      /^(?:work|employment)$/i.test(curKey) &&
+      next &&
+      (isLikelyJobTitle(next) || looksLikeJobTitleLine(next) || /^(?:hr|it)\b/i.test(next))
+    ) {
+      out.push(curKey === 'employment' ? 'EMPLOYMENT HISTORY' : 'WORK EXPERIENCE');
+      continue;
+    }
+    out.push(lines[i]);
+  }
+  return out.join('\n');
+}
+
+const ROLE_CONTINUATION_TOKEN =
+  /^(?:coordinator|manager|engineer|developer|administrator|analyst|specialist|executive|officer|intern|consultant|director|lead|head|associate|professional|secretary|assistant|recruiter|trainee|i{1,3}|sr|jr)$/i;
+
+const HEADING_ONLY_TOKEN =
+  /^(?:work|experience|professional|summary|key|achievements|education|skills|projects|certifications|languages|competencies|profile|objective|employment|career|work\s+experience|professional\s+summary|key\s+achievements|key\s+competencies|employment\s+history|career\s+summary)$/i;
+
+function isJobHeaderLookbackLine(prev: string): boolean {
+  const t = prev.trim();
+  if (!t || t.length > 70) return false;
+  if (/^[▸•·▪●○◦*+\-–—✓✔]/.test(t)) return false;
+  if (HEADING_ONLY_TOKEN.test(t)) return false;
+  if (lineHasDateRange(t) || (t.includes('|') && t.length > 8)) return false;
+  if (t.split(/\s+/).length > 8) return false;
+  if (/[.!?]$/.test(t) && t.split(/\s+/).length >= 5) return false;
+  return true;
+}
+
+function splitTitleAndEmployer(lookback: string[]): { title: string; employer: string } {
+  const titleParts: string[] = [];
+  const employerParts: string[] = [];
+  for (const tok of lookback) {
+    if (
+      titleParts.length &&
+      (isLikelyJobTitle(titleParts.join(' ')) || looksLikeJobTitleLine(titleParts.join(' '))) &&
+      !ROLE_CONTINUATION_TOKEN.test(tok) &&
+      !isLikelyJobTitle([...titleParts, tok].join(' '))
+    ) {
+      employerParts.push(tok);
+    } else {
+      titleParts.push(tok);
+    }
+  }
+  if (!employerParts.length && titleParts.length >= 2) {
+    const last = titleParts[titleParts.length - 1];
+    if (!ROLE_CONTINUATION_TOKEN.test(last) && !/^(?:hr|it|finance|sales|office|group)$/i.test(last)) {
+      employerParts.push(titleParts.pop()!);
+    }
+  }
+  return {
+    title: titleParts.join(' ').replace(/\s+/g, ' ').trim(),
+    employer: employerParts.join(' ').replace(/\s+/g, ' ').trim(),
+  };
+}
+
+/**
+ * Normalize PDF noise tabs while preserving intentional dual-column gap tabs.
+ * - 3+ tab-split fragments on a line → join with spaces (word-per-token PDF noise)
+ * - 2+ tab chars even with 2 fragments → join (noise between words)
+ * - Exactly one tab separating two fragments → keep as column gutter for reconstructColumnLayout
+ */
+export function normalizeInlineTabsPreservingColumnGaps(text: string): string {
+  return text
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((line) => {
+      if (!line.includes('\t')) return line;
+      const parts = line.split('\t').map((p) => p.trim()).filter((p) => p.length > 0);
+      if (parts.length === 0) return '';
+      if (parts.length === 1) return parts[0];
+      const tabCount = (line.match(/\t/g) || []).length;
+      if (parts.length >= 3 || tabCount >= 2) {
+        return parts.join(' ');
+      }
+      const left = parts[0];
+      const right = parts[1];
+      const leftKey = left.toLowerCase().replace(/[:\-–—|]+$/g, '').trim();
+      const rightKey = right.toLowerCase().replace(/[:\-–—|]+$/g, '').trim();
+      const continuations = HEADING_CONTINUATION[leftKey];
+      if (
+        continuations?.some((c) => rightKey === c || rightKey.startsWith(`${c} `)) ||
+        ROLE_CONTINUATION_TOKEN.test(right) ||
+        HEADING_ONLY_TOKEN.test(left) ||
+        HEADING_ONLY_TOKEN.test(right)
+      ) {
+        return `${left} ${right}`;
+      }
+      return `${left}\t${right}`;
+    })
+    .join('\n');
+}
+
+/**
+ * Always-on stitcher: pull short fragmented title/employer tokens into the following
+ * company|location|dates line. Safe on ATS resumes (no-op when no short lookback).
+ */
+export function stitchFragmentedJobHeaders(text: string): string {
+  const lines = normalizeInlineTabsPreservingColumnGaps(text).split('\n');
+  const used = new Set<number>();
+  const rebuilt: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    if (used.has(i)) continue;
+    const trimmed = lines[i].trim();
+    if (!trimmed) {
+      rebuilt.push('');
+      continue;
+    }
+
+    const isJobMetaLine =
+      (trimmed.includes('|') && (lineHasDateRange(trimmed) || /\b(?:19|20)\d{2}\b/.test(trimmed))) ||
+      (/^\|/.test(trimmed) && (lineHasDateRange(trimmed) || /\b(?:19|20)\d{2}\b/.test(trimmed)));
+
+    if (!isJobMetaLine) {
+      rebuilt.push(lines[i]);
+      continue;
+    }
+
+    const lookback: string[] = [];
+    for (let j = i - 1; j >= 0 && lookback.length < 5; j--) {
+      if (used.has(j)) break;
+      const prev = lines[j].trim();
+      if (!prev) break;
+      if (!isJobHeaderLookbackLine(prev)) break;
+      lookback.unshift(prev);
+      used.add(j);
+    }
+    used.add(i);
+
+    if (!lookback.length) {
+      rebuilt.push(trimmed.replace(/^\|\s*/, ''));
+      continue;
+    }
+
+    while (rebuilt.length && lookback.includes(rebuilt[rebuilt.length - 1].trim())) {
+      rebuilt.pop();
+    }
+
+    const { title, employer } = splitTitleAndEmployer(lookback);
+    const companyLine = employer
+      ? trimmed.startsWith('|')
+        ? `${employer} ${trimmed}`.replace(/\s+/g, ' ').trim()
+        : `${employer} ${trimmed.replace(/^\|\s*/, '')}`.replace(/\s+/g, ' ').trim()
+      : trimmed.replace(/^\|\s*/, '');
+    if (title) rebuilt.push(title);
+    rebuilt.push(companyLine);
+  }
+
+  return rebuilt.join('\n');
+}
+
+/**
+ * Reassemble word-per-line PDF extraction into readable resume lines.
+ * Guarding by short-line density keeps normal documents unchanged for the heavy pass.
+ */
+export function reassembleFragmentedResumeLines(text: string): string {
+  if (!text || text.length < 80) return text;
+  // PDF extractors often insert tabs between words on the same visual line.
+  // Preserve single intentional column-gap tabs from preserveColumnGaps.
+  let out = normalizeInlineTabsPreservingColumnGaps(text);
+  out = joinSplitSectionHeadings(out);
+  out = stitchFragmentedJobHeaders(out);
+  out = joinSplitSectionHeadings(out);
+
+  const lines = out.replace(/\r\n/g, '\n').split('\n');
+  const ratio = measureShortLineRatio(lines);
+  if (ratio < 0.42) {
+    return out;
+  }
+
+  const buffered: string[] = [];
+  let buffer: string[] = [];
+
+  const flush = () => {
+    if (!buffer.length) return;
+    buffered.push(buffer.join(' ').replace(/\s+/g, ' ').trim());
+    buffer = [];
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const trimmed = raw.trim();
+
+    if (!trimmed) {
+      flush();
+      buffered.push('');
+      continue;
+    }
+
+    if (/^[✓✔]\s*$/.test(trimmed) || /^[▸•·▪●○◦]\s*$/.test(trimmed)) {
+      continue;
+    }
+
+    if (
+      buffer.length === 1 &&
+      /^\([^)]+\)$/.test(trimmed) &&
+      isProficiencyOnlyToken(trimmed)
+    ) {
+      buffer[0] = `${buffer[0]} ${trimmed}`;
+      flush();
+      continue;
+    }
+
+    if (lineHasDateRange(trimmed) || (trimmed.includes('|') && trimmed.length > 12)) {
+      if (buffer.length) {
+        buffered.push(`${buffer.join(' ')} ${trimmed}`.replace(/\s+/g, ' ').trim());
+        buffer = [];
+      } else {
+        buffered.push(trimmed);
+      }
+      continue;
+    }
+
+    if (/^[▸•·▪●○◦*+\-–—✓✔]\s+\S/.test(trimmed) || /^[✓✔]\s+\S/.test(trimmed)) {
+      flush();
+      buffered.push(trimmed.replace(/^[✓✔]\s*/, '• ').replace(/^▸\s*/, '• '));
+      continue;
+    }
+
+    if (isFragmentableLine(trimmed)) {
+      const joinedSoFar = buffer.join(' ').trim();
+      if (
+        buffer.length >= 1 &&
+        joinedSoFar &&
+        (isLikelyJobTitle(joinedSoFar) || looksLikeJobTitleLine(joinedSoFar)) &&
+        !ROLE_CONTINUATION_TOKEN.test(trimmed) &&
+        buffer.some(
+          (w) =>
+            ROLE_CONTINUATION_TOKEN.test(w) ||
+            /^(?:hr|it|finance|sales|ops|office|group|senior|junior)$/i.test(w)
+        )
+      ) {
+        flush();
+      }
+
+      buffer.push(trimmed.replace(/^[✓✔]\s*/, ''));
+
+      if (buffer.length >= 2) {
+        const first = buffer[0].toLowerCase().replace(/[:\-–—|]+$/g, '');
+        const rest = buffer
+          .slice(1)
+          .join(' ')
+          .toLowerCase()
+          .replace(/[:\-–—|]+$/g, '');
+        const cont = HEADING_CONTINUATION[first];
+        if (cont?.some((c) => rest === c || rest.startsWith(`${c} `))) {
+          flush();
+          continue;
+        }
+      }
+
+      const joinedLen = buffer.join(' ').length;
+      const next = (lines[i + 1] || '').trim();
+      const nextBreaks =
+        !next ||
+        lineHasDateRange(next) ||
+        next.includes('|') ||
+        /^[▸•·▪●○◦*+\-–—✓✔]/.test(next) ||
+        (!isFragmentableLine(next) && next.length > 48);
+
+      if (
+        joinedLen >= 56 ||
+        (buffer.length >= 4 && nextBreaks) ||
+        (buffer.length >= 2 && nextBreaks && joinedLen >= 18)
+      ) {
+        flush();
+      }
+      continue;
+    }
+
+    flush();
+    buffered.push(trimmed);
+  }
+  flush();
+
+  return joinSplitSectionHeadings(buffered.join('\n'));
+}
+
+/**
  * Sidebar / two-column PDFs often interleave contact lines with body paragraphs.
  * Pull contact/identity lines to the top so header + section parsers see a linear resume.
  */
@@ -1081,6 +1435,7 @@ export function prepareResumeTextForParsing(rawText: string): { text: string; si
   const withColumnGaps = preserveColumnGaps(rawText || '');
   let text = cleanResumeTextPreservingLines(withColumnGaps);
   text = collapseDecorativeSpacedHeadings(text);
+  text = reassembleFragmentedResumeLines(text);
   const signals = classifyResumeTextSignals(text);
 
   if (signals.coverLetterDetected || signals.executiveLayout) {

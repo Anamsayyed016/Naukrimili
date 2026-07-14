@@ -25,13 +25,52 @@ interface FieldPick<T> {
   confidence: number;
 }
 
-/** Parse composite header lines: "Title at Company", "Title - Company", "As Title in Company". */
+/** Parse composite header lines: "Title at Company", "Title - Company", "As Title in Company", "Title Company | Loc | Dates". */
 function parseCompositeHeaderLine(line: string): {
   designation: FieldPick<string>;
   company: FieldPick<string>;
 } | null {
   const trimmed = line.trim();
   if (!trimmed) return null;
+
+  // "Title Company | Location | Dates" or "Company | Location | Dates"
+  const pipeParts = trimmed.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
+  if (pipeParts.length >= 2) {
+    const left = pipeParts[0];
+    const words = left.split(/\s+/).filter(Boolean);
+    const roleToken =
+      /^(?:coordinator|manager|engineer|developer|administrator|analyst|specialist|executive|officer|intern|consultant|director|lead|head|associate|professional|secretary|assistant|recruiter|trainee)$/i;
+    let roleEnd = -1;
+    for (let i = 0; i < words.length; i++) {
+      if (roleToken.test(words[i]) || /^(?:hr|it|senior|junior|sr|jr)$/i.test(words[i])) {
+        roleEnd = i;
+      }
+    }
+    if (roleEnd >= 0 && roleEnd < words.length - 1) {
+      const role = words.slice(0, roleEnd + 1).join(' ');
+      const employer = words.slice(roleEnd + 1).join(' ');
+      const des = detectDesignationFromLine(role);
+      const comp = detectCompanyFromLine(employer);
+      if (
+        (des.confidence >= 32 || scoreDesignationCandidate(role) >= 32) &&
+        (comp.confidence >= 30 ||
+          looksLikeInstitutionalEmployer(employer) ||
+          isPlausibleExperienceCompany(employer) ||
+          looksLikeCompanyNameLine(employer))
+      ) {
+        return {
+          designation: {
+            value: des.designation || role,
+            confidence: Math.max(des.confidence, 58),
+          },
+          company: {
+            value: comp.company || employer,
+            confidence: Math.max(comp.confidence, 60),
+          },
+        };
+      }
+    }
+  }
 
   // "As Company Secretary in Indian Steel Corporation Limited"
   const asInMatch = trimmed.match(/^As\s+(.+?)\s+(?:in|at|with|for)\s+(.+)$/i);
@@ -350,14 +389,23 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   const designationPick = pickBestDesignation(headerLines, '');
   const companyPick = pickBestCompany(headerLines, designationPick.value);
 
+  // Prefer a complete title+employer composite over a date-token company miss.
+  const compositeComplete =
+    Boolean(compositePick.designation.value) && Boolean(compositePick.company.value);
   const finalDesignation =
-    compositePick.designation.confidence > designationPick.confidence
+    compositeComplete &&
+    compositePick.designation.confidence + 8 >= designationPick.confidence
       ? compositePick.designation
-      : designationPick;
+      : compositePick.designation.confidence > designationPick.confidence
+        ? compositePick.designation
+        : designationPick;
   const finalCompany =
-    compositePick.company.confidence > companyPick.confidence
+    compositeComplete &&
+    compositePick.company.confidence + 8 >= companyPick.confidence
       ? compositePick.company
-      : companyPick;
+      : compositePick.company.confidence > companyPick.confidence
+        ? compositePick.company
+        : companyPick;
 
   const locationPick = pickBestLocation(headerLines, finalCompany.value);
   const datePick = pickBestDateRange(headerLines, block.bodyLines);

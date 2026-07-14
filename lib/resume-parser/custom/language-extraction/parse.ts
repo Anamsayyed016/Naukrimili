@@ -52,6 +52,13 @@ function normalizeLanguageName(raw: string): string {
 function isHumanLanguageName(name: string): boolean {
   const lower = name.toLowerCase().trim();
   if (!lower || lower.length < 2 || lower.length > 40) return false;
+  if (
+    /^(?:native|fluent|professional|intermediate|basic|beginner|conversational|advanced|elementary|mother\s*tongue|proficient)$/i.test(
+      lower
+    )
+  ) {
+    return false;
+  }
   if (KNOWN_TECH_ACRONYMS_RE.test(lower)) return false;
   if (PROGRAMMING_LANGUAGE_RE.test(lower) && !HUMAN_LANGUAGE_NAMES.has(lower)) return false;
   if (HUMAN_LANGUAGE_NAMES.has(lower)) return true;
@@ -204,9 +211,22 @@ export function parseLanguagesFromSectionWithStats(sectionText: string): Languag
   let rejectedCount = 0;
   let attemptCount = 0;
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
     if (/^(?:languages?|language\s+proficiency|spoken\s+languages?)\s*:?\s*$/i.test(line)) {
       continue;
+    }
+
+    // Split proficiency onto the next line: "English" / "(Fluent)"
+    const next = lines[i + 1];
+    if (
+      next &&
+      /^\([^)]+\)$/.test(next) &&
+      extractProficiency(next).proficiency &&
+      isHumanLanguageName(line.replace(/[()[\]]/g, '').trim())
+    ) {
+      line = `${line} ${next}`;
+      i += 1;
     }
 
     const fromLine = parseLanguageLinesFromLine(line);

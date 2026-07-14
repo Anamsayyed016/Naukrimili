@@ -78,6 +78,8 @@ export function looksLikeSentenceNotCompany(text: string): boolean {
 export function scoreCompanyCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 2) return 0;
+  if (/^(?:present|current|now|ongoing|till\s*date|to\s*date)$/i.test(trimmed)) return 0;
+  if (/^(?:19|20)\d{2}$/.test(trimmed)) return 0;
   if (looksLikeSentenceNotCompany(trimmed)) return 0;
   if (FALSE_COMPANY_RE.test(trimmed)) return 0;
   if (TECH_SKILL_AS_COMPANY_RE.test(trimmed.toLowerCase())) return 0;

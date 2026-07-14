@@ -552,7 +552,10 @@ export function classifySectionHeading(rawHeading: string): SemanticClassificati
     if (section.tokens) {
       const words = normalized.split(/\s+/);
       const tokenHits = words.filter((w) => section.tokens!.some((t) => w === t || w.startsWith(t)));
-      if (tokenHits.length > 0) {
+      // Multi-token definitions (e.g. professional + qualification) must not fire on a
+      // single shared word like "Professional" inside a job title.
+      const minHits = section.tokens.length >= 2 ? 2 : 1;
+      if (tokenHits.length >= minHits) {
         const score = section.baseConfidence - 12 + tokenHits.length * 4;
         if (!best || score > best.confidence) {
           best = {

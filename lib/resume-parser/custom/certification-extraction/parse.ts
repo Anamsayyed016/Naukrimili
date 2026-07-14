@@ -5,6 +5,7 @@
 import { parseDateRangeFromText } from '../experience-extraction/dates';
 import {
   isPlausibleCertificationEntry,
+  isPlausiblePersonName,
   isResumeSectionHeadingLine,
   looksLikeJobTitleLine,
 } from '@/lib/resume-parser/import-sanitize';
@@ -45,6 +46,17 @@ function isUnrelatedCertificationContent(name: string, issuer: string): boolean 
   if (looksLikeSentenceNotCompany(name) && name.split(/\s+/).length > 6) return true;
   if (SKILL_LIST_RE.test(name)) return true;
   if (/^(?:summary|objective|profile|experience|skills?|projects?|education)\b/i.test(name)) {
+    return true;
+  }
+  // Multi-column bleed: contact / identity lines must never become certifications.
+  if (/@|linkedin\.com|github\.com|https?:\/\/|\+?\d[\d\s().-]{7,}\d/i.test(combined)) return true;
+  const normalizedName = name.replace(/\t+/g, ' ').trim();
+  if (
+    !CERT_KEYWORD_RE.test(name) &&
+    !AWS_CERT_NAME_RE.test(name) &&
+    !ISSUER_SUFFIX_RE.test(combined) &&
+    isPlausiblePersonName(normalizedName)
+  ) {
     return true;
   }
   return false;
