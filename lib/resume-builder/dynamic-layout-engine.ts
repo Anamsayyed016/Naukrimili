@@ -277,12 +277,14 @@ function applyTemplateAwareDistribution(
   }
 
   if (capacity.hasSidebar && capacity.mainColumnBasisHint > 0) {
+    // Template metadata owns column proportions — never content-weight resize.
     plan.mainColumnBasisPct = Math.round(
       clamp(capacity.mainColumnBasisHint, 58, 78)
     );
     plan.sidebarColumnBasisPct = Math.round(
       clamp(capacity.sidebarColumnBasisHint, 22, 42)
     );
+    plan.sidebarMaxWidthPct = plan.sidebarColumnBasisPct;
   }
 }
 
@@ -2281,6 +2283,10 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   const sidebarCompact =
     plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal';
   root.setAttribute('data-dl-sidebar-density', sidebarCompact);
+  root.setAttribute(
+    'data-dl-page-underfill',
+    plan.pageFillRatio < 0.88 ? 'true' : 'false'
+  );
 }
 
 /**
@@ -2384,10 +2390,9 @@ ${extraVars}
   gap: var(--dl-column-gap) !important;
 }
 
-.resume-container[data-dl-page-underfill='true'] [class*='-body']:has(> main):has(> aside),
-.resume-container[data-dl-page-underfill='true'] [class*='-body']:has(> aside):has(> main) {
-  grid-template-columns: calc(var(--dl-main-basis, 67) * 1fr) calc(var(--dl-sidebar-basis, 33) * 1fr) !important;
-}
+/* Column proportions stay on the template. Never rewrite grid tracks here —
+   invalid calc(fr) and reversed main|aside order previously either no-op'd or
+   could crush aside-first layouts. Spacing vars (--dl-sidebar-gap, etc.) adapt. */
 
 .resume-container [class*='-layout'] > main,
 .resume-container [class*='-layout'] > [class*='-main'],
@@ -2396,15 +2401,18 @@ ${extraVars}
   flex: var(--dl-main-flex, 1) 1 var(--dl-main-basis, auto) !important;
   flex-grow: var(--dl-main-flex, 1) !important;
   max-width: none !important;
+  min-width: 0 !important;
 }
 
 .resume-container [class*='-layout'] > aside,
 .resume-container [class*='-layout'] > [class*='-sidebar'],
 .resume-container .sidebar,
 .resume-container .side-column {
-  flex: var(--dl-sidebar-flex, 1) 1 var(--dl-sidebar-basis, auto) !important;
-  flex-grow: var(--dl-sidebar-flex, 1) !important;
-  max-width: var(--dl-sidebar-max, 42%) !important;
+  flex: 0 0 var(--dl-sidebar-basis, 30%) !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  max-width: var(--dl-sidebar-basis, 30%) !important;
+  min-width: 0 !important;
 }
 
 .resume-container aside,
@@ -2414,6 +2422,16 @@ ${extraVars}
   flex-direction: column !important;
   gap: var(--dl-sidebar-gap, var(--dl-section-gap)) !important;
   justify-content: flex-start !important;
+  align-items: stretch !important;
+}
+
+/* Grid children must fill their tracks — never shrink-wrap the column */
+.resume-container [class*='-body'] > aside,
+.resume-container [class*='-body'] > [class*='-sidebar'],
+.resume-container [class*='-body'] > main,
+.resume-container [class*='-body'] > [class*='-main'] {
+  justify-self: stretch !important;
+  min-width: 0 !important;
 }
 
 .resume-container .experience-item,
@@ -2624,11 +2642,15 @@ export function getDomAwareLayoutRefinementScript(): string {
       if(Math.abs(nudge)>0.05){pad=1+nudge*0.08;pg=1+nudge*0.06;bg=1+nudge*0.05;}
     }
     if(m.sections.length<=4&&fill<0.85){sg*=1.22;bg*=1.16;pad*=1.14;}
-    var mf=m.sidebarHeight>0?1.65:1, sf=m.sidebarHeight>0?1:0, sbPct=32, mnPct=68, sbMax=34;
+    var mf=m.sidebarHeight>0?1.65:1, sf=m.sidebarHeight>0?1:0;
+    /* Column % locked to template CSS vars already injected — spacing only adapts. */
+    var sbPct=parseFloat(getComputedStyle(root).getPropertyValue('--dl-sidebar-basis'))||32;
+    var mnPct=parseFloat(getComputedStyle(root).getPropertyValue('--dl-main-basis'))||68;
+    var sbMax=sbPct;
     if(m.sidebarUnderfilled){
-      if(m.columnBalanced){mf=1.72;sf=0.95;sbPct=28;mnPct=72;sbMax=30;sgap*=1.08;}
-      else if(m.experienceDominant){mf=1.58;sf=1.12;sbPct=30;mnPct=70;sbMax=34;sgap*=1.18;}
-      else{mf=1.65;sf=1.05;sbPct=30;mnPct=70;sbMax=32;sgap*=1.1;}
+      if(m.columnBalanced){mf=1.72;sf=0.95;sgap*=1.08;}
+      else if(m.experienceDominant){mf=1.58;sf=1.12;sgap*=1.18;}
+      else{mf=1.65;sf=1.05;sgap*=1.1;}
     }
     else if(m.columnImbalance>40&&m.sidebarHeight>0){
       var t=Math.max(m.sidebarHeight,m.mainHeight), s=Math.min(m.sidebarHeight,m.mainHeight)||1;
@@ -2733,6 +2755,7 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.setAttribute('data-dl-summary',sumShort?'short':'normal');
     root.setAttribute('data-dl-density',dens);
     root.setAttribute('data-dl-sidebar-density',p.sidebarUnder?'normal':(sbCard<p.pad*0.85?'compact':'normal'));
+    root.setAttribute('data-dl-page-underfill', fill<0.88?'true':'false');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply);
   else apply();

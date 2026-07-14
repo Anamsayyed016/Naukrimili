@@ -87,7 +87,9 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 30fr 70fr;
+  /* minmax(0, …) — plain 30fr/70fr is minmax(auto, fr); a near-zero sidebar
+     min-content vs a large main min-content lets the track algorithm crush the sidebar. */
+  grid-template-columns: minmax(0, 30fr) minmax(0, 70fr);
   align-items: start;
   min-height: 0;
 }
@@ -103,6 +105,8 @@
   min-height: 0;
   height: auto;
   align-self: stretch;
+  justify-self: stretch;
+  align-items: stretch;
   justify-content: flex-start;
   position: relative;
 }
@@ -890,8 +894,12 @@
     width: 100%;
   }
 
-  .ege-resume .ege-body {
-    grid-template-columns: 1fr;
+  .ege-resume .ege-body,
+  .resume-container.ege-resume .ege-body,
+  .resume-container.ege-resume[data-dl-page-underfill='true'] .ege-body,
+  .resume-container.ege-resume[data-dl-page-underfill='false'] .ege-body,
+  .resume-container.ege-resume[data-dl-density] .ege-body {
+    grid-template-columns: 1fr !important;
   }
 
   .ege-resume .ege-deco--fold {
@@ -960,12 +968,30 @@
 .resume-container.ege-resume .ege-sidebar {
   min-height: 0 !important;
   height: auto !important;
-  align-items: flex-start !important;
   justify-content: flex-start !important;
+}
+
+/* Column ratio is a fixed design token — layout engine may only adapt internal gaps. */
+.resume-container.ege-resume .ege-body,
+.resume-container.ege-resume[data-dl-page-underfill='true'] .ege-body,
+.resume-container.ege-resume[data-dl-page-underfill='false'] .ege-body,
+.resume-container.ege-resume[data-dl-density] .ege-body {
+  grid-template-columns: minmax(0, 30fr) minmax(0, 70fr) !important;
+  align-items: start !important;
 }
 
 .resume-container.ege-resume .ege-sidebar {
   align-self: stretch !important;
+  justify-self: stretch !important;
+  align-items: stretch !important;
+  max-width: none !important;
+  width: auto !important;
+  flex-shrink: 0 !important;
+}
+
+.resume-container.ege-resume .ege-main {
+  align-items: stretch !important;
+  min-width: 0 !important;
 }
 
 .resume-container.ege-resume .ege-main {
