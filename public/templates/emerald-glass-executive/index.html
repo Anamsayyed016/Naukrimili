@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ege-resume">
+    <div class="ege-deco ege-deco--fold" aria-hidden="true"></div>
+
+    <div class="ege-body">
+      <aside class="ege-sidebar">
+        <div class="ege-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="ege-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="ege-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="ege-ini-f">{{FIRST_NAME}}</span><span class="ege-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <section class="ege-section ege-section--contact">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Contact</span>
+          </h2>
+          <div class="ege-contact-list">
+            {{#if PHONE}}
+            <div class="ege-contact-item ege-contact-item--phone">
+              <span class="ege-contact-icon" aria-hidden="true"></span>
+              <span class="ege-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="ege-contact-item ege-contact-item--email">
+              <span class="ege-contact-icon" aria-hidden="true"></span>
+              <span class="ege-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="ege-contact-item ege-contact-item--linkedin">
+              <span class="ege-contact-icon" aria-hidden="true"></span>
+              <span class="ege-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="ege-contact-item ege-contact-item--web">
+              <span class="ege-contact-icon" aria-hidden="true"></span>
+              <span class="ege-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="ege-contact-item ege-contact-item--location">
+              <span class="ege-contact-icon" aria-hidden="true"></span>
+              <span class="ege-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if SKILLS}}
+        <section class="ege-section ege-section--skills">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Skills</span>
+          </h2>
+          <div class="skills-list ege-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="ege-section ege-section--languages">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Languages</span>
+          </h2>
+          <div class="languages-list ege-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="ege-section ege-section--certs">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Certifications</span>
+          </h2>
+          <div class="certifications-list ege-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="ege-section ege-section--interests">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Interests</span>
+          </h2>
+          <div class="hobbies-list ege-hobbies">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="ege-main">
+        <header class="ege-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="ege-section ege-section--summary">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Professional Summary</span>
+          </h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="ege-section ege-section--experience">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Experience</span>
+          </h2>
+          <div class="experience-list ege-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ege-section ege-section--projects">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Selected Projects</span>
+          </h2>
+          <div class="projects-list ege-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="ege-section ege-section--education">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Education</span>
+          </h2>
+          <div class="education-list ege-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="ege-section ege-section--achievements">
+          <h2 class="ege-section-title">
+            <span class="ege-section-icon" aria-hidden="true"></span>
+            <span class="ege-section-label">Achievements</span>
+          </h2>
+          <div class="achievements-list ege-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

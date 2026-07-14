@@ -2,6 +2,53 @@
   "version": "1.0.0",
   "templates": [
     {
+      "id": "emerald-glass-executive",
+      "name": "Emerald Glass Executive",
+      "slug": "emerald-glass-executive",
+      "description": "Premium corporate two-column resume with deep emerald sidebar, mint-glass skill ribbons, stacked-paper experience cards, corner-accent project cards, and adaptive spacing for ATS-friendly PDF export.",
+      "thumbnail": "/templates/emerald-glass-executive/thumbnail.svg",
+      "preview": "/templates/emerald-glass-executive/preview.svg",
+      "html": "/templates/emerald-glass-executive/index.html",
+      "css": "/templates/emerald-glass-executive/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS", "Sidebar", "Luxury"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "emerald-glass", "name": "Emerald Glass", "primary": "#0E5B57", "accent": "#4BC7B5", "text": "#1E1E1E" },
+        { "id": "deep-teal", "name": "Deep Teal", "primary": "#124C49", "accent": "#4BC7B5", "text": "#1E1E1E" },
+        { "id": "mint-executive", "name": "Mint Executive", "primary": "#0E5B57", "accent": "#3DB8A6", "text": "#1E1E1E" },
+        { "id": "forest-aqua", "name": "Forest Aqua", "primary": "#0A4F4B", "accent": "#5AD4C2", "text": "#1E1E1E" },
+        { "id": "jade-frost", "name": "Jade Frost", "primary": "#0E5B57", "accent": "#4BC7B5", "text": "#222831" }
+      ],
+      "defaultColor": "emerald-glass",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 70,
+        "sidebarColumnBasisPct": 30,
+        "maxMovablePriority": 95,
+        "fixedSections": ["summary", "experience", "contact", "skills"],
+        "movableSections": ["projects", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "skills": 90,
+          "summary": 94,
+          "experience": 95,
+          "projects": 72,
+          "education": 66,
+          "certifications": 58,
+          "languages": 52,
+          "achievements": 50,
+          "interests": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "charcoal-orange-executive",
       "name": "Charcoal Orange Executive",
       "slug": "charcoal-orange-executive",

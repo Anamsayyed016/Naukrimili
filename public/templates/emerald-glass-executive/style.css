@@ -1,0 +1,984 @@
+/* Emerald Glass Executive — premium corporate sidebar resume */
+
+.ege-resume {
+  --ege-emerald: #0E5B57;
+  --ege-emerald-dark: #124C49;
+  --ege-accent: #4BC7B5;
+  --ege-mint: #EAF9F6;
+  --ege-white: #FFFFFF;
+  --ege-text: #1E1E1E;
+  --ege-muted: #5D5D5D;
+  --ege-border: #DCE8E6;
+  --ege-card: #F7FBFA;
+  --ege-sidebar-text: #F4FFFC;
+  --ege-sidebar-muted: #B7DFD8;
+  --ege-max-width: 210mm;
+  --ege-font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --ege-font-sans: 'Manrope', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --ege-section-gap: 16px;
+  --ege-block-gap: 12px;
+  --ege-card-gap: 10px;
+  --ege-para-lh: 1.65;
+  --ege-bullet-gap: 0.4em;
+  --ege-heading-gap: 9px;
+  --ege-skill-gap: 8px;
+
+  --ege-lh-tight: 1.28;
+  --ege-lh-name: 1.02;
+  --ege-ws-body: 0.01em;
+  --ege-ws-heading: 0.14em;
+  --ege-ws-title: 0.1em;
+  --ege-fs-name: clamp(34px, 4.2vw, 44px);
+  --ege-fs-title: 12px;
+  --ege-fs-section: 11px;
+  --ege-fs-role: 12px;
+  --ege-fs-company: 11px;
+  --ege-fs-body: 10.5px;
+  --ege-fs-meta: 9.5px;
+  --ege-measure: 64ch;
+
+  --primary-color: var(--ege-emerald);
+  --accent-color: var(--ege-accent);
+  --text-color: var(--ege-text);
+}
+
+.ege-resume,
+.ege-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ege-resume,
+.resume-container.ege-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--ege-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--ege-font-sans);
+  font-size: var(--ege-fs-body);
+  line-height: var(--ege-para-lh);
+  letter-spacing: var(--ege-ws-body);
+  color: var(--ege-text);
+  background: var(--ege-white) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ege-resume .ege-deco--fold {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 30%;
+  height: 56px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(135deg, transparent 48%, rgba(18, 76, 73, 0.55) 49%, rgba(14, 91, 87, 0.9) 100%);
+  opacity: 0.85;
+}
+
+.ege-resume .ege-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 30fr 70fr;
+  align-items: start;
+  min-height: 0;
+}
+
+.ege-resume .ege-sidebar {
+  background: var(--ege-emerald);
+  color: var(--ege-sidebar-text);
+  padding: 26px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ege-section-gap);
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  align-self: stretch;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.ege-resume .ege-sidebar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 20% 0%, rgba(75, 199, 181, 0.18), transparent 45%);
+  opacity: 0.9;
+}
+
+.ege-resume .ege-sidebar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ege-resume .ege-main {
+  background: var(--ege-white);
+  padding: 28px 28px 34px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ege-section-gap);
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  justify-content: flex-start;
+}
+
+/* Photo */
+.ege-resume .ege-photo-block {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.ege-resume .ege-photo {
+  width: 108px;
+  height: 108px;
+  position: relative;
+}
+
+.ege-resume .profile-image-wrapper {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--ege-accent);
+  box-shadow: 0 0 0 4px rgba(75, 199, 181, 0.22);
+  background: var(--ege-emerald-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ege-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.ege-resume .ege-ini-f,
+.ege-resume .ege-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.ege-resume .ege-ini-f::first-letter,
+.ege-resume .ege-ini-l::first-letter {
+  font-family: var(--ege-font-serif);
+  font-size: 34px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ege-white);
+}
+
+/* Header */
+.ege-resume .ege-header {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ege-resume .candidate-name {
+  font-family: var(--ege-font-serif);
+  font-size: var(--ege-fs-name);
+  font-weight: 700;
+  line-height: var(--ege-lh-name);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ege-text);
+  margin-bottom: 6px;
+}
+
+.ege-resume .name-first,
+.ege-resume .name-last { display: inline; }
+.ege-resume .name-first:empty,
+.ege-resume .name-last:empty,
+.ege-resume .name-space:empty { display: none; }
+.ege-resume .name-fallback { display: none; }
+.ege-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.ege-resume .header-title {
+  font-family: var(--ege-font-sans);
+  font-size: var(--ege-fs-title);
+  font-weight: 600;
+  letter-spacing: var(--ege-ws-title);
+  text-transform: uppercase;
+  color: var(--ege-muted);
+  line-height: var(--ege-lh-tight);
+}
+
+/* Sections */
+.ege-resume .ege-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  height: auto;
+  min-height: 0;
+  flex: 0 0 auto;
+}
+
+.ege-resume .ege-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--ege-heading-gap);
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--ege-accent);
+  line-height: var(--ege-lh-tight);
+}
+
+.ege-resume .ege-sidebar .ege-section-title {
+  border-bottom-color: rgba(255, 255, 255, 0.28);
+}
+
+.ege-resume .ege-section-label {
+  font-family: var(--ege-font-sans);
+  font-size: var(--ege-fs-section);
+  font-weight: 700;
+  letter-spacing: var(--ege-ws-heading);
+  text-transform: uppercase;
+  color: var(--ege-text);
+}
+
+.ege-resume .ege-sidebar .ege-section-label {
+  color: var(--ege-white);
+}
+
+.ege-resume .ege-section-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ege-accent);
+  position: relative;
+}
+
+.ege-resume .ege-sidebar .ege-section-icon {
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.ege-resume .ege-section-icon::after {
+  content: '';
+  position: absolute;
+  inset: 3.5px;
+  background: var(--ege-white);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-sidebar .ege-section-icon::after {
+  background: var(--ege-white);
+  inset: 3px;
+}
+
+.ege-resume .ege-section--contact .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M6.5 3.5l2.2 2.2a1.5 1.5 0 010 2.1L7.4 9.1a12.5 12.5 0 007.5 7.5l1.3-1.3a1.5 1.5 0 012.1 0l2.2 2.2a1.5 1.5 0 010 2.1l-1.2 1.2c-.8.8-2 .9-3 .5-3.3-1.2-6.3-3.4-8.7-6.6C5.4 11.7 3.7 9.3 2.7 6.5c-.4-1-.3-2.2.5-3l1.2-1.2a1.5 1.5 0 012.1 0z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M6.5 3.5l2.2 2.2a1.5 1.5 0 010 2.1L7.4 9.1a12.5 12.5 0 007.5 7.5l1.3-1.3a1.5 1.5 0 012.1 0l2.2 2.2a1.5 1.5 0 010 2.1l-1.2 1.2c-.8.8-2 .9-3 .5-3.3-1.2-6.3-3.4-8.7-6.6C5.4 11.7 3.7 9.3 2.7 6.5c-.4-1-.3-2.2.5-3l1.2-1.2a1.5 1.5 0 012.1 0z'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-section--skills .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2l2.2 6.8H21l-5.5 4 2.1 6.7L12 15.8 6.4 19.5 8.5 12.8 3 8.8h6.8L12 2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2l2.2 6.8H21l-5.5 4 2.1 6.7L12 15.8 6.4 19.5 8.5 12.8 3 8.8h6.8L12 2z'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-section--summary .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-section--experience .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 7h16v12H4V7zm2-3h12l1 2H5l1-2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 7h16v12H4V7zm2-3h12l1 2H5l1-2z'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-section--projects .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-section--education .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 3L2 8l10 5 8-4v6h2V8L12 3zm-6 9.2V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-2.8l-6 3-6-3z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 3L2 8l10 5 8-4v6h2V8L12 3zm-6 9.2V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-2.8l-6 3-6-3z'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-section--achievements .ege-section-icon::after,
+.ege-resume .ege-section--certs .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2a7 7 0 00-3 13.3V21l3-1.5L15 21v-5.7A7 7 0 0012 2zm0 10a3 3 0 110-6 3 3 0 010 6z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2a7 7 0 00-3 13.3V21l3-1.5L15 21v-5.7A7 7 0 0012 2zm0 10a3 3 0 110-6 3 3 0 010 6z'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-section--languages .ege-section-icon::after,
+.ege-resume .ege-section--interests .ege-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3C/svg%3E");
+}
+
+/* Contact */
+.ege-resume .ege-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ege-resume .ege-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ege-resume .ege-contact-icon {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  margin-top: 1px;
+  background-color: var(--ege-accent);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.ege-resume .ege-contact-item--email .ege-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='M3 7l9 6 9-6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='M3 7l9 6 9-6'/%3E%3C/svg%3E");
+}
+.ege-resume .ege-contact-item--phone .ege-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M6.5 3.5l2.2 2.2a1.5 1.5 0 010 2.1L7.4 9.1a12.5 12.5 0 007.5 7.5l1.3-1.3a1.5 1.5 0 012.1 0l2.2 2.2a1.5 1.5 0 010 2.1l-1.2 1.2c-.8.8-2 .9-3 .5-3.3-1.2-6.3-3.4-8.7-6.6C5.4 11.7 3.7 9.3 2.7 6.5c-.4-1-.3-2.2.5-3l1.2-1.2a1.5 1.5 0 012.1 0z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M6.5 3.5l2.2 2.2a1.5 1.5 0 010 2.1L7.4 9.1a12.5 12.5 0 007.5 7.5l1.3-1.3a1.5 1.5 0 012.1 0l2.2 2.2a1.5 1.5 0 010 2.1l-1.2 1.2c-.8.8-2 .9-3 .5-3.3-1.2-6.3-3.4-8.7-6.6C5.4 11.7 3.7 9.3 2.7 6.5c-.4-1-.3-2.2.5-3l1.2-1.2a1.5 1.5 0 012.1 0z'/%3E%3C/svg%3E");
+}
+.ege-resume .ege-contact-item--location .ege-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M12 21s7-5.4 7-11a7 7 0 10-14 0c0 5.6 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M12 21s7-5.4 7-11a7 7 0 10-14 0c0 5.6 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+}
+.ege-resume .ege-contact-item--web .ege-contact-icon,
+.ege-resume .ege-contact-item--linkedin .ege-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18'/%3E%3C/svg%3E");
+}
+
+.ege-resume .ege-contact-value {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--ege-sidebar-text);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* Skills — glass / ribbon tags (not progress bars) */
+.ege-resume .ege-skills.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ege-skill-gap);
+  height: auto;
+  min-height: 0;
+}
+
+.ege-resume .ege-skills .skill-tag {
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--ege-emerald-dark);
+  background: var(--ege-white);
+  border-radius: 8px;
+  padding: 7px 12px;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-shadow:
+    3px 3px 0 var(--ege-accent),
+    0 1px 2px rgba(14, 91, 87, 0.12);
+  margin: 0;
+  height: auto;
+  min-height: 0;
+}
+
+.ege-resume .ege-section--skills:has(.skill-tag:nth-child(10)) {
+  --ege-skill-gap: 6px;
+}
+.ege-resume .ege-section--skills:has(.skill-tag:nth-child(16)) {
+  --ege-skill-gap: 5px;
+}
+.ege-resume .ege-section--skills:has(.skill-tag:nth-child(16)) .skill-tag {
+  padding: 5px 9px;
+  font-size: 8px;
+}
+.ege-resume .ege-sidebar:has(.skill-tag:nth-child(14)) {
+  --ege-section-gap: 12px;
+}
+.ege-resume .ege-sidebar:has(.skill-tag:nth-child(22)) {
+  --ege-section-gap: 9px;
+}
+
+/* Languages */
+.ege-resume .ege-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ege-resume .ege-languages .language-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9px;
+  line-height: 1.35;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.ege-resume .ege-languages .language-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ege-resume .ege-languages .language {
+  font-weight: 700;
+  color: var(--ege-white);
+}
+
+.ege-resume .ege-languages .proficiency {
+  font-weight: 500;
+  color: var(--ege-sidebar-muted);
+  text-align: right;
+}
+
+.ege-resume .ege-languages .language-item .proficiency::before {
+  content: none;
+}
+
+/* Certs / interests sidebar */
+.ege-resume .ege-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ege-resume .ege-sidebar .certification-item {
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  height: auto;
+}
+
+.ege-resume .ege-sidebar .certification-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ege-resume .ege-sidebar .certification-item h3 {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--ege-white);
+}
+
+.ege-resume .ege-sidebar .issuer,
+.ege-resume .ege-sidebar .date,
+.ege-resume .ege-sidebar .year {
+  font-size: 8.5px;
+  color: var(--ege-sidebar-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.ege-resume .ege-hobbies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ege-resume .ege-hobbies .hobby-item {
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--ege-sidebar-text);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  padding: 4px 9px;
+}
+
+/* Summary */
+.ege-resume .ege-section--summary,
+.ege-resume .summary-text {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.ege-resume .summary-text {
+  display: block;
+  font-size: var(--ege-fs-body);
+  line-height: var(--ege-para-lh);
+  color: var(--ege-text);
+  max-width: var(--ege-measure);
+}
+
+/* Experience — stacked paper cards */
+.ege-resume .ege-experience {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ege-block-gap);
+}
+
+.ege-resume .ege-experience .experience-item {
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  height: auto;
+  min-height: 0;
+  background: var(--ege-card);
+  border: 1px solid var(--ege-border);
+  border-radius: 10px;
+  padding: 12px 14px 14px;
+  margin: 0;
+  box-shadow:
+    0 1px 0 rgba(14, 91, 87, 0.04),
+    0 6px 0 -3px #E3EFEC,
+    0 10px 0 -6px #D5E6E2;
+}
+
+.ege-resume .ege-experience .experience-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.ege-resume .ege-experience .experience-header h3 {
+  order: 1;
+  font-size: var(--ege-fs-role);
+  font-weight: 800;
+  color: var(--ege-text);
+  line-height: var(--ege-lh-tight);
+}
+
+.ege-resume .ege-experience .experience-header .company {
+  order: 2;
+  font-size: var(--ege-fs-company);
+  font-weight: 600;
+  color: var(--ege-emerald);
+  line-height: var(--ege-lh-tight);
+}
+
+.ege-resume .ege-experience .experience-header .duration {
+  order: 3;
+  font-size: var(--ege-fs-meta);
+  font-weight: 500;
+  color: var(--ege-muted);
+}
+
+.ege-resume .ege-experience .description {
+  font-size: var(--ege-fs-body);
+  line-height: var(--ege-para-lh);
+  color: var(--ege-text);
+  max-width: var(--ege-measure);
+  height: auto;
+}
+
+.ege-resume .ege-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ege-bullet-gap);
+}
+
+.ege-resume .ege-experience .description li {
+  position: relative;
+  padding-left: 1em;
+}
+
+.ege-resume .ege-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ege-accent);
+}
+
+/* Projects — corner accent cards */
+.ege-resume .ege-projects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ege-card-gap);
+  align-items: start;
+  grid-auto-rows: max-content;
+}
+
+.ege-resume .ege-projects:has(> .project-item:only-child),
+.ege-resume .ege-projects:has(> .project-item:nth-child(3)) {
+  grid-template-columns: 1fr;
+}
+
+.ege-resume .ege-sidebar .ege-projects,
+.ege-resume .ege-sidebar .projects-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.ege-resume .ege-projects .project-item {
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start;
+  background: var(--ege-white);
+  border: 1px solid var(--ege-border);
+  border-radius: 12px;
+  padding: 12px 12px 14px;
+  margin: 0 !important;
+  overflow: hidden;
+  box-shadow:
+    0 1px 0 rgba(14, 91, 87, 0.04),
+    0 6px 0 -3px #EAF4F2,
+    0 10px 0 -6px #DCEAE7;
+}
+
+.ege-resume .ege-projects .project-item::before,
+.ege-resume .ege-projects .project-item::after {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: var(--ege-emerald);
+  opacity: 0.9;
+}
+
+.ege-resume .ege-projects .project-item::before {
+  top: -10px;
+  right: -10px;
+  border-radius: 0 0 0 22px;
+}
+
+.ege-resume .ege-projects .project-item::after {
+  bottom: -10px;
+  left: -10px;
+  border-radius: 0 22px 0 0;
+  background: var(--ege-accent);
+  opacity: 0.55;
+}
+
+.ege-resume .ege-projects .project-item h3 {
+  position: relative;
+  z-index: 1;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--ege-emerald);
+  margin-bottom: 5px;
+  line-height: var(--ege-lh-tight);
+}
+
+.ege-resume .ege-projects .project-item .description,
+.ege-resume .ege-projects .project-item p.description {
+  position: relative;
+  z-index: 1;
+  font-size: 9.5px;
+  line-height: var(--ege-para-lh);
+  color: var(--ege-text);
+  height: auto;
+  margin: 0;
+}
+
+.ege-resume .ege-projects .project-item .technologies {
+  position: relative;
+  z-index: 1;
+  font-size: 8.5px;
+  color: var(--ege-muted);
+  margin-top: 6px;
+}
+
+/* Education — mint accent bar cards */
+.ege-resume .ege-education {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ege-card-gap);
+  align-items: start;
+}
+
+.ege-resume .ege-education:has(> .education-item:only-child) {
+  grid-template-columns: 1fr;
+}
+
+.ege-resume .ege-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  height: auto;
+  min-height: 0;
+  background: var(--ege-white);
+  border: 1px solid var(--ege-border);
+  border-left: 3px solid var(--ege-accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ege-resume .ege-education .education-item h3 {
+  order: 1;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ege-text);
+  line-height: var(--ege-lh-tight);
+}
+
+.ege-resume .ege-education .institution {
+  order: 2;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ege-emerald);
+}
+
+.ege-resume .ege-education .year,
+.ege-resume .ege-education .cgpa {
+  order: 3;
+  font-size: var(--ege-fs-meta);
+  color: var(--ege-muted);
+}
+
+/* Achievements */
+.ege-resume .ege-achievements {
+  position: relative;
+  background: var(--ege-card);
+  border: 1px solid var(--ege-border);
+  border-radius: 10px;
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow:
+    0 6px 0 -3px #E3EFEC,
+    0 10px 0 -6px #D5E6E2;
+  height: auto;
+}
+
+.ege-resume .ege-achievements .achievement-item {
+  position: relative;
+  padding-left: 14px;
+  height: auto;
+}
+
+.ege-resume .ege-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ege-accent);
+  background: var(--ege-mint);
+}
+
+.ege-resume .ege-achievements .achievement-item h3 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ege-text);
+}
+
+.ege-resume .ege-achievements .achievement-item .description {
+  font-size: 9.5px;
+  color: var(--ege-muted);
+  margin-top: 2px;
+  line-height: var(--ege-para-lh);
+}
+
+/* Density adaptation */
+.ege-resume:has(.experience-item:nth-child(5)),
+.ege-resume[data-dl-density='dense'],
+.ege-resume[data-dl-density='compact'] {
+  --ege-section-gap: 11px;
+  --ege-block-gap: 8px;
+  --ege-card-gap: 8px;
+  --ege-para-lh: 1.55;
+  --ege-bullet-gap: 0.32em;
+}
+
+.ege-resume:has(.experience-item:first-child:last-child),
+.ege-resume:has(.experience-item:nth-child(2):last-child),
+.ege-resume[data-dl-density='sparse'],
+.ege-resume[data-dl-page-underfill='true'] {
+  --ege-section-gap: 20px;
+  --ege-block-gap: 14px;
+  --ege-card-gap: 12px;
+  --ege-para-lh: 1.72;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ege-resume,
+  .resume-container.ege-resume {
+    width: 100%;
+  }
+
+  .ege-resume .ege-body {
+    grid-template-columns: 1fr;
+  }
+
+  .ege-resume .ege-deco--fold {
+    width: 100%;
+    height: 36px;
+  }
+
+  .ege-resume .ege-projects,
+  .ege-resume .ege-education {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ege-resume .candidate-name {
+    font-size: 30px;
+  }
+}
+
+/* Print / PDF */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ege-resume,
+  .resume-container.ege-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--ege-white) !important;
+  }
+
+  .ege-resume .ege-sidebar,
+  .ege-resume .ege-section-icon,
+  .ege-resume .ege-skills .skill-tag,
+  .ege-resume .ege-experience .experience-item,
+  .ege-resume .ege-projects .project-item,
+  .ege-resume .ege-education .education-item,
+  .ege-resume .ege-achievements,
+  .ege-resume .profile-image-wrapper,
+  .ege-resume .ege-deco--fold {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ege-resume .experience-item,
+  .ege-resume .project-item,
+  .ege-resume .education-item,
+  .ege-resume .achievement-item,
+  .ege-resume .certification-item,
+  .ege-resume .ege-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.ege-resume .ege-body,
+.resume-container.ege-resume .ege-main,
+.resume-container.ege-resume .ege-sidebar {
+  min-height: 0 !important;
+  height: auto !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.ege-resume .ege-sidebar {
+  align-self: stretch !important;
+}
+
+.resume-container.ege-resume .ege-main {
+  align-self: start !important;
+  gap: var(--ege-section-gap) !important;
+}
+
+.resume-container.ege-resume {
+  --dl-extra-summary: 0px !important;
+  --dl-extra-experience: 0px !important;
+  --dl-extra-projects: 0px !important;
+  --dl-extra-education: 0px !important;
+  --dl-extra-achievements: 0px !important;
+  --dl-extra-skills: 0px !important;
+  --dl-extra-languages: 0px !important;
+  --dl-extra-certifications: 0px !important;
+  --dl-extra-interests: 0px !important;
+}
+
+.resume-container.ege-resume section,
+.resume-container.ege-resume .ege-section,
+.resume-container.ege-resume .summary-text,
+.resume-container.ege-resume .project-item,
+.resume-container.ege-resume .experience-item,
+.resume-container.ege-resume .education-item {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  flex: 0 0 auto !important;
+  margin-bottom: 0 !important;
+  padding-bottom: unset;
+}
+
+.resume-container.ege-resume .ege-experience .experience-header h3 {
+  order: 1 !important;
+  color: var(--ege-text) !important;
+  font-weight: 800 !important;
+}
+
+.resume-container.ege-resume .ege-experience .experience-header .company {
+  order: 2 !important;
+  color: var(--ege-emerald) !important;
+  font-weight: 600 !important;
+}
+
+.resume-container.ege-resume .ege-experience .experience-header .duration {
+  order: 3 !important;
+  color: var(--ege-muted) !important;
+}
+
+.resume-container.ege-resume .ege-skills.skills-list {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  gap: var(--ege-skill-gap) !important;
+}
+
+.resume-container.ege-resume .ege-skills .skill-tag {
+  background: var(--ege-white) !important;
+  color: var(--ege-emerald-dark) !important;
+  border: none !important;
+  box-shadow:
+    3px 3px 0 var(--ege-accent),
+    0 1px 2px rgba(14, 91, 87, 0.12) !important;
+}

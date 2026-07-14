@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="92" height="400" fill="#0E5B57"/>
+  <polygon points="0,360 92,400 0,400" fill="#124C49" opacity="0.85"/>
+  <circle cx="46" cy="48" r="26" fill="#124C49" stroke="#4BC7B5" stroke-width="2.5"/>
+  <circle cx="46" cy="48" r="21" fill="#2A7A74"/>
+  <circle cx="18" cy="92" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
+  <text x="26" y="95" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#FFFFFF" letter-spacing="0.5">CONTACT</text>
+  <line x1="18" y1="100" x2="80" y2="100" stroke="rgba(255,255,255,0.3)"/>
+  <circle cx="18" cy="110" r="2" fill="#4BC7B5"/>
+  <text x="24" y="112" font-family="Arial,sans-serif" font-size="3" fill="#F4FFFC">+1 555 0199</text>
+  <circle cx="18" cy="122" r="2" fill="#4BC7B5"/>
+  <text x="24" y="124" font-family="Arial,sans-serif" font-size="3" fill="#F4FFFC">maya@studio.io</text>
+  <circle cx="18" cy="148" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
+  <text x="26" y="151" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#FFFFFF" letter-spacing="0.5">SKILLS</text>
+  <rect x="19" y="162" width="60" height="11" rx="4" fill="#4BC7B5"/>
+  <rect x="16" y="160" width="60" height="11" rx="4" fill="#FFFFFF"/>
+  <text x="22" y="168" font-family="Arial,sans-serif" font-size="3.2" font-weight="700" fill="#124C49">Strategy</text>
+  <rect x="19" y="178" width="60" height="11" rx="4" fill="#4BC7B5"/>
+  <rect x="16" y="176" width="60" height="11" rx="4" fill="#FFFFFF"/>
+  <text x="22" y="184" font-family="Arial,sans-serif" font-size="3.2" font-weight="700" fill="#124C49">Leadership</text>
+  <rect x="19" y="194" width="60" height="11" rx="4" fill="#4BC7B5"/>
+  <rect x="16" y="192" width="60" height="11" rx="4" fill="#FFFFFF"/>
+  <text x="22" y="200" font-family="Arial,sans-serif" font-size="3.2" font-weight="700" fill="#124C49">Analytics</text>
+  <circle cx="18" cy="224" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
+  <text x="26" y="227" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#FFFFFF" letter-spacing="0.5">LANGUAGES</text>
+  <text x="16" y="240" font-family="Arial,sans-serif" font-size="3.5" fill="#FFFFFF">English</text>
+  <text x="78" y="240" font-family="Arial,sans-serif" font-size="3" fill="#B7DFD8" text-anchor="end">Native</text>
+  <text x="16" y="252" font-family="Arial,sans-serif" font-size="3.5" fill="#FFFFFF">French</text>
+  <text x="78" y="252" font-family="Arial,sans-serif" font-size="3" fill="#B7DFD8" text-anchor="end">Fluent</text>
+  <text x="108" y="44" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#1E1E1E" letter-spacing="1">MAYA</text>
+  <text x="108" y="58" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#1E1E1E" letter-spacing="1">CHEN</text>
+  <text x="108" y="72" font-family="Arial,sans-serif" font-size="4" fill="#5D5D5D" letter-spacing="0.8">CHIEF STRATEGY OFFICER</text>
+  <circle cx="112" cy="98" r="4" fill="#4BC7B5"/>
+  <text x="120" y="101" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#1E1E1E" letter-spacing="0.5">SUMMARY</text>
+  <line x1="120" y1="106" x2="284" y2="106" stroke="#4BC7B5"/>
+  <rect x="120" y="114" width="160" height="3" rx="1" fill="#DCE8E6"/>
+  <rect x="120" y="122" width="148" height="3" rx="1" fill="#DCE8E6"/>
+  <rect x="120" y="130" width="132" height="3" rx="1" fill="#DCE8E6"/>
+  <circle cx="112" cy="154" r="4" fill="#4BC7B5"/>
+  <text x="120" y="157" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#1E1E1E" letter-spacing="0.5">EXPERIENCE</text>
+  <line x1="120" y1="162" x2="284" y2="162" stroke="#4BC7B5"/>
+  <rect x="120" y="170" width="164" height="52" rx="6" fill="#F7FBFA" stroke="#DCE8E6"/>
+  <rect x="124" y="226" width="156" height="3" rx="1" fill="#E3EFEC"/>
+  <rect x="128" y="231" width="148" height="2" rx="1" fill="#D5E6E2"/>
+  <text x="128" y="186" font-family="Arial,sans-serif" font-size="4.5" font-weight="800" fill="#1E1E1E">VP Strategy</text>
+  <text x="128" y="198" font-family="Arial,sans-serif" font-size="3.5" fill="#0E5B57">Meridian Collective</text>
+  <text x="128" y="210" font-family="Arial,sans-serif" font-size="3" fill="#5D5D5D">2019  Present</text>
+  <circle cx="112" cy="252" r="4" fill="#4BC7B5"/>
+  <text x="120" y="255" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#1E1E1E" letter-spacing="0.5">PROJECTS</text>
+  <rect x="120" y="264" width="78" height="46" rx="8" fill="#FFFFFF" stroke="#DCE8E6"/>
+  <path d="M180 264 h10 v10 A18 18 0 0 1 180 264" fill="#0E5B57"/>
+  <rect x="206" y="264" width="78" height="46" rx="8" fill="#FFFFFF" stroke="#DCE8E6"/>
+  <path d="M266 264 h10 v10 A18 18 0 0 1 266 264" fill="#0E5B57"/>
+  <text x="128" y="282" font-family="Arial,sans-serif" font-size="3.8" font-weight="800" fill="#0E5B57">Growth OS</text>
+  <text x="214" y="282" font-family="Arial,sans-serif" font-size="3.8" font-weight="800" fill="#0E5B57">Market Map</text>
+  <circle cx="112" cy="330" r="4" fill="#4BC7B5"/>
+  <text x="120" y="333" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#1E1E1E" letter-spacing="0.5">EDUCATION</text>
+  <rect x="120" y="342" width="78" height="28" rx="5" fill="#FFFFFF" stroke="#DCE8E6"/>
+  <rect x="120" y="342" width="3" height="28" rx="1.5" fill="#4BC7B5"/>
+  <text x="128" y="354" font-family="Arial,sans-serif" font-size="3.5" font-weight="800" fill="#1E1E1E">MBA</text>
+  <text x="128" y="364" font-family="Arial,sans-serif" font-size="3" fill="#0E5B57">INSEAD</text>
+  <text x="150" y="392" text-anchor="middle" font-family="Georgia,serif" font-size="7.5" font-weight="700" fill="#0E5B57">Emerald Glass Executive</text>
+</svg>
