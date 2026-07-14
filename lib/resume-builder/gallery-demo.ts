@@ -30,6 +30,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-orange-300/55',
     hoverOverlay: 'from-orange-50/35',
   },
+  'navy-gold-executive': {
+    glow: 'radial-gradient(circle, rgba(196,163,90,0.42) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(27,42,74,0.28) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-300/55',
+    hoverOverlay: 'from-amber-50/30',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -37,6 +43,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   { firstName: string; lastName: string; jobTitle: string }
 > = {
   'soft-coral-executive': { firstName: 'Alexander', lastName: 'Reed', jobTitle: 'Senior Operations Director & Strategist' },
+  'navy-gold-executive': { firstName: 'Isabella', lastName: 'Morgan', jobTitle: 'Brand Strategist & Creative Director' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

@@ -1,7 +1,54 @@
 {
   "version": "1.0.0",
   "templates": [
-        {
+    {
+      "id": "navy-gold-executive",
+      "name": "Navy Gold Executive",
+      "slug": "navy-gold-executive",
+      "description": "Luxury editorial executive resume with navy and warm-gold accents, circular portrait header, icon contact row, gold experience timeline, project cards, and a rebalancing 64/36 main–sidebar layout for ATS-friendly PDF export.",
+      "thumbnail": "/templates/navy-gold-executive/thumbnail.svg",
+      "preview": "/templates/navy-gold-executive/preview.svg",
+      "html": "/templates/navy-gold-executive/index.html",
+      "css": "/templates/navy-gold-executive/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Corporate", "Modern", "Two Column", "With Photo", "ATS", "Luxury"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "navy-gold", "name": "Navy Gold", "primary": "#1B2A4A", "accent": "#C4A35A", "text": "#1F2430" },
+        { "id": "midnight-brass", "name": "Midnight Brass", "primary": "#142038", "accent": "#B8954A", "text": "#1F2430" },
+        { "id": "ink-champagne", "name": "Ink Champagne", "primary": "#1B2A4A", "accent": "#D4B97A", "text": "#1F2430" },
+        { "id": "slate-gold", "name": "Slate Gold", "primary": "#243049", "accent": "#C4A35A", "text": "#222831" },
+        { "id": "navy-sand", "name": "Navy Sand", "primary": "#1B2A4A", "accent": "#C4A35A", "text": "#2A2F3A" }
+      ],
+      "defaultColor": "navy-gold",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 64,
+        "sidebarColumnBasisPct": 36,
+        "maxMovablePriority": 95,
+        "fixedSections": ["summary", "experience", "contact"],
+        "movableSections": ["projects", "skills", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "summary": 94,
+          "experience": 95,
+          "projects": 72,
+          "skills": 68,
+          "education": 64,
+          "certifications": 58,
+          "achievements": 52,
+          "languages": 48,
+          "interests": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "soft-coral-executive",
       "name": "Soft Coral Executive",
       "slug": "soft-coral-executive",

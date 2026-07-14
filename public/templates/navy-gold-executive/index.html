@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container nge-resume">
+    <div class="nge-deco nge-deco--tl-curve" aria-hidden="true"></div>
+    <div class="nge-deco nge-deco--tr-gold" aria-hidden="true"></div>
+    <div class="nge-deco nge-deco--tr-dots" aria-hidden="true"></div>
+    <div class="nge-deco nge-deco--bl-curve" aria-hidden="true"></div>
+    <div class="nge-deco nge-deco--bl-dots" aria-hidden="true"></div>
+
+    <header class="nge-header">
+      <div class="nge-header-row">
+        {{#if PROFILE_IMAGE}}
+        <div class="nge-photo">
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="nge-photo">
+          <div class="profile-image-wrapper profile-image-wrapper--initials">
+            <span class="profile-initials" aria-hidden="true">
+              <span class="nge-ini-f">{{FIRST_NAME}}</span><span class="nge-ini-l">{{LAST_NAME}}</span>
+            </span>
+          </div>
+        </div>
+        {{/unless}}
+
+        <div class="nge-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="nge-contact-bar" role="list">
+        {{#if EMAIL}}
+        <div class="nge-contact-item nge-contact-item--email" role="listitem">
+          <span class="nge-contact-icon" aria-hidden="true"></span>
+          <span class="nge-contact-value">{{EMAIL}}</span>
+        </div>
+        {{/if}}
+        {{#if PHONE}}
+        <div class="nge-contact-item nge-contact-item--phone" role="listitem">
+          <span class="nge-contact-icon" aria-hidden="true"></span>
+          <span class="nge-contact-value">{{PHONE}}</span>
+        </div>
+        {{/if}}
+        {{#if LOCATION}}
+        <div class="nge-contact-item nge-contact-item--location" role="listitem">
+          <span class="nge-contact-icon" aria-hidden="true"></span>
+          <span class="nge-contact-value">{{LOCATION}}</span>
+        </div>
+        {{/if}}
+        {{#if PORTFOLIO}}
+        <div class="nge-contact-item nge-contact-item--web" role="listitem">
+          <span class="nge-contact-icon" aria-hidden="true"></span>
+          <span class="nge-contact-value">{{PORTFOLIO}}</span>
+        </div>
+        {{/if}}
+        {{#if LINKEDIN}}
+        <div class="nge-contact-item nge-contact-item--linkedin" role="listitem">
+          <span class="nge-contact-icon" aria-hidden="true"></span>
+          <span class="nge-contact-value">{{LINKEDIN}}</span>
+        </div>
+        {{/if}}
+      </div>
+    </header>
+
+    <div class="nge-body">
+      <main class="nge-main">
+        {{#if SUMMARY}}
+        <section class="nge-section nge-section--summary">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--navy" aria-hidden="true"></span>
+            <span class="nge-section-label">Professional Summary</span>
+          </h2>
+          <p class="summary-text">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="nge-section nge-section--experience">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--navy" aria-hidden="true"></span>
+            <span class="nge-section-label">Professional Experience</span>
+          </h2>
+          <div class="experience-list nge-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="nge-section nge-section--projects">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--navy" aria-hidden="true"></span>
+            <span class="nge-section-label">Featured Projects</span>
+          </h2>
+          <div class="projects-list nge-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="nge-sidebar">
+        {{#if SKILLS}}
+        <section class="nge-section nge-section--skills">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--gold" aria-hidden="true"></span>
+            <span class="nge-section-label">Skills</span>
+          </h2>
+          <div class="skills-list nge-skills-grid">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="nge-section nge-section--education">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--gold" aria-hidden="true"></span>
+            <span class="nge-section-label">Education</span>
+          </h2>
+          <div class="education-list nge-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="nge-section nge-section--certs">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--gold" aria-hidden="true"></span>
+            <span class="nge-section-label">Certifications</span>
+          </h2>
+          <div class="certifications-list nge-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="nge-section nge-section--achievements">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--gold" aria-hidden="true"></span>
+            <span class="nge-section-label">Achievements</span>
+          </h2>
+          <div class="achievements-list nge-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="nge-section nge-section--languages">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--gold" aria-hidden="true"></span>
+            <span class="nge-section-label">Languages</span>
+          </h2>
+          <div class="languages-list nge-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="nge-section nge-section--interests">
+          <h2 class="nge-section-title">
+            <span class="nge-section-icon nge-section-icon--gold" aria-hidden="true"></span>
+            <span class="nge-section-label">Interests</span>
+          </h2>
+          <div class="hobbies-list nge-hobbies">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

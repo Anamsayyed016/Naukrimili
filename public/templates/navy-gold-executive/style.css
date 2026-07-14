@@ -1,0 +1,995 @@
+/* Navy Gold Executive — luxury editorial premium resume */
+
+.nge-resume {
+  --nge-bg: #FBF9F6;
+  --nge-surface: #F5F1EA;
+  --nge-white: #FFFFFF;
+  --nge-navy: #1B2A4A;
+  --nge-navy-deep: #142038;
+  --nge-gold: #C4A35A;
+  --nge-gold-soft: #D4B97A;
+  --nge-beige: #EDE6DA;
+  --nge-text: #1F2430;
+  --nge-muted: #6B7280;
+  --nge-divider: #E2DACF;
+  --nge-max-width: 210mm;
+  --nge-font-serif: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
+  --nge-font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --nge-lh-body: 1.65;
+  --nge-lh-tight: 1.28;
+  --nge-lh-name: 1.02;
+  --nge-ws-body: 0.012em;
+  --nge-ws-heading: 0.18em;
+  --nge-ws-title: 0.16em;
+  --nge-ws-meta: 0.04em;
+  --nge-fw-name: 700;
+  --nge-fw-title: 600;
+  --nge-fw-section: 600;
+  --nge-fw-role: 700;
+  --nge-fw-company: 600;
+  --nge-fw-body: 400;
+  --nge-fs-name: clamp(34px, 4.2vw, 46px);
+  --nge-fs-title: 11px;
+  --nge-fs-section: 11px;
+  --nge-fs-role: 11.5px;
+  --nge-fs-company: 10.5px;
+  --nge-fs-body: 10px;
+  --nge-fs-meta: 9px;
+  --nge-fs-contact: 9px;
+  --nge-measure: 62ch;
+
+  --primary-color: var(--nge-navy);
+  --accent-color: var(--nge-gold);
+  --text-color: var(--nge-text);
+}
+
+.nge-resume,
+.nge-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.nge-resume,
+.resume-container.nge-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--nge-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 30px 34px 40px;
+  font-family: var(--nge-font-sans);
+  font-size: var(--nge-fs-body);
+  font-weight: var(--nge-fw-body);
+  line-height: var(--nge-lh-body);
+  letter-spacing: var(--nge-ws-body);
+  color: var(--nge-text);
+  background: var(--nge-bg) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Decorative accents ── */
+.nge-resume .nge-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nge-resume .nge-deco--tl-curve {
+  top: -48px;
+  left: -70px;
+  width: 220px;
+  height: 180px;
+  border-radius: 0 0 70% 0;
+  background: var(--nge-navy);
+  opacity: 0.92;
+}
+
+.nge-resume .nge-deco--tr-gold {
+  top: 18px;
+  right: 18px;
+  width: 14px;
+  height: 72px;
+  border-radius: 999px;
+  background: var(--accent-color);
+}
+
+.nge-resume .nge-deco--tr-dots,
+.nge-resume .nge-deco--bl-dots {
+  width: 56px;
+  height: 56px;
+  opacity: 0.35;
+  background-image: radial-gradient(circle, var(--nge-muted) 1.2px, transparent 1.4px);
+  background-size: 8px 8px;
+}
+
+.nge-resume .nge-deco--tr-dots {
+  top: 18px;
+  right: 42px;
+}
+
+.nge-resume .nge-deco--bl-dots {
+  bottom: 28px;
+  left: 22px;
+}
+
+.nge-resume .nge-deco--bl-curve {
+  bottom: -36px;
+  left: -40px;
+  width: 140px;
+  height: 90px;
+  border: 2px solid var(--nge-navy);
+  border-right: none;
+  border-top: none;
+  border-radius: 0 0 0 80%;
+  opacity: 0.55;
+}
+
+/* ── Header ── */
+.nge-resume .nge-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 22px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nge-resume .nge-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 26px;
+  padding-bottom: 16px;
+}
+
+.nge-resume .nge-photo {
+  position: relative;
+  flex-shrink: 0;
+  width: 118px;
+  height: 118px;
+}
+
+.nge-resume .nge-photo::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: var(--nge-navy);
+  opacity: 0.12;
+  z-index: 0;
+}
+
+.nge-resume .profile-image-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--nge-white);
+  box-shadow: 0 0 0 2px var(--accent-color);
+  background: var(--nge-beige);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nge-resume .profile-image-wrapper--initials {
+  background: var(--nge-navy);
+}
+
+.nge-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.nge-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.nge-resume .nge-ini-f,
+.nge-resume .nge-ini-l {
+  font-size: 0;
+  line-height: 1;
+  display: inline-block;
+}
+
+.nge-resume .nge-ini-f::first-letter,
+.nge-resume .nge-ini-l::first-letter {
+  font-family: var(--nge-font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--nge-white);
+}
+
+.nge-resume .nge-identity {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.nge-resume .candidate-name {
+  font-family: var(--nge-font-serif);
+  font-size: var(--nge-fs-name);
+  font-weight: var(--nge-fw-name);
+  line-height: var(--nge-lh-name);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  text-rendering: optimizeLegibility;
+}
+
+.nge-resume .name-first,
+.nge-resume .name-last {
+  display: inline;
+}
+
+.nge-resume .name-first:empty,
+.nge-resume .name-last:empty,
+.nge-resume .name-space:empty {
+  display: none;
+}
+
+.nge-resume .name-fallback {
+  display: none;
+}
+
+.nge-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.nge-resume .header-title {
+  font-family: var(--nge-font-sans);
+  font-size: var(--nge-fs-title);
+  font-weight: var(--nge-fw-title);
+  letter-spacing: var(--nge-ws-title);
+  text-transform: uppercase;
+  color: var(--accent-color);
+  line-height: var(--nge-lh-tight);
+}
+
+/* ── Contact row with icons ── */
+.nge-resume .nge-contact-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--nge-divider);
+}
+
+.nge-resume .nge-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.nge-resume .nge-contact-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background-color: var(--primary-color);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.nge-resume .nge-contact-item--email .nge-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='M3 7l9 6 9-6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='M3 7l9 6 9-6'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-contact-item--phone .nge-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M6.5 3.5l2.2 2.2a1.5 1.5 0 010 2.1L7.4 9.1a12.5 12.5 0 007.5 7.5l1.3-1.3a1.5 1.5 0 012.1 0l2.2 2.2a1.5 1.5 0 010 2.1l-1.2 1.2c-.8.8-2 .9-3 .5-3.3-1.2-6.3-3.4-8.7-6.6C5.4 11.7 3.7 9.3 2.7 6.5c-.4-1-.3-2.2.5-3l1.2-1.2a1.5 1.5 0 012.1 0z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M6.5 3.5l2.2 2.2a1.5 1.5 0 010 2.1L7.4 9.1a12.5 12.5 0 007.5 7.5l1.3-1.3a1.5 1.5 0 012.1 0l2.2 2.2a1.5 1.5 0 010 2.1l-1.2 1.2c-.8.8-2 .9-3 .5-3.3-1.2-6.3-3.4-8.7-6.6C5.4 11.7 3.7 9.3 2.7 6.5c-.4-1-.3-2.2.5-3l1.2-1.2a1.5 1.5 0 012.1 0z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-contact-item--location .nge-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M12 21s7-5.4 7-11a7 7 0 10-14 0c0 5.6 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Cpath d='M12 21s7-5.4 7-11a7 7 0 10-14 0c0 5.6 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-contact-item--web .nge-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-contact-item--linkedin .nge-contact-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M6.5 9.5H9v9H6.5v-9zM7.75 5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11 9.5h2.4v1.2h.05c.33-.63 1.15-1.3 2.37-1.3 2.54 0 3.01 1.67 3.01 3.84V18.5H16.4v-4.3c0-1.03-.02-2.35-1.43-2.35-1.43 0-1.65 1.12-1.65 2.28v4.37H11v-9z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M6.5 9.5H9v9H6.5v-9zM7.75 5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11 9.5h2.4v1.2h.05c.33-.63 1.15-1.3 2.37-1.3 2.54 0 3.01 1.67 3.01 3.84V18.5H16.4v-4.3c0-1.03-.02-2.35-1.43-2.35-1.43 0-1.65 1.12-1.65 2.28v4.37H11v-9z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-contact-value {
+  font-size: var(--nge-fs-contact);
+  font-weight: 500;
+  color: var(--nge-text);
+  line-height: var(--nge-lh-tight);
+  word-break: break-word;
+}
+
+/* ── Body 64 / 36 ── */
+.nge-resume .nge-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 64fr 36fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.nge-resume .nge-main {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.nge-resume .nge-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  padding-left: 4px;
+}
+
+/* ── Section chrome ── */
+.nge-resume .nge-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nge-resume .nge-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--accent-color);
+  line-height: var(--nge-lh-tight);
+}
+
+.nge-resume .nge-section-label {
+  font-family: var(--nge-font-serif);
+  font-size: var(--nge-fs-section);
+  font-weight: var(--nge-fw-section);
+  letter-spacing: var(--nge-ws-heading);
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+.nge-resume .nge-section-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.nge-resume .nge-section-icon--navy {
+  background: var(--primary-color);
+}
+
+.nge-resume .nge-section-icon--gold {
+  background: var(--accent-color);
+}
+
+.nge-resume .nge-section-icon::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background: var(--nge-white);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--summary .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--experience .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 7h16v12H4V7zm2-3h12l1 2H5l1-2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 7h16v12H4V7zm2-3h12l1 2H5l1-2z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--projects .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--skills .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2l2.2 6.8H21l-5.5 4 2.1 6.7L12 15.8 6.4 19.5 8.5 12.8 3 8.8h6.8L12 2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2l2.2 6.8H21l-5.5 4 2.1 6.7L12 15.8 6.4 19.5 8.5 12.8 3 8.8h6.8L12 2z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--education .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 3L2 8l10 5 8-4v6h2V8L12 3zm-6 9.2V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-2.8l-6 3-6-3z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 3L2 8l10 5 8-4v6h2V8L12 3zm-6 9.2V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-2.8l-6 3-6-3z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--certs .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2a7 7 0 00-3 13.3V21l3-1.5L15 21v-5.7A7 7 0 0012 2zm0 10a3 3 0 110-6 3 3 0 010 6z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2a7 7 0 00-3 13.3V21l3-1.5L15 21v-5.7A7 7 0 0012 2zm0 10a3 3 0 110-6 3 3 0 010 6z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--achievements .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 3h8v3a4 4 0 01-3 3.9V12h3v2H8v-2h3V9.9A4 4 0 018 6V3zM6 5H4v1a3 3 0 003 3H6V5zm12 0h2v1a3 3 0 01-3 3h1V5zM9 17h6v2H9v-2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 3h8v3a4 4 0 01-3 3.9V12h3v2H8v-2h3V9.9A4 4 0 018 6V3zM6 5H4v1a3 3 0 003 3H6V5zm12 0h2v1a3 3 0 01-3 3h1V5zM9 17h6v2H9v-2z'/%3E%3C/svg%3E");
+}
+
+.nge-resume .nge-section--languages .nge-section-icon::after,
+.nge-resume .nge-section--interests .nge-section-icon::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18' stroke='%231B2A4A' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18' stroke='%231B2A4A' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+}
+
+/* ── Summary ── */
+.nge-resume .summary-text {
+  font-size: var(--nge-fs-body);
+  line-height: var(--nge-lh-body);
+  letter-spacing: var(--nge-ws-body);
+  color: var(--nge-text);
+  max-width: var(--nge-measure);
+}
+
+/* ── Experience timeline ── */
+.nge-resume .nge-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding-left: 18px;
+}
+
+.nge-resume .nge-experience::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  bottom: 8px;
+  width: 1.5px;
+  background: var(--accent-color);
+  opacity: 0.85;
+}
+
+.nge-resume .nge-experience .experience-item {
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 16px;
+  margin-bottom: 4px;
+}
+
+.nge-resume .nge-experience .experience-item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.nge-resume .nge-experience .experience-item::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent-color);
+  background: var(--nge-bg);
+  box-sizing: border-box;
+}
+
+.nge-resume .nge-experience .experience-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  margin-bottom: 6px;
+  align-items: start;
+}
+
+.nge-resume .nge-experience .experience-header h3 {
+  order: 1;
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--nge-font-sans);
+  font-size: var(--nge-fs-role);
+  font-weight: var(--nge-fw-role);
+  color: var(--primary-color);
+  line-height: var(--nge-lh-tight);
+}
+
+.nge-resume .nge-experience .experience-header .duration {
+  order: 2;
+  grid-column: 2;
+  grid-row: 1;
+  font-size: var(--nge-fs-meta);
+  font-weight: 500;
+  color: var(--nge-muted);
+  letter-spacing: var(--nge-ws-meta);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.nge-resume .nge-experience .experience-header .company {
+  order: 3;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  font-family: var(--nge-font-sans);
+  font-size: var(--nge-fs-company);
+  font-weight: var(--nge-fw-company);
+  color: var(--accent-color);
+  font-style: normal;
+  line-height: var(--nge-lh-tight);
+}
+
+.nge-resume .nge-experience .description {
+  font-size: var(--nge-fs-body);
+  line-height: var(--nge-lh-body);
+  letter-spacing: var(--nge-ws-body);
+  color: var(--nge-text);
+  max-width: var(--nge-measure);
+}
+
+.nge-resume .nge-experience .description p,
+.nge-resume .nge-experience .experience-desc--paragraph,
+.nge-resume .nge-experience .experience-desc--lead {
+  margin: 0 0 0.5em;
+}
+
+.nge-resume .nge-experience .description p:last-child,
+.nge-resume .nge-experience .experience-desc--paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.nge-resume .nge-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.nge-resume .nge-experience .description li {
+  position: relative;
+  padding-left: 1em;
+  line-height: var(--nge-lh-body);
+}
+
+.nge-resume .nge-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  opacity: 0.75;
+}
+
+/* ── Projects as luxury cards ── */
+.nge-resume .nge-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nge-resume .nge-projects .project-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  background: var(--nge-surface);
+  border-radius: 10px;
+  padding: 12px 14px 12px 14px;
+  border: 1px solid transparent;
+  position: relative;
+}
+
+.nge-resume .nge-projects .project-item::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  opacity: 0.55;
+}
+
+.nge-resume .nge-projects .project-item h3 {
+  font-family: var(--nge-font-sans);
+  font-size: var(--nge-fs-role);
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0 0 4px 20px;
+  line-height: var(--nge-lh-tight);
+}
+
+.nge-resume .nge-projects .project-item .description,
+.nge-resume .nge-projects .project-item p.description {
+  font-size: var(--nge-fs-body);
+  line-height: var(--nge-lh-body);
+  color: var(--nge-text);
+  margin-left: 20px;
+  max-width: var(--nge-measure);
+}
+
+.nge-resume .nge-projects .project-item .technologies {
+  font-size: var(--nge-fs-meta);
+  color: var(--nge-muted);
+  margin: 6px 0 0 20px;
+  letter-spacing: var(--nge-ws-meta);
+}
+
+.nge-resume .nge-projects .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.nge-resume .nge-projects .project-item .description li {
+  position: relative;
+  padding-left: 0.95em;
+  margin-bottom: 0.3em;
+}
+
+.nge-resume .nge-projects .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--nge-muted);
+}
+
+/* ── Skills luxury chips ── */
+.nge-resume .nge-skills-grid.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  background: var(--nge-surface);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.nge-resume .nge-skills-grid .skill-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: var(--nge-white);
+  border: 1px solid var(--nge-divider);
+  border-radius: 999px;
+  padding: 4px 10px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  white-space: normal;
+  box-shadow: none;
+}
+
+/* ── Education ── */
+.nge-resume .nge-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nge-resume .nge-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  display: flex;
+  flex-direction: column;
+}
+
+.nge-resume .nge-education .education-item h3 {
+  order: 1;
+  font-size: var(--nge-fs-role);
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: var(--nge-lh-tight);
+  margin-bottom: 2px;
+}
+
+.nge-resume .nge-education .education-item .institution {
+  order: 2;
+  font-size: var(--nge-fs-company);
+  font-weight: 600;
+  color: var(--accent-color);
+  line-height: var(--nge-lh-tight);
+  margin-bottom: 2px;
+}
+
+.nge-resume .nge-education .year,
+.nge-resume .nge-education .cgpa {
+  order: 3;
+  font-size: var(--nge-fs-meta);
+  color: var(--nge-muted);
+  letter-spacing: var(--nge-ws-meta);
+}
+
+/* ── Certifications cards ── */
+.nge-resume .nge-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nge-resume .nge-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 8px;
+  background: var(--nge-surface);
+  border-radius: 8px;
+  padding: 8px 10px;
+  align-items: start;
+}
+
+.nge-resume .nge-certifications .certification-item h3 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: var(--nge-lh-tight);
+  grid-column: 1;
+}
+
+.nge-resume .nge-certifications .issuer {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--nge-muted);
+  display: block;
+  margin-top: 2px;
+  grid-column: 1;
+}
+
+.nge-resume .nge-certifications .date,
+.nge-resume .nge-certifications .year {
+  font-size: var(--nge-fs-meta);
+  font-weight: 600;
+  color: var(--accent-color);
+  letter-spacing: var(--nge-ws-meta);
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── Languages pills ── */
+.nge-resume .nge-languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.nge-resume .nge-languages .language-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--nge-surface);
+  border: 1px solid var(--nge-divider);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 9px;
+  line-height: 1.35;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.nge-resume .nge-languages .language {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.nge-resume .nge-languages .proficiency {
+  font-weight: 500;
+  color: var(--nge-muted);
+}
+
+.nge-resume .nge-languages .language-item .proficiency::before {
+  content: ' · ';
+  color: var(--nge-muted);
+}
+
+/* ── Achievements ── */
+.nge-resume .nge-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nge-resume .nge-achievements .achievement-item {
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-left: 18px;
+}
+
+.nge-resume .nge-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent-color);
+  background:
+    radial-gradient(circle at center, var(--accent-color) 0 2px, transparent 2.5px),
+    var(--nge-bg);
+}
+
+.nge-resume .nge-achievements .achievement-item h3 {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary-color);
+  line-height: var(--nge-lh-tight);
+}
+
+.nge-resume .nge-achievements .achievement-item .description {
+  font-size: 9.5px;
+  color: var(--nge-muted);
+  line-height: var(--nge-lh-body);
+  margin-top: 2px;
+}
+
+.nge-resume .nge-achievements .achievement-item .year,
+.nge-resume .nge-achievements .achievement-item .date {
+  font-size: var(--nge-fs-meta);
+  color: var(--nge-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Interests / hobbies ── */
+.nge-resume .nge-hobbies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nge-resume .nge-hobbies .hobby-item {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--primary-color);
+  background: var(--nge-surface);
+  border-radius: 999px;
+  padding: 4px 10px;
+  border: 1px solid var(--nge-divider);
+}
+
+/* ── Extended sections appended by engine ── */
+.nge-resume .extended-section,
+.nge-resume [class*="extended"] {
+  margin-top: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .nge-resume {
+    padding: 18px;
+    width: 100%;
+  }
+
+  .nge-resume .nge-body {
+    grid-template-columns: 1fr;
+  }
+
+  .nge-resume .nge-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nge-resume .nge-deco--tl-curve {
+    width: 140px;
+    height: 110px;
+  }
+
+  .nge-resume .candidate-name {
+    font-size: 30px;
+  }
+
+  .nge-resume .nge-contact-bar {
+    gap: 10px 14px;
+  }
+}
+
+/* ── Print / PDF ── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .nge-resume,
+  .resume-container.nge-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--nge-bg) !important;
+    padding: 26px 30px 34px !important;
+  }
+
+  .nge-resume .nge-deco,
+  .nge-resume .nge-section-icon,
+  .nge-resume .profile-image-wrapper,
+  .nge-resume .nge-projects .project-item,
+  .nge-resume .nge-skills-grid.skills-list,
+  .nge-resume .nge-certifications .certification-item,
+  .nge-resume .nge-languages .language-item {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .nge-resume .experience-item,
+  .nge-resume .project-item,
+  .nge-resume .education-item,
+  .nge-resume .achievement-item,
+  .nge-resume .certification-item,
+  .nge-resume .nge-section,
+  .nge-resume .language-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.nge-resume .nge-body,
+.resume-container.nge-resume .nge-main,
+.resume-container.nge-resume .nge-sidebar {
+  min-height: auto !important;
+  height: auto !important;
+  align-items: flex-start !important;
+}
+
+/* Keep experience title-first timeline against shared ATS balance overrides */
+.resume-container.nge-resume .nge-experience .experience-header h3 {
+  order: 1 !important;
+  color: var(--primary-color) !important;
+  font-weight: 700 !important;
+}
+
+.resume-container.nge-resume .nge-experience .experience-header .company {
+  order: 3 !important;
+  color: var(--accent-color) !important;
+  font-weight: 600 !important;
+}
+
+.resume-container.nge-resume .nge-experience .experience-header .duration {
+  order: 2 !important;
+  color: var(--nge-muted) !important;
+}
