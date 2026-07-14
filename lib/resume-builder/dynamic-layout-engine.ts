@@ -37,16 +37,35 @@ const FILL_EXPAND_BELOW = 0.85;
 /** Unused printable height that triggers whitespace redistribution (px). */
 const WHITESPACE_EXPAND_THRESHOLD_PX = 72;
 /** Minimum readable rhythm — never compress below these. */
-const READABLE_BULLET_GAP_MIN = 0.5;
-const READABLE_LINE_HEIGHT_MUL_MIN = 1.05;
-const READABLE_DESC_LH_MUL_MIN = 1.16;
-const READABLE_PARAGRAPH_SPACING_MIN = 6;
+const READABLE_BULLET_GAP_MIN = 0.42;
+const READABLE_LINE_HEIGHT_MUL_MIN = 0.92;
+const READABLE_DESC_LH_MUL_MIN = 1.05;
+const READABLE_PARAGRAPH_SPACING_MIN = 5;
 /** Soft hold only inside the elegant band — avoid both emptiness and edge-to-edge stretch. */
 const FILL_HOLD_MIN = 0.85;
 const FILL_HOLD_MAX = 0.95;
 const FILL_COMPRESS_ABOVE = 0.95;
 /** Target ~90% printable coverage (mid of 85–95%). */
 const TARGET_PAGE_FILL = 0.9;
+
+/**
+ * Hard bounds — keep adaptations subtle so premium designs stay intact.
+ * Sidebar gap ±20%, section padding ±12%, paragraph line-height ±10%.
+ */
+const SIDEBAR_GAP_MUL_MIN = 0.8;
+const SIDEBAR_GAP_MUL_MAX = 1.2;
+const SECTION_PAD_MUL_MIN = 0.88;
+const SECTION_PAD_MUL_MAX = 1.12;
+const LINE_HEIGHT_MUL_MIN = 0.9;
+const LINE_HEIGHT_MUL_MAX = 1.1;
+const SECTION_GAP_MUL_MIN = 0.85;
+const SECTION_GAP_MUL_MAX = 1.2;
+const BLOCK_GAP_MUL_MIN = 0.85;
+const BLOCK_GAP_MUL_MAX = 1.2;
+/** Cap padding dumps (px) — fill whitespace via rhythm, not empty card stretch. */
+const SECTION_EXTRA_CAP_PX = 16;
+
+export type LayoutRhythmMode = 'compact' | 'normal' | 'relaxed';
 
 /**
  * Content priority — lower values compress first; experience anchors last.
@@ -219,16 +238,25 @@ function applyTemplateAwareDistribution(
     sidebarInternalGap: number;
     experienceSpacing: number;
     experienceCardPadding: number;
+    layoutRhythm?: LayoutRhythmMode;
   },
   capacity: TemplateLayoutCapacity,
   profile: TemplateLayoutProfile,
   fillSignals: LayoutFillSignals
 ): void {
   const extras = plan.sectionExtras;
+  const compactRhythm = plan.layoutRhythm === 'compact';
 
   switch (profile) {
     case 'sidebar':
-      if (fillSignals.sidebarUnderfilled) {
+      if (fillSignals.sidebarUnderfilled && compactRhythm) {
+        // Dense/compact: never inflate sidebar gaps to chase the main column.
+        plan.sidebarInternalGap =
+          Math.round(plan.sidebarInternalGap * 0.94 * 10) / 10;
+        plan.sidebarCardPadding =
+          Math.round(plan.sidebarCardPadding * 0.96 * 10) / 10;
+        plan.sidebarFlexGrow = Math.min(plan.sidebarFlexGrow, 1.0);
+      } else if (fillSignals.sidebarUnderfilled) {
         // Underfill: expand sidebar rhythm so the short column catches up.
         // Never widen main flex — that deepens the blank-sidebar look.
         const expandSidebar =
@@ -381,6 +409,10 @@ export interface DynamicLayoutPlan {
   contentMeasureCh: number;
   /** sparse | balanced | dense — drives data-dl-density */
   typographyDensity: 'sparse' | 'balanced' | 'dense';
+  /** compact | normal | relaxed — spacing / breathe without redesign */
+  layoutRhythm: LayoutRhythmMode;
+  /** Inner skill-list gap (px) */
+  skillGap: number;
   /** Adaptive font weights (numeric 100–900) */
   companyFontWeight: number;
   titleFontWeight: number;
@@ -953,7 +985,20 @@ function resolveAdaptiveCardMultipliers(
   let educationItemMul = 1;
   let experienceProtectMul = 1;
 
-  if (fillSignals.sidebarUnderfilled && fillSignals.columnOverload) {
+  const sidebarItemCount =
+    contentMetrics.skillCount +
+    contentMetrics.certificationCount +
+    contentMetrics.languageCount +
+    contentMetrics.achievementCount;
+  const denseSidebar = sidebarItemCount >= 14;
+
+  if (denseSidebar && fillSignals.sidebarUnderfilled) {
+    // Many sidebar items already fill the track — tighten, don't expand.
+    sidebarCardMul = 0.96;
+    sidebarGapMul = 0.9;
+    educationItemMul = 0.94;
+    if (fillSignals.columnOverload) experienceProtectMul = 0.9;
+  } else if (fillSignals.sidebarUnderfilled && fillSignals.columnOverload) {
     // Experience-heavy: expand sidebar rhythm instead of crushing it.
     sidebarCardMul = contentMetrics.educationCount <= 1 ? 1.08 : 1.18;
     sidebarGapMul = 1.22;
@@ -986,6 +1031,87 @@ function resolveAdaptiveCardMultipliers(
   }
 
   return { sidebarCardMul, sidebarGapMul, educationItemMul, experienceProtectMul };
+}
+
+/**
+ * Sidebar item density → smooth gap multiplier (±20%).
+ * 2–4 items: generous · 8: normal · 12: compact · 18+: very compact.
+ */
+function resolveSidebarSpacingMul(
+  contentMetrics: SectionContentMetrics,
+  fillSignals: LayoutFillSignals
+): number {
+  const itemCount =
+    contentMetrics.skillCount +
+    contentMetrics.certificationCount +
+    contentMetrics.languageCount +
+    contentMetrics.achievementCount;
+  // Piecewise-linear soft curve across the common skill counts.
+  let mul: number;
+  if (itemCount <= 2) mul = 1.2;
+  else if (itemCount <= 4) mul = 1.14;
+  else if (itemCount <= 8) mul = 1.0;
+  else if (itemCount <= 12) mul = 0.92;
+  else if (itemCount <= 18) mul = 0.86;
+  else mul = 0.8;
+
+  // Only sparse sidebars get underfill breathing room — dense ones stay tight.
+  if (fillSignals.sidebarUnderfilled && itemCount <= 8) {
+    mul = Math.min(SIDEBAR_GAP_MUL_MAX, mul + 0.08);
+  } else if (
+    (fillSignals.shouldCompress && !fillSignals.sidebarUnderfilled) ||
+    itemCount >= 18
+  ) {
+    mul = Math.max(SIDEBAR_GAP_MUL_MIN, mul - 0.06);
+  }
+  return clamp(mul, SIDEBAR_GAP_MUL_MIN, SIDEBAR_GAP_MUL_MAX);
+}
+
+/**
+ * compact | normal | relaxed from fill + section inventory (no hardcoding).
+ * Content inventory wins over synthetic under-estimates of page fill.
+ */
+function resolveLayoutRhythm(
+  fillSignals: LayoutFillSignals,
+  contentMetrics: SectionContentMetrics
+): LayoutRhythmMode {
+  const sidebarItems =
+    contentMetrics.skillCount +
+    contentMetrics.certificationCount +
+    contentMetrics.languageCount;
+  const heavyInventory =
+    contentMetrics.experienceCount >= 6 ||
+    sidebarItems >= 18 ||
+    (contentMetrics.experienceCount >= 5 &&
+      contentMetrics.experienceTextUnits >= 10) ||
+    (contentMetrics.projectCount >= 3 && contentMetrics.experienceCount >= 4);
+
+  if (
+    heavyInventory ||
+    fillSignals.shouldCompress ||
+    (contentMetrics.experienceCount >= 4 && fillSignals.pageFill > 0.92)
+  ) {
+    return 'compact';
+  }
+  if (
+    fillSignals.shouldExpand ||
+    fillSignals.pageUnderfill ||
+    (contentMetrics.experienceCount <= 2 && fillSignals.pageFill < 0.85)
+  ) {
+    return 'relaxed';
+  }
+  return 'normal';
+}
+
+function clampSectionExtras(
+  extras: Partial<Record<LayoutSectionKind, number>>
+): Partial<Record<LayoutSectionKind, number>> {
+  const out: Partial<Record<LayoutSectionKind, number>> = {};
+  for (const [key, value] of Object.entries(extras)) {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) continue;
+    out[key as LayoutSectionKind] = Math.min(Math.round(value), SECTION_EXTRA_CAP_PX);
+  }
+  return out;
 }
 
 function distributeProportionalExtras(
@@ -1416,7 +1542,28 @@ export function computeDynamicLayoutPlanFromMetrics(
   }
 
   const adaptiveCards = resolveAdaptiveCardMultipliers(metrics, fillSignals, contentMetrics);
+  const inventorySidebarMul = resolveSidebarSpacingMul(contentMetrics, fillSignals);
   sidebarGapMul *= adaptiveCards.sidebarGapMul;
+  sidebarGapMul *= inventorySidebarMul;
+
+  const layoutRhythm = resolveLayoutRhythm(fillSignals, contentMetrics);
+  if (layoutRhythm === 'relaxed') {
+    lineHeightMul = Math.min(LINE_HEIGHT_MUL_MAX, lineHeightMul + 0.06);
+    paragraphSpacingMul = Math.min(1.2, paragraphSpacingMul + 0.1);
+    sectionGapMul = Math.min(SECTION_GAP_MUL_MAX, sectionGapMul + 0.06);
+    blockGapMul = Math.min(BLOCK_GAP_MUL_MAX, blockGapMul + 0.06);
+  } else if (layoutRhythm === 'compact') {
+    lineHeightMul = Math.max(LINE_HEIGHT_MUL_MIN, lineHeightMul - 0.04);
+    paragraphSpacingMul = Math.max(0.88, paragraphSpacingMul - 0.06);
+    sectionGapMul = Math.max(SECTION_GAP_MUL_MIN, sectionGapMul - 0.06);
+    blockGapMul = Math.max(BLOCK_GAP_MUL_MIN, blockGapMul - 0.06);
+    // Drop page-expand residue — compact spacing stays ≤ base (±20% floor).
+    sidebarGapMul = clamp(
+      Math.min(inventorySidebarMul, adaptiveCards.sidebarGapMul, 0.95),
+      SIDEBAR_GAP_MUL_MIN,
+      1
+    );
+  }
 
   if (fillSignals.experienceDominant) {
     lineHeightMul = Math.max(lineHeightMul, 1.02);
@@ -1428,16 +1575,27 @@ export function computeDynamicLayoutPlanFromMetrics(
 
   let projectSpacingMul = 1;
   if (projectCount === 1 && fill < 0.88) {
-    projectSpacingMul = 1.55;
+    projectSpacingMul = 1.35;
   } else if (projectCount >= 3) {
-    projectSpacingMul = 1 - clamp((projectCount - 2) / 6, 0, 0.28);
+    projectSpacingMul = 1 - clamp((projectCount - 2) / 6, 0, 0.22);
   }
+
+  // Soft clamp — never exceed design-safe deltas.
+  sectionGapMul = clamp(sectionGapMul, SECTION_GAP_MUL_MIN, SECTION_GAP_MUL_MAX);
+  blockGapMul = clamp(blockGapMul, BLOCK_GAP_MUL_MIN, BLOCK_GAP_MUL_MAX);
+  sectionPaddingMul = clamp(sectionPaddingMul, SECTION_PAD_MUL_MIN, SECTION_PAD_MUL_MAX);
+  lineHeightMul = clamp(lineHeightMul, LINE_HEIGHT_MUL_MIN, LINE_HEIGHT_MUL_MAX);
+  sidebarGapMul = clamp(sidebarGapMul, SIDEBAR_GAP_MUL_MIN, SIDEBAR_GAP_MUL_MAX);
+  paragraphSpacingMul = clamp(paragraphSpacingMul, 0.88, 1.2);
+  bulletGapMul = clamp(bulletGapMul, 0.85, 1.2);
 
   const blockGap = Math.round(BASE_BLOCK_GAP * blockGapMul * 10) / 10;
   const sectionGap = Math.round(BASE_SECTION_GAP * sectionGapMul * 10) / 10;
   const sectionPadding = Math.round(BASE_SECTION_PADDING * sectionPaddingMul * 10) / 10;
 
-  sectionExtras = rebalanceColumnExtras(sectionExtras, metrics, fillSignals);
+  sectionExtras = clampSectionExtras(
+    rebalanceColumnExtras(sectionExtras, metrics, fillSignals)
+  );
 
   let experienceCardPadding = sectionPadding;
   let experienceListGap = blockGap;
@@ -1503,12 +1661,20 @@ export function computeDynamicLayoutPlanFromMetrics(
     columnOverload: fillSignals.columnOverload,
   });
 
+  // Align density hook with rhythm so template CSS (:dense/:sparse) cooperates.
+  let typographyDensity = adaptiveType.typographyDensity;
+  if (layoutRhythm === 'relaxed' && typographyDensity === 'balanced') {
+    typographyDensity = 'sparse';
+  } else if (layoutRhythm === 'compact' && typographyDensity === 'balanced') {
+    typographyDensity = 'dense';
+  }
+
   // Dense body text: slightly more description padding so walls don't feel glued.
-  if (adaptiveType.typographyDensity === 'dense') {
+  if (typographyDensity === 'dense') {
     experienceDescPadding = Math.round(experienceDescPadding * 1.08 * 10) / 10;
     bulletIndent = Math.max(14, bulletIndent - 1);
-  } else if (adaptiveType.typographyDensity === 'sparse') {
-    experienceDescPadding = Math.round(experienceDescPadding * 1.12 * 10) / 10;
+  } else if (typographyDensity === 'sparse' || layoutRhythm === 'relaxed') {
+    experienceDescPadding = Math.round(experienceDescPadding * 1.1 * 10) / 10;
     bulletIndent = Math.min(20, bulletIndent + 2);
   }
 
@@ -1516,32 +1682,60 @@ export function computeDynamicLayoutPlanFromMetrics(
   if (hasSidebar && (fillSignals.columnOverload || fillSignals.sidebarUnderfilled)) {
     contentMeasureCh = Math.max(contentMeasureCh, 76);
   }
-  if (fillSignals.pageUnderfill) {
+  if (fillSignals.pageUnderfill || layoutRhythm === 'relaxed') {
     const widen = Math.round(clamp((TARGET_PAGE_FILL - fill) / 0.2, 0, 1) * 10);
-    contentMeasureCh = Math.min(84, contentMeasureCh + widen);
+    contentMeasureCh = Math.min(84, contentMeasureCh + widen + (layoutRhythm === 'relaxed' ? 4 : 0));
+  }
+  if (layoutRhythm === 'compact') {
+    contentMeasureCh = Math.min(contentMeasureCh, 68);
   }
 
   const finalBulletGap = Math.max(
     READABLE_BULLET_GAP_MIN,
     Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100
   );
-  const finalLineHeightMul = Math.max(
-    READABLE_LINE_HEIGHT_MUL_MIN,
-    Math.round(clamp(lineHeightMul, 0.98, 1.28) * 1000) / 1000
-  );
+  const finalLineHeightMul = Math.round(
+    clamp(lineHeightMul, LINE_HEIGHT_MUL_MIN, LINE_HEIGHT_MUL_MAX) * 1000
+  ) / 1000;
   const finalParagraphSpacing = Math.max(
     READABLE_PARAGRAPH_SPACING_MIN,
     Math.round(BASE_PARAGRAPH_SPACING * paragraphSpacingMul * 10) / 10
   );
-  const finalDescLhMul = Math.max(
-    READABLE_DESC_LH_MUL_MIN,
-    Math.round(adaptiveType.descLineHeightMul * 1000) / 1000
-  );
+  // Description LH: base ~1.12, allow ±10% (= ~1.01–1.23)
+  let finalDescLhMul = Math.round(adaptiveType.descLineHeightMul * 1000) / 1000;
+  if (layoutRhythm === 'relaxed') {
+    finalDescLhMul = Math.min(1.232, finalDescLhMul * 1.06);
+  } else if (layoutRhythm === 'compact') {
+    finalDescLhMul = Math.max(READABLE_DESC_LH_MUL_MIN, finalDescLhMul * 0.96);
+  }
+  finalDescLhMul = clamp(finalDescLhMul, READABLE_DESC_LH_MUL_MIN, 1.232);
+
+  let summaryMaxCh = adaptiveType.summaryMaxCh;
+  if (layoutRhythm === 'relaxed') {
+    summaryMaxCh = Math.min(78, summaryMaxCh + 4);
+  } else if (layoutRhythm === 'compact') {
+    summaryMaxCh = Math.max(56, summaryMaxCh - 4);
+  }
 
   let sidebarCardPadding = Math.round(
     sectionPadding * adaptiveCards.sidebarCardMul * 10
   ) / 10;
+  sidebarCardPadding = Math.round(
+    clamp(
+      sidebarCardPadding,
+      BASE_SECTION_PADDING * SECTION_PAD_MUL_MIN,
+      BASE_SECTION_PADDING * SECTION_PAD_MUL_MAX * 1.25
+    ) * 10
+  ) / 10;
   const educationSpacingMul = adaptiveCards.educationItemMul;
+  // Compact: measure sidebar rhythm from base gap × inventory mul only —
+  // page-expand sectionGap must not inflate dense sidebar packing.
+  const sidebarGapBasis =
+    layoutRhythm === 'compact' ? BASE_SECTION_GAP : sectionGap;
+  const sidebarInternalGap = Math.round(sidebarGapBasis * sidebarGapMul * 10) / 10;
+  const skillGap = Math.round(
+    clamp(sidebarInternalGap * 0.55, 4, 12) * 10
+  ) / 10;
 
   const templateCapacity = computeTemplateLayoutCapacity(
     htmlTemplate,
@@ -1594,7 +1788,7 @@ export function computeDynamicLayoutPlanFromMetrics(
     mainColumnBasisPct: columnBasis.main,
     sidebarColumnBasisPct: columnBasis.sidebar,
     sidebarMaxWidthPct: columnBasis.sidebarMax,
-    sidebarInternalGap: Math.round(sectionGap * sidebarGapMul * 10) / 10,
+    sidebarInternalGap,
     educationSpacing: Math.round(
       (blockGap + (sectionExtras.education ?? 0)) * educationSpacingMul * 10
     ) / 10,
@@ -1617,11 +1811,19 @@ export function computeDynamicLayoutPlanFromMetrics(
     bulletIndent,
     sidebarCardPadding,
     ...adaptiveType,
+    typographyDensity,
+    summaryMaxCh,
     descLineHeightMul: finalDescLhMul,
     contentMeasureCh,
+    layoutRhythm,
+    skillGap,
   };
 
   applyTemplateAwareDistribution(plan, layoutCapacity, layoutProfile, fillSignals);
+
+  // Keep skill/item gap in sync if template distribution adjusted sidebar rhythm.
+  plan.skillGap =
+    Math.round(clamp(plan.sidebarInternalGap * 0.55, 4, 12) * 10) / 10;
 
   plan.summarySpacing =
     Math.round((plan.blockGap + (plan.sectionExtras.summary ?? 0)) * 10) / 10;
@@ -2012,10 +2214,15 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 }
 
 .resume-container[data-dl-density] .experience-item {
-  padding: var(--dl-exp-card-padding, var(--dl-section-padding)) 0 !important;
+  /* Never stretch experience cards into empty vertical space */
+  flex: 0 0 auto !important;
+  /* Only adjust vertical rhythm — preserve template horizontal card padding */
+  padding-top: var(--dl-exp-card-padding, var(--dl-section-padding)) !important;
+  padding-bottom: var(--dl-exp-card-padding, var(--dl-section-padding)) !important;
   margin-bottom: var(--dl-experience-spacing, var(--dl-block-gap)) !important;
-  flex: 1 1 auto !important;
   min-height: auto !important;
+  max-height: none !important;
+  height: auto !important;
 }
 
 .resume-container[data-dl-density] .experience-list > .experience-item:only-child,
@@ -2198,8 +2405,58 @@ ${summaryShortCss}
 .resume-container[data-dl-density] section,
 .resume-container[data-dl-density] .content-section,
 .resume-container[data-dl-density] .sidebar-section {
-  flex: 1 1 auto !important;
+  /* Content-sized sections — never flex-grow into blank page regions */
+  flex: 0 0 auto !important;
   min-height: auto !important;
+  max-height: none !important;
+}
+
+/* Sidebar item rhythm (skills / contact / certs / languages) — gap only, never width */
+.resume-container[data-dl-density] aside .skills-list,
+.resume-container[data-dl-density] [class*='-sidebar'] .skills-list,
+.resume-container[data-dl-density] aside .contact-list,
+.resume-container[data-dl-density] [class*='-sidebar'] .contact-list,
+.resume-container[data-dl-density] aside .languages-list,
+.resume-container[data-dl-density] [class*='-sidebar'] .languages-list,
+.resume-container[data-dl-density] aside .certifications-list,
+.resume-container[data-dl-density] [class*='-sidebar'] .certifications-list,
+.resume-container[data-dl-density] aside .hobbies-list,
+.resume-container[data-dl-density] [class*='-sidebar'] .hobbies-list {
+  gap: var(--dl-skill-gap, calc(var(--dl-sidebar-gap, 12px) * 0.55)) !important;
+}
+
+/* Rhythm: relaxed — paragraph breathe into whitespace (no card stretch) */
+.resume-container[data-dl-rhythm='relaxed'] .summary-text,
+.resume-container[data-dl-rhythm='relaxed'] [class*='summary-text'],
+.resume-container[data-dl-rhythm='relaxed'] .professional-summary,
+.resume-container[data-dl-page-underfill='true'] .summary-text,
+.resume-container[data-dl-page-underfill='true'] [class*='summary-text'],
+.resume-container[data-dl-page-underfill='true'] .professional-summary {
+  line-height: calc(var(--resume-line-height, 1.62) * 1.08) !important;
+  max-width: min(100%, calc(var(--dl-summary-max-ch, 72) * 1ch)) !important;
+  max-height: none !important;
+  height: auto !important;
+  margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.65 + var(--resume-paragraph-gap, 5px)) !important;
+}
+
+.resume-container[data-dl-rhythm='relaxed'] .experience-item .description,
+.resume-container[data-dl-rhythm='relaxed'] .project-item .description,
+.resume-container[data-dl-page-underfill='true'] .experience-item .description {
+  line-height: calc(var(--resume-line-height, 1.62) * 1.06) !important;
+  max-width: min(100%, calc(var(--dl-content-measure-ch, 80) * 1ch)) !important;
+  max-height: none !important;
+}
+
+.resume-container[data-dl-rhythm='relaxed'] .experience-item .description li,
+.resume-container[data-dl-page-underfill='true'] .experience-item .description li {
+  margin-bottom: calc(var(--resume-bullet-gap, 0.42em) * 1.08) !important;
+}
+
+/* Rhythm: compact — tighten internal padding only */
+.resume-container[data-dl-rhythm='compact'] aside .skill-tag,
+.resume-container[data-dl-rhythm='compact'] [class*='-sidebar'] .skill-tag,
+.resume-container[data-dl-rhythm='compact'] aside .psp-skill-name {
+  padding-block: 0.16em !important;
 }
 
 @media (max-width: 640px) {
@@ -2244,6 +2501,7 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.style.setProperty('--dl-exp-desc-padding', `${plan.experienceDescPadding}px`);
   root.style.setProperty('--dl-bullet-indent', `${plan.bulletIndent}px`);
   root.style.setProperty('--dl-sidebar-card-padding', `${plan.sidebarCardPadding}px`);
+  root.style.setProperty('--dl-skill-gap', `${plan.skillGap}px`);
   root.style.setProperty('--dl-fs-company', String(plan.companyFontScale));
   root.style.setProperty('--dl-fs-title', String(plan.titleFontScale));
   root.style.setProperty('--dl-fs-meta', String(plan.metaFontScale));
@@ -2280,6 +2538,7 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.setAttribute('data-dl-summary', plan.summaryIsShort ? 'short' : 'normal');
   root.setAttribute('data-dl-sections', String(plan.visibleSectionCount));
   root.setAttribute('data-dl-density', plan.typographyDensity);
+  root.setAttribute('data-dl-rhythm', plan.layoutRhythm);
   const sidebarCompact =
     plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal';
   root.setAttribute('data-dl-sidebar-density', sidebarCompact);
@@ -2343,6 +2602,7 @@ export function buildDynamicLayoutCss(
   --dl-exp-desc-padding: ${plan.experienceDescPadding}px;
   --dl-bullet-indent: ${plan.bulletIndent}px;
   --dl-sidebar-card-padding: ${plan.sidebarCardPadding}px;
+  --dl-skill-gap: ${plan.skillGap}px;
   --dl-fs-company: ${plan.companyFontScale};
   --dl-fs-title: ${plan.titleFontScale};
   --dl-fs-meta: ${plan.metaFontScale};
@@ -2644,10 +2904,15 @@ export function getDomAwareLayoutRefinementScript(): string {
     if(m.sections.length<=4&&fill<0.85){sg*=1.22;bg*=1.16;pad*=1.14;}
     var mf=m.sidebarHeight>0?1.65:1, sf=m.sidebarHeight>0?1:0;
     /* Column % locked to template CSS vars already injected — spacing only adapts. */
-    var sbPct=parseFloat(getComputedStyle(root).getPropertyValue('--dl-sidebar-basis'))||32;
-    var mnPct=parseFloat(getComputedStyle(root).getPropertyValue('--dl-main-basis'))||68;
+    var rootEl=document.querySelector('.resume-container');
+    var sbPct=parseFloat(rootEl?getComputedStyle(rootEl).getPropertyValue('--dl-sidebar-basis'):'')||32;
+    var mnPct=parseFloat(rootEl?getComputedStyle(rootEl).getPropertyValue('--dl-main-basis'):'')||68;
     var sbMax=sbPct;
-    if(m.sidebarUnderfilled){
+    var skillTagsEarly=document.querySelectorAll('.skill-tag,.psp-skill-item').length;
+    var denseSidebar=skillTagsEarly>=14;
+    if(m.sidebarUnderfilled&&denseSidebar){
+      sgap=Math.max(0.8,sgap*0.72);
+    } else if(m.sidebarUnderfilled){
       if(m.columnBalanced){mf=1.72;sf=0.95;sgap*=1.08;}
       else if(m.experienceDominant){mf=1.58;sf=1.12;sgap*=1.18;}
       else{mf=1.65;sf=1.05;sgap*=1.1;}
@@ -2659,13 +2924,13 @@ export function getDomAwareLayoutRefinementScript(): string {
     }
     if(!m.columnBalanced&&m.mainHeight>m.sidebarHeight*1.08){
       var tr=Math.min(96,(m.mainHeight-m.sidebarHeight)*0.14);
-      if(m.sidebarUnderfilled){
+      if(m.sidebarUnderfilled&&!denseSidebar){
         ['education','languages','certifications','skills','summary'].forEach(function(k){
           if(m.sidebarSections.some(function(s){return s.kind===k;}))
             extras[k]=Math.round((extras[k]||0)+tr*0.28);
         });
         extras.experience=Math.round((extras.experience||0)-tr*0.08);
-      } else {
+      } else if(!m.sidebarUnderfilled) {
         extras.experience=(extras.experience||0)+Math.round(tr*0.62);
         extras.summary=(extras.summary||0)+Math.round(tr*0.18);
         ['education','languages','certifications','skills'].forEach(function(k){
@@ -2674,9 +2939,19 @@ export function getDomAwareLayoutRefinementScript(): string {
         });
       }
     }
+    var invMul=1;
+    if(skillTagsEarly<=2)invMul=1.2;
+    else if(skillTagsEarly<=4)invMul=1.14;
+    else if(skillTagsEarly<=8)invMul=1;
+    else if(skillTagsEarly<=12)invMul=0.92;
+    else if(skillTagsEarly<=18)invMul=0.86;
+    else invMul=0.8;
+    sgap=Math.max(0.8,Math.min(1.2,sgap*invMul));
     return {sectionGap:14*sg,blockGap:10*bg,fontScale:Math.min(1.12,Math.max(0.92,fg)),
       lineHeight:1.45*lh,mainFlex:mf,sidebarFlex:sf,pad:6*pad,pg:4*pg,cg:12*cg,
-      sidebarGap:14*sg*sgap,mnPct:mnPct,sbPct:sbPct,sbMax:sbMax,extras:extras,sidebarUnder:m.sidebarUnderfilled};
+      sidebarGap:14*sg*sgap,sidebarGapCompact:14*Math.min(invMul,0.95),
+      mnPct:mnPct,sbPct:sbPct,sbMax:sbMax,extras:extras,sidebarUnder:m.sidebarUnderfilled,
+      denseSidebar:denseSidebar,invMul:invMul};
   }
   function apply(){
     var root=document.querySelector('.resume-container'); if(!root)return;
@@ -2702,7 +2977,6 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-section-padding',p.pad+'px');
     root.style.setProperty('--dl-paragraph-spacing',p.pg+'px');
     root.style.setProperty('--dl-column-gap',p.cg+'px');
-    root.style.setProperty('--dl-sidebar-gap',p.sidebarGap+'px');
     root.style.setProperty('--dl-main-basis',p.mnPct+'%');
     root.style.setProperty('--dl-sidebar-basis',p.sbPct+'%');
     root.style.setProperty('--dl-sidebar-max',p.sbMax+'%');
@@ -2721,11 +2995,23 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-skill-cols',String(cols));
     /* Adaptive typography hierarchy (mirrors resolveAdaptiveTypography) */
     var dens='balanced';
-    if(expCount<=2&&fill<0.78)dens='sparse';
-    else if(expCount>=5||fill>0.98)dens='dense';
+    var rhythm='normal';
+    if(expCount<=2&&fill<0.78){dens='sparse';rhythm='relaxed';}
+    else if(expCount>=5||fill>0.98||skillTags>=18){dens='dense';rhythm='compact';}
+    else if(fill<0.85){rhythm='relaxed';}
+    else if(fill>0.95){rhythm='compact';
+    if(skillTags>=20){rhythm='compact';if(dens==='balanced')dens='dense';}
+    else if(skillTags<=4&&fill<0.85){rhythm='relaxed';}
+    var sidebarGapPx=p.sidebarGap;
+    if(rhythm==='compact'){
+      sidebarGapPx=typeof p.sidebarGapCompact==='number'?p.sidebarGapCompact:14*Math.min(p.invMul||0.95,0.95);
+    } else if(p.denseSidebar){
+      sidebarGapPx=14*Math.max(0.8,Math.min(1,(p.invMul||0.9)*0.9));
+    }
+    root.style.setProperty('--dl-sidebar-gap',sidebarGapPx+'px');
     var fsCompany=1.15, fsTitle=1.02, fsMeta=0.84, fsBody=0.98, fsHead=1.1, fsSkill=0.9, lhDesc=1.12, maxCh=68;
-    if(dens==='sparse'){fsCompany=1.18;fsTitle=1.05;fsBody=1.02;fsHead=1.12;lhDesc=1.16;maxCh=72;fsSkill=0.94;fsMeta=0.86;}
-    else if(dens==='dense'){
+    if(dens==='sparse'||rhythm==='relaxed'){fsCompany=1.18;fsTitle=1.05;fsBody=1.02;fsHead=1.12;lhDesc=1.16;maxCh=72;fsSkill=0.94;fsMeta=0.86;}
+    else if(dens==='dense'||rhythm==='compact'){
       var d=Math.min(1,Math.max(0,(expCount-3)/7));
       fsCompany=1.13-d*0.02;fsTitle=1.0-d*0.04;fsMeta=0.82-d*0.04;fsBody=0.95-d*0.08;fsHead=1.06-d*0.04;fsSkill=0.86-d*0.04;lhDesc=1.12+d*0.08;maxCh=62-Math.round(d*4);
     } else if(expCount>=3){
@@ -2733,6 +3019,8 @@ export function getDomAwareLayoutRefinementScript(): string {
       fsBody=0.98-mid*0.05;fsTitle=1.02-mid*0.03;fsMeta=0.84-mid*0.02;lhDesc=1.12+mid*0.05;
     }
     if(skillTags>=16)fsSkill=Math.min(fsSkill,0.84);
+    var skillGap=Math.max(4,Math.min(12,Math.round(sidebarGapPx*0.55)));
+    root.style.setProperty('--dl-skill-gap',skillGap+'px');
     root.style.setProperty('--dl-fs-company',String(fsCompany));
     root.style.setProperty('--dl-fs-title',String(fsTitle));
     root.style.setProperty('--dl-fs-meta',String(fsMeta));
@@ -2743,9 +3031,9 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-summary-max-ch',String(maxCh));
     root.style.setProperty('--resume-line-height','var(--dl-lh-desc)');
     root.style.setProperty('--resume-letter-spacing','0.012em');
-    root.style.setProperty('--resume-bullet-gap',(dens==='dense'?0.32:dens==='sparse'?0.48:0.42)+'em');
-    root.style.setProperty('--dl-bullet-gap',(dens==='dense'?0.32:dens==='sparse'?0.48:0.42)+'em');
-    Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,p.extras[k]+'px');});
+    root.style.setProperty('--resume-bullet-gap',(rhythm==='compact'?0.36:rhythm==='relaxed'?0.48:0.42)+'em');
+    root.style.setProperty('--dl-bullet-gap',(rhythm==='compact'?0.36:rhythm==='relaxed'?0.48:0.42)+'em');
+    Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,Math.min(16,p.extras[k]||0)+'px');});
     root.setAttribute('data-dl-refined','true');
     root.setAttribute('data-dl-fill',String(Math.round(measure().pageFillRatio*100)));
     root.setAttribute('data-dl-exp-count',String(expCount));
@@ -2754,6 +3042,7 @@ export function getDomAwareLayoutRefinementScript(): string {
     if(sumEl){var w=(sumEl.textContent||'').trim().split(/\\s+/).filter(Boolean).length;sumShort=w>0&&w<45;}
     root.setAttribute('data-dl-summary',sumShort?'short':'normal');
     root.setAttribute('data-dl-density',dens);
+    root.setAttribute('data-dl-rhythm',rhythm);
     root.setAttribute('data-dl-sidebar-density',p.sidebarUnder?'normal':(sbCard<p.pad*0.85?'compact':'normal'));
     root.setAttribute('data-dl-page-underfill', fill<0.88?'true':'false');
   }
@@ -2819,7 +3108,7 @@ export function injectDynamicLayoutIntoHtml(
   let result = appendStyleBlockToHtml(html, block);
   result = result.replace(
     /(<div[^>]*class="[^"]*\bresume-container\b[^"]*"[^>]*)(>)/i,
-    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-density="${plan.typographyDensity}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}" data-dl-page-underfill="${plan.pageFillRatio < 0.88 ? 'true' : 'false'}"$2`
+    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-density="${plan.typographyDensity}" data-dl-rhythm="${plan.layoutRhythm}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}" data-dl-page-underfill="${plan.pageFillRatio < 0.88 ? 'true' : 'false'}"$2`
   );
   return result;
 }
