@@ -91,5 +91,10 @@ export function detectDegreeFromLine(text: string): DegreeDetection {
 }
 
 export function lineHasDegreeSignal(text: string): boolean {
-  return scoreDegreeCandidate(text) >= 40;
+  const trimmed = text.trim();
+  // Abbreviated school names (A.B.C.U. / X.Y.Z.U., City) must not count as degrees.
+  // Patterns like /\bb\.?\s*a\.?\b/i otherwise match noise inside dotted acronyms via
+  // isLikelyEducationLine boosts.
+  if (/^(?:[A-Z]\.){2,}[A-Z]\.?(?:\s*,\s*.+)?$/i.test(trimmed)) return false;
+  return scoreDegreeCandidate(trimmed) >= 40;
 }

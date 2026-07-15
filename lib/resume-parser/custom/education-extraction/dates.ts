@@ -48,19 +48,22 @@ export function parseEducationDates(text: string): EducationDateRange | null {
     };
   }
 
-  if (line.length <= 24) {
-    const year = line.match(SINGLE_YEAR_RE);
-    if (year) {
-      const y = normalizeDate(year[1]);
-      if (y) {
-        return {
-          startDate: null,
-          endDate: y,
-          current: false,
-          confidence: 58,
-          raw: year[0],
-        };
-      }
+  // Trailing "(YYYY)" / bare year on compact Degree – School lines.
+  const parenYear = line.match(/\((?:19|20)\d{2}\)\s*$/);
+  const bareYear =
+    line.length <= 24 || parenYear
+      ? line.match(SINGLE_YEAR_RE)
+      : null;
+  if (bareYear) {
+    const y = normalizeDate(bareYear[1]);
+    if (y) {
+      return {
+        startDate: null,
+        endDate: y,
+        current: false,
+        confidence: parenYear ? 72 : 58,
+        raw: parenYear?.[0] || bareYear[0],
+      };
     }
   }
 

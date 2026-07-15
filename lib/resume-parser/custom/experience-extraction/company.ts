@@ -41,12 +41,48 @@ const COMPACT_EMPLOYER_RE = /^[A-Z][A-Za-z]{1,24}(?:\s+[A-Z][A-Za-z]{1,24})?\s+\
 
 /** Government and institutional employer patterns. */
 const INSTITUTIONAL_EMPLOYER_RE =
-  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|bank|banks|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|railways?)\b/i;
+  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|railways?|(?:state|national|central|federal|reserve)\s+banks?)\b/i;
 
 export function looksLikeInstitutionalEmployer(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 4) return false;
-  return INSTITUTIONAL_EMPLOYER_RE.test(trimmed) || SHORT_ORG_RE.test(trimmed);
+  return (
+    INSTITUTIONAL_EMPLOYER_RE.test(trimmed) ||
+    SHORT_ORG_RE.test(trimmed) ||
+    COMPANY_SUFFIX_RE.test(trimmed)
+  );
+}
+
+/**
+ * True when a line contains an employer signal even if the full line is a
+ * compressed "Company + Title | Dates" header that fails whole-line company scoring
+ * (e.g. because length > 55 triggers prose rejection).
+ */
+export function lineImpliesEmployerPresence(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  if (detectCompanyFromLine(trimmed).confidence >= 42) return true;
+  if (COMPANY_SUFFIX_RE.test(trimmed)) return true;
+  if (PROPRIETARY_NAME_SUFFIX_RE.test(trimmed)) return true;
+  if (looksLikeInstitutionalEmployer(trimmed)) return true;
+  if (
+    /\b[A-Z][A-Za-z0-9&.'-]+(?:\s+[A-Z][A-Za-z0-9&.'-]+)*\s+(?:Sons|Bros|Brothers|Holdings|Group|Industries|Enterprises|Motors|Retail)\b/.test(
+      trimmed
+    )
+  ) {
+    return true;
+  }
+  // Check pipe / date-left segments that may individually score as employers.
+  const segments = trimmed
+    .split(/\s*[|–—]\s*/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const seg of segments) {
+    if (seg === trimmed) continue;
+    if (detectCompanyFromLine(seg).confidence >= 42) return true;
+    if (COMPANY_SUFFIX_RE.test(seg)) return true;
+  }
+  return false;
 }
 
 /** Reject bullet sentences and long prose misclassified as company names. */

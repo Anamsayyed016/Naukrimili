@@ -17,6 +17,7 @@ import {
   looksLikeStandaloneLocationLine,
   isPlausibleExperienceCompany,
   isExperienceBlurbFragment,
+  isExperienceDateOrDurationToken,
 } from '@/lib/resume-parser/import-sanitize';
 import { splitOnFieldSeparatorDash } from '@/lib/resume-parser/field-separator-dash';
 import type {
@@ -38,25 +39,60 @@ function parseCompositeHeaderLine(line: string): {
   const trimmed = line.trim();
   if (!trimmed) return null;
 
-  // "Title Company | Location | Dates" or "Company | Location | Dates"
+  // "Title Company | Location | Dates" or "Company Title | Dates"
   const pipeParts = trimmed.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
   if (pipeParts.length >= 2) {
     const left = pipeParts[0];
+    // Company-first: "Acme Pvt. Ltd. (Brand) Executive – Accounts & Finance | Dates"
+    const companyFirst = left.match(
+      /^(.+?\b(?:pvt\.?\s*ltd\.?|private\s+limited|ltd\.?|limited|llc|inc\.?|corp\.?|corporation|llp|gmbh|plc|co\.?)\b\.?(?:\s*\([^)]+\))?)\s+(.+)$/i
+    );
+    if (companyFirst) {
+      const employer = companyFirst[1].trim();
+      const role = companyFirst[2].replace(/^[\s–—\-|:]+/, '').trim();
+      const des = detectDesignationFromLine(role);
+      const comp = detectCompanyFromLine(employer);
+      if (
+        employer.length >= 3 &&
+        role.length >= 2 &&
+        (des.confidence >= 32 || scoreDesignationCandidate(role) >= 32) &&
+        (comp.confidence >= 30 ||
+          looksLikeInstitutionalEmployer(employer) ||
+          isPlausibleExperienceCompany(employer) ||
+          looksLikeCompanyNameLine(employer))
+      ) {
+        return {
+          designation: {
+            value: des.designation || role,
+            confidence: Math.max(des.confidence, 58),
+          },
+          company: {
+            value: comp.company || employer,
+            confidence: Math.max(comp.confidence, 62),
+          },
+        };
+      }
+    }
     const words = left.split(/\s+/).filter(Boolean);
     const roleToken =
-      /^(?:coordinator|manager|engineer|developer|administrator|analyst|specialist|executive|officer|intern|consultant|director|lead|head|associate|professional|secretary|assistant|recruiter|trainee)$/i;
+      /^(?:coordinator|manager|engineer|developer|administrator|analyst|specialist|executive|officer|intern|consultant|director|lead|head|associate|professional|secretary|assistant|recruiter|trainee|accountant)$/i;
     let roleEnd = -1;
     for (let i = 0; i < words.length; i++) {
       if (roleToken.test(words[i]) || /^(?:hr|it|senior|junior|sr|jr)$/i.test(words[i])) {
         roleEnd = i;
       }
     }
+    // Only use Title→Employer split when the employer side looks institutional
+    // and the title side does NOT look like a company (avoids "Co Ltd Executive…").
     if (roleEnd >= 0 && roleEnd < words.length - 1) {
       const role = words.slice(0, roleEnd + 1).join(' ');
       const employer = words.slice(roleEnd + 1).join(' ');
       const des = detectDesignationFromLine(role);
       const comp = detectCompanyFromLine(employer);
+      const roleLooksCompany =
+        looksLikeInstitutionalEmployer(role) || looksLikeCompanyNameLine(role);
       if (
+        !roleLooksCompany &&
         (des.confidence >= 32 || scoreDesignationCandidate(role) >= 32) &&
         (comp.confidence >= 30 ||
           looksLikeInstitutionalEmployer(employer) ||
@@ -159,20 +195,32 @@ function pickCompositeFields(lines: string[]): {
   for (const line of lines) {
     const pipeParts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
     if (pipeParts.length === 2) {
-      const leftDes = detectDesignationFromLine(pipeParts[0]);
-      const rightComp = detectCompanyFromLine(pipeParts[1]);
-      if (
-        leftDes.confidence >= 38 &&
-        (rightComp.confidence >= 30 || looksLikeInstitutionalEmployer(pipeParts[1]))
-      ) {
-        if (leftDes.confidence > designation.confidence) {
+      const rightIsDate =
+        Boolean(parseDateRangeFromText(pipeParts[1])) ||
+        isExperienceDateOrDurationToken(pipeParts[1]);
+      if (rightIsDate) {
+        // "Title | Dates" or "Company Title | Dates" — never treat the date side as company.
+        const leftDes = detectDesignationFromLine(pipeParts[0]);
+        if (leftDes.confidence >= 38 && leftDes.confidence > designation.confidence) {
           designation = { value: leftDes.designation, confidence: leftDes.confidence };
         }
-        const compPick = {
-          value: rightComp.company || pipeParts[1],
-          confidence: Math.max(rightComp.confidence, 58),
-        };
-        if (compPick.confidence > company.confidence) company = compPick;
+      } else {
+        const leftDes = detectDesignationFromLine(pipeParts[0]);
+        const rightComp = detectCompanyFromLine(pipeParts[1]);
+        if (
+          leftDes.confidence >= 38 &&
+          (rightComp.confidence >= 30 || looksLikeInstitutionalEmployer(pipeParts[1])) &&
+          !isExperienceDateOrDurationToken(pipeParts[1])
+        ) {
+          if (leftDes.confidence > designation.confidence) {
+            designation = { value: leftDes.designation, confidence: leftDes.confidence };
+          }
+          const compPick = {
+            value: rightComp.company || pipeParts[1],
+            confidence: Math.max(rightComp.confidence, 58),
+          };
+          if (compPick.confidence > company.confidence) company = compPick;
+        }
       }
     }
 
@@ -193,19 +241,21 @@ function pickCompositeFields(lines: string[]): {
 function expandHeaderSegments(lines: string[]): string[] {
   const segments: string[] = [];
   for (const line of lines) {
-    // Keep date-range lines atomic — splitting on en/em dashes turns
-    // "2020 – 2024" into two orphan years (lose endDate; conf falls to 55).
+    // Pipe separators first — a line may contain a date range AND a title/company
+    // ("Assistant Manager | October 2024 – Present"). Splitting preserves both.
+    if (/\s*\|\s*/.test(line)) {
+      for (const part of line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean)) {
+        segments.push(part);
+      }
+      continue;
+    }
+    // Keep standalone date-range lines atomic — en/em dashes must not explode
+    // "2020 – 2024" into two orphan years.
     if (parseDateRangeFromText(line)) {
       segments.push(line);
       continue;
     }
-    // Pipe separators only. Title – employer dashes are handled by composite parse.
-    const parts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
-    if (parts.length <= 1) {
-      segments.push(line);
-      continue;
-    }
-    for (const part of parts) segments.push(part);
+    segments.push(line);
   }
   return segments;
 }
@@ -229,6 +279,16 @@ function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<st
       continue;
     }
     if (pipeParts.length === 2) {
+      const rightIsDate =
+        Boolean(parseDateRangeFromText(pipeParts[1])) ||
+        isExperienceDateOrDurationToken(pipeParts[1]);
+      const leftIsDate =
+        Boolean(parseDateRangeFromText(pipeParts[0])) ||
+        isExperienceDateOrDurationToken(pipeParts[0]);
+      if (rightIsDate || leftIsDate) {
+        // Date sides are never companies.
+        continue;
+      }
       const leftDes = detectDesignationFromLine(pipeParts[0]);
       const rightDes = detectDesignationFromLine(pipeParts[1]);
       const leftComp = detectCompanyFromLine(pipeParts[0]);
@@ -260,6 +320,7 @@ function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<st
 
   for (const line of expandHeaderSegments(lines)) {
     if (parseDateRangeFromText(line)) continue;
+    if (isExperienceDateOrDurationToken(line)) continue;
     if (isExperienceBlurbFragment(line)) continue;
     const det = detectCompanyFromLine(line);
     if (!det.company) continue;
@@ -277,7 +338,16 @@ function pickBestDesignation(lines: string[], exclude: string): FieldPick<string
   for (const line of lines) {
     const pipeParts = line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
     if (pipeParts.length === 2) {
+      const rightIsDate =
+        Boolean(parseDateRangeFromText(pipeParts[1])) ||
+        isExperienceDateOrDurationToken(pipeParts[1]);
       const leftDes = detectDesignationFromLine(pipeParts[0]);
+      if (rightIsDate) {
+        if (leftDes.confidence >= 38 && leftDes.confidence > best.confidence) {
+          best = { value: leftDes.designation, confidence: leftDes.confidence };
+        }
+        continue;
+      }
       const rightComp = detectCompanyFromLine(pipeParts[1]);
       if (
         leftDes.confidence >= 38 &&
@@ -290,6 +360,7 @@ function pickBestDesignation(lines: string[], exclude: string): FieldPick<string
   }
   for (const line of expandHeaderSegments(lines)) {
     if (parseDateRangeFromText(line)) continue;
+    if (isExperienceDateOrDurationToken(line)) continue;
     const det = detectDesignationFromLine(line);
     if (det.designation === exclude) continue;
     if (det.confidence > best.confidence) {
@@ -448,6 +519,46 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
       value: finalCompany.value,
       confidence: Math.max(finalCompany.confidence, tenureCompany.confidence),
     };
+  }
+
+  // If designation still contains the employer name (Company Title mash), prefer the
+  // composite title or strip the embedded company prefix.
+  if (finalCompany.value && finalDesignation.value) {
+    const companyNorm = finalCompany.value.toLowerCase().trim();
+    const desNorm = finalDesignation.value.toLowerCase().trim();
+    if (desNorm.includes(companyNorm) || companyNorm.includes(desNorm)) {
+      if (
+        compositePick.designation.value &&
+        !compositePick.designation.value.toLowerCase().includes(companyNorm)
+      ) {
+        finalDesignation = compositePick.designation;
+      } else {
+        const escapedCompany = finalCompany.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const stripped = finalDesignation.value
+          .replace(new RegExp(`^${escapedCompany}\\s*`, 'i'), '')
+          .replace(/^[\s–—\-|:]+/, '')
+          .trim();
+        if (stripped.length >= 2) {
+          const strippedDes = detectDesignationFromLine(stripped);
+          if (strippedDes.confidence >= 28 || scoreDesignationCandidate(stripped) >= 28) {
+            finalDesignation = {
+              value: strippedDes.designation || stripped,
+              confidence: Math.max(finalDesignation.confidence, 64),
+            };
+          }
+        }
+      }
+    }
+  }
+
+  // Never keep date tokens as company.
+  if (finalCompany.value && isExperienceDateOrDurationToken(finalCompany.value)) {
+    finalCompany = { value: '', confidence: 0 };
+    if (compositePick.company.value && !isExperienceDateOrDurationToken(compositePick.company.value)) {
+      finalCompany = compositePick.company;
+    } else if (companyPick.value && !isExperienceDateOrDurationToken(companyPick.value)) {
+      finalCompany = companyPick;
+    }
   }
 
   const locationPick = pickBestLocation(headerLines, finalCompany.value);

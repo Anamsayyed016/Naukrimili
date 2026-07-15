@@ -124,7 +124,8 @@ export const SECTION_HEADER_WORDS = new Set([
   'selected',
   'major',
   'minor',
-  'executive',
+  // Do not include bare "executive" — it is a common job title
+  // ("Executive – Accounts"). "Executive Summary" is covered by phrases.
   'career',
   'employment',
   'positions',

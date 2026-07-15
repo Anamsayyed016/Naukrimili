@@ -52,7 +52,12 @@ export function detectInstitutionFromLine(text: string): InstitutionDetection {
   const trimmed = text.trim();
   if (!trimmed) return { institution: '', confidence: 0 };
 
-  const withoutDates = trimmed.replace(/,?\s*(?:19|20)\d{2}.*$/, '').trim();
+  // Strip parenthetical years first — greedy `,?\s*20xx.*$` would leave a bare "("
+  // on "College, City (2011)" by matching only "2011)".
+  const withoutDates = trimmed
+    .replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '')
+    .replace(/,?\s*(?:19|20)\d{2}\s*$/i, '')
+    .trim();
   const conf = scoreInstitutionCandidate(withoutDates);
   if (conf >= 38) {
     return { institution: abbreviateInstitutionName(withoutDates), confidence: conf };

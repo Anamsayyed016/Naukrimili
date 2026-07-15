@@ -14,10 +14,13 @@ const BOUNDARY_THRESHOLD_AFTER_BLANK = 36;
 
 function scoreBoundaryLine(line: EducationLine, prevBlank: boolean): number {
   if (line.isBlank) return 0;
-  if (line.isBullet) return 0;
 
-  const text = line.text.trim();
+  // Bullet education rows ("● M.Com – BU Bhopal (2025)") are entry headers, not body.
+  const text = line.text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
   if (!text) return 0;
+  if (line.isBullet && !lineHasDegreeSignal(text) && detectInstitutionFromLine(text).confidence < 38) {
+    return 0;
+  }
 
   let score = 0;
 
@@ -33,6 +36,7 @@ function scoreBoundaryLine(line: EducationLine, prevBlank: boolean): number {
   }
 
   if (prevBlank) score += 14;
+  if (line.isBullet && (degree.confidence >= 38 || institution.confidence >= 40)) score += 18;
   if (text.length <= 80 && text === text.toUpperCase() && /\s/.test(text)) score += 10;
   if (/[|–—,]/.test(text) && (institution.confidence >= 40 || degree.confidence >= 38)) {
     score += 10;
@@ -59,7 +63,7 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
 
   const shouldStartNew = (line: EducationLine, afterBlank: boolean, idx: number): boolean => {
     const threshold = afterBlank ? BOUNDARY_THRESHOLD_AFTER_BLANK : BOUNDARY_THRESHOLD;
-    const text = line.text.trim();
+    const text = line.text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
     const deg = detectDegreeFromLine(text);
     const inst = detectInstitutionFromLine(text);
     const looksPrimarilyInstitution =
@@ -68,6 +72,20 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
       /\b(university|college|institute|institution|school|academy|polytechnic)\b/i.test(text);
     const isStrongDegreeHeading =
       deg.confidence >= 70 && !looksPrimarilyInstitution && !parseEducationDates(text);
+    const isBulletDegreeEntry =
+      line.isBullet &&
+      (deg.confidence >= 38 || lineHasDegreeSignal(text)) &&
+      idx > currentStart;
+
+    // Each bullet degree line is its own entry on ATS resumes.
+    if (isBulletDegreeEntry) {
+      const openSlice = scored.slice(currentStart, idx).filter((l) => !l.isBlank);
+      const openHasDegree = openSlice.some((l) => {
+        const t = l.text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+        return detectDegreeFromLine(t).confidence >= 38 || lineHasDegreeSignal(t);
+      });
+      if (openHasDegree) return true;
+    }
 
     // Dedicated degree headings start the next entry even when their weighted
     // boundary score is below the normal threshold (common for "MBA" / "BCA" lines).
@@ -167,10 +185,21 @@ function buildRawBlock(lines: EducationLine[], startLine: number, endLine: numbe
 
   for (let i = 0; i < headerLimit; i++) {
     const l = lines[i];
-    if (l.isBullet) break;
+    const stripped = l.text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+    // Bullet degree/institution rows ARE the header on compact ATS educations.
+    if (
+      l.isBullet &&
+      !(
+        lineHasDegreeSignal(stripped) ||
+        detectDegreeFromLine(stripped).confidence >= 38 ||
+        detectInstitutionFromLine(stripped).confidence >= 38
+      )
+    ) {
+      break;
+    }
     if (i > 0 && l.text.trim().length > 150) break;
     if (i > 0) {
-      const t = l.text.trim();
+      const t = stripped;
       const inst = detectInstitutionFromLine(t).confidence;
       const deg = detectDegreeFromLine(t).confidence;
       const dates = parseEducationDates(t);
@@ -187,7 +216,11 @@ function buildRawBlock(lines: EducationLine[], startLine: number, endLine: numbe
     headerEnd = i + 1;
   }
 
-  const headerLines = lines.slice(0, headerEnd);
+  const headerLines = lines.slice(0, headerEnd).map((l) => ({
+    ...l,
+    text: l.text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, ''),
+    isBullet: false,
+  }));
   const bodyLines = lines.slice(headerEnd).map((l) => l.text);
 
   return {
@@ -199,6 +232,17 @@ function buildRawBlock(lines: EducationLine[], startLine: number, endLine: numbe
   };
 }
 
+function isCompactDegreeDashEntry(text: string): boolean {
+  const cleaned = text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+  if (!cleaned) return false;
+  if (!lineHasDegreeSignal(cleaned) && detectDegreeFromLine(cleaned).confidence < 38) {
+    return false;
+  }
+  // "Degree – Institution …" (including abbreviated schools without
+  // university/college tokens) is already a complete ATS education row.
+  return /^.+?\s*[–—\-]\s*.+\S/.test(cleaned);
+}
+
 function isHeaderOnlyBlock(block: EducationRawBlock): boolean {
   if (!block.bodyLines.every((l) => !l.trim())) return false;
   const headerLines = block.headerText.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -207,9 +251,19 @@ function isHeaderOnlyBlock(block: EducationRawBlock): boolean {
   const hasInstitution = headerLines.some(
     (l) => detectInstitutionFromLine(l).confidence >= 40
   );
-  // Complete education entry fits in header — keep as standalone block
-  if (hasInstitution && hasDegree && hasDates) return false;
+  // Complete education entry fits in header — keep as standalone block.
+  // Compact "Degree – School (year)" rows often lack a separate date line.
+  if (hasInstitution && hasDegree) return false;
+  if (hasDegree && hasDates) return false;
+  if (headerLines.some(isCompactDegreeDashEntry)) return false;
   return headerLines.length <= 2;
+}
+
+function blockHasDegreeSignal(block: EducationRawBlock): boolean {
+  const headerLines = block.headerText.split('\n').map((l) => l.trim()).filter(Boolean);
+  return headerLines.some(
+    (l) => lineHasDegreeSignal(l) || detectDegreeFromLine(l).confidence >= 38
+  );
 }
 
 function mergeHeaderOnlyBlocks(blocks: EducationRawBlock[]): EducationRawBlock[] {
@@ -220,6 +274,17 @@ function mergeHeaderOnlyBlocks(blocks: EducationRawBlock[]): EducationRawBlock[]
 
   for (const block of blocks) {
     if (carry) {
+      // Never glue two degree-bearing entries (common ATS bullet lists).
+      if (blockHasDegreeSignal(carry) && blockHasDegreeSignal(block)) {
+        merged.push(carry);
+        carry = null;
+        if (isHeaderOnlyBlock(block)) {
+          carry = block;
+          continue;
+        }
+        merged.push(block);
+        continue;
+      }
       merged.push(mergeBlocks(carry, block));
       carry = null;
       continue;

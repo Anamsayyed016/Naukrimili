@@ -2,12 +2,18 @@
  * Experience boundary detection using weighted confidence signals.
  */
 
-import { detectCompanyFromLine, looksLikeSentenceNotCompany } from './company';
+import {
+  detectCompanyFromLine,
+  lineImpliesEmployerPresence,
+  looksLikeSentenceNotCompany,
+  looksLikeInstitutionalEmployer,
+} from './company';
 import { parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine } from './designation';
 import { buildExperienceFromBlock } from './fields';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
 import { lineLooksLikeTenureExperience, parseTenureExperienceLine } from './tenure';
+import { looksLikeCompanyNameLine } from '@/lib/resume-parser/import-sanitize';
 import type { ExperienceLine, ExperienceRawBlock } from './types';
 
 const BOUNDARY_THRESHOLD = 48;
@@ -31,7 +37,11 @@ function blockIdentityState(lines: ExperienceLine[], start: number, end: number)
       if (tenure.years != null) hasDates = true;
     }
     if (parseDateRangeFromText(line.text)) hasDates = true;
-    if (detectCompanyFromLine(line.text).confidence >= 42) hasCompany = true;
+    // Use employer-presence (not whole-line score alone): compressed
+    // "Employer Title | Dates" lines often fail detectCompanyFromLine because
+    // the full string looks like prose, which would leave hasCompany false and
+    // block company-only splits for the next role.
+    if (lineImpliesEmployerPresence(line.text)) hasCompany = true;
     if (detectDesignationFromLine(line.text).confidence >= 40) hasDesignation = true;
   }
 
@@ -152,6 +162,38 @@ export function partitionExperienceBlocks(
       return true;
     }
 
+    // Mirror for company-only headers after a completed role (Company\nTitle | Dates).
+    // Guard against body sentences that weakly match company heuristics.
+    if (
+      isCompanyLine &&
+      !isDesignationLine &&
+      !isDateLine &&
+      !isTenureLine &&
+      state.hasDesignation &&
+      state.hasCompany &&
+      state.hasDates
+    ) {
+      const text = line.text.trim();
+      const wordCount = text.split(/\s+/).filter(Boolean).length;
+      const looksLikeBodyProse =
+        looksLikeSentenceNotCompany(text) ||
+        /^(?:managed|led|oversaw|drove|executed|prepared|supported|coordinated|developed|implemented|worked|responsible|handled|maintained|processed|created|designed|built|delivered)\b/i.test(
+          text
+        ) ||
+        (wordCount >= 8 && !looksLikeInstitutionalEmployer(text));
+      const strongEmployerHeader =
+        looksLikeInstitutionalEmployer(text) ||
+        (looksLikeCompanyNameLine(text) &&
+          wordCount >= 2 &&
+          wordCount <= 7 &&
+          detectCompanyFromLine(text).confidence >= 58 &&
+          // Reject short body fragments like "Bank Guarantees." that wrap mid-sentence.
+          !(wordCount <= 3 && /\.\s*$/.test(text) && !/(?:ltd|limited|llc|inc|corp|llp|pvt|gmbh|plc)\.?$/i.test(text)));
+      if (!looksLikeBodyProse && strongEmployerHeader) {
+        return true;
+      }
+    }
+
     const threshold = afterBlank ? boundaryThresholdAfterBlank : boundaryThreshold;
     if (line.boundaryScore < threshold) return false;
 
@@ -185,6 +227,32 @@ export function partitionExperienceBlocks(
       (isCompanyLine || isDesignationLine || isDateLine)
     ) {
       return line.boundaryScore >= threshold - 6;
+    }
+
+    // Do not split on short wrapped mid-sentence fragments ("Bank Guarantees.") once
+    // a role is already complete — those are body leftovers, not employers.
+    if (
+      state.hasDates &&
+      (state.hasCompany || state.hasDesignation) &&
+      !isDesignationLine &&
+      !isDateLine &&
+      !isTenureLine
+    ) {
+      const text = line.text.trim();
+      const words = text.split(/\s+/).filter(Boolean).length;
+      if (
+        words <= 3 &&
+        /\.\s*$/.test(text) &&
+        !looksLikeInstitutionalEmployer(text) &&
+        !looksLikeCompanyNameLine(text.replace(/\.\s*$/, ''))
+      ) {
+        return false;
+      }
+      // Even if the bare phrase looks like a company name, trailing-period
+      // two/three-word fragments after a completed role are almost always wrap noise.
+      if (words <= 3 && /\.\s*$/.test(text) && !looksLikeInstitutionalEmployer(text)) {
+        return false;
+      }
     }
 
     return true;
@@ -328,8 +396,20 @@ function buildRawBlock(lines: ExperienceLine[], startLine: number, endLine: numb
     if (i > 0 && isExperienceSubsectionLabel(l.text)) break;
     if (i > 0 && /^experience\s+summary\s*:?\s*$/i.test(l.text.trim())) break;
     if (i > 0 && l.text.trim().length > 140) break;
-    if (i > 0 && looksLikeSentenceNotCompany(l.text.trim()) && !parseTenureExperienceLine(l.text)) {
-      break;
+    if (i > 0) {
+      const text = l.text.trim();
+      const looksLikeRoleHeader =
+        Boolean(parseDateRangeFromText(text)) ||
+        detectDesignationFromLine(text).confidence >= 40 ||
+        /\s\|\s/.test(text) ||
+        Boolean(parseTenureExperienceLine(text));
+      if (
+        !looksLikeRoleHeader &&
+        looksLikeSentenceNotCompany(text) &&
+        !parseTenureExperienceLine(text)
+      ) {
+        break;
+      }
     }
     headerEnd = i + 1;
   }

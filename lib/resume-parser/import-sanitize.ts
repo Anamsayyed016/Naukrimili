@@ -1194,6 +1194,20 @@ export function isImplausibleResumeLocation(value: unknown): boolean {
   ) {
     return true;
   }
+  // Skill / competency fragments that comma heuristics misread as "City, State".
+  if (
+    /\b(?:payroll|bookkeeping|accounts?\s+payable|accounts?\s+receivable|cash\s+book|pivot\s+tables?|vlookup|gst\s+filing|bank\s+reconciliation|mis\s+reporting|statutory\s+compliance|audit\s+support)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  if (
+    /\b(?:management|processing|operations|reporting|compliance|taxation|finance)\b/i.test(t) &&
+    !/\b(?:street|road|nagar|colony|sector|block|district|india|usa|uk|state|province)\b/i.test(t)
+  ) {
+    return true;
+  }
   if (isResumeSectionHeadingLine(t)) return true;
   return false;
 }
@@ -1203,13 +1217,15 @@ export function recoverLocationFromImportText(rawText: string): string {
   if (text.length < 20) return '';
   const flat = text.replace(/\s+/g, ' ');
   const addressMatch = flat.match(
-    /\bAddress:\s*(.+?)(?=\s+Mobile:|\s+Email:|\s+Phone:|\s+E-?mail:|\s+PROFESSIONAL\b|$)/i
+    /\bAddress:\s*(.+?)(?=\s*\||\s+Mobile:|\s+Email:|\s+Phone:|\s+E-?mail:|\s+PROFESSIONAL\b|$)/i
   );
   if (addressMatch) {
     const loc = sanitizeFieldText(addressMatch[1], 200);
     if (loc.length >= 8 && !isImplausibleResumeLocation(loc)) return loc;
   }
-  const locMatch = flat.match(/\b(?:location|current\s+location)\s*[:\-]\s*(.+?)(?=\s+Mobile:|\s+Email:|$)/i);
+  const locMatch = flat.match(
+    /\b(?:location|current\s+location)\s*[:\-]\s*([^|]+?)(?=\s*\||\s+(?:Mobile|Email|Phone|E-?mail|Core\s+Skills?|Technical\s+Skills?|Key\s+Skills?|Professional|Education|Experience|Employment)\b|$)/i
+  );
   if (locMatch) {
     const loc = sanitizeFieldText(locMatch[1], 200);
     if (loc.length >= 4 && !isImplausibleResumeLocation(loc)) return loc;
@@ -1223,7 +1239,7 @@ export function recoverSkillsFromTechnicalSkillsSection(rawText: string): string
   let inSection = false;
   const out: string[] = [];
   const stopRe =
-    /^(?:education|experience|employment|projects?|certifications?|declaration|languages?|achievements?|hobbies?|interests?)\b/i;
+    /^(?:(?:professional|work)\s+)?(?:education|experience|employment|work\s+history|projects?|certifications?|declaration|languages?|achievements?|hobbies?|interests?)\b/i;
 
   for (const raw of lines) {
     const line = raw.trim();
@@ -1237,15 +1253,32 @@ export function recoverSkillsFromTechnicalSkillsSection(rawText: string): string
     }
     if (!inSection) continue;
     if (stopRe.test(line)) break;
-    const skill = line.replace(/^[\s•\-–—*·▪]+\s*/, '').trim();
+    const skill = line.replace(/^[\s•\-–—*·▪●]+\s*/, '').trim();
     if (skill.length < 3 || skill.length > 400) continue;
     if (/^(address|mobile|email|phone)\b/i.test(skill)) continue;
     if (isResumeSectionHeadingLine(skill)) continue;
+    if (isExperienceDateOrDurationToken(skill)) continue;
+    if (looksLikeJobTitleLine(skill) && !/,/.test(skill)) continue;
+    if (looksLikeCompanyNameLine(skill) && !/,|;|:/.test(skill)) continue;
+    // Category header: values → keep values only.
+    const category = skill.match(/^([A-Za-z][A-Za-z &/+\-]{1,40})\s*:\s*(.+)$/);
+    if (category) {
+      for (const part of category[2].split(/[,;|]/)) {
+        const piece = part.trim();
+        if (piece.length < 2 || piece.length > 80) continue;
+        if (isResumeSectionHeadingLine(piece)) continue;
+        if (isExperienceDateOrDurationToken(piece)) continue;
+        out.push(piece);
+      }
+      continue;
+    }
     if (/,|;|\|/.test(skill)) {
       for (const part of skill.split(/[,;|]/)) {
         const piece = part.trim();
         if (piece.length < 2 || piece.length > 80) continue;
         if (isResumeSectionHeadingLine(piece)) continue;
+        if (isExperienceDateOrDurationToken(piece)) continue;
+        if (looksLikeJobTitleLine(piece)) continue;
         out.push(piece);
       }
     } else {
@@ -1763,6 +1796,8 @@ export function isPlaceholderProjectTitle(value: unknown): boolean {
 export function isResumeSectionHeadingLine(line: string): boolean {
   const t = line.trim().replace(/[:|\-_=•]+$/g, '').trim();
   if (!t || t.length > 72) return false;
+  // Job titles like "Executive" / "Manager" must never be treated as section labels.
+  if (looksLikeJobTitleLine(t)) return false;
   if (isSpacedLetterFragment(t)) return true;
   if (isSectionLabel(t)) return true;
   if (RESUME_METADATA_LINE_RE.some((re) => re.test(t))) return true;
@@ -6306,6 +6341,14 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   }
   if (/\s&\s+co\.?$/i.test(company)) return true;
   if (TECH_SKILL_AS_COMPANY_RE.test(lower)) return false;
+  // Bare degree abbreviations are never employers.
+  if (
+    /^(?:b\.?\s*a\.?|b\.?\s*com|b\.?\s*tech|b\.?\s*sc\.?|b\.?\s*e\.?|b\.?\s*ca|bca|m\.?\s*a\.?|m\.?\s*com|m\.?\s*sc\.?|mba|mca|ll\.?\s*b|llb|ll\.?\s*m|llm|ph\.?\s*d)$/i.test(
+      company.trim()
+    )
+  ) {
+    return false;
+  }
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
   if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;
   if (
@@ -6384,6 +6427,14 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
     position = '';
   }
   let safeCompany = isResumeSectionHeadingLine(company) ? '' : company;
+  if (
+    safeCompany &&
+    /^(?:b\.?\s*a\.?|b\.?\s*com|b\.?\s*tech|b\.?\s*sc\.?|b\.?\s*e\.?|b\.?\s*ca|bca|m\.?\s*a\.?|m\.?\s*com|m\.?\s*sc\.?|mba|mca|ll\.?\s*b|llb|ll\.?\s*m|llm|ph\.?\s*d)$/i.test(
+      safeCompany.trim()
+    )
+  ) {
+    safeCompany = '';
+  }
   if (
     safeCompany &&
     !isPlausibleExperienceCompany(safeCompany) &&

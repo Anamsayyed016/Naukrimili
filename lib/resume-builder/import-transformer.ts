@@ -916,7 +916,7 @@ function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unkn
 const ACHIEVEMENT_SECTION_HEADER_RE =
   /^(?:\d+[\.\):\-]\s*)?(?:education|experience|employment|work history|skills|certifications|projects|languages|achievements|professional profile|contact|summary|objective|messenger)\b/i;
 const ACHIEVEMENT_DEGREE_LINE_RE =
-  /\b(b\.?\s*a\.?|b\.?\s*com|b\.?\s*tech|m\.?\s*a\.?|m\.?\s*com|mba|mca|company secretary|\bcs\b|llb|llm|ph\.?\s*d|bachelors?|masters?|doctorate|intermediate|graduation)\b/i;
+  /\b(b\.?\s*a\.?|b\.?\s*com|b\.?\s*tech|b\.?\s*sc\.?|b\.?\s*e\.?|b\.?\s*ca\b|bca\b|m\.?\s*a\.?|m\.?\s*com|m\.?\s*sc\.?|m\.?\s*tech|m\.?\s*ca\b|mba\b|mca\b|company secretary|\bcs\b|ll\.?\s*b|llb|ll\.?\s*m|llm|ph\.?\s*d|bachelors?|masters?|doctorate|intermediate|graduation)\b/i;
 const ACHIEVEMENT_FIRM_LINE_RE =
   /\b(m\/s\.?|pcs\s+firm|associates|chartered|consultancy|pvt\.?\s*ltd|limited)\b/i;
 
@@ -934,8 +934,21 @@ function isMisplacedAchievementLine(line: string): boolean {
 }
 
 function spilloverEducationFromLine(line: string): Record<string, unknown> | null {
-  const t = line.trim();
+  const t = line.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
   if (!t || !ACHIEVEMENT_DEGREE_LINE_RE.test(t)) return null;
+  const compact = t.match(
+    /^(.+?)\s*[–—\-]\s*(.+?)(?:\s*[\(\[]\s*((?:19|20)\d{2})\s*[\)\]])?\s*$/i
+  );
+  if (compact) {
+    const institution = compact[2].trim().replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '').trim();
+    return {
+      degree: compact[1].trim(),
+      institution,
+      school: institution,
+      field: '',
+      year: compact[3] || '',
+    };
+  }
   return { degree: t, school: '', institution: '', field: '', year: '' };
 }
 
@@ -1163,9 +1176,15 @@ function relocateMisplacedEducationEntries(data: Record<string, unknown>): Recor
     const inst = String(rec.institution || rec.school || rec.college || rec.university || '');
     const degree = String(rec.degree || rec.qualification || '');
     const instClass = inst ? classifyResumeTextFragment(inst) : null;
+    const looksLikeSchool =
+      /\b(university|college|institute|institution|school|academy|polytechnic|vidyalaya|campus)\b/i.test(
+        inst
+      );
     const firmLike =
       !!inst &&
+      !looksLikeSchool &&
       !ACHIEVEMENT_DEGREE_LINE_RE.test(degree) &&
+      !ACHIEVEMENT_DEGREE_LINE_RE.test(inst) &&
       (ACHIEVEMENT_FIRM_LINE_RE.test(inst) ||
         isLikelyCompanyNameFragment(inst) ||
         looksLikeCompanyNameLine(inst) ||
@@ -2701,9 +2720,13 @@ function applyBuilderImportGuards(
     out.Hobbies = out.hobbies;
   }
   if (Array.isArray(out.experience) && out.experience.length > 0) {
+    // Only stamp the profile headline onto a lone role. Multi-role careers
+    // must keep each entry's own title — never inherit the first/current job
+    // title into later employers with sparse/missing designations.
     const headline = String(out.jobTitle || out.title || '').trim();
-    if (headline) {
-      out.experience = (out.experience as Record<string, unknown>[]).map((row) => {
+    const experienceRows = out.experience as Record<string, unknown>[];
+    if (headline && experienceRows.length === 1) {
+      out.experience = experienceRows.map((row) => {
         const exp = { ...row };
         const title = sanitizeFieldText(exp.title || exp.position || exp.designation, 120);
         if (!title && headline) {
@@ -3462,8 +3485,27 @@ function transformEducationArray(education: unknown, isCustomParser = false): an
       const institution = String(
         edu.institution || edu.school || edu.college || edu.university || edu.academy || ''
       );
-      const degreeRaw = String(edu.degree || edu.Degree || edu.qualification || '');
-      const fieldRaw = String(edu.field || edu.Field || edu.major || '');
+      let degreeRaw = String(edu.degree || edu.Degree || edu.qualification || '').replace(
+        /^[\s•●\-–—*·▪○]+\s*/,
+        ''
+      );
+      let fieldRaw = String(edu.field || edu.Field || edu.major || '');
+      let school = institution.replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+
+      // Spillover sometimes stores "Degree – School (year)" entirely in degree.
+      if ((!school || school.length < 3) && /[–—\-]/.test(degreeRaw)) {
+        const compact = degreeRaw.match(
+          /^(.+?)\s*[–—\-]\s*(.+?)(?:\s*[\(\[]\s*((?:19|20)\d{2})\s*[\)\]])?\s*$/i
+        );
+        if (compact) {
+          degreeRaw = compact[1].trim();
+          school = compact[2].trim().replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '').trim();
+          if (!edu.year && compact[3]) {
+            (edu as Record<string, unknown>).year = compact[3];
+          }
+        }
+      }
+
       const { degree, field } = reconcileEducationDegreeAndField(degreeRaw, fieldRaw);
       const gpa = String(edu.gpa || edu.cgpa || edu.GPA || edu.CGPA || edu.percentage || '');
 
@@ -3475,13 +3517,13 @@ function transformEducationArray(education: unknown, isCustomParser = false): an
       return {
         // EducationStep canonical
         degree,
-        school: institution,
+        school,
         field,
         year,
         cgpa: gpa,
         // Compat aliases
-        institution,
-        Institution: institution,
+        institution: school,
+        Institution: school,
         Degree: degree,
         Field: field,
         Year: year,
@@ -3494,13 +3536,33 @@ function transformEducationArray(education: unknown, isCustomParser = false): an
       };
     });
 
+  const normalizeDegreeKey = (d: string) => d.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const completeDegrees = new Set(
+    mapped
+      .filter((e) => String(e.institution || '').trim().length >= 3)
+      .map((e) => normalizeDegreeKey(String(e.degree || '')))
+      .filter(Boolean)
+  );
+
   const seen = new Set<string>();
   return mapped.filter((edu) => {
+    const degreeKey = normalizeDegreeKey(String(edu.degree || ''));
+    const hasSchool = String(edu.institution || '').trim().length >= 3;
+    // Prefer complete Degree+School rows over degree-only spillover remnants.
+    if (degreeKey && !hasSchool && completeDegrees.has(degreeKey)) {
+      return false;
+    }
     const key = isCustomParser
       ? `${edu.institution}|${edu.degree}|${edu.year}|${edu.field}`.toLowerCase()
       : `${edu.institution}|${edu.degree}`.toLowerCase();
     if (seen.has(key)) return false;
+    // Soft degree+school dedupe across year/field noise.
+    const soft = `${normalizeDegreeKey(String(edu.degree || ''))}|${String(edu.institution || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '')}`;
+    if (soft !== '|' && seen.has(`soft:${soft}`)) return false;
     seen.add(key);
+    if (soft !== '|') seen.add(`soft:${soft}`);
     return true;
   });
 }

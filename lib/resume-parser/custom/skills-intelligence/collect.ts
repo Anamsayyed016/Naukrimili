@@ -132,10 +132,11 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
   for (const raw of lines) {
     if (!raw) continue;
 
-    const inline = raw.match(/^([A-Za-z][A-Za-z &/]+?)\s*:\s*(.+)$/);
+    const withoutBullet = raw.replace(/^[\s•●\-–—*·▪○]+\s*/, '').trim();
+    const inline = withoutBullet.match(/^([A-Za-z][A-Za-z &/+\-]{1,40}?)\s*:\s*(.+)$/);
     if (inline) {
       const header = inline[1].toLowerCase().replace(/\s+/g, ' ').trim();
-      if (SKILL_SUBHEADERS.has(header) || /skill|expertise|competenc|technolog/i.test(header)) {
+      if (SKILL_SUBHEADERS.has(header) || /skill|expertise|competenc|technolog|operations|taxation|banking|software|tools|reporting|compliance/i.test(header)) {
         for (const token of splitSkillTokens(inline[2])) {
           pushCandidate(out, token, 'skills_section');
         }
@@ -143,24 +144,24 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
       }
     }
 
-    const normalized = raw.toLowerCase().replace(/[:\-]+$/, '').replace(/\s+/g, ' ').trim();
+    const normalized = withoutBullet.toLowerCase().replace(/[:\-]+$/, '').replace(/\s+/g, ' ').trim();
     if (SKILL_SUBHEADERS.has(normalized)) continue;
-    if (isPlausiblePersonName(raw)) continue;
-    if (looksLikeJobTitleLine(raw) && !raw.includes(',')) continue;
+    if (isPlausiblePersonName(withoutBullet)) continue;
+    if (looksLikeJobTitleLine(withoutBullet) && !withoutBullet.includes(',')) continue;
 
-    const afterContact = stripContactNoise(raw);
+    const afterContact = stripContactNoise(withoutBullet);
     if (!afterContact) continue;
 
     const tokens = splitSkillTokens(afterContact);
     if (tokens.length >= 2) {
-      collectTokensFromLine(raw, 'skills_section', out);
+      collectTokensFromLine(withoutBullet, 'skills_section', out);
       continue;
     }
 
     if (
-      !lineLooksSkillList(raw) &&
+      !lineLooksSkillList(withoutBullet) &&
       tokens.length < 2 &&
-      !/:/.test(raw)
+      !/:/.test(withoutBullet)
     ) {
       if (tokens.length === 1 && isValidSkillCandidate(tokens[0])) {
         pushCandidate(out, tokens[0], 'skills_section');
@@ -168,7 +169,7 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
       continue;
     }
 
-    collectTokensFromLine(raw, 'skills_section', out);
+    collectTokensFromLine(withoutBullet, 'skills_section', out);
   }
 
   return out;

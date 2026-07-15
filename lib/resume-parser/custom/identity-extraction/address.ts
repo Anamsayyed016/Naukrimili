@@ -94,27 +94,37 @@ export function detectAddress(zones: ScanZone[]): AddressDetection {
   };
 
   for (const line of lines.slice(0, 20)) {
-    const labeled = line.match(/^(?:address|location|city|residence)\s*[:–-]\s*(.+)$/i);
-    const candidate = labeled?.[1]?.trim() || line;
-    if (isPlausiblePersonName(candidate)) continue;
-    if (/@|https?:\/\//i.test(candidate)) continue;
-    let conf = scoreLocationLine(candidate);
-    if (!labeled && !/,/.test(candidate) && !REMOTE_RE.test(candidate) && !POSTAL_RE.test(candidate)) {
-      conf = Math.min(conf, 30);
+    // Split pipe contact rows ("Phone: … | Email: … | Location: City") before scoring.
+    const fragments = line.includes('|')
+      ? line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean)
+      : [line];
+    for (const fragment of fragments) {
+      const labeled = fragment.match(/^(?:address|location|city|residence)\s*[:–-]\s*(.+)$/i);
+      const candidate = labeled?.[1]?.trim() || fragment;
+      if (isPlausiblePersonName(candidate)) continue;
+      if (/@|https?:\/\//i.test(candidate)) continue;
+      if (/\b(?:phone|mobile|email|linkedin|portfolio|website)\b/i.test(fragment) && !labeled) {
+        continue;
+      }
+      let conf = scoreLocationLine(candidate);
+      if (labeled) conf = Math.max(conf, 78);
+      if (!labeled && !/,/.test(candidate) && !REMOTE_RE.test(candidate) && !POSTAL_RE.test(candidate)) {
+        conf = Math.min(conf, 30);
+      }
+      if (conf < 40) continue;
+
+      const parsed = parseAddressParts(candidate);
+      const merged: AddressDetection = {
+        address: parsed.address || '',
+        city: parsed.city || '',
+        state: parsed.state || '',
+        country: parsed.country || '',
+        postalCode: parsed.postalCode || '',
+        confidence: conf,
+      };
+
+      if (conf > best.confidence) best = merged;
     }
-    if (conf < 40) continue;
-
-    const parsed = parseAddressParts(candidate);
-    const merged: AddressDetection = {
-      address: parsed.address || '',
-      city: parsed.city || '',
-      state: parsed.state || '',
-      country: parsed.country || '',
-      postalCode: parsed.postalCode || '',
-      confidence: conf,
-    };
-
-    if (conf > best.confidence) best = merged;
   }
 
   return best;

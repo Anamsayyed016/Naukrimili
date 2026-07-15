@@ -52,6 +52,28 @@ function expandHeaderSegments(lines: string[]): string[] {
   return segments;
 }
 
+/** Compact ATS form: "M.Com – BU Bhopal (2025)" / "MBA in Business Economics – A.B.V.H.V., Bhopal (2016)". */
+function parseDegreeDashInstitutionLine(line: string): {
+  degree: string;
+  institution: string;
+  yearText: string;
+} | null {
+  const cleaned = line.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+  if (!cleaned) return null;
+  const m = cleaned.match(
+    /^(.+?)\s*[–—\-]\s*(.+?)(?:\s*[\(\[]\s*((?:19|20)\d{2}|present|current|ongoing)\s*[\)\]])?\s*$/i
+  );
+  if (!m) return null;
+  const degreePart = m[1].trim();
+  const institutionPart = m[2].trim().replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '').trim();
+  const yearText = (m[3] || '').trim();
+  if (!degreePart || !institutionPart) return null;
+  if (detectDegreeFromLine(degreePart).confidence < 30 && !lineHasDegreeSignal(degreePart)) {
+    return null;
+  }
+  return { degree: degreePart, institution: institutionPart, yearText };
+}
+
 function pickBestInstitution(lines: string[]): FieldPick<string> {
   // Prefer the institution line immediately under the degree (college before affiliating uni).
   let degreeIdx = -1;
@@ -72,12 +94,17 @@ function pickBestInstitution(lines: string[]): FieldPick<string> {
       return { value: fromInst[1].trim(), confidence: 68 };
     }
     for (let i = degreeIdx + 1; i < Math.min(lines.length, degreeIdx + 3); i++) {
-      const det = detectInstitutionFromLine(lines[i]);
+      const next = lines[i];
+      // Next line is another degree entry — not this entry's institution.
+      if (lineHasDegreeSignal(next) || detectDegreeFromLine(next).confidence >= 38) {
+        continue;
+      }
+      const det = detectInstitutionFromLine(next);
       if (det.confidence >= 40) {
         return { value: det.institution, confidence: Math.min(100, det.confidence + 6) };
       }
       // "(M.P) affiliated to University …"
-      const aff = lines[i].match(/\baffiliated\s+to\s+([^,]+)/i);
+      const aff = next.match(/\baffiliated\s+to\s+([^,]+)/i);
       if (aff) {
         return { value: aff[1].trim(), confidence: 72 };
       }
@@ -205,14 +232,67 @@ function computeOverallConfidence(fc: EducationFieldConfidence): number {
 export function buildEducationFromBlock(block: EducationRawBlock): CustomExtractedEducation {
   const headerLines = block.headerText
     .split('\n')
-    .map((l) => l.trim())
+    .map((l) => l.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, ''))
     .filter(Boolean);
   const allLines = [...headerLines, ...block.bodyLines.map((l) => l.trim()).filter(Boolean)];
 
-  const institutionPick = pickBestInstitution(headerLines);
-  const degreePick = pickBestDegree(headerLines);
+  let institutionPick = pickBestInstitution(headerLines);
+  let degreePick = pickBestDegree(headerLines);
+  let datePick = pickBestDates(allLines);
+
+  for (const line of headerLines) {
+    const compact = parseDegreeDashInstitutionLine(line);
+    if (!compact) continue;
+    const deg = detectDegreeFromLine(compact.degree);
+    const compactDegree = deg.degree || compact.degree;
+    if (
+      !degreePick.degree ||
+      deg.confidence > degreePick.confidence ||
+      (deg.confidence >= 38 && compactDegree.length + 8 < degreePick.degree.length)
+    ) {
+      degreePick = {
+        degree: compactDegree,
+        fieldFromDegree: deg.fieldOfStudy || '',
+        confidence: Math.max(deg.confidence, 72),
+      };
+    }
+    const inst = detectInstitutionFromLine(compact.institution);
+    // Prefer RHS of Degree – School even when detectors score abbrev schools as 0.
+    if (
+      !institutionPick.value ||
+      inst.confidence > institutionPick.confidence ||
+      (compact.institution && institutionPick.confidence < 68)
+    ) {
+      institutionPick = {
+        value:
+          (inst.confidence >= 38 ? inst.institution : '') ||
+          compact.institution ||
+          institutionPick.value,
+        confidence: Math.max(inst.confidence, compact.institution ? 68 : institutionPick.confidence),
+      };
+    }
+    if (compact.yearText && datePick.confidence < 60) {
+      const yearParsed = parseEducationDates(compact.yearText);
+      if (yearParsed) {
+        datePick = {
+          startDate: yearParsed.startDate,
+          endDate: yearParsed.endDate,
+          current: yearParsed.current,
+          confidence: Math.max(yearParsed.confidence, 70),
+        };
+      } else if (/^(?:19|20)\d{2}$/.test(compact.yearText)) {
+        datePick = {
+          startDate: null,
+          endDate: compact.yearText,
+          current: false,
+          confidence: 72,
+        };
+      }
+    }
+    break;
+  }
+
   const fieldPick = pickBestField([...headerLines, ...block.bodyLines.slice(0, 2)]);
-  const datePick = pickBestDates(allLines);
   const performance = pickBestPerformance(allLines);
   const locationPick = pickBestLocation(headerLines);
 
