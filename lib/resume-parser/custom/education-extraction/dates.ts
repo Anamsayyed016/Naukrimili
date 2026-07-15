@@ -48,13 +48,28 @@ export function parseEducationDates(text: string): EducationDateRange | null {
     };
   }
 
+  // "2026 | 54.00%" / "2022 | 50.00%" on ICAI-style result lines.
+  const yearPct = line.match(/\b((?:19|20)\d{2})\s*[|]\s*\d{1,3}(?:\.\d+)?\s*%?/i);
+  if (yearPct?.[1]) {
+    const y = normalizeDate(yearPct[1]);
+    if (y) {
+      return {
+        startDate: null,
+        endDate: y,
+        current: false,
+        confidence: 70,
+        raw: yearPct[0],
+      };
+    }
+  }
+
   // Trailing "(YYYY)" / bare year on compact Degree – School lines.
   const parenYear = line.match(/\((?:19|20)\d{2}\)\s*$/);
   const bareYear =
-    line.length <= 24 || parenYear
+    line.length <= 24 || parenYear || yearPct
       ? line.match(SINGLE_YEAR_RE)
       : null;
-  if (bareYear) {
+  if (bareYear && !yearPct) {
     const y = normalizeDate(bareYear[1]);
     if (y) {
       return {

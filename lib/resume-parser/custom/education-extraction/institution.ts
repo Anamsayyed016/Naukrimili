@@ -54,9 +54,13 @@ export function detectInstitutionFromLine(text: string): InstitutionDetection {
 
   // Strip parenthetical years first — greedy `,?\s*20xx.*$` would leave a bare "("
   // on "College, City (2011)" by matching only "2011)".
+  // Also strip ICAI-style "2026 | 54.00%" tails and tab-separated scores.
   const withoutDates = trimmed
     .replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '')
+    .replace(/\s*[|\t]\s*(?:19|20)\d{2}\s*(?:[|]\s*\d{1,3}(?:\.\d+)?\s*%?)?\s*$/i, '')
+    .replace(/\s+(?:19|20)\d{2}\s*[|]\s*\d{1,3}(?:\.\d+)?\s*%?\s*$/i, '')
     .replace(/,?\s*(?:19|20)\d{2}\s*$/i, '')
+    .replace(/\t+/g, ' ')
     .trim();
   const conf = scoreInstitutionCandidate(withoutDates);
   if (conf >= 38) {

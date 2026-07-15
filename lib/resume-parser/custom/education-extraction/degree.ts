@@ -17,6 +17,13 @@ const DEGREE_PATTERNS: Array<{ re: RegExp; confidence: number }> = [
   { re: /\bb\.?\s*all\.?\s*b\.?\b/i, confidence: 92 },
   { re: /\bb\.?\s*tech\.?\b/i, confidence: 92 },
   { re: /\bb\.?\s*e\.?\b/i, confidence: 90 },
+  // Chartered Accountancy stages (must precede bare "intermediate").
+  {
+    re: /\bca\s*[-–—:]?\s*(?:final|intermediate|foundation|ipcc|cpt|executive|professional)\b/i,
+    confidence: 92,
+  },
+  // Bare "Chartered Accountant" as a degree label — not "Institute of Chartered Accountants of …".
+  { re: /\bchartered\s+accountants?\b(?!\s+of\b)/i, confidence: 90 },
   { re: /\bb\.?\s*ca\b/i, confidence: 88 },
   { re: /\bm\.?\s*ca\b/i, confidence: 88 },
   { re: /\bbca\b/i, confidence: 88 },
@@ -37,6 +44,7 @@ const DEGREE_PATTERNS: Array<{ re: RegExp; confidence: number }> = [
   { re: /\bdiploma\b/i, confidence: 80 },
   { re: /\bcertificate\b/i, confidence: 75 },
   { re: /\bhigh\s+school\b/i, confidence: 78 },
+  { re: /\bclass\s+(?:x{1,2}|10(?:th)?|12(?:th)?)\b/i, confidence: 84 },
   { re: /\bintermediate\b/i, confidence: 76 },
   { re: /\b(?:10th|12th|x{1,2}(?:th)?|xii|ssc|hsc)\b/i, confidence: 78 },
   { re: /\bpost\s+graduation\b/i, confidence: 82 },

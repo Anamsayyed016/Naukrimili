@@ -34,6 +34,54 @@ const SKILL_COMMA_LIST_LINE_RE = /(?:^|[,;|])\s*[A-Za-z+#.]+\s*[,;|]\s*[A-Za-z+#
 const CITY_STATE_LINE_RE =
   /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?,\s*(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?|[A-Z]{2,})$/;
 
+/**
+ * Short in-role workstream labels common on CA / audit / consulting resumes.
+ * These must not open a new top-level custom section mid-experience.
+ */
+function isExperienceWorkstreamLabel(text: string): boolean {
+  const t = text.trim().replace(/[:|\-–—]+$/g, '').trim();
+  if (!t || t.length > 56) return false;
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length > 6) return false;
+
+  // Known workstream phrases (generic practice areas, not employer/section names).
+  if (
+    /^(?:internal|statutory|tax|branch|stock|concurrent|revenue|cost|management|is|it|ifc|icfr)\s+audit(?:ing)?$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  if (
+    /^(?:tax|gst|direct\s+tax|indirect\s+tax|tds|secretarial|legal)\s*(?:&|and)?\s*(?:compliance|advisory|litigation|appeals?)$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  if (
+    /^(?:tax\s+compliance(?:\s*&|\s+and)?\s*return\s+preparation|return\s+preparation|financial\s+projections?|business\s+advisory|ifc\s*\/?\s*icfr(?:\s+testing)?)$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Short "Domain & Domain" labels when both sides look like practice areas.
+  if (
+    words.length <= 5 &&
+    /\s(?:&|and)\s/i.test(t) &&
+    /\b(?:audit|assurance|tax|compliance|finance|accounting|advisory|consulting|risk|controls?|reporting)\b/i.test(
+      t
+    ) &&
+    !/\b(?:experience|education|skills?|projects?|summary|objective|profile|certifications?|achievements?)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function isSectionContentLineNotHeading(text: string): boolean {
   const t = text.trim();
   if (!t) return false;
@@ -63,6 +111,13 @@ function isSectionContentLineNotHeading(text: string): boolean {
     return true;
   }
   if (/\b(?:employee of the year|best employee award|increased revenue)\b/i.test(t)) return true;
+
+  // Signature / place footer lines are not section headings.
+  if (/^(?:place|date|location)\s*:\s*.+/i.test(t) && t.length <= 80) return true;
+
+  // Experience workstream / practice-area labels inside a role (not resume sections).
+  // e.g. "Internal Audit", "Statutory Audit", "Tax & Compliance".
+  if (isExperienceWorkstreamLabel(t)) return true;
 
   // Job titles are never section headings — even when a shared token (e.g. "Professional")
   // accidentally scores against a taxonomy phrase like professional-qualifications.

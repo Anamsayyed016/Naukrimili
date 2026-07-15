@@ -530,7 +530,15 @@ export function isLikelyEducationLine(text: string): boolean {
 export function isLikelyCertificationLine(text: string): boolean {
   const s = normalizeFragment(text);
   if (!s) return false;
-  if (/\b(?:university|college|bachelor|master|mba|b\.?\s*tech|m\.?\s*tech)\b/i.test(s)) {
+  // ICAI CA stage rows and school/degree education must stay in education.
+  if (
+    /\bca\s*[-–—:]?\s*(?:final|intermediate|foundation|ipcc|cpt|executive|professional)\b/i.test(s) ||
+    /\binstitute\s+of\s+chartered\s+accountants\b/i.test(s) ||
+    /\bclass\s+(?:x{1,2}|10(?:th)?|12(?:th)?)\b/i.test(s)
+  ) {
+    return false;
+  }
+  if (/\b(?:university|college|bachelor|master|mba|b\.?\s*tech|m\.?\s*tech|school)\b/i.test(s)) {
     return false;
   }
   return CERTIFICATION_LINE_RE.test(s);

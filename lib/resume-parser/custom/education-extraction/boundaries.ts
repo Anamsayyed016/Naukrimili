@@ -238,9 +238,27 @@ function isCompactDegreeDashEntry(text: string): boolean {
   if (!lineHasDegreeSignal(cleaned) && detectDegreeFromLine(cleaned).confidence < 38) {
     return false;
   }
+  const dash = cleaned.match(/^(.+?)\s*[–—\-]\s*(.+)$/);
+  if (!dash) return false;
+  const lhs = dash[1].trim();
+  const rhs = dash[2]
+    .trim()
+    .replace(/\s*[\(\[]\s*(?:19|20)\d{2}.*$/i, '')
+    .trim();
+  // "CA - Final" / "CA - Intermediate" are degree stages, not Degree – Institution.
+  if (
+    /^(?:final|intermediate|foundation|ipcc|cpt|executive|professional|foundation\s+course)$/i.test(
+      rhs
+    )
+  ) {
+    return false;
+  }
+  if (/^ca\b/i.test(lhs) && rhs.split(/\s+/).length <= 2 && !/\b(university|college|institute|school|academy)\b/i.test(rhs)) {
+    return false;
+  }
   // "Degree – Institution …" (including abbreviated schools without
   // university/college tokens) is already a complete ATS education row.
-  return /^.+?\s*[–—\-]\s*.+\S/.test(cleaned);
+  return rhs.length >= 2;
 }
 
 function isHeaderOnlyBlock(block: EducationRawBlock): boolean {
@@ -261,9 +279,15 @@ function isHeaderOnlyBlock(block: EducationRawBlock): boolean {
 
 function blockHasDegreeSignal(block: EducationRawBlock): boolean {
   const headerLines = block.headerText.split('\n').map((l) => l.trim()).filter(Boolean);
-  return headerLines.some(
-    (l) => lineHasDegreeSignal(l) || detectDegreeFromLine(l).confidence >= 38
-  );
+  return headerLines.some((l) => {
+    const deg = detectDegreeFromLine(l);
+    const hasDeg = deg.confidence >= 38 || lineHasDegreeSignal(l);
+    if (!hasDeg) return false;
+    const inst = detectInstitutionFromLine(l);
+    // Institute / school lines that only weakly match as education text are not degree headers.
+    if (inst.confidence >= 48 && inst.confidence >= deg.confidence) return false;
+    return true;
+  });
 }
 
 function mergeHeaderOnlyBlocks(blocks: EducationRawBlock[]): EducationRawBlock[] {

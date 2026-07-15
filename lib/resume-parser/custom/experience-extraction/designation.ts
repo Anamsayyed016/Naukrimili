@@ -20,6 +20,23 @@ const TITLE_KEYWORDS_RE =
 const SENIORITY_RE =
   /\b(?:senior|sr\.?|junior|jr\.?|lead|principal|staff|associate|entry[- ]?level)\b/i;
 
+/** Remove trailing "Mon YYYY – Mon YYYY / Present" employment ranges from a title line. */
+export function stripTrailingEmploymentDates(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+  const stripped = trimmed
+    .replace(
+      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date|to\s*date)\s*$/i,
+      ''
+    )
+    .replace(
+      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2})\s*$/i,
+      ''
+    )
+    .trim();
+  return stripped.length >= 3 ? stripped : trimmed;
+}
+
 export function scoreDesignationCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 3) return 0;
@@ -43,8 +60,12 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
   const trimmed = text.trim();
   if (!trimmed) return { designation: '', confidence: 0 };
 
+  // Strip trailing employment date ranges so "Title Apr 2025 – Jan 2026" scores as a title.
+  const withoutDates = stripTrailingEmploymentDates(trimmed);
+  const working = withoutDates || trimmed;
+
   // "As {Role} in/at {Employer}" — score the role fragment only.
-  const asInMatch = trimmed.match(/^As\s+(.+?)\s+(?:in|at|with|for)\s+(.+)$/i);
+  const asInMatch = working.match(/^As\s+(.+?)\s+(?:in|at|with|for)\s+(.+)$/i);
   if (asInMatch) {
     const titlePart = asInMatch[1].replace(/^working\s+/i, '').trim();
     const conf = scoreDesignationCandidate(titlePart);
@@ -53,7 +74,7 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
     }
   }
 
-  const asPrefix = trimmed.match(/^As\s+(.+)$/i);
+  const asPrefix = working.match(/^As\s+(.+)$/i);
   if (asPrefix) {
     const titlePart = asPrefix[1].trim();
     const conf = scoreDesignationCandidate(titlePart);
@@ -62,7 +83,7 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
     }
   }
 
-  const atMatch = trimmed.match(/^(.+?)\s+at\s+(.+)$/i);
+  const atMatch = working.match(/^(.+?)\s+at\s+(.+)$/i);
   if (atMatch) {
     const titlePart = atMatch[1].trim();
     const conf = scoreDesignationCandidate(titlePart);
@@ -71,7 +92,7 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
     }
   }
 
-  const dashSplit = splitOnFieldSeparatorDash(trimmed);
+  const dashSplit = splitOnFieldSeparatorDash(working);
   if (dashSplit) {
     const left = dashSplit.left;
     const right = dashSplit.right;
@@ -85,9 +106,9 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
     }
   }
 
-  const conf = scoreDesignationCandidate(trimmed);
+  const conf = scoreDesignationCandidate(working);
   if (conf >= 38) {
-    return { designation: trimmed, confidence: conf };
+    return { designation: working, confidence: conf };
   }
   return { designation: '', confidence: 0 };
 }

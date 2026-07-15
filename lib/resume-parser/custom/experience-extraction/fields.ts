@@ -4,7 +4,7 @@
 
 import { detectCompanyFromLine, looksLikeInstitutionalEmployer } from './company';
 import { parseDateRangeFromText } from './dates';
-import { detectDesignationFromLine, scoreDesignationCandidate } from './designation';
+import { detectDesignationFromLine, scoreDesignationCandidate, stripTrailingEmploymentDates } from './designation';
 import { extractDescriptionFromBlock } from './description';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
 import { extractTechnologiesFromBlock } from './technologies';
@@ -359,10 +359,11 @@ function pickBestDesignation(lines: string[], exclude: string): FieldPick<string
     }
   }
   for (const line of expandHeaderSegments(lines)) {
-    if (parseDateRangeFromText(line)) continue;
+    // Do not skip dated title lines ("Associate Apr 2025 – Jan 2026") —
+    // detectDesignationFromLine already strips trailing employment ranges.
     if (isExperienceDateOrDurationToken(line)) continue;
     const det = detectDesignationFromLine(line);
-    if (det.designation === exclude) continue;
+    if (!det.designation || det.designation === exclude) continue;
     if (det.confidence > best.confidence) {
       best = { value: det.designation, confidence: det.confidence };
     }
@@ -508,7 +509,9 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
 
   finalDesignation = {
     ...finalDesignation,
-    value: stripRolesResponsibilitiesSuffix(finalDesignation.value),
+    value: stripTrailingEmploymentDates(
+      stripRolesResponsibilitiesSuffix(finalDesignation.value)
+    ),
   };
   if (tenureDesignation.confidence >= 70) {
     finalDesignation = {

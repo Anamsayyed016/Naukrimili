@@ -20,7 +20,7 @@ const BOUNDARY_THRESHOLD = 48;
 const BOUNDARY_THRESHOLD_AFTER_BLANK = 38;
 
 const EXPERIENCE_SUBSECTION_RE =
-  /^(?:key\s+result\s+areas?|responsibilit(?:y|ies)|achievements?|highlights?|key\s+contributions?|duties|roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|(?:[\w [&/.+-]{0,40})?roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|accountabilit(?:y|ies))(?:\s*:)?$/i;
+  /^(?:key\s+result\s+areas?|responsibilit(?:y|ies)|achievements?|highlights?|key\s+contributions?|duties|roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|(?:[\w [&/.+-]{0,40})?roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|accountabilit(?:y|ies)|internal\s+audit|statutory\s+audit|tax\s*(?:&|and)?\s*compliance|tax\s+compliance(?:\s*&|\s+and)?\s*return\s+preparation|financial\s+projections?|business\s+advisory)(?:\s*:)?$/i;
 
 function blockIdentityState(lines: ExperienceLine[], start: number, end: number) {
   let hasDesignation = false;
@@ -150,10 +150,10 @@ export function partitionExperienceBlocks(
     // A strong job title after a completed role header starts the next role even when
     // the title-only line scores below the normal boundary threshold (common on
     // ATS resumes with contiguous entries and no blank separator).
+    // Title lines may also carry dates ("Associate Apr 2025 – Jan 2026") — still a new role.
     if (
       isDesignationLine &&
       !isCompanyLine &&
-      !isDateLine &&
       !isTenureLine &&
       state.hasDesignation &&
       state.hasCompany &&
@@ -295,7 +295,9 @@ function isCompleteRoleHeader(block: ExperienceRawBlock): boolean {
   const hasDates = Boolean(built.startDate || built.endDate || built.current);
   const hasCompany = Boolean(built.company);
   const hasTitle = Boolean(built.designation);
-  return (hasCompany && hasTitle) || (hasTitle && hasDates) || (hasCompany && hasDates);
+  // Title+dates without an employer is incomplete — the next company-only
+  // line (Title Dates\nCompany | Location) must be allowed to merge in.
+  return (hasCompany && hasTitle) || (hasCompany && hasDates);
 }
 
 function isPartialHeaderBlock(block: ExperienceRawBlock): boolean {

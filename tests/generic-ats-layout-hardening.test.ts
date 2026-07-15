@@ -6,6 +6,7 @@ import { extractExperiencesFromSection } from '@/lib/resume-parser/custom/experi
 import { extractEducationFromSection } from '@/lib/resume-parser/custom/education-extraction';
 import { collectFromSkillsSection } from '@/lib/resume-parser/custom/skills-intelligence/collect';
 import { detectAddress } from '@/lib/resume-parser/custom/identity-extraction/address';
+import { detectResumeSections } from '@/lib/resume-parser/custom/section-detection';
 import {
   isImplausibleResumeLocation,
   recoverLocationFromImportText,
@@ -14,6 +15,36 @@ import {
 } from '@/lib/resume-parser/import-sanitize';
 
 describe('generic ATS layout parser hardening', () => {
+  it('does not treat in-role workstream labels as top-level section headings', () => {
+    const text = `
+CAREER OBJECTIVE
+Seasoned audit professional with multi-client practice experience.
+PROFESSIONAL EXPERIENCE
+Finance Associate Apr 2025 – Jan 2026
+Sample Advisory LLP | Midtown, India
+Internal Audit
+• Handled internal audit engagements.
+Tax & Compliance
+• Drafted replies to tax notices.
+Articled Assistant Mar 2022 – Mar 2025
+Sample Advisory LLP | Midtown, India
+• Supported statutory audits.
+EDUCATION
+CA - Final
+Institute of Chartered Accountants of India
+SKILLS
+Audit, GST
+ACHIEVEMENTS & HIGHLIGHTS
+• Delivered a multi-project audit.
+`.trim();
+    const sections = detectResumeSections(text);
+    expect(sections.experience).toMatch(/Tax & Compliance/i);
+    expect(sections.experience).toMatch(/Articled Assistant/i);
+    expect(sections.sections.some((s) => /Tax & Compliance/i.test(String(s.rawHeading || s.heading || '')))).toBe(
+      false
+    );
+  });
+
   it('splits contiguous company-only headers after a completed role', () => {
     const section = `
 Acme Industries Pvt. Ltd.
@@ -74,6 +105,49 @@ Accountant | June 2017 – December 2018
     expect(jobs[1].company).toMatch(/Summit Group/i);
     expect(jobs[1].designation).toMatch(/Accountant/i);
     expect(jobs[1].company).not.toMatch(/Trading/i);
+  });
+
+  it('merges Title+Dates header with following Company|Location line', () => {
+    const section = `
+Finance & Audit Associate Apr 2025 – Jan 2026
+Northwind Advisory LLP | Midtown, India
+Internal Audit
+• Handled internal audit engagements across retail clients.
+Tax & Compliance
+• Drafted replies to GST notices.
+Articled Assistant Mar 2022 – Mar 2025
+Northwind Advisory LLP | Midtown, India
+• Supported statutory audit fieldwork.
+`.trim();
+    const jobs = extractExperiencesFromSection(section);
+    expect(jobs.length).toBe(2);
+    expect(jobs[0].company).toMatch(/Northwind Advisory/i);
+    expect(jobs[0].designation).toMatch(/Finance|&|Audit Associate/i);
+    expect(String(jobs[0].designation)).not.toMatch(/2025|2026/i);
+    expect(jobs[0].startDate).toMatch(/2025/);
+    expect(jobs[1].company).toMatch(/Northwind Advisory/i);
+    expect(jobs[1].designation).toMatch(/Articled Assistant/i);
+    expect(jobs[1].startDate).toMatch(/2022/);
+  });
+
+  it('extracts CA stage education rows with institute lines', () => {
+    const section = `
+CA - Final
+Institute of Chartered Accountants of India	2026 | 54.00%
+CA - Intermediate
+Institute of Chartered Accountants of India	2022 | 50.00%
+Class XII - ISC
+Mount Carmel School, Midtown	2020 | 90.25%
+Class X - ICSE
+Mount Carmel School, Midtown	2018 | 83.60%
+`.trim();
+    const edu = extractEducationFromSection(section);
+    expect(edu.length).toBeGreaterThanOrEqual(4);
+    expect(edu[0].degree).toMatch(/CA.*Final/i);
+    expect(edu[0].institution).toMatch(/Chartered Accountants/i);
+    expect(edu[1].degree).toMatch(/CA.*Intermediate/i);
+    expect(edu[2].degree).toMatch(/XII|12/i);
+    expect(edu[3].degree).toMatch(/X\b|10|ICSE/i);
   });
 
   it('extracts bullet Degree – Institution (year) education rows', () => {

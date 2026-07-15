@@ -72,13 +72,19 @@ export function lineImpliesEmployerPresence(text: string): boolean {
   ) {
     return true;
   }
-  // Check pipe / date-left segments that may individually score as employers.
+  // Check pipe-separated left segments that may individually score as employers.
+  // Do NOT split on en/em dashes — those are date ranges ("Apr 2025 – Jan 2026"),
+  // and the right half would otherwise false-positive as a company name.
   const segments = trimmed
-    .split(/\s*[|–—]\s*/)
+    .split(/\s*\|\s*/)
     .map((s) => s.trim())
     .filter(Boolean);
   for (const seg of segments) {
     if (seg === trimmed) continue;
+    if (/^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}$/i.test(seg)) {
+      continue;
+    }
+    if (/^(?:19|20)\d{2}$/.test(seg)) continue;
     if (detectCompanyFromLine(seg).confidence >= 42) return true;
     if (COMPANY_SUFFIX_RE.test(seg)) return true;
   }
@@ -116,6 +122,10 @@ export function scoreCompanyCandidate(text: string): number {
   if (!trimmed || trimmed.length < 2) return 0;
   if (/^(?:present|current|now|ongoing|till\s*date|to\s*date)$/i.test(trimmed)) return 0;
   if (/^(?:19|20)\d{2}$/.test(trimmed)) return 0;
+  // Month + year tokens from date-range splits are never employers.
+  if (/^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}$/i.test(trimmed)) {
+    return 0;
+  }
   if (looksLikeSentenceNotCompany(trimmed)) return 0;
   if (FALSE_COMPANY_RE.test(trimmed)) return 0;
   if (TECH_SKILL_AS_COMPANY_RE.test(trimmed.toLowerCase())) return 0;

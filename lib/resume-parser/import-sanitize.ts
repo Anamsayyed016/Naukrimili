@@ -899,6 +899,23 @@ export function isInvalidImportSummary(text: string): boolean {
   ) {
     return false;
   }
+  // "CA qualified… with close to four years of work across audit…" style intros.
+  if (
+    t.length >= 80 &&
+    /\b(?:ca|cpa|cfa|cma|cs|acs|fcs)\s+qualified\b/i.test(t) &&
+    /\b(?:years?|experience|audit|finance|taxation|compliance|advisory)\b/i.test(t)
+  ) {
+    return false;
+  }
+  if (
+    t.length >= 80 &&
+    /\b(?:close\s+to|nearly|almost|over|about)\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+years?\s+(?:of\s+)?(?:work|experience)\b/i.test(
+      t
+    ) &&
+    /\b(?:audit|finance|taxation|professional|advisory|compliance)\b/i.test(t)
+  ) {
+    return false;
+  }
   if (
     t.length >= 50 &&
     /\b(?:corporate\s+exposure|professional\s+exposure|group\s+companies|listed\s+compan)/i.test(t) &&
@@ -1625,6 +1642,27 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
   if (!a && !b) return '';
   if (!a) return b;
   if (!b) return a;
+
+  // Prefer the spelling whose letters match the email local exactly. Never replace a
+  // correct 2-token header ("Divyansh Shrivastava") with a longer glued split
+  // ("Divyans Hshrivas Tava") just because it has more words.
+  const localGlued = email
+    ? String(email.split('@')[0] || '')
+        .replace(/\d/g, '')
+        .toLowerCase()
+        .replace(/[^a-z]/g, '')
+    : '';
+  if (localGlued.length >= 8) {
+    const aGlued = a.toLowerCase().replace(/[^a-z]/g, '');
+    const bGlued = b.toLowerCase().replace(/[^a-z]/g, '');
+    const aWords = nameWordCount(a);
+    const bWords = nameWordCount(b);
+    if (aGlued === localGlued && bGlued !== localGlued) return a;
+    if (bGlued === localGlued && aGlued !== localGlued) return b;
+    if (aGlued === localGlued && bGlued === localGlued && aWords !== bWords) {
+      return aWords <= bWords ? a : b;
+    }
+  }
 
   const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
   if (emailDerived && isAcceptedEmailDerivedName(emailDerived)) {

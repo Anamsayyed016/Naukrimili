@@ -131,7 +131,15 @@ function pickBestDegree(lines: string[]): {
     if (parseEducationDates(line)) continue;
     const inst = detectInstitutionFromLine(line);
     const det = detectDegreeFromLine(line);
+    // Prefer true degree labels over institution lines that weakly score as education.
     if (inst.confidence >= 42 && inst.confidence > det.confidence + 8) continue;
+    if (
+      /\b(university|college|institute|institution|school|academy)\b/i.test(line) &&
+      det.confidence < 70 &&
+      !/^(?:ca|class|b\.?|m\.?|ph\.?d|ll\.?b)/i.test(line.trim())
+    ) {
+      continue;
+    }
     if (det.confidence > best.confidence) {
       best = {
         degree: det.degree,
