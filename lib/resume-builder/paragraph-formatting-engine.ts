@@ -1,17 +1,17 @@
 /**
- * Paragraph Formatting Engine
+ * Paragraph Layout Engine
  *
- * Improves long prose blocks (summary, descriptions) without changing content,
- * template layout, column widths, or parser output.
+ * Composes long prose (summary, descriptions) to use the full available
+ * column width without changing content, template chrome, or parser output.
  *
- * - Groups 2–3 sentences per paragraph (never one sentence per paragraph)
- * - Uses full available column width (overrides narrow measure caps)
- * - Balanced line wrapping via text-wrap + optional measure tuning
+ * - Groups ~2–4 sentences per paragraph (never one sentence per break)
+ * - Never applies artificial ch measures that leave right-side white space
+ * - Overrides template/ATS measure caps (68ch etc.) for prose targets only
  */
 
 import {
-  findOptimalParagraphMeasure,
-  type ParagraphOpticalContext,
+  simulateParagraphLines,
+  tokenizeParagraph,
 } from './typographic-composition-engine';
 
 const DECIMAL_TOKEN = '\uE000';
@@ -23,10 +23,6 @@ const IE_TOKEN = '\uE005';
 
 const PROSE_MIN_CHARS = 48;
 const PROSE_MIN_SENTENCES = 2;
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
-}
 
 export function normalizeProseWhitespace(text: string): string {
   return String(text || '')
@@ -90,47 +86,56 @@ export function splitIntoSentences(text: string): string[] {
   return rawParts;
 }
 
-/** Plan paragraph sizes (2–3 sentences each) without orphan singles. */
+/**
+ * Plan paragraph sizes in the 2–4 sentence band.
+ * Prefer fuller article-like groups; never emit a lone sentence paragraph
+ * when it can be absorbed into a neighbor.
+ */
 export function planParagraphSizes(sentenceCount: number): number[] {
   if (sentenceCount <= 0) return [];
-  if (sentenceCount <= 3) return [sentenceCount];
+  if (sentenceCount <= 4) return [sentenceCount];
 
   const sizes: number[] = [];
   let remaining = sentenceCount;
 
   while (remaining > 0) {
-    if (remaining <= 3) {
+    if (remaining <= 4) {
       sizes.push(remaining);
       break;
     }
-    if (remaining === 4) {
-      sizes.push(2, 2);
-      break;
-    }
     if (remaining === 5) {
-      sizes.push(2, 3);
+      sizes.push(3, 2);
       break;
     }
     if (remaining === 6) {
       sizes.push(3, 3);
       break;
     }
+    if (remaining === 7) {
+      sizes.push(4, 3);
+      break;
+    }
+    if (remaining === 8) {
+      sizes.push(4, 4);
+      break;
+    }
 
-    const nextThree = remaining - 3;
-    if (nextThree >= 2 && nextThree !== 1) {
-      sizes.push(3);
-      remaining -= 3;
+    // Prefer 4 when the remainder stays in a healthy 2–4 band.
+    const afterFour = remaining - 4;
+    if (afterFour >= 2) {
+      sizes.push(4);
+      remaining -= 4;
       continue;
     }
 
-    sizes.push(2);
-    remaining -= 2;
+    sizes.push(3);
+    remaining -= 3;
   }
 
   return sizes;
 }
 
-/** Group sentences into paragraph strings (2–3 sentences each). */
+/** Group sentences into paragraph strings (~2–4 sentences each). */
 export function groupSentencesIntoParagraphs(sentences: string[]): string[] {
   if (sentences.length === 0) return [];
   if (sentences.length === 1) return [sentences[0]];
@@ -205,56 +210,48 @@ function verifyContentPreserved(original: string, paragraphs: string[]): boolean
   return normalizedOriginal === normalizedJoined;
 }
 
-export function findBalancedMeasureCh(
+/**
+ * Score how evenly a paragraph would wrap at full available measure.
+ * Used only for diagnostics / tests — we do not narrow max-width.
+ */
+export function scoreFullWidthLineBalance(
   paragraph: string,
-  availableCh: number,
-  ctx?: Partial<ParagraphOpticalContext>
+  availableCh: number
 ): number {
-  const maxCh = Math.max(42, Math.round(availableCh));
-  const minCh = Math.max(38, Math.round(maxCh * 0.88));
+  const words = tokenizeParagraph(paragraph);
+  if (words.length === 0) return 0;
+  const lines = simulateParagraphLines(words, availableCh);
+  if (lines.length <= 1) return 1;
 
-  const opticalCtx: ParagraphOpticalContext = {
-    pageHeight: ctx?.pageHeight ?? 1123,
-    remainingWhitespace: ctx?.remainingWhitespace ?? 120,
-    pageFill: ctx?.pageFill ?? 0.82,
-    preferMoreLines: false,
-    targetFill: 0.9,
-  };
-
-  const result = findOptimalParagraphMeasure(paragraph, opticalCtx, {
-    minCh,
-    maxCh,
-    step: 2,
-  });
-
-  return clamp(result.measureCh, minCh, maxCh);
+  const maxChars = Math.max(24, Math.round(availableCh * 0.92));
+  const lengths = lines.map((line) => line.length);
+  const avg = lengths.reduce((sum, len) => sum + len, 0) / lengths.length;
+  const variance =
+    lengths.reduce((sum, len) => sum + (len - avg) ** 2, 0) / lengths.length;
+  const lastRatio = lengths[lengths.length - 1] / maxChars;
+  const balance = 1 - Math.min(1, Math.sqrt(variance) / (maxChars * 0.45));
+  const orphanPenalty = lastRatio < 0.28 && lines.length > 1 ? 0.2 : 0;
+  return Math.max(0, Math.min(1, balance - orphanPenalty));
 }
 
+/** Build paragraph HTML — always full container width, never a narrower ch cap. */
 export function buildFormattedParagraphHtml(
   paragraphs: string[],
-  options?: { availableMeasureCh?: number; paragraphClass?: string }
+  options?: { paragraphClass?: string }
 ): string {
   const paragraphClass = options?.paragraphClass ?? 'pfe-paragraph';
-  const availableCh = options?.availableMeasureCh ?? 72;
 
   return paragraphs
-    .map((paragraph) => {
-      const measureCh =
-        paragraph.length >= 60
-          ? findBalancedMeasureCh(paragraph, availableCh)
-          : availableCh;
-      const style =
-        measureCh < availableCh
-          ? ` style="max-width:min(100%,${measureCh}ch)"`
-          : '';
-      return `<p class="${paragraphClass}"${style}>${escapeProseHtml(paragraph)}</p>`;
-    })
+    .map(
+      (paragraph) =>
+        `<p class="${paragraphClass}">${escapeProseHtml(paragraph)}</p>`
+    )
     .join('');
 }
 
 export function formatProseBlockToHtml(
   text: string,
-  options?: { availableMeasureCh?: number; wrapperClass?: string }
+  options?: { wrapperClass?: string }
 ): string {
   const normalized = normalizeProseWhitespace(text);
   if (!normalized) return '';
@@ -264,30 +261,13 @@ export function formatProseBlockToHtml(
     return `<p class="pfe-paragraph">${escapeProseHtml(normalized)}</p>`;
   }
 
-  const inner = buildFormattedParagraphHtml(paragraphs, {
-    availableMeasureCh: options?.availableMeasureCh,
-  });
+  const inner = buildFormattedParagraphHtml(paragraphs);
   const wrapperClass = options?.wrapperClass ?? 'pfe-prose';
   return `<div class="${wrapperClass}">${inner}</div>`;
 }
 
-function estimateAvailableMeasureCh(htmlTemplate: string, inSidebar: boolean): number {
-  if (inSidebar) return 44;
-  if (/--sidebar-width|grid-template-columns|two-column|aside/i.test(htmlTemplate)) {
-    return 62;
-  }
-  return 76;
-}
-
-function isSidebarContext(html: string, matchIndex: number): boolean {
-  const windowStart = Math.max(0, matchIndex - 2400);
-  const snippet = html.slice(windowStart, matchIndex);
-  return /<(aside|nav)\b|class="[^"]*sidebar|class='[^"]*sidebar/i.test(snippet);
-}
-
 function transformProseInner(
   innerHtml: string,
-  availableCh: number,
   options?: { inlineParagraphClass?: string }
 ): string {
   const text = extractPlainTextFromHtml(innerHtml);
@@ -296,11 +276,15 @@ function transformProseInner(
   }
 
   const paragraphs = formatProseIntoParagraphs(text);
-  if (paragraphs.length <= 1 && text.length < 140) {
+  // Short single-block prose: still wrap so full-width CSS applies.
+  if (paragraphs.length === 0) return innerHtml;
+
+  if (!verifyContentPreserved(text, paragraphs)) {
     return innerHtml;
   }
 
-  if (!verifyContentPreserved(text, paragraphs)) {
+  // Even one long paragraph benefits from full-width layout classes.
+  if (paragraphs.length === 1 && text.length < 90) {
     return innerHtml;
   }
 
@@ -308,50 +292,53 @@ function transformProseInner(
     ? `pfe-paragraph ${options.inlineParagraphClass}`
     : 'pfe-paragraph';
 
-  return buildFormattedParagraphHtml(paragraphs, {
-    availableMeasureCh: availableCh,
-    paragraphClass,
-  });
+  return buildFormattedParagraphHtml(paragraphs, { paragraphClass });
 }
 
-function applyProseTransformRules(
-  html: string,
-  htmlTemplate: string
-): string {
+function applyProseTransformRules(html: string): string {
   let result = html;
 
   result = result.replace(
     /(<p\b[^>]*\bclass="[^"]*\b(?:summary-text|professional-summary|objective-text)[^"]*"[^>]*>)([\s\S]*?)(<\/p>)/gi,
-    (match, open, inner, _close, offset) => {
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
-      const formatted = transformProseInner(inner, availableCh);
-      if (formatted === inner) return match;
-      const wrapperClass = String(open).match(/class="([^"]*)"/i)?.[1] ?? 'summary-text';
+    (match, open, inner) => {
+      const formatted = transformProseInner(inner);
+      if (formatted === inner) {
+        // Still upgrade single-block summary to full-width wrapper when long enough.
+        const text = extractPlainTextFromHtml(inner);
+        if (text.length < 90) return match;
+        const wrapperClass =
+          String(open).match(/class="([^"]*)"/i)?.[1] ?? 'summary-text';
+        return `<div class="${wrapperClass} pfe-prose"><p class="pfe-paragraph">${escapeProseHtml(text)}</p></div>`;
+      }
+      const wrapperClass =
+        String(open).match(/class="([^"]*)"/i)?.[1] ?? 'summary-text';
       return `<div class="${wrapperClass} pfe-prose">${formatted}</div>`;
     }
   );
 
   result = result.replace(
     /(<div\b[^>]*\bclass="[^"]*\b(?:summary-text|professional-summary|objective-text)[^"]*"[^>]*>)([\s\S]*?)(<\/div>)/gi,
-    (match, open, inner, _close, offset) => {
+    (match, open, inner) => {
       if (/\bpfe-paragraph\b/i.test(inner)) return match;
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
-      const formatted = transformProseInner(inner, availableCh);
-      if (formatted === inner) return match;
-      const wrapperClass = String(open).match(/class="([^"]*)"/i)?.[1] ?? 'summary-text';
+      const formatted = transformProseInner(inner);
+      if (formatted === inner) {
+        const text = extractPlainTextFromHtml(inner);
+        if (text.length < 90) return match;
+        const wrapperClass =
+          String(open).match(/class="([^"]*)"/i)?.[1] ?? 'summary-text';
+        return `<div class="${wrapperClass} pfe-prose"><p class="pfe-paragraph">${escapeProseHtml(text)}</p></div>`;
+      }
+      const wrapperClass =
+        String(open).match(/class="([^"]*)"/i)?.[1] ?? 'summary-text';
       return `<div class="${wrapperClass} pfe-prose">${formatted}</div>`;
     }
   );
 
   result = result.replace(
     /(<p\b[^>]*\bclass="[^"]*\bexperience-desc(?:--paragraph|--lead)?[^"]*"[^>]*>)([\s\S]*?)(<\/p>)/gi,
-    (match, open, inner, _close, offset) => {
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
+    (match, open, inner) => {
       const extraClass = String(open).match(/class="([^"]*)"/i)?.[1] ?? '';
-      const formatted = transformProseInner(inner, availableCh, {
+      const formatted = transformProseInner(inner, {
         inlineParagraphClass: extraClass,
       });
       return formatted === inner ? match : formatted;
@@ -360,11 +347,9 @@ function applyProseTransformRules(
 
   result = result.replace(
     /(<div\b[^>]*\bclass="[^"]*\bexperience-item[^"]*"[^>]*>[\s\S]*?<div\b[^>]*\bclass="[^"]*\bdescription[^"]*"[^>]*>)\s*(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi,
-    (match, open, _pOpen, inner, _pClose, offset) => {
+    (match, open, _pOpen, inner) => {
       if (/<ul\b/i.test(match)) return match;
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
-      const formatted = transformProseInner(inner, availableCh);
+      const formatted = transformProseInner(inner);
       if (formatted === inner) return match;
       return `${open}${formatted}`;
     }
@@ -372,10 +357,8 @@ function applyProseTransformRules(
 
   result = result.replace(
     /(<div\b[^>]*\bclass="[^"]*\bproject-item[^"]*"[^>]*>[\s\S]*?)(<p\b[^>]*\bclass="[^"]*\bdescription[^"]*"[^>]*>)([\s\S]*?)(<\/p>)/gi,
-    (match, prefix, _pOpen, inner, _pClose, offset) => {
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
-      const formatted = transformProseInner(inner, availableCh, {
+    (match, prefix, _pOpen, inner) => {
+      const formatted = transformProseInner(inner, {
         inlineParagraphClass: 'description',
       });
       if (formatted === inner) return match;
@@ -385,10 +368,8 @@ function applyProseTransformRules(
 
   result = result.replace(
     /(<div\b[^>]*\bclass="[^"]*\bachievement-item[^"]*"[^>]*>[\s\S]*?)(<p\b[^>]*\bclass="[^"]*\bdescription[^"]*"[^>]*>)([\s\S]*?)(<\/p>)/gi,
-    (match, prefix, _pOpen, inner, _pClose, offset) => {
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
-      const formatted = transformProseInner(inner, availableCh, {
+    (match, prefix, _pOpen, inner) => {
+      const formatted = transformProseInner(inner, {
         inlineParagraphClass: 'description',
       });
       if (formatted === inner) return match;
@@ -398,10 +379,8 @@ function applyProseTransformRules(
 
   result = result.replace(
     /(<div\b[^>]*\bclass="[^"]*\bcertification-item[^"]*"[^>]*>[\s\S]*?)(<p\b[^>]*\bclass="[^"]*\bdescription[^"]*"[^>]*>)([\s\S]*?)(<\/p>)/gi,
-    (match, prefix, _pOpen, inner, _pClose, offset) => {
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
-      const formatted = transformProseInner(inner, availableCh, {
+    (match, prefix, _pOpen, inner) => {
+      const formatted = transformProseInner(inner, {
         inlineParagraphClass: 'description',
       });
       if (formatted === inner) return match;
@@ -411,10 +390,8 @@ function applyProseTransformRules(
 
   result = result.replace(
     /(<div\b[^>]*\bclass="[^"]*\bextended-section-body[^"]*\bdescription[^"]*"[^>]*>\s*)(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi,
-    (match, open, _pOpen, inner, _pClose, offset) => {
-      const inSidebar = isSidebarContext(result, offset);
-      const availableCh = estimateAvailableMeasureCh(htmlTemplate, inSidebar);
-      const formatted = transformProseInner(inner, availableCh);
+    (match, open, _pOpen, inner) => {
+      const formatted = transformProseInner(inner);
       if (formatted === inner) return match;
       return `${open}${formatted}`;
     }
@@ -426,28 +403,49 @@ function applyProseTransformRules(
 export function buildParagraphFormattingCss(): string {
   return `
 <style data-injected="paragraph-formatting">
+/* Use the full column — defeat template/ATS measure caps (68ch / --*-measure). */
 .resume-container .summary-text,
 .resume-container [class*='summary-text'],
 .resume-container .professional-summary,
 .resume-container .objective-text,
-.resume-container .pfe-prose {
-  max-width: 100% !important;
-  width: 100%;
+.resume-container .pfe-prose,
+.resume-container.sce-resume .summary-text,
+.resume-container.ege-resume .summary-text,
+.resume-container.nge-resume .summary-text,
+.resume-container.gce-resume .summary-text,
+.resume-container.coe-resume .summary-text,
+.resume-container .experience-item .description,
+.resume-container .project-item .description,
+.resume-container .achievement-item .description,
+.resume-container .certification-item .description,
+.resume-container .extended-section-body.description,
+.resume-container.sce-resume .experience-item .description,
+.resume-container.sce-resume .project-item .description {
+  max-width: none !important;
+  width: 100% !important;
 }
 
 .resume-container .pfe-prose .pfe-paragraph,
 .resume-container .summary-text.pfe-prose > .pfe-paragraph,
 .resume-container .professional-summary.pfe-prose > .pfe-paragraph,
 .resume-container .objective-text.pfe-prose > .pfe-paragraph,
+.resume-container p.pfe-paragraph,
 .resume-container .experience-desc--paragraph.pfe-paragraph,
 .resume-container .experience-desc--lead.pfe-paragraph,
 .resume-container .experience-item .description > .pfe-paragraph,
 .resume-container .project-item .description.pfe-paragraph,
+.resume-container .project-item p.pfe-paragraph,
 .resume-container .achievement-item .description .pfe-paragraph,
+.resume-container .achievement-item p.pfe-paragraph,
 .resume-container .certification-item .description .pfe-paragraph,
 .resume-container .extended-section-body.description .pfe-paragraph {
-  line-height: 1.52 !important;
+  max-width: none !important;
+  width: 100% !important;
+  display: block;
+  box-sizing: border-box;
+  line-height: 1.5 !important;
   margin: 0 0 9px !important;
+  padding: 0 !important;
   text-align: left !important;
   letter-spacing: inherit !important;
   word-break: normal !important;
@@ -456,7 +454,6 @@ export function buildParagraphFormattingCss(): string {
   -webkit-hyphens: auto;
   text-wrap: pretty;
   -webkit-text-wrap: pretty;
-  max-width: 100%;
 }
 
 .resume-container .pfe-prose .pfe-paragraph:last-child,
@@ -481,12 +478,11 @@ function appendStyleBlockToHtml(html: string, styleBlock: string): string {
 
 export function injectParagraphFormattingIntoHtml(
   html: string,
-  options?: { htmlTemplate?: string; templateId?: string }
+  _options?: { htmlTemplate?: string; templateId?: string }
 ): string {
   if (!html || !html.trim()) return html;
 
-  const htmlTemplate = options?.htmlTemplate ?? '';
-  let result = applyProseTransformRules(html, htmlTemplate);
+  let result = applyProseTransformRules(html);
   result = appendStyleBlockToHtml(result, buildParagraphFormattingCss());
   return result;
 }

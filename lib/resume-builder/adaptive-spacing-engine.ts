@@ -86,15 +86,15 @@ function buildAdaptiveSpacingCss(plan: {
   margin-bottom: ${cardGapPx}px !important;
 }
 
-/* Paragraph spacing inside summary/description blocks */
-.resume-container .summary-text,
-.resume-container .professional-summary,
-.resume-container .objective-text,
-.resume-container .experience-item .description p,
-.resume-container .project-item .description p,
-.resume-container .description p {
+/* Paragraph spacing inside summary/description blocks.
+   Skip .pfe-paragraph — paragraph-formatting-engine owns those. */
+.resume-container .summary-text:not(.pfe-prose),
+.resume-container .professional-summary:not(.pfe-prose),
+.resume-container .objective-text:not(.pfe-prose),
+.resume-container .experience-item .description p:not(.pfe-paragraph),
+.resume-container .project-item .description p:not(.pfe-paragraph),
+.resume-container .description p:not(.pfe-paragraph) {
   margin: 0 0 ${paragraphGapPx}px !important;
-  line-height: inherit !important;
 }
 
 /* Ensure last paragraph keeps its original bottom spacing */

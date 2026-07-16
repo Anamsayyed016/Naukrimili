@@ -633,18 +633,18 @@ export function injectResumeData(
     }
   }
 
-  // Intelligent paragraph formatting for summary/descriptions (content preserved).
-  result = injectParagraphFormattingIntoHtml(result, {
-    htmlTemplate,
-    templateId: options?.templateId ?? options?.galleryTemplateId,
-  });
-
   // Spacing-only adaptive engine. Does not change fonts/line-height/max-width,
   // and never moves sections between columns (preserves premium template layout).
   result = injectAdaptiveSpacingIntoHtml(result, data, {
     htmlTemplate,
     templateId: options?.templateId ?? options?.galleryTemplateId,
     mode: renderMode === 'pdf' ? 'pdf' : 'preview',
+  });
+
+  // Paragraph layout last so full-width prose CSS wins over measure caps / spacing.
+  result = injectParagraphFormattingIntoHtml(result, {
+    htmlTemplate,
+    templateId: options?.templateId ?? options?.galleryTemplateId,
   });
 
   return result;

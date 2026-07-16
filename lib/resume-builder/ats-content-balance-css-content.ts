@@ -62,7 +62,8 @@ export const ATS_CONTENT_BALANCE_CSS = `
   line-height: var(--acb-lh-body) !important;
   letter-spacing: 0.01em !important;
   word-spacing: 0.02em !important;
-  max-width: 68ch;
+  max-width: 100%;
+  width: 100%;
   hyphens: auto;
   -webkit-hyphens: auto;
   overflow-wrap: break-word;
