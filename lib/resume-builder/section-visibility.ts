@@ -30,8 +30,6 @@ import {
   traceImportStageTransform,
 } from '@/lib/resume-parser/import-field-trace';
 import {
-  composeResumeDataForRender,
-  resolveContentCompositionBudget,
   composeExperienceDescription,
   composeSummary,
   composeProjectDescription,
@@ -2353,9 +2351,9 @@ function optimizeGalleryResumeDataForRender(
  * Layout-aware content optimization for preview/PDF only.
  * Editor formData is never mutated — call on a coalesced copy from injectResumeData.
  *
- * Imported resumes still go through the composition engine (soft budget) so Live/PDF
- * stay professionally typeset. Editor fidelity is preserved because this never writes
- * back to the builder store.
+ * Gallery previews stay compact. Live Preview + PDF keep full prose/bullets so the
+ * dynamic layout engine can reflow text into available height (no early truncation).
+ * Skills alone remain capacity-capped for sidebar fit.
  */
 export function optimizeResumeDataForRender(
   formData: Record<string, unknown>,
@@ -2370,38 +2368,23 @@ export function optimizeResumeDataForRender(
     );
   }
 
-  const softCompose = shouldPreserveFullContentForRender(formData, options);
   const capacity = resolveTemplateRenderCapacity(options?.htmlTemplate ?? '', options);
-  const experienceSource = Array.isArray(formData.experience) ? formData.experience : [];
-  const projectsSource = Array.isArray(formData.projects) ? formData.projects : [];
-
-  const budget = resolveContentCompositionBudget({
-    experienceCount: experienceSource.length,
-    projectCount: projectsSource.length,
-    baseMaxSkills: capacity.maxSkills,
-    baseMaxBullets: softCompose
-      ? Math.max(capacity.maxBulletsPerExperience, 6)
-      : capacity.maxBulletsPerExperience,
-    baseMaxProjects: softCompose ? Math.max(capacity.maxProjects, 4) : capacity.maxProjects,
-    baseMaxSummaryWords: softCompose
-      ? Math.max(capacity.maxSummaryWords, 85)
-      : capacity.maxSummaryWords,
-    soft: softCompose,
-  });
-
-  const composed = composeResumeDataForRender(formData, budget);
-
   const skills = prepareSkillsForRender(
-    Array.isArray(composed.skills)
-      ? (composed.skills as string[])
-      : normalizeSkillsForRender(composed),
-    { renderMode, htmlTemplate: options?.htmlTemplate ?? '', formData: composed }
+    Array.isArray(formData.skills)
+      ? (formData.skills as string[])
+      : normalizeSkillsForRender(formData),
+    { renderMode, htmlTemplate: options?.htmlTemplate ?? '', formData }
   );
 
+  // Full section text for preview/PDF — never slice summary/experience/projects here.
+  // Layout engine measures remaining height and reflows wrapping / rhythm.
   return {
-    ...composed,
+    ...formData,
     skills,
     Skills: skills,
+    __fullContentRender: true,
+    __contentComposed: false,
+    __renderCapacitySkills: capacity.maxSkills,
   };
 }
 

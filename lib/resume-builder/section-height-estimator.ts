@@ -111,12 +111,13 @@ export function estimateRenderableSectionHeight(html: string): number {
 
   const text = stripTags(html);
   if (/\bsummary-text\b|professional-summary\b|objective-text\b/i.test(html) && text) {
+    // Calibrated to ~64ch measure (layout reflow band) so underfill isn't over-triggered.
     h += Math.max(
       HEIGHTS.summaryLine * 2,
-      Math.ceil(text.length / 78) * HEIGHTS.summaryLine
+      Math.ceil(text.length / 64) * HEIGHTS.summaryLine
     );
   } else if (text.length > 40) {
-    h += Math.ceil(text.length / 88) * HEIGHTS.textLine;
+    h += Math.ceil(text.length / 72) * HEIGHTS.textLine;
   }
 
   return Math.max(h, 24);

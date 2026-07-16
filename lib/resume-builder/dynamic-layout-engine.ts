@@ -86,14 +86,22 @@ const SECTION_EXTRA_CAP_BY_KIND: Partial<Record<LayoutSectionKind, number>> = {
 /**
  * Proportional whitespace absorption when the page is underfilled.
  * Shares renormalize across only the sections that are present.
+ * Remaining share feeds inter-section spacing (not one blank region).
  */
 const WHITESPACE_ABSORB_SHARES: Partial<Record<LayoutSectionKind | '_spacing', number>> = {
-  summary: 0.25,
-  experience: 0.35,
-  projects: 0.2,
-  education: 0.1,
-  _spacing: 0.1,
+  summary: 0.12,
+  experience: 0.28,
+  projects: 0.18,
+  achievements: 0.08,
+  education: 0.06,
+  _spacing: 0.28,
 };
+
+/** Readable measure band (ch) — never ultra-wide lines, never cramped. */
+const SUMMARY_MEASURE_CH_MIN = 56;
+const SUMMARY_MEASURE_CH_MAX = 72;
+const CONTENT_MEASURE_CH_MIN = 58;
+const CONTENT_MEASURE_CH_MAX = 78;
 
 export type LayoutRhythmMode = 'compact' | 'normal' | 'relaxed';
 /** Independent density per section — not one global mode. */
@@ -419,6 +427,8 @@ export interface DynamicLayoutPlan {
   descLineHeightMul: number;
   /** Comfortable reading measure for summary (ch) */
   summaryMaxCh: number;
+  /** Summary leading boost vs body (underfill reflow) */
+  summaryLineHeightMul: number;
   /** Main-column description measure (ch) — wider when page/column has room */
   contentMeasureCh: number;
   /** sparse | balanced | dense — drives data-dl-density */
@@ -1063,6 +1073,110 @@ function resolveSectionDensities(
   }
 
   return dens;
+}
+
+/**
+ * Measure-first text reflow — wrap width + leading only (never font-size).
+ * Underfill → slightly tighter measure + higher leading so paragraphs occupy height.
+ * Overfill → slightly wider measure + tighter leading within readability clamps.
+ */
+export function computeTextReflowPlan(input: {
+  remainingWhitespace: number;
+  pageFill: number;
+  summaryWords: number;
+  experienceTextUnits: number;
+  pageUnderfill: boolean;
+  shouldCompress: boolean;
+  layoutRhythm: LayoutRhythmMode;
+  baseSummaryMaxCh: number;
+  baseContentMeasureCh: number;
+  baseDescLineHeightMul: number;
+}): {
+  summaryMaxCh: number;
+  contentMeasureCh: number;
+  descLineHeightMul: number;
+  summaryLineHeightMul: number;
+  estimatedSummaryLines: number;
+  avgCharsPerLine: number;
+} {
+  const {
+    remainingWhitespace,
+    pageFill,
+    summaryWords,
+    experienceTextUnits,
+    pageUnderfill,
+    shouldCompress,
+    layoutRhythm,
+    baseSummaryMaxCh,
+    baseContentMeasureCh,
+    baseDescLineHeightMul,
+  } = input;
+
+  const fillDeficit = clamp((TARGET_PAGE_FILL - pageFill) / TARGET_PAGE_FILL, 0, 1);
+  const overfill = clamp((pageFill - FILL_COMPRESS_ABOVE) / 0.35, 0, 1);
+
+  let summaryMaxCh = baseSummaryMaxCh;
+  let contentMeasureCh = baseContentMeasureCh;
+  let descLineHeightMul = baseDescLineHeightMul;
+  let summaryLineHeightMul = 1.03;
+
+  if (pageUnderfill || layoutRhythm === 'relaxed' || fillDeficit > 0.08) {
+    // Vertical fill: more wrap lines (tighter measure) + editorial leading.
+    // Never go below professional reading width.
+    const tighten = Math.round(4 + fillDeficit * 10);
+    summaryMaxCh = clamp(baseSummaryMaxCh - tighten, SUMMARY_MEASURE_CH_MIN, SUMMARY_MEASURE_CH_MAX);
+    contentMeasureCh = clamp(
+      baseContentMeasureCh - Math.round(tighten * 0.7),
+      CONTENT_MEASURE_CH_MIN,
+      CONTENT_MEASURE_CH_MAX
+    );
+    descLineHeightMul = clamp(
+      baseDescLineHeightMul * (1.06 + fillDeficit * 0.12),
+      READABLE_DESC_LH_MUL_MIN,
+      1.32
+    );
+    summaryLineHeightMul = clamp(1.06 + fillDeficit * 0.14, 1.04, 1.22);
+    // Spare whitespace also allows slightly more measure when summary is long
+    // enough that ultra-narrow wrap would look ragged — keep mid-band.
+    if (summaryWords >= 90 && remainingWhitespace > 120) {
+      summaryMaxCh = clamp(summaryMaxCh + 4, SUMMARY_MEASURE_CH_MIN, SUMMARY_MEASURE_CH_MAX);
+    }
+    if (experienceTextUnits >= 12 && remainingWhitespace > 120) {
+      contentMeasureCh = clamp(
+        contentMeasureCh + 3,
+        CONTENT_MEASURE_CH_MIN,
+        CONTENT_MEASURE_CH_MAX
+      );
+    }
+  } else if (shouldCompress || layoutRhythm === 'compact' || overfill > 0.05) {
+    summaryMaxCh = clamp(baseSummaryMaxCh + Math.round(overfill * 6), SUMMARY_MEASURE_CH_MIN, 78);
+    contentMeasureCh = clamp(
+      baseContentMeasureCh + Math.round(overfill * 6),
+      CONTENT_MEASURE_CH_MIN,
+      84
+    );
+    descLineHeightMul = clamp(
+      baseDescLineHeightMul * (1 - overfill * 0.06),
+      READABLE_DESC_LH_MUL_MIN,
+      1.26
+    );
+    summaryLineHeightMul = clamp(1.02 - overfill * 0.04, 1.0, 1.08);
+  }
+
+  const avgCharsPerLine = Math.max(32, Math.round(summaryMaxCh * 0.92));
+  const estimatedSummaryLines =
+    summaryWords > 0
+      ? Math.max(2, Math.ceil((summaryWords * 5.2) / avgCharsPerLine))
+      : 0;
+
+  return {
+    summaryMaxCh: Math.round(summaryMaxCh),
+    contentMeasureCh: Math.round(contentMeasureCh),
+    descLineHeightMul: Math.round(descLineHeightMul * 1000) / 1000,
+    summaryLineHeightMul: Math.round(summaryLineHeightMul * 1000) / 1000,
+    estimatedSummaryLines,
+    avgCharsPerLine,
+  };
 }
 
 /**
@@ -1930,21 +2044,29 @@ export function computeDynamicLayoutPlanFromMetrics(
     bulletIndent = Math.min(20, bulletIndent + 2);
   }
 
-  let contentMeasureCh = adaptiveType.summaryMaxCh;
-  if (hasSidebar && (fillSignals.columnOverload || fillSignals.sidebarUnderfilled)) {
-    contentMeasureCh = Math.max(contentMeasureCh, 76);
-  }
-  if (fillSignals.pageUnderfill || layoutRhythm === 'relaxed') {
-    const widen = Math.round(clamp((TARGET_PAGE_FILL - fill) / 0.2, 0, 1) * 14);
-    contentMeasureCh = Math.min(
-      88,
-      contentMeasureCh + widen + (layoutRhythm === 'relaxed' ? 6 : 0)
-    );
-  }
-  // Compact inventory can tighten measure, but never undo underfill/column editorial widen.
-  if (layoutRhythm === 'compact' && !fillSignals.pageUnderfill && !fillSignals.columnOverload) {
-    contentMeasureCh = Math.min(contentMeasureCh, 68);
-  } else if (layoutRhythm === 'compact') {
+  // Measure-first text reflow (wrap + leading only — never font-size).
+  const textReflow = computeTextReflowPlan({
+    remainingWhitespace: metrics.remainingWhitespace,
+    pageFill: fill,
+    summaryWords,
+    experienceTextUnits: contentMetrics.experienceTextUnits,
+    pageUnderfill: fillSignals.pageUnderfill,
+    shouldCompress: fillSignals.shouldCompress,
+    layoutRhythm,
+    baseSummaryMaxCh: adaptiveType.summaryMaxCh,
+    baseContentMeasureCh: Math.max(
+      adaptiveType.summaryMaxCh,
+      hasSidebar && (fillSignals.columnOverload || fillSignals.sidebarUnderfilled) ? 76 : 68
+    ),
+    baseDescLineHeightMul: adaptiveType.descLineHeightMul,
+  });
+
+  let contentMeasureCh = textReflow.contentMeasureCh;
+  let summaryMaxCh = textReflow.summaryMaxCh;
+  let finalDescLhMul = textReflow.descLineHeightMul;
+
+  // Column-overload still needs a readable main-column measure.
+  if (hasSidebar && fillSignals.columnOverload && fillSignals.pageUnderfill) {
     contentMeasureCh = Math.max(contentMeasureCh, 76);
   }
 
@@ -1959,24 +2081,6 @@ export function computeDynamicLayoutPlanFromMetrics(
     READABLE_PARAGRAPH_SPACING_MIN,
     Math.round(BASE_PARAGRAPH_SPACING * paragraphSpacingMul * 10) / 10
   );
-  // Description LH: editorial when underfilled (no font-size change).
-  let finalDescLhMul = Math.round(adaptiveType.descLineHeightMul * 1000) / 1000;
-  if (layoutRhythm === 'relaxed' || fillSignals.pageUnderfill) {
-    const editorialBoost =
-      1.08 + clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1) * 0.1;
-    finalDescLhMul = Math.min(1.32, finalDescLhMul * editorialBoost);
-  } else if (layoutRhythm === 'compact') {
-    finalDescLhMul = Math.max(READABLE_DESC_LH_MUL_MIN, finalDescLhMul * 0.96);
-  }
-  finalDescLhMul = clamp(finalDescLhMul, READABLE_DESC_LH_MUL_MIN, 1.32);
-
-  let summaryMaxCh = adaptiveType.summaryMaxCh;
-  if (layoutRhythm === 'relaxed' || fillSignals.pageUnderfill) {
-    const widen = Math.round(clamp((TARGET_PAGE_FILL - fill) / 0.2, 0, 1) * 10);
-    summaryMaxCh = Math.min(88, summaryMaxCh + 6 + widen);
-  } else if (layoutRhythm === 'compact') {
-    summaryMaxCh = Math.max(56, summaryMaxCh - 4);
-  }
 
   let sidebarCardPadding = Math.round(
     sectionPadding * adaptiveCards.sidebarCardMul * 10
@@ -2074,6 +2178,7 @@ export function computeDynamicLayoutPlanFromMetrics(
     ...adaptiveType,
     typographyDensity,
     summaryMaxCh,
+    summaryLineHeightMul: textReflow.summaryLineHeightMul,
     descLineHeightMul: finalDescLhMul,
     contentMeasureCh,
     layoutRhythm,
@@ -2195,12 +2300,13 @@ function buildProportionalSectionRules(): string {
 .resume-container section:has([class*='summary-text']),
 .resume-container section:has(.professional-summary) {
   margin-bottom: calc(var(--dl-section-gap) + var(--dl-extra-summary, 0px)) !important;
-  padding-bottom: calc(var(--dl-section-padding) + var(--dl-extra-summary, 0px) * 0.22) !important;
+  /* Breathing room via margin — never fake empty padding inside the paragraph box */
+  padding-bottom: var(--dl-section-padding) !important;
 }
 .resume-container[data-dl-summary-density='relaxed'] section:has(.summary-text),
 .resume-container[data-dl-summary-density='relaxed'] section:has([class*='summary-text']),
 .resume-container[data-dl-summary-density='relaxed'] section:has(.professional-summary) {
-  padding-bottom: calc(var(--dl-section-padding) + var(--dl-extra-summary, 0px) * 0.35 + var(--dl-paragraph-spacing, 5px) * 0.4) !important;
+  margin-bottom: calc(var(--dl-section-gap) + var(--dl-extra-summary, 0px) + var(--dl-paragraph-spacing, 5px) * 0.5) !important;
 }
 .resume-container section:has(.experience-item),
 .resume-container section:has(.experience-list) {
@@ -2428,8 +2534,11 @@ function buildRichContentLayoutCss(plan: DynamicLayoutPlan): string {
 .resume-container[data-dl-density] [class*='summary-text'],
 .resume-container[data-dl-density] .professional-summary,
 .resume-container[data-dl-density] .objective-text {
-  line-height: calc(var(--resume-line-height) * 1.03) !important;
+  line-height: calc(var(--resume-line-height) * var(--dl-summary-lh-mul, 1.03)) !important;
   margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.45 + var(--resume-paragraph-gap)) !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 .resume-container[data-dl-density] .experience-item .description p,
@@ -2711,22 +2820,27 @@ ${summaryShortCss}
 .resume-container[data-dl-summary-density='relaxed'] .summary-text,
 .resume-container[data-dl-summary-density='relaxed'] [class*='summary-text'],
 .resume-container[data-dl-summary-density='relaxed'] .professional-summary {
-  line-height: calc(var(--resume-line-height, 1.62) * 1.12) !important;
-  max-width: min(100%, calc(var(--dl-summary-max-ch, 78) * 1ch)) !important;
+  line-height: calc(var(--resume-line-height, 1.62) * var(--dl-summary-lh-mul, 1.12)) !important;
+  max-width: min(100%, calc(var(--dl-summary-max-ch, 64) * 1ch)) !important;
   max-height: none !important;
   height: auto !important;
+  overflow: visible !important;
   margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.85 + var(--resume-paragraph-gap, 5px)) !important;
-  padding-bottom: calc(var(--dl-paragraph-spacing, 5px) * 0.55) !important;
+  padding-bottom: calc(var(--dl-paragraph-spacing, 5px) * 0.35) !important;
 }
 
 .resume-container[data-dl-rhythm='relaxed'] .experience-item .description,
 .resume-container[data-dl-rhythm='relaxed'] .project-item .description,
 .resume-container[data-dl-page-underfill='true'] .experience-item .description,
 .resume-container[data-dl-experience-density='relaxed'] .experience-item .description,
-.resume-container[data-dl-experience-density='normal'][data-dl-page-underfill='true'] .experience-item .description {
+.resume-container[data-dl-experience-density='normal'][data-dl-page-underfill='true'] .experience-item .description,
+.resume-container[data-dl-page-underfill='true'] .project-item .description,
+.resume-container[data-dl-page-underfill='true'] .achievement-item .description {
   line-height: calc(var(--resume-line-height, 1.62) * 1.1) !important;
-  max-width: min(100%, calc(var(--dl-content-measure-ch, 84) * 1ch)) !important;
+  max-width: min(100%, calc(var(--dl-content-measure-ch, 72) * 1ch)) !important;
   max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
   margin-bottom: calc(var(--dl-exp-desc-padding, 8px) * 0.35) !important;
 }
 
@@ -2743,6 +2857,21 @@ ${summaryShortCss}
 .resume-container[data-dl-experience-density='normal'][data-dl-page-underfill='true'] .experience-item .description li {
   margin-bottom: calc(var(--resume-bullet-gap, 0.42em) * 1.18) !important;
   line-height: inherit !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+/* Cards grow with content only — never fixed content height */
+.resume-container[data-dl-density] .experience-item,
+.resume-container[data-dl-density] .project-item,
+.resume-container[data-dl-density] .achievement-item,
+.resume-container[data-dl-density] .education-item {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
 }
 
 /* Compact sections keep tight internal rhythm while summary/experience expand */
@@ -2814,6 +2943,7 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   );
   root.style.setProperty('--dl-summary-max-ch', String(plan.summaryMaxCh));
   root.style.setProperty('--dl-content-measure-ch', String(plan.contentMeasureCh));
+  root.style.setProperty('--dl-summary-lh-mul', String(plan.summaryLineHeightMul ?? 1.03));
   root.style.setProperty('--resume-line-height', `var(--dl-lh-desc)`);
   root.style.setProperty('--resume-paragraph-gap', `${plan.paragraphSpacing}px`);
   root.style.setProperty('--resume-bullet-gap', `${plan.bulletGap}em`);
@@ -2884,6 +3014,9 @@ export function buildDynamicLayoutCss(
   const structureCss = `
 /* Dynamic layout engine — DOM-aware balance */
 .resume-container {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
   --dl-section-gap: ${plan.sectionGap}px;
   --dl-block-gap: ${plan.blockGap}px;
   --dl-bullet-gap: ${plan.bulletGap}em;
@@ -2922,6 +3055,7 @@ export function buildDynamicLayoutCss(
   --dl-lh-desc: ${(Math.round(1.62 * plan.descLineHeightMul * 1000) / 1000).toFixed(3)};
   --dl-summary-max-ch: ${plan.summaryMaxCh};
   --dl-content-measure-ch: ${plan.contentMeasureCh};
+  --dl-summary-lh-mul: ${plan.summaryLineHeightMul ?? 1.03};
   --resume-line-height: var(--dl-lh-desc);
   --resume-paragraph-gap: ${plan.paragraphSpacing}px;
   --resume-bullet-gap: ${plan.bulletGap}em;

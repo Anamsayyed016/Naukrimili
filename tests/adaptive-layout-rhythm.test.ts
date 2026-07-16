@@ -86,6 +86,7 @@ describe('adaptive layout rhythm', () => {
     });
     const css = buildDynamicLayoutCss(plan, { preservePremiumTypography: true });
     expect(css).toContain("data-dl-rhythm='relaxed'");
+    expect(css).toContain('overflow: visible !important');
     expect(css).toMatch(/\.experience-item \{\s*[\s\S]*?flex: 0 0 auto !important/);
     expect(css).not.toMatch(
       /\.experience-item \{\s*[\s\S]*?flex: 1 1 auto !important/
@@ -94,6 +95,39 @@ describe('adaptive layout rhythm', () => {
     expect(css).not.toMatch(
       /\.experience-item \{\s*padding: var\(--dl-exp-card-padding/
     );
+  });
+
+  it('reflows underfill with tighter measure and higher leading (not wider empty lines)', () => {
+    const { computeTextReflowPlan } = require('@/lib/resume-builder/dynamic-layout-engine');
+    const underfill = computeTextReflowPlan({
+      remainingWhitespace: 280,
+      pageFill: 0.62,
+      summaryWords: 55,
+      experienceTextUnits: 6,
+      pageUnderfill: true,
+      shouldCompress: false,
+      layoutRhythm: 'relaxed',
+      baseSummaryMaxCh: 68,
+      baseContentMeasureCh: 72,
+      baseDescLineHeightMul: 1.12,
+    });
+    const compress = computeTextReflowPlan({
+      remainingWhitespace: 0,
+      pageFill: 1.05,
+      summaryWords: 90,
+      experienceTextUnits: 18,
+      pageUnderfill: false,
+      shouldCompress: true,
+      layoutRhythm: 'compact',
+      baseSummaryMaxCh: 68,
+      baseContentMeasureCh: 72,
+      baseDescLineHeightMul: 1.12,
+    });
+    expect(underfill.summaryMaxCh).toBeLessThanOrEqual(68);
+    expect(underfill.summaryMaxCh).toBeGreaterThanOrEqual(56);
+    expect(underfill.descLineHeightMul).toBeGreaterThan(compress.descLineHeightMul);
+    expect(underfill.summaryLineHeightMul).toBeGreaterThan(1.03);
+    expect(compress.contentMeasureCh).toBeGreaterThanOrEqual(underfill.contentMeasureCh);
   });
 
   it('distributes underfill whitespace toward summary and experience', () => {
@@ -144,8 +178,10 @@ describe('adaptive layout rhythm', () => {
     expect(plan.sectionExtras.experience ?? 0).toBeGreaterThanOrEqual(
       plan.sectionExtras.education ?? 0
     );
-    expect(plan.summaryMaxCh).toBeGreaterThanOrEqual(72);
-    expect(plan.contentMeasureCh).toBeGreaterThanOrEqual(72);
+    expect(plan.summaryMaxCh).toBeGreaterThanOrEqual(56);
+    expect(plan.summaryMaxCh).toBeLessThanOrEqual(72);
+    expect(plan.contentMeasureCh).toBeGreaterThanOrEqual(58);
+    expect(plan.contentMeasureCh).toBeLessThanOrEqual(78);
     expect(plan.descLineHeightMul).toBeGreaterThan(1.12);
     expect(plan.visualBalancingScore).toBeGreaterThan(0.5);
     expect(plan.sidebarColumnBasisPct).toBeGreaterThanOrEqual(22);

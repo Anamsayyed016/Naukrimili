@@ -1452,7 +1452,7 @@ describe('optimizeResumeDataForRender', () => {
     ).toBeGreaterThan(scoreBulletQuality('Responsible for various tasks on the team'));
   });
 
-  it('keeps all companies but trims bullets for template render', () => {
+  it('keeps all companies and full prose for preview/PDF (layout engine densifies)', () => {
     const formData = {
       experience: [
         {
@@ -1485,10 +1485,11 @@ describe('optimizeResumeDataForRender', () => {
     expect(optimized.experience).toHaveLength(2);
     expect((optimized.experience as unknown[])[0]).toMatchObject({ company: 'Google' });
     expect((optimized.experience as unknown[])[1]).toMatchObject({ company: 'Infosys' });
-    expect((optimized.experience as unknown[])[0].achievements.length).toBeLessThanOrEqual(6);
+    expect((optimized.experience as unknown[])[0].achievements.length).toBe(6);
     expect((optimized.skills as string[]).length).toBeLessThanOrEqual(12);
-    expect((optimized.projects as unknown[]).length).toBeLessThanOrEqual(4);
-    expect(String(optimized.summary).split(/\s+/).length).toBeLessThanOrEqual(90);
+    expect((optimized.projects as unknown[]).length).toBe(6);
+    expect(String(optimized.summary).split(/\s+/).length).toBe(120);
+    expect(optimized.__fullContentRender).toBe(true);
   });
 
   it('does not mutate the original editor formData object', () => {
@@ -1502,7 +1503,7 @@ describe('optimizeResumeDataForRender', () => {
     expect(JSON.stringify(formData)).toBe(snapshot);
   });
 
-  it('composes imported resumes for render without mutating editor fidelity fields source', () => {
+  it('preserves imported resume full content for render without mutating editor fidelity fields source', () => {
     const formData = {
       customParserUsed: true,
       experience: [
@@ -1545,15 +1546,14 @@ describe('optimizeResumeDataForRender', () => {
 
     expect(JSON.stringify(formData)).toBe(snapshot);
     expect(optimized).not.toBe(formData);
-    expect(optimized.__contentComposed).toBe(true);
+    expect(optimized.__fullContentRender).toBe(true);
+    expect(optimized.__contentComposed).toBe(false);
     expect(optimized.experience).toHaveLength(2);
-    expect((optimized.experience as unknown[])[0].achievements.length).toBeLessThanOrEqual(8);
-    expect((optimized.experience as unknown[])[0].achievements.length).toBeGreaterThanOrEqual(3);
-    expect((optimized.experience as unknown[])[1].achievements.length).toBeLessThanOrEqual(8);
-    expect((optimized.projects as unknown[]).length).toBeGreaterThan(0);
-    expect((optimized.projects as unknown[]).length).toBeLessThanOrEqual(5);
-    expect((optimized.achievements as unknown[]).length).toBeLessThanOrEqual(5);
-    expect(String(optimized.summary).split(/\s+/).length).toBeLessThanOrEqual(100);
+    expect((optimized.experience as unknown[])[0].achievements.length).toBe(10);
+    expect((optimized.experience as unknown[])[1].achievements.length).toBe(8);
+    expect((optimized.projects as unknown[]).length).toBe(6);
+    expect((optimized.achievements as unknown[]).length).toBe(6);
+    expect(String(optimized.summary).length).toBeGreaterThan(80);
   });
 });
 

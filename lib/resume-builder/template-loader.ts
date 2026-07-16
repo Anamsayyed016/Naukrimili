@@ -777,7 +777,8 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
 
       let allBullets: string[];
       if (precomposed && precomposedBullets.length > 0) {
-        allBullets = composeBulletList(precomposedBullets, 8);
+        // Full-content render keeps every composed bullet; compact path still caps.
+        allBullets = composeBulletList(precomposedBullets, 24);
       } else {
         const body = collectExperienceBodyFields(exp);
         const explicitBullets = body.achievements
@@ -794,7 +795,8 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
         const merged = mergedBody.achievements.length
           ? mergedBody.achievements
           : descBullets;
-        allBullets = composeBulletList(merged, 8);
+        // Preview/PDF reflow needs full bullet inventory; never hard-stop at 8.
+        allBullets = composeBulletList(merged, 24);
       }
 
       const leadDescription =
@@ -975,7 +977,7 @@ function renderProjects(projects: Array<Record<string, string>>): string {
       let projectBullets: string[];
       let description = '';
       if (precomposed && precomposedBullets.length > 0) {
-        projectBullets = composeBulletList(precomposedBullets, 4);
+        projectBullets = composeBulletList(precomposedBullets, 12);
       } else {
         const body = collectExperienceBodyFields(rec);
         const explicitBullets = body.achievements
@@ -992,7 +994,7 @@ function renderProjects(projects: Array<Record<string, string>>): string {
         const merged = mergedBody.achievements.length
           ? mergedBody.achievements
           : descBullets;
-        projectBullets = composeBulletList(merged, 4);
+        projectBullets = composeBulletList(merged, 12);
         if (projectBullets.length === 0) {
           description = String(mergedBody.description || '').trim();
         }
