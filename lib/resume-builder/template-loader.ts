@@ -55,7 +55,7 @@ import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
 import { composeBulletList, buildExperienceDescriptionMarkup, resolveExperienceDescriptionVolume } from './content-composition';
-import { balanceTwoColumnLayout } from './column-balance-engine';
+import { composeTwoColumnFlow } from './column-flow-engine';
 
 /**
  * Load template metadata from JSON
@@ -619,8 +619,9 @@ export function injectResumeData(
 
   result = appendExtendedSectionsToHtml(result, coalesced);
 
-  // Two-column balance: iteratively relocate flexible sections when columns are imbalanced.
-  result = balanceTwoColumnLayout(result, {
+  // Dynamic two-column flow: build independent vertical flows (left/right)
+  // so the right column never waits for the left.
+  result = composeTwoColumnFlow(result, {
     htmlTemplate,
     templateId: options?.templateId ?? options?.galleryTemplateId,
   }).html;

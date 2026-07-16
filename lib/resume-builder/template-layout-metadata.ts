@@ -57,6 +57,12 @@ export interface TemplateLayoutMetadata {
   hasSidebar: boolean;
   mainColumnBasisPct: number;
   sidebarColumnBasisPct: number;
+  /**
+   * Intended assignment for sections into the left (main) and right (sidebar) flows.
+   * Used by the column-flow engine to avoid “waiting” between columns.
+   */
+  leftSections: Set<ColumnSectionKind>;
+  rightSections: Set<ColumnSectionKind>;
   movableSections: Set<ColumnSectionKind>;
   fixedSections: Set<ColumnSectionKind>;
   sectionPriorities: Record<LayoutSectionPriorityKind, number>;
@@ -230,12 +236,78 @@ export function resolveTemplateLayoutMetadata(
     movableSections.delete(kind);
   }
 
+  const parseKindSet = (value: unknown): Set<ColumnSectionKind> => {
+    if (!Array.isArray(value)) return new Set<ColumnSectionKind>();
+    const kinds = (value as unknown[]).filter((x) => typeof x === 'string') as string[];
+    return new Set(
+      kinds
+        .map((k) => k.trim() as ColumnSectionKind)
+        .filter((k) => k.length > 0)
+    );
+  };
+
+  // leftSections/rightSections come from template config when present.
+  // When missing, we derive from current placeholder placement as a safe fallback.
+  const leftSections =
+    parseKindSet(registryMeta?.leftSections).size > 0
+      ? parseKindSet(registryMeta?.leftSections)
+      : new Set<ColumnSectionKind>();
+  const rightSections =
+    parseKindSet(registryMeta?.rightSections).size > 0
+      ? parseKindSet(registryMeta?.rightSections)
+      : new Set<ColumnSectionKind>();
+
+  const ensureFallbackPlacements = () => {
+    if (leftSections.size > 0 || rightSections.size > 0) return;
+
+    // If no template HTML was provided, `detectTemplateSectionShell` may recurse
+    // across fallback tokens indefinitely. Use safe generic defaults.
+    const trimmed = htmlTemplate?.trim?.() ?? '';
+    const hasHandlebarsMarkers =
+      /\{\{#if\s+\w+\}\}|\{\{\s*[\w-]+\s*\}\}/i.test(htmlTemplate);
+
+    if (!trimmed || !hasHandlebarsMarkers) {
+      leftSections.add('summary');
+      leftSections.add('education');
+      leftSections.add('skills');
+      leftSections.add('languages');
+      leftSections.add('certifications');
+      leftSections.add('interests');
+      rightSections.add('experience');
+      rightSections.add('projects');
+      rightSections.add('achievements');
+      rightSections.add('extended');
+      return;
+    }
+
+    const fixedTokens: Array<[ColumnSectionKind, string]> = [
+      ['summary', 'SUMMARY'],
+      ['experience', 'EXPERIENCE'],
+      ['education', 'EDUCATION'],
+      ['skills', 'SKILLS'],
+      ['projects', 'PROJECTS'],
+      ['certifications', 'CERTIFICATIONS'],
+      ['languages', 'LANGUAGES'],
+      ['achievements', 'ACHIEVEMENTS'],
+      ['interests', 'HOBBIES'],
+    ];
+    for (const [kind, token] of fixedTokens) {
+      const shell = detectTemplateSectionShell(htmlTemplate, token);
+      if (shell.placement === 'sidebar') rightSections.add(kind);
+      else leftSections.add(kind);
+    }
+  };
+
+  ensureFallbackPlacements();
+
   return {
     layoutType,
     columnCount,
     hasSidebar,
     mainColumnBasisPct,
     sidebarColumnBasisPct,
+    leftSections,
+    rightSections,
     movableSections,
     fixedSections,
     sectionPriorities,
