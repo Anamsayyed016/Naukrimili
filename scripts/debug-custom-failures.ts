@@ -60,6 +60,8 @@ const reconSections = detectResumeSections(recon);
 console.log('recon section types:', reconSections.sections.map((s) => ({ t: s.type, h: s.rawHeading, c: s.content?.slice(0, 40) })));
 console.log('recon education:', JSON.stringify(reconSections.education));
 
+}
+
 console.log('\n=== ACHIEVEMENTS WIRING ===');
 const achFull = [
   'Jane Doe',

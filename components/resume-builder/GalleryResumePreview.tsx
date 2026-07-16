@@ -94,22 +94,13 @@ export default function GalleryResumePreview({
     iframeDoc.write(previewHtml);
     iframeDoc.close();
     requestAnimationFrame(() => {
-      import('@/lib/resume-builder/dynamic-layout-engine')
-        .then(({ applyDomAwareLayoutToDocument }) => {
-          applyDomAwareLayoutToDocument(iframeDoc, formData ?? {}, {
-            templateId,
-            renderedHtml: previewHtml,
-          });
-        })
-        .catch(() => {})
-        .finally(() => {
-          measureIframeContent();
-          updateScale();
-          window.setTimeout(() => {
-            measureIframeContent();
-            updateScale();
-          }, 120);
-        });
+      // No DOM-aware typography refinement: adaptive spacing is injected server-side.
+      measureIframeContent();
+      updateScale();
+      window.setTimeout(() => {
+        measureIframeContent();
+        updateScale();
+      }, 120);
     });
   }, [previewHtml, loading, error, iframeRef, updateScale, formData, measureIframeContent, templateId]);
 

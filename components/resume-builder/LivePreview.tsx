@@ -591,17 +591,6 @@ export default function LivePreview({
           // DOM-aware layout refinement after first paint
           setTimeout(async () => {
             if (layoutGeneration !== layoutGenerationRef.current) return;
-            try {
-              const { applyDomAwareLayoutToDocument } = await import(
-                '@/lib/resume-builder/dynamic-layout-engine'
-              );
-              applyDomAwareLayoutToDocument(iframeDoc, currentFormData, {
-                templateId,
-                htmlTemplate: html,
-              });
-            } catch {
-              /* refinement is best-effort */
-            }
             adjustIframeHeight();
           }, 300);
         } else {
@@ -625,17 +614,6 @@ export default function LivePreview({
               
               setTimeout(async () => {
                 if (layoutGeneration !== layoutGenerationRef.current) return;
-                try {
-                  const { applyDomAwareLayoutToDocument } = await import(
-                    '@/lib/resume-builder/dynamic-layout-engine'
-                  );
-                  applyDomAwareLayoutToDocument(iframeDoc, currentFormData, {
-                    templateId,
-                    htmlTemplate: html,
-                  });
-                } catch {
-                  /* refinement is best-effort */
-                }
                 adjustIframeHeight();
               }, 50);
             }

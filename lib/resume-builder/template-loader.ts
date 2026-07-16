@@ -51,11 +51,10 @@ import {
   getAtsContentBalanceStyleBlock,
   isPremiumTemplate,
 } from './ats-content-balance-css';
-import { injectDynamicLayoutIntoHtml } from './dynamic-layout-engine';
+import { injectAdaptiveSpacingIntoHtml } from './adaptive-spacing-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
 import { composeBulletList, buildExperienceDescriptionMarkup, resolveExperienceDescriptionVolume } from './content-composition';
-import { composeTwoColumnFlow } from './column-flow-engine';
 
 /**
  * Load template metadata from JSON
@@ -619,13 +618,6 @@ export function injectResumeData(
 
   result = appendExtendedSectionsToHtml(result, coalesced);
 
-  // Dynamic two-column flow: build independent vertical flows (left/right)
-  // so the right column never waits for the left.
-  result = composeTwoColumnFlow(result, {
-    htmlTemplate,
-    templateId: options?.templateId ?? options?.galleryTemplateId,
-  }).html;
-
   // Premium typography & content-balance (spacing/hierarchy only — no layout/color changes).
   const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
   const injectedStyles =
@@ -640,7 +632,9 @@ export function injectResumeData(
     }
   }
 
-  result = injectDynamicLayoutIntoHtml(result, data, {
+  // Spacing-only adaptive engine. Does not change fonts/line-height/max-width,
+  // and never moves sections between columns (preserves premium template layout).
+  result = injectAdaptiveSpacingIntoHtml(result, data, {
     htmlTemplate,
     templateId: options?.templateId ?? options?.galleryTemplateId,
     mode: renderMode === 'pdf' ? 'pdf' : 'preview',
