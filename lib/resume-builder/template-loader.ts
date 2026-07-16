@@ -52,6 +52,7 @@ import {
   isPremiumTemplate,
 } from './ats-content-balance-css';
 import { injectAdaptiveSpacingIntoHtml } from './adaptive-spacing-engine';
+import { injectParagraphFormattingIntoHtml } from './paragraph-formatting-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
 import { composeBulletList, buildExperienceDescriptionMarkup, resolveExperienceDescriptionVolume } from './content-composition';
@@ -631,6 +632,12 @@ export function injectResumeData(
       result = result + injectedStyles;
     }
   }
+
+  // Intelligent paragraph formatting for summary/descriptions (content preserved).
+  result = injectParagraphFormattingIntoHtml(result, {
+    htmlTemplate,
+    templateId: options?.templateId ?? options?.galleryTemplateId,
+  });
 
   // Spacing-only adaptive engine. Does not change fonts/line-height/max-width,
   // and never moves sections between columns (preserves premium template layout).
