@@ -49,41 +49,55 @@ const FILL_COMPRESS_ABOVE = 0.95;
 const TARGET_PAGE_FILL = 0.9;
 
 /**
- * Hard bounds — keep adaptations subtle so premium designs stay intact.
- * Sidebar gap ±20%, section padding ±12%, paragraph line-height ±10%.
+ * Hard bounds — keep adaptations professional so premium designs stay intact.
+ * Compact/compress stays tight; underfill may use the relaxed maxima below.
  */
 const SIDEBAR_GAP_MUL_MIN = 0.8;
 const SIDEBAR_GAP_MUL_MAX = 1.2;
 const SECTION_PAD_MUL_MIN = 0.88;
 const SECTION_PAD_MUL_MAX = 1.12;
+const SECTION_PAD_MUL_MAX_RELAXED = 1.28;
 const LINE_HEIGHT_MUL_MIN = 0.9;
 const LINE_HEIGHT_MUL_MAX = 1.1;
+const LINE_HEIGHT_MUL_MAX_RELAXED = 1.18;
 const SECTION_GAP_MUL_MIN = 0.85;
 const SECTION_GAP_MUL_MAX = 1.2;
+const SECTION_GAP_MUL_MAX_RELAXED = 1.38;
 const BLOCK_GAP_MUL_MIN = 0.85;
 const BLOCK_GAP_MUL_MAX = 1.2;
-/** Cap padding dumps (px) — fill whitespace via rhythm, not empty card stretch. */
-const SECTION_EXTRA_CAP_PX = 16;
-
-export type LayoutRhythmMode = 'compact' | 'normal' | 'relaxed';
+const BLOCK_GAP_MUL_MAX_RELAXED = 1.35;
+const PARAGRAPH_SPACING_MUL_MAX = 1.2;
+const PARAGRAPH_SPACING_MUL_MAX_RELAXED = 1.45;
+/** Default cap — absorb whitespace via rhythm, not empty card stretch. */
+const SECTION_EXTRA_CAP_PX = 48;
+/** Per-kind caps so summary/experience can absorb more without crowding compact sections. */
+const SECTION_EXTRA_CAP_BY_KIND: Partial<Record<LayoutSectionKind, number>> = {
+  summary: 72,
+  experience: 80,
+  projects: 48,
+  education: 32,
+  achievements: 28,
+  skills: 24,
+  certifications: 24,
+  languages: 20,
+  interests: 20,
+};
 
 /**
- * Content priority — lower values compress first; experience anchors last.
- * Mirrors DEFAULT_SECTION_PRIORITIES (inverted for space distribution).
+ * Proportional whitespace absorption when the page is underfilled.
+ * Shares renormalize across only the sections that are present.
  */
-const SECTION_CONTENT_PRIORITY: Record<LayoutSectionKind, number> = {
-  experience: 0.22,
-  summary: 0.28,
-  projects: 0.42,
-  skills: 0.48,
-  education: 0.52,
-  certifications: 0.58,
-  achievements: 0.62,
-  languages: 0.66,
-  interests: 0.7,
-  contact: 0.18,
-  other: 0.55,
+const WHITESPACE_ABSORB_SHARES: Partial<Record<LayoutSectionKind | '_spacing', number>> = {
+  summary: 0.25,
+  experience: 0.35,
+  projects: 0.2,
+  education: 0.1,
+  _spacing: 0.1,
 };
+
+export type LayoutRhythmMode = 'compact' | 'normal' | 'relaxed';
+/** Independent density per section — not one global mode. */
+export type SectionDensityMode = 'relaxed' | 'normal' | 'compact';
 
 /** Sidebar sections that should compress when the main column carries most content. */
 const SIDEBAR_COMPRESSIBLE_KINDS: LayoutSectionKind[] = [
@@ -411,6 +425,13 @@ export interface DynamicLayoutPlan {
   typographyDensity: 'sparse' | 'balanced' | 'dense';
   /** compact | normal | relaxed — spacing / breathe without redesign */
   layoutRhythm: LayoutRhythmMode;
+  /** Per-section density — independent of global rhythm */
+  sectionDensities: Partial<Record<LayoutSectionKind, SectionDensityMode>>;
+  /**
+   * Internal visual balancing score toward the 90–95% fill band.
+   * 1.0 ≈ ideal; lower means underfilled or overcrowded.
+   */
+  visualBalancingScore: number;
   /** Inner skill-list gap (px) */
   skillGap: number;
   /** Adaptive font weights (numeric 100–900) */
@@ -863,48 +884,247 @@ export function computeLayoutFillSignals(metrics: RenderedLayoutMetrics): Layout
   };
 }
 
-function sectionPriorityWeight(kind: LayoutSectionKind): number {
-  return SECTION_CONTENT_PRIORITY[kind] ?? SECTION_CONTENT_PRIORITY.other;
+function sectionExtraCap(kind: LayoutSectionKind): number {
+  return SECTION_EXTRA_CAP_BY_KIND[kind] ?? SECTION_EXTRA_CAP_PX;
 }
 
+/**
+ * Content-aware whitespace distribution.
+ * Present sections receive renormalized shares of the deficit; a spacing bucket
+ * feeds section/block gaps so leftover room is not one large blank region.
+ */
+function distributeWhitespaceIntelligently(
+  sections: SectionHeightMetric[],
+  deficitPx: number,
+  pageFillRatio: number,
+  contentMetrics?: SectionContentMetrics
+): {
+  extras: Partial<Record<LayoutSectionKind, number>>;
+  spacingSharePx: number;
+} {
+  const extras: Partial<Record<LayoutSectionKind, number>> = {};
+  if (deficitPx <= 0) return { extras, spacingSharePx: 0 };
+
+  const present = new Set<LayoutSectionKind>(
+    sections.filter((s) => s.kind !== 'contact' && s.height > 0).map((s) => s.kind)
+  );
+  if (contentMetrics) {
+    if (contentMetrics.summaryWords > 0) present.add('summary');
+    if (contentMetrics.experienceCount > 0) present.add('experience');
+    if (contentMetrics.projectCount > 0) present.add('projects');
+    if (contentMetrics.educationCount > 0) present.add('education');
+    if (contentMetrics.achievementCount > 0) present.add('achievements');
+  }
+
+  type ShareKey = LayoutSectionKind | '_spacing';
+  const active: Array<{ key: ShareKey; share: number }> = [];
+  let activeTotal = 0;
+  for (const [key, share] of Object.entries(WHITESPACE_ABSORB_SHARES) as Array<
+    [ShareKey, number]
+  >) {
+    if (typeof share !== 'number' || share <= 0) continue;
+    if (key !== '_spacing' && !present.has(key)) continue;
+    active.push({ key, share });
+    activeTotal += share;
+  }
+  if (activeTotal <= 0) return { extras, spacingSharePx: 0 };
+
+  // Absorb more aggressively when the page is clearly empty.
+  const absorbMul =
+    pageFillRatio < 0.55 ? 0.96 : pageFillRatio < 0.7 ? 0.92 : pageFillRatio < 0.82 ? 0.88 : 0.82;
+  const budget = deficitPx * absorbMul;
+
+  let spacingSharePx = 0;
+  for (const { key, share } of active) {
+    const px = (share / activeTotal) * budget;
+    if (key === '_spacing') {
+      spacingSharePx = px;
+      continue;
+    }
+    // Soft height bias: taller sections can take a bit more of their share.
+    const sec = sections.find((s) => s.kind === key);
+    const heightBias =
+      sec && sec.height > 0
+        ? clamp(0.85 + (sec.height / Math.max(sumSectionHeights(sections), 1)) * 0.4, 0.85, 1.15)
+        : 1;
+    extras[key] = Math.round(px * heightBias);
+  }
+
+  return { extras, spacingSharePx };
+}
+
+/**
+ * Legacy proportional path — kept for very sparse pages (<50% fill) as a
+ * fallback equalizer when absorb shares would starve tiny inventories.
+ */
 function distributeSpaceByPriority(
   sections: SectionHeightMetric[],
   deficitPx: number,
   pageFillRatio: number,
   contentMetrics?: SectionContentMetrics
 ): Partial<Record<LayoutSectionKind, number>> {
-  const extras: Partial<Record<LayoutSectionKind, number>> = {};
-  const distributable = sections.filter((s) => s.kind !== 'contact' && s.height > 0);
-  if (distributable.length === 0 || deficitPx <= 0) return extras;
+  const { extras, spacingSharePx: _spacing } = distributeWhitespaceIntelligently(
+    sections,
+    deficitPx,
+    pageFillRatio,
+    contentMetrics
+  );
+  if (pageFillRatio >= 0.5) return extras;
 
-  const weighted = distributable.map((sec) => {
-    let contentMul = 1;
-    if (contentMetrics) {
-      if (sec.kind === 'experience') {
-        contentMul = 1 + Math.min(0.55, contentMetrics.experienceTextUnits * 0.04);
-      } else if (sec.kind === 'projects' && contentMetrics.projectCount > 0) {
-        contentMul = 0.85 + contentMetrics.projectCount * 0.08;
-      } else if (sec.kind === 'education' && contentMetrics.educationCount <= 1) {
-        contentMul = 0.55;
-      } else if (sec.kind === 'skills' && contentMetrics.skillCount <= 4) {
-        contentMul = 0.65;
-      } else if (sec.kind === 'languages' && contentMetrics.languageCount <= 2) {
-        contentMul = 0.5;
-      }
-    }
-    const weight = sec.height * sectionPriorityWeight(sec.kind) * contentMul;
-    return { sec, weight };
-  });
-
-  const totalWeight = weighted.reduce((sum, row) => sum + row.weight, 0);
-  if (totalWeight <= 0) return extras;
-
-  const shareMul = pageFillRatio < 0.5 ? 0.92 : 0.88;
-  for (const { sec, weight } of weighted) {
-    const share = (weight / totalWeight) * deficitPx * shareMul;
-    extras[sec.kind] = Math.round((extras[sec.kind] ?? 0) + share);
+  // Very sparse: blend absorb shares with an equal per-kind floor so tiny
+  // inventories still receive breathing room.
+  const equal = distributeProportionalExtras(sections, deficitPx * 0.45, pageFillRatio);
+  const merged: Partial<Record<LayoutSectionKind, number>> = { ...extras };
+  for (const [key, value] of Object.entries(equal)) {
+    const kind = key as LayoutSectionKind;
+    merged[kind] = Math.round((merged[kind] ?? 0) * 0.55 + (value ?? 0));
   }
-  return extras;
+  return merged;
+}
+
+/** Expose spacing share for the plan pipeline (same inputs as distributeSpaceByPriority). */
+function resolveWhitespaceDistribution(
+  sections: SectionHeightMetric[],
+  deficitPx: number,
+  pageFillRatio: number,
+  contentMetrics?: SectionContentMetrics
+): {
+  extras: Partial<Record<LayoutSectionKind, number>>;
+  spacingSharePx: number;
+} {
+  const primary = distributeWhitespaceIntelligently(
+    sections,
+    deficitPx,
+    pageFillRatio,
+    contentMetrics
+  );
+  if (pageFillRatio >= 0.5) return primary;
+  return {
+    extras: distributeSpaceByPriority(sections, deficitPx, pageFillRatio, contentMetrics),
+    spacingSharePx: primary.spacingSharePx,
+  };
+}
+
+function resolveSectionDensities(
+  fillSignals: LayoutFillSignals,
+  contentMetrics: SectionContentMetrics,
+  layoutRhythm: LayoutRhythmMode,
+  visibleKinds: LayoutSectionKind[]
+): Partial<Record<LayoutSectionKind, SectionDensityMode>> {
+  const underfill = fillSignals.pageUnderfill || fillSignals.shouldExpand;
+  const compress =
+    fillSignals.shouldCompress || layoutRhythm === 'compact';
+
+  const kindSet = new Set<LayoutSectionKind>(visibleKinds);
+  if (contentMetrics.summaryWords > 0) kindSet.add('summary');
+  if (contentMetrics.experienceCount > 0) kindSet.add('experience');
+  if (contentMetrics.projectCount > 0) kindSet.add('projects');
+  if (contentMetrics.educationCount > 0) kindSet.add('education');
+  if (contentMetrics.skillCount > 0) kindSet.add('skills');
+  if (contentMetrics.achievementCount > 0) kindSet.add('achievements');
+  if (contentMetrics.certificationCount > 0) kindSet.add('certifications');
+  if (contentMetrics.languageCount > 0) kindSet.add('languages');
+
+  const dens: Partial<Record<LayoutSectionKind, SectionDensityMode>> = {};
+
+  for (const kind of kindSet) {
+    switch (kind) {
+      case 'summary':
+        dens.summary = compress ? 'normal' : underfill ? 'relaxed' : 'normal';
+        break;
+      case 'experience':
+        if (compress && contentMetrics.experienceCount >= 5) dens.experience = 'compact';
+        else if (underfill && contentMetrics.experienceCount <= 3) dens.experience = 'relaxed';
+        else dens.experience = 'normal';
+        break;
+      case 'projects':
+        dens.projects =
+          underfill && contentMetrics.projectCount > 0 && contentMetrics.projectCount <= 2
+            ? 'normal'
+            : 'compact';
+        break;
+      case 'education':
+      case 'achievements':
+      case 'skills':
+      case 'certifications':
+      case 'languages':
+      case 'interests':
+        dens[kind] = 'compact';
+        break;
+      default:
+        dens[kind] = layoutRhythm === 'relaxed' ? 'normal' : 'compact';
+        break;
+    }
+  }
+
+  // Sidebar track stays compact — never chase main-column whitespace by inflating it.
+  for (const kind of SIDEBAR_COMPRESSIBLE_KINDS) {
+    if (dens[kind] === 'relaxed') dens[kind] = 'compact';
+  }
+
+  return dens;
+}
+
+/**
+ * Score how close the planned layout sits to the 90–95% professional fill band.
+ */
+export function estimateVisualBalancingScore(
+  metrics: RenderedLayoutMetrics,
+  plan: Pick<
+    DynamicLayoutPlan,
+    | 'sectionExtras'
+    | 'sectionGap'
+    | 'blockGap'
+    | 'lineHeightMul'
+    | 'descLineHeightMul'
+    | 'paragraphSpacing'
+    | 'visibleSectionCount'
+    | 'experienceDescPadding'
+    | 'experienceListGap'
+    | 'summarySpacing'
+  >
+): number {
+  const extrasSum = Object.values(plan.sectionExtras).reduce(
+    (sum, v) => sum + (typeof v === 'number' ? v : 0),
+    0
+  );
+  const gapBoost =
+    Math.max(0, plan.sectionGap - BASE_SECTION_GAP) *
+    Math.max(1, plan.visibleSectionCount);
+  const blockBoost =
+    Math.max(0, plan.blockGap - BASE_BLOCK_GAP) *
+    Math.max(1, plan.visibleSectionCount * 0.6);
+  const lhBoost = Math.max(0, plan.lineHeightMul - 1) * metrics.usedPageHeight * 0.32;
+  const descBoost =
+    Math.max(0, plan.descLineHeightMul - 1.12) * metrics.mainContentHeight * 0.28;
+  const paraBoost =
+    Math.max(0, plan.paragraphSpacing - BASE_PARAGRAPH_SPACING) *
+    Math.max(1, plan.visibleSectionCount * 0.5);
+  const expBoost =
+    Math.max(0, plan.experienceDescPadding - BASE_BLOCK_GAP * 0.85) * 2 +
+    Math.max(0, plan.experienceListGap - BASE_BLOCK_GAP) * 1.5 +
+    Math.max(0, plan.summarySpacing - BASE_BLOCK_GAP) * 1.2;
+
+  const projected =
+    metrics.containerHeight +
+    extrasSum +
+    gapBoost +
+    blockBoost +
+    lhBoost +
+    descBoost +
+    paraBoost +
+    expBoost;
+  const fill = clamp(projected / Math.max(metrics.pageHeight, 1), 0, 1.25);
+
+  if (fill >= FILL_HOLD_MIN && fill <= FILL_HOLD_MAX) {
+    const mid = 1 - Math.abs(fill - TARGET_PAGE_FILL) / 0.05;
+    return Math.round(clamp(0.9 + 0.1 * mid, 0.9, 1) * 1000) / 1000;
+  }
+  if (fill < FILL_HOLD_MIN) {
+    return Math.round(clamp((fill / TARGET_PAGE_FILL) * 0.9, 0, 0.89) * 1000) / 1000;
+  }
+  // Overcrowded — score drops as fill exceeds the elegant band.
+  return Math.round(clamp(0.95 - (fill - FILL_HOLD_MAX) * 1.6, 0.45, 0.89) * 1000) / 1000;
 }
 
 function rebalanceColumnExtras(
@@ -1109,7 +1329,8 @@ function clampSectionExtras(
   const out: Partial<Record<LayoutSectionKind, number>> = {};
   for (const [key, value] of Object.entries(extras)) {
     if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) continue;
-    out[key as LayoutSectionKind] = Math.min(Math.round(value), SECTION_EXTRA_CAP_PX);
+    const kind = key as LayoutSectionKind;
+    out[kind] = Math.min(Math.round(value), sectionExtraCap(kind));
   }
   return out;
 }
@@ -1373,7 +1594,7 @@ export function resolveAdaptiveTypography(input: {
     headingFontScale: Math.round(clamp(headingFontScale, 0.96, 1.18) * 1000) / 1000,
     skillFontScale: Math.round(clamp(skillFontScale, 0.76, 0.98) * 1000) / 1000,
     descLineHeightMul: Math.round(clamp(descLineHeightMul, 1.02, 1.26) * 1000) / 1000,
-    summaryMaxCh: Math.round(clamp(summaryMaxCh, 56, 78)),
+    summaryMaxCh: Math.round(clamp(summaryMaxCh, 56, 88)),
     typographyDensity,
     companyFontWeight: Math.round(clamp(companyFontWeight, 580, 700)),
     titleFontWeight: Math.round(clamp(titleFontWeight, 500, 620)),
@@ -1414,32 +1635,43 @@ export function computeDynamicLayoutPlanFromMetrics(
   let columnGapMul = 1;
   let sidebarGapMul = 1;
   let sectionExtras: Partial<Record<LayoutSectionKind, number>> = {};
+  let whitespaceSpacingSharePx = 0;
 
   if (fillSignals.shouldExpand) {
     const expand = clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1);
-    const sparseBoost = fill < 0.55 ? 1.35 : fill < 0.7 ? 1.18 : 1;
-    const underfillBoost = fillSignals.pageUnderfill ? 1.28 : 1;
+    const sparseBoost = fill < 0.55 ? 1.45 : fill < 0.7 ? 1.28 : fill < 0.82 ? 1.12 : 1;
+    const underfillBoost = fillSignals.pageUnderfill ? 1.38 : 1;
     const boost = sparseBoost * underfillBoost;
-    sectionGapMul = 1 + expand * 0.72 * boost;
-    blockGapMul = 1 + expand * 0.58 * boost;
-    bulletGapMul = 1 + expand * 0.48 * boost;
-    headingGapMul = 1 + expand * 0.48 * boost;
-    lineHeightMul = 1 + expand * 0.24 * boost;
-    fontScale = 1 + expand * 0.08 * Math.min(boost, 1.2);
-    sectionPaddingMul = 1 + expand * 0.62 * boost;
-    paragraphSpacingMul = 1 + expand * 0.55 * boost;
+    sectionGapMul = 1 + expand * 0.92 * boost;
+    blockGapMul = 1 + expand * 0.78 * boost;
+    bulletGapMul = 1 + expand * 0.58 * boost;
+    headingGapMul = 1 + expand * 0.55 * boost;
+    lineHeightMul = 1 + expand * 0.32 * boost;
+    // Never enlarge fonts to chase fill — spacing and measure only.
+    fontScale = 1;
+    sectionPaddingMul = 1 + expand * 0.78 * boost;
+    paragraphSpacingMul = 1 + expand * 0.72 * boost;
     columnGapMul = 1 + expand * 0.18;
-    sidebarGapMul = 1 + expand * 0.7 * boost;
+    // Sidebar stays compact — do not inflate with page-underfill boost.
+    sidebarGapMul = 1 + expand * 0.35 * Math.min(boost, 1.1);
     const deficitPx = Math.max(
       metrics.remainingWhitespace,
       (TARGET_PAGE_FILL - fill) * metrics.pageHeight
     );
-    sectionExtras = distributeSpaceByPriority(
+    const distributed = resolveWhitespaceDistribution(
       metrics.sections,
       deficitPx,
       fill,
       contentMetrics
     );
+    sectionExtras = distributed.extras;
+    whitespaceSpacingSharePx = distributed.spacingSharePx;
+    if (whitespaceSpacingSharePx > 0 && metrics.visibleSectionKinds.length > 0) {
+      const perGap =
+        whitespaceSpacingSharePx / Math.max(metrics.visibleSectionKinds.length, 1);
+      sectionGapMul += perGap / Math.max(BASE_SECTION_GAP, 1);
+      blockGapMul += (perGap * 0.45) / Math.max(BASE_BLOCK_GAP, 1);
+    }
   } else if (fillSignals.shouldCompress) {
     const compress = clamp((fill - FILL_COMPRESS_ABOVE) / 0.35, 0, 1);
     const compressDampen = fillSignals.experienceDominant ? 0.55 : 1;
@@ -1523,7 +1755,6 @@ export function computeDynamicLayoutPlanFromMetrics(
 
   if (visibleSectionCount <= 5 && fill < 0.55) {
     sectionGapMul *= 0.9;
-    fontScale += 0.04;
     lineHeightMul += 0.06;
   }
 
@@ -1547,11 +1778,23 @@ export function computeDynamicLayoutPlanFromMetrics(
   sidebarGapMul *= inventorySidebarMul;
 
   const layoutRhythm = resolveLayoutRhythm(fillSignals, contentMetrics);
+  const useRelaxedBounds =
+    fillSignals.shouldExpand ||
+    fillSignals.pageUnderfill ||
+    layoutRhythm === 'relaxed';
+  const sectionGapMax = useRelaxedBounds ? SECTION_GAP_MUL_MAX_RELAXED : SECTION_GAP_MUL_MAX;
+  const blockGapMax = useRelaxedBounds ? BLOCK_GAP_MUL_MAX_RELAXED : BLOCK_GAP_MUL_MAX;
+  const sectionPadMax = useRelaxedBounds ? SECTION_PAD_MUL_MAX_RELAXED : SECTION_PAD_MUL_MAX;
+  const lineHeightMax = useRelaxedBounds ? LINE_HEIGHT_MUL_MAX_RELAXED : LINE_HEIGHT_MUL_MAX;
+  const paragraphMax = useRelaxedBounds
+    ? PARAGRAPH_SPACING_MUL_MAX_RELAXED
+    : PARAGRAPH_SPACING_MUL_MAX;
+
   if (layoutRhythm === 'relaxed') {
-    lineHeightMul = Math.min(LINE_HEIGHT_MUL_MAX, lineHeightMul + 0.06);
-    paragraphSpacingMul = Math.min(1.2, paragraphSpacingMul + 0.1);
-    sectionGapMul = Math.min(SECTION_GAP_MUL_MAX, sectionGapMul + 0.06);
-    blockGapMul = Math.min(BLOCK_GAP_MUL_MAX, blockGapMul + 0.06);
+    lineHeightMul = Math.min(lineHeightMax, lineHeightMul + 0.08);
+    paragraphSpacingMul = Math.min(paragraphMax, paragraphSpacingMul + 0.14);
+    sectionGapMul = Math.min(sectionGapMax, sectionGapMul + 0.1);
+    blockGapMul = Math.min(blockGapMax, blockGapMul + 0.1);
   } else if (layoutRhythm === 'compact') {
     lineHeightMul = Math.max(LINE_HEIGHT_MUL_MIN, lineHeightMul - 0.04);
     paragraphSpacingMul = Math.max(0.88, paragraphSpacingMul - 0.06);
@@ -1580,14 +1823,14 @@ export function computeDynamicLayoutPlanFromMetrics(
     projectSpacingMul = 1 - clamp((projectCount - 2) / 6, 0, 0.22);
   }
 
-  // Soft clamp — never exceed design-safe deltas.
-  sectionGapMul = clamp(sectionGapMul, SECTION_GAP_MUL_MIN, SECTION_GAP_MUL_MAX);
-  blockGapMul = clamp(blockGapMul, BLOCK_GAP_MUL_MIN, BLOCK_GAP_MUL_MAX);
-  sectionPaddingMul = clamp(sectionPaddingMul, SECTION_PAD_MUL_MIN, SECTION_PAD_MUL_MAX);
-  lineHeightMul = clamp(lineHeightMul, LINE_HEIGHT_MUL_MIN, LINE_HEIGHT_MUL_MAX);
+  // Soft clamp — never exceed design-safe deltas (relaxed when underfilled).
+  sectionGapMul = clamp(sectionGapMul, SECTION_GAP_MUL_MIN, sectionGapMax);
+  blockGapMul = clamp(blockGapMul, BLOCK_GAP_MUL_MIN, blockGapMax);
+  sectionPaddingMul = clamp(sectionPaddingMul, SECTION_PAD_MUL_MIN, sectionPadMax);
+  lineHeightMul = clamp(lineHeightMul, LINE_HEIGHT_MUL_MIN, lineHeightMax);
   sidebarGapMul = clamp(sidebarGapMul, SIDEBAR_GAP_MUL_MIN, SIDEBAR_GAP_MUL_MAX);
-  paragraphSpacingMul = clamp(paragraphSpacingMul, 0.88, 1.2);
-  bulletGapMul = clamp(bulletGapMul, 0.85, 1.2);
+  paragraphSpacingMul = clamp(paragraphSpacingMul, 0.88, paragraphMax);
+  bulletGapMul = clamp(bulletGapMul, 0.85, 1.28);
 
   const blockGap = Math.round(BASE_BLOCK_GAP * blockGapMul * 10) / 10;
   const sectionGap = Math.round(BASE_SECTION_GAP * sectionGapMul * 10) / 10;
@@ -1631,20 +1874,29 @@ export function computeDynamicLayoutPlanFromMetrics(
   if (fillSignals.pageUnderfill && experienceCount >= 2) {
     const fillBoost = clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1);
     // When the main column is already overloaded, do not grow inter-job gaps —
-    // that deepens the blank-sidebar imbalance.
-    const listBoost = fillSignals.columnOverload ? 0.04 : 0.22;
-    const descBoost = fillSignals.columnOverload ? 0.08 : 0.28;
+    // that deepens the blank-sidebar imbalance. Prefer description editorial flow.
+    const listBoost = fillSignals.columnOverload ? 0.06 : 0.32;
+    const descBoost = fillSignals.columnOverload ? 0.16 : 0.42;
     experienceListGap = Math.round(experienceListGap * (1 + fillBoost * listBoost) * 10) / 10;
     experienceDescPadding = Math.round(experienceDescPadding * (1 + fillBoost * descBoost) * 10) / 10;
     experienceHeaderGap = Math.round(
-      experienceHeaderGap * (1 + fillBoost * (fillSignals.columnOverload ? 0.04 : 0.15)) * 10
+      experienceHeaderGap * (1 + fillBoost * (fillSignals.columnOverload ? 0.06 : 0.2)) * 10
     ) / 10;
     if (!fillSignals.columnOverload) {
-      bulletGapMul *= 1 + fillBoost * 0.18;
-      paragraphSpacingMul *= 1 + fillBoost * 0.22;
-      lineHeightMul *= 1 + fillBoost * 0.1;
+      bulletGapMul *= 1 + fillBoost * 0.26;
+      paragraphSpacingMul *= 1 + fillBoost * 0.32;
+      lineHeightMul *= 1 + fillBoost * 0.14;
+    } else {
+      // Editorial description only — absorb via leading / measure, not card gaps.
+      paragraphSpacingMul *= 1 + fillBoost * 0.14;
+      lineHeightMul *= 1 + fillBoost * 0.08;
     }
   }
+
+  // Re-clamp after experience underfill boosts.
+  lineHeightMul = clamp(lineHeightMul, LINE_HEIGHT_MUL_MIN, lineHeightMax);
+  paragraphSpacingMul = clamp(paragraphSpacingMul, 0.88, paragraphMax);
+  bulletGapMul = clamp(bulletGapMul, 0.85, 1.28);
 
   if (fillSignals.experienceDominant && !fillSignals.columnOverload) {
     experienceListGap = Math.round(experienceListGap * experienceProtect * 10) / 10;
@@ -1683,11 +1935,17 @@ export function computeDynamicLayoutPlanFromMetrics(
     contentMeasureCh = Math.max(contentMeasureCh, 76);
   }
   if (fillSignals.pageUnderfill || layoutRhythm === 'relaxed') {
-    const widen = Math.round(clamp((TARGET_PAGE_FILL - fill) / 0.2, 0, 1) * 10);
-    contentMeasureCh = Math.min(84, contentMeasureCh + widen + (layoutRhythm === 'relaxed' ? 4 : 0));
+    const widen = Math.round(clamp((TARGET_PAGE_FILL - fill) / 0.2, 0, 1) * 14);
+    contentMeasureCh = Math.min(
+      88,
+      contentMeasureCh + widen + (layoutRhythm === 'relaxed' ? 6 : 0)
+    );
   }
-  if (layoutRhythm === 'compact') {
+  // Compact inventory can tighten measure, but never undo underfill/column editorial widen.
+  if (layoutRhythm === 'compact' && !fillSignals.pageUnderfill && !fillSignals.columnOverload) {
     contentMeasureCh = Math.min(contentMeasureCh, 68);
+  } else if (layoutRhythm === 'compact') {
+    contentMeasureCh = Math.max(contentMeasureCh, 76);
   }
 
   const finalBulletGap = Math.max(
@@ -1695,24 +1953,27 @@ export function computeDynamicLayoutPlanFromMetrics(
     Math.round(BASE_BULLET_GAP * bulletGapMul * 100) / 100
   );
   const finalLineHeightMul = Math.round(
-    clamp(lineHeightMul, LINE_HEIGHT_MUL_MIN, LINE_HEIGHT_MUL_MAX) * 1000
+    clamp(lineHeightMul, LINE_HEIGHT_MUL_MIN, lineHeightMax) * 1000
   ) / 1000;
   const finalParagraphSpacing = Math.max(
     READABLE_PARAGRAPH_SPACING_MIN,
     Math.round(BASE_PARAGRAPH_SPACING * paragraphSpacingMul * 10) / 10
   );
-  // Description LH: base ~1.12, allow ±10% (= ~1.01–1.23)
+  // Description LH: editorial when underfilled (no font-size change).
   let finalDescLhMul = Math.round(adaptiveType.descLineHeightMul * 1000) / 1000;
-  if (layoutRhythm === 'relaxed') {
-    finalDescLhMul = Math.min(1.232, finalDescLhMul * 1.06);
+  if (layoutRhythm === 'relaxed' || fillSignals.pageUnderfill) {
+    const editorialBoost =
+      1.08 + clamp((TARGET_PAGE_FILL - fill) / TARGET_PAGE_FILL, 0, 1) * 0.1;
+    finalDescLhMul = Math.min(1.32, finalDescLhMul * editorialBoost);
   } else if (layoutRhythm === 'compact') {
     finalDescLhMul = Math.max(READABLE_DESC_LH_MUL_MIN, finalDescLhMul * 0.96);
   }
-  finalDescLhMul = clamp(finalDescLhMul, READABLE_DESC_LH_MUL_MIN, 1.232);
+  finalDescLhMul = clamp(finalDescLhMul, READABLE_DESC_LH_MUL_MIN, 1.32);
 
   let summaryMaxCh = adaptiveType.summaryMaxCh;
-  if (layoutRhythm === 'relaxed') {
-    summaryMaxCh = Math.min(78, summaryMaxCh + 4);
+  if (layoutRhythm === 'relaxed' || fillSignals.pageUnderfill) {
+    const widen = Math.round(clamp((TARGET_PAGE_FILL - fill) / 0.2, 0, 1) * 10);
+    summaryMaxCh = Math.min(88, summaryMaxCh + 6 + widen);
   } else if (layoutRhythm === 'compact') {
     summaryMaxCh = Math.max(56, summaryMaxCh - 4);
   }
@@ -1816,6 +2077,8 @@ export function computeDynamicLayoutPlanFromMetrics(
     descLineHeightMul: finalDescLhMul,
     contentMeasureCh,
     layoutRhythm,
+    sectionDensities: {},
+    visualBalancingScore: 0,
     skillGap,
   };
 
@@ -1835,6 +2098,14 @@ export function computeDynamicLayoutPlanFromMetrics(
   plan.projectSpacing =
     Math.round((plan.blockGap + (plan.sectionExtras.projects ?? 0)) * projectSpacingMul * 10) /
     10;
+
+  plan.sectionDensities = resolveSectionDensities(
+    fillSignals,
+    contentMetrics,
+    layoutRhythm,
+    metrics.visibleSectionKinds
+  );
+  plan.visualBalancingScore = estimateVisualBalancingScore(metrics, plan);
 
   return plan;
 }
@@ -1924,7 +2195,12 @@ function buildProportionalSectionRules(): string {
 .resume-container section:has([class*='summary-text']),
 .resume-container section:has(.professional-summary) {
   margin-bottom: calc(var(--dl-section-gap) + var(--dl-extra-summary, 0px)) !important;
-  padding-bottom: calc(var(--dl-section-padding) + var(--dl-extra-summary, 0px) * 0.15) !important;
+  padding-bottom: calc(var(--dl-section-padding) + var(--dl-extra-summary, 0px) * 0.22) !important;
+}
+.resume-container[data-dl-summary-density='relaxed'] section:has(.summary-text),
+.resume-container[data-dl-summary-density='relaxed'] section:has([class*='summary-text']),
+.resume-container[data-dl-summary-density='relaxed'] section:has(.professional-summary) {
+  padding-bottom: calc(var(--dl-section-padding) + var(--dl-extra-summary, 0px) * 0.35 + var(--dl-paragraph-spacing, 5px) * 0.4) !important;
 }
 .resume-container section:has(.experience-item),
 .resume-container section:has(.experience-list) {
@@ -2431,25 +2707,49 @@ ${summaryShortCss}
 .resume-container[data-dl-rhythm='relaxed'] .professional-summary,
 .resume-container[data-dl-page-underfill='true'] .summary-text,
 .resume-container[data-dl-page-underfill='true'] [class*='summary-text'],
-.resume-container[data-dl-page-underfill='true'] .professional-summary {
-  line-height: calc(var(--resume-line-height, 1.62) * 1.08) !important;
-  max-width: min(100%, calc(var(--dl-summary-max-ch, 72) * 1ch)) !important;
+.resume-container[data-dl-page-underfill='true'] .professional-summary,
+.resume-container[data-dl-summary-density='relaxed'] .summary-text,
+.resume-container[data-dl-summary-density='relaxed'] [class*='summary-text'],
+.resume-container[data-dl-summary-density='relaxed'] .professional-summary {
+  line-height: calc(var(--resume-line-height, 1.62) * 1.12) !important;
+  max-width: min(100%, calc(var(--dl-summary-max-ch, 78) * 1ch)) !important;
   max-height: none !important;
   height: auto !important;
-  margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.65 + var(--resume-paragraph-gap, 5px)) !important;
+  margin-bottom: calc(var(--dl-summary-spacing, 12px) * 0.85 + var(--resume-paragraph-gap, 5px)) !important;
+  padding-bottom: calc(var(--dl-paragraph-spacing, 5px) * 0.55) !important;
 }
 
 .resume-container[data-dl-rhythm='relaxed'] .experience-item .description,
 .resume-container[data-dl-rhythm='relaxed'] .project-item .description,
-.resume-container[data-dl-page-underfill='true'] .experience-item .description {
-  line-height: calc(var(--resume-line-height, 1.62) * 1.06) !important;
-  max-width: min(100%, calc(var(--dl-content-measure-ch, 80) * 1ch)) !important;
+.resume-container[data-dl-page-underfill='true'] .experience-item .description,
+.resume-container[data-dl-experience-density='relaxed'] .experience-item .description,
+.resume-container[data-dl-experience-density='normal'][data-dl-page-underfill='true'] .experience-item .description {
+  line-height: calc(var(--resume-line-height, 1.62) * 1.1) !important;
+  max-width: min(100%, calc(var(--dl-content-measure-ch, 84) * 1ch)) !important;
   max-height: none !important;
+  margin-bottom: calc(var(--dl-exp-desc-padding, 8px) * 0.35) !important;
+}
+
+.resume-container[data-dl-rhythm='relaxed'] .experience-item .description p,
+.resume-container[data-dl-page-underfill='true'] .experience-item .description p,
+.resume-container[data-dl-experience-density='relaxed'] .experience-item .description p {
+  margin-bottom: calc(var(--resume-paragraph-gap, 5px) * 1.15) !important;
+  line-height: inherit !important;
 }
 
 .resume-container[data-dl-rhythm='relaxed'] .experience-item .description li,
-.resume-container[data-dl-page-underfill='true'] .experience-item .description li {
-  margin-bottom: calc(var(--resume-bullet-gap, 0.42em) * 1.08) !important;
+.resume-container[data-dl-page-underfill='true'] .experience-item .description li,
+.resume-container[data-dl-experience-density='relaxed'] .experience-item .description li,
+.resume-container[data-dl-experience-density='normal'][data-dl-page-underfill='true'] .experience-item .description li {
+  margin-bottom: calc(var(--resume-bullet-gap, 0.42em) * 1.18) !important;
+  line-height: inherit !important;
+}
+
+/* Compact sections keep tight internal rhythm while summary/experience expand */
+.resume-container[data-dl-projects-density='compact'] .project-item,
+.resume-container[data-dl-education-density='compact'] .education-item,
+.resume-container[data-dl-achievements-density='compact'] .achievement-item {
+  margin-bottom: calc(var(--dl-block-gap, 10px) * 0.85) !important;
 }
 
 /* Rhythm: compact — tighten internal padding only */
@@ -2546,6 +2846,16 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
     'data-dl-page-underfill',
     plan.pageFillRatio < 0.88 ? 'true' : 'false'
   );
+  root.setAttribute(
+    'data-dl-balance',
+    String(Math.round((plan.visualBalancingScore || 0) * 100))
+  );
+  const dens = plan.sectionDensities || {};
+  root.setAttribute('data-dl-summary-density', dens.summary || 'normal');
+  root.setAttribute('data-dl-experience-density', dens.experience || 'normal');
+  root.setAttribute('data-dl-projects-density', dens.projects || 'compact');
+  root.setAttribute('data-dl-education-density', dens.education || 'compact');
+  root.setAttribute('data-dl-achievements-density', dens.achievements || 'compact');
 }
 
 /**
@@ -2883,16 +3193,33 @@ export function getDomAwareLayoutRefinementScript(): string {
   function plan(m){
     var fill=m.pageFillRatio, sg=1,bg=1,fg=1,lh=1,pad=1,pg=1,cg=1,sgap=1,extras={};
     var TARGET=0.9;
-    var shouldCompress=fill>0.95&&!(m.sidebarUnderfilled&&m.experienceDominant);
-    if(fill<0.85){
+    var pageUnder=m.remainingWhitespace>72&&fill<0.88;
+    var shouldCompress=fill>0.95&&!(m.sidebarUnderfilled&&m.experienceDominant)&&!pageUnder;
+    if(fill<0.85||pageUnder){
       var ex=Math.min(1,Math.max(0,(TARGET-fill)/TARGET));
-      var boost=fill<0.55?1.35:fill<0.7?1.18:1;
-      sg=1+ex*0.72*boost; bg=1+ex*0.58*boost; fg=1+ex*0.11*Math.min(boost,1.2); lh=1+ex*0.2*boost;
-      pad=1+ex*0.62*boost; pg=1+ex*0.48*boost; cg=1+ex*0.18; sgap=1+ex*0.7*boost;
+      var boost=(fill<0.55?1.45:fill<0.7?1.28:fill<0.82?1.12:1)*(pageUnder?1.38:1);
+      sg=1+ex*0.92*boost; bg=1+ex*0.78*boost; fg=1; lh=1+ex*0.32*boost;
+      pad=1+ex*0.78*boost; pg=1+ex*0.72*boost; cg=1+ex*0.18; sgap=1+ex*0.35*Math.min(boost,1.1);
       var def=Math.max(m.remainingWhitespace,(TARGET-fill)*PAGE);
-      var pri={experience:1,projects:0.82,summary:0.78,skills:0.72,education:0.58,certifications:0.48,languages:0.42,achievements:0.45,interests:0.38,other:0.3};
-      var tot=0;m.sections.forEach(function(s){tot+=s.height*(pri[s.kind]||0.3);});
-      if(tot>0&&def>0)m.sections.forEach(function(s){var w=(s.height*(pri[s.kind]||0.3))/tot;extras[s.kind]=Math.round(w*def*0.88);});
+      var shares={summary:0.25,experience:0.35,projects:0.2,education:0.1,_spacing:0.1};
+      var present={}; m.sections.forEach(function(s){if(s.kind!=='contact'&&s.height>0)present[s.kind]=1;});
+      var active=[], totShare=0;
+      Object.keys(shares).forEach(function(k){
+        if(k!=='_spacing'&&!present[k])return;
+        active.push(k); totShare+=shares[k];
+      });
+      var absorb=fill<0.55?0.96:fill<0.7?0.92:fill<0.82?0.88:0.82;
+      var budget=def*absorb, spacingPx=0;
+      if(totShare>0)active.forEach(function(k){
+        var px=(shares[k]/totShare)*budget;
+        if(k==='_spacing'){spacingPx=px;return;}
+        extras[k]=Math.round(px);
+      });
+      if(spacingPx>0&&m.sections.length>0){
+        var per=spacingPx/Math.max(m.sections.length,1);
+        sg+=per/14; bg+=(per*0.45)/10;
+      }
+      sg=Math.min(1.38,sg); bg=Math.min(1.35,bg); pad=Math.min(1.28,pad); lh=Math.min(1.18,lh); pg=Math.min(1.45,pg);
     } else if(shouldCompress){
       var cp=Math.min(1,Math.max(0,(fill-0.95)/0.35));
       if(m.experienceDominant)cp*=0.55;
@@ -2947,11 +3274,11 @@ export function getDomAwareLayoutRefinementScript(): string {
     else if(skillTagsEarly<=18)invMul=0.86;
     else invMul=0.8;
     sgap=Math.max(0.8,Math.min(1.2,sgap*invMul));
-    return {sectionGap:14*sg,blockGap:10*bg,fontScale:Math.min(1.12,Math.max(0.92,fg)),
-      lineHeight:1.45*lh,mainFlex:mf,sidebarFlex:sf,pad:6*pad,pg:4*pg,cg:12*cg,
+    return {sectionGap:14*sg,blockGap:10*bg,fontScale:1,
+      lineHeight:1.45*lh,mainFlex:mf,sidebarFlex:sf,pad:6*pad,pg:5*pg,cg:12*cg,
       sidebarGap:14*sg*sgap,sidebarGapCompact:14*Math.min(invMul,0.95),
       mnPct:mnPct,sbPct:sbPct,sbMax:sbMax,extras:extras,sidebarUnder:m.sidebarUnderfilled,
-      denseSidebar:denseSidebar,invMul:invMul};
+      denseSidebar:denseSidebar,invMul:invMul,pageUnder:pageUnder};
   }
   function apply(){
     var root=document.querySelector('.resume-container'); if(!root)return;
@@ -2964,6 +3291,12 @@ export function getDomAwareLayoutRefinementScript(): string {
     var expPad=6*p.pad, expGap=p.blockGap, expDesc=p.blockGap*0.85, bulletInd=16;
     if(expCount===1){expPad=6*p.pad*(fill<0.85?2.25:1.55);expGap=p.blockGap*(fill<0.85?1.75:1.3);expDesc=expGap*0.85*(fill<0.85?1.6:1.25);bulletInd=18;}
     else if(expCount>=4){var c=Math.min(1,(expCount-3)/6);expPad=6*p.pad*(1-c*0.2);expGap=p.blockGap*(1-c*0.22);}
+    if((fill<0.88||p.pageUnder)&&expCount>=2){
+      var fb=Math.min(1,Math.max(0,(0.9-fill)/0.9));
+      var overload=m.mainHeight>m.sidebarHeight*1.18&&m.experienceDominant;
+      expGap=expGap*(1+fb*(overload?0.06:0.32));
+      expDesc=expDesc*(1+fb*(overload?0.16:0.42));
+    }
     var projMul=1;
     if(projCount===1&&fill<0.88)projMul=1.55;
     else if(projCount>=3)projMul=1-Math.min(0.28,(projCount-2)/6);
@@ -3029,11 +3362,13 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-fs-skill',String(fsSkill));
     root.style.setProperty('--dl-lh-desc',String(1.62*lhDesc));
     root.style.setProperty('--dl-summary-max-ch',String(maxCh));
+    root.style.setProperty('--dl-content-measure-ch',String(Math.min(88,maxCh+(rhythm==='relaxed'||fill<0.88?8:0))));
     root.style.setProperty('--resume-line-height','var(--dl-lh-desc)');
     root.style.setProperty('--resume-letter-spacing','0.012em');
-    root.style.setProperty('--resume-bullet-gap',(rhythm==='compact'?0.36:rhythm==='relaxed'?0.48:0.42)+'em');
-    root.style.setProperty('--dl-bullet-gap',(rhythm==='compact'?0.36:rhythm==='relaxed'?0.48:0.42)+'em');
-    Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,Math.min(16,p.extras[k]||0)+'px');});
+    root.style.setProperty('--resume-bullet-gap',(rhythm==='compact'?0.36:rhythm==='relaxed'?0.52:0.42)+'em');
+    root.style.setProperty('--dl-bullet-gap',(rhythm==='compact'?0.36:rhythm==='relaxed'?0.52:0.42)+'em');
+    var extraCap={summary:72,experience:80,projects:48,education:32,achievements:28,skills:24,certifications:24,languages:20,interests:20};
+    Object.keys(p.extras).forEach(function(k){root.style.setProperty('--dl-extra-'+k,Math.min(extraCap[k]||48,p.extras[k]||0)+'px');});
     root.setAttribute('data-dl-refined','true');
     root.setAttribute('data-dl-fill',String(Math.round(measure().pageFillRatio*100)));
     root.setAttribute('data-dl-exp-count',String(expCount));
@@ -3045,6 +3380,11 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.setAttribute('data-dl-rhythm',rhythm);
     root.setAttribute('data-dl-sidebar-density',p.sidebarUnder?'normal':(sbCard<p.pad*0.85?'compact':'normal'));
     root.setAttribute('data-dl-page-underfill', fill<0.88?'true':'false');
+    root.setAttribute('data-dl-summary-density', (rhythm==='relaxed'||fill<0.88)?'relaxed':'normal');
+    root.setAttribute('data-dl-experience-density', rhythm==='compact'&&expCount>=5?'compact':(rhythm==='relaxed'&&expCount<=3?'relaxed':'normal'));
+    root.setAttribute('data-dl-projects-density', projCount>0&&projCount<=2&&fill<0.88?'normal':'compact');
+    root.setAttribute('data-dl-education-density','compact');
+    root.setAttribute('data-dl-achievements-density','compact');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply);
   else apply();
@@ -3108,7 +3448,7 @@ export function injectDynamicLayoutIntoHtml(
   let result = appendStyleBlockToHtml(html, block);
   result = result.replace(
     /(<div[^>]*class="[^"]*\bresume-container\b[^"]*"[^>]*)(>)/i,
-    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-density="${plan.typographyDensity}" data-dl-rhythm="${plan.layoutRhythm}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}" data-dl-page-underfill="${plan.pageFillRatio < 0.88 ? 'true' : 'false'}"$2`
+    `$1 data-dl-exp-count="${plan.experienceCount}" data-dl-summary="${plan.summaryIsShort ? 'short' : 'normal'}" data-dl-sections="${plan.visibleSectionCount}" data-dl-fill="${Math.round(plan.pageFillRatio * 100)}" data-dl-density="${plan.typographyDensity}" data-dl-rhythm="${plan.layoutRhythm}" data-dl-sidebar-density="${plan.sidebarCardPadding < plan.sectionPadding * 0.85 ? 'compact' : 'normal'}" data-dl-page-underfill="${plan.pageFillRatio < 0.88 ? 'true' : 'false'}" data-dl-balance="${Math.round((plan.visualBalancingScore || 0) * 100)}" data-dl-summary-density="${plan.sectionDensities?.summary || 'normal'}" data-dl-experience-density="${plan.sectionDensities?.experience || 'normal'}" data-dl-projects-density="${plan.sectionDensities?.projects || 'compact'}" data-dl-education-density="${plan.sectionDensities?.education || 'compact'}" data-dl-achievements-density="${plan.sectionDensities?.achievements || 'compact'}"$2`
   );
   return result;
 }
