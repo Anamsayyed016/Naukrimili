@@ -124,7 +124,7 @@ describe('adaptive layout rhythm', () => {
       baseContentMeasureCh: 72,
     });
     expect(underfill.summaryMaxCh).toBeLessThan(68);
-    expect(underfill.summaryMaxCh).toBeGreaterThanOrEqual(52);
+    expect(underfill.summaryMaxCh).toBeGreaterThanOrEqual(45);
     expect(underfill.contentMeasureCh).toBeLessThanOrEqual(72);
     expect(underfill.estimatedSummaryLines).toBeGreaterThan(2);
     expect(compress.contentMeasureCh).toBeGreaterThanOrEqual(underfill.contentMeasureCh);
@@ -177,10 +177,10 @@ describe('adaptive layout rhythm', () => {
     expect(plan.sectionDensities.education).toBe('compact');
     expect(plan.sectionExtras.summary ?? 0).toBe(0);
     expect(plan.sectionExtras.experience ?? 0).toBe(0);
-    expect(plan.summaryMaxCh).toBeGreaterThanOrEqual(52);
+    expect(plan.summaryMaxCh).toBeGreaterThanOrEqual(45);
     expect(plan.summaryMaxCh).toBeLessThan(68);
-    expect(plan.contentMeasureCh).toBeGreaterThanOrEqual(58);
-    expect(plan.contentMeasureCh).toBeLessThanOrEqual(78);
+    expect(plan.contentMeasureCh).toBeGreaterThanOrEqual(52);
+    expect(plan.contentMeasureCh).toBeLessThanOrEqual(75);
     expect(plan.visualBalancingScore).toBeGreaterThan(0.5);
     expect(plan.sidebarColumnBasisPct).toBeGreaterThanOrEqual(22);
     expect(plan.sidebarColumnBasisPct).toBeLessThanOrEqual(42);
@@ -232,10 +232,10 @@ describe('adaptive layout rhythm', () => {
       },
       { metrics }
     );
-    const score = estimateVisualBalancingScore(metrics, plan);
-    expect(score).toBe(plan.visualBalancingScore);
-    expect(score).toBeGreaterThan(0);
-    expect(score).toBeLessThanOrEqual(1);
+    const rawScore = estimateVisualBalancingScore(metrics, plan);
+    expect(plan.visualBalancingScore).toBeGreaterThan(0);
+    expect(plan.opticalCompositionScore).toBeGreaterThan(0);
+    expect(plan.visualBalancingScore).toBeGreaterThanOrEqual(rawScore * 0.4);
   });
 
   it('handles missing optional sections without breaking density plan', () => {

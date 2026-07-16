@@ -20,6 +20,12 @@ import {
 import { isPremiumTemplate } from './ats-content-balance-css';
 import { estimateRenderableSectionHeight } from './section-height-estimator';
 import { resolveTemplateLayoutMetadata } from './template-layout-metadata';
+import {
+  buildTypographicCompositionCss,
+  composeTypographicPagePlan,
+  extractSectionTextsForComposition,
+  extractSummaryTextForComposition,
+} from './typographic-composition-engine';
 
 export const A4_PAGE_HEIGHT_PX = 1123;
 export const A4_PAGE_WIDTH_PX = 794;
@@ -98,10 +104,10 @@ const WHITESPACE_ABSORB_SHARES: Partial<Record<LayoutSectionKind | '_spacing', n
 };
 
 /** Readable measure band (ch) — reflow uses wrap width only (no typography changes). */
-const SUMMARY_MEASURE_CH_MIN = 52;
-const SUMMARY_MEASURE_CH_MAX = 72;
-const CONTENT_MEASURE_CH_MIN = 58;
-const CONTENT_MEASURE_CH_MAX = 78;
+const SUMMARY_MEASURE_CH_MIN = 45;
+const SUMMARY_MEASURE_CH_MAX = 75;
+const CONTENT_MEASURE_CH_MIN = 52;
+const CONTENT_MEASURE_CH_MAX = 75;
 
 export type LayoutRhythmMode = 'compact' | 'normal' | 'relaxed';
 /** Independent density per section — not one global mode. */
@@ -428,6 +434,9 @@ export interface DynamicLayoutPlan {
    * 1.0 ≈ ideal; lower means underfilled or overcrowded.
    */
   visualBalancingScore: number;
+  /** Typographic composition optical score (wrap shaping) */
+  opticalCompositionScore: number;
+  typographicIterations: number;
   /** Inner skill-list gap (px) */
   skillGap: number;
   /** Adaptive font weights (numeric 100–900) */
@@ -1847,34 +1856,48 @@ export function computeDynamicLayoutPlanFromMetrics(
     bulletIndent = Math.min(20, bulletIndent + 2);
   }
 
-  // Measure-first text reflow — wrap width only (never font-size / spacing / leading).
-  const textReflow = computeTextReflowPlan({
-    remainingWhitespace: metrics.remainingWhitespace,
+  // Typographic composition — iterative wrap-width shaping (same words, same font).
+  const sectionTexts = extractSectionTextsForComposition(formData);
+  const summaryText = extractSummaryTextForComposition(formData, options?.renderedHtml);
+  const expSection = metrics.mainSections.find((s) => s.kind === 'experience');
+  const projSection = metrics.mainSections.find((s) => s.kind === 'projects');
+
+  const typoPlan = composeTypographicPagePlan({
     pageHeight: metrics.pageHeight,
+    containerHeight: metrics.containerHeight,
+    remainingWhitespace: metrics.remainingWhitespace,
     pageFill: fill,
-    summaryWords,
-    experienceTextUnits: contentMetrics.experienceTextUnits,
-    pageUnderfill: fillSignals.pageUnderfill,
-    shouldCompress: fillSignals.shouldCompress,
-    layoutRhythm,
-    baseSummaryMaxCh: adaptiveType.summaryMaxCh,
-    baseContentMeasureCh: Math.max(
-      adaptiveType.summaryMaxCh,
-      hasSidebar && (fillSignals.columnOverload || fillSignals.sidebarUnderfilled) ? 76 : 68
-    ),
-    mainHeight: metrics.mainHeight,
-    sidebarHeight: metrics.sidebarHeight,
     mainContentHeight: metrics.mainContentHeight,
-    sidebarContentHeight: metrics.sidebarContentHeight,
+    summaryText,
+    experienceTexts: sectionTexts.experienceTexts,
+    projectTexts: sectionTexts.projectTexts,
+    achievementTexts: sectionTexts.achievementTexts,
+    nextSectionHeights: {
+      experience: expSection?.height ?? 140,
+      projects: projSection?.height ?? 80,
+    },
+    baseSummaryCh: adaptiveType.summaryMaxCh,
+    baseContentCh: Math.max(
+      adaptiveType.summaryMaxCh,
+      hasSidebar && (fillSignals.columnOverload || fillSignals.sidebarUnderfilled) ? 72 : 68
+    ),
+    shouldCompress: fillSignals.shouldCompress,
+    preferMoreLines:
+      fillSignals.shouldExpand ||
+      fillSignals.pageUnderfill ||
+      layoutRhythm === 'relaxed' ||
+      fill < 0.85,
   });
 
-  let contentMeasureCh = textReflow.contentMeasureCh;
-  let summaryMaxCh = textReflow.summaryMaxCh;
+  let contentMeasureCh = typoPlan.contentMeasureCh;
+  let summaryMaxCh = typoPlan.summaryMeasureCh;
+  const opticalCompositionScore = typoPlan.opticalScore;
+  const typographicIterations = typoPlan.iterations;
   let finalDescLhMul = Math.round(adaptiveType.descLineHeightMul * 1000) / 1000;
 
-  // Column-overload still needs a readable main-column measure.
+  // Column-overload still needs a readable main-column measure (within 75ch ceiling).
   if (hasSidebar && fillSignals.columnOverload && fillSignals.pageUnderfill) {
-    contentMeasureCh = Math.max(contentMeasureCh, 76);
+    contentMeasureCh = Math.max(contentMeasureCh, Math.min(72, CONTENT_MEASURE_CH_MAX));
   }
 
   const finalBulletGap = Math.max(
@@ -1990,6 +2013,8 @@ export function computeDynamicLayoutPlanFromMetrics(
     layoutRhythm,
     sectionDensities: {},
     visualBalancingScore: 0,
+    opticalCompositionScore,
+    typographicIterations,
     skillGap,
   };
 
@@ -2017,6 +2042,13 @@ export function computeDynamicLayoutPlanFromMetrics(
     metrics.visibleSectionKinds
   );
   plan.visualBalancingScore = estimateVisualBalancingScore(metrics, plan);
+  plan.visualBalancingScore = Math.round(
+    clamp(
+      plan.visualBalancingScore * 0.55 + opticalCompositionScore * 0.45,
+      0,
+      1
+    ) * 1000
+  ) / 1000;
 
   return plan;
 }
@@ -2760,6 +2792,11 @@ export function applyLayoutPlanToElement(root: HTMLElement, plan: DynamicLayoutP
   root.setAttribute('data-dl-projects-density', dens.projects || 'compact');
   root.setAttribute('data-dl-education-density', dens.education || 'compact');
   root.setAttribute('data-dl-achievements-density', dens.achievements || 'compact');
+  root.setAttribute('data-typo-composed', 'true');
+  root.setAttribute(
+    'data-dl-optical',
+    String(Math.round((plan.opticalCompositionScore || 0) * 100))
+  );
 }
 
 /**
@@ -2996,7 +3033,7 @@ ${extraVars}
 `.trim();
 
   if (preservePremium) {
-    return `${structureCss}\n\n${buildProportionalSectionRules()}\n\n${buildRichContentLayoutCss(plan)}`;
+    return `${structureCss}\n\n${buildProportionalSectionRules()}\n\n${buildRichContentLayoutCss(plan)}\n\n${buildTypographicCompositionCss()}`;
   }
 
   return `
@@ -3005,6 +3042,8 @@ ${structureCss}
 ${buildProportionalSectionRules()}
 
 ${buildRichContentLayoutCss(plan)}
+
+${buildTypographicCompositionCss()}
 
 .resume-container section,
 .resume-container .content-section,
@@ -3240,8 +3279,8 @@ export function getDomAwareLayoutRefinementScript(): string {
     }
     if(fill<0.88||p.pageUnder||rhythm==='relaxed'){
       var ws=Math.max(0,m.remainingWhitespace/PAGE);
-      var tighten=Math.min(16,4+Math.round(Math.min(1,ws/0.2)*8)+Math.round(Math.max(0,(0.9-fill)/0.9)*10));
-      maxCh=Math.max(52,Math.min(72,maxCh-tighten));
+      var tighten=Math.min(18,4+Math.round(Math.min(1,ws/0.2)*8)+Math.round(Math.max(0,(0.9-fill)/0.9)*10));
+      maxCh=Math.max(45,Math.min(75,maxCh-tighten));
     }
     if(skillTags>=16)fsSkill=Math.min(fsSkill,0.84);
     var skillGap=Math.max(4,Math.min(12,Math.round(sidebarGapPx*0.55)));
@@ -3254,7 +3293,7 @@ export function getDomAwareLayoutRefinementScript(): string {
     root.style.setProperty('--dl-fs-skill',String(fsSkill));
     root.style.setProperty('--dl-lh-desc',String(1.62*lhDesc));
     root.style.setProperty('--dl-summary-max-ch',String(maxCh));
-    root.style.setProperty('--dl-content-measure-ch',String(Math.max(58,Math.min(78,maxCh-2))));
+    root.style.setProperty('--dl-content-measure-ch',String(Math.max(52,Math.min(75,maxCh-2))));
     root.style.setProperty('--resume-line-height','var(--dl-lh-desc)');
     root.style.setProperty('--resume-letter-spacing','0.012em');
     root.style.setProperty('--resume-bullet-gap',(rhythm==='compact'?0.36:0.42)+'em');
@@ -3262,6 +3301,50 @@ export function getDomAwareLayoutRefinementScript(): string {
     ['summary','experience','projects','education','skills','certifications','languages','achievements','interests'].forEach(function(k){
       root.style.setProperty('--dl-extra-'+k,'0px');
     });
+    var preferFill=fill<0.88||p.pageUnder||rhythm==='relaxed';
+  function composeBlock(el,varName,minCh,maxCh,prefer){
+    if(!el)return maxCh;
+    var text=(el.textContent||'').trim();
+    if(!text||text.length<20)return maxCh;
+    var best={ch:maxCh,score:-1,h:0};
+    for(var ch=minCh;ch<=maxCh;ch+=2){
+      el.style.setProperty('max-width','min(100%, '+ch+'ch)','important');
+      var h=el.getBoundingClientRect().height;
+      var lines=Math.max(1,Math.round(h/17.5));
+      var score=lines*(prefer?1.18:0.88);
+      if(lines<=2&&ch>66)score*=0.72;
+      if(ch<46||ch>75)score*=0.75;
+      if(score>best.score||(prefer&&Math.abs(score-best.score)<0.02&&h>best.h))best={ch:ch,score:score,h:h};
+    }
+    el.style.setProperty('max-width','min(100%, '+best.ch+'ch)','important');
+    root.style.setProperty(varName,String(best.ch));
+    return best.ch;
+  }
+  function composeTypographic(prefer){
+    var minCh=45,maxCh=75;
+    var sumEl=root.querySelector('.summary-text,.professional-summary,[class*="summary-text"],.objective-text');
+    if(sumEl)composeBlock(sumEl,'--dl-summary-max-ch',minCh,maxCh,prefer);
+    var descEls=root.querySelectorAll('.experience-item .description p,.experience-desc--paragraph,.experience-desc--lead,.project-item .description,.achievement-item .description');
+    if(descEls.length){
+      var bestCh=maxCh,bestScore=-1;
+      for(var ch=minCh;ch<=maxCh;ch+=2){
+        var score=0;
+        descEls.forEach(function(el){
+          el.style.setProperty('max-width','min(100%, '+ch+'ch)','important');
+          score+=Math.max(1,Math.round(el.getBoundingClientRect().height/17.5))*(prefer?1.12:0.9);
+        });
+        if(score>bestScore){bestScore=score;bestCh=ch;}
+      }
+      descEls.forEach(function(el){el.style.setProperty('max-width','min(100%, '+bestCh+'ch)','important');});
+      root.style.setProperty('--dl-content-measure-ch',String(bestCh));
+    }
+    root.setAttribute('data-typo-composed','true');
+  }
+  composeTypographic(preferFill);
+  if(preferFill&&m.remainingWhitespace>56){
+    composeTypographic(true);
+    if(measure().remainingWhitespace>48)composeTypographic(true);
+  }
     root.setAttribute('data-dl-refined','true');
     root.setAttribute('data-dl-fill',String(Math.round(measure().pageFillRatio*100)));
     root.setAttribute('data-dl-exp-count',String(expCount));
