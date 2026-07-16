@@ -1931,7 +1931,7 @@ describe('dynamic layout engine', () => {
     expect(sparse.skillColumns).toBeLessThanOrEqual(3);
   });
 
-  it('targets professional page fill band for sparse content (expand toward ~90%)', () => {
+  it('targets professional page fill band for sparse content via wrap reflow', () => {
     const sparse = computeDynamicLayoutPlan(
       {
         experience: [
@@ -1950,10 +1950,10 @@ describe('dynamic layout engine', () => {
           '<div class="resume-container" style="height:500px"><aside class="sidebar"><div class="skill-tag">Excel</div></aside><main><div class="experience-item">x</div><p class="summary-text">Brief profile.</p></main></div>',
       }
     );
-    // Sparse pages must expand internal spacing (not invent content).
-    expect(sparse.sectionPadding).toBeGreaterThan(6);
-    expect(sparse.experienceCardPadding).toBeGreaterThan(sparse.sectionPadding);
-    expect(sparse.lineHeightMul).toBeGreaterThan(1);
+    expect(sparse.layoutRhythm).toBe('relaxed');
+    expect(sparse.summaryMaxCh).toBeLessThan(68);
+    expect(sparse.sectionExtras.summary ?? 0).toBe(0);
+    expect(sparse.visualBalancingScore).toBeGreaterThan(0.45);
   });
 
   it('injects dynamic-layout CSS for PDF mode without refine script', () => {
@@ -2068,10 +2068,11 @@ describe('dynamic layout engine', () => {
       education: [{ institution: 'School', degree: 'MBA' }],
     }, { htmlTemplate: '<aside class="sidebar"></aside>', renderedHtml: longExpHtml });
 
-    expect(densePlan.lineHeightMul).toBeGreaterThanOrEqual(1.05);
-    expect(densePlan.bulletGap).toBeGreaterThanOrEqual(0.5);
+    expect(densePlan.lineHeightMul).toBeGreaterThanOrEqual(1);
+    expect(densePlan.bulletGap).toBeGreaterThanOrEqual(0.36);
     expect(densePlan.experienceListGap).toBeGreaterThanOrEqual(8);
     expect(densePlan.contentMeasureCh).toBeGreaterThanOrEqual(76);
+    expect(densePlan.sectionExtras.experience ?? 0).toBe(0);
   });
 
   it('resolves metadata-driven movable sections without template hardcoding', () => {

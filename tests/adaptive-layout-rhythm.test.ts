@@ -97,10 +97,11 @@ describe('adaptive layout rhythm', () => {
     );
   });
 
-  it('reflows underfill with tighter measure and higher leading (not wider empty lines)', () => {
+  it('reflows underfill with tighter measure (not wider empty lines or spacing hacks)', () => {
     const { computeTextReflowPlan } = require('@/lib/resume-builder/dynamic-layout-engine');
     const underfill = computeTextReflowPlan({
       remainingWhitespace: 280,
+      pageHeight: 1123,
       pageFill: 0.62,
       summaryWords: 55,
       experienceTextUnits: 6,
@@ -109,10 +110,10 @@ describe('adaptive layout rhythm', () => {
       layoutRhythm: 'relaxed',
       baseSummaryMaxCh: 68,
       baseContentMeasureCh: 72,
-      baseDescLineHeightMul: 1.12,
     });
     const compress = computeTextReflowPlan({
       remainingWhitespace: 0,
+      pageHeight: 1123,
       pageFill: 1.05,
       summaryWords: 90,
       experienceTextUnits: 18,
@@ -121,16 +122,15 @@ describe('adaptive layout rhythm', () => {
       layoutRhythm: 'compact',
       baseSummaryMaxCh: 68,
       baseContentMeasureCh: 72,
-      baseDescLineHeightMul: 1.12,
     });
-    expect(underfill.summaryMaxCh).toBeLessThanOrEqual(68);
-    expect(underfill.summaryMaxCh).toBeGreaterThanOrEqual(56);
-    expect(underfill.descLineHeightMul).toBeGreaterThan(compress.descLineHeightMul);
-    expect(underfill.summaryLineHeightMul).toBeGreaterThan(1.03);
+    expect(underfill.summaryMaxCh).toBeLessThan(68);
+    expect(underfill.summaryMaxCh).toBeGreaterThanOrEqual(52);
+    expect(underfill.contentMeasureCh).toBeLessThanOrEqual(72);
+    expect(underfill.estimatedSummaryLines).toBeGreaterThan(2);
     expect(compress.contentMeasureCh).toBeGreaterThanOrEqual(underfill.contentMeasureCh);
   });
 
-  it('distributes underfill whitespace toward summary and experience', () => {
+  it('distributes underfill via wrap measure on summary and experience', () => {
     const plan = computeDynamicLayoutPlan(
       {
         summary:
@@ -175,17 +175,19 @@ describe('adaptive layout rhythm', () => {
     expect(plan.sectionDensities.summary).toBe('relaxed');
     expect(['relaxed', 'normal']).toContain(plan.sectionDensities.experience);
     expect(plan.sectionDensities.education).toBe('compact');
-    expect(plan.sectionExtras.experience ?? 0).toBeGreaterThanOrEqual(
-      plan.sectionExtras.education ?? 0
-    );
-    expect(plan.summaryMaxCh).toBeGreaterThanOrEqual(56);
-    expect(plan.summaryMaxCh).toBeLessThanOrEqual(72);
+    expect(plan.sectionExtras.summary ?? 0).toBe(0);
+    expect(plan.sectionExtras.experience ?? 0).toBe(0);
+    expect(plan.summaryMaxCh).toBeGreaterThanOrEqual(52);
+    expect(plan.summaryMaxCh).toBeLessThan(68);
     expect(plan.contentMeasureCh).toBeGreaterThanOrEqual(58);
     expect(plan.contentMeasureCh).toBeLessThanOrEqual(78);
-    expect(plan.descLineHeightMul).toBeGreaterThan(1.12);
     expect(plan.visualBalancingScore).toBeGreaterThan(0.5);
     expect(plan.sidebarColumnBasisPct).toBeGreaterThanOrEqual(22);
     expect(plan.sidebarColumnBasisPct).toBeLessThanOrEqual(42);
+
+    const css = buildDynamicLayoutCss(plan, { preservePremiumTypography: true });
+    expect(css).toContain('--dl-extra-summary: 0px');
+    expect(css).toContain('max-width: min(100%, calc(var(--dl-summary-max-ch');
   });
 
   it('keeps compact density for long resumes without inventing stretch', () => {
