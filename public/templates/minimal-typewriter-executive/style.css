@@ -7,35 +7,35 @@
   --mte-muted: #555555;
   --mte-accent: #8B7EC8;
   --mte-accent-soft: rgba(139, 126, 200, 0.35);
-  --mte-divider: rgba(139, 126, 200, 0.55);
+  --mte-divider: rgba(217, 200, 234, 0.95);
   --mte-dot-empty: #D8D4E8;
   --mte-max-width: 210mm;
   --mte-font: 'IBM Plex Mono', 'Courier New', Courier, monospace;
 
-  --mte-section-gap: 18px;
-  --mte-block-gap: 12px;
-  --mte-heading-gap: 8px;
-  --mte-item-gap: 10px;
+  --mte-section-gap: 24px;
+  --mte-block-gap: 16px;
+  --mte-heading-gap: 10px;
+  --mte-item-gap: 14px;
 
-  --mte-lh-body: 1.65;
-  --mte-lh-tight: 1.35;
+  --mte-lh-body: 1.7;
+  --mte-lh-tight: 1.55;
   --mte-lh-name: 1.08;
   --mte-ws-body: 0.01em;
-  --mte-ws-heading: 0.14em;
+  --mte-ws-heading: 0.16em;
   --mte-ws-name: 0.06em;
   --mte-fw-name: 700;
   --mte-fw-title: 500;
   --mte-fw-section: 600;
   --mte-fw-company: 600;
   --mte-fw-body: 400;
-  --mte-fs-name: 34px;
-  --mte-fs-title: 10.5px;
-  --mte-fs-section: 9.5px;
-  --mte-fs-body: 9.5px;
-  --mte-fs-meta: 9px;
-  --mte-fs-small: 8.5px;
-  --mte-measure: 72ch;
-  --mte-photo-size: 92px;
+  --mte-fs-name: 58px;
+  --mte-fs-title: 19px;
+  --mte-fs-section: 20px;
+  --mte-fs-body: 14.8px;
+  --mte-fs-meta: 14.5px;
+  --mte-fs-small: 13.5px;
+  --mte-measure: 80ch;
+  --mte-photo-size: 96px;
 
   --primary-color: var(--mte-text);
   --accent-color: var(--mte-accent);
@@ -56,7 +56,7 @@
   max-width: var(--mte-max-width);
   min-height: auto;
   margin: 0 auto;
-  padding: 44px 52px 48px;
+  padding: 58px 56px 56px;
   font-family: var(--mte-font);
   font-size: var(--mte-fs-body);
   font-weight: var(--mte-fw-body);
@@ -83,8 +83,8 @@
 
 .mte-resume .mte-photo {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 2px;
+  right: 2px;
   z-index: 2;
   width: var(--mte-photo-size);
   height: var(--mte-photo-size);
@@ -95,10 +95,10 @@
   height: var(--mte-photo-size);
   border-radius: 50%;
   overflow: hidden;
-  border: 1.5px solid var(--mte-accent-soft);
+  border: 1px solid rgba(217, 200, 234, 0.95);
   box-shadow:
-    0 2px 8px rgba(17, 17, 17, 0.08),
-    0 0 0 1px rgba(139, 126, 200, 0.12);
+    0 10px 20px rgba(17, 17, 17, 0.10),
+    0 0 0 1px rgba(139, 126, 200, 0.18);
   background: var(--mte-bg);
   display: flex;
   align-items: center;
@@ -119,8 +119,8 @@
 }
 
 .mte-resume .mte-header:has(.mte-photo) .mte-header-inner {
-  padding-right: calc(var(--mte-photo-size) + 16px);
-  padding-left: calc(var(--mte-photo-size) + 16px);
+  padding-right: calc(var(--mte-photo-size) + 12px);
+  padding-left: 0;
 }
 
 .mte-resume .candidate-name {
@@ -131,7 +131,7 @@
   letter-spacing: var(--mte-ws-name);
   text-transform: uppercase;
   color: var(--mte-text-dark);
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
 .mte-resume .candidate-name .name-first,
@@ -178,16 +178,16 @@
 
 .mte-resume .mte-contact-item + .mte-contact-item::before {
   content: '|';
-  margin: 0 10px;
+  margin: 0 8px;
   color: var(--mte-divider);
   font-weight: 400;
 }
 
 .mte-resume .mte-header-rule {
   width: 100%;
-  height: 1px;
+  height: 1.2px;
   background: var(--mte-divider);
-  margin: 20px 0 var(--mte-section-gap);
+  margin: 26px 0 var(--mte-section-gap);
 }
 
 /* Sections */
@@ -202,7 +202,7 @@
 .mte-resume .mte-section {
   margin-bottom: var(--mte-section-gap);
   padding-bottom: var(--mte-section-gap);
-  border-bottom: 1px solid var(--mte-divider);
+  border-bottom: 1.2px solid var(--mte-divider);
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -339,8 +339,8 @@
 
 /* Skills */
 .mte-resume .mte-section--skills {
-  --mte-skill-gap: 7px;
-  --mte-skill-fs: 9px;
+  --mte-skill-gap: 10px;
+  --mte-skill-fs: 13.5px;
 }
 
 .mte-resume .mte-skills.psp-skills-progress,
@@ -374,43 +374,43 @@
 .mte-resume .psp-skill-item::after {
   content: '';
   flex-shrink: 0;
-  width: 6px;
-  height: 6px;
+  width: 7.5px;
+  height: 7.5px;
   border-radius: 50%;
   background: var(--accent-color);
   box-shadow:
-    10px 0 0 var(--accent-color),
-    20px 0 0 var(--accent-color),
-    30px 0 0 var(--accent-color),
-    40px 0 0 var(--mte-dot-empty),
-    50px 0 0 var(--mte-dot-empty);
+    12px 0 0 var(--accent-color),
+    24px 0 0 var(--accent-color),
+    36px 0 0 var(--accent-color),
+    48px 0 0 var(--mte-dot-empty),
+    60px 0 0 var(--mte-dot-empty);
 }
 
 .mte-resume .psp-skill-item:nth-child(3n + 1)::after {
   box-shadow:
-    10px 0 0 var(--accent-color),
-    20px 0 0 var(--accent-color),
-    30px 0 0 var(--accent-color),
-    40px 0 0 var(--accent-color),
-    50px 0 0 var(--mte-dot-empty);
+    12px 0 0 var(--accent-color),
+    24px 0 0 var(--accent-color),
+    36px 0 0 var(--accent-color),
+    48px 0 0 var(--accent-color),
+    60px 0 0 var(--mte-dot-empty);
 }
 
 .mte-resume .psp-skill-item:nth-child(3n + 2)::after {
   box-shadow:
-    10px 0 0 var(--accent-color),
-    20px 0 0 var(--accent-color),
-    30px 0 0 var(--accent-color),
-    40px 0 0 var(--mte-dot-empty),
-    50px 0 0 var(--mte-dot-empty);
+    12px 0 0 var(--accent-color),
+    24px 0 0 var(--accent-color),
+    36px 0 0 var(--accent-color),
+    48px 0 0 var(--mte-dot-empty),
+    60px 0 0 var(--mte-dot-empty);
 }
 
 .mte-resume .psp-skill-item:nth-child(5n)::after {
   box-shadow:
-    10px 0 0 var(--accent-color),
-    20px 0 0 var(--accent-color),
-    30px 0 0 var(--accent-color),
-    40px 0 0 var(--accent-color),
-    50px 0 0 var(--accent-color);
+    12px 0 0 var(--accent-color),
+    24px 0 0 var(--accent-color),
+    36px 0 0 var(--accent-color),
+    48px 0 0 var(--accent-color),
+    60px 0 0 var(--accent-color);
 }
 
 .mte-resume .psp-skill-name {
@@ -421,7 +421,7 @@
   font-weight: 500;
   color: var(--mte-text);
   padding: 0;
-  line-height: 1.35;
+  line-height: 1.45;
   letter-spacing: var(--mte-ws-body);
   text-shadow: none;
   white-space: normal;
@@ -436,23 +436,23 @@
   font-size: var(--mte-skill-fs);
   font-weight: 500;
   color: var(--mte-text);
-  margin: 0 8px 6px 0;
+  margin: 0 10px 8px 0;
   line-height: 1.35;
 }
 
 .mte-resume .mte-section--skills:has(.psp-skill-item:nth-child(9)):not(:has(.psp-skill-item:nth-child(18))) {
-  --mte-skill-gap: 5px;
-  --mte-skill-fs: 8.5px;
+  --mte-skill-gap: 7px;
+  --mte-skill-fs: 12px;
 }
 
 .mte-resume .mte-section--skills:has(.psp-skill-item:nth-child(18)):not(:has(.psp-skill-item:nth-child(30))) {
-  --mte-skill-gap: 4px;
-  --mte-skill-fs: 8px;
+  --mte-skill-gap: 6px;
+  --mte-skill-fs: 11px;
 }
 
 .mte-resume .mte-section--skills:has(.psp-skill-item:nth-child(30)) {
-  --mte-skill-gap: 3px;
-  --mte-skill-fs: 7.5px;
+  --mte-skill-gap: 5px;
+  --mte-skill-fs: 10px;
 }
 
 /* Achievements */
@@ -506,7 +506,7 @@
 .mte-resume .psp-languages-progress {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 24px;
+  gap: 12px 28px;
   width: 100%;
 }
 
@@ -541,34 +541,34 @@
 .mte-resume .psp-language-bar-container::after {
   content: '';
   display: block;
-  width: 6px;
-  height: 6px;
+  width: 7.5px;
+  height: 7.5px;
   border-radius: 50%;
   background: var(--accent-color);
   box-shadow:
-    10px 0 0 var(--accent-color),
-    20px 0 0 var(--accent-color),
-    30px 0 0 var(--mte-dot-empty),
-    40px 0 0 var(--mte-dot-empty),
-    50px 0 0 var(--mte-dot-empty);
+    12px 0 0 var(--accent-color),
+    24px 0 0 var(--accent-color),
+    36px 0 0 var(--mte-dot-empty),
+    48px 0 0 var(--mte-dot-empty),
+    60px 0 0 var(--mte-dot-empty);
 }
 
 .mte-resume .psp-language-item:nth-child(4n + 1) .psp-language-bar-container::after {
   box-shadow:
-    10px 0 0 var(--accent-color),
-    20px 0 0 var(--accent-color),
-    30px 0 0 var(--accent-color),
-    40px 0 0 var(--accent-color),
-    50px 0 0 var(--mte-dot-empty);
+    12px 0 0 var(--accent-color),
+    24px 0 0 var(--accent-color),
+    36px 0 0 var(--accent-color),
+    48px 0 0 var(--accent-color),
+    60px 0 0 var(--mte-dot-empty);
 }
 
 .mte-resume .psp-language-item:nth-child(4n + 3) .psp-language-bar-container::after {
   box-shadow:
-    10px 0 0 var(--accent-color),
-    20px 0 0 var(--accent-color),
-    30px 0 0 var(--mte-dot-empty),
-    40px 0 0 var(--mte-dot-empty),
-    50px 0 0 var(--mte-dot-empty);
+    12px 0 0 var(--accent-color),
+    24px 0 0 var(--accent-color),
+    36px 0 0 var(--mte-dot-empty),
+    48px 0 0 var(--mte-dot-empty),
+    60px 0 0 var(--mte-dot-empty);
 }
 
 .mte-resume .language-item {
@@ -806,13 +806,13 @@
     width: 794px !important;
     overflow: visible !important;
     background: var(--mte-bg) !important;
-    padding: 40px 48px 44px !important;
+    padding: 58px 56px 56px !important;
   }
 
   .mte-resume .profile-image-wrapper {
     box-shadow:
-      0 2px 8px rgba(17, 17, 17, 0.08),
-      0 0 0 1px rgba(139, 126, 200, 0.12) !important;
+      0 10px 20px rgba(17, 17, 17, 0.10),
+      0 0 0 1px rgba(139, 126, 200, 0.18) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -837,19 +837,27 @@
 }
 
 .resume-container.mte-resume {
-  --acb-lh-body: 1.65;
-  --acb-lh-tight: 1.35;
-  --acb-section-gap: clamp(10px, 1.4vw, 16px);
-  --acb-block-gap: clamp(8px, 1.2vw, 12px);
-  --acb-heading-gap: clamp(6px, 1vw, 10px);
+  --acb-lh-body: 1.7;
+  --acb-lh-tight: 1.55;
+  --acb-section-gap: clamp(18px, 2.4vw, 28px);
+  --acb-block-gap: clamp(12px, 2vw, 22px);
+  --acb-heading-gap: clamp(10px, 1.6vw, 14px);
+
+  --acb-size-name: clamp(40px, 7vw, 56px);
+  --acb-size-heading: clamp(16px, 2vw, 20px);
+  --acb-size-company: clamp(13px, 1.4vw, 14.5px);
+  --acb-size-job: clamp(13px, 1.4vw, 14.5px);
+  --acb-size-body: clamp(12.8px, 1.6vw, 14.8px);
+  --acb-size-small: clamp(11.5px, 1.5vw, 13.5px);
+  --acb-size-skill: clamp(10.5px, 1.6vw, 13.5px);
 }
 
 .resume-container.mte-resume section > h2,
 .resume-container.mte-resume .section-title,
 .resume-container.mte-resume [class*='section-title'] {
-  font-size: clamp(9px, 1vw, 10px) !important;
+  font-size: var(--acb-size-heading) !important;
   font-weight: 600 !important;
-  letter-spacing: 0.14em !important;
+  letter-spacing: 0.16em !important;
   line-height: 1.25 !important;
   margin-top: 0 !important;
   margin-bottom: var(--acb-heading-gap) !important;
@@ -860,9 +868,9 @@
 }
 
 .resume-container.mte-resume .summary-text {
-  font-size: clamp(9px, 0.95vw, 10px) !important;
+  font-size: var(--acb-size-body) !important;
   line-height: var(--acb-lh-body) !important;
-  max-width: var(--mte-measure);
+  max-width: 82ch;
   margin-top: 0 !important;
   margin-bottom: clamp(4px, 0.8vw, 8px) !important;
 }
@@ -876,7 +884,33 @@
 }
 
 .resume-container.mte-resume .experience-item .description li {
+  font-size: 14px !important;
   margin-bottom: clamp(2px, 0.4vw, 4px) !important;
+}
+
+/* Candidate / header typography */
+.resume-container.mte-resume .candidate-name,
+.resume-container.mte-resume .candidate-name .name-first,
+.resume-container.mte-resume .candidate-name .name-last {
+  font-size: var(--acb-size-name) !important;
+  letter-spacing: 0.03em !important;
+  line-height: 1.1 !important;
+}
+
+.resume-container.mte-resume .header-title {
+  font-size: clamp(15px, 2.4vw, 19px) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1.25 !important;
+  margin-bottom: 18px !important;
+}
+
+/* Keep body rhythm airy and readable */
+.resume-container.mte-resume .experience-item .description,
+.resume-container.mte-resume .project-item .description,
+.resume-container.mte-resume .description {
+  font-size: var(--acb-size-body) !important;
+  line-height: 1.7 !important;
 }
 
 .resume-container.mte-resume {
