@@ -53,6 +53,7 @@ import {
 } from './ats-content-balance-css';
 import { injectAdaptiveSpacingIntoHtml } from './adaptive-spacing-engine';
 import { injectParagraphFormattingIntoHtml } from './paragraph-formatting-engine';
+import { injectSidebarBalanceIntoHtml } from './column-balance-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
 import { composeBulletList, buildExperienceDescriptionMarkup, resolveExperienceDescriptionVolume } from './content-composition';
@@ -633,18 +634,24 @@ export function injectResumeData(
     }
   }
 
+  // Dynamic sidebar balancing for long resumes (move complete low-priority sections only).
+  result = injectSidebarBalanceIntoHtml(result, {
+    htmlTemplate,
+    templateId: resolvedTemplateId,
+  });
+
   // Spacing-only adaptive engine. Does not change fonts/line-height/max-width,
   // and never moves sections between columns (preserves premium template layout).
   result = injectAdaptiveSpacingIntoHtml(result, data, {
     htmlTemplate,
-    templateId: options?.templateId ?? options?.galleryTemplateId,
+    templateId: resolvedTemplateId,
     mode: renderMode === 'pdf' ? 'pdf' : 'preview',
   });
 
   // Paragraph layout last so full-width prose CSS wins over measure caps / spacing.
   result = injectParagraphFormattingIntoHtml(result, {
     htmlTemplate,
-    templateId: options?.templateId ?? options?.galleryTemplateId,
+    templateId: resolvedTemplateId,
   });
 
   return result;

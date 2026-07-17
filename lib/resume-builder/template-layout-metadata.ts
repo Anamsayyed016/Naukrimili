@@ -19,6 +19,7 @@ export type LayoutSectionPriorityKind =
   | 'languages'
   | 'achievements'
   | 'interests'
+  | 'references'
   | 'extended'
   | 'other';
 
@@ -28,14 +29,15 @@ export const DEFAULT_SECTION_PRIORITIES: Record<LayoutSectionPriorityKind, numbe
   contact: 98,
   experience: 95,
   summary: 90,
+  skills: 92,
+  languages: 91,
+  education: 88,
   projects: 70,
-  education: 65,
-  skills: 62,
-  certifications: 60,
-  languages: 50,
-  achievements: 48,
+  certifications: 58,
+  achievements: 50,
   interests: 40,
-  extended: 38,
+  references: 38,
+  extended: 36,
   other: 30,
 };
 
@@ -78,6 +80,7 @@ export interface ResolveTemplateLayoutMetadataInput {
 function columnKindToPriorityKind(kind: ColumnSectionKind): LayoutSectionPriorityKind {
   if (kind === 'interests') return 'interests';
   if (kind === 'contact') return 'contact';
+  if (kind === 'references') return 'references';
   if (kind === 'other') return 'other';
   return kind as LayoutSectionPriorityKind;
 }
@@ -122,7 +125,7 @@ function deriveMovableFromHtml(htmlTemplate: string): Set<ColumnSectionKind> {
     'achievements',
     'interests',
     'certifications',
-    'languages',
+    'references',
     'extended',
   ];
 
@@ -208,14 +211,15 @@ export function resolveTemplateLayoutMetadata(
     'experience',
     'education',
     'skills',
+    'languages',
     'contact',
   ];
   const defaultMovable: ColumnSectionKind[] = [
     'projects',
+    'certifications',
     'achievements',
     'interests',
-    'certifications',
-    'languages',
+    'references',
     'extended',
   ];
 

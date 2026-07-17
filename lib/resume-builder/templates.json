@@ -32,8 +32,8 @@
         "maxMovablePriority": 95,
         "leftSections": ["summary", "education", "skills", "languages", "certifications", "interests"],
         "rightSections": ["experience", "projects", "achievements", "extended"],
-        "fixedSections": ["summary", "experience", "contact", "skills"],
-        "movableSections": ["projects", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "extended"],
         "sectionPriorities": {
           "header": 100,
           "contact": 98,
@@ -81,8 +81,8 @@
         "maxMovablePriority": 95,
         "leftSections": ["summary", "education", "skills", "languages", "certifications", "interests"],
         "rightSections": ["experience", "projects", "achievements", "extended"],
-        "fixedSections": ["summary", "experience", "contact", "skills"],
-        "movableSections": ["projects", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "extended"],
         "sectionPriorities": {
           "header": 100,
           "contact": 98,
@@ -103,7 +103,7 @@
       "id": "navy-gold-executive",
       "name": "Navy Gold Executive",
       "slug": "navy-gold-executive",
-      "description": "Luxury editorial executive resume with navy and warm-gold accents, circular portrait header, icon contact row, gold experience timeline, project cards, and a rebalancing 64/36 main–sidebar layout for ATS-friendly PDF export.",
+      "description": "Luxury editorial executive resume with navy and warm-gold accents, circular portrait header, icon contact row, gold experience timeline, project cards, and a rebalancing 64/36 mainâ€“sidebar layout for ATS-friendly PDF export.",
       "thumbnail": "/templates/navy-gold-executive/thumbnail.svg",
       "preview": "/templates/navy-gold-executive/preview.svg",
       "html": "/templates/navy-gold-executive/index.html",
@@ -130,8 +130,8 @@
         "maxMovablePriority": 95,
         "leftSections": ["summary", "education", "skills", "languages", "certifications", "interests"],
         "rightSections": ["experience", "projects", "achievements", "extended"],
-        "fixedSections": ["summary", "experience", "contact"],
-        "movableSections": ["projects", "skills", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "extended"],
         "sectionPriorities": {
           "header": 100,
           "contact": 98,
@@ -179,8 +179,8 @@
         "maxMovablePriority": 95,
         "leftSections": ["summary", "education", "skills", "languages", "certifications", "interests"],
         "rightSections": ["experience", "projects", "achievements", "extended"],
-        "fixedSections": ["summary", "experience", "contact", "skills"],
-        "movableSections": ["projects", "education", "certifications", "languages", "achievements", "interests", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "extended"],
         "sectionPriorities": {
           "header": 100,
           "contact": 98,
@@ -229,8 +229,8 @@
         "maxMovablePriority": 95,
         "leftSections": ["summary", "education", "skills", "languages", "certifications", "interests"],
         "rightSections": ["experience", "projects", "achievements", "extended"],
-        "fixedSections": ["summary", "experience", "education", "skills", "contact"],
-        "movableSections": ["projects", "achievements", "certifications", "languages", "interests", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "extended"],
         "sectionPriorities": {
           "header": 100,
           "contact": 98,
@@ -273,3 +273,4 @@
     ]
   }
 }
+
