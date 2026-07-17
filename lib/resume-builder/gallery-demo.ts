@@ -79,6 +79,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-violet-300/55',
     hoverOverlay: 'from-stone-50/35',
   },
+  'emerald-editorial-executive': {
+    glow: 'radial-gradient(circle, rgba(185,140,77,0.4) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(38,70,63,0.32) 0%, transparent 70%)',
+    borderTint: 'hover:border-emerald-800/45',
+    hoverOverlay: 'from-stone-100/35',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -94,6 +100,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'slate-elite-professional': { firstName: 'Jeremy', lastName: 'Torres', jobTitle: 'Graphic Designer' },
   'neo-lime-executive': { firstName: 'Sarah', lastName: 'Chen', jobTitle: 'UX Research Lead' },
   'royal-plum-executive': { firstName: 'Alexandra', lastName: 'Kemp', jobTitle: 'Product Design Strategist | Design Collective' },
+  'emerald-editorial-executive': { firstName: 'Brock', lastName: 'Henrecks', jobTitle: 'Graphic Designer' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

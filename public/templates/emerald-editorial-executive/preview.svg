@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FCFBF8"/>
+  <rect width="600" height="22" fill="#26463F"/>
+  <rect x="560" y="0" width="28" height="150" fill="#B98C4D"/>
+  <text x="44" y="70" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#202020" letter-spacing="1.5">BROCK HENRECKS</text>
+  <text x="44" y="94" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#666666" letter-spacing="2.5">GRAPHIC DESIGNER</text>
+  <text x="548" y="58" text-anchor="end" font-family="Arial, sans-serif" font-size="8" fill="#202020">123 Anywhere St., Any City</text>
+  <line x1="390" y1="64" x2="548" y2="64" stroke="#DADADA" stroke-width="0.8"/>
+  <circle cx="574" cy="58" r="7" fill="#26463F"/>
+  <text x="548" y="82" text-anchor="end" font-family="Arial, sans-serif" font-size="8" fill="#202020">+123-456-7890</text>
+  <line x1="430" y1="88" x2="548" y2="88" stroke="#DADADA" stroke-width="0.8"/>
+  <circle cx="574" cy="82" r="7" fill="#26463F"/>
+  <text x="548" y="106" text-anchor="end" font-family="Arial, sans-serif" font-size="8" fill="#202020">hello@reallygreatsite.com</text>
+  <line x1="380" y1="112" x2="548" y2="112" stroke="#DADADA" stroke-width="0.8"/>
+  <circle cx="574" cy="106" r="7" fill="#26463F"/>
+  <text x="548" y="130" text-anchor="end" font-family="Arial, sans-serif" font-size="8" fill="#202020">www.reallygreatsite.com</text>
+  <circle cx="574" cy="130" r="7" fill="#26463F"/>
+  <!-- Sidebar -->
+  <text x="44" y="180" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#202020" letter-spacing="2">AWARD</text>
+  <line x1="44" y1="188" x2="190" y2="188" stroke="#DADADA" stroke-width="1"/>
+  <text x="44" y="214" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#202020" letter-spacing="0.8">BEST DESIGNER OF THE YEAR</text>
+  <text x="44" y="230" font-family="Arial, sans-serif" font-size="8" fill="#666666">Ginyard International Co. | 2018-2019</text>
+  <text x="44" y="256" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#202020" letter-spacing="0.8">MOST FAVORABLE DESIGNER</text>
+  <text x="44" y="272" font-family="Arial, sans-serif" font-size="8" fill="#666666">Ginyard International Co. | 2018-2019</text>
+  <text x="44" y="310" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#202020" letter-spacing="2">EXPERTISE</text>
+  <line x1="44" y1="318" x2="190" y2="318" stroke="#DADADA" stroke-width="1"/>
+  <circle cx="50" cy="340" r="2.2" fill="#26463F"/><text x="60" y="344" font-family="Arial, sans-serif" font-size="9" fill="#202020">UI/UX</text>
+  <circle cx="50" cy="362" r="2.2" fill="#26463F"/><text x="60" y="366" font-family="Arial, sans-serif" font-size="9" fill="#202020">Visual Communication</text>
+  <circle cx="50" cy="384" r="2.2" fill="#26463F"/><text x="60" y="388" font-family="Arial, sans-serif" font-size="9" fill="#202020">Branding</text>
+  <circle cx="50" cy="406" r="2.2" fill="#26463F"/><text x="60" y="410" font-family="Arial, sans-serif" font-size="9" fill="#202020">Motion</text>
+  <text x="44" y="450" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#202020" letter-spacing="2">INTERESTS</text>
+  <line x1="44" y1="458" x2="190" y2="458" stroke="#DADADA" stroke-width="1"/>
+  <circle cx="50" cy="480" r="2.2" fill="#26463F"/><text x="60" y="484" font-family="Arial, sans-serif" font-size="9" fill="#202020">Street Art</text>
+  <circle cx="50" cy="502" r="2.2" fill="#26463F"/><text x="60" y="506" font-family="Arial, sans-serif" font-size="9" fill="#202020">Motion Design</text>
+  <circle cx="50" cy="524" r="2.2" fill="#26463F"/><text x="60" y="528" font-family="Arial, sans-serif" font-size="9" fill="#202020">Team Management</text>
+  <!-- Experience card -->
+  <rect x="220" y="164" width="328" height="320" fill="#FFFFFF" stroke="#DADADA" stroke-width="1"/>
+  <text x="240" y="192" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#202020" letter-spacing="1.8">EXPERIENCE</text>
+  <line x1="240" y1="200" x2="528" y2="200" stroke="#DADADA" stroke-width="1"/>
+  <line x1="252" y1="220" x2="252" y2="450" stroke="#DADADA" stroke-width="1"/>
+  <circle cx="252" cy="228" r="4" fill="#26463F"/>
+  <text x="270" y="232" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#202020" letter-spacing="0.8">JUNIOR GRAPHIC DESIGNER</text>
+  <text x="270" y="248" font-family="Arial, sans-serif" font-size="8" fill="#666666">Ginyard International Co. | Any City | From 2018 - 2019</text>
+  <rect x="270" y="260" width="240" height="3" rx="1.5" fill="#E8E8E8"/>
+  <rect x="270" y="270" width="220" height="3" rx="1.5" fill="#E8E8E8"/>
+  <circle cx="276" cy="286" r="1.6" fill="#26463F"/><rect x="286" y="283" width="200" height="3" rx="1.5" fill="#E8E8E8"/>
+  <circle cx="276" cy="300" r="1.6" fill="#26463F"/><rect x="286" y="297" width="180" height="3" rx="1.5" fill="#E8E8E8"/>
+  <circle cx="252" cy="330" r="4" fill="#26463F"/>
+  <text x="270" y="334" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#202020" letter-spacing="0.8">GRAPHIC DESIGN INTERN</text>
+  <text x="270" y="350" font-family="Arial, sans-serif" font-size="8" fill="#666666">Ginyard International Co. | Any City | From 2016 - 2017</text>
+  <rect x="270" y="362" width="240" height="3" rx="1.5" fill="#E8E8E8"/>
+  <circle cx="276" cy="378" r="1.6" fill="#26463F"/><rect x="286" y="375" width="200" height="3" rx="1.5" fill="#E8E8E8"/>
+  <!-- References card -->
+  <rect x="220" y="504" width="328" height="150" fill="#FFFFFF" stroke="#DADADA" stroke-width="1"/>
+  <text x="240" y="532" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#202020" letter-spacing="1.8">REFERENCES</text>
+  <line x1="240" y1="540" x2="528" y2="540" stroke="#DADADA" stroke-width="1"/>
+  <circle cx="248" cy="564" r="3.5" fill="#26463F"/>
+  <text x="260" y="568" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#202020" letter-spacing="0.6">ESTELLE DARCY</text>
+  <text x="260" y="584" font-family="Arial, sans-serif" font-size="7.5" fill="#666666">Wardiere Inc.</text>
+  <text x="260" y="598" font-family="Arial, sans-serif" font-size="7.5" fill="#666666">P: 123-456-7890</text>
+  <circle cx="400" cy="564" r="3.5" fill="#26463F"/>
+  <text x="412" y="568" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#202020" letter-spacing="0.6">HARPER RUSSO</text>
+  <text x="412" y="584" font-family="Arial, sans-serif" font-size="7.5" fill="#666666">Wardiere Inc.</text>
+  <text x="412" y="598" font-family="Arial, sans-serif" font-size="7.5" fill="#666666">P: 123-456-7890</text>
+  <text x="300" y="760" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-weight="600" fill="#26463F" letter-spacing="0.6">Emerald Editorial Executive</text>
+</svg>

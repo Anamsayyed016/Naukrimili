@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container eee-resume">
+    <div class="eee-topbar" aria-hidden="true"></div>
+
+    <header class="eee-header">
+      <div class="eee-identity">
+        <h1 class="candidate-name">
+          <span class="name-first">{{FIRST_NAME}}</span>
+          <span class="name-space"> </span>
+          <span class="name-last">{{LAST_NAME}}</span>
+          <span class="name-fallback">{{FULL_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <p class="header-title">{{JOB_TITLE}}</p>
+        {{/if}}
+      </div>
+
+      <div class="eee-contact-block">
+        <div class="eee-contact-lines">
+          {{#if LOCATION}}
+          <div class="eee-contact-line eee-contact-line--location">
+            <span class="eee-contact-value">{{LOCATION}}</span>
+            <span class="eee-contact-icon" aria-hidden="true"></span>
+          </div>
+          {{/if}}
+          {{#if PHONE}}
+          <div class="eee-contact-line eee-contact-line--phone">
+            <span class="eee-contact-value">{{PHONE}}</span>
+            <span class="eee-contact-icon" aria-hidden="true"></span>
+          </div>
+          {{/if}}
+          {{#if EMAIL}}
+          <div class="eee-contact-line eee-contact-line--email">
+            <span class="eee-contact-value">{{EMAIL}}</span>
+            <span class="eee-contact-icon" aria-hidden="true"></span>
+          </div>
+          {{/if}}
+          {{#if PORTFOLIO}}
+          <div class="eee-contact-line eee-contact-line--web">
+            <span class="eee-contact-value">{{PORTFOLIO}}</span>
+            <span class="eee-contact-icon" aria-hidden="true"></span>
+          </div>
+          {{/if}}
+          {{#if LINKEDIN}}
+          <div class="eee-contact-line eee-contact-line--linkedin">
+            <span class="eee-contact-value">{{LINKEDIN}}</span>
+            <span class="eee-contact-icon" aria-hidden="true"></span>
+          </div>
+          {{/if}}
+        </div>
+        <div class="eee-gold-strip" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <div class="eee-body">
+      <aside class="eee-sidebar">
+        {{#if ACHIEVEMENTS}}
+        <section class="eee-section eee-section--awards">
+          <h2 class="eee-section-title"><span class="eee-section-label">Award</span></h2>
+          <div class="achievements-list eee-awards">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="eee-section eee-section--expertise">
+          <h2 class="eee-section-title"><span class="eee-section-label">Expertise</span></h2>
+          <div class="skills-list eee-expertise">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="eee-section eee-section--education">
+          <h2 class="eee-section-title"><span class="eee-section-label">Education</span></h2>
+          <div class="education-list eee-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="eee-section eee-section--languages">
+          <h2 class="eee-section-title"><span class="eee-section-label">Languages</span></h2>
+          <div class="languages-list eee-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="eee-section eee-section--certifications">
+          <h2 class="eee-section-title"><span class="eee-section-label">Certifications</span></h2>
+          <div class="certifications-list eee-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="eee-section eee-section--interests">
+          <h2 class="eee-section-title"><span class="eee-section-label">Interests</span></h2>
+          <div class="hobbies-list eee-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="eee-main">
+        {{#if SUMMARY}}
+        <section class="eee-section eee-section--summary eee-card">
+          <h2 class="eee-section-title"><span class="eee-section-label">Summary</span></h2>
+          <div class="eee-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="eee-section eee-section--experience eee-card">
+          <h2 class="eee-section-title"><span class="eee-section-label">Experience</span></h2>
+          <div class="experience-list eee-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="eee-section eee-section--projects eee-card">
+          <h2 class="eee-section-title"><span class="eee-section-label">Projects</span></h2>
+          <div class="projects-list eee-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

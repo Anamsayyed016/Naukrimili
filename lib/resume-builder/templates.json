@@ -442,6 +442,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "emerald-editorial-executive",
+      "name": "Emerald Editorial Executive",
+      "slug": "emerald-editorial-executive",
+      "description": "Premium editorial two-column resume with deep emerald top bar, warm gold contact accent strip, Playfair Display typography, award/expertise sidebar, timeline experience cards, adaptive reference grid, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/emerald-editorial-executive/thumbnail.svg",
+      "preview": "/templates/emerald-editorial-executive/preview.svg",
+      "html": "/templates/emerald-editorial-executive/index.html",
+      "css": "/templates/emerald-editorial-executive/style.css",
+      "categories": ["Premium", "Editorial", "Professional", "Executive", "Modern Editorial", "Two Column", "ATS", "Sidebar", "Multi Page"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": false,
+      "recommended": true,
+      "colors": [
+        { "id": "emerald-editorial", "name": "Emerald Editorial", "primary": "#26463F", "accent": "#B98C4D", "text": "#202020" },
+        { "id": "deep-forest", "name": "Deep Forest", "primary": "#1F3A34", "accent": "#B98C4D", "text": "#202020" },
+        { "id": "warm-gold", "name": "Warm Gold", "primary": "#26463F", "accent": "#C49A5A", "text": "#202020" },
+        { "id": "olive-editorial", "name": "Olive Editorial", "primary": "#2F4F45", "accent": "#B98C4D", "text": "#1A1A1A" },
+        { "id": "ink-emerald", "name": "Ink Emerald", "primary": "#1A332E", "accent": "#A87E42", "text": "#202020" }
+      ],
+      "defaultColor": "emerald-editorial",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 68,
+        "sidebarColumnBasisPct": 32,
+        "maxMovablePriority": 95,
+        "leftSections": ["achievements", "skills", "education", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "projects", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "achievements"],
+        "movableSections": ["projects", "certifications", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 84,
+          "achievements": 80,
+          "projects": 72,
+          "certifications": 62,
+          "languages": 54,
+          "interests": 42,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
@@ -454,6 +504,7 @@
       "Modern",
       "Professional",
       "Executive",
+      "Editorial",
       "Creative"
     ],
     "layouts": [
