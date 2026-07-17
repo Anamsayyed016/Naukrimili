@@ -1,0 +1,896 @@
+/* Minimal Typewriter Executive — premium editorial monospace resume */
+
+.mte-resume {
+  --mte-bg: #FFFFFF;
+  --mte-text: #111111;
+  --mte-text-dark: #000000;
+  --mte-muted: #555555;
+  --mte-accent: #8B7EC8;
+  --mte-accent-soft: rgba(139, 126, 200, 0.35);
+  --mte-divider: rgba(139, 126, 200, 0.55);
+  --mte-dot-empty: #D8D4E8;
+  --mte-max-width: 210mm;
+  --mte-font: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+
+  --mte-section-gap: 18px;
+  --mte-block-gap: 12px;
+  --mte-heading-gap: 8px;
+  --mte-item-gap: 10px;
+
+  --mte-lh-body: 1.65;
+  --mte-lh-tight: 1.35;
+  --mte-lh-name: 1.08;
+  --mte-ws-body: 0.01em;
+  --mte-ws-heading: 0.14em;
+  --mte-ws-name: 0.06em;
+  --mte-fw-name: 700;
+  --mte-fw-title: 500;
+  --mte-fw-section: 600;
+  --mte-fw-company: 600;
+  --mte-fw-body: 400;
+  --mte-fs-name: 34px;
+  --mte-fs-title: 10.5px;
+  --mte-fs-section: 9.5px;
+  --mte-fs-body: 9.5px;
+  --mte-fs-meta: 9px;
+  --mte-fs-small: 8.5px;
+  --mte-measure: 72ch;
+  --mte-photo-size: 92px;
+
+  --primary-color: var(--mte-text);
+  --accent-color: var(--mte-accent);
+  --text-color: var(--mte-text);
+}
+
+.mte-resume,
+.mte-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.mte-resume,
+.resume-container.mte-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--mte-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 44px 52px 48px;
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-body);
+  font-weight: var(--mte-fw-body);
+  line-height: var(--mte-lh-body);
+  letter-spacing: var(--mte-ws-body);
+  word-spacing: 0.02em;
+  color: var(--mte-text);
+  background: var(--mte-bg) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.mte-resume .mte-header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mte-resume .mte-photo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: var(--mte-photo-size);
+  height: var(--mte-photo-size);
+}
+
+.mte-resume .profile-image-wrapper {
+  width: var(--mte-photo-size);
+  height: var(--mte-photo-size);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid var(--mte-accent-soft);
+  box-shadow:
+    0 2px 8px rgba(17, 17, 17, 0.08),
+    0 0 0 1px rgba(139, 126, 200, 0.12);
+  background: var(--mte-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mte-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.mte-resume .mte-header-inner {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.mte-resume .mte-header:has(.mte-photo) .mte-header-inner {
+  padding-right: calc(var(--mte-photo-size) + 16px);
+  padding-left: calc(var(--mte-photo-size) + 16px);
+}
+
+.mte-resume .candidate-name {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-name);
+  font-weight: var(--mte-fw-name);
+  line-height: var(--mte-lh-name);
+  letter-spacing: var(--mte-ws-name);
+  text-transform: uppercase;
+  color: var(--mte-text-dark);
+  margin-bottom: 6px;
+}
+
+.mte-resume .candidate-name .name-first,
+.mte-resume .candidate-name .name-last {
+  display: inline;
+}
+
+.mte-resume .candidate-name .name-fallback {
+  display: none;
+}
+
+.mte-resume .candidate-name:not(:has(.name-first)):not(:has(.name-last)) .name-fallback {
+  display: inline;
+}
+
+.mte-resume .header-title {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-title);
+  font-weight: var(--mte-fw-title);
+  letter-spacing: 0.08em;
+  color: var(--mte-muted);
+  margin-bottom: 14px;
+  line-height: var(--mte-lh-tight);
+}
+
+.mte-resume .mte-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font-size: var(--mte-fs-meta);
+  color: var(--mte-muted);
+  line-height: 1.5;
+}
+
+.mte-resume .mte-contact-item {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.mte-resume .mte-contact-item + .mte-contact-item::before {
+  content: '|';
+  margin: 0 10px;
+  color: var(--mte-divider);
+  font-weight: 400;
+}
+
+.mte-resume .mte-header-rule {
+  width: 100%;
+  height: 1px;
+  background: var(--mte-divider);
+  margin: 20px 0 var(--mte-section-gap);
+}
+
+/* Sections */
+.mte-resume .mte-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mte-resume .mte-section {
+  margin-bottom: var(--mte-section-gap);
+  padding-bottom: var(--mte-section-gap);
+  border-bottom: 1px solid var(--mte-divider);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mte-resume .mte-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.mte-resume .mte-section-title {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-section);
+  font-weight: var(--mte-fw-section);
+  letter-spacing: var(--mte-ws-heading);
+  text-transform: uppercase;
+  color: var(--accent-color);
+  line-height: 1.25;
+  margin-bottom: var(--mte-heading-gap);
+}
+
+.mte-resume .summary-text {
+  font-size: var(--mte-fs-body);
+  line-height: var(--mte-lh-body);
+  color: var(--mte-text);
+  max-width: var(--mte-measure);
+  letter-spacing: var(--mte-ws-body);
+}
+
+/* Experience */
+.mte-resume .mte-experience {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mte-block-gap);
+}
+
+.mte-resume .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mte-resume .experience-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-bottom: 5px;
+}
+
+.mte-resume .experience-header h3 {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-body);
+  font-weight: var(--mte-fw-company);
+  color: var(--mte-text-dark);
+  line-height: var(--mte-lh-tight);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mte-resume .experience-header .company {
+  font-size: var(--mte-fs-meta);
+  font-weight: var(--mte-fw-body);
+  color: var(--mte-muted);
+}
+
+.mte-resume .experience-header .duration {
+  font-size: var(--mte-fs-meta);
+  color: var(--mte-muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.mte-resume .experience-item .description {
+  font-size: var(--mte-fs-body);
+  line-height: var(--mte-lh-body);
+  color: var(--mte-text);
+}
+
+.mte-resume .experience-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mte-resume .experience-item .description li {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 3px;
+}
+
+.mte-resume .experience-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--mte-text);
+}
+
+.mte-resume .experience-item .description li:last-child {
+  margin-bottom: 0;
+}
+
+/* Education */
+.mte-resume .mte-education {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mte-item-gap);
+}
+
+.mte-resume .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mte-resume .education-item h3 {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-body);
+  font-weight: var(--mte-fw-company);
+  color: var(--mte-text-dark);
+  line-height: var(--mte-lh-tight);
+}
+
+.mte-resume .education-item .institution,
+.mte-resume .education-item .year,
+.mte-resume .education-item .cgpa {
+  display: block;
+  font-size: var(--mte-fs-meta);
+  color: var(--mte-muted);
+  line-height: 1.5;
+}
+
+/* Skills */
+.mte-resume .mte-section--skills {
+  --mte-skill-gap: 7px;
+  --mte-skill-fs: 9px;
+}
+
+.mte-resume .mte-skills.psp-skills-progress,
+.mte-resume .psp-skills-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mte-skill-gap);
+  width: 100%;
+}
+
+.mte-resume .psp-skill-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  margin: 0;
+  padding: 2px 0;
+}
+
+.mte-resume .psp-skill-item::before {
+  display: none;
+}
+
+.mte-resume .psp-skill-item::after {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow:
+    10px 0 0 var(--accent-color),
+    20px 0 0 var(--accent-color),
+    30px 0 0 var(--accent-color),
+    40px 0 0 var(--mte-dot-empty),
+    50px 0 0 var(--mte-dot-empty);
+}
+
+.mte-resume .psp-skill-item:nth-child(3n + 1)::after {
+  box-shadow:
+    10px 0 0 var(--accent-color),
+    20px 0 0 var(--accent-color),
+    30px 0 0 var(--accent-color),
+    40px 0 0 var(--accent-color),
+    50px 0 0 var(--mte-dot-empty);
+}
+
+.mte-resume .psp-skill-item:nth-child(3n + 2)::after {
+  box-shadow:
+    10px 0 0 var(--accent-color),
+    20px 0 0 var(--accent-color),
+    30px 0 0 var(--accent-color),
+    40px 0 0 var(--mte-dot-empty),
+    50px 0 0 var(--mte-dot-empty);
+}
+
+.mte-resume .psp-skill-item:nth-child(5n)::after {
+  box-shadow:
+    10px 0 0 var(--accent-color),
+    20px 0 0 var(--accent-color),
+    30px 0 0 var(--accent-color),
+    40px 0 0 var(--accent-color),
+    50px 0 0 var(--accent-color);
+}
+
+.mte-resume .psp-skill-name {
+  position: static;
+  z-index: auto;
+  font-family: var(--mte-font);
+  font-size: var(--mte-skill-fs);
+  font-weight: 500;
+  color: var(--mte-text);
+  padding: 0;
+  line-height: 1.35;
+  letter-spacing: var(--mte-ws-body);
+  text-shadow: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mte-resume .mte-skills .skill-tag {
+  display: inline-block;
+  font-size: var(--mte-skill-fs);
+  font-weight: 500;
+  color: var(--mte-text);
+  margin: 0 8px 6px 0;
+  line-height: 1.35;
+}
+
+.mte-resume .mte-section--skills:has(.psp-skill-item:nth-child(9)):not(:has(.psp-skill-item:nth-child(18))) {
+  --mte-skill-gap: 5px;
+  --mte-skill-fs: 8.5px;
+}
+
+.mte-resume .mte-section--skills:has(.psp-skill-item:nth-child(18)):not(:has(.psp-skill-item:nth-child(30))) {
+  --mte-skill-gap: 4px;
+  --mte-skill-fs: 8px;
+}
+
+.mte-resume .mte-section--skills:has(.psp-skill-item:nth-child(30)) {
+  --mte-skill-gap: 3px;
+  --mte-skill-fs: 7.5px;
+}
+
+/* Achievements */
+.mte-resume .mte-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mte-resume .achievement-item {
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-left: 12px;
+}
+
+.mte-resume .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--mte-text);
+}
+
+.mte-resume .achievement-item h3 {
+  font-size: var(--mte-fs-body);
+  font-weight: 600;
+  color: var(--mte-text-dark);
+  line-height: var(--mte-lh-tight);
+}
+
+.mte-resume .achievement-item .description {
+  font-size: var(--mte-fs-body);
+  color: var(--mte-text);
+  line-height: var(--mte-lh-body);
+}
+
+.mte-resume .achievement-item .year,
+.mte-resume .achievement-item .date {
+  font-size: var(--mte-fs-meta);
+  color: var(--mte-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* Languages */
+.mte-resume .mte-languages.psp-languages-progress,
+.mte-resume .psp-languages-progress {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 24px;
+  width: 100%;
+}
+
+.mte-resume .psp-language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mte-resume .psp-language-name {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-body);
+  font-weight: 500;
+  color: var(--mte-text);
+  line-height: var(--mte-lh-tight);
+}
+
+.mte-resume .psp-language-bar-container {
+  position: relative;
+  height: 8px;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.mte-resume .psp-language-bar-fill {
+  display: none;
+}
+
+.mte-resume .psp-language-bar-container::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow:
+    10px 0 0 var(--accent-color),
+    20px 0 0 var(--accent-color),
+    30px 0 0 var(--mte-dot-empty),
+    40px 0 0 var(--mte-dot-empty),
+    50px 0 0 var(--mte-dot-empty);
+}
+
+.mte-resume .psp-language-item:nth-child(4n + 1) .psp-language-bar-container::after {
+  box-shadow:
+    10px 0 0 var(--accent-color),
+    20px 0 0 var(--accent-color),
+    30px 0 0 var(--accent-color),
+    40px 0 0 var(--accent-color),
+    50px 0 0 var(--mte-dot-empty);
+}
+
+.mte-resume .psp-language-item:nth-child(4n + 3) .psp-language-bar-container::after {
+  box-shadow:
+    10px 0 0 var(--accent-color),
+    20px 0 0 var(--accent-color),
+    30px 0 0 var(--mte-dot-empty),
+    40px 0 0 var(--mte-dot-empty),
+    50px 0 0 var(--mte-dot-empty);
+}
+
+.mte-resume .language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mte-resume .language-item .language {
+  font-size: var(--mte-fs-body);
+  font-weight: 500;
+  color: var(--mte-text);
+}
+
+.mte-resume .language-item .proficiency {
+  font-size: var(--mte-fs-meta);
+  color: var(--mte-muted);
+}
+
+/* Projects */
+.mte-resume .mte-projects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mte-block-gap);
+}
+
+.mte-resume .project-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mte-resume .project-item h3 {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-body);
+  font-weight: var(--mte-fw-company);
+  color: var(--mte-text-dark);
+  line-height: var(--mte-lh-tight);
+  margin-bottom: 3px;
+}
+
+.mte-resume .project-item .description {
+  font-size: var(--mte-fs-body);
+  line-height: var(--mte-lh-body);
+  color: var(--mte-text);
+}
+
+.mte-resume .project-item .technologies {
+  font-size: var(--mte-fs-meta);
+  color: var(--mte-muted);
+  margin-top: 3px;
+}
+
+.mte-resume .project-item .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.mte-resume .project-item .description li {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 2px;
+}
+
+.mte-resume .project-item .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--mte-text);
+}
+
+/* Certifications */
+.mte-resume .mte-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mte-item-gap);
+}
+
+.mte-resume .certification-item h3 {
+  font-size: var(--mte-fs-body);
+  font-weight: 600;
+  color: var(--mte-text-dark);
+  line-height: var(--mte-lh-tight);
+}
+
+.mte-resume .certification-item .issuer,
+.mte-resume .certification-item .date {
+  font-size: var(--mte-fs-meta);
+  color: var(--mte-muted);
+  display: block;
+}
+
+/* Hobbies */
+.mte-resume .mte-hobbies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.mte-resume .hobby-item,
+.mte-resume .mte-hobbies .hobby-tag {
+  font-size: var(--mte-fs-body);
+  color: var(--mte-text);
+}
+
+/* Extended sections */
+.mte-resume .extended-section {
+  margin-bottom: var(--mte-section-gap);
+  padding-bottom: var(--mte-section-gap);
+  border-bottom: 1px solid var(--mte-divider);
+}
+
+.mte-resume .extended-section h2,
+.mte-resume .extended-section .section-title {
+  font-family: var(--mte-font);
+  font-size: var(--mte-fs-section);
+  font-weight: var(--mte-fw-section);
+  letter-spacing: var(--mte-ws-heading);
+  text-transform: uppercase;
+  color: var(--accent-color);
+  margin-bottom: var(--mte-heading-gap);
+}
+
+.mte-resume .extended-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.mte-resume .extended-section li {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 3px;
+}
+
+.mte-resume .extended-section li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--mte-text);
+}
+
+/* Adaptive density */
+.mte-resume:has(.experience-item:nth-child(6)) {
+  --mte-section-gap: 14px;
+  --mte-block-gap: 10px;
+  padding-bottom: 36px;
+}
+
+.mte-resume:has(.experience-item:nth-child(8)),
+.mte-resume:has(.project-item:nth-child(8)) {
+  --mte-section-gap: 11px;
+  --mte-block-gap: 8px;
+  --mte-heading-gap: 6px;
+  padding-top: 36px;
+  padding-bottom: 32px;
+}
+
+.mte-resume:has(.experience-item:nth-child(10)),
+.mte-resume:has(.psp-skill-item:nth-child(40)) {
+  --mte-section-gap: 9px;
+  --mte-block-gap: 7px;
+  --mte-fs-body: 9px;
+  --mte-fs-meta: 8.5px;
+  padding-top: 32px;
+  padding-bottom: 28px;
+}
+
+.mte-resume:not(:has(.experience-item:nth-child(3))):not(:has(.project-item:nth-child(3))) {
+  --mte-section-gap: 22px;
+  --mte-block-gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .mte-resume {
+    padding: 28px 24px 32px;
+  }
+
+  .mte-resume .candidate-name {
+    font-size: 26px;
+  }
+
+  .mte-resume .mte-header:has(.mte-photo) .mte-header-inner {
+    padding-right: 0;
+    padding-left: 0;
+    padding-top: calc(var(--mte-photo-size) + 12px);
+  }
+
+  .mte-resume .mte-photo {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .mte-resume .mte-languages.psp-languages-progress,
+  .mte-resume .psp-languages-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .mte-resume .mte-contact-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mte-resume .mte-contact-item + .mte-contact-item::before {
+    display: none;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .mte-resume,
+  .resume-container.mte-resume {
+    width: 794px !important;
+    overflow: visible !important;
+    background: var(--mte-bg) !important;
+    padding: 40px 48px 44px !important;
+  }
+
+  .mte-resume .profile-image-wrapper {
+    box-shadow:
+      0 2px 8px rgba(17, 17, 17, 0.08),
+      0 0 0 1px rgba(139, 126, 200, 0.12) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .mte-resume .experience-item,
+  .mte-resume .project-item,
+  .mte-resume .education-item,
+  .mte-resume .achievement-item,
+  .mte-resume .certification-item,
+  .mte-resume .mte-section,
+  .mte-resume .language-item,
+  .mte-resume .psp-language-item,
+  .mte-resume .psp-skill-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.resume-container.mte-resume .mte-body {
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.resume-container.mte-resume {
+  --acb-lh-body: 1.65;
+  --acb-lh-tight: 1.35;
+  --acb-section-gap: clamp(10px, 1.4vw, 16px);
+  --acb-block-gap: clamp(8px, 1.2vw, 12px);
+  --acb-heading-gap: clamp(6px, 1vw, 10px);
+}
+
+.resume-container.mte-resume section > h2,
+.resume-container.mte-resume .section-title,
+.resume-container.mte-resume [class*='section-title'] {
+  font-size: clamp(9px, 1vw, 10px) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  line-height: 1.25 !important;
+  margin-top: 0 !important;
+  margin-bottom: var(--acb-heading-gap) !important;
+}
+
+.resume-container.mte-resume section {
+  margin-bottom: var(--acb-section-gap) !important;
+}
+
+.resume-container.mte-resume .summary-text {
+  font-size: clamp(9px, 0.95vw, 10px) !important;
+  line-height: var(--acb-lh-body) !important;
+  max-width: var(--mte-measure);
+  margin-top: 0 !important;
+  margin-bottom: clamp(4px, 0.8vw, 8px) !important;
+}
+
+.resume-container.mte-resume .experience-item {
+  margin-bottom: var(--acb-block-gap) !important;
+}
+
+.resume-container.mte-resume .experience-header {
+  margin-bottom: clamp(4px, 0.7vw, 6px) !important;
+}
+
+.resume-container.mte-resume .experience-item .description li {
+  margin-bottom: clamp(2px, 0.4vw, 4px) !important;
+}
+
+.resume-container.mte-resume {
+  --ome-section-gap: var(--mte-section-gap);
+}
+
+.mte-resume:has(.experience-item:nth-child(6)) {
+  --ome-section-gap: 14px;
+}
+
+.mte-resume:has(.experience-item:nth-child(8)) {
+  --ome-section-gap: 11px;
+}
+
+.mte-resume:has(.experience-item:nth-child(10)) {
+  --ome-section-gap: 9px;
+}

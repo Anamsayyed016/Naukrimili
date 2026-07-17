@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <circle cx="496" cy="84" r="44" fill="#F5F3FA" stroke="#8B7EC8" stroke-width="2"/>
+  <circle cx="496" cy="76" r="28" fill="#E8E4F0"/>
+  <text x="300" y="76" text-anchor="middle" font-family="'Courier New', monospace" font-size="22" font-weight="700" fill="#111111" letter-spacing="3">CHRIS JOHNSON</text>
+  <text x="300" y="108" text-anchor="middle" font-family="'Courier New', monospace" font-size="9" fill="#555555">email@example.com  |  +1 555 0100  |  www.portfolio.com  |  New York, NY</text>
+  <line x1="72" y1="128" x2="528" y2="128" stroke="#8B7EC8" stroke-width="1.2" opacity="0.55"/>
+  <text x="72" y="160" font-family="'Courier New', monospace" font-size="10" font-weight="600" fill="#8B7EC8" letter-spacing="2.4">RESUME OBJECTIVE</text>
+  <rect x="72" y="172" width="456" height="4" rx="2" fill="#E8E4F0"/>
+  <rect x="72" y="184" width="420" height="4" rx="2" fill="#E8E4F0"/>
+  <rect x="72" y="196" width="390" height="4" rx="2" fill="#E8E4F0"/>
+  <line x1="72" y1="216" x2="528" y2="216" stroke="#8B7EC8" stroke-width="1" opacity="0.45"/>
+  <text x="72" y="244" font-family="'Courier New', monospace" font-size="10" font-weight="600" fill="#8B7EC8" letter-spacing="2.4">EXPERIENCE</text>
+  <text x="72" y="268" font-family="'Courier New', monospace" font-size="9" font-weight="600" fill="#111111">Senior Product Manager</text>
+  <text x="72" y="284" font-family="'Courier New', monospace" font-size="8" fill="#555555">Acme Corp / San Francisco</text>
+  <text x="480" y="284" text-anchor="end" font-family="'Courier New', monospace" font-size="8" fill="#555555">2019  Present</text>
+  <circle cx="80" cy="304" r="2.5" fill="#111111"/>
+  <rect x="92" y="300" width="360" height="4" rx="2" fill="#E8E4F0"/>
+  <circle cx="80" cy="316" r="2.5" fill="#111111"/>
+  <rect x="92" y="312" width="340" height="4" rx="2" fill="#E8E4F0"/>
+  <line x1="72" y1="336" x2="528" y2="336" stroke="#8B7EC8" stroke-width="1" opacity="0.45"/>
+  <text x="72" y="364" font-family="'Courier New', monospace" font-size="10" font-weight="600" fill="#8B7EC8" letter-spacing="2.4">SKILLS</text>
+  <text x="72" y="388" font-family="'Courier New', monospace" font-size="8" fill="#111111">Leadership</text>
+  <circle cx="440" cy="384" r="4" fill="#8B7EC8"/>
+  <circle cx="456" cy="384" r="4" fill="#8B7EC8"/>
+  <circle cx="472" cy="384" r="4" fill="#8B7EC8"/>
+  <circle cx="488" cy="384" r="4" fill="#8B7EC8"/>
+  <circle cx="504" cy="384" r="4" fill="#D8D4E8"/>
+  <text x="72" y="408" font-family="'Courier New', monospace" font-size="8" fill="#111111">Strategy</text>
+  <circle cx="440" cy="404" r="4" fill="#8B7EC8"/>
+  <circle cx="456" cy="404" r="4" fill="#8B7EC8"/>
+  <circle cx="472" cy="404" r="4" fill="#8B7EC8"/>
+  <circle cx="488" cy="404" r="4" fill="#D8D4E8"/>
+  <circle cx="504" cy="404" r="4" fill="#D8D4E8"/>
+  <line x1="72" y1="428" x2="528" y2="428" stroke="#8B7EC8" stroke-width="1" opacity="0.45"/>
+  <text x="72" y="456" font-family="'Courier New', monospace" font-size="10" font-weight="600" fill="#8B7EC8" letter-spacing="2.4">LANGUAGES</text>
+  <text x="72" y="480" font-family="'Courier New', monospace" font-size="8" fill="#111111">English</text>
+  <circle cx="72" cy="496" r="4" fill="#8B7EC8"/>
+  <circle cx="88" cy="496" r="4" fill="#8B7EC8"/>
+  <circle cx="104" cy="496" r="4" fill="#8B7EC8"/>
+  <circle cx="120" cy="496" r="4" fill="#8B7EC8"/>
+  <circle cx="136" cy="496" r="4" fill="#D8D4E8"/>
+  <text x="320" y="480" font-family="'Courier New', monospace" font-size="8" fill="#111111">Spanish</text>
+  <circle cx="320" cy="496" r="4" fill="#8B7EC8"/>
+  <circle cx="336" cy="496" r="4" fill="#8B7EC8"/>
+  <circle cx="352" cy="496" r="4" fill="#8B7EC8"/>
+  <circle cx="368" cy="496" r="4" fill="#D8D4E8"/>
+  <circle cx="384" cy="496" r="4" fill="#D8D4E8"/>
+  <text x="300" y="776" text-anchor="middle" font-family="'Courier New', monospace" font-size="13" font-weight="600" fill="#111111" letter-spacing="1">Minimal Typewriter Executive</text>
+</svg>
