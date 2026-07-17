@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ems-resume">
+    <div class="ems-body">
+      <aside class="ems-sidebar">
+        <div class="ems-photo-arch">
+          {{#if PROFILE_IMAGE}}
+          <div class="ems-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="ems-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="ems-ini-f">{{FIRST_NAME}}</span><span class="ems-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="ems-sidebar-inner">
+          <section class="ems-section ems-section--contact ems-side-section">
+            <div class="ems-contact-list">
+              {{#if PHONE}}
+              <div class="ems-contact-item ems-contact-item--phone">
+                <span class="ems-contact-icon" aria-hidden="true"></span>
+                <span class="ems-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if EMAIL}}
+              <div class="ems-contact-item ems-contact-item--email">
+                <span class="ems-contact-icon" aria-hidden="true"></span>
+                <span class="ems-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if LOCATION}}
+              <div class="ems-contact-item ems-contact-item--location">
+                <span class="ems-contact-icon" aria-hidden="true"></span>
+                <span class="ems-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="ems-contact-item ems-contact-item--web">
+                <span class="ems-contact-icon" aria-hidden="true"></span>
+                <span class="ems-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+              {{#if LINKEDIN}}
+              <div class="ems-contact-item ems-contact-item--linkedin">
+                <span class="ems-contact-icon" aria-hidden="true"></span>
+                <span class="ems-contact-value">{{LINKEDIN}}</span>
+              </div>
+              {{/if}}
+            </div>
+          </section>
+
+          {{#if SKILLS}}
+          <section class="ems-section ems-section--skills ems-side-section">
+            <h2 class="ems-section-title ems-section-title--side">Skills</h2>
+            <div class="skills-list ems-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="ems-section ems-section--education ems-side-section">
+            <h2 class="ems-section-title ems-section-title--side">Education</h2>
+            <div class="education-list ems-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="ems-section ems-section--languages ems-side-section">
+            <h2 class="ems-section-title ems-section-title--side">Language</h2>
+            <div class="languages-list ems-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="ems-section ems-section--certifications ems-side-section">
+            <h2 class="ems-section-title ems-section-title--side">Certifications</h2>
+            <div class="certifications-list ems-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="ems-section ems-section--interests ems-side-section">
+            <h2 class="ems-section-title ems-section-title--side">Interests</h2>
+            <div class="hobbies-list ems-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+
+      <main class="ems-main">
+        <header class="ems-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="ems-section ems-section--summary">
+          <div class="ems-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="ems-section ems-section--experience">
+          <h2 class="ems-section-title ems-section-title--main">Experience</h2>
+          <div class="experience-list ems-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ems-section ems-section--projects">
+          <h2 class="ems-section-title ems-section-title--main">Projects</h2>
+          <div class="projects-list ems-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="ems-section ems-section--achievements">
+          <h2 class="ems-section-title ems-section-title--main">Achievements</h2>
+          <div class="achievements-list ems-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

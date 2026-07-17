@@ -109,6 +109,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-pink-300/50',
     hoverOverlay: 'from-pink-50/35',
   },
+  'elegant-minimal-script-executive': {
+    glow: 'radial-gradient(circle, rgba(231,228,221,0.55) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(17,17,17,0.12) 0%, transparent 70%)',
+    borderTint: 'hover:border-stone-400/50',
+    hoverOverlay: 'from-stone-50/40',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -129,6 +135,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'modern-navy-profile-executive': { firstName: 'Jon', lastName: 'Thomas', jobTitle: 'Graphic Designer' },
   'premium-crimson-black-executive': { firstName: 'John', lastName: 'Smith', jobTitle: 'Web Developer & Designer' },
   'blush-navy-creative-executive': { firstName: 'Sarah', lastName: 'Ahmed', jobTitle: 'Graphic Designer & CV Designer' },
+  'elegant-minimal-script-executive': { firstName: 'Elena', lastName: 'Brooks', jobTitle: 'Marketing Manager' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

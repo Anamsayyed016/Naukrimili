@@ -692,6 +692,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "elegant-minimal-script-executive",
+      "name": "Elegant Minimal Script Executive",
+      "slug": "elegant-minimal-script-executive",
+      "description": "Premium elegant minimal two-column resume with warm greige arched sidebar, circular portrait, Great Vibes script name, Montserrat section titles, clean bullet skills, experience hierarchy, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/elegant-minimal-script-executive/thumbnail.svg",
+      "preview": "/templates/elegant-minimal-script-executive/preview.svg",
+      "html": "/templates/elegant-minimal-script-executive/index.html",
+      "css": "/templates/elegant-minimal-script-executive/style.css",
+      "categories": ["Premium", "Minimal", "Elegant", "Executive", "Professional", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "warm-greige", "name": "Warm Greige", "primary": "#111111", "accent": "#E7E4DD", "text": "#1E1E1E" },
+        { "id": "soft-sand", "name": "Soft Sand", "primary": "#111111", "accent": "#EDEAE3", "text": "#1E1E1E" },
+        { "id": "stone-cream", "name": "Stone Cream", "primary": "#1E1E1E", "accent": "#E7E4DD", "text": "#1A1A1A" },
+        { "id": "ivory-minimal", "name": "Ivory Minimal", "primary": "#111111", "accent": "#E2DFD8", "text": "#1E1E1E" },
+        { "id": "taupe-ink", "name": "Taupe Ink", "primary": "#111111", "accent": "#D8D6CF", "text": "#1E1E1E" }
+      ],
+      "defaultColor": "warm-greige",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "skills", "education", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
