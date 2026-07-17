@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container pcb-resume">
+    <div class="pcb-body">
+      <aside class="pcb-sidebar">
+        <div class="pcb-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="pcb-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="pcb-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="pcb-ini-f">{{FIRST_NAME}}</span><span class="pcb-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        {{#if SKILLS}}
+        <section class="pcb-section pcb-section--skills pcb-side-section">
+          <h2 class="pcb-section-title pcb-section-title--side">
+            <span class="pcb-section-icon pcb-section-icon--skills" aria-hidden="true"></span>
+            <span class="pcb-section-label">Work Skills</span>
+          </h2>
+          <div class="skills-list pcb-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="pcb-section pcb-section--languages pcb-side-section">
+          <h2 class="pcb-section-title pcb-section-title--side">
+            <span class="pcb-section-icon pcb-section-icon--languages" aria-hidden="true"></span>
+            <span class="pcb-section-label">Languages</span>
+          </h2>
+          <div class="languages-list pcb-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        <section class="pcb-section pcb-section--contact pcb-side-section">
+          <h2 class="pcb-section-title pcb-section-title--side">
+            <span class="pcb-section-icon pcb-section-icon--contact" aria-hidden="true"></span>
+            <span class="pcb-section-label">Contact</span>
+          </h2>
+          <div class="pcb-contact-list">
+            {{#if PHONE}}
+            <div class="pcb-contact-item pcb-contact-item--phone">
+              <span class="pcb-contact-label">Phone</span>
+              <span class="pcb-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="pcb-contact-item pcb-contact-item--email">
+              <span class="pcb-contact-label">Email</span>
+              <span class="pcb-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="pcb-contact-item pcb-contact-item--location">
+              <span class="pcb-contact-label">Address</span>
+              <span class="pcb-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="pcb-contact-item pcb-contact-item--linkedin">
+              <span class="pcb-contact-label">LinkedIn</span>
+              <span class="pcb-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="pcb-contact-item pcb-contact-item--web">
+              <span class="pcb-contact-label">Website</span>
+              <span class="pcb-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if CERTIFICATIONS}}
+        <section class="pcb-section pcb-section--certifications pcb-side-section">
+          <h2 class="pcb-section-title pcb-section-title--side">
+            <span class="pcb-section-icon pcb-section-icon--certs" aria-hidden="true"></span>
+            <span class="pcb-section-label">Certifications</span>
+          </h2>
+          <div class="certifications-list pcb-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="pcb-section pcb-section--interests pcb-side-section">
+          <h2 class="pcb-section-title pcb-section-title--side">
+            <span class="pcb-section-icon pcb-section-icon--interests" aria-hidden="true"></span>
+            <span class="pcb-section-label">Interests</span>
+          </h2>
+          <div class="hobbies-list pcb-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="pcb-main">
+        <header class="pcb-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+          <div class="pcb-header-rule" aria-hidden="true"></div>
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="pcb-section pcb-section--summary">
+          <div class="pcb-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="pcb-section pcb-section--education pcb-timeline-section">
+          <h2 class="pcb-section-title pcb-section-title--main">
+            <span class="pcb-section-icon pcb-section-icon--education" aria-hidden="true"></span>
+            <span class="pcb-section-label">Education</span>
+          </h2>
+          <div class="education-list pcb-education pcb-timeline">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="pcb-section pcb-section--experience pcb-timeline-section">
+          <h2 class="pcb-section-title pcb-section-title--main">
+            <span class="pcb-section-icon pcb-section-icon--experience" aria-hidden="true"></span>
+            <span class="pcb-section-label">Work Experience</span>
+          </h2>
+          <div class="experience-list pcb-experience pcb-timeline">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="pcb-section pcb-section--projects pcb-timeline-section">
+          <h2 class="pcb-section-title pcb-section-title--main">
+            <span class="pcb-section-icon pcb-section-icon--projects" aria-hidden="true"></span>
+            <span class="pcb-section-label">Projects</span>
+          </h2>
+          <div class="projects-list pcb-projects pcb-timeline">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="pcb-section pcb-section--achievements pcb-timeline-section">
+          <h2 class="pcb-section-title pcb-section-title--main">
+            <span class="pcb-section-icon pcb-section-icon--achievements" aria-hidden="true"></span>
+            <span class="pcb-section-label">Personal Achievement</span>
+          </h2>
+          <div class="achievements-list pcb-achievements pcb-timeline">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

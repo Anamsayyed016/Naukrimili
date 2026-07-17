@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <rect width="200" height="800" fill="#1F1F1F"/>
+  <path d="M0 0 H200 Q260 0 260 70 L200 80 Z" fill="#1F1F1F"/>
+  <rect x="44" y="40" width="112" height="140" rx="18" fill="#2A2A2A" stroke="#F06464" stroke-width="3"/>
+  <circle cx="56" cy="220" r="9" fill="#F06464"/>
+  <text x="74" y="225" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#F06464" letter-spacing="1.5">WORK SKILLS</text>
+  <line x1="44" y1="236" x2="180" y2="236" stroke="#F06464" stroke-width="1.5"/>
+  <text x="44" y="262" font-family="Arial, sans-serif" font-size="10" fill="#FFFFFF">Photoshop</text>
+  <text x="180" y="262" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#FFFFFF">95%</text>
+  <rect x="44" y="270" width="136" height="5" rx="2" fill="#3A3A3A"/>
+  <rect x="44" y="270" width="128" height="5" rx="2" fill="#F06464"/>
+  <text x="44" y="300" font-family="Arial, sans-serif" font-size="10" fill="#FFFFFF">Illustrator</text>
+  <text x="180" y="300" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#FFFFFF">85%</text>
+  <rect x="44" y="308" width="136" height="5" rx="2" fill="#3A3A3A"/>
+  <rect x="44" y="308" width="112" height="5" rx="2" fill="#F06464"/>
+  <circle cx="56" cy="350" r="9" fill="#F06464"/>
+  <text x="74" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#F06464" letter-spacing="1.5">LANGUAGES</text>
+  <line x1="44" y1="366" x2="180" y2="366" stroke="#F06464" stroke-width="1.5"/>
+  <text x="44" y="392" font-family="Arial, sans-serif" font-size="10" fill="#FFFFFF">English</text>
+  <text x="180" y="392" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#FFFFFF">95%</text>
+  <rect x="44" y="400" width="136" height="5" rx="2" fill="#3A3A3A"/>
+  <rect x="44" y="400" width="128" height="5" rx="2" fill="#F06464"/>
+  <circle cx="56" cy="450" r="9" fill="#F06464"/>
+  <text x="74" y="455" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#F06464" letter-spacing="1.5">CONTACT</text>
+  <line x1="44" y1="466" x2="180" y2="466" stroke="#F06464" stroke-width="1.5"/>
+  <text x="44" y="492" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#F06464" letter-spacing="1">PHONE</text>
+  <text x="44" y="510" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">+123-456-7890</text>
+  <text x="44" y="540" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#F06464" letter-spacing="1">EMAIL</text>
+  <text x="44" y="558" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">hello@reallygreatsite.com</text>
+  <text x="230" y="78" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="#F06464">JOHN</text>
+  <text x="340" y="78" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="#1F1F1F"> SMITH.</text>
+  <text x="230" y="108" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1F1F1F" letter-spacing="3">WEB DEVELOPER &amp; DESIGNER</text>
+  <line x1="230" y1="122" x2="560" y2="122" stroke="#F06464" stroke-width="2"/>
+  <rect x="230" y="142" width="320" height="6" rx="2" fill="#D7D7D7"/>
+  <rect x="230" y="158" width="300" height="6" rx="2" fill="#D7D7D7"/>
+  <rect x="230" y="174" width="280" height="6" rx="2" fill="#D7D7D7"/>
+  <circle cx="242" cy="230" r="10" fill="#F06464"/>
+  <text x="262" y="235" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#F06464" letter-spacing="1.5">EDUCATION</text>
+  <line x1="262" y1="246" x2="560" y2="246" stroke="#F06464" stroke-width="1.5"/>
+  <line x1="300" y1="270" x2="300" y2="380" stroke="#F06464" stroke-width="2"/>
+  <circle cx="300" cy="286" r="6" fill="#FFFFFF" stroke="#F06464" stroke-width="2.5"/>
+  <text x="230" y="290" font-family="Arial, sans-serif" font-size="10" fill="#2D2D2D">2010 - 2015</text>
+  <text x="320" y="288" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F1F1F">BACHELOR OF DESIGN</text>
+  <rect x="320" y="300" width="200" height="5" rx="2" fill="#D7D7D7"/>
+  <circle cx="242" cy="420" r="10" fill="#F06464"/>
+  <text x="262" y="425" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#F06464" letter-spacing="1.5">WORK EXPERIENCE</text>
+  <line x1="262" y1="436" x2="560" y2="436" stroke="#F06464" stroke-width="1.5"/>
+  <line x1="300" y1="460" x2="300" y2="620" stroke="#F06464" stroke-width="2"/>
+  <circle cx="300" cy="478" r="6" fill="#FFFFFF" stroke="#F06464" stroke-width="2.5"/>
+  <text x="230" y="482" font-family="Arial, sans-serif" font-size="10" fill="#2D2D2D">2015 - 2020</text>
+  <text x="320" y="480" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F1F1F">SENIOR DESIGNER</text>
+  <text x="320" y="500" font-family="Arial, sans-serif" font-size="11" fill="#F06464">Wardiere Inc.</text>
+  <rect x="320" y="514" width="220" height="5" rx="2" fill="#D7D7D7"/>
+  <circle cx="300" cy="560" r="6" fill="#FFFFFF" stroke="#F06464" stroke-width="2.5"/>
+  <text x="230" y="564" font-family="Arial, sans-serif" font-size="10" fill="#2D2D2D">2020 - Now</text>
+  <text x="320" y="562" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F1F1F">LEAD DEVELOPER</text>
+  <rect x="320" y="576" width="200" height="5" rx="2" fill="#D7D7D7"/>
+  <text x="300" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#F06464">Premium Crimson Black Executive</text>
+</svg>

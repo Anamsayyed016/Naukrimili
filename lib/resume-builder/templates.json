@@ -592,6 +592,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "premium-crimson-black-executive",
+      "name": "Premium Crimson Black Executive",
+      "slug": "premium-crimson-black-executive",
+      "description": "Premium high-contrast two-column resume with charcoal sidebar, rounded-rectangle crimson-framed portrait, Montserrat name typography, skill and language progress bars, crimson timeline education and experience, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/premium-crimson-black-executive/thumbnail.svg",
+      "preview": "/templates/premium-crimson-black-executive/preview.svg",
+      "html": "/templates/premium-crimson-black-executive/index.html",
+      "css": "/templates/premium-crimson-black-executive/style.css",
+      "categories": ["Premium", "Executive", "Corporate", "Creative", "Professional", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "crimson-black", "name": "Crimson Black", "primary": "#1F1F1F", "accent": "#F06464", "text": "#2D2D2D" },
+        { "id": "graphite-crimson", "name": "Graphite Crimson", "primary": "#2A2A2A", "accent": "#F06464", "text": "#2D2D2D" },
+        { "id": "ink-coral", "name": "Ink Coral", "primary": "#1F1F1F", "accent": "#E85A5A", "text": "#1A1A1A" },
+        { "id": "obsidian-rose", "name": "Obsidian Rose", "primary": "#181818", "accent": "#F06464", "text": "#2D2D2D" },
+        { "id": "charcoal-flame", "name": "Charcoal Flame", "primary": "#1F1F1F", "accent": "#FF6B6B", "text": "#2D2D2D" }
+      ],
+      "defaultColor": "crimson-black",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["skills", "languages", "contact", "certifications", "interests", "references"],
+        "rightSections": ["summary", "education", "experience", "projects", "achievements", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "education": 92,
+          "skills": 90,
+          "languages": 80,
+          "projects": 70,
+          "achievements": 64,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

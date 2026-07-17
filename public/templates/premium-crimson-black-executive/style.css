@@ -1,0 +1,937 @@
+/* Premium Crimson Black Executive */
+
+.pcb-resume {
+  --pcb-black: #1F1F1F;
+  --pcb-graphite: #2A2A2A;
+  --pcb-crimson: #F06464;
+  --pcb-white: #FFFFFF;
+  --pcb-light: #F5F5F5;
+  --pcb-divider: #D7D7D7;
+  --pcb-text: #2D2D2D;
+  --pcb-muted: #777777;
+  --pcb-bar-track: #3A3A3A;
+  --pcb-max-width: 210mm;
+  --pcb-font-display: 'Montserrat', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --pcb-font-body: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --pcb-side: 34fr;
+  --pcb-main: 66fr;
+  --pcb-photo-w: clamp(118px, 15.5cqw, 140px);
+  --pcb-section-gap: 18px;
+  --pcb-block-gap: 16px;
+  --pcb-heading-gap: 12px;
+  --pcb-lh-body: 1.55;
+  --pcb-lh-tight: 1.3;
+  --pcb-fs-name: clamp(32px, 4.6vw, 42px);
+  --pcb-fs-title: 12px;
+  --pcb-fs-section: 12px;
+  --pcb-fs-body: 12px;
+  --pcb-fs-meta: 11px;
+  --pcb-fs-small: 10px;
+  --pcb-date-col: 5.2rem;
+
+  --primary-color: var(--pcb-black);
+  --accent-color: var(--pcb-crimson);
+  --text-color: var(--pcb-text);
+}
+
+.pcb-resume,
+.pcb-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.pcb-resume,
+.resume-container.pcb-resume {
+  position: relative;
+  container-type: inline-size;
+  width: 794px;
+  max-width: var(--pcb-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--pcb-font-body);
+  font-size: var(--pcb-fs-body);
+  font-weight: 400;
+  line-height: var(--pcb-lh-body);
+  color: var(--pcb-text);
+  background: var(--pcb-white) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shell ── */
+.pcb-resume .pcb-body {
+  display: grid;
+  grid-template-columns: minmax(0, var(--pcb-side)) minmax(0, var(--pcb-main));
+  align-items: stretch;
+  min-height: 0;
+}
+
+/* ── Sidebar ── */
+.pcb-resume .pcb-sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pcb-section-gap);
+  padding: 28px 20px 36px;
+  color: var(--pcb-white);
+  background: var(--pcb-black);
+  border-top-right-radius: 72px;
+  min-width: 0;
+  z-index: 1;
+}
+
+.pcb-resume .pcb-photo-block {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.pcb-resume .pcb-photo {
+  width: var(--pcb-photo-w);
+}
+
+.pcb-resume .profile-image-wrapper {
+  width: 100%;
+  aspect-ratio: 3 / 3.6;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid var(--pcb-crimson);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  background: var(--pcb-graphite);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pcb-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.pcb-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-family: var(--pcb-font-display);
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 800;
+  color: var(--pcb-crimson);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pcb-resume .pcb-ini-f,
+.pcb-resume .pcb-ini-l {
+  display: inline-block;
+  max-width: 1.1ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Sidebar section titles */
+.pcb-resume .pcb-side-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pcb-resume .pcb-section-title--side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--pcb-heading-gap);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--pcb-crimson);
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pcb-crimson);
+  line-height: 1.2;
+}
+
+.pcb-resume .pcb-section-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--pcb-crimson);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+}
+
+.pcb-resume .pcb-section-icon--skills {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--languages {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--contact {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.2'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--certs {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.2'%3E%3Ccircle cx='12' cy='8' r='5'/%3E%3Cpath d='M8.5 13.5 7 21l5-2 5 2-1.5-7.5'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--interests {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.2'%3E%3Cpath d='M12 21s-7-4.5-7-11a7 7 0 0 1 14 0c0 6.5-7 11-7 11z'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--education {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2'%3E%3Cpath d='m2 9 10-5 10 5-10 5L2 9z'/%3E%3Cpath d='M6 12v5c0 1 3 3 6 3s6-2 6-3v-5'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--experience {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2'%3E%3Crect x='3' y='7' width='18' height='13' rx='2'/%3E%3Cpath d='M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--projects {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2'%3E%3Cpath d='M4 7h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z'/%3E%3Cpath d='M9 7V5a3 3 0 0 1 6 0v2'/%3E%3C/svg%3E");
+}
+
+.pcb-resume .pcb-section-icon--achievements {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2'%3E%3Cpath d='M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z'/%3E%3C/svg%3E");
+}
+
+/* Skills progress bars */
+.pcb-resume .pcb-skills.psp-skills-progress,
+.pcb-resume .psp-skills-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pcb-resume .psp-skill-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 5px;
+  column-gap: 8px;
+  row-gap: 5px;
+  align-items: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  --pcb-skill-pct: 78%;
+}
+
+.pcb-resume .psp-skill-item:nth-child(5n + 1) { --pcb-skill-pct: 95%; }
+.pcb-resume .psp-skill-item:nth-child(5n + 2) { --pcb-skill-pct: 85%; }
+.pcb-resume .psp-skill-item:nth-child(5n + 3) { --pcb-skill-pct: 78%; }
+.pcb-resume .psp-skill-item:nth-child(5n + 4) { --pcb-skill-pct: 70%; }
+.pcb-resume .psp-skill-item:nth-child(5n) { --pcb-skill-pct: 88%; }
+
+.pcb-resume .psp-skill-name {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: var(--pcb-fs-small);
+  font-weight: 500;
+  color: var(--pcb-white);
+  line-height: var(--pcb-lh-tight);
+  min-width: 0;
+}
+
+.pcb-resume .psp-skill-item::after {
+  content: attr(data-pct);
+  grid-column: 2;
+  grid-row: 1;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-white);
+  line-height: 1;
+}
+
+/* Fake % labels via nth-child since skills renderer has no % */
+.pcb-resume .psp-skill-item:nth-child(5n + 1)::after { content: '95%'; }
+.pcb-resume .psp-skill-item:nth-child(5n + 2)::after { content: '85%'; }
+.pcb-resume .psp-skill-item:nth-child(5n + 3)::after { content: '78%'; }
+.pcb-resume .psp-skill-item:nth-child(5n + 4)::after { content: '70%'; }
+.pcb-resume .psp-skill-item:nth-child(5n)::after { content: '88%'; }
+
+.pcb-resume .psp-skill-item::before {
+  content: '';
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 4px;
+  border-radius: 2px;
+  background:
+    linear-gradient(
+      to right,
+      var(--pcb-crimson) 0 var(--pcb-skill-pct),
+      var(--pcb-bar-track) var(--pcb-skill-pct) 100%
+    );
+}
+
+/* Languages progress */
+.pcb-resume .pcb-languages.psp-languages-progress,
+.pcb-resume .psp-languages-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pcb-resume .psp-language-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 5px;
+  column-gap: 8px;
+  row-gap: 5px;
+  align-items: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  --pct: 80;
+}
+
+.pcb-resume .psp-language-name {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: var(--pcb-fs-small);
+  font-weight: 500;
+  color: var(--pcb-white);
+  line-height: var(--pcb-lh-tight);
+}
+
+.pcb-resume .psp-language-percentage {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-white);
+  line-height: 1;
+}
+
+.pcb-resume .psp-language-bar-container {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--pcb-bar-track);
+  overflow: hidden;
+  position: relative;
+}
+
+.pcb-resume .psp-language-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--pcb-crimson);
+}
+
+.pcb-resume .psp-language-item:has(.psp-language-bar-fill[style*='100%']) { --pct: 100; }
+.pcb-resume .psp-language-item:has(.psp-language-bar-fill[style*='95%']) { --pct: 95; }
+.pcb-resume .psp-language-item:has(.psp-language-bar-fill[style*='85%']) { --pct: 85; }
+.pcb-resume .psp-language-item:has(.psp-language-bar-fill[style*='80%']) { --pct: 80; }
+.pcb-resume .psp-language-item:has(.psp-language-bar-fill[style*='75%']) { --pct: 75; }
+.pcb-resume .psp-language-item:has(.psp-language-bar-fill[style*='60%']) { --pct: 60; }
+
+/* Contact */
+.pcb-resume .pcb-section--contact:not(:has(.pcb-contact-item)) {
+  display: none;
+}
+
+.pcb-resume .pcb-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pcb-resume .pcb-contact-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pcb-crimson);
+  margin-bottom: 3px;
+  line-height: 1.2;
+}
+
+.pcb-resume .pcb-contact-value {
+  display: block;
+  font-size: var(--pcb-fs-small);
+  color: rgba(255, 255, 255, 0.92);
+  line-height: var(--pcb-lh-tight);
+  word-break: break-word;
+}
+
+/* Certs / Interests sidebar */
+.pcb-resume .pcb-certifications,
+.pcb-resume .pcb-interests {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pcb-resume .pcb-certifications .certification-item h3,
+.pcb-resume .pcb-certifications .cert-name,
+.pcb-resume .pcb-interests .hobby-item h3 {
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-white);
+  line-height: var(--pcb-lh-tight);
+}
+
+.pcb-resume .pcb-certifications .issuer,
+.pcb-resume .pcb-certifications .date,
+.pcb-resume .pcb-certifications .year,
+.pcb-resume .pcb-interests .hobby-item p {
+  display: block;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 2px;
+}
+
+/* ── Main column ── */
+.pcb-resume .pcb-main {
+  min-width: 0;
+  padding: 36px 32px 40px 28px;
+  background: var(--pcb-white);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pcb-section-gap);
+}
+
+.pcb-resume .pcb-header {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin-bottom: 4px;
+}
+
+.pcb-resume .candidate-name {
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-name);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.pcb-resume .candidate-name .name-first {
+  color: var(--pcb-crimson);
+}
+
+.pcb-resume .candidate-name .name-last {
+  color: var(--pcb-black);
+}
+
+.pcb-resume .candidate-name .name-last::after {
+  content: '.';
+  color: var(--pcb-black);
+}
+
+.pcb-resume .candidate-name .name-fallback {
+  display: none;
+  color: var(--pcb-black);
+}
+
+.pcb-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-fallback {
+  display: inline;
+}
+
+.pcb-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-last::after {
+  content: none;
+}
+
+.pcb-resume .header-title {
+  margin-top: 8px;
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-title);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pcb-black);
+  line-height: var(--pcb-lh-tight);
+}
+
+.pcb-resume .pcb-header-rule {
+  margin-top: 14px;
+  width: 100%;
+  height: 1.5px;
+  background: var(--pcb-crimson);
+}
+
+/* Summary under header (no section title in reference) */
+.pcb-resume .pcb-section--summary .pcb-section-title {
+  display: none;
+}
+
+.pcb-resume .pcb-summary .summary-text {
+  font-size: var(--pcb-fs-body);
+  color: var(--pcb-muted);
+  line-height: var(--pcb-lh-body);
+  max-width: 62ch;
+}
+
+/* Main section titles */
+.pcb-resume .pcb-section-title--main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: var(--pcb-heading-gap);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--pcb-crimson);
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pcb-crimson);
+  line-height: 1.2;
+}
+
+.pcb-resume .pcb-timeline-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Timeline */
+.pcb-resume .pcb-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pcb-block-gap);
+}
+
+.pcb-resume .pcb-experience .experience-item,
+.pcb-resume .pcb-education .education-item,
+.pcb-resume .pcb-projects .project-item,
+.pcb-resume .pcb-achievements .achievement-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--pcb-date-col) 18px minmax(0, 1fr);
+  column-gap: 0;
+  align-items: start;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Vertical timeline line through items */
+.pcb-resume .pcb-timeline::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--pcb-date-col) + 8px);
+  top: 6px;
+  bottom: 6px;
+  width: 1.5px;
+  background: var(--pcb-crimson);
+  z-index: 0;
+}
+
+.pcb-resume .pcb-experience .experience-item::before,
+.pcb-resume .pcb-education .education-item::before,
+.pcb-resume .pcb-projects .project-item::before,
+.pcb-resume .pcb-achievements .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--pcb-date-col) + 4px);
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--pcb-white);
+  border: 2px solid var(--pcb-crimson);
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+/* Experience: pull duration left via display:contents */
+.pcb-resume .pcb-experience .experience-header {
+  display: contents;
+}
+
+.pcb-resume .pcb-experience .experience-header .duration {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-text);
+  line-height: var(--pcb-lh-tight);
+  padding-right: 6px;
+  word-break: break-word;
+}
+
+.pcb-resume .pcb-experience .experience-header h3 {
+  grid-column: 3;
+  grid-row: 1;
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-meta);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pcb-black);
+  line-height: var(--pcb-lh-tight);
+  margin-bottom: 2px;
+}
+
+.pcb-resume .pcb-experience .experience-header .company {
+  grid-column: 3;
+  grid-row: 2;
+  display: block;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-crimson);
+  line-height: var(--pcb-lh-tight);
+  margin-bottom: 4px;
+}
+
+.pcb-resume .pcb-experience .description {
+  grid-column: 3;
+  font-size: var(--pcb-fs-body);
+  color: var(--pcb-muted);
+  line-height: var(--pcb-lh-body);
+}
+
+.pcb-resume .pcb-experience .description ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+
+.pcb-resume .pcb-experience .description li {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 3px;
+}
+
+.pcb-resume .pcb-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--pcb-crimson);
+}
+
+/* Education timeline */
+.pcb-resume .pcb-education .education-item .year {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-text);
+  line-height: var(--pcb-lh-tight);
+  padding-right: 6px;
+}
+
+.pcb-resume .pcb-education .education-item h3 {
+  grid-column: 3;
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-meta);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pcb-black);
+  line-height: var(--pcb-lh-tight);
+}
+
+.pcb-resume .pcb-education .education-item .institution {
+  grid-column: 3;
+  display: block;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-crimson);
+  margin-top: 2px;
+}
+
+.pcb-resume .pcb-education .education-item .cgpa {
+  grid-column: 3;
+  display: block;
+  font-size: var(--pcb-fs-small);
+  color: var(--pcb-muted);
+}
+
+/* Projects timeline */
+.pcb-resume .pcb-projects .project-item h3,
+.pcb-resume .pcb-projects .project-title {
+  grid-column: 3;
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-meta);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pcb-black);
+  margin-bottom: 4px;
+}
+
+.pcb-resume .pcb-projects .project-item .description,
+.pcb-resume .pcb-projects .project-description {
+  grid-column: 3;
+  font-size: var(--pcb-fs-body);
+  color: var(--pcb-muted);
+  line-height: var(--pcb-lh-body);
+}
+
+.pcb-resume .pcb-projects .project-item::after {
+  /* spacer in date column when no date */
+  content: '';
+  grid-column: 1;
+}
+
+/* Achievements timeline */
+.pcb-resume .pcb-achievements .achievement-item h3 {
+  grid-column: 3;
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-meta);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pcb-black);
+  line-height: var(--pcb-lh-tight);
+}
+
+.pcb-resume .pcb-achievements .achievement-item .description {
+  grid-column: 3;
+  font-size: var(--pcb-fs-body);
+  color: var(--pcb-muted);
+  margin-top: 4px;
+}
+
+.pcb-resume .pcb-achievements .achievement-item .date {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-text);
+}
+
+/* Extended sections */
+.pcb-resume .pcb-main > .extended-section,
+.pcb-resume .extended-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pcb-resume .extended-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 var(--pcb-heading-gap);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--pcb-crimson);
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pcb-crimson);
+  line-height: 1.2;
+}
+
+.pcb-resume .extended-section-title::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--pcb-crimson);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+}
+
+.pcb-resume .extended-section-body {
+  font-size: var(--pcb-fs-body);
+  color: var(--pcb-muted);
+  line-height: var(--pcb-lh-body);
+}
+
+/* References styled for sidebar look when in main, or dark card */
+.pcb-resume .extended-section--references .extended-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pcb-resume .extended-section--references .extended-record-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pcb-resume .extended-section--references .extended-field {
+  margin-bottom: 2px;
+  font-size: var(--pcb-fs-small);
+  color: var(--pcb-muted);
+}
+
+.pcb-resume .extended-section--references .extended-field strong {
+  font-weight: 700;
+  color: var(--pcb-text);
+}
+
+.pcb-resume .extended-section--references .extended-field:first-child {
+  font-family: var(--pcb-font-display);
+  font-size: var(--pcb-fs-meta);
+  font-weight: 700;
+  color: var(--pcb-black);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 3px;
+}
+
+.pcb-resume .extended-section--references .extended-field:nth-child(2) {
+  color: var(--pcb-crimson);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+}
+
+.pcb-resume .extended-section-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0 0;
+}
+
+.pcb-resume .extended-section-body li {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 4px;
+}
+
+.pcb-resume .extended-section-body li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--pcb-crimson);
+}
+
+/* Density */
+.pcb-resume[data-dl-density='dense'],
+.pcb-resume[data-dl-density='compact'] {
+  --pcb-section-gap: 14px;
+  --pcb-block-gap: 12px;
+  --pcb-heading-gap: 8px;
+}
+
+.pcb-resume[data-dl-density='sparse'],
+.pcb-resume[data-dl-page-underfill='true'] {
+  --pcb-section-gap: 22px;
+  --pcb-block-gap: 18px;
+}
+
+/* Lock columns */
+.resume-container.pcb-resume .pcb-body,
+.resume-container.pcb-resume .pcb-main,
+.resume-container.pcb-resume .pcb-sidebar {
+  min-height: 0 !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.pcb-resume .pcb-body,
+.resume-container.pcb-resume[data-dl-page-underfill='true'] .pcb-body,
+.resume-container.pcb-resume[data-dl-page-underfill='false'] .pcb-body,
+.resume-container.pcb-resume[data-dl-density] .pcb-body {
+  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr) !important;
+  align-items: stretch !important;
+}
+
+.resume-container.pcb-resume .pcb-sidebar {
+  align-self: stretch !important;
+}
+
+/* ATS */
+.resume-container.pcb-resume {
+  --acb-lh-body: 1.55;
+  --acb-lh-tight: 1.3;
+  --acb-section-gap: clamp(14px, 1.8vw, 18px);
+  --acb-block-gap: clamp(12px, 1.5vw, 16px);
+  --acb-heading-gap: clamp(8px, 1.2vw, 12px);
+  --acb-size-name: clamp(32px, 4.6vw, 42px);
+  --acb-size-body: clamp(11px, 1.4vw, 12px);
+  --acb-size-small: clamp(9.5px, 1.2vw, 10.5px);
+}
+
+/* Responsive */
+@container (max-width: 640px) {
+  .pcb-resume .pcb-body {
+    grid-template-columns: 1fr !important;
+  }
+
+  .pcb-resume .pcb-sidebar {
+    border-top-right-radius: 48px;
+    border-bottom-right-radius: 0;
+  }
+
+  .pcb-resume .pcb-experience .experience-item,
+  .pcb-resume .pcb-education .education-item,
+  .pcb-resume .pcb-projects .project-item,
+  .pcb-resume .pcb-achievements .achievement-item {
+    grid-template-columns: 4.5rem 14px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .resume-container.pcb-resume {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .pcb-resume .pcb-body {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Print */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: var(--pcb-white) !important;
+  }
+
+  .resume-container.pcb-resume {
+    width: 794px !important;
+    max-width: 210mm !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+  }
+
+  .pcb-resume .pcb-sidebar,
+  .pcb-resume .profile-image-wrapper,
+  .pcb-resume .psp-skill-item::before,
+  .pcb-resume .psp-language-bar-fill,
+  .pcb-resume .pcb-section-icon,
+  .pcb-resume .pcb-header-rule,
+  .pcb-resume .pcb-timeline::before {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .pcb-resume .experience-item,
+  .pcb-resume .education-item,
+  .pcb-resume .project-item,
+  .pcb-resume .achievement-item,
+  .pcb-resume .certification-item,
+  .pcb-resume .pcb-section,
+  .pcb-resume .extended-section,
+  .pcb-resume .extended-record-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
