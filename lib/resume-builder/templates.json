@@ -297,6 +297,55 @@
       }
     },
     {
+      "id": "neo-lime-executive",
+      "name": "Neo Lime Executive",
+      "slug": "neo-lime-executive",
+      "description": "Modern premium two-column resume with deep emerald and lime accents, Playfair Display typography, rectangular portrait header, emerald contact card, timeline experience, pill skills, project cards, and adaptive column balancing for ATS-friendly PDF export.",
+      "thumbnail": "/templates/neo-lime-executive/thumbnail.svg",
+      "preview": "/templates/neo-lime-executive/preview.svg",
+      "html": "/templates/neo-lime-executive/index.html",
+      "css": "/templates/neo-lime-executive/style.css",
+      "categories": ["Premium", "Modern", "Executive", "Professional", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "neo-lime", "name": "Neo Lime", "primary": "#0F766E", "accent": "#84CC16", "text": "#111827" },
+        { "id": "emerald-lime", "name": "Emerald Lime", "primary": "#0D9488", "accent": "#84CC16", "text": "#111827" },
+        { "id": "forest-lime", "name": "Forest Lime", "primary": "#065F46", "accent": "#A3E635", "text": "#111827" },
+        { "id": "slate-lime", "name": "Slate Lime", "primary": "#1E293B", "accent": "#84CC16", "text": "#111827" },
+        { "id": "deep-teal-lime", "name": "Deep Teal Lime", "primary": "#0F766E", "accent": "#65A30D", "text": "#111827" }
+      ],
+      "defaultColor": "neo-lime",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "education", "certifications", "skills", "languages", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "achievements"],
+        "movableSections": ["projects", "certifications", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "summary": 94,
+          "experience": 95,
+          "education": 88,
+          "skills": 90,
+          "projects": 72,
+          "certifications": 64,
+          "languages": 58,
+          "achievements": 56,
+          "interests": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "onyx-modern-executive",
       "name": "Onyx Modern Executive",
       "slug": "onyx-modern-executive",

@@ -66,6 +66,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-slate-300/55',
     hoverOverlay: 'from-slate-50/30',
   },
+  'neo-lime-executive': {
+    glow: 'radial-gradient(circle, rgba(132,204,22,0.38) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(15,118,110,0.28) 0%, transparent 70%)',
+    borderTint: 'hover:border-lime-300/55',
+    hoverOverlay: 'from-lime-50/30',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -79,6 +85,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'onyx-modern-executive': { firstName: 'Jonathan', lastName: 'Doe', jobTitle: 'Product Lead & Innovator' },
   'minimal-typewriter-executive': { firstName: 'Chris', lastName: 'Johnson', jobTitle: 'Executive Director & Operations Lead' },
   'slate-elite-professional': { firstName: 'Jeremy', lastName: 'Torres', jobTitle: 'Graphic Designer' },
+  'neo-lime-executive': { firstName: 'Sarah', lastName: 'Chen', jobTitle: 'UX Research Lead' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {

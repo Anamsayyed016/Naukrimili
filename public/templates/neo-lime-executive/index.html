@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container nle-resume">
+    <div class="nle-deco nle-deco--tl" aria-hidden="true"></div>
+    <div class="nle-deco nle-deco--br" aria-hidden="true"></div>
+
+    <header class="nle-header">
+      <div class="nle-header-banner">
+        {{#if PROFILE_IMAGE}}
+        <div class="nle-photo">
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+
+        <div class="nle-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          <div class="nle-title-rule" aria-hidden="true"></div>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </div>
+    </header>
+
+    <div class="nle-body">
+      <aside class="nle-sidebar">
+        <section class="nle-section nle-section--contact">
+          <h2 class="nle-section-title"><span class="nle-section-label">Contact</span></h2>
+          <div class="nle-contact-card" role="list">
+            {{#if LOCATION}}
+            <div class="nle-contact-row nle-contact-row--location" role="listitem">
+              <span class="nle-contact-icon" aria-hidden="true"></span>
+              <span class="nle-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if PHONE}}
+            <div class="nle-contact-row nle-contact-row--phone" role="listitem">
+              <span class="nle-contact-icon" aria-hidden="true"></span>
+              <span class="nle-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="nle-contact-row nle-contact-row--email" role="listitem">
+              <span class="nle-contact-icon" aria-hidden="true"></span>
+              <span class="nle-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="nle-contact-row nle-contact-row--linkedin" role="listitem">
+              <span class="nle-contact-icon" aria-hidden="true"></span>
+              <span class="nle-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="nle-contact-row nle-contact-row--web" role="listitem">
+              <span class="nle-contact-icon" aria-hidden="true"></span>
+              <span class="nle-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if EDUCATION}}
+        <section class="nle-section nle-section--education">
+          <h2 class="nle-section-title"><span class="nle-section-label">Education</span></h2>
+          <div class="education-list nle-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="nle-section nle-section--certifications">
+          <h2 class="nle-section-title"><span class="nle-section-label">Certifications</span></h2>
+          <div class="certifications-list nle-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="nle-section nle-section--skills">
+          <h2 class="nle-section-title"><span class="nle-section-label">Skills</span></h2>
+          <div class="skills-list nle-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="nle-section nle-section--languages">
+          <h2 class="nle-section-title"><span class="nle-section-label">Languages</span></h2>
+          <div class="languages-list nle-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="nle-section nle-section--interests">
+          <h2 class="nle-section-title"><span class="nle-section-label">Interests</span></h2>
+          <div class="hobbies-list nle-hobbies">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="nle-main">
+        {{#if SUMMARY}}
+        <section class="nle-section nle-section--summary">
+          <h2 class="nle-section-title"><span class="nle-section-label">Professional Summary</span></h2>
+          <div class="nle-card nle-card--summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="nle-section nle-section--experience">
+          <h2 class="nle-section-title"><span class="nle-section-label">Work Experience</span></h2>
+          <div class="experience-list nle-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="nle-section nle-section--projects">
+          <h2 class="nle-section-title"><span class="nle-section-label">Projects</span></h2>
+          <div class="projects-list nle-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="nle-section nle-section--achievements">
+          <h2 class="nle-section-title"><span class="nle-section-label">Achievements</span></h2>
+          <div class="achievements-list nle-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

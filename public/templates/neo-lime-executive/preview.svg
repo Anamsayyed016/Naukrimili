@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="600" height="6" fill="#84CC16"/>
+  <rect x="0" y="6" width="600" height="140" fill="rgba(15,118,110,0.06)"/>
+  <rect x="436" y="28" width="116" height="152" rx="12" fill="#334155" opacity="0.12" stroke="#0F766E" stroke-width="2"/>
+  <text x="300" y="72" text-anchor="middle" font-family="Georgia,serif" font-size="26" font-weight="700" fill="#1E293B" letter-spacing="2">SARAH CHEN</text>
+  <rect x="276" y="84" width="48" height="3" fill="#84CC16"/>
+  <text x="300" y="108" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#0F766E" letter-spacing="1.2">UX RESEARCH LEAD</text>
+  <rect x="32" y="176" width="176" height="112" rx="10" fill="#0F766E"/>
+  <circle cx="56" cy="204" r="10" fill="#84CC16"/>
+  <rect x="76" y="198" width="100" height="4" rx="2" fill="#FFFFFF" opacity="0.75"/>
+  <circle cx="56" cy="236" r="10" fill="#84CC16"/>
+  <rect x="76" y="230" width="90" height="4" rx="2" fill="#FFFFFF" opacity="0.75"/>
+  <text x="32" y="320" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#0F766E">EDUCATION</text>
+  <line x1="32" y1="328" x2="208" y2="328" stroke="#0F766E"/>
+  <rect x="32" y="340" width="176" height="56" rx="6" fill="#F8FAFC" stroke="#D1D5DB"/>
+  <text x="236" y="196" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#0F766E">PROFESSIONAL SUMMARY</text>
+  <line x1="236" y1="204" x2="568" y2="204" stroke="#0F766E"/>
+  <rect x="236" y="216" width="332" height="72" rx="8" fill="#F8FAFC" stroke="#D1D5DB"/>
+  <rect x="236" y="216" width="4" height="72" fill="#84CC16"/>
+  <text x="236" y="316" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#0F766E">WORK EXPERIENCE</text>
+  <line x1="248" y1="336" x2="248" y2="440" stroke="#D1D5DB"/>
+  <circle cx="248" cy="352" r="8" fill="#84CC16" stroke="#0F766E"/>
+  <rect x="264" y="344" width="160" height="4" rx="2" fill="#1E293B"/>
+  <rect x="264" y="356" width="240" height="4" rx="2" fill="#CBD5E1"/>
+  <text x="300" y="776" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1E293B">Neo Lime Executive</text>
+</svg>
