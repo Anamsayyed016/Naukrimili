@@ -11,6 +11,9 @@
   --ebg-bar-track: #E9E9E9;
   --ebg-bar-track-side: #3A3A3A;
   --ebg-white: #FFFFFF;
+  --ebg-side-text: #F7F7F7;
+  --ebg-side-muted: #E2E2E2;
+  --ebg-side-soft: #CFCFCF;
   --ebg-max-width: 210mm;
   --ebg-font-display: 'Montserrat', 'Segoe UI', sans-serif;
   --ebg-font-body: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -79,17 +82,31 @@
   flex-direction: column;
   min-width: 0;
   background: var(--ebg-sidebar);
-  color: var(--ebg-white);
+  color: var(--ebg-side-text);
   padding: 28px 18px 32px 26px;
   align-self: stretch;
   overflow: visible;
+  border: none !important;
+  border-right: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.ebg-resume .ebg-sidebar::before,
+.ebg-resume .ebg-sidebar::after {
+  /* No decorative second divider — wave SVG is the only separator */
+  content: none !important;
+  display: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .ebg-resume .ebg-curve {
   position: absolute;
   top: 0;
-  right: calc(var(--ebg-curve-w) * -1);
-  width: var(--ebg-curve-w);
+  /* Overlap into sidebar so the column seam never shows as a vertical line */
+  right: calc(var(--ebg-curve-w) * -0.9);
+  width: calc(var(--ebg-curve-w) + 10px);
   height: 100%;
   z-index: 1;
   pointer-events: none;
@@ -98,14 +115,12 @@
 
 .ebg-resume .ebg-curve-fill {
   fill: var(--ebg-sidebar);
+  stroke: none;
 }
 
 .ebg-resume .ebg-curve-gold {
-  stroke: var(--ebg-gold);
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
+  fill: var(--ebg-gold);
+  stroke: none;
 }
 
 .ebg-resume .ebg-sidebar-inner {
@@ -115,7 +130,8 @@
   flex-direction: column;
   gap: var(--ebg-section-gap);
   min-width: 0;
-  padding-right: 10px;
+  padding-right: 12px;
+  overflow: visible;
 }
 
 .ebg-resume .ebg-photo-block {
@@ -183,8 +199,9 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ebg-white);
-  line-height: 1.15;
+  line-height: 1.2;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .ebg-resume .candidate-name .name-fallback {
@@ -214,15 +231,87 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ebg-gold);
-  line-height: 1.2;
+  line-height: 1.25;
   margin-bottom: var(--ebg-heading-gap);
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.72);
+  border-left: none;
+  border-right: none;
+  border-top: none;
 }
 
 .ebg-resume .ebg-side-section {
   page-break-inside: avoid;
   break-inside: avoid;
+  overflow: visible;
+  min-width: 0;
+}
+
+/* Sidebar readability — beat ATS color-mix / dark main styles if content lands here */
+.resume-container.ebg-resume .ebg-sidebar .ebg-contact-value,
+.resume-container.ebg-resume .ebg-sidebar .ebg-social-value,
+.resume-container.ebg-resume .ebg-sidebar .psp-language-name,
+.resume-container.ebg-resume .ebg-sidebar .psp-skill-name,
+.resume-container.ebg-resume .ebg-sidebar .hobby-item,
+.resume-container.ebg-resume .ebg-sidebar .hobby-item .hobby,
+.resume-container.ebg-resume .ebg-sidebar .certification-item h3,
+.resume-container.ebg-resume .ebg-sidebar .cert-name,
+.resume-container.ebg-resume .ebg-sidebar .experience-header h3,
+.resume-container.ebg-resume .ebg-sidebar .experience-header .company,
+.resume-container.ebg-resume .ebg-sidebar .education-item h3,
+.resume-container.ebg-resume .ebg-sidebar .education-item .institution,
+.resume-container.ebg-resume .ebg-sidebar .project-item > h3,
+.resume-container.ebg-resume .ebg-sidebar .project-item > .project-title,
+.resume-container.ebg-resume .ebg-sidebar .achievement-item h3 {
+  color: var(--ebg-side-text) !important;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.ebg-resume .ebg-sidebar .issuer,
+.resume-container.ebg-resume .ebg-sidebar .date,
+.resume-container.ebg-resume .ebg-sidebar .year,
+.resume-container.ebg-resume .ebg-sidebar .cgpa,
+.resume-container.ebg-resume .ebg-sidebar .duration,
+.resume-container.ebg-resume .ebg-sidebar .description,
+.resume-container.ebg-resume .ebg-sidebar .description li,
+.resume-container.ebg-resume .ebg-sidebar .summary-text,
+.resume-container.ebg-resume .ebg-sidebar p,
+.resume-container.ebg-resume .ebg-sidebar .technologies,
+.resume-container.ebg-resume .ebg-sidebar .project-employer,
+.resume-container.ebg-resume .ebg-sidebar a {
+  color: var(--ebg-side-muted) !important;
+  font-weight: 400;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.ebg-resume .ebg-sidebar .experience-header h3,
+.resume-container.ebg-resume .ebg-sidebar .education-item h3,
+.resume-container.ebg-resume .ebg-sidebar .project-item > h3,
+.resume-container.ebg-resume .ebg-sidebar .certification-item h3,
+.resume-container.ebg-resume .ebg-sidebar .cert-name {
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+
+.resume-container.ebg-resume .ebg-sidebar .description ul,
+.resume-container.ebg-resume .ebg-sidebar .project-item > ul {
+  margin-top: 6px;
+}
+
+.resume-container.ebg-resume .ebg-sidebar .description li,
+.resume-container.ebg-resume .ebg-sidebar .project-item > ul li {
+  margin-bottom: 6px;
+  padding-left: 14px;
+}
+
+.resume-container.ebg-resume .ebg-sidebar .description li::before,
+.resume-container.ebg-resume .ebg-sidebar .project-item > ul li::before {
+  background: var(--ebg-gold);
 }
 
 /* Contact */
@@ -233,7 +322,7 @@
 .ebg-resume .ebg-contact-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
 }
 
 .ebg-resume .ebg-contact-item {
@@ -241,6 +330,7 @@
   grid-template-columns: 18px minmax(0, 1fr);
   gap: 10px;
   align-items: start;
+  min-width: 0;
 }
 
 .ebg-resume .ebg-contact-icon {
@@ -270,9 +360,11 @@
 
 .ebg-resume .ebg-contact-value {
   font-size: var(--ebg-fs-small);
-  color: var(--ebg-white);
-  line-height: var(--ebg-lh-tight);
+  font-weight: 500;
+  color: var(--ebg-side-text);
+  line-height: 1.5;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Social / Follow Me */
@@ -305,9 +397,11 @@
 
 .ebg-resume .ebg-social-value {
   font-size: var(--ebg-fs-small);
-  color: var(--ebg-white);
-  line-height: var(--ebg-lh-tight);
+  font-weight: 500;
+  color: var(--ebg-side-text);
+  line-height: 1.5;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Languages progress (sidebar) */
@@ -330,8 +424,10 @@
 .ebg-resume .psp-language-name {
   font-size: var(--ebg-fs-small);
   font-weight: 500;
-  color: var(--ebg-white);
-  line-height: var(--ebg-lh-tight);
+  color: var(--ebg-side-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .ebg-resume .psp-language-percentage {
@@ -362,8 +458,10 @@
 .ebg-resume .ebg-certifications .cert-name {
   font-size: var(--ebg-fs-small);
   font-weight: 600;
-  color: var(--ebg-white);
-  line-height: var(--ebg-lh-tight);
+  color: var(--ebg-side-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .ebg-resume .ebg-certifications .issuer,
@@ -371,21 +469,28 @@
 .ebg-resume .ebg-certifications .year {
   display: block;
   font-size: var(--ebg-fs-small);
-  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  color: var(--ebg-side-muted);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Hobbies two-column */
 .ebg-resume .ebg-interests {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 12px;
+  gap: 9px 12px;
 }
 
 .ebg-resume .ebg-interests .hobby-item {
   font-size: var(--ebg-fs-small);
-  color: var(--ebg-white);
-  line-height: var(--ebg-lh-tight);
+  font-weight: 500;
+  color: var(--ebg-side-text);
+  line-height: 1.45;
   word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .ebg-resume .ebg-interests .hobby-item .hobby {
@@ -402,6 +507,18 @@
   display: flex;
   flex-direction: column;
   gap: var(--ebg-section-gap);
+  border: none !important;
+  border-left: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.ebg-resume .ebg-main::before,
+.ebg-resume .ebg-main::after {
+  content: none !important;
+  display: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .ebg-resume .ebg-section {
@@ -991,6 +1108,12 @@
   .ebg-resume .ebg-title-rule {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  .ebg-resume .ebg-sidebar,
+  .ebg-resume .ebg-main {
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .ebg-resume .experience-item,
