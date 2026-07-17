@@ -248,6 +248,55 @@
       }
     },
     {
+      "id": "slate-elite-professional",
+      "name": "Slate Elite Professional",
+      "slug": "slate-elite-professional",
+      "description": "Premium executive two-column resume with slate corporate palette, Cormorant Garamond typography, rectangular portrait header, icon contact grid, education and project cards, pill skills, award cards, and adaptive column balancing for ATS-friendly PDF export.",
+      "thumbnail": "/templates/slate-elite-professional/thumbnail.svg",
+      "preview": "/templates/slate-elite-professional/preview.svg",
+      "html": "/templates/slate-elite-professional/index.html",
+      "css": "/templates/slate-elite-professional/style.css",
+      "categories": ["Premium", "Professional", "Executive", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "slate-gold", "name": "Slate Gold", "primary": "#1E293B", "accent": "#B08D57", "text": "#111827" },
+        { "id": "slate-blue", "name": "Slate Blue", "primary": "#1E293B", "accent": "#2563EB", "text": "#111827" },
+        { "id": "slate-indigo", "name": "Slate Indigo", "primary": "#1E293B", "accent": "#4F46E5", "text": "#111827" },
+        { "id": "charcoal-gold", "name": "Charcoal Gold", "primary": "#334155", "accent": "#B08D57", "text": "#111827" },
+        { "id": "midnight-slate", "name": "Midnight Slate", "primary": "#0F172A", "accent": "#B08D57", "text": "#111827" }
+      ],
+      "defaultColor": "slate-gold",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 58,
+        "sidebarColumnBasisPct": 42,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "education", "experience", "projects", "extended"],
+        "rightSections": ["skills", "languages", "achievements", "certifications", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "achievements"],
+        "movableSections": ["projects", "certifications", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "summary": 94,
+          "experience": 95,
+          "education": 88,
+          "projects": 72,
+          "skills": 90,
+          "languages": 68,
+          "achievements": 64,
+          "certifications": 58,
+          "interests": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "onyx-modern-executive",
       "name": "Onyx Modern Executive",
       "slug": "onyx-modern-executive",

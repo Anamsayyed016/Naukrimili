@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <rect x="436" y="36" width="116" height="145" rx="14" fill="#F1F5F9" stroke="#CBD5E1"/>
+  <rect x="424" y="48" width="116" height="145" rx="14" fill="#E2E8F0" stroke="#CBD5E1"/>
+  <rect x="436" y="36" width="116" height="145" rx="14" fill="#334155" opacity="0.12"/>
+  <text x="48" y="72" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#1E293B" letter-spacing="2">JEREMY TORRES</text>
+  <text x="48" y="104" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#6B7280" letter-spacing="1.2">GRAPHIC DESIGNER</text>
+  <line x1="48" y1="124" x2="552" y2="124" stroke="#1E293B" stroke-width="2"/>
+  <text x="48" y="148" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1E293B">OBJECTIVE</text>
+  <rect x="48" y="160" width="480" height="4" rx="2" fill="#E2E8F0"/>
+  <rect x="48" y="172" width="440" height="4" rx="2" fill="#E2E8F0"/>
+  <circle cx="68" cy="208" r="12" fill="#1E293B"/>
+  <circle cx="228" cy="208" r="12" fill="#1E293B"/>
+  <circle cx="388" cy="208" r="12" fill="#1E293B"/>
+  <rect x="88" y="200" width="100" height="4" rx="2" fill="#CBD5E1"/>
+  <rect x="248" y="200" width="100" height="4" rx="2" fill="#CBD5E1"/>
+  <rect x="408" y="200" width="100" height="4" rx="2" fill="#CBD5E1"/>
+  <text x="48" y="256" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1E293B">EDUCATION</text>
+  <line x1="48" y1="264" x2="340" y2="264" stroke="#1E293B" stroke-width="1.5"/>
+  <rect x="48" y="276" width="292" height="72" rx="4" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <rect x="48" y="340" width="292" height="4" fill="#B08D57"/>
+  <text x="48" y="372" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1E293B">WORK EXPERIENCE</text>
+  <line x1="48" y1="380" x2="340" y2="380" stroke="#1E293B" stroke-width="1.5"/>
+  <rect x="48" y="396" width="260" height="4" rx="2" fill="#334155"/>
+  <rect x="48" y="408" width="220" height="4" rx="2" fill="#CBD5E1"/>
+  <text x="376" y="256" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1E293B">SKILLS</text>
+  <line x1="376" y1="264" x2="552" y2="264" stroke="#1E293B" stroke-width="1.5"/>
+  <rect x="376" y="276" width="72" height="20" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <rect x="456" y="276" width="72" height="20" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <rect x="376" y="304" width="80" height="20" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <text x="376" y="352" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1E293B">HONORS &amp; AWARDS</text>
+  <line x1="376" y1="360" x2="552" y2="360" stroke="#1E293B" stroke-width="1.5"/>
+  <rect x="376" y="372" width="176" height="56" rx="6" fill="#F1F5F9" stroke="#CBD5E1"/>
+  <text x="300" y="776" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1E293B">Slate Elite Professional</text>
+</svg>

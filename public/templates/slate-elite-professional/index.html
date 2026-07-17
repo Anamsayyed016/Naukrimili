@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container sep-resume">
+    <header class="sep-header">
+      <div class="sep-header-top">
+        <div class="sep-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+
+        {{#if PROFILE_IMAGE}}
+        <div class="sep-photo">
+          <div class="sep-photo-layer" aria-hidden="true"></div>
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      {{#if SUMMARY}}
+      <section class="sep-objective">
+        <h2 class="sep-objective-title">Objective</h2>
+        <p class="summary-text">{{SUMMARY}}</p>
+      </section>
+      {{/if}}
+
+      <div class="sep-contact-grid" role="list">
+        {{#if PHONE}}
+        <div class="sep-contact-item sep-contact-item--phone" role="listitem">
+          <span class="sep-contact-icon" aria-hidden="true"></span>
+          <span class="sep-contact-label">Phone</span>
+          <span class="sep-contact-value">{{PHONE}}</span>
+        </div>
+        {{/if}}
+        {{#if EMAIL}}
+        <div class="sep-contact-item sep-contact-item--email" role="listitem">
+          <span class="sep-contact-icon" aria-hidden="true"></span>
+          <span class="sep-contact-label">Email</span>
+          <span class="sep-contact-value">{{EMAIL}}</span>
+        </div>
+        {{/if}}
+        {{#if PORTFOLIO}}
+        <div class="sep-contact-item sep-contact-item--web" role="listitem">
+          <span class="sep-contact-icon" aria-hidden="true"></span>
+          <span class="sep-contact-label">Website</span>
+          <span class="sep-contact-value">{{PORTFOLIO}}</span>
+        </div>
+        {{/if}}
+        {{#if LINKEDIN}}
+        <div class="sep-contact-item sep-contact-item--linkedin" role="listitem">
+          <span class="sep-contact-icon" aria-hidden="true"></span>
+          <span class="sep-contact-label">LinkedIn</span>
+          <span class="sep-contact-value">{{LINKEDIN}}</span>
+        </div>
+        {{/if}}
+        {{#if LOCATION}}
+        <div class="sep-contact-item sep-contact-item--location" role="listitem">
+          <span class="sep-contact-icon" aria-hidden="true"></span>
+          <span class="sep-contact-label">Location</span>
+          <span class="sep-contact-value">{{LOCATION}}</span>
+        </div>
+        {{/if}}
+      </div>
+    </header>
+
+    <div class="sep-body">
+      <main class="sep-main">
+        {{#if EDUCATION}}
+        <section class="sep-section sep-section--education">
+          <h2 class="sep-section-title"><span class="sep-section-label">Education</span></h2>
+          <div class="education-list sep-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="sep-section sep-section--experience">
+          <h2 class="sep-section-title"><span class="sep-section-label">Work Experience</span></h2>
+          <div class="experience-list sep-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="sep-section sep-section--projects">
+          <h2 class="sep-section-title"><span class="sep-section-label">Activities &amp; Projects</span></h2>
+          <div class="projects-list sep-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="sep-sidebar">
+        {{#if SKILLS}}
+        <section class="sep-section sep-section--skills">
+          <h2 class="sep-section-title"><span class="sep-section-label">Skills</span></h2>
+          <div class="skills-list sep-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="sep-section sep-section--languages">
+          <h2 class="sep-section-title"><span class="sep-section-label">Languages</span></h2>
+          <div class="languages-list sep-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="sep-section sep-section--achievements">
+          <h2 class="sep-section-title"><span class="sep-section-label">Honors &amp; Awards</span></h2>
+          <div class="achievements-list sep-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="sep-section sep-section--certifications">
+          <h2 class="sep-section-title"><span class="sep-section-label">Certifications</span></h2>
+          <div class="certifications-list sep-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="sep-section sep-section--interests">
+          <h2 class="sep-section-title"><span class="sep-section-label">Interests</span></h2>
+          <div class="hobbies-list sep-hobbies">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
