@@ -152,7 +152,7 @@
       "id": "soft-coral-executive",
       "name": "Soft Coral Executive",
       "slug": "soft-coral-executive",
-      "description": "Modern executive resume with white premium canvas, soft coral decorative accents, circular portrait header, five-column contact strip, and clean 65/35 experience sidebar layout for ATS-friendly PDF export.",
+      "description": "Modern dark premium executive resume with slate corporate palette, Playfair Display typography, gold-accent circular portrait, glass contact cards, timeline experience, project cards, skill pills, and adaptive 65/35 layout for ATS-friendly PDF export.",
       "thumbnail": "/templates/soft-coral-executive/thumbnail.svg",
       "preview": "/templates/soft-coral-executive/preview.svg",
       "html": "/templates/soft-coral-executive/index.html",
@@ -163,12 +163,12 @@
       "hasPhoto": true,
       "recommended": true,
       "colors": [
-        { "id": "soft-coral", "name": "Soft Coral", "primary": "#111111", "accent": "#FF5A3D", "text": "#111111" },
-        { "id": "warm-beige", "name": "Warm Beige", "primary": "#111111", "accent": "#F8C6B4", "text": "#1A1A1A" },
-        { "id": "coral-blush", "name": "Coral Blush", "primary": "#111111", "accent": "#E85A45", "text": "#111111" },
-        { "id": "executive-white", "name": "Executive White", "primary": "#000000", "accent": "#FF5A3D", "text": "#111111" },
-        { "id": "sand-executive", "name": "Sand Executive", "primary": "#1A1A1A", "accent": "#EDE7E1", "text": "#111111" },
-        { "id": "peach-accent", "name": "Peach Accent", "primary": "#111111", "accent": "#F8C6B4", "text": "#222222" }
+        { "id": "soft-coral", "name": "Executive Gold", "primary": "#1E222D", "accent": "#C48A4A", "text": "#1E222D" },
+        { "id": "warm-beige", "name": "Warm Slate", "primary": "#1E222D", "accent": "#B07A42", "text": "#2D3342" },
+        { "id": "coral-blush", "name": "Midnight Gold", "primary": "#2D3342", "accent": "#C48A4A", "text": "#1E222D" },
+        { "id": "executive-white", "name": "Charcoal Bronze", "primary": "#1E222D", "accent": "#A87238", "text": "#1E222D" },
+        { "id": "sand-executive", "name": "Slate Copper", "primary": "#2D3342", "accent": "#D49A5A", "text": "#1E222D" },
+        { "id": "peach-accent", "name": "Onyx Gold", "primary": "#1A1E26", "accent": "#C48A4A", "text": "#1E222D" }
       ],
       "defaultColor": "soft-coral",
       "layoutMetadata": {

@@ -6,16 +6,14 @@
   <title>Resume - {{FULL_NAME}}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="resume-container sce-resume">
-    <div class="sce-deco sce-deco--tr-circle" aria-hidden="true"></div>
+    <div class="sce-deco sce-deco--tl-accent" aria-hidden="true"></div>
     <div class="sce-deco sce-deco--tr-ring" aria-hidden="true"></div>
-    <div class="sce-deco sce-deco--left-circles" aria-hidden="true"></div>
-    <div class="sce-deco sce-deco--br-wave" aria-hidden="true"></div>
-    <div class="sce-deco sce-deco--bl-blob" aria-hidden="true"></div>
+    <div class="sce-deco sce-deco--br-line" aria-hidden="true"></div>
 
     <header class="sce-header">
       <div class="sce-header-row">
@@ -52,32 +50,37 @@
 
     <div class="sce-contact-bar">
       {{#if LOCATION}}
-      <div class="sce-contact-col">
-        <span class="sce-contact-label">Address</span>
+      <div class="sce-contact-col sce-contact-col--location">
+        <span class="sce-contact-icon" aria-hidden="true"></span>
+        <span class="sce-contact-label">Location</span>
         <span class="sce-contact-value">{{LOCATION}}</span>
       </div>
       {{/if}}
       {{#if PHONE}}
-      <div class="sce-contact-col">
+      <div class="sce-contact-col sce-contact-col--phone">
+        <span class="sce-contact-icon" aria-hidden="true"></span>
         <span class="sce-contact-label">Phone</span>
         <span class="sce-contact-value">{{PHONE}}</span>
       </div>
       {{/if}}
       {{#if EMAIL}}
-      <div class="sce-contact-col">
+      <div class="sce-contact-col sce-contact-col--email">
+        <span class="sce-contact-icon" aria-hidden="true"></span>
         <span class="sce-contact-label">Email</span>
         <span class="sce-contact-value">{{EMAIL}}</span>
       </div>
       {{/if}}
       {{#if LINKEDIN}}
-      <div class="sce-contact-col">
+      <div class="sce-contact-col sce-contact-col--linkedin">
+        <span class="sce-contact-icon" aria-hidden="true"></span>
         <span class="sce-contact-label">LinkedIn</span>
         <span class="sce-contact-value">{{LINKEDIN}}</span>
       </div>
       {{/if}}
       {{#if PORTFOLIO}}
-      <div class="sce-contact-col">
-        <span class="sce-contact-label">Portfolio</span>
+      <div class="sce-contact-col sce-contact-col--web">
+        <span class="sce-contact-icon" aria-hidden="true"></span>
+        <span class="sce-contact-label">Website</span>
         <span class="sce-contact-value">{{PORTFOLIO}}</span>
       </div>
       {{/if}}
@@ -86,7 +89,7 @@
     <div class="sce-body">
       <main class="sce-main">
         {{#if EXPERIENCE}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--experience">
           <h2 class="sce-section-title">Experience</h2>
           <div class="experience-list sce-experience">
             {{EXPERIENCE}}
@@ -95,7 +98,7 @@
         {{/if}}
 
         {{#if PROJECTS}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--projects">
           <h2 class="sce-section-title">Projects</h2>
           <div class="projects-list sce-projects">
             {{PROJECTS}}
@@ -106,14 +109,16 @@
 
       <aside class="sce-sidebar">
         {{#if SUMMARY}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--summary">
           <h2 class="sce-section-title">Professional Summary</h2>
-          <p class="summary-text">{{SUMMARY}}</p>
+          <div class="sce-summary-card">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
         </section>
         {{/if}}
 
         {{#if SKILLS}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--skills">
           <h2 class="sce-section-title">Skills</h2>
           <div class="skills-list sce-skills-grid">
             {{SKILLS}}
@@ -122,7 +127,7 @@
         {{/if}}
 
         {{#if EDUCATION}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--education">
           <h2 class="sce-section-title">Education</h2>
           <div class="education-list sce-education">
             {{EDUCATION}}
@@ -131,7 +136,7 @@
         {{/if}}
 
         {{#if CERTIFICATIONS}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--certifications">
           <h2 class="sce-section-title">Certifications</h2>
           <div class="certifications-list sce-certifications">
             {{CERTIFICATIONS}}
@@ -140,7 +145,7 @@
         {{/if}}
 
         {{#if LANGUAGES}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--languages">
           <h2 class="sce-section-title">Languages</h2>
           <div class="languages-list sce-languages">
             {{LANGUAGES}}
@@ -149,10 +154,19 @@
         {{/if}}
 
         {{#if ACHIEVEMENTS}}
-        <section class="sce-section">
+        <section class="sce-section sce-section--achievements">
           <h2 class="sce-section-title">Achievements</h2>
           <div class="achievements-list sce-achievements">
             {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="sce-section sce-section--interests">
+          <h2 class="sce-section-title">Interests</h2>
+          <div class="hobbies-list sce-interests">
+            {{HOBBIES}}
           </div>
         </section>
         {{/if}}

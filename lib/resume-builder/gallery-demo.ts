@@ -26,10 +26,10 @@ export interface GalleryCardAccent {
 
 export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> = {
   'soft-coral-executive': {
-    glow: 'radial-gradient(circle, rgba(255,90,61,0.38) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(248,198,180,0.45) 0%, transparent 70%)',
-    borderTint: 'hover:border-orange-300/55',
-    hoverOverlay: 'from-orange-50/35',
+    glow: 'radial-gradient(circle, rgba(196,138,74,0.38) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(30,34,45,0.28) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-700/40',
+    hoverOverlay: 'from-stone-100/35',
   },
   'navy-gold-executive': {
     glow: 'radial-gradient(circle, rgba(196,163,90,0.42) 0%, transparent 70%)',

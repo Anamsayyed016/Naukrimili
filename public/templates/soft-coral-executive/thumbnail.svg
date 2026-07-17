@@ -1,31 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
-  <rect width="300" height="400" fill="#FFFFFF"/>
-  <circle cx="268" cy="32" r="48" fill="#EDE7E1"/>
-  <circle cx="278" cy="42" r="22" fill="none" stroke="#FF5A3D" stroke-width="2.5"/>
-  <ellipse cx="20" cy="200" rx="28" ry="28" fill="#F8C6B4" opacity="0.12"/>
-  <ellipse cx="280" cy="360" rx="40" ry="24" fill="#EDE7E1" opacity="0.55"/>
-  <path d="M250 380 Q270 340 290 370" fill="none" stroke="#FF5A3D" stroke-width="2" opacity="0.5"/>
-  <circle cx="42" cy="52" r="30" fill="#FFFFFF" stroke="#F8C6B4" stroke-width="2.5"/>
-  <circle cx="42" cy="52" r="26" fill="#E8E8E8"/>
-  <text x="82" y="44" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#000000" letter-spacing="0.5">ALEXANDER</text>
-  <text x="82" y="56" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#000000" letter-spacing="0.5">REED</text>
-  <text x="82" y="68" font-family="Arial,sans-serif" font-size="3.5" fill="#222222" letter-spacing="0.2">SENIOR OPERATIONS DIRECTOR</text>
-  <line x1="16" y1="78" x2="284" y2="78" stroke="#D9D9D9"/>
-  <line x1="16" y1="96" x2="284" y2="96" stroke="#D9D9D9"/>
-  <text x="20" y="90" font-family="Arial,sans-serif" font-size="2.5" fill="#555555">Address</text>
-  <text x="76" y="90" font-family="Arial,sans-serif" font-size="2.5" fill="#555555">Phone</text>
-  <line x1="68" y1="80" x2="68" y2="94" stroke="#D9D9D9"/>
-  <line x1="124" y1="80" x2="124" y2="94" stroke="#D9D9D9"/>
-  <text x="20" y="112" font-family="Arial,sans-serif" font-size="4.5" font-weight="700" fill="#111111" letter-spacing="0.4">EXPERIENCE</text>
-  <line x1="20" y1="116" x2="188" y2="116" stroke="#D9D9D9"/>
-  <text x="20" y="128" font-family="Arial,sans-serif" font-size="3.8" font-weight="700" fill="#111111">Role | Company</text>
-  <text x="20" y="136" font-family="Arial,sans-serif" font-size="3" fill="#555555">Location | 2020-24</text>
-  <line x1="198" y1="104" x2="198" y2="360" stroke="#D9D9D9"/>
-  <text x="206" y="112" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#111111" letter-spacing="0.3">SUMMARY</text>
-  <line x1="206" y1="116" x2="292" y2="116" stroke="#D9D9D9"/>
-  <text x="206" y="138" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#111111" letter-spacing="0.3">SKILLS</text>
-  <line x1="206" y1="142" x2="292" y2="142" stroke="#D9D9D9"/>
-  <text x="206" y="154" font-family="Arial,sans-serif" font-size="3" fill="#111111">Leadership</text>
-  <text x="252" y="154" font-family="Arial,sans-serif" font-size="3" fill="#111111">Analytics</text>
-  <text x="150" y="388" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#FF5A3D">Soft Coral Executive</text>
+  <rect width="300" height="400" fill="#FAFAFA"/>
+  <path d="M18 18 H34 V34" stroke="#C48A4A" stroke-width="1.5" fill="none" opacity="0.75"/>
+  <circle cx="268" cy="28" r="22" fill="none" stroke="#D8DCE5" stroke-width="1"/>
+  <circle cx="268" cy="28" r="3" fill="#C48A4A" opacity="0.55"/>
+  <!-- Photo -->
+  <circle cx="52" cy="52" r="28" fill="#FFFFFF" stroke="#C48A4A" stroke-width="2.5"/>
+  <!-- Name -->
+  <text x="92" y="44" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#1E222D">ALEXANDER REED</text>
+  <text x="92" y="56" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="#6B7280" letter-spacing="0.6">SENIOR OPERATIONS DIRECTOR</text>
+  <!-- Contact cards -->
+  <rect x="28" y="72" width="52" height="22" rx="4" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="0.6"/>
+  <rect x="84" y="72" width="52" height="22" rx="4" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="0.6"/>
+  <rect x="140" y="72" width="52" height="22" rx="4" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="0.6"/>
+  <rect x="196" y="72" width="76" height="22" rx="4" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="0.6"/>
+  <!-- Body columns -->
+  <line x1="196" y1="104" x2="196" y2="340" stroke="#D8DCE5" stroke-width="0.8"/>
+  <!-- Main: Experience -->
+  <text x="28" y="118" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#1E222D" letter-spacing="1">EXPERIENCE</text>
+  <line x1="28" y1="122" x2="188" y2="122" stroke="#D8DCE5" stroke-width="0.5"/>
+  <line x1="32" y1="128" x2="32" y2="200" stroke="#D8DCE5" stroke-width="0.8"/>
+  <circle cx="32" cy="134" r="2.5" fill="#C48A4A"/>
+  <rect x="40" y="130" width="120" height="2" rx="1" fill="#2D3342" opacity="0.8"/>
+  <rect x="40" y="136" width="90" height="2" rx="1" fill="#6B7280"/>
+  <!-- Projects grid -->
+  <text x="28" y="218" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#1E222D" letter-spacing="1">PROJECTS</text>
+  <rect x="28" y="224" width="76" height="36" rx="4" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="0.6"/>
+  <rect x="108" y="224" width="76" height="36" rx="4" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="0.6"/>
+  <!-- Sidebar: Summary -->
+  <text x="204" y="118" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#1E222D" letter-spacing="1">SUMMARY</text>
+  <rect x="204" y="124" width="68" height="28" rx="3" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="0.6"/>
+  <rect x="204" y="124" width="2" height="28" fill="#C48A4A"/>
+  <!-- Skills pills -->
+  <text x="204" y="166" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#1E222D" letter-spacing="1">SKILLS</text>
+  <rect x="204" y="172" width="28" height="8" rx="4" fill="rgba(196,138,74,0.2)" stroke="#C48A4A" stroke-width="0.4"/>
+  <rect x="234" y="172" width="32" height="8" rx="4" fill="rgba(196,138,74,0.2)" stroke="#C48A4A" stroke-width="0.4"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Georgia, serif" font-size="6.5" font-weight="600" fill="#1E222D">Soft Coral Executive</text>
 </svg>
