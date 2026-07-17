@@ -812,6 +812,7 @@ export default function ResumeEditorPage() {
     const commonProps = {
       formData,
       updateFormData,
+      templateHasPhoto: template.hasPhoto,
     };
 
     switch (currentStep) {

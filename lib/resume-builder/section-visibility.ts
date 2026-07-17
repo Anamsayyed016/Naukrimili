@@ -34,6 +34,10 @@ import {
   composeSummary,
   composeProjectDescription,
 } from '@/lib/resume-builder/content-composition';
+import {
+  DEFAULT_DEMO_PROFILE_IMAGE,
+  isDemoProfileImageUrl,
+} from '@/lib/resume-builder/demo-profile-image';
 
 export type ResumeSectionKey =
   | 'contact'
@@ -109,11 +113,7 @@ export function hasMeaningfulText(value: unknown): boolean {
 }
 
 export function isDemoProfileImage(url: unknown): boolean {
-  const value = getStringValue(url);
-  if (!value) return false;
-  if (value.includes('naulogoimg_j5uodj')) return true;
-  if (value.includes('drot7xb9m/image/upload') && value.includes('naulogoimg')) return true;
-  return false;
+  return isDemoProfileImageUrl(url);
 }
 
 export function isValidProfileImage(url: unknown): boolean {
@@ -204,9 +204,15 @@ const PROFILE_IMAGE_FIELD_KEYS = [
   'Photo',
 ] as const;
 
+export interface ResolveProfileImageOptions {
+  /** When true and no user upload exists, return the shared demo portrait. */
+  demoFallback?: boolean;
+}
+
 export function resolveProfileImageForRender(
   formData: Record<string, unknown>,
-  _getString?: (keys: string[]) => string
+  _getString?: (keys: string[]) => string,
+  options?: ResolveProfileImageOptions
 ): string {
   if (isSectionForcedHidden('profileImage', formData)) {
     return '';
@@ -216,6 +222,9 @@ export function resolveProfileImageForRender(
     if (isValidProfileImage(value)) {
       return getStringValue(value);
     }
+  }
+  if (options?.demoFallback) {
+    return DEFAULT_DEMO_PROFILE_IMAGE;
   }
   return '';
 }

@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils';
 
 interface PhotoUploadProps {
   value?: string;
+  /** Render-only placeholder when value is empty (not persisted). */
+  placeholderImage?: string;
   onChange: (value: string) => void;
   className?: string;
 }
@@ -124,7 +126,7 @@ const FilterSection = ({
   );
 };
 
-export default function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
+export default function PhotoUpload({ value, placeholderImage, onChange, className }: PhotoUploadProps) {
   const { toast } = useToast();
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const [isOpen, setIsOpen] = useState(false);
@@ -599,6 +601,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   }, []);
 
   const handleRemovePhoto = useCallback(() => {
+    if (!value) return;
     onChange('');
     setImageSrc('');
     handleReset();
@@ -611,7 +614,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
       title: 'Photo removed',
       description: 'Profile photo has been removed.',
     });
-  }, [onChange, handleReset, toast]);
+  }, [onChange, handleReset, toast, value]);
 
   const toggleSection = useCallback((section: string) => {
     setActiveSection((prev) => (prev === section ? null : section));
@@ -645,7 +648,9 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     });
   }, []);
 
-  const hasImage = !!value;
+  const hasUserPhoto = !!value;
+  const displaySrc = value || placeholderImage || '';
+  const hasImage = !!displaySrc;
   const previewSize = isMobile ? 168 : isTablet ? 200 : 220;
   const previewFilter = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturate}%) blur(${filters.blur}px) grayscale(${filters.grayscale}%)`;
 
@@ -675,7 +680,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
               )}>
                 <div className="relative group flex-shrink-0">
                   <motion.img
-                    src={value}
+                    src={displaySrc}
                     alt="Profile"
                     className={cn(
                       'rounded-full object-cover border-2 border-gray-200 shadow-sm',
@@ -699,6 +704,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                       )}
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!hasUserPhoto) return;
                         onChange('');
                         toast({
                           title: 'Photo removed',
@@ -717,11 +723,11 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                   <p className={cn(
                     'font-medium text-gray-900',
                     isMobile ? 'text-xs' : 'text-sm'
-                  )}>Photo uploaded</p>
+                  )}>{hasUserPhoto ? 'Photo uploaded' : 'Sample profile photo'}</p>
                   <p className={cn(
                     'text-gray-500',
                     isMobile ? 'text-[10px]' : 'text-xs'
-                  )}>Click edit to modify or replace</p>
+                  )}>{hasUserPhoto ? 'Click edit to modify or replace' : 'Upload your own photo to replace this placeholder'}</p>
                 </div>
                 <div className={cn(
                   'flex gap-2 flex-shrink-0 flex-wrap',

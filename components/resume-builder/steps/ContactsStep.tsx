@@ -8,13 +8,23 @@ import { CheckCircle2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PhotoUpload from '@/components/resume-builder/PhotoUpload';
 import TitleSuggestionChips from '@/components/resume-builder/form-inputs/TitleSuggestionChips';
+import { DEFAULT_DEMO_PROFILE_IMAGE } from '@/lib/resume-builder/demo-profile-image';
+import {
+  isSectionForcedHidden,
+  resolveProfileImageForRender,
+} from '@/lib/resume-builder/section-visibility';
 
 interface ContactsStepProps {
   formData: Record<string, unknown>;
   updateFormData: (updates: Record<string, unknown>) => void;
+  templateHasPhoto?: boolean;
 }
 
-export default function ContactsStep({ formData, updateFormData }: ContactsStepProps) {
+export default function ContactsStep({
+  formData,
+  updateFormData,
+  templateHasPhoto = false,
+}: ContactsStepProps) {
   const [focused, setFocused] = useState<string>('');
 
   const handleChange = (field: string, value: string | number | boolean) => {
@@ -75,6 +85,14 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
       value: formData.portfolio || formData.website || '',
     },
   ];
+
+  const userProfileImage = resolveProfileImageForRender(formData);
+  const demoPlaceholderImage =
+    templateHasPhoto &&
+    !userProfileImage &&
+    !isSectionForcedHidden('profileImage', formData)
+      ? DEFAULT_DEMO_PROFILE_IMAGE
+      : undefined;
 
   return (
     <motion.div
@@ -239,7 +257,8 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
       >
         <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white w-full max-w-full overflow-x-hidden">
           <PhotoUpload
-            value={formData.profileImage || formData.photo || formData.profilePhoto || ''}
+            value={userProfileImage}
+            placeholderImage={demoPlaceholderImage}
             onChange={(value) => {
               // Update all possible field names for compatibility
               updateFormData({

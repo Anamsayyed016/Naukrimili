@@ -46,6 +46,7 @@ import {
   reconcileEducationDegreeAndField,
 } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
+import { templateSupportsProfilePhoto } from './template-photo-metadata';
 import { resolveTemplateId } from './template-aliases';
 import {
   getAtsContentBalanceStyleBlock,
@@ -498,9 +499,12 @@ export function injectResumeData(
   
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
+  const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
   const profileImage = options?.galleryPreview
     ? resolveGalleryProfileImage(data, getString, options.galleryTemplateId)
-    : resolveProfileImageForRender(data, getString);
+    : resolveProfileImageForRender(data, getString, {
+        demoFallback: templateSupportsProfilePhoto(resolvedTemplateId),
+      });
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
@@ -621,7 +625,6 @@ export function injectResumeData(
   result = appendExtendedSectionsToHtml(result, coalesced);
 
   // Premium typography & content-balance (spacing/hierarchy only — no layout/color changes).
-  const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
   const injectedStyles =
     isPremiumTemplate(resolvedTemplateId) ? getAtsContentBalanceStyleBlock() : '';
   if (injectedStyles) {

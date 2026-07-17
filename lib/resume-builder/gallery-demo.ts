@@ -1,13 +1,14 @@
 /**
- * Gallery-only demo data for template thumbnails.
- * Never written to form state, export, or live preview defaults.
+ * Gallery demo data and profile portrait helpers.
+ * Demo portrait is render-time only — never persisted as user upload data.
  */
 
 import { resolveProfileImageForRender } from '@/lib/resume-builder/section-visibility';
-
-/** Shared demo portrait for gallery cards, sample resumes, and template previews only. */
-export const DEFAULT_DEMO_PROFILE_IMAGE =
-  'https://res.cloudinary.com/drot7xb9m/image/upload/v1782134751/naulogoimg_j5uodj.png';
+export {
+  DEFAULT_DEMO_PROFILE_IMAGE,
+  isDemoProfileImageUrl,
+} from '@/lib/resume-builder/demo-profile-image';
+import { DEFAULT_DEMO_PROFILE_IMAGE } from '@/lib/resume-builder/demo-profile-image';
 
 /** @deprecated Use DEFAULT_DEMO_PROFILE_IMAGE */
 export const GALLERY_DEMO_PROFILE_IMAGE = DEFAULT_DEMO_PROFILE_IMAGE;
