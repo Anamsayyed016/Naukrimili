@@ -35,7 +35,8 @@
   --mte-fs-meta: 14.5px;
   --mte-fs-small: 13.5px;
   --mte-measure: 80ch;
-  --mte-photo-size: 96px;
+  --mte-photo-size: clamp(100px, 14.8cqw, 118px);
+  --mte-photo-gutter: 16px;
 
   --primary-color: var(--mte-text);
   --accent-color: var(--mte-accent);
@@ -52,6 +53,7 @@
 .mte-resume,
 .resume-container.mte-resume {
   position: relative;
+  container-type: inline-size;
   width: 794px;
   max-width: var(--mte-max-width);
   min-height: auto;
@@ -83,22 +85,25 @@
 
 .mte-resume .mte-photo {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 4px;
+  right: 0;
   z-index: 2;
   width: var(--mte-photo-size);
   height: var(--mte-photo-size);
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .mte-resume .profile-image-wrapper {
-  width: var(--mte-photo-size);
-  height: var(--mte-photo-size);
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid rgba(217, 200, 234, 0.95);
+  border: 1.5px solid rgba(217, 200, 234, 0.98);
   box-shadow:
-    0 10px 20px rgba(17, 17, 17, 0.10),
-    0 0 0 1px rgba(139, 126, 200, 0.18);
+    0 6px 16px rgba(17, 17, 17, 0.09),
+    0 0 0 1px rgba(255, 255, 255, 0.72) inset,
+    0 0 0 1px rgba(139, 126, 200, 0.2);
   background: var(--mte-bg);
   display: flex;
   align-items: center;
@@ -109,8 +114,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center center;
   display: block;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .mte-resume .mte-header-inner {
@@ -119,7 +126,7 @@
 }
 
 .mte-resume .mte-header:has(.mte-photo) .mte-header-inner {
-  padding-right: calc(var(--mte-photo-size) + 12px);
+  padding-right: calc(var(--mte-photo-size) + var(--mte-photo-gutter));
   padding-left: 0;
 }
 
@@ -751,9 +758,18 @@
   --mte-block-gap: 14px;
 }
 
+@media (max-width: 1024px) and (min-width: 769px) {
+  .mte-resume {
+    --mte-photo-size: clamp(92px, 13.5cqw, 106px);
+    --mte-photo-gutter: 14px;
+  }
+}
+
 @media (max-width: 768px) {
   .mte-resume {
     padding: 28px 24px 32px;
+    --mte-photo-size: clamp(88px, 24vw, 100px);
+    --mte-photo-gutter: 12px;
   }
 
   .mte-resume .candidate-name {
@@ -763,10 +779,11 @@
   .mte-resume .mte-header:has(.mte-photo) .mte-header-inner {
     padding-right: 0;
     padding-left: 0;
-    padding-top: calc(var(--mte-photo-size) + 12px);
+    padding-top: calc(var(--mte-photo-size) + var(--mte-photo-gutter));
   }
 
   .mte-resume .mte-photo {
+    top: 0;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
@@ -809,12 +826,24 @@
     padding: 58px 56px 56px !important;
   }
 
+  .mte-resume .mte-photo,
+  .mte-resume .profile-image-wrapper {
+    width: var(--mte-photo-size) !important;
+    height: var(--mte-photo-size) !important;
+  }
+
   .mte-resume .profile-image-wrapper {
     box-shadow:
-      0 10px 20px rgba(17, 17, 17, 0.10),
-      0 0 0 1px rgba(139, 126, 200, 0.18) !important;
+      0 6px 16px rgba(17, 17, 17, 0.09),
+      0 0 0 1px rgba(255, 255, 255, 0.72) inset,
+      0 0 0 1px rgba(139, 126, 200, 0.2) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  .mte-resume .profile-image {
+    object-fit: cover !important;
+    object-position: center center !important;
   }
 
   .mte-resume .experience-item,
@@ -903,6 +932,27 @@
   letter-spacing: 0.06em !important;
   line-height: 1.25 !important;
   margin-bottom: 18px !important;
+}
+
+/* Portrait focal point — preserve size through ATS balance + gallery scale */
+.resume-container.mte-resume .mte-photo,
+.resume-container.mte-resume .profile-image-wrapper {
+  width: var(--mte-photo-size) !important;
+  height: var(--mte-photo-size) !important;
+  min-width: var(--mte-photo-size) !important;
+  min-height: var(--mte-photo-size) !important;
+  flex-shrink: 0 !important;
+}
+
+.resume-container.mte-resume .mte-header:has(.mte-photo) .mte-header-inner {
+  padding-right: calc(var(--mte-photo-size) + var(--mte-photo-gutter)) !important;
+}
+
+.resume-container.mte-resume .profile-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
 }
 
 /* Keep body rhythm airy and readable */

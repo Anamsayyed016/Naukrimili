@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
   <rect width="600" height="800" fill="#FFFFFF"/>
-  <circle cx="496" cy="84" r="44" fill="#F5F3FA" stroke="#8B7EC8" stroke-width="2"/>
-  <circle cx="496" cy="76" r="28" fill="#E8E4F0"/>
+  <circle cx="490" cy="88" r="56" fill="#F5F3FA" stroke="#8B7EC8" stroke-width="2"/>
+  <circle cx="490" cy="78" r="36" fill="#E8E4F0"/>
   <text x="300" y="76" text-anchor="middle" font-family="'Courier New', monospace" font-size="22" font-weight="700" fill="#111111" letter-spacing="3">CHRIS JOHNSON</text>
   <text x="300" y="108" text-anchor="middle" font-family="'Courier New', monospace" font-size="9" fill="#555555">email@example.com  |  +1 555 0100  |  www.portfolio.com  |  New York, NY</text>
   <line x1="72" y1="128" x2="528" y2="128" stroke="#8B7EC8" stroke-width="1.2" opacity="0.55"/>
