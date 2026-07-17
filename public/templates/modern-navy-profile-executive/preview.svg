@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#F6F7FA"/>
+  <path d="M430 0 H600 V100 L480 72 Z" fill="#162548"/>
+  <g opacity="0.4" stroke="#D7D9DD" stroke-width="1" fill="none">
+    <path d="M450 40l12 12-12 12-12-12zM474 40l12 12-12 12-12-12zM450 64l12 12-12 12-12-12zM474 64l12 12-12 12-12-12zM498 40l12 12-12 12-12-12zM498 64l12 12-12 12-12-12z"/>
+  </g>
+  <ellipse cx="300" cy="420" rx="420" ry="180" fill="none" stroke="#D7D9DD" stroke-width="1.5" opacity="0.5" transform="rotate(-16 300 420)"/>
+  <ellipse cx="280" cy="460" rx="440" ry="200" fill="none" stroke="#D7D9DD" stroke-width="1" opacity="0.35" transform="rotate(-10 280 460)"/>
+  <circle cx="100" cy="100" r="62" fill="#FFFFFF" stroke="#1F315E" stroke-width="8"/>
+  <circle cx="100" cy="100" r="52" fill="#E8EAF0"/>
+  <text x="190" y="92" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#1F315E" letter-spacing="2">JON THOMAS</text>
+  <text x="190" y="118" font-family="Arial, sans-serif" font-size="12" font-weight="500" fill="#1F315E" letter-spacing="3">GRAPHIC DESIGNER</text>
+  <rect x="190" y="130" width="48" height="3" fill="#1F315E"/>
+  <line x1="214" y1="190" x2="214" y2="640" stroke="#D7D9DD" stroke-width="1.5"/>
+  <text x="44" y="210" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E" letter-spacing="2">CONTACT</text>
+  <line x1="44" y1="218" x2="198" y2="218" stroke="#CFCFCF" stroke-width="1"/>
+  <circle cx="56" cy="244" r="10" fill="#1F315E"/>
+  <text x="76" y="248" font-family="Arial, sans-serif" font-size="10" fill="#666666">+123-456-7890</text>
+  <circle cx="56" cy="274" r="10" fill="#1F315E"/>
+  <text x="76" y="278" font-family="Arial, sans-serif" font-size="10" fill="#666666">www.reallygreatsite.com</text>
+  <circle cx="56" cy="304" r="10" fill="#1F315E"/>
+  <text x="76" y="308" font-family="Arial, sans-serif" font-size="10" fill="#666666">hello@reallygreatsite.com</text>
+  <text x="44" y="350" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E" letter-spacing="2">EDUCATION</text>
+  <line x1="44" y1="358" x2="198" y2="358" stroke="#CFCFCF" stroke-width="1"/>
+  <text x="44" y="384" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#1F315E">Bachelor of Design</text>
+  <text x="44" y="402" font-family="Arial, sans-serif" font-size="10" fill="#666666">Wardiere University</text>
+  <text x="44" y="418" font-family="Arial, sans-serif" font-size="10" fill="#666666">2006  2008</text>
+  <text x="44" y="456" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E" letter-spacing="2">EXPERTISE</text>
+  <line x1="44" y1="464" x2="198" y2="464" stroke="#CFCFCF" stroke-width="1"/>
+  <text x="44" y="490" font-family="Arial, sans-serif" font-size="11" fill="#222222">UI/UX</text>
+  <text x="44" y="510" font-family="Arial, sans-serif" font-size="11" fill="#222222">Visual Communication</text>
+  <text x="44" y="530" font-family="Arial, sans-serif" font-size="11" fill="#222222">Print Design</text>
+  <text x="44" y="550" font-family="Arial, sans-serif" font-size="11" fill="#222222">Product Design</text>
+  <text x="44" y="590" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E" letter-spacing="2">LANGUAGE</text>
+  <line x1="44" y1="598" x2="198" y2="598" stroke="#CFCFCF" stroke-width="1"/>
+  <text x="44" y="624" font-family="Arial, sans-serif" font-size="11" fill="#222222">English</text>
+  <text x="44" y="644" font-family="Arial, sans-serif" font-size="11" fill="#222222">French</text>
+  <text x="236" y="210" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E" letter-spacing="2">PROFILE</text>
+  <rect x="236" y="224" width="300" height="5" rx="2" fill="#D7D9DD"/>
+  <rect x="236" y="238" width="280" height="5" rx="2" fill="#D7D9DD"/>
+  <rect x="236" y="252" width="260" height="5" rx="2" fill="#D7D9DD"/>
+  <text x="236" y="300" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E" letter-spacing="2">WORK EXPERIENCE</text>
+  <text x="236" y="330" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E">Ginyard International Co.</text>
+  <text x="236" y="350" font-family="Arial, sans-serif" font-size="11" fill="#666666">Marketing Manager  |  2010  2015</text>
+  <circle cx="244" cy="374" r="3" fill="#1F315E"/>
+  <rect x="256" y="370" width="260" height="5" rx="2" fill="#D7D9DD"/>
+  <circle cx="244" cy="396" r="3" fill="#1F315E"/>
+  <rect x="256" y="392" width="240" height="5" rx="2" fill="#D7D9DD"/>
+  <text x="236" y="440" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E">Thynk Unlimited</text>
+  <text x="236" y="460" font-family="Arial, sans-serif" font-size="11" fill="#666666">Marketing Specialist  |  2006  2010</text>
+  <circle cx="244" cy="484" r="3" fill="#1F315E"/>
+  <rect x="256" y="480" width="250" height="5" rx="2" fill="#D7D9DD"/>
+  <text x="236" y="540" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E" letter-spacing="2">REFERENCES</text>
+  <text x="236" y="570" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1F315E">Harper Russo</text>
+  <text x="236" y="590" font-family="Arial, sans-serif" font-size="11" fill="#666666">Wardiere Inc. / CEO</text>
+  <text x="236" y="610" font-family="Arial, sans-serif" font-size="10" fill="#666666"><tspan font-weight="700" fill="#222222">Phone:</tspan> 123-456-7890</text>
+  <ellipse cx="80" cy="820" rx="180" ry="100" fill="#1F315E"/>
+  <ellipse cx="460" cy="830" rx="240" ry="110" fill="#D7D9DD"/>
+  <text x="300" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#1F315E">Modern Navy Profile Executive</text>
+</svg>

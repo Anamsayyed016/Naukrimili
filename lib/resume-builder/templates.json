@@ -542,6 +542,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "modern-navy-profile-executive",
+      "name": "Modern Navy Profile Executive",
+      "slug": "modern-navy-profile-executive",
+      "description": "Premium corporate two-column resume with navy circular portrait, soft gray abstract curves, geometric corner accents, icon contact list, expertise sidebar, work experience hierarchy, adaptive reference grid, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/modern-navy-profile-executive/thumbnail.svg",
+      "preview": "/templates/modern-navy-profile-executive/preview.svg",
+      "html": "/templates/modern-navy-profile-executive/index.html",
+      "css": "/templates/modern-navy-profile-executive/style.css",
+      "categories": ["Premium", "Corporate", "Executive", "Professional", "Modern", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "modern-navy", "name": "Modern Navy", "primary": "#1F315E", "accent": "#162548", "text": "#222222" },
+        { "id": "deep-navy", "name": "Deep Navy", "primary": "#162548", "accent": "#1F315E", "text": "#222222" },
+        { "id": "slate-navy", "name": "Slate Navy", "primary": "#1F315E", "accent": "#2A3F6E", "text": "#1A1A1A" },
+        { "id": "ink-navy", "name": "Ink Navy", "primary": "#1A2A52", "accent": "#162548", "text": "#222222" },
+        { "id": "steel-navy", "name": "Steel Navy", "primary": "#1F315E", "accent": "#4A5568", "text": "#222222" }
+      ],
+      "defaultColor": "modern-navy",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "education", "skills", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "education": 90,
+          "skills": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
@@ -556,6 +606,7 @@
       "Executive",
       "Editorial",
       "Luxury",
+      "Corporate",
       "Creative"
     ],
     "layouts": [

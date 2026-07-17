@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container mnp-resume">
+    <div class="mnp-deco mnp-deco--top-geo" aria-hidden="true"></div>
+    <div class="mnp-deco mnp-deco--diamond" aria-hidden="true"></div>
+    <div class="mnp-deco mnp-deco--curve-a" aria-hidden="true"></div>
+    <div class="mnp-deco mnp-deco--curve-b" aria-hidden="true"></div>
+    <div class="mnp-deco mnp-deco--wave-navy" aria-hidden="true"></div>
+    <div class="mnp-deco mnp-deco--wave-gray" aria-hidden="true"></div>
+
+    <header class="mnp-header">
+      <div class="mnp-photo-block">
+        {{#if PROFILE_IMAGE}}
+        <div class="mnp-photo">
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="mnp-photo">
+          <div class="profile-image-wrapper profile-image-wrapper--initials">
+            <span class="profile-initials" aria-hidden="true">
+              <span class="mnp-ini-f">{{FIRST_NAME}}</span><span class="mnp-ini-l">{{LAST_NAME}}</span>
+            </span>
+          </div>
+        </div>
+        {{/unless}}
+      </div>
+
+      <div class="mnp-identity">
+        <h1 class="candidate-name">
+          <span class="name-first">{{FIRST_NAME}}</span>
+          <span class="name-space"> </span>
+          <span class="name-last">{{LAST_NAME}}</span>
+          <span class="name-fallback">{{FULL_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <p class="header-title">{{JOB_TITLE}}</p>
+        {{/if}}
+        <div class="mnp-title-rule" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <div class="mnp-body">
+      <aside class="mnp-sidebar">
+        <section class="mnp-section mnp-section--contact">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Contact</span></h2>
+          <div class="mnp-contact-list">
+            {{#if PHONE}}
+            <div class="mnp-contact-item mnp-contact-item--phone">
+              <span class="mnp-contact-icon" aria-hidden="true"></span>
+              <span class="mnp-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="mnp-contact-item mnp-contact-item--web">
+              <span class="mnp-contact-icon" aria-hidden="true"></span>
+              <span class="mnp-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="mnp-contact-item mnp-contact-item--email">
+              <span class="mnp-contact-icon" aria-hidden="true"></span>
+              <span class="mnp-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="mnp-contact-item mnp-contact-item--location">
+              <span class="mnp-contact-icon" aria-hidden="true"></span>
+              <span class="mnp-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="mnp-contact-item mnp-contact-item--linkedin">
+              <span class="mnp-contact-icon" aria-hidden="true"></span>
+              <span class="mnp-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if EDUCATION}}
+        <section class="mnp-section mnp-section--education">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Education</span></h2>
+          <div class="education-list mnp-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="mnp-section mnp-section--skills">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Expertise</span></h2>
+          <div class="skills-list mnp-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="mnp-section mnp-section--languages">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Language</span></h2>
+          <div class="languages-list mnp-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="mnp-section mnp-section--certifications">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Certifications</span></h2>
+          <div class="certifications-list mnp-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="mnp-section mnp-section--interests">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Interests</span></h2>
+          <div class="hobbies-list mnp-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="mnp-main">
+        {{#if SUMMARY}}
+        <section class="mnp-section mnp-section--summary">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Profile</span></h2>
+          <div class="mnp-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="mnp-section mnp-section--experience">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Work Experience</span></h2>
+          <div class="experience-list mnp-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="mnp-section mnp-section--projects">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Projects</span></h2>
+          <div class="projects-list mnp-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="mnp-section mnp-section--achievements">
+          <h2 class="mnp-section-title"><span class="mnp-section-label">Achievements</span></h2>
+          <div class="achievements-list mnp-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>
