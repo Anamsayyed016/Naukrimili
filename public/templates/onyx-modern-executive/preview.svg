@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="184" height="800" fill="#23272F"/>
+  <polygon points="0,0 104,0 0,76" fill="#B66A3D"/>
+  <rect x="536" y="756" width="64" height="16" fill="#B66A3D"/>
+  <rect x="584" y="708" width="16" height="64" fill="#B66A3D"/>
+  <circle cx="92" cy="104" r="56" fill="#2E343E" stroke="#B66A3D" stroke-width="5"/>
+  <circle cx="92" cy="104" r="48" fill="#4B5563"/>
+  <text x="92" y="196" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#FFFFFF" letter-spacing="1">JONATHAN</text>
+  <text x="92" y="216" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#D89A63" letter-spacing="1">DOE</text>
+  <text x="92" y="236" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#B8BFC9" letter-spacing="1.2">PRODUCT LEAD &amp; INNOVATOR</text>
+  <rect x="28" y="256" width="8" height="20" fill="#B66A3D"/>
+  <text x="44" y="270" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#FFFFFF" letter-spacing="0.8">CONTACT</text>
+  <line x1="28" y1="280" x2="160" y2="280" stroke="#3A414D"/>
+  <rect x="28" y="336" width="8" height="20" fill="#B66A3D"/>
+  <text x="44" y="350" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#FFFFFF" letter-spacing="0.8">CAPABILITIES</text>
+  <rect x="28" y="368" width="60" height="16" rx="8" fill="#3A414D" stroke="#D89A63"/>
+  <rect x="96" y="368" width="56" height="16" rx="8" fill="#3A414D" stroke="#D89A63"/>
+  <rect x="212" y="56" width="10" height="28" fill="#B66A3D"/>
+  <text x="232" y="76" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#23272F" letter-spacing="0.8">PROFESSIONAL SUMMARY</text>
+  <line x1="312" y1="70" x2="552" y2="70" stroke="#E2E4E8"/>
+  <polygon points="552,70 580,70 552,90" fill="#D89A63"/>
+  <rect x="212" y="96" width="356" height="72" fill="#FFFFFF" stroke="#E2E4E8"/>
+  <rect x="212" y="192" width="10" height="28" fill="#B66A3D"/>
+  <text x="232" y="212" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#23272F">EXPERIENCE</text>
+  <rect x="212" y="228" width="356" height="104" rx="10" fill="#23272F"/>
+  <rect x="212" y="228" width="356" height="6" fill="#B66A3D"/>
+  <rect x="212" y="352" width="10" height="28" fill="#B66A3D"/>
+  <text x="232" y="372" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#23272F">PROJECTS</text>
+  <rect x="212" y="392" width="168" height="88" rx="8" fill="#FFFFFF" stroke="#E2E4E8"/>
+  <rect x="212" y="476" width="168" height="8" fill="#B66A3D"/>
+  <rect x="396" y="392" width="168" height="88" rx="8" fill="#FFFFFF" stroke="#E2E4E8"/>
+  <rect x="396" y="476" width="168" height="8" fill="#B66A3D"/>
+  <rect x="212" y="504" width="10" height="28" fill="#B66A3D"/>
+  <text x="232" y="524" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#23272F">ACHIEVEMENTS</text>
+  <rect x="212" y="540" width="356" height="72" rx="10" fill="#EEF2E6" stroke="#D8E2C8"/>
+  <text x="300" y="776" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#23272F">Onyx Modern Executive</text>
+</svg>

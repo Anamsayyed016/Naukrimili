@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "1.0.0",
   "templates": [
     {
@@ -244,6 +244,55 @@
           "achievements": 48,
           "interests": 40,
           "extended": 38
+        }
+      }
+    },
+    {
+      "id": "onyx-modern-executive",
+      "name": "Onyx Modern Executive",
+      "slug": "onyx-modern-executive",
+      "description": "Premium dark-luxury two-column resume with onyx sidebar, rust-gold accents, circular portrait, pill skills, dark experience cards, clipped summary panel, responsive project grid, and adaptive spacing for ATS-friendly PDF export.",
+      "thumbnail": "/templates/onyx-modern-executive/thumbnail.svg",
+      "preview": "/templates/onyx-modern-executive/preview.svg",
+      "html": "/templates/onyx-modern-executive/index.html",
+      "css": "/templates/onyx-modern-executive/style.css",
+      "categories": ["Premium", "Modern", "Executive", "Professional", "Two Column", "With Photo", "ATS", "Sidebar", "Experienced"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "onyx-modern", "name": "Onyx Modern", "primary": "#23272F", "accent": "#B66A3D", "text": "#23272F" },
+        { "id": "rust-gold", "name": "Rust Gold", "primary": "#23272F", "accent": "#C4784A", "text": "#23272F" },
+        { "id": "midnight-bronze", "name": "Midnight Bronze", "primary": "#1A1E26", "accent": "#A65F38", "text": "#23272F" },
+        { "id": "slate-copper", "name": "Slate Copper", "primary": "#2A3039", "accent": "#B66A3D", "text": "#23272F" },
+        { "id": "charcoal-amber", "name": "Charcoal Amber", "primary": "#23272F", "accent": "#D89A63", "text": "#1E1E1E" }
+      ],
+      "defaultColor": "onyx-modern",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 70,
+        "sidebarColumnBasisPct": 30,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "projects", "education", "achievements", "extended"],
+        "rightSections": ["contact", "skills", "certifications", "languages", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "achievements"],
+        "movableSections": ["projects", "certifications", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 92,
+          "education": 88,
+          "projects": 72,
+          "certifications": 58,
+          "languages": 52,
+          "achievements": 50,
+          "interests": 40,
+          "extended": 36
         }
       }
     }

@@ -414,6 +414,7 @@ export function buildParagraphFormattingCss(): string {
 .resume-container.nge-resume .summary-text,
 .resume-container.gce-resume .summary-text,
 .resume-container.coe-resume .summary-text,
+.resume-container.ome-resume .summary-text,
 .resume-container .experience-item .description,
 .resume-container .project-item .description,
 .resume-container .achievement-item .description,

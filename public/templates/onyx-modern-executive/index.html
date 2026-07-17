@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ome-resume">
+    <div class="ome-accent ome-accent--tl" aria-hidden="true"></div>
+    <div class="ome-accent ome-accent--br" aria-hidden="true"></div>
+
+    <div class="ome-body">
+      <aside class="ome-sidebar sidebar">
+        <div class="ome-identity">
+          <div class="ome-photo-block">
+            {{#if PROFILE_IMAGE}}
+            <div class="ome-photo">
+              <span class="ome-photo-frame ome-photo-frame--tl" aria-hidden="true"></span>
+              <span class="ome-photo-frame ome-photo-frame--br" aria-hidden="true"></span>
+              <div class="profile-image-wrapper">
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+              </div>
+            </div>
+            {{/if}}
+            {{#unless PROFILE_IMAGE}}
+            <div class="ome-photo">
+              <span class="ome-photo-frame ome-photo-frame--tl" aria-hidden="true"></span>
+              <span class="ome-photo-frame ome-photo-frame--br" aria-hidden="true"></span>
+              <div class="profile-image-wrapper profile-image-wrapper--initials">
+                <span class="profile-initials" aria-hidden="true">
+                  <span class="ome-ini-f">{{FIRST_NAME}}</span><span class="ome-ini-l">{{LAST_NAME}}</span>
+                </span>
+              </div>
+            </div>
+            {{/unless}}
+          </div>
+
+          <header class="ome-sidebar-header">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+          </header>
+        </div>
+
+        <section class="ome-section ome-section--contact sidebar-section">
+          <h2 class="ome-section-title section-title">
+            <span class="ome-section-bar" aria-hidden="true"></span>
+            <span class="ome-section-label">Contact</span>
+          </h2>
+          <div class="ome-contact-list contact-list">
+            {{#if PHONE}}
+            <div class="ome-contact-item ome-contact-item--phone">
+              <span class="ome-contact-icon" aria-hidden="true"></span>
+              <span class="ome-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="ome-contact-item ome-contact-item--email">
+              <span class="ome-contact-icon" aria-hidden="true"></span>
+              <span class="ome-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="ome-contact-item ome-contact-item--web">
+              <span class="ome-contact-icon" aria-hidden="true"></span>
+              <span class="ome-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="ome-contact-item ome-contact-item--linkedin">
+              <span class="ome-contact-icon" aria-hidden="true"></span>
+              <span class="ome-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="ome-contact-item ome-contact-item--location">
+              <span class="ome-contact-icon" aria-hidden="true"></span>
+              <span class="ome-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if SKILLS}}
+        <section class="ome-section ome-section--skills sidebar-section">
+          <h2 class="ome-section-title section-title">
+            <span class="ome-section-bar" aria-hidden="true"></span>
+            <span class="ome-section-label">Capabilities</span>
+          </h2>
+          <div class="skills-list skills-chips-wrap ome-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="ome-section ome-section--certs sidebar-section">
+          <h2 class="ome-section-title section-title">
+            <span class="ome-section-bar" aria-hidden="true"></span>
+            <span class="ome-section-label">Certifications</span>
+          </h2>
+          <div class="certifications-list ome-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="ome-section ome-section--languages sidebar-section">
+          <h2 class="ome-section-title section-title">
+            <span class="ome-section-bar" aria-hidden="true"></span>
+            <span class="ome-section-label">Languages</span>
+          </h2>
+          <div class="languages-list ome-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="ome-section ome-section--interests sidebar-section">
+          <h2 class="ome-section-title section-title">
+            <span class="ome-section-bar" aria-hidden="true"></span>
+            <span class="ome-section-label">Interests</span>
+          </h2>
+          <div class="hobbies-list ome-hobbies">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="ome-main">
+        {{#if SUMMARY}}
+        <section class="ome-section ome-section--summary content-section">
+          <h2 class="ome-main-title section-title">
+            <span class="ome-main-bar" aria-hidden="true"></span>
+            <span class="ome-main-label">Professional Summary</span>
+            <span class="ome-main-rule" aria-hidden="true"></span>
+            <span class="ome-main-accent" aria-hidden="true"></span>
+          </h2>
+          <div class="ome-summary-card">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="ome-section ome-section--experience content-section">
+          <h2 class="ome-main-title section-title">
+            <span class="ome-main-bar" aria-hidden="true"></span>
+            <span class="ome-main-label">Professional Experience</span>
+            <span class="ome-main-rule" aria-hidden="true"></span>
+            <span class="ome-main-accent" aria-hidden="true"></span>
+          </h2>
+          <div class="experience-list ome-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ome-section ome-section--projects content-section">
+          <h2 class="ome-main-title section-title">
+            <span class="ome-main-bar" aria-hidden="true"></span>
+            <span class="ome-main-label">Featured Projects</span>
+            <span class="ome-main-rule" aria-hidden="true"></span>
+            <span class="ome-main-accent" aria-hidden="true"></span>
+          </h2>
+          <div class="projects-list ome-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="ome-section ome-section--education content-section">
+          <h2 class="ome-main-title section-title">
+            <span class="ome-main-bar" aria-hidden="true"></span>
+            <span class="ome-main-label">Education</span>
+            <span class="ome-main-rule" aria-hidden="true"></span>
+            <span class="ome-main-accent" aria-hidden="true"></span>
+          </h2>
+          <div class="education-list ome-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="ome-section ome-section--achievements content-section">
+          <h2 class="ome-main-title section-title">
+            <span class="ome-main-bar" aria-hidden="true"></span>
+            <span class="ome-main-label">Achievements</span>
+            <span class="ome-main-rule" aria-hidden="true"></span>
+            <span class="ome-main-accent" aria-hidden="true"></span>
+          </h2>
+          <div class="ome-achievements-panel">
+            <div class="achievements-list ome-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

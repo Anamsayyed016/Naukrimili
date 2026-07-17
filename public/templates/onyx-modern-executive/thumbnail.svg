@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="92" height="400" fill="#23272F"/>
+  <polygon points="0,0 52,0 0,38" fill="#B66A3D"/>
+  <rect x="268" y="378" width="32" height="8" fill="#B66A3D"/>
+  <rect x="292" y="354" width="8" height="32" fill="#B66A3D"/>
+  <circle cx="46" cy="52" r="28" fill="#2E343E" stroke="#B66A3D" stroke-width="2.5"/>
+  <circle cx="46" cy="52" r="24" fill="#4B5563"/>
+  <polygon points="22,28 34,28 22,40" fill="#B66A3D"/>
+  <text x="46" y="98" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="700" fill="#FFFFFF" letter-spacing="0.5">JONATHAN</text>
+  <text x="46" y="108" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="700" fill="#D89A63" letter-spacing="0.5">DOE</text>
+  <text x="46" y="118" text-anchor="middle" font-family="Arial,sans-serif" font-size="3" fill="#B8BFC9" letter-spacing="0.6">PRODUCT LEAD</text>
+  <rect x="14" y="128" width="4" height="10" fill="#B66A3D"/>
+  <text x="22" y="136" font-family="Arial,sans-serif" font-size="3.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.4">CONTACT</text>
+  <line x1="14" y1="140" x2="80" y2="140" stroke="#3A414D"/>
+  <circle cx="18" cy="150" r="2" fill="#D89A63"/>
+  <text x="24" y="152" font-family="Arial,sans-serif" font-size="2.8" fill="#E5E7EB">clara@design.io</text>
+  <rect x="14" y="168" width="4" height="10" fill="#B66A3D"/>
+  <text x="22" y="176" font-family="Arial,sans-serif" font-size="3.5" font-weight="700" fill="#FFFFFF" letter-spacing="0.4">SKILLS</text>
+  <rect x="14" y="184" width="30" height="8" rx="4" fill="#3A414D" stroke="#D89A63" stroke-width="0.5"/>
+  <rect x="48" y="184" width="28" height="8" rx="4" fill="#3A414D" stroke="#D89A63" stroke-width="0.5"/>
+  <rect x="14" y="196" width="34" height="8" rx="4" fill="#3A414D" stroke="#D89A63" stroke-width="0.5"/>
+  <rect x="106" y="28" width="5" height="14" fill="#B66A3D"/>
+  <text x="116" y="38" font-family="Arial,sans-serif" font-size="5" font-weight="800" fill="#23272F" letter-spacing="0.5">SUMMARY</text>
+  <line x1="156" y1="35" x2="276" y2="35" stroke="#E2E4E8"/>
+  <polygon points="276,35 290,35 276,45" fill="#D89A63"/>
+  <rect x="106" y="48" width="178" height="36" fill="#FFFFFF" stroke="#E2E4E8" stroke-width="0.8"/>
+  <rect x="106" y="48" width="178" height="3" fill="#F7F7F8"/>
+  <rect x="112" y="58" width="160" height="2.5" rx="1" fill="#E2E4E8"/>
+  <rect x="112" y="64" width="148" height="2.5" rx="1" fill="#E2E4E8"/>
+  <rect x="112" y="70" width="130" height="2.5" rx="1" fill="#E2E4E8"/>
+  <rect x="106" y="96" width="5" height="14" fill="#B66A3D"/>
+  <text x="116" y="106" font-family="Arial,sans-serif" font-size="5" font-weight="800" fill="#23272F" letter-spacing="0.5">EXPERIENCE</text>
+  <line x1="168" y1="103" x2="276" y2="103" stroke="#E2E4E8"/>
+  <rect x="106" y="114" width="178" height="52" rx="6" fill="#23272F"/>
+  <rect x="106" y="114" width="178" height="3" fill="#B66A3D"/>
+  <text x="114" y="128" font-family="Arial,sans-serif" font-size="4" font-weight="700" fill="#FFFFFF">Graphite Labs</text>
+  <text x="114" y="138" font-family="Arial,sans-serif" font-size="3.2" fill="#D89A63">Senior Designer</text>
+  <rect x="106" y="176" width="5" height="14" fill="#B66A3D"/>
+  <text x="116" y="186" font-family="Arial,sans-serif" font-size="5" font-weight="800" fill="#23272F" letter-spacing="0.5">PROJECTS</text>
+  <rect x="106" y="196" width="84" height="44" rx="5" fill="#FFFFFF" stroke="#E2E4E8"/>
+  <rect x="106" y="236" width="84" height="4" fill="#B66A3D"/>
+  <rect x="198" y="196" width="84" height="44" rx="5" fill="#FFFFFF" stroke="#E2E4E8"/>
+  <rect x="198" y="236" width="84" height="4" fill="#B66A3D"/>
+  <rect x="106" y="252" width="5" height="14" fill="#B66A3D"/>
+  <text x="116" y="262" font-family="Arial,sans-serif" font-size="5" font-weight="800" fill="#23272F">ACHIEVEMENTS</text>
+  <rect x="106" y="270" width="178" height="36" rx="6" fill="#EEF2E6" stroke="#D8E2C8"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#23272F">Onyx Modern Executive</text>
+</svg>
