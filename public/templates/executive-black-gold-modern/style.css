@@ -546,6 +546,24 @@
   white-space: nowrap;
 }
 
+/*
+ * Projects is a movable section and may be balanced into the sidebar.
+ * Main-column label color (#222) is nearly invisible on charcoal —
+ * match Certifications (side) gold heading when Projects is in the sidebar.
+ */
+.resume-container.ebg-resume .ebg-sidebar .ebg-section--projects > .ebg-section-title--main .ebg-section-label {
+  color: var(--ebg-gold) !important;
+  -webkit-text-fill-color: var(--ebg-gold);
+  opacity: 1 !important;
+  font-family: var(--ebg-font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  line-height: 1.25 !important;
+  position: relative;
+  z-index: 2;
+}
+
 .ebg-resume .ebg-title-rule {
   display: block;
   height: 1px;
