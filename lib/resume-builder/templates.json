@@ -742,6 +742,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "executive-black-gold-modern",
+      "name": "Executive Black Gold Modern",
+      "slug": "executive-black-gold-modern",
+      "description": "Premium modern two-column resume with curved charcoal sidebar, slim gold accent stripe, circular gold-bordered portrait, Montserrat ExtraBold name, gold progress bars for languages and skills, Follow Me socials, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/executive-black-gold-modern/thumbnail.svg",
+      "preview": "/templates/executive-black-gold-modern/preview.svg",
+      "html": "/templates/executive-black-gold-modern/index.html",
+      "css": "/templates/executive-black-gold-modern/style.css",
+      "categories": ["Premium", "Modern", "Executive", "Professional", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "black-gold", "name": "Black Gold", "primary": "#1E1E1E", "accent": "#F4B400", "text": "#222222" },
+        { "id": "charcoal-amber", "name": "Charcoal Amber", "primary": "#1A1A1A", "accent": "#D89E00", "text": "#222222" },
+        { "id": "onyx-gold", "name": "Onyx Gold", "primary": "#141414", "accent": "#F4B400", "text": "#1E1E1E" },
+        { "id": "ink-brass", "name": "Ink Brass", "primary": "#1E1E1E", "accent": "#E0A800", "text": "#222222" },
+        { "id": "noir-honey", "name": "Noir Honey", "primary": "#222222", "accent": "#F4B400", "text": "#1A1A1A" }
+      ],
+      "defaultColor": "black-gold",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "education", "skills", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

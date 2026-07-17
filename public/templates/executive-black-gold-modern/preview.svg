@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <path d="M0,0 H190 C236,80 236,160 190,240 C144,320 144,400 190,480 C236,560 236,640 190,720 C160,760 170,800 200,800 H0 Z" fill="#1E1E1E"/>
+  <path d="M190,0 C236,80 236,160 190,240 C144,320 144,400 190,480 C236,560 236,640 190,720 C160,760 170,800 200,800" fill="none" stroke="#F4B400" stroke-width="5"/>
+  <circle cx="95" cy="95" r="55" fill="#3A3A3A" stroke="#F4B400" stroke-width="4"/>
+  <text x="95" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="800" fill="#FFFFFF" letter-spacing="2">MILLER BURT</text>
+  <text x="95" y="202" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#F4B400" letter-spacing="3">HAIR STYLIST</text>
+  <text x="32" y="250" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#F4B400" letter-spacing="2">CONTACT</text>
+  <line x1="32" y1="258" x2="160" y2="258" stroke="#FFFFFF" stroke-width="1" opacity="0.55"/>
+  <circle cx="40" cy="280" r="4" fill="#F4B400"/>
+  <text x="54" y="284" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">New York, NY</text>
+  <circle cx="40" cy="308" r="4" fill="#F4B400"/>
+  <text x="54" y="312" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">miller@email.com</text>
+  <circle cx="40" cy="336" r="4" fill="#F4B400"/>
+  <text x="54" y="340" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">+1 (212) 555-0198</text>
+  <circle cx="40" cy="364" r="4" fill="#F4B400"/>
+  <text x="54" y="368" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">www.millerburt.com</text>
+  <text x="32" y="420" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#F4B400" letter-spacing="2">FOLLOW ME</text>
+  <line x1="32" y1="428" x2="160" y2="428" stroke="#FFFFFF" stroke-width="1" opacity="0.55"/>
+  <circle cx="42" cy="452" r="8" fill="#F4B400"/>
+  <text x="58" y="456" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">linkedin.com/in/miller</text>
+  <text x="32" y="510" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#F4B400" letter-spacing="2">LANGUAGES</text>
+  <line x1="32" y1="518" x2="160" y2="518" stroke="#FFFFFF" stroke-width="1" opacity="0.55"/>
+  <text x="32" y="544" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">English</text>
+  <rect x="32" y="552" width="130" height="6" rx="3" fill="#3A3A3A"/>
+  <rect x="32" y="552" width="110" height="6" rx="3" fill="#F4B400"/>
+  <text x="32" y="584" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">Spanish</text>
+  <rect x="32" y="592" width="130" height="6" rx="3" fill="#3A3A3A"/>
+  <rect x="32" y="592" width="85" height="6" rx="3" fill="#F4B400"/>
+  <text x="32" y="640" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#F4B400" letter-spacing="2">HOBBIES</text>
+  <line x1="32" y1="648" x2="160" y2="648" stroke="#FFFFFF" stroke-width="1" opacity="0.55"/>
+  <text x="32" y="674" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">Travel</text>
+  <text x="100" y="674" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">Music</text>
+  <text x="32" y="698" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">Fitness</text>
+  <text x="100" y="698" font-family="Arial, sans-serif" font-size="11" fill="#FFFFFF">Art</text>
+  <text x="250" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222" letter-spacing="3">ABOUT ME</text>
+  <line x1="350" y1="65" x2="530" y2="65" stroke="#222222" stroke-width="1.5"/>
+  <circle cx="548" cy="65" r="10" fill="#F4B400"/>
+  <rect x="250" y="96" width="300" height="6" rx="2" fill="#D7D7D7"/>
+  <rect x="250" y="112" width="280" height="6" rx="2" fill="#D7D7D7"/>
+  <rect x="250" y="128" width="260" height="6" rx="2" fill="#D7D7D7"/>
+  <text x="250" y="180" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222" letter-spacing="3">EXPERIENCE</text>
+  <line x1="370" y1="175" x2="530" y2="175" stroke="#222222" stroke-width="1.5"/>
+  <circle cx="548" cy="175" r="10" fill="#F4B400"/>
+  <text x="250" y="216" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1">SENIOR STYLIST</text>
+  <text x="550" y="216" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#222222">2019 - Present</text>
+  <text x="250" y="238" font-family="Arial, sans-serif" font-size="12" fill="#222222">Luxe Salon Group</text>
+  <circle cx="258" cy="266" r="3.5" fill="#F4B400"/>
+  <rect x="272" y="262" width="250" height="5" rx="2" fill="#D7D7D7"/>
+  <circle cx="258" cy="290" r="3.5" fill="#F4B400"/>
+  <rect x="272" y="286" width="230" height="5" rx="2" fill="#D7D7D7"/>
+  <text x="250" y="340" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1">LEAD STYLIST</text>
+  <text x="550" y="340" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#222222">2015 - 2019</text>
+  <text x="250" y="362" font-family="Arial, sans-serif" font-size="12" fill="#222222">Studio Eleven</text>
+  <circle cx="258" cy="390" r="3.5" fill="#F4B400"/>
+  <rect x="272" y="386" width="240" height="5" rx="2" fill="#D7D7D7"/>
+  <text x="250" y="440" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222" letter-spacing="3">EDUCATION</text>
+  <line x1="360" y1="435" x2="530" y2="435" stroke="#222222" stroke-width="1.5"/>
+  <circle cx="548" cy="435" r="10" fill="#F4B400"/>
+  <text x="250" y="474" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#222222" letter-spacing="1">COSMETOLOGY DIPLOMA</text>
+  <text x="550" y="474" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#222222">2014</text>
+  <text x="250" y="496" font-family="Arial, sans-serif" font-size="12" fill="#666666">Academy of Beauty Arts</text>
+  <text x="250" y="550" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#222222" letter-spacing="3">SKILLS</text>
+  <line x1="320" y1="545" x2="530" y2="545" stroke="#222222" stroke-width="1.5"/>
+  <circle cx="548" cy="545" r="10" fill="#F4B400"/>
+  <text x="250" y="584" font-family="Arial, sans-serif" font-size="11" fill="#222222">Coloring</text>
+  <rect x="250" y="594" width="140" height="6" rx="3" fill="#E9E9E9"/>
+  <rect x="250" y="594" width="120" height="6" rx="3" fill="#F4B400"/>
+  <text x="420" y="584" font-family="Arial, sans-serif" font-size="11" fill="#222222">Styling</text>
+  <rect x="420" y="594" width="130" height="6" rx="3" fill="#E9E9E9"/>
+  <rect x="420" y="594" width="100" height="6" rx="3" fill="#F4B400"/>
+  <text x="250" y="634" font-family="Arial, sans-serif" font-size="11" fill="#222222">Precision Cuts</text>
+  <rect x="250" y="644" width="140" height="6" rx="3" fill="#E9E9E9"/>
+  <rect x="250" y="644" width="110" height="6" rx="3" fill="#F4B400"/>
+  <text x="420" y="634" font-family="Arial, sans-serif" font-size="11" fill="#222222">Client Care</text>
+  <rect x="420" y="644" width="130" height="6" rx="3" fill="#E9E9E9"/>
+  <rect x="420" y="644" width="95" height="6" rx="3" fill="#F4B400"/>
+  <text x="300" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#666666">Executive Black Gold Modern</text>
+</svg>

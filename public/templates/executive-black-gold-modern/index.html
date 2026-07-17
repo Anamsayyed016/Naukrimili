@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ebg-resume">
+    <div class="ebg-body">
+      <aside class="ebg-sidebar">
+        <svg class="ebg-curve" viewBox="0 0 56 1000" preserveAspectRatio="none" aria-hidden="true">
+          <path class="ebg-curve-fill" d="M0,0 H26 C44,55 44,110 26,165 C8,220 8,275 26,330 C44,385 44,440 26,495 C8,550 8,605 26,660 C44,715 44,770 26,825 C8,880 12,935 30,1000 H0 Z" />
+          <path class="ebg-curve-gold" d="M26,0 C44,55 44,110 26,165 C8,220 8,275 26,330 C44,385 44,440 26,495 C8,550 8,605 26,660 C44,715 44,770 26,825 C8,880 12,935 30,1000" fill="none" />
+        </svg>
+
+        <div class="ebg-sidebar-inner">
+          <div class="ebg-photo-block">
+            {{#if PROFILE_IMAGE}}
+            <div class="ebg-photo">
+              <div class="profile-image-wrapper">
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+              </div>
+            </div>
+            {{/if}}
+            {{#unless PROFILE_IMAGE}}
+            <div class="ebg-photo">
+              <div class="profile-image-wrapper profile-image-wrapper--initials">
+                <span class="profile-initials" aria-hidden="true">
+                  <span class="ebg-ini-f">{{FIRST_NAME}}</span><span class="ebg-ini-l">{{LAST_NAME}}</span>
+                </span>
+              </div>
+            </div>
+            {{/unless}}
+          </div>
+
+          <header class="ebg-side-header">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+          </header>
+
+          <section class="ebg-section ebg-section--contact ebg-side-section">
+            <h2 class="ebg-section-title ebg-section-title--side">Contact</h2>
+            <div class="ebg-contact-list">
+              {{#if LOCATION}}
+              <div class="ebg-contact-item ebg-contact-item--location">
+                <span class="ebg-contact-icon" aria-hidden="true"></span>
+                <span class="ebg-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+              {{#if EMAIL}}
+              <div class="ebg-contact-item ebg-contact-item--email">
+                <span class="ebg-contact-icon" aria-hidden="true"></span>
+                <span class="ebg-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if PHONE}}
+              <div class="ebg-contact-item ebg-contact-item--phone">
+                <span class="ebg-contact-icon" aria-hidden="true"></span>
+                <span class="ebg-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="ebg-contact-item ebg-contact-item--web">
+                <span class="ebg-contact-icon" aria-hidden="true"></span>
+                <span class="ebg-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+            </div>
+          </section>
+
+          {{#if LINKEDIN}}
+          <section class="ebg-section ebg-section--social ebg-side-section">
+            <h2 class="ebg-section-title ebg-section-title--side">Follow Me</h2>
+            <div class="ebg-social-list">
+              <div class="ebg-social-item ebg-social-item--linkedin">
+                <span class="ebg-social-icon" aria-hidden="true"></span>
+                <span class="ebg-social-value">{{LINKEDIN}}</span>
+              </div>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="ebg-section ebg-section--languages ebg-side-section">
+            <h2 class="ebg-section-title ebg-section-title--side">Languages</h2>
+            <div class="languages-list ebg-languages psp-languages-progress">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="ebg-section ebg-section--certifications ebg-side-section">
+            <h2 class="ebg-section-title ebg-section-title--side">Certifications</h2>
+            <div class="certifications-list ebg-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="ebg-section ebg-section--interests ebg-side-section">
+            <h2 class="ebg-section-title ebg-section-title--side">Hobbies</h2>
+            <div class="hobbies-list ebg-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+
+      <main class="ebg-main">
+        {{#if SUMMARY}}
+        <section class="ebg-section ebg-section--summary">
+          <h2 class="ebg-section-title ebg-section-title--main">
+            <span class="ebg-section-label">About Me</span>
+            <span class="ebg-title-rule" aria-hidden="true"></span>
+            <span class="ebg-section-icon ebg-section-icon--about" aria-hidden="true"></span>
+          </h2>
+          <div class="ebg-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="ebg-section ebg-section--experience">
+          <h2 class="ebg-section-title ebg-section-title--main">
+            <span class="ebg-section-label">Experience</span>
+            <span class="ebg-title-rule" aria-hidden="true"></span>
+            <span class="ebg-section-icon ebg-section-icon--experience" aria-hidden="true"></span>
+          </h2>
+          <div class="experience-list ebg-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="ebg-section ebg-section--education">
+          <h2 class="ebg-section-title ebg-section-title--main">
+            <span class="ebg-section-label">Education</span>
+            <span class="ebg-title-rule" aria-hidden="true"></span>
+            <span class="ebg-section-icon ebg-section-icon--education" aria-hidden="true"></span>
+          </h2>
+          <div class="education-list ebg-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="ebg-section ebg-section--skills">
+          <h2 class="ebg-section-title ebg-section-title--main">
+            <span class="ebg-section-label">Skills</span>
+            <span class="ebg-title-rule" aria-hidden="true"></span>
+            <span class="ebg-section-icon ebg-section-icon--skills" aria-hidden="true"></span>
+          </h2>
+          <div class="skills-list ebg-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ebg-section ebg-section--projects">
+          <h2 class="ebg-section-title ebg-section-title--main">
+            <span class="ebg-section-label">Projects</span>
+            <span class="ebg-title-rule" aria-hidden="true"></span>
+            <span class="ebg-section-icon ebg-section-icon--projects" aria-hidden="true"></span>
+          </h2>
+          <div class="projects-list ebg-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="ebg-section ebg-section--achievements">
+          <h2 class="ebg-section-title ebg-section-title--main">
+            <span class="ebg-section-label">Achievements</span>
+            <span class="ebg-title-rule" aria-hidden="true"></span>
+            <span class="ebg-section-icon ebg-section-icon--achievements" aria-hidden="true"></span>
+          </h2>
+          <div class="achievements-list ebg-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>
