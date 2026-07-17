@@ -96,6 +96,8 @@ const RETIRED_TEMPLATE_ALIASES: Record<string, string> = {
 
   'graphite-orange-executive': 'soft-coral-executive',
 
+  'graphite-crimson-executive': 'soft-coral-executive',
+
   'executive-coral-elite': 'soft-coral-executive',
 
 };
