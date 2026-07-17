@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container bne-resume">
+    <div class="bne-floral" aria-hidden="true"></div>
+
+    <div class="bne-body">
+      <aside class="bne-sidebar">
+        <div class="bne-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="bne-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="bne-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="bne-ini-f">{{FIRST_NAME}}</span><span class="bne-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <section class="bne-section bne-section--contact bne-side-section">
+          <h2 class="bne-section-title bne-section-title--side">
+            <span class="bne-section-icon bne-section-icon--contact" aria-hidden="true"></span>
+            <span class="bne-section-label">Contact</span>
+          </h2>
+          <div class="bne-contact-list">
+            {{#if PHONE}}
+            <div class="bne-contact-item bne-contact-item--phone">
+              <span class="bne-contact-icon" aria-hidden="true"></span>
+              <span class="bne-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="bne-contact-item bne-contact-item--email">
+              <span class="bne-contact-icon" aria-hidden="true"></span>
+              <span class="bne-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="bne-contact-item bne-contact-item--location">
+              <span class="bne-contact-icon" aria-hidden="true"></span>
+              <span class="bne-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="bne-contact-item bne-contact-item--linkedin">
+              <span class="bne-contact-icon" aria-hidden="true"></span>
+              <span class="bne-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="bne-contact-item bne-contact-item--web">
+              <span class="bne-contact-icon" aria-hidden="true"></span>
+              <span class="bne-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if SKILLS}}
+        <section class="bne-section bne-section--skills bne-side-section">
+          <h2 class="bne-section-title bne-section-title--side">
+            <span class="bne-section-icon bne-section-icon--skills" aria-hidden="true"></span>
+            <span class="bne-section-label">Skills</span>
+          </h2>
+          <div class="skills-list bne-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="bne-section bne-section--education bne-side-section">
+          <h2 class="bne-section-title bne-section-title--side">
+            <span class="bne-section-icon bne-section-icon--education" aria-hidden="true"></span>
+            <span class="bne-section-label">Education</span>
+          </h2>
+          <div class="education-list bne-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="bne-section bne-section--software bne-side-section">
+          <h2 class="bne-section-title bne-section-title--side">
+            <span class="bne-section-icon bne-section-icon--software" aria-hidden="true"></span>
+            <span class="bne-section-label">Software</span>
+          </h2>
+          <div class="certifications-list bne-software">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="bne-section bne-section--languages bne-side-section">
+          <h2 class="bne-section-title bne-section-title--side">
+            <span class="bne-section-icon bne-section-icon--languages" aria-hidden="true"></span>
+            <span class="bne-section-label">Languages</span>
+          </h2>
+          <div class="languages-list bne-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="bne-section bne-section--interests bne-side-section">
+          <h2 class="bne-section-title bne-section-title--side">
+            <span class="bne-section-icon bne-section-icon--interests" aria-hidden="true"></span>
+            <span class="bne-section-label">Interests</span>
+          </h2>
+          <div class="hobbies-list bne-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="bne-main">
+        <header class="bne-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <div class="bne-title-wrap">
+            <span class="bne-title-rule" aria-hidden="true"></span>
+            <p class="header-title">{{JOB_TITLE}}</p>
+            <span class="bne-title-rule" aria-hidden="true"></span>
+          </div>
+          {{/if}}
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="bne-section bne-section--summary">
+          <h2 class="bne-section-title bne-section-title--main">
+            <span class="bne-section-icon bne-section-icon--summary" aria-hidden="true"></span>
+            <span class="bne-section-label">Professional Summary</span>
+          </h2>
+          <div class="bne-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="bne-section bne-section--experience">
+          <h2 class="bne-section-title bne-section-title--main">
+            <span class="bne-section-icon bne-section-icon--experience" aria-hidden="true"></span>
+            <span class="bne-section-label">Experience</span>
+          </h2>
+          <div class="experience-list bne-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="bne-section bne-section--projects">
+          <h2 class="bne-section-title bne-section-title--main">
+            <span class="bne-section-icon bne-section-icon--projects" aria-hidden="true"></span>
+            <span class="bne-section-label">Services</span>
+          </h2>
+          <div class="projects-list bne-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="bne-section bne-section--achievements">
+          <h2 class="bne-section-title bne-section-title--main">
+            <span class="bne-section-icon bne-section-icon--achievements" aria-hidden="true"></span>
+            <span class="bne-section-label">Achievements</span>
+          </h2>
+          <div class="achievements-list bne-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

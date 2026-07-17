@@ -642,6 +642,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "blush-navy-creative-executive",
+      "name": "Blush Navy Creative Executive",
+      "slug": "blush-navy-creative-executive",
+      "description": "Premium feminine creative two-column resume with deep navy sidebar, blush double-border circular portrait, Allura script first name with Playfair surname, skill progress bars, language dots, service project cards, checklist achievements, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/blush-navy-creative-executive/thumbnail.svg",
+      "preview": "/templates/blush-navy-creative-executive/preview.svg",
+      "html": "/templates/blush-navy-creative-executive/index.html",
+      "css": "/templates/blush-navy-creative-executive/style.css",
+      "categories": ["Premium", "Creative", "Executive", "Professional", "Modern", "Two Column", "With Photo", "ATS", "Sidebar", "Luxury"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "blush-navy", "name": "Blush Navy", "primary": "#18263D", "accent": "#E8A6B6", "text": "#1B2430" },
+        { "id": "rose-navy", "name": "Rose Navy", "primary": "#18263D", "accent": "#D98FA2", "text": "#1B2430" },
+        { "id": "soft-blush", "name": "Soft Blush", "primary": "#1A2A44", "accent": "#E8A6B6", "text": "#1B2430" },
+        { "id": "midnight-rose", "name": "Midnight Rose", "primary": "#142033", "accent": "#D98FA2", "text": "#1A1A1A" },
+        { "id": "ink-blush", "name": "Ink Blush", "primary": "#18263D", "accent": "#F0B4C0", "text": "#1B2430" }
+      ],
+      "defaultColor": "blush-navy",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 68,
+        "sidebarColumnBasisPct": 32,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "skills", "education", "certifications", "languages", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 78,
+          "projects": 72,
+          "achievements": 64,
+          "certifications": 58,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
