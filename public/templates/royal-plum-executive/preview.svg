@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FCFAF6"/>
+  <rect x="56" y="48" width="104" height="132" rx="20" fill="#F5F0E8" stroke="#3D2645" stroke-width="5"/>
+  <text x="184" y="84" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#3D2645" letter-spacing="1">ALEXANDRA KEMP</text>
+  <text x="184" y="112" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#6B6368" letter-spacing="1.2">PRODUCT DESIGN STRATEGIST | DESIGN COLLECTIVE</text>
+  <line x1="196" y1="196" x2="196" y2="680" stroke="#3D2645" stroke-width="2"/>
+  <text x="56" y="224" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3D2645" letter-spacing="1.6">CONTACT</text>
+  <circle cx="64" cy="248" r="4" fill="#3D2645"/>
+  <text x="76" y="252" font-family="Arial, sans-serif" font-size="8" fill="#2A2230">+1 (415) 555-0142</text>
+  <circle cx="64" cy="268" r="4" fill="#3D2645"/>
+  <text x="76" y="272" font-family="Arial, sans-serif" font-size="8" fill="#2A2230">alexandra@email.com</text>
+  <text x="56" y="308" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3D2645" letter-spacing="1.6">SKILLS</text>
+  <rect x="56" y="320" width="48" height="18" rx="9" fill="#C9D9A8"/>
+  <rect x="108" y="320" width="56" height="18" rx="9" fill="#C9D9A8"/>
+  <rect x="56" y="344" width="64" height="18" rx="9" fill="#C9D9A8"/>
+  <text x="56" y="388" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3D2645" letter-spacing="1.6">LANGUAGES</text>
+  <rect x="56" y="400" width="60" height="22" rx="6" fill="#FFFFFF" stroke="#D4CCC2" stroke-width="1.2"/>
+  <rect x="120" y="400" width="56" height="22" rx="6" fill="#FFFFFF" stroke="#D4CCC2" stroke-width="1.2"/>
+  <text x="216" y="224" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#3D2645" letter-spacing="1.2">PROFESSIONAL SUMMARY</text>
+  <line x1="216" y1="232" x2="544" y2="232" stroke="#D4CCC2" stroke-width="1"/>
+  <rect x="216" y="244" width="328" height="72" rx="14" fill="#F5F0E8" stroke="#E5DFD6" stroke-width="1"/>
+  <rect x="232" y="260" width="280" height="4" rx="2" fill="#E5DFD6"/>
+  <rect x="232" y="272" width="260" height="4" rx="2" fill="#E5DFD6"/>
+  <rect x="232" y="284" width="240" height="4" rx="2" fill="#E5DFD6"/>
+  <text x="216" y="348" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#3D2645" letter-spacing="1.2">WORK EXPERIENCE</text>
+  <line x1="216" y1="356" x2="544" y2="356" stroke="#D4CCC2" stroke-width="1"/>
+  <text x="216" y="380" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#2A2230" letter-spacing="0.6">SENIOR UX DESIGNER</text>
+  <text x="216" y="396" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#3D2645">METICULOUS DESIGN</text>
+  <circle cx="224" cy="416" r="2.5" fill="#7A4B33"/>
+  <rect x="234" y="412" width="260" height="4" rx="2" fill="#E5DFD6"/>
+  <text x="216" y="456" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#3D2645" letter-spacing="1.2">PROJECTS</text>
+  <rect x="216" y="468" width="154" height="88" rx="8" fill="#FFFFFF" stroke="#E5DFD6" stroke-width="1"/>
+  <rect x="390" y="468" width="154" height="88" rx="8" fill="#FFFFFF" stroke="#E5DFD6" stroke-width="1"/>
+  <path d="M352 480 L362 480 L362 490" stroke="#7A4B33" stroke-width="2" fill="none"/>
+  <path d="M224 544 L224 554 L234 554" stroke="#7A4B33" stroke-width="2" fill="none"/>
+  <text x="216" y="584" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#3D2645" letter-spacing="1.2">AWARDS</text>
+  <rect x="216" y="596" width="328" height="28" rx="14" fill="#C9D9A8"/>
+  <rect x="224" y="602" width="12" height="20" rx="2" fill="#7A4B33"/>
+  <rect x="524" y="602" width="12" height="20" rx="2" fill="#7A4B33"/>
+  <text x="300" y="614" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#2A2230" letter-spacing="0.8">DESIGN EXCELLENCE AWARD</text>
+  <rect x="216" y="636" width="328" height="28" rx="14" fill="#3D2645"/>
+  <rect x="224" y="642" width="12" height="20" rx="2" fill="#7A4B33"/>
+  <rect x="524" y="642" width="12" height="20" rx="2" fill="#7A4B33"/>
+  <text x="300" y="654" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#FCFAF6" letter-spacing="0.8">INNOVATION LEADERSHIP</text>
+  <text x="300" y="776" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="600" fill="#3D2645" letter-spacing="0.6">Royal Plum Executive</text>
+</svg>

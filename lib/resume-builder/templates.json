@@ -346,6 +346,55 @@
       }
     },
     {
+      "id": "royal-plum-executive",
+      "name": "Royal Plum Executive",
+      "slug": "royal-plum-executive",
+      "description": "Premium luxury two-column resume with royal plum palette, Playfair Display typography, rounded portrait header, sage skill capsules, project cards with corner accents, award highlight bars, and adaptive column balancing for ATS-friendly PDF export.",
+      "thumbnail": "/templates/royal-plum-executive/thumbnail.svg",
+      "preview": "/templates/royal-plum-executive/preview.svg",
+      "html": "/templates/royal-plum-executive/index.html",
+      "css": "/templates/royal-plum-executive/style.css",
+      "categories": ["Premium", "Modern", "Professional", "Luxury", "Executive", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "royal-plum", "name": "Royal Plum", "primary": "#3D2645", "accent": "#C9D9A8", "text": "#2A2230" },
+        { "id": "plum-sage", "name": "Plum Sage", "primary": "#3D2645", "accent": "#B8CF96", "text": "#2A2230" },
+        { "id": "plum-espresso", "name": "Plum Espresso", "primary": "#4A2F52", "accent": "#C9D9A8", "text": "#1F1A22" },
+        { "id": "dusk-plum", "name": "Dusk Plum", "primary": "#2E1A35", "accent": "#D4E4B8", "text": "#2A2230" },
+        { "id": "ivory-plum", "name": "Ivory Plum", "primary": "#3D2645", "accent": "#A8C48A", "text": "#332B38" }
+      ],
+      "defaultColor": "royal-plum",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 70,
+        "sidebarColumnBasisPct": 30,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "skills", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "projects", "education", "achievements", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "achievements"],
+        "movableSections": ["projects", "certifications", "interests", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "summary": 94,
+          "experience": 95,
+          "education": 88,
+          "skills": 90,
+          "projects": 72,
+          "certifications": 64,
+          "languages": 58,
+          "achievements": 56,
+          "interests": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "onyx-modern-executive",
       "name": "Onyx Modern Executive",
       "slug": "onyx-modern-executive",
