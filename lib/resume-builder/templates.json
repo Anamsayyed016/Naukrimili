@@ -622,7 +622,7 @@
         "mainColumnBasisPct": 66,
         "sidebarColumnBasisPct": 34,
         "maxMovablePriority": 95,
-        "leftSections": ["skills", "languages", "contact", "certifications", "interests", "references"],
+        "leftSections": ["contact", "skills", "languages", "certifications", "interests", "references"],
         "rightSections": ["summary", "education", "experience", "projects", "achievements", "extended"],
         "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
         "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],

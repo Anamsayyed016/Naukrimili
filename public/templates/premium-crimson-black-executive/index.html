@@ -32,30 +32,6 @@
           {{/unless}}
         </div>
 
-        {{#if SKILLS}}
-        <section class="pcb-section pcb-section--skills pcb-side-section">
-          <h2 class="pcb-section-title pcb-section-title--side">
-            <span class="pcb-section-icon pcb-section-icon--skills" aria-hidden="true"></span>
-            <span class="pcb-section-label">Work Skills</span>
-          </h2>
-          <div class="skills-list pcb-skills psp-skills-progress">
-            {{SKILLS}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if LANGUAGES}}
-        <section class="pcb-section pcb-section--languages pcb-side-section">
-          <h2 class="pcb-section-title pcb-section-title--side">
-            <span class="pcb-section-icon pcb-section-icon--languages" aria-hidden="true"></span>
-            <span class="pcb-section-label">Languages</span>
-          </h2>
-          <div class="languages-list pcb-languages psp-languages-progress">
-            {{LANGUAGES}}
-          </div>
-        </section>
-        {{/if}}
-
         <section class="pcb-section pcb-section--contact pcb-side-section">
           <h2 class="pcb-section-title pcb-section-title--side">
             <span class="pcb-section-icon pcb-section-icon--contact" aria-hidden="true"></span>
@@ -94,6 +70,30 @@
             {{/if}}
           </div>
         </section>
+
+        {{#if SKILLS}}
+        <section class="pcb-section pcb-section--skills pcb-side-section">
+          <h2 class="pcb-section-title pcb-section-title--side">
+            <span class="pcb-section-icon pcb-section-icon--skills" aria-hidden="true"></span>
+            <span class="pcb-section-label">Work Skills</span>
+          </h2>
+          <div class="skills-list pcb-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="pcb-section pcb-section--languages pcb-side-section">
+          <h2 class="pcb-section-title pcb-section-title--side">
+            <span class="pcb-section-icon pcb-section-icon--languages" aria-hidden="true"></span>
+            <span class="pcb-section-label">Languages</span>
+          </h2>
+          <div class="languages-list pcb-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
 
         {{#if CERTIFICATIONS}}
         <section class="pcb-section pcb-section--certifications pcb-side-section">

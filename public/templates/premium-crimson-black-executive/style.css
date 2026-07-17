@@ -652,31 +652,99 @@
   color: var(--pcb-muted);
 }
 
-/* Projects timeline */
-.pcb-resume .pcb-projects .project-item h3,
-.pcb-resume .pcb-projects .project-title {
+/*
+ * Projects timeline — same 3-column engine as Experience.
+ * Renderer emits flat children (h3, employer, ul|description, technologies, a)
+ * without an experience-header wrapper, so every content child must be forced
+ * into column 3 or grid auto-placement lands text on the timeline (cols 1–2).
+ */
+.pcb-resume .pcb-projects .project-item > * {
   grid-column: 3;
+  min-width: 0;
+}
+
+.pcb-resume .pcb-projects .project-item > h3,
+.pcb-resume .pcb-projects .project-item > .project-title {
+  order: 1;
   font-family: var(--pcb-font-display);
   font-size: var(--pcb-fs-meta);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--pcb-black);
-  margin-bottom: 4px;
+  line-height: var(--pcb-lh-tight);
+  margin-bottom: 2px;
 }
 
-.pcb-resume .pcb-projects .project-item .description,
-.pcb-resume .pcb-projects .project-description {
-  grid-column: 3;
+.pcb-resume .pcb-projects .project-item > .technologies {
+  order: 2;
+  display: block;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-crimson);
+  line-height: var(--pcb-lh-tight);
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.pcb-resume .pcb-projects .project-item > .project-employer {
+  order: 3;
+  display: block;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-crimson);
+  line-height: var(--pcb-lh-tight);
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.pcb-resume .pcb-projects .project-item > .description,
+.pcb-resume .pcb-projects .project-item > .project-description,
+.pcb-resume .pcb-projects .project-item > p.description {
+  order: 4;
   font-size: var(--pcb-fs-body);
   color: var(--pcb-muted);
   line-height: var(--pcb-lh-body);
 }
 
-.pcb-resume .pcb-projects .project-item::after {
-  /* spacer in date column when no date */
+.pcb-resume .pcb-projects .project-item > ul {
+  order: 4;
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  font-size: var(--pcb-fs-body);
+  color: var(--pcb-muted);
+  line-height: var(--pcb-lh-body);
+}
+
+.pcb-resume .pcb-projects .project-item > ul li {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 3px;
+}
+
+.pcb-resume .pcb-projects .project-item > ul li::before {
   content: '';
-  grid-column: 1;
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--pcb-crimson);
+}
+
+.pcb-resume .pcb-projects .project-item > a {
+  order: 5;
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--pcb-fs-small);
+  font-weight: 600;
+  color: var(--pcb-crimson);
+  text-decoration: none;
+  word-break: break-word;
 }
 
 /* Achievements timeline */
