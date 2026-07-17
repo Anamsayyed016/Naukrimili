@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container rwe-resume">
+    <div class="rwe-body">
+      <aside class="rwe-sidebar">
+        <div class="rwe-photo-block">
+          <div class="rwe-photo-grid" aria-hidden="true"></div>
+          {{#if PROFILE_IMAGE}}
+          <div class="rwe-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="rwe-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="rwe-ini-f">{{FIRST_NAME}}</span><span class="rwe-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <section class="rwe-section rwe-section--contact rwe-side-section">
+          <h2 class="rwe-section-title rwe-section-title--side">
+            <span class="rwe-section-icon rwe-section-icon--contact" aria-hidden="true"></span>
+            <span class="rwe-section-label">Contact</span>
+          </h2>
+          <div class="rwe-contact-list">
+            {{#if PHONE}}
+            <div class="rwe-contact-item rwe-contact-item--phone">
+              <span class="rwe-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="rwe-contact-item rwe-contact-item--email">
+              <span class="rwe-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="rwe-contact-item rwe-contact-item--location">
+              <span class="rwe-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="rwe-contact-item rwe-contact-item--linkedin">
+              <span class="rwe-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="rwe-contact-item rwe-contact-item--web">
+              <span class="rwe-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if LANGUAGES}}
+        <section class="rwe-section rwe-section--languages rwe-side-section">
+          <h2 class="rwe-section-title rwe-section-title--side">
+            <span class="rwe-section-icon rwe-section-icon--languages" aria-hidden="true"></span>
+            <span class="rwe-section-label">Language</span>
+          </h2>
+          <div class="languages-list rwe-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="rwe-section rwe-section--skills rwe-side-section">
+          <h2 class="rwe-section-title rwe-section-title--side">
+            <span class="rwe-section-icon rwe-section-icon--skills" aria-hidden="true"></span>
+            <span class="rwe-section-label">Skills</span>
+          </h2>
+          <div class="skills-list rwe-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="rwe-section rwe-section--certifications rwe-side-section">
+          <h2 class="rwe-section-title rwe-section-title--side">
+            <span class="rwe-section-icon rwe-section-icon--certs" aria-hidden="true"></span>
+            <span class="rwe-section-label">Certifications</span>
+          </h2>
+          <div class="certifications-list rwe-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="rwe-section rwe-section--interests rwe-side-section">
+          <h2 class="rwe-section-title rwe-section-title--side">
+            <span class="rwe-section-icon rwe-section-icon--interests" aria-hidden="true"></span>
+            <span class="rwe-section-label">Interests</span>
+          </h2>
+          <div class="hobbies-list rwe-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="rwe-main">
+        <div class="rwe-main-header">
+          <div class="rwe-deco-line" aria-hidden="true"></div>
+          <div class="rwe-nameplate">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+          </div>
+        </div>
+
+        <div class="rwe-timeline">
+          {{#if SUMMARY}}
+          <section class="rwe-section rwe-section--summary rwe-timeline-section">
+            <h2 class="rwe-section-title rwe-section-title--main">
+              <span class="rwe-timeline-icon rwe-timeline-icon--summary" aria-hidden="true"></span>
+              <span class="rwe-section-label">Professional Summary</span>
+            </h2>
+            <div class="rwe-card rwe-card--summary">
+              <p class="summary-text">{{SUMMARY}}</p>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="rwe-section rwe-section--education rwe-timeline-section">
+            <h2 class="rwe-section-title rwe-section-title--main">
+              <span class="rwe-timeline-icon rwe-timeline-icon--education" aria-hidden="true"></span>
+              <span class="rwe-section-label">Education</span>
+            </h2>
+            <div class="education-list rwe-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EXPERIENCE}}
+          <section class="rwe-section rwe-section--experience rwe-timeline-section">
+            <h2 class="rwe-section-title rwe-section-title--main">
+              <span class="rwe-timeline-icon rwe-timeline-icon--experience" aria-hidden="true"></span>
+              <span class="rwe-section-label">Work Experience</span>
+            </h2>
+            <div class="experience-list rwe-experience">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="rwe-section rwe-section--projects rwe-timeline-section">
+            <h2 class="rwe-section-title rwe-section-title--main">
+              <span class="rwe-timeline-icon rwe-timeline-icon--projects" aria-hidden="true"></span>
+              <span class="rwe-section-label">Projects</span>
+            </h2>
+            <div class="projects-list rwe-projects">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="rwe-section rwe-section--achievements rwe-timeline-section">
+            <h2 class="rwe-section-title rwe-section-title--main">
+              <span class="rwe-timeline-icon rwe-timeline-icon--achievements" aria-hidden="true"></span>
+              <span class="rwe-section-label">Achievements</span>
+            </h2>
+            <div class="achievements-list rwe-achievements rwe-card rwe-card--achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

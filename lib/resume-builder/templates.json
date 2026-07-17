@@ -492,6 +492,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "royal-walnut-executive",
+      "name": "Royal Walnut Executive",
+      "slug": "royal-walnut-executive",
+      "description": "Premium luxury two-column resume with dark walnut wood-grain sidebar, leather circular portrait, bronze nameplate, circular language gauges, skill pills with proficiency dots, timeline education and experience cards, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/royal-walnut-executive/thumbnail.svg",
+      "preview": "/templates/royal-walnut-executive/preview.svg",
+      "html": "/templates/royal-walnut-executive/index.html",
+      "css": "/templates/royal-walnut-executive/style.css",
+      "categories": ["Premium", "Luxury", "Executive", "Creative", "Professional", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "royal-walnut", "name": "Royal Walnut", "primary": "#2A201A", "accent": "#B98A5C", "text": "#1D1D1D" },
+        { "id": "chocolate-bronze", "name": "Chocolate Bronze", "primary": "#5B3A29", "accent": "#B98A5C", "text": "#1D1D1D" },
+        { "id": "espresso-gold", "name": "Espresso Gold", "primary": "#241C17", "accent": "#C49A68", "text": "#1D1D1D" },
+        { "id": "mahogany", "name": "Mahogany", "primary": "#3D2A1F", "accent": "#B98A5C", "text": "#1A1A1A" },
+        { "id": "warm-walnut", "name": "Warm Walnut", "primary": "#2A201A", "accent": "#A87B4F", "text": "#1D1D1D" }
+      ],
+      "defaultColor": "royal-walnut",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "languages", "skills", "certifications", "interests"],
+        "rightSections": ["summary", "education", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "education": 90,
+          "skills": 88,
+          "languages": 78,
+          "projects": 72,
+          "achievements": 64,
+          "certifications": 58,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
@@ -505,6 +555,7 @@
       "Professional",
       "Executive",
       "Editorial",
+      "Luxury",
       "Creative"
     ],
     "layouts": [

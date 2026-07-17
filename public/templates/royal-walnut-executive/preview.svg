@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#F8F4EE"/>
+  <defs>
+    <linearGradient id="wood2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3A2C24"/>
+      <stop offset="45%" stop-color="#2A201A"/>
+      <stop offset="100%" stop-color="#1E1713"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="800" fill="url(#wood2)"/>
+  <g opacity="0.35" stroke="#B98A5C" stroke-width="0.8">
+    <path d="M50 48h100M50 60h100M50 72h100M50 84h100M50 96h100M50 108h100M50 120h100"/>
+    <path d="M50 48v72M62 48v72M74 48v72M86 48v72M98 48v72M110 48v72M122 48v72M134 48v72M146 48v72"/>
+  </g>
+  <circle cx="100" cy="96" r="52" fill="#5B3A29"/>
+  <circle cx="100" cy="96" r="46" fill="#3D2A1F" stroke="#B98A5C" stroke-width="2.5"/>
+  <circle cx="100" cy="96" r="40" fill="#EDE6DC"/>
+  <circle cx="48" cy="200" r="9" fill="#B98A5C"/>
+  <text x="66" y="205" font-family="Georgia, serif" font-size="14" fill="#F4EFE7">Language</text>
+  <text x="40" y="232" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#F4EFE7">English</text>
+  <rect x="40" y="240" width="52" height="14" rx="7" fill="#F4EFE7"/>
+  <text x="50" y="250" font-family="Arial, sans-serif" font-size="7" font-weight="600" fill="#5B3A29">Fluency</text>
+  <circle cx="150" cy="244" r="20" fill="none" stroke="#B98A5C" stroke-width="4" stroke-dasharray="90 40" transform="rotate(-90 150 244)"/>
+  <text x="140" y="248" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#F4EFE7">90%</text>
+  <circle cx="48" cy="310" r="9" fill="#B98A5C"/>
+  <text x="66" y="315" font-family="Georgia, serif" font-size="14" fill="#F4EFE7">Skills</text>
+  <rect x="40" y="334" width="72" height="16" rx="8" fill="#F4EFE7"/>
+  <circle cx="130" cy="342" r="3.5" fill="#B98A5C"/>
+  <circle cx="142" cy="342" r="3.5" fill="#B98A5C"/>
+  <circle cx="154" cy="342" r="3.5" fill="#B98A5C"/>
+  <circle cx="166" cy="342" r="3.5" fill="#B98A5C"/>
+  <circle cx="178" cy="342" r="3.5" fill="rgba(185,138,92,0.3)"/>
+  <rect x="40" y="358" width="68" height="16" rx="8" fill="#2F3A5A"/>
+  <circle cx="130" cy="366" r="3.5" fill="#B98A5C"/>
+  <circle cx="142" cy="366" r="3.5" fill="#B98A5C"/>
+  <circle cx="154" cy="366" r="3.5" fill="#B98A5C"/>
+  <circle cx="166" cy="366" r="3.5" fill="rgba(185,138,92,0.3)"/>
+  <circle cx="178" cy="366" r="3.5" fill="rgba(185,138,92,0.3)"/>
+  <line x1="240" y1="36" x2="540" y2="36" stroke="#B98A5C" stroke-width="2"/>
+  <rect x="210" y="64" width="350" height="72" rx="14" fill="#5B3A29"/>
+  <text x="240" y="98" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#F4EFE7">Connor Hamilton</text>
+  <text x="240" y="120" font-family="Arial, sans-serif" font-size="12" fill="#F4EFE7">Professional Graphic Design</text>
+  <line x1="246" y1="170" x2="246" y2="700" stroke="#B98A5C" stroke-width="2"/>
+  <circle cx="246" cy="180" r="14" fill="#B98A5C"/>
+  <text x="274" y="186" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#5B3A29">Education</text>
+  <rect x="274" y="200" width="280" height="90" rx="14" fill="#F4EFE7"/>
+  <rect x="274" y="200" width="280" height="5" rx="2" fill="#B98A5C"/>
+  <circle cx="246" cy="230" r="5" fill="#B98A5C"/>
+  <text x="288" y="230" font-family="Arial, sans-serif" font-size="11" fill="#6B6B6B">2010 - 2012</text>
+  <line x1="352" y1="214" x2="352" y2="276" stroke="#D4CCC2" stroke-width="1"/>
+  <text x="364" y="230" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1D1D1D">Wardiere University</text>
+  <text x="364" y="248" font-family="Arial, sans-serif" font-size="11" fill="#5B3A29">Bachelor of Design</text>
+  <circle cx="246" cy="330" r="14" fill="#B98A5C"/>
+  <text x="274" y="336" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#5B3A29">Work Experience</text>
+  <rect x="274" y="350" width="280" height="110" rx="14" fill="#F4EFE7"/>
+  <rect x="274" y="350" width="280" height="5" rx="2" fill="#C86452"/>
+  <circle cx="246" cy="380" r="5" fill="#B98A5C"/>
+  <text x="288" y="378" font-family="Arial, sans-serif" font-size="11" fill="#6B6B6B">2019 - 2022</text>
+  <text x="364" y="378" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1D1D1D">Framer Designer</text>
+  <text x="364" y="396" font-family="Arial, sans-serif" font-size="11" fill="#5B3A29">Wardiere Inc.</text>
+  <circle cx="370" cy="416" r="2.5" fill="#B98A5C"/>
+  <rect x="380" y="413" width="150" height="4" rx="2" fill="#D8D0C4"/>
+  <circle cx="246" cy="510" r="14" fill="#B98A5C"/>
+  <text x="274" y="516" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#5B3A29">Achievements</text>
+  <rect x="274" y="530" width="280" height="80" rx="14" fill="#F4EFE7"/>
+  <rect x="274" y="530" width="280" height="5" rx="2" fill="#6B7C8A"/>
+  <circle cx="292" cy="560" r="3" fill="#B98A5C"/>
+  <rect x="304" y="557" width="200" height="4" rx="2" fill="#D8D0C4"/>
+  <circle cx="292" cy="580" r="3" fill="#B98A5C"/>
+  <rect x="304" y="577" width="180" height="4" rx="2" fill="#D8D0C4"/>
+  <text x="300" y="760" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="600" fill="#5B3A29">Royal Walnut Executive</text>
+</svg>
