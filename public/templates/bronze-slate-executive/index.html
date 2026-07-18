@@ -61,6 +61,42 @@
         </section>
         {{/if}}
 
+        <section class="bse-section bse-section--contact bse-side-section">
+          <h2 class="bse-side-title">Contact</h2>
+          <div class="bse-contact-list">
+            {{#if PHONE}}
+            <div class="bse-contact-item bse-contact-item--phone">
+              <span class="bse-contact-icon" aria-hidden="true"></span>
+              <span class="bse-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="bse-contact-item bse-contact-item--email">
+              <span class="bse-contact-icon" aria-hidden="true"></span>
+              <span class="bse-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="bse-contact-item bse-contact-item--web">
+              <span class="bse-contact-icon" aria-hidden="true"></span>
+              <span class="bse-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="bse-contact-item bse-contact-item--linkedin">
+              <span class="bse-contact-icon" aria-hidden="true"></span>
+              <span class="bse-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="bse-contact-item bse-contact-item--location">
+              <span class="bse-contact-icon" aria-hidden="true"></span>
+              <span class="bse-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
         {{#if EDUCATION}}
         <section class="bse-section bse-section--education bse-side-section">
           <h2 class="bse-side-title">Education</h2>
@@ -125,42 +161,6 @@
           </div>
         </section>
         {{/if}}
-
-        <section class="bse-section bse-section--contact">
-          <h2 class="bse-main-title"><span class="bse-title-mark" aria-hidden="true"></span><span class="bse-title-text">Contact</span></h2>
-          <div class="bse-contact-list">
-            {{#if PHONE}}
-            <div class="bse-contact-item bse-contact-item--phone">
-              <span class="bse-contact-icon" aria-hidden="true"></span>
-              <span class="bse-contact-value">{{PHONE}}</span>
-            </div>
-            {{/if}}
-            {{#if EMAIL}}
-            <div class="bse-contact-item bse-contact-item--email">
-              <span class="bse-contact-icon" aria-hidden="true"></span>
-              <span class="bse-contact-value">{{EMAIL}}</span>
-            </div>
-            {{/if}}
-            {{#if PORTFOLIO}}
-            <div class="bse-contact-item bse-contact-item--web">
-              <span class="bse-contact-icon" aria-hidden="true"></span>
-              <span class="bse-contact-value">{{PORTFOLIO}}</span>
-            </div>
-            {{/if}}
-            {{#if LINKEDIN}}
-            <div class="bse-contact-item bse-contact-item--linkedin">
-              <span class="bse-contact-icon" aria-hidden="true"></span>
-              <span class="bse-contact-value">{{LINKEDIN}}</span>
-            </div>
-            {{/if}}
-            {{#if LOCATION}}
-            <div class="bse-contact-item bse-contact-item--location">
-              <span class="bse-contact-icon" aria-hidden="true"></span>
-              <span class="bse-contact-value">{{LOCATION}}</span>
-            </div>
-            {{/if}}
-          </div>
-        </section>
 
         {{#if ACHIEVEMENTS}}
         <section class="bse-section bse-section--achievements">

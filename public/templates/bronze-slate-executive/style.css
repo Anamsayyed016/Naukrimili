@@ -396,11 +396,10 @@
 .resume-container.bse-resume .bse-sidebar .cert-name,
 .resume-container.bse-resume .bse-sidebar .experience-header h3,
 .resume-container.bse-resume .bse-sidebar .experience-header .company,
-.resume-container.bse-resume .bse-sidebar .project-item > h3,
-.resume-container.bse-resume .bse-sidebar .project-item > .project-title,
 .resume-container.bse-resume .bse-sidebar .achievement-item h3,
 .resume-container.bse-resume .bse-sidebar .psp-skill-name,
-.resume-container.bse-resume .bse-sidebar .psp-language-name {
+.resume-container.bse-resume .bse-sidebar .psp-language-name,
+.resume-container.bse-resume .bse-sidebar .bse-contact-value {
   color: var(--bse-side-text) !important;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -412,7 +411,6 @@
 .resume-container.bse-resume .bse-sidebar .description,
 .resume-container.bse-resume .bse-sidebar .description li,
 .resume-container.bse-resume .bse-sidebar p,
-.resume-container.bse-resume .bse-sidebar .technologies,
 .resume-container.bse-resume .bse-sidebar .project-employer,
 .resume-container.bse-resume .bse-sidebar a {
   color: var(--bse-side-muted) !important;
@@ -429,6 +427,50 @@
 .resume-container.bse-resume .bse-sidebar .bse-main-title .bse-title-text {
   color: #FFFFFF !important;
   opacity: 1 !important;
+}
+
+/* Project cards inside the sidebar — every text layer stays readable,
+   regardless of markup nesting or ATS color-mix rules */
+.resume-container.bse-resume .bse-sidebar .project-item > h3,
+.resume-container.bse-resume .bse-sidebar .project-item > .project-title,
+.resume-container.bse-resume .bse-sidebar .project-item h3 {
+  color: var(--bse-side-text) !important;
+  opacity: 1 !important;
+}
+
+.resume-container.bse-resume .bse-sidebar .project-item .description,
+.resume-container.bse-resume .bse-sidebar .project-item > .description,
+.resume-container.bse-resume .bse-sidebar .project-item p,
+.resume-container.bse-resume .bse-sidebar .project-item li,
+.resume-container.bse-resume .bse-sidebar .project-item > ul li,
+.resume-container.bse-resume .bse-sidebar .project-item span:not(.bse-contact-icon) {
+  color: var(--bse-side-muted) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.bse-resume .bse-sidebar .project-item .technologies,
+.resume-container.bse-resume .bse-sidebar .project-item > .technologies,
+.resume-container.bse-resume .bse-sidebar .project-item > a {
+  color: var(--bse-bronze-soft) !important;
+  opacity: 1 !important;
+}
+
+/* Card frame stays visible on the taupe panel; no clipping of long content */
+.resume-container.bse-resume .bse-sidebar .project-item {
+  position: relative;
+  z-index: 1;
+  border-color: rgba(255, 255, 255, 0.32);
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
+
+/* Sidebar sections never clip long content */
+.resume-container.bse-resume .bse-sidebar,
+.resume-container.bse-resume .bse-sidebar .bse-side-section {
+  overflow: visible;
 }
 
 /* ── Main ── */
