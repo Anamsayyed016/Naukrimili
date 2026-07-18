@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#FFFFFF"/>
+  <rect x="16" y="24" width="2" height="28" fill="#000000"/>
+  <text x="26" y="36" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#111111" letter-spacing="2.5">MORGAN</text>
+  <text x="26" y="52" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#111111" letter-spacing="2">VALE</text>
+  <line x1="26" y1="60" x2="150" y2="60" stroke="#D9D9D9" stroke-width="1"/>
+  <circle cx="30" cy="74" r="3" fill="#000000"/>
+  <text x="40" y="77" font-family="Arial, sans-serif" font-size="6" font-weight="600" fill="#111111" letter-spacing="1.5">PRODUCT DESIGNER</text>
+  <text x="188" y="34" text-anchor="end" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#111111">E</text>
+  <text x="194" y="34" font-family="Arial, sans-serif" font-size="5.5" fill="#555555">m@vale.co</text>
+  <text x="188" y="46" text-anchor="end" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#111111">P</text>
+  <text x="194" y="46" font-family="Arial, sans-serif" font-size="5.5" fill="#555555">555-0142</text>
+  <rect x="240" y="22" width="44" height="44" rx="8" fill="#EEEEEE" stroke="#111111" stroke-width="2"/>
+  <!-- Main -->
+  <text x="16" y="112" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#111111" letter-spacing="2">PROFILE</text>
+  <line x1="16" y1="116" x2="188" y2="116" stroke="#D9D9D9" stroke-width="1"/>
+  <rect x="16" y="126" width="170" height="3" rx="1" fill="#CCCCCC"/>
+  <rect x="16" y="134" width="158" height="3" rx="1" fill="#CCCCCC"/>
+  <rect x="16" y="142" width="146" height="3" rx="1" fill="#CCCCCC"/>
+  <text x="16" y="172" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#111111" letter-spacing="2">EXPERIENCE</text>
+  <line x1="16" y1="176" x2="188" y2="176" stroke="#D9D9D9" stroke-width="1"/>
+  <line x1="20" y1="188" x2="20" y2="280" stroke="#D9D9D9" stroke-width="1"/>
+  <circle cx="20" cy="192" r="2.5" fill="#000000"/>
+  <text x="30" y="196" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#111111" letter-spacing="0.5">LEAD DESIGNER</text>
+  <text x="188" y="196" text-anchor="end" font-family="Arial, sans-serif" font-size="5" fill="#888888">2019-25</text>
+  <text x="30" y="208" font-family="Arial, sans-serif" font-size="5.5" fill="#555555">Studio North</text>
+  <circle cx="34" cy="222" r="1.5" fill="#111111"/>
+  <rect x="42" y="220" width="120" height="2.5" rx="1" fill="#CCCCCC"/>
+  <circle cx="20" cy="248" r="2.5" fill="#000000"/>
+  <text x="30" y="252" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#111111" letter-spacing="0.5">UX DESIGNER</text>
+  <text x="188" y="252" text-anchor="end" font-family="Arial, sans-serif" font-size="5" fill="#888888">2015-19</text>
+  <!-- Sidebar -->
+  <line x1="204" y1="100" x2="204" y2="380" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="216" y="116" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#111111" letter-spacing="2">SKILLS</text>
+  <line x1="216" y1="120" x2="284" y2="120" stroke="#D9D9D9" stroke-width="1"/>
+  <circle cx="220" cy="136" r="2" fill="#000000"/>
+  <text x="228" y="139" font-family="Arial, sans-serif" font-size="5.5" fill="#111111">Research</text>
+  <circle cx="220" cy="150" r="2" fill="#000000"/>
+  <text x="228" y="153" font-family="Arial, sans-serif" font-size="5.5" fill="#111111">Prototyping</text>
+  <circle cx="220" cy="164" r="2" fill="#000000"/>
+  <text x="228" y="167" font-family="Arial, sans-serif" font-size="5.5" fill="#111111">Systems</text>
+  <text x="216" y="198" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#111111" letter-spacing="2">EDUCATION</text>
+  <line x1="216" y1="202" x2="284" y2="202" stroke="#D9D9D9" stroke-width="1"/>
+  <line x1="220" y1="214" x2="220" y2="270" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="228" y="226" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#111111">BFA Design</text>
+  <text x="228" y="238" font-family="Arial, sans-serif" font-size="5" fill="#555555">RISD</text>
+  <text x="228" y="250" font-family="Arial, sans-serif" font-size="5" fill="#888888">2014</text>
+  <text x="216" y="296" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#111111" letter-spacing="2">LANGUAGES</text>
+  <line x1="216" y1="300" x2="284" y2="300" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="216" y="316" font-family="Arial, sans-serif" font-size="5.5" fill="#111111">English</text>
+  <text x="284" y="316" text-anchor="end" font-family="Arial, sans-serif" font-size="5" fill="#888888">Fluent</text>
+</svg>

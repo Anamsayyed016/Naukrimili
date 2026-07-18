@@ -1242,6 +1242,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "swiss-minimal-executive",
+      "name": "Swiss Minimal Executive",
+      "slug": "swiss-minimal-executive",
+      "description": "Ultra-minimal Swiss editorial resume with Space Grotesk stacked name, letter-label contact block, rounded-square grayscale portrait in the header, black-and-white timeline experience rail, Inter body type, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/swiss-minimal-executive/thumbnail.svg",
+      "preview": "/templates/swiss-minimal-executive/preview.svg",
+      "html": "/templates/swiss-minimal-executive/index.html",
+      "css": "/templates/swiss-minimal-executive/style.css",
+      "categories": ["Premium", "Minimal", "Editorial", "Executive", "Professional", "Modern", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "swiss-ink", "name": "Swiss Ink", "primary": "#111111", "accent": "#000000", "text": "#111111" },
+        { "id": "charcoal-mono", "name": "Charcoal Mono", "primary": "#1A1A1A", "accent": "#111111", "text": "#111111" },
+        { "id": "graphite-white", "name": "Graphite White", "primary": "#222222", "accent": "#000000", "text": "#1A1A1A" },
+        { "id": "noir-soft", "name": "Noir Soft", "primary": "#0D0D0D", "accent": "#333333", "text": "#111111" },
+        { "id": "slate-mono", "name": "Slate Mono", "primary": "#171717", "accent": "#000000", "text": "#111111" }
+      ],
+      "defaultColor": "swiss-ink",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 65,
+        "sidebarColumnBasisPct": 35,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "rightSections": ["skills", "education", "languages", "certifications", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

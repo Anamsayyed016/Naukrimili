@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container sme-resume">
+    <div class="sme-sheet">
+      <header class="sme-header">
+        <div class="sme-header-main">
+          <div class="sme-identity">
+            <span class="sme-name-rail" aria-hidden="true"></span>
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            <div class="sme-name-rule" aria-hidden="true"></div>
+            {{#if JOB_TITLE}}
+            <p class="header-title">
+              <span class="sme-title-dot" aria-hidden="true"></span>
+              <span class="sme-title-text">{{JOB_TITLE}}</span>
+            </p>
+            {{/if}}
+          </div>
+
+          <div class="sme-header-aside">
+            <div class="sme-contact-block">
+              {{#if EMAIL}}
+              <div class="sme-contact-item sme-contact-item--email">
+                <span class="sme-contact-label">E</span>
+                <span class="sme-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if PHONE}}
+              <div class="sme-contact-item sme-contact-item--phone">
+                <span class="sme-contact-label">P</span>
+                <span class="sme-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if LOCATION}}
+              <div class="sme-contact-item sme-contact-item--location">
+                <span class="sme-contact-label">L</span>
+                <span class="sme-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+              {{#if LINKEDIN}}
+              <div class="sme-contact-item sme-contact-item--linkedin">
+                <span class="sme-contact-label">IN</span>
+                <span class="sme-contact-value">{{LINKEDIN}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="sme-contact-item sme-contact-item--web">
+                <span class="sme-contact-label">W</span>
+                <span class="sme-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+            </div>
+
+            {{#if PROFILE_IMAGE}}
+            <div class="sme-portrait">
+              <div class="profile-image-wrapper">
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+              </div>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+      </header>
+
+      <div class="sme-body">
+        <main class="sme-main">
+          {{#if SUMMARY}}
+          <section class="sme-section sme-section--summary">
+            <h2 class="sme-main-title">Profile</h2>
+            <div class="sme-summary">
+              <p class="summary-text">{{SUMMARY}}</p>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EXPERIENCE}}
+          <section class="sme-section sme-section--experience">
+            <h2 class="sme-main-title">Experience</h2>
+            <div class="experience-list sme-experience">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="sme-section sme-section--projects">
+            <h2 class="sme-main-title">Projects</h2>
+            <div class="projects-list sme-projects">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="sme-section sme-section--achievements">
+            <h2 class="sme-main-title">Achievements</h2>
+            <div class="achievements-list sme-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </main>
+
+        <aside class="sme-sidebar">
+          {{#if SKILLS}}
+          <section class="sme-section sme-section--skills sme-side-section">
+            <h2 class="sme-side-title">Skills</h2>
+            <div class="skills-list sme-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="sme-section sme-section--education sme-side-section">
+            <h2 class="sme-side-title">Education</h2>
+            <div class="education-list sme-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="sme-section sme-section--languages sme-side-section">
+            <h2 class="sme-side-title">Languages</h2>
+            <div class="languages-list sme-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="sme-section sme-section--certifications sme-side-section">
+            <h2 class="sme-side-title">Certifications</h2>
+            <div class="certifications-list sme-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="sme-section sme-section--interests sme-side-section">
+            <h2 class="sme-side-title">Interests</h2>
+            <div class="hobbies-list sme-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </aside>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
