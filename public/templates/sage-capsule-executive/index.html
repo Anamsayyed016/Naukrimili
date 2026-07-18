@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container sce-resume">
+    <div class="sce-sheet">
+      <header class="sce-header">
+        <div class="sce-header-band" aria-hidden="true"></div>
+        <div class="sce-header-accent" aria-hidden="true"></div>
+
+        <div class="sce-photo-col">
+          <span class="sce-photo-halo" aria-hidden="true"></span>
+          {{#if PROFILE_IMAGE}}
+          <div class="sce-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="sce-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="sce-ini-f">{{FIRST_NAME}}</span><span class="sce-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="sce-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title sce-title-badge">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </header>
+
+      <div class="sce-body">
+        <aside class="sce-sidebar">
+          {{#if SUMMARY}}
+          <section class="sce-section sce-section--summary sce-side-section">
+            <h2 class="sce-cap sce-cap--about">About Me</h2>
+            <div class="sce-summary">
+              <p class="summary-text">{{SUMMARY}}</p>
+            </div>
+          </section>
+          {{/if}}
+
+          <section class="sce-section sce-section--contact sce-side-section">
+            <h2 class="sce-cap sce-cap--contact">Contact</h2>
+            <div class="sce-contact-list">
+              {{#if PHONE}}
+              <div class="sce-contact-item sce-contact-item--phone">
+                <span class="sce-contact-icon" aria-hidden="true"></span>
+                <span class="sce-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if EMAIL}}
+              <div class="sce-contact-item sce-contact-item--email">
+                <span class="sce-contact-icon" aria-hidden="true"></span>
+                <span class="sce-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if LOCATION}}
+              <div class="sce-contact-item sce-contact-item--location">
+                <span class="sce-contact-icon" aria-hidden="true"></span>
+                <span class="sce-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+              {{#if LINKEDIN}}
+              <div class="sce-contact-item sce-contact-item--linkedin">
+                <span class="sce-contact-icon" aria-hidden="true"></span>
+                <span class="sce-contact-value">{{LINKEDIN}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="sce-contact-item sce-contact-item--web">
+                <span class="sce-contact-icon" aria-hidden="true"></span>
+                <span class="sce-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+            </div>
+          </section>
+
+          {{#if EDUCATION}}
+          <section class="sce-section sce-section--education sce-side-section">
+            <h2 class="sce-cap sce-cap--education">Education</h2>
+            <div class="education-list sce-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="sce-section sce-section--languages sce-side-section">
+            <h2 class="sce-cap sce-cap--languages">Languages</h2>
+            <div class="languages-list sce-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="sce-section sce-section--certifications sce-side-section">
+            <h2 class="sce-cap sce-cap--certifications">Certifications</h2>
+            <div class="certifications-list sce-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="sce-section sce-section--interests sce-side-section">
+            <h2 class="sce-cap sce-cap--interests">Interests</h2>
+            <div class="hobbies-list sce-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </aside>
+
+        <main class="sce-main">
+          {{#if EXPERIENCE}}
+          <section class="sce-section sce-section--experience">
+            <h2 class="sce-cap sce-cap--experience">Work Experience</h2>
+            <div class="experience-list sce-experience">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="sce-section sce-section--projects">
+            <h2 class="sce-cap sce-cap--projects">Projects</h2>
+            <div class="projects-list sce-projects">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if SKILLS}}
+          <section class="sce-section sce-section--skills">
+            <h2 class="sce-cap sce-cap--skills">Skills</h2>
+            <div class="skills-list sce-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="sce-section sce-section--achievements">
+            <h2 class="sce-cap sce-cap--achievements">Achievements</h2>
+            <div class="achievements-list sce-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

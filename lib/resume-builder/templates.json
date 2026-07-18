@@ -992,6 +992,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "sage-capsule-executive",
+      "name": "Sage Capsule Executive",
+      "slug": "sage-capsule-executive",
+      "description": "Soft sage luxury executive resume with Alex Brush signature name, gold title badge, circular portrait, rounded capsule section headers with soft shadows, sage sidebar for About Me and Contact, Manrope body type, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/sage-capsule-executive/thumbnail.svg",
+      "preview": "/templates/sage-capsule-executive/preview.svg",
+      "html": "/templates/sage-capsule-executive/index.html",
+      "css": "/templates/sage-capsule-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar", "Creative"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "soft-sage", "name": "Soft Sage", "primary": "#435B4A", "accent": "#BF8B52", "text": "#2F3530" },
+        { "id": "forest-gold", "name": "Forest Gold", "primary": "#3A5242", "accent": "#C8965A", "text": "#2F3530" },
+        { "id": "moss-amber", "name": "Moss Amber", "primary": "#4A6352", "accent": "#B8834A", "text": "#2A302C" },
+        { "id": "olive-bronze", "name": "Olive Bronze", "primary": "#435B4A", "accent": "#A87A48", "text": "#2F3530" },
+        { "id": "celadon-ochre", "name": "Celadon Ochre", "primary": "#506854", "accent": "#BF8B52", "text": "#2F3530" }
+      ],
+      "defaultColor": "soft-sage",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 62,
+        "sidebarColumnBasisPct": 38,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "contact", "education", "languages", "certifications", "interests"],
+        "rightSections": ["experience", "projects", "skills", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
