@@ -1042,6 +1042,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "slate-portrait-executive",
+      "name": "Slate Portrait Executive",
+      "slug": "slate-portrait-executive",
+      "description": "Premium editorial executive resume with a distinctive soft-squircle portrait card, Playfair Display name, gold-accent contact row, cream main column, slate-blue sidebar for skills and certifications, navy footer bar, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/slate-portrait-executive/thumbnail.svg",
+      "preview": "/templates/slate-portrait-executive/preview.svg",
+      "html": "/templates/slate-portrait-executive/index.html",
+      "css": "/templates/slate-portrait-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "navy-bronze", "name": "Navy Bronze", "primary": "#1F3654", "accent": "#B98756", "text": "#2C2C2C" },
+        { "id": "ink-gold", "name": "Ink Gold", "primary": "#1A2E48", "accent": "#C4975E", "text": "#2C2C2C" },
+        { "id": "midnight-copper", "name": "Midnight Copper", "primary": "#243B5C", "accent": "#A87A4A", "text": "#2A2A2A" },
+        { "id": "steel-brass", "name": "Steel Brass", "primary": "#1F3654", "accent": "#A8895C", "text": "#2C2C2C" },
+        { "id": "ocean-sand", "name": "Ocean Sand", "primary": "#274466", "accent": "#B98756", "text": "#2C2C2C" }
+      ],
+      "defaultColor": "navy-bronze",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "projects", "education", "achievements", "references", "extended"],
+        "rightSections": ["skills", "certifications", "languages", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

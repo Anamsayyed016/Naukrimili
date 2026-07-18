@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#F8F8F6"/>
+  <!-- Main -->
+  <text x="16" y="36" font-family="Georgia, serif" font-size="15" font-weight="700" fill="#1F3654" letter-spacing="1.5">MARCUS HALE</text>
+  <text x="16" y="52" font-family="Arial, sans-serif" font-size="7" font-weight="600" fill="#52667A">Managing Director</text>
+  <line x1="16" y1="62" x2="64" y2="62" stroke="#B98756" stroke-width="1.5"/>
+  <line x1="64" y1="62" x2="188" y2="62" stroke="#D8DEE7" stroke-width="1"/>
+  <circle cx="22" cy="76" r="3" fill="#B98756"/>
+  <rect x="30" y="74" width="40" height="3" rx="1" fill="#707A85"/>
+  <line x1="76" y1="70" x2="76" y2="82" stroke="#D8DEE7" stroke-width="1"/>
+  <circle cx="86" cy="76" r="3" fill="#B98756"/>
+  <rect x="94" y="74" width="52" height="3" rx="1" fill="#707A85"/>
+  <line x1="152" y1="70" x2="152" y2="82" stroke="#D8DEE7" stroke-width="1"/>
+  <circle cx="162" cy="76" r="3" fill="#B98756"/>
+  <rect x="170" y="74" width="18" height="3" rx="1" fill="#707A85"/>
+  <text x="16" y="104" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#1F3654" letter-spacing="1.2">SUMMARY</text>
+  <line x1="16" y1="108" x2="188" y2="108" stroke="#D8DEE7" stroke-width="1"/>
+  <rect x="16" y="116" width="170" height="3" rx="1" fill="#C9CED4"/>
+  <rect x="16" y="124" width="158" height="3" rx="1" fill="#C9CED4"/>
+  <rect x="16" y="132" width="146" height="3" rx="1" fill="#C9CED4"/>
+  <text x="16" y="158" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#1F3654" letter-spacing="1.2">EXPERIENCE</text>
+  <line x1="16" y1="162" x2="188" y2="162" stroke="#D8DEE7" stroke-width="1"/>
+  <text x="16" y="178" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1F3654">Managing Director</text>
+  <text x="188" y="178" text-anchor="end" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B98756">2019-25</text>
+  <text x="16" y="190" font-family="Arial, sans-serif" font-size="5.5" fill="#52667A">Northbridge Partners</text>
+  <circle cx="20" cy="204" r="1.8" fill="#B98756"/>
+  <rect x="28" y="202" width="130" height="2.5" rx="1" fill="#C9CED4"/>
+  <circle cx="20" cy="216" r="1.8" fill="#B98756"/>
+  <rect x="28" y="214" width="118" height="2.5" rx="1" fill="#C9CED4"/>
+  <text x="16" y="242" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1F3654">Operations Lead</text>
+  <text x="188" y="242" text-anchor="end" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B98756">2014-19</text>
+  <text x="16" y="254" font-family="Arial, sans-serif" font-size="5.5" fill="#52667A">Atlas Advisory</text>
+  <text x="16" y="280" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#1F3654" letter-spacing="1.2">EDUCATION</text>
+  <line x1="16" y1="284" x2="188" y2="284" stroke="#D8DEE7" stroke-width="1"/>
+  <text x="16" y="300" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1F3654">MBA Strategy</text>
+  <text x="16" y="312" font-family="Arial, sans-serif" font-size="5.5" fill="#52667A">Columbia Business School</text>
+  <text x="16" y="324" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B98756">2012</text>
+  <!-- Sidebar -->
+  <rect x="200" y="0" width="100" height="376" fill="#E8EEF4"/>
+  <rect x="232" y="18" width="28" height="5" rx="2.5" fill="#B98756"/>
+  <rect x="218" y="32" width="64" height="64" rx="14" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4"/>
+  <rect x="222" y="36" width="56" height="56" rx="12" fill="#D8DEE7"/>
+  <text x="216" y="120" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1F3654" letter-spacing="1">SKILLS</text>
+  <line x1="216" y1="124" x2="284" y2="124" stroke="rgba(31,54,84,0.12)" stroke-width="1"/>
+  <circle cx="222" cy="140" r="4" fill="rgba(185,135,86,0.2)"/>
+  <text x="232" y="143" font-family="Arial, sans-serif" font-size="5.5" fill="#2C2C2C">Leadership</text>
+  <circle cx="222" cy="156" r="4" fill="rgba(185,135,86,0.2)"/>
+  <text x="232" y="159" font-family="Arial, sans-serif" font-size="5.5" fill="#2C2C2C">Strategy</text>
+  <circle cx="222" cy="172" r="4" fill="rgba(185,135,86,0.2)"/>
+  <text x="232" y="175" font-family="Arial, sans-serif" font-size="5.5" fill="#2C2C2C">Negotiation</text>
+  <circle cx="222" cy="188" r="4" fill="rgba(185,135,86,0.2)"/>
+  <text x="232" y="191" font-family="Arial, sans-serif" font-size="5.5" fill="#2C2C2C">Finance</text>
+  <text x="216" y="220" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1F3654" letter-spacing="1">LANGUAGES</text>
+  <line x1="216" y1="224" x2="284" y2="224" stroke="rgba(31,54,84,0.12)" stroke-width="1"/>
+  <text x="216" y="240" font-family="Arial, sans-serif" font-size="5.5" fill="#2C2C2C">English</text>
+  <text x="216" y="254" font-family="Arial, sans-serif" font-size="5.5" fill="#2C2C2C">French</text>
+  <text x="216" y="282" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1F3654" letter-spacing="1">INTERESTS</text>
+  <line x1="216" y1="286" x2="284" y2="286" stroke="rgba(31,54,84,0.12)" stroke-width="1"/>
+  <rect x="216" y="296" width="40" height="12" rx="4" fill="rgba(255,255,255,0.7)" stroke="#D8DEE7"/>
+  <rect x="216" y="314" width="48" height="12" rx="4" fill="rgba(255,255,255,0.7)" stroke="#D8DEE7"/>
+  <!-- Footer -->
+  <rect x="0" y="376" width="300" height="24" fill="#1F3654"/>
+  <text x="150" y="391" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="rgba(255,255,255,0.9)">marcushale.com</text>
+</svg>
