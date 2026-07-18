@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#EDE5DC"/>
+  <rect x="20" y="20" width="560" height="760" fill="#FAF8F4" stroke="rgba(92,64,51,0.12)"/>
+  <!-- Header -->
+  <rect x="44" y="56" width="4" height="100" fill="#5C4033"/>
+  <rect x="44" y="96" width="4" height="40" fill="#B68B6A"/>
+  <text x="64" y="88" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#5C4033" letter-spacing="3">DENNIS</text>
+  <text x="64" y="122" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#5C4033" letter-spacing="3">BENNETTE</text>
+  <line x1="64" y1="138" x2="140" y2="138" stroke="#5C4033" stroke-width="1.5"/>
+  <text x="64" y="160" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#6A625A" letter-spacing="4">GRAPHIC DESIGNER</text>
+  <circle cx="510" cy="108" r="56" fill="#EDE5DC" stroke="#5C4033" stroke-width="3"/>
+  <circle cx="510" cy="108" r="66" fill="none" stroke="#EDE5DC" stroke-width="8"/>
+  <line x1="44" y1="192" x2="556" y2="192" stroke="rgba(92,64,51,0.18)" stroke-width="1.5"/>
+  <!-- Sidebar -->
+  <rect x="44" y="212" width="190" height="540" fill="#EDE5DC"/>
+  <text x="60" y="246" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#5C4033" letter-spacing="2">CONTACT</text>
+  <line x1="60" y1="254" x2="214" y2="254" stroke="rgba(92,64,51,0.28)" stroke-width="1"/>
+  <circle cx="68" cy="280" r="5" fill="#5C4033"/>
+  <text x="82" y="284" font-family="Arial, sans-serif" font-size="10" fill="#3A322C">+1 (212) 555-0148</text>
+  <circle cx="68" cy="308" r="5" fill="#5C4033"/>
+  <text x="82" y="312" font-family="Arial, sans-serif" font-size="10" fill="#3A322C">dennis@email.com</text>
+  <circle cx="68" cy="336" r="5" fill="#5C4033"/>
+  <text x="82" y="340" font-family="Arial, sans-serif" font-size="10" fill="#3A322C">dennisbennette.com</text>
+  <circle cx="68" cy="364" r="5" fill="#5C4033"/>
+  <text x="82" y="368" font-family="Arial, sans-serif" font-size="10" fill="#3A322C">New York, NY</text>
+  <text x="60" y="420" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#5C4033" letter-spacing="2">SKILLS</text>
+  <line x1="60" y1="428" x2="214" y2="428" stroke="rgba(92,64,51,0.28)" stroke-width="1"/>
+  <text x="60" y="456" font-family="Arial, sans-serif" font-size="11" fill="#3A322C">Brand Identity</text>
+  <text x="214" y="456" text-anchor="end" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#B68B6A">9/10</text>
+  <text x="60" y="480" font-family="Arial, sans-serif" font-size="11" fill="#3A322C">Typography</text>
+  <text x="214" y="480" text-anchor="end" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#B68B6A">8/10</text>
+  <text x="60" y="504" font-family="Arial, sans-serif" font-size="11" fill="#3A322C">Art Direction</text>
+  <text x="214" y="504" text-anchor="end" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#B68B6A">9/10</text>
+  <text x="60" y="528" font-family="Arial, sans-serif" font-size="11" fill="#3A322C">Layout Design</text>
+  <text x="214" y="528" text-anchor="end" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#B68B6A">7/10</text>
+  <text x="60" y="580" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#5C4033" letter-spacing="2">EDUCATION</text>
+  <line x1="60" y1="588" x2="214" y2="588" stroke="rgba(92,64,51,0.28)" stroke-width="1"/>
+  <text x="60" y="616" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#5C4033">BFA Graphic Design</text>
+  <text x="60" y="636" font-family="Arial, sans-serif" font-size="10" fill="#6A625A">Parsons School of Design</text>
+  <text x="60" y="656" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B68B6A">2014</text>
+  <text x="60" y="700" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#5C4033" letter-spacing="2">LANGUAGES</text>
+  <line x1="60" y1="708" x2="214" y2="708" stroke="rgba(92,64,51,0.28)" stroke-width="1"/>
+  <text x="60" y="734" font-family="Arial, sans-serif" font-size="11" fill="#3A322C">English · Fluent</text>
+  <!-- Main -->
+  <text x="260" y="246" font-family="Georgia, serif" font-size="15" font-weight="700" fill="#5C4033" letter-spacing="2.5">ABOUT ME</text>
+  <line x1="260" y1="254" x2="556" y2="254" stroke="rgba(92,64,51,0.22)" stroke-width="1"/>
+  <rect x="260" y="272" width="296" height="6" rx="2" fill="#D4CBC0"/>
+  <rect x="260" y="288" width="276" height="6" rx="2" fill="#D4CBC0"/>
+  <rect x="260" y="304" width="256" height="6" rx="2" fill="#D4CBC0"/>
+  <text x="260" y="356" font-family="Georgia, serif" font-size="15" font-weight="700" fill="#5C4033" letter-spacing="2.5">EXPERIENCE</text>
+  <line x1="260" y1="364" x2="556" y2="364" stroke="rgba(92,64,51,0.22)" stroke-width="1"/>
+  <text x="260" y="396" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#5C4033">SENIOR GRAPHIC DESIGNER</text>
+  <text x="556" y="396" text-anchor="end" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B68B6A">2020 - Present</text>
+  <text x="260" y="416" font-family="Arial, sans-serif" font-size="11" fill="#6A625A">Studio North Collective</text>
+  <circle cx="266" cy="438" r="3" fill="#B68B6A"/>
+  <rect x="278" y="434" width="250" height="5" rx="2" fill="#D4CBC0"/>
+  <circle cx="266" cy="460" r="3" fill="#B68B6A"/>
+  <rect x="278" y="456" width="230" height="5" rx="2" fill="#D4CBC0"/>
+  <line x1="260" y1="482" x2="556" y2="482" stroke="rgba(92,64,51,0.1)" stroke-width="1"/>
+  <text x="260" y="512" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#5C4033">BRAND DESIGNER</text>
+  <text x="556" y="512" text-anchor="end" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B68B6A">2016 - 2020</text>
+  <text x="260" y="532" font-family="Arial, sans-serif" font-size="11" fill="#6A625A">Atlas Creative Agency</text>
+  <circle cx="266" cy="554" r="3" fill="#B68B6A"/>
+  <rect x="278" y="550" width="240" height="5" rx="2" fill="#D4CBC0"/>
+  <text x="260" y="604" font-family="Georgia, serif" font-size="15" font-weight="700" fill="#5C4033" letter-spacing="2.5">PROJECTS</text>
+  <line x1="260" y1="612" x2="556" y2="612" stroke="rgba(92,64,51,0.22)" stroke-width="1"/>
+  <rect x="260" y="628" width="296" height="72" rx="4" fill="rgba(237,229,220,0.45)" stroke="rgba(92,64,51,0.1)"/>
+  <text x="276" y="656" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#5C4033">Identity System Redesign</text>
+  <text x="276" y="676" font-family="Arial, sans-serif" font-size="10" fill="#B68B6A">Figma / Illustrator / InDesign</text>
+  <text x="300" y="748" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#6A625A">Cafe Editorial Executive</text>
+</svg>

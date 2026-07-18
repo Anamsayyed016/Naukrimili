@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container cee-resume">
+    <div class="cee-mat">
+      <div class="cee-page">
+        <header class="cee-header">
+          <div class="cee-id">
+            <span class="cee-corner" aria-hidden="true"></span>
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            <div class="cee-name-rule" aria-hidden="true"></div>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+          </div>
+
+          <div class="cee-photo-col">
+            {{#if PROFILE_IMAGE}}
+            <div class="cee-photo">
+              <div class="profile-image-wrapper">
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+              </div>
+            </div>
+            {{/if}}
+            {{#unless PROFILE_IMAGE}}
+            <div class="cee-photo">
+              <div class="profile-image-wrapper profile-image-wrapper--initials">
+                <span class="profile-initials" aria-hidden="true">
+                  <span class="cee-ini-f">{{FIRST_NAME}}</span><span class="cee-ini-l">{{LAST_NAME}}</span>
+                </span>
+              </div>
+            </div>
+            {{/unless}}
+          </div>
+        </header>
+
+        <div class="cee-body">
+          <aside class="cee-sidebar">
+            <section class="cee-section cee-section--contact cee-side-section">
+              <h2 class="cee-side-title">Contact</h2>
+              <div class="cee-contact-list">
+                {{#if PHONE}}
+                <div class="cee-contact-item cee-contact-item--phone">
+                  <span class="cee-contact-icon" aria-hidden="true"></span>
+                  <span class="cee-contact-value">{{PHONE}}</span>
+                </div>
+                {{/if}}
+                {{#if EMAIL}}
+                <div class="cee-contact-item cee-contact-item--email">
+                  <span class="cee-contact-icon" aria-hidden="true"></span>
+                  <span class="cee-contact-value">{{EMAIL}}</span>
+                </div>
+                {{/if}}
+                {{#if PORTFOLIO}}
+                <div class="cee-contact-item cee-contact-item--web">
+                  <span class="cee-contact-icon" aria-hidden="true"></span>
+                  <span class="cee-contact-value">{{PORTFOLIO}}</span>
+                </div>
+                {{/if}}
+                {{#if LINKEDIN}}
+                <div class="cee-contact-item cee-contact-item--linkedin">
+                  <span class="cee-contact-icon" aria-hidden="true"></span>
+                  <span class="cee-contact-value">{{LINKEDIN}}</span>
+                </div>
+                {{/if}}
+                {{#if LOCATION}}
+                <div class="cee-contact-item cee-contact-item--location">
+                  <span class="cee-contact-icon" aria-hidden="true"></span>
+                  <span class="cee-contact-value">{{LOCATION}}</span>
+                </div>
+                {{/if}}
+              </div>
+            </section>
+
+            {{#if SKILLS}}
+            <section class="cee-section cee-section--skills cee-side-section">
+              <h2 class="cee-side-title">Skills</h2>
+              <div class="skills-list cee-skills">
+                {{SKILLS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if EDUCATION}}
+            <section class="cee-section cee-section--education cee-side-section">
+              <h2 class="cee-side-title">Education</h2>
+              <div class="education-list cee-education">
+                {{EDUCATION}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if LANGUAGES}}
+            <section class="cee-section cee-section--languages cee-side-section">
+              <h2 class="cee-side-title">Languages</h2>
+              <div class="languages-list cee-languages">
+                {{LANGUAGES}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if CERTIFICATIONS}}
+            <section class="cee-section cee-section--certifications cee-side-section">
+              <h2 class="cee-side-title">Certifications</h2>
+              <div class="certifications-list cee-certifications">
+                {{CERTIFICATIONS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if HOBBIES}}
+            <section class="cee-section cee-section--interests cee-side-section">
+              <h2 class="cee-side-title">Interests</h2>
+              <div class="hobbies-list cee-interests">
+                {{HOBBIES}}
+              </div>
+            </section>
+            {{/if}}
+          </aside>
+
+          <main class="cee-main">
+            {{#if SUMMARY}}
+            <section class="cee-section cee-section--summary">
+              <h2 class="cee-main-title">About Me</h2>
+              <div class="cee-summary">
+                <p class="summary-text">{{SUMMARY}}</p>
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if EXPERIENCE}}
+            <section class="cee-section cee-section--experience">
+              <h2 class="cee-main-title">Experience</h2>
+              <div class="experience-list cee-experience">
+                {{EXPERIENCE}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if PROJECTS}}
+            <section class="cee-section cee-section--projects">
+              <h2 class="cee-main-title">Projects</h2>
+              <div class="projects-list cee-projects">
+                {{PROJECTS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if ACHIEVEMENTS}}
+            <section class="cee-section cee-section--achievements">
+              <h2 class="cee-main-title">Achievements</h2>
+              <div class="achievements-list cee-achievements">
+                {{ACHIEVEMENTS}}
+              </div>
+            </section>
+            {{/if}}
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

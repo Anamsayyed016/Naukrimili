@@ -942,6 +942,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "cafe-editorial-executive",
+      "name": "Cafe Editorial Executive",
+      "slug": "cafe-editorial-executive",
+      "description": "Premium editorial executive resume with a soft beige mat frame, ivory content page, Libre Baskerville name and section titles, circular coffee-ring portrait, beige sidebar for contact and skills scores, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/cafe-editorial-executive/thumbnail.svg",
+      "preview": "/templates/cafe-editorial-executive/preview.svg",
+      "html": "/templates/cafe-editorial-executive/index.html",
+      "css": "/templates/cafe-editorial-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "cafe-editorial", "name": "Cafe Editorial", "primary": "#5C4033", "accent": "#B68B6A", "text": "#2D2D2D" },
+        { "id": "mocha-linen", "name": "Mocha Linen", "primary": "#524033", "accent": "#A87D5E", "text": "#2D2D2D" },
+        { "id": "umber-sand", "name": "Umber Sand", "primary": "#5C4033", "accent": "#C29774", "text": "#2A2A2A" },
+        { "id": "cocoa-cream", "name": "Cocoa Cream", "primary": "#4F382E", "accent": "#B68B6A", "text": "#2D2D2D" },
+        { "id": "walnut-taupe", "name": "Walnut Taupe", "primary": "#5A3E32", "accent": "#AD805F", "text": "#2D2D2D" }
+      ],
+      "defaultColor": "cafe-editorial",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "skills", "education", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

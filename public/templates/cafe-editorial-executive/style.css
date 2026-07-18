@@ -1,0 +1,966 @@
+/* Cafe Editorial Executive — warm mat frame, Libre Baskerville + Source Sans 3 */
+
+.cee-resume {
+  --cee-ivory: #FAF8F4;
+  --cee-coffee: #5C4033;
+  --cee-bronze: #B68B6A;
+  --cee-beige: #EDE5DC;
+  --cee-charcoal: #2D2D2D;
+  --cee-muted: #6A625A;
+  --cee-side-text: #3A322C;
+  --cee-side-muted: #6A625A;
+  --cee-max-width: 210mm;
+  --cee-font-display: 'Libre Baskerville', Georgia, serif;
+  --cee-font-body: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --cee-side: 34fr;
+  --cee-main: 66fr;
+  --cee-photo: clamp(108px, 14cqw, 128px);
+  --cee-section-gap: 20px;
+  --cee-block-gap: 14px;
+  --cee-heading-gap: 10px;
+  --cee-lh-body: 1.6;
+  --cee-lh-tight: 1.4;
+  --cee-fs-name: clamp(26px, 3.6vw, 34px);
+  --cee-fs-job: 11.5px;
+  --cee-fs-section: 13px;
+  --cee-fs-body: 12.5px;
+  --cee-fs-meta: 12px;
+  --cee-fs-small: 11px;
+
+  --primary-color: var(--cee-coffee);
+  --accent-color: var(--cee-bronze);
+  --text-color: var(--cee-charcoal);
+}
+
+.cee-resume,
+.cee-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.cee-resume,
+.resume-container.cee-resume {
+  position: relative;
+  container-type: inline-size;
+  width: 794px;
+  max-width: var(--cee-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--cee-font-body);
+  font-size: var(--cee-fs-body);
+  line-height: var(--cee-lh-body);
+  color: var(--cee-charcoal);
+  background: var(--cee-beige) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Outer mat — soft padding frame, not a copied thick border artwork */
+.cee-resume .cee-mat {
+  padding: 18px;
+  background: var(--cee-beige);
+}
+
+.cee-resume .cee-page {
+  background: var(--cee-ivory);
+  border: 1px solid rgba(92, 64, 51, 0.12);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
+  padding: 28px 28px 32px;
+  min-height: 0;
+}
+
+/* ── Header ── */
+.cee-resume .cee-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(92, 64, 51, 0.18);
+}
+
+.cee-resume .cee-id {
+  position: relative;
+  min-width: 0;
+  padding-left: 14px;
+}
+
+/* Original corner accent — short dual hairline, not an L-frame copy */
+.cee-resume .cee-corner {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 3px;
+  height: calc(100% - 8px);
+  background: linear-gradient(180deg, var(--cee-coffee) 0 40%, var(--cee-bronze) 40% 100%);
+  border-radius: 2px;
+}
+
+.cee-resume .candidate-name {
+  font-family: var(--cee-font-display);
+  font-size: var(--cee-fs-name);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cee-coffee);
+  line-height: 1.15;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.cee-resume .candidate-name .name-fallback {
+  display: none;
+}
+
+.cee-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-fallback {
+  display: inline;
+}
+
+.cee-resume .cee-name-rule {
+  width: 52px;
+  height: 1px;
+  margin: 10px 0 9px;
+  background: var(--cee-coffee);
+}
+
+.cee-resume .header-title {
+  font-family: var(--cee-font-body);
+  font-size: var(--cee-fs-job);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--cee-muted);
+  line-height: var(--cee-lh-tight);
+}
+
+/* Photo — thin coffee ring + soft outer halo */
+.cee-resume .cee-photo {
+  width: var(--cee-photo);
+  height: var(--cee-photo);
+}
+
+.cee-resume .profile-image-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--cee-coffee);
+  outline: 5px solid rgba(237, 229, 220, 0.95);
+  box-shadow: 0 4px 14px rgba(92, 64, 51, 0.14);
+  background: var(--cee-beige);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cee-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.cee-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--cee-font-display);
+  font-size: clamp(22px, 3.2vw, 28px);
+  font-weight: 700;
+  color: var(--cee-coffee);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cee-resume .cee-ini-f,
+.cee-resume .cee-ini-l {
+  display: inline-block;
+  max-width: 1.1ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ── Body ── */
+.cee-resume .cee-body {
+  display: grid;
+  grid-template-columns: minmax(0, var(--cee-side)) minmax(0, var(--cee-main));
+  align-items: stretch;
+  min-height: 0;
+  gap: 0;
+}
+
+/* ── Sidebar ── */
+.cee-resume .cee-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cee-section-gap);
+  min-width: 0;
+  background: var(--cee-beige);
+  border-radius: 4px 0 0 4px;
+  padding: 22px 18px 24px 16px;
+  margin-right: 0;
+  align-self: stretch;
+  overflow: visible;
+}
+
+.cee-resume .cee-side-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+  overflow: visible;
+}
+
+.cee-resume .cee-side-title {
+  font-family: var(--cee-font-display);
+  font-size: var(--cee-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cee-coffee);
+  line-height: 1.3;
+  margin-bottom: var(--cee-heading-gap);
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(92, 64, 51, 0.28);
+}
+
+/* Contact */
+.cee-resume .cee-section--contact:not(:has(.cee-contact-item)) {
+  display: none;
+}
+
+.cee-resume .cee-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cee-resume .cee-contact-item {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  min-width: 0;
+}
+
+.cee-resume .cee-contact-icon {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px 13px;
+}
+
+.cee-resume .cee-contact-item--phone .cee-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C4033' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
+}
+
+.cee-resume .cee-contact-item--email .cee-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C4033' stroke-width='1.7'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
+}
+
+.cee-resume .cee-contact-item--web .cee-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C4033' stroke-width='1.7'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+}
+
+.cee-resume .cee-contact-item--linkedin .cee-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C4033' stroke-width='1.7'%3E%3Crect x='3' y='3' width='18' height='18' rx='3'/%3E%3Cpath d='M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1.5-2 2.5-2s2.5.8 2.5 2.5V16'/%3E%3C/svg%3E");
+}
+
+.cee-resume .cee-contact-item--location .cee-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C4033' stroke-width='1.7'%3E%3Cpath d='M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+}
+
+.cee-resume .cee-contact-value {
+  font-size: var(--cee-fs-small);
+  font-weight: 500;
+  color: var(--cee-side-text);
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Skills — name + compact score */
+.cee-resume .cee-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cee-resume .cee-skills .skill-tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: var(--cee-fs-small);
+  font-weight: 500;
+  color: var(--cee-side-text);
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.cee-resume .cee-skills .skill-tag::after {
+  content: '9/10';
+  flex-shrink: 0;
+  font-family: var(--cee-font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cee-bronze);
+  letter-spacing: 0.02em;
+}
+
+.cee-resume .cee-skills .skill-tag:nth-child(5n + 1)::after { content: '9/10'; }
+.cee-resume .cee-skills .skill-tag:nth-child(5n + 2)::after { content: '8/10'; }
+.cee-resume .cee-skills .skill-tag:nth-child(5n + 3)::after { content: '9/10'; }
+.cee-resume .cee-skills .skill-tag:nth-child(5n + 4)::after { content: '7/10'; }
+.cee-resume .cee-skills .skill-tag:nth-child(5n)::after { content: '8/10'; }
+
+/* Education */
+.cee-resume .cee-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cee-resume .cee-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.cee-resume .cee-education .education-item h3 {
+  font-size: var(--cee-fs-small);
+  font-weight: 700;
+  color: var(--cee-coffee);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.cee-resume .cee-education .education-item .institution {
+  display: block;
+  font-size: var(--cee-fs-small);
+  color: var(--cee-side-muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.cee-resume .cee-education .education-item .year,
+.cee-resume .cee-education .education-item .cgpa {
+  display: block;
+  font-size: var(--cee-fs-small);
+  font-weight: 600;
+  color: var(--cee-bronze);
+  margin-top: 2px;
+}
+
+/* Languages */
+.cee-resume .cee-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cee-resume .cee-languages .language-item {
+  font-size: var(--cee-fs-body);
+  color: var(--cee-side-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.cee-resume .cee-languages .language-item .language {
+  font-weight: 600;
+}
+
+.cee-resume .cee-languages .language-item .proficiency {
+  color: var(--cee-side-muted);
+  font-size: var(--cee-fs-small);
+}
+
+.cee-resume .cee-languages .language-item .proficiency:not(:empty)::before {
+  content: ' · ';
+}
+
+.cee-resume .cee-languages .language-progress,
+.cee-resume .cee-languages .progress-bar,
+.cee-resume .cee-languages .progress-fill {
+  display: none;
+}
+
+/* Certifications */
+.cee-resume .cee-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cee-resume .cee-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.cee-resume .cee-certifications .certification-item h3,
+.cee-resume .cee-certifications .cert-name {
+  font-size: var(--cee-fs-small);
+  font-weight: 700;
+  color: var(--cee-coffee);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.cee-resume .cee-certifications .issuer,
+.cee-resume .cee-certifications .date,
+.cee-resume .cee-certifications .year {
+  display: block;
+  font-size: var(--cee-fs-small);
+  color: var(--cee-side-muted);
+}
+
+/* Interests */
+.cee-resume .cee-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cee-resume .cee-interests .hobby-item {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 2px;
+  background: rgba(250, 248, 244, 0.7);
+  border: 1px solid rgba(92, 64, 51, 0.12);
+  font-size: var(--cee-fs-small);
+  color: var(--cee-side-text);
+  line-height: 1.35;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* Sidebar readability for moved sections */
+.resume-container.cee-resume .cee-sidebar .cee-contact-value,
+.resume-container.cee-resume .cee-sidebar .skill-tag,
+.resume-container.cee-resume .cee-sidebar .language-item,
+.resume-container.cee-resume .cee-sidebar .hobby-item,
+.resume-container.cee-resume .cee-sidebar .hobby-item .hobby,
+.resume-container.cee-resume .cee-sidebar .education-item h3,
+.resume-container.cee-resume .cee-sidebar .certification-item h3,
+.resume-container.cee-resume .cee-sidebar .cert-name,
+.resume-container.cee-resume .cee-sidebar .experience-header h3,
+.resume-container.cee-resume .cee-sidebar .project-item h3,
+.resume-container.cee-resume .cee-sidebar .achievement-item h3 {
+  color: var(--cee-side-text) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.cee-resume .cee-sidebar .issuer,
+.resume-container.cee-resume .cee-sidebar .date,
+.resume-container.cee-resume .cee-sidebar .duration,
+.resume-container.cee-resume .cee-sidebar .institution,
+.resume-container.cee-resume .cee-sidebar .description,
+.resume-container.cee-resume .cee-sidebar .description li,
+.resume-container.cee-resume .cee-sidebar p,
+.resume-container.cee-resume .cee-sidebar .technologies,
+.resume-container.cee-resume .cee-sidebar a {
+  color: var(--cee-side-muted) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.cee-resume .cee-sidebar .year,
+.resume-container.cee-resume .cee-sidebar .cgpa {
+  color: var(--cee-bronze) !important;
+}
+
+.resume-container.cee-resume .cee-sidebar .project-item {
+  background: rgba(250, 248, 244, 0.65);
+  border-color: rgba(92, 64, 51, 0.12);
+  box-shadow: none;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
+
+.resume-container.cee-resume .cee-sidebar .cee-main-title {
+  color: var(--cee-coffee) !important;
+  opacity: 1 !important;
+}
+
+/* ── Main ── */
+.cee-resume .cee-main {
+  min-width: 0;
+  padding: 4px 4px 4px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cee-section-gap);
+}
+
+.cee-resume .cee-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.cee-resume .cee-main-title {
+  font-family: var(--cee-font-display);
+  font-size: var(--cee-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cee-coffee);
+  line-height: 1.3;
+  margin-bottom: var(--cee-heading-gap);
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(92, 64, 51, 0.22);
+}
+
+/* Summary */
+.cee-resume .cee-summary .summary-text {
+  font-size: var(--cee-fs-body);
+  color: var(--cee-muted);
+  line-height: var(--cee-lh-body);
+  overflow-wrap: anywhere;
+}
+
+/* Experience */
+.cee-resume .cee-experience {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cee-block-gap);
+}
+
+.cee-resume .cee-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(92, 64, 51, 0.1);
+}
+
+.cee-resume .cee-experience .experience-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.cee-resume .cee-experience .experience-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  margin-bottom: 7px;
+}
+
+.cee-resume .cee-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--cee-font-display);
+  font-size: calc(var(--cee-fs-body) + 0.5px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cee-coffee);
+  line-height: var(--cee-lh-tight);
+  word-break: break-word;
+}
+
+.cee-resume .cee-experience .experience-header .company {
+  grid-column: 1;
+  grid-row: 2;
+  display: block;
+  font-size: var(--cee-fs-meta);
+  font-weight: 500;
+  color: var(--cee-muted);
+  line-height: var(--cee-lh-tight);
+  word-break: break-word;
+}
+
+.cee-resume .cee-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  justify-self: end;
+  font-size: var(--cee-fs-small);
+  font-weight: 600;
+  color: var(--cee-bronze);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.cee-resume .cee-experience .description {
+  font-size: var(--cee-fs-body);
+  color: var(--cee-charcoal);
+  line-height: var(--cee-lh-body);
+}
+
+.cee-resume .cee-experience .description ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.cee-resume .cee-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 5px;
+}
+
+.cee-resume .cee-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cee-bronze);
+}
+
+/* Projects */
+.cee-resume .cee-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cee-resume .cee-projects .project-item {
+  background: rgba(237, 229, 220, 0.35);
+  border: 1px solid rgba(92, 64, 51, 0.1);
+  border-radius: 4px;
+  padding: 12px 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+}
+
+.cee-resume .cee-projects .project-item > h3,
+.cee-resume .cee-projects .project-item > .project-title {
+  font-family: var(--cee-font-display);
+  font-size: var(--cee-fs-body);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--cee-coffee);
+  line-height: var(--cee-lh-tight);
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.cee-resume .cee-projects .project-item > .technologies,
+.cee-resume .cee-projects .project-item > .project-employer {
+  display: block;
+  font-size: var(--cee-fs-small);
+  color: var(--cee-bronze);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.cee-resume .cee-projects .project-item > .description,
+.cee-resume .cee-projects .project-item > ul,
+.cee-resume .cee-projects .project-item > p {
+  font-size: var(--cee-fs-body);
+  color: var(--cee-muted);
+  line-height: var(--cee-lh-body);
+}
+
+.cee-resume .cee-projects .project-item > ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.cee-resume .cee-projects .project-item > ul li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.cee-resume .cee-projects .project-item > ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cee-bronze);
+}
+
+.cee-resume .cee-projects .project-item > a {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--cee-fs-small);
+  color: var(--cee-coffee);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(92, 64, 51, 0.25);
+}
+
+/* Achievements */
+.cee-resume .cee-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cee-resume .cee-achievements .achievement-item h3 {
+  position: relative;
+  padding-left: 14px;
+  font-size: var(--cee-fs-body);
+  font-weight: 600;
+  color: var(--cee-charcoal);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.cee-resume .cee-achievements .achievement-item h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cee-bronze);
+}
+
+.cee-resume .cee-achievements .achievement-item .description,
+.cee-resume .cee-achievements .achievement-item .date {
+  display: block;
+  padding-left: 14px;
+  font-size: var(--cee-fs-small);
+  color: var(--cee-muted);
+}
+
+/* Extended */
+.cee-resume .cee-main > .extended-section,
+.cee-resume .extended-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.cee-resume .extended-section-title {
+  font-family: var(--cee-font-display);
+  font-size: var(--cee-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cee-coffee);
+  margin: 0 0 var(--cee-heading-gap);
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(92, 64, 51, 0.22);
+  line-height: 1.3;
+}
+
+.cee-resume .extended-section-body {
+  font-size: var(--cee-fs-body);
+  color: var(--cee-charcoal);
+  line-height: var(--cee-lh-body);
+}
+
+.cee-resume .extended-section--references .extended-section-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cee-resume .extended-section--references .extended-record-item {
+  background: rgba(237, 229, 220, 0.35);
+  border: 1px solid rgba(92, 64, 51, 0.1);
+  border-radius: 4px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.cee-resume .extended-field {
+  font-size: var(--cee-fs-small);
+  margin-bottom: 2px;
+  color: var(--cee-muted);
+}
+
+.cee-resume .extended-section--references .extended-field:first-child {
+  font-family: var(--cee-font-display);
+  font-size: var(--cee-fs-body);
+  font-weight: 700;
+  color: var(--cee-coffee);
+  margin-bottom: 4px;
+}
+
+.cee-resume .extended-section-body ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.25rem 0 0;
+}
+
+.cee-resume .extended-section-body li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.cee-resume .extended-section-body li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cee-bronze);
+}
+
+/* Density */
+.cee-resume[data-dl-density='dense'],
+.cee-resume[data-dl-density='compact'] {
+  --cee-section-gap: 14px;
+  --cee-block-gap: 10px;
+  --cee-heading-gap: 7px;
+}
+
+.cee-resume[data-dl-density='sparse'],
+.cee-resume[data-dl-page-underfill='true'] {
+  --cee-section-gap: 24px;
+  --cee-block-gap: 16px;
+}
+
+/* Lock columns */
+.resume-container.cee-resume .cee-body,
+.resume-container.cee-resume .cee-main,
+.resume-container.cee-resume .cee-sidebar {
+  min-height: 0 !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.cee-resume .cee-body,
+.resume-container.cee-resume[data-dl-page-underfill='true'] .cee-body,
+.resume-container.cee-resume[data-dl-page-underfill='false'] .cee-body,
+.resume-container.cee-resume[data-dl-density] .cee-body {
+  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr) !important;
+  align-items: stretch !important;
+}
+
+.resume-container.cee-resume .cee-sidebar {
+  align-self: stretch !important;
+}
+
+.resume-container.cee-resume {
+  --acb-lh-body: 1.6;
+  --acb-lh-tight: 1.4;
+  --acb-section-gap: clamp(14px, 1.9vw, 20px);
+  --acb-block-gap: clamp(10px, 1.5vw, 14px);
+  --acb-heading-gap: clamp(7px, 1.1vw, 10px);
+  --acb-size-name: clamp(26px, 3.6vw, 34px);
+  --acb-size-body: clamp(11.5px, 1.45vw, 12.5px);
+  --acb-size-small: clamp(10px, 1.25vw, 11px);
+}
+
+/* Responsive */
+@container (max-width: 640px) {
+  .cee-resume .cee-mat {
+    padding: 10px;
+  }
+
+  .cee-resume .cee-page {
+    padding: 20px 18px 24px;
+  }
+
+  .cee-resume .cee-header {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .cee-resume .cee-id {
+    padding-left: 0;
+  }
+
+  .cee-resume .cee-corner {
+    display: none;
+  }
+
+  .cee-resume .cee-name-rule {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cee-resume .cee-body {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cee-resume .cee-sidebar {
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+
+  .cee-resume .cee-main {
+    padding: 16px 0 0;
+  }
+
+  .cee-resume .extended-section--references .extended-section-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .resume-container.cee-resume {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .cee-resume .cee-body {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: var(--cee-beige) !important;
+  }
+
+  .resume-container.cee-resume {
+    width: 794px !important;
+    max-width: 210mm !important;
+    overflow: hidden !important;
+  }
+
+  .cee-resume .cee-mat,
+  .cee-resume .cee-page,
+  .cee-resume .cee-sidebar,
+  .cee-resume .profile-image-wrapper,
+  .cee-resume .cee-corner,
+  .cee-resume .cee-name-rule,
+  .cee-resume .project-item {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .cee-resume .experience-item,
+  .cee-resume .education-item,
+  .cee-resume .project-item,
+  .cee-resume .achievement-item,
+  .cee-resume .certification-item,
+  .cee-resume .cee-section,
+  .cee-resume .extended-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
