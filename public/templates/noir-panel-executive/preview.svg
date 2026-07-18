@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="192" height="800" fill="#242424"/>
+  <rect x="28" y="32" width="136" height="148" rx="22" fill="#3B3B3B"/>
+  <circle cx="96" cy="100" r="52" fill="#FFFFFF"/>
+  <circle cx="96" cy="100" r="46" fill="#C8C8C8"/>
+  <circle cx="96" cy="100" r="58" fill="none" stroke="#2F80ED" stroke-width="4"/>
+  <text x="28" y="220" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="2">CONTACT ME</text>
+  <line x1="28" y1="232" x2="164" y2="232" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+  <circle cx="40" cy="262" r="6" fill="#2F80ED"/>
+  <text x="56" y="266" font-family="Arial, sans-serif" font-size="12" fill="#F2F2F2">+1 (212) 555-0148</text>
+  <circle cx="40" cy="294" r="6" fill="#2F80ED"/>
+  <text x="56" y="298" font-family="Arial, sans-serif" font-size="12" fill="#F2F2F2">noel@taylor.design</text>
+  <circle cx="40" cy="326" r="6" fill="#2F80ED"/>
+  <text x="56" y="330" font-family="Arial, sans-serif" font-size="12" fill="#F2F2F2">New York, NY</text>
+  <text x="28" y="384" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="2">EDUCATION</text>
+  <line x1="28" y1="396" x2="164" y2="396" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+  <text x="28" y="428" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#FFFFFF">BFA Graphic Design</text>
+  <text x="28" y="450" font-family="Arial, sans-serif" font-size="12" fill="#B0B0B0">Rhode Island School of Design</text>
+  <text x="28" y="472" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2F80ED">2012 - 2016</text>
+  <text x="28" y="524" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="2">LANGUAGES</text>
+  <line x1="28" y1="536" x2="164" y2="536" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+  <text x="28" y="566" font-family="Arial, sans-serif" font-size="13" fill="#F2F2F2">English · Native</text>
+  <text x="28" y="592" font-family="Arial, sans-serif" font-size="13" fill="#F2F2F2">Spanish · Fluent</text>
+  <text x="28" y="644" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="2">INTERESTS</text>
+  <line x1="28" y1="656" x2="164" y2="656" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+  <rect x="28" y="676" width="58" height="22" rx="11" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.14)"/>
+  <text x="57" y="691" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#F2F2F2">Travel</text>
+  <rect x="94" y="676" width="58" height="22" rx="11" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.14)"/>
+  <text x="123" y="691" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#F2F2F2">Photo</text>
+  <!-- Main -->
+  <text x="224" y="64" font-family="Arial Black, Arial, sans-serif" font-size="32" font-weight="700" fill="#202020" letter-spacing="3">NOEL TAYLOR</text>
+  <text x="224" y="92" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#666666" letter-spacing="3">GRAPHIC &amp; WEB DESIGNER</text>
+  <rect x="224" y="108" width="52" height="4" rx="2" fill="#2F80ED"/>
+  <text x="224" y="156" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#202020" letter-spacing="2">ABOUT ME</text>
+  <line x1="224" y1="168" x2="560" y2="168" stroke="#E6E6E6" stroke-width="1"/>
+  <rect x="224" y="188" width="320" height="7" rx="2" fill="#C8C8C8"/>
+  <rect x="224" y="206" width="300" height="7" rx="2" fill="#C8C8C8"/>
+  <rect x="224" y="224" width="280" height="7" rx="2" fill="#C8C8C8"/>
+  <text x="224" y="276" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#202020" letter-spacing="2">JOB EXPERIENCE</text>
+  <line x1="224" y1="288" x2="560" y2="288" stroke="#E6E6E6" stroke-width="1"/>
+  <text x="224" y="322" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#202020">Senior Designer</text>
+  <text x="560" y="322" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2F80ED">2019 - Present</text>
+  <text x="224" y="346" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#666666">Studio North Collective</text>
+  <circle cx="232" cy="376" r="3.5" fill="#2F80ED"/>
+  <rect x="246" y="371" width="260" height="7" rx="2" fill="#C8C8C8"/>
+  <circle cx="232" cy="402" r="3.5" fill="#2F80ED"/>
+  <rect x="246" y="397" width="240" height="7" rx="2" fill="#C8C8C8"/>
+  <line x1="224" y1="430" x2="560" y2="430" stroke="#E6E6E6" stroke-width="1"/>
+  <text x="224" y="460" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#202020">UI Designer</text>
+  <text x="560" y="460" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2F80ED">2016 - 2019</text>
+  <text x="224" y="484" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#666666">Brightpath Agency</text>
+  <text x="224" y="540" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#202020" letter-spacing="2">SKILLS</text>
+  <line x1="224" y1="552" x2="560" y2="552" stroke="#E6E6E6" stroke-width="1"/>
+  <text x="224" y="584" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#202020">UI Design</text>
+  <rect x="224" y="594" width="140" height="6" rx="3" fill="#D9D9D9"/>
+  <rect x="224" y="594" width="118" height="6" rx="3" fill="#202020"/>
+  <text x="392" y="584" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#202020">Branding</text>
+  <rect x="392" y="594" width="140" height="6" rx="3" fill="#D9D9D9"/>
+  <rect x="392" y="594" width="105" height="6" rx="3" fill="#202020"/>
+  <text x="224" y="636" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#202020">Figma</text>
+  <rect x="224" y="646" width="140" height="6" rx="3" fill="#D9D9D9"/>
+  <rect x="224" y="646" width="126" height="6" rx="3" fill="#202020"/>
+  <text x="392" y="636" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#202020">Motion</text>
+  <rect x="392" y="646" width="140" height="6" rx="3" fill="#D9D9D9"/>
+  <rect x="392" y="646" width="98" height="6" rx="3" fill="#202020"/>
+  <text x="300" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#666666">Noir Panel Executive</text>
+</svg>

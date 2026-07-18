@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;700&family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container npe-resume">
+    <div class="npe-sheet">
+      <div class="npe-body">
+        <aside class="npe-sidebar">
+          {{#if PROFILE_IMAGE}}
+          <div class="npe-portrait-card">
+            <div class="npe-portrait">
+              <div class="profile-image-wrapper">
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+              </div>
+            </div>
+          </div>
+          {{/if}}
+
+          <section class="npe-section npe-section--contact npe-side-section">
+            <h2 class="npe-side-title">
+              <span class="npe-icon npe-icon--contact" aria-hidden="true"></span>
+              <span class="npe-title-text">Contact Me</span>
+            </h2>
+            <div class="npe-contact-list">
+              {{#if PHONE}}
+              <div class="npe-contact-item npe-contact-item--phone">
+                <span class="npe-contact-icon" aria-hidden="true"></span>
+                <span class="npe-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if EMAIL}}
+              <div class="npe-contact-item npe-contact-item--email">
+                <span class="npe-contact-icon" aria-hidden="true"></span>
+                <span class="npe-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="npe-contact-item npe-contact-item--web">
+                <span class="npe-contact-icon" aria-hidden="true"></span>
+                <span class="npe-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+              {{#if LOCATION}}
+              <div class="npe-contact-item npe-contact-item--location">
+                <span class="npe-contact-icon" aria-hidden="true"></span>
+                <span class="npe-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+              {{#if LINKEDIN}}
+              <div class="npe-contact-item npe-contact-item--linkedin">
+                <span class="npe-contact-icon" aria-hidden="true"></span>
+                <span class="npe-contact-value">{{LINKEDIN}}</span>
+              </div>
+              {{/if}}
+            </div>
+          </section>
+
+          {{#if EDUCATION}}
+          <section class="npe-section npe-section--education npe-side-section">
+            <h2 class="npe-side-title">
+              <span class="npe-icon npe-icon--education" aria-hidden="true"></span>
+              <span class="npe-title-text">Education</span>
+            </h2>
+            <div class="education-list npe-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="npe-section npe-section--languages npe-side-section">
+            <h2 class="npe-side-title">
+              <span class="npe-icon npe-icon--languages" aria-hidden="true"></span>
+              <span class="npe-title-text">Languages</span>
+            </h2>
+            <div class="languages-list npe-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="npe-section npe-section--certifications npe-side-section">
+            <h2 class="npe-side-title">
+              <span class="npe-icon npe-icon--certs" aria-hidden="true"></span>
+              <span class="npe-title-text">Certifications</span>
+            </h2>
+            <div class="certifications-list npe-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="npe-section npe-section--interests npe-side-section">
+            <h2 class="npe-side-title">
+              <span class="npe-icon npe-icon--interests" aria-hidden="true"></span>
+              <span class="npe-title-text">Interests</span>
+            </h2>
+            <div class="hobbies-list npe-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </aside>
+
+        <main class="npe-main">
+          <header class="npe-header">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+            <div class="npe-header-rule" aria-hidden="true"></div>
+          </header>
+
+          {{#if SUMMARY}}
+          <section class="npe-section npe-section--summary">
+            <h2 class="npe-main-title">
+              <span class="npe-icon npe-icon--summary" aria-hidden="true"></span>
+              <span class="npe-title-text">About Me</span>
+            </h2>
+            <div class="npe-summary">
+              <p class="summary-text">{{SUMMARY}}</p>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EXPERIENCE}}
+          <section class="npe-section npe-section--experience">
+            <h2 class="npe-main-title">
+              <span class="npe-icon npe-icon--experience" aria-hidden="true"></span>
+              <span class="npe-title-text">Job Experience</span>
+            </h2>
+            <div class="experience-list npe-experience">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if SKILLS}}
+          <section class="npe-section npe-section--skills">
+            <h2 class="npe-main-title">
+              <span class="npe-icon npe-icon--skills" aria-hidden="true"></span>
+              <span class="npe-title-text">Skills</span>
+            </h2>
+            <div class="skills-list npe-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="npe-section npe-section--projects">
+            <h2 class="npe-main-title">
+              <span class="npe-icon npe-icon--projects" aria-hidden="true"></span>
+              <span class="npe-title-text">Projects</span>
+            </h2>
+            <div class="projects-list npe-projects">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="npe-section npe-section--achievements">
+            <h2 class="npe-main-title">
+              <span class="npe-icon npe-icon--achievements" aria-hidden="true"></span>
+              <span class="npe-title-text">Achievements</span>
+            </h2>
+            <div class="achievements-list npe-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
