@@ -1092,6 +1092,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "ink-editorial-executive",
+      "name": "Ink Editorial Executive",
+      "slug": "ink-editorial-executive",
+      "description": "Clean white luxury executive resume with Plus Jakarta Sans stacked name hierarchy, navy accent highlights, floating tall portrait card with edge accent, labeled contact stack in the sidebar, soft skill chips, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/ink-editorial-executive/thumbnail.svg",
+      "preview": "/templates/ink-editorial-executive/preview.svg",
+      "html": "/templates/ink-editorial-executive/index.html",
+      "css": "/templates/ink-editorial-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "ink-navy", "name": "Ink Navy", "primary": "#171717", "accent": "#1F4E79", "text": "#171717" },
+        { "id": "charcoal-blue", "name": "Charcoal Blue", "primary": "#141414", "accent": "#255988", "text": "#171717" },
+        { "id": "graphite-ocean", "name": "Graphite Ocean", "primary": "#1A1A1A", "accent": "#1A4468", "text": "#171717" },
+        { "id": "noir-steel", "name": "Noir Steel", "primary": "#171717", "accent": "#2C5F8A", "text": "#1A1A1A" },
+        { "id": "mono-indigo", "name": "Mono Indigo", "primary": "#121212", "accent": "#234E75", "text": "#171717" }
+      ],
+      "defaultColor": "ink-navy",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 65,
+        "sidebarColumnBasisPct": 35,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "projects", "education", "achievements", "references", "extended"],
+        "rightSections": ["skills", "languages", "certifications", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

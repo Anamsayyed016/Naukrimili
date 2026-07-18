@@ -1,0 +1,960 @@
+/* Ink Editorial Executive — white luxury editorial, Plus Jakarta Sans + Source Sans 3 */
+
+.iee-resume {
+  --iee-bg: #FFFFFF;
+  --iee-primary: #171717;
+  --iee-secondary: #555555;
+  --iee-accent: #1F4E79;
+  --iee-muted: #8A8A8A;
+  --iee-border: #E7E7E7;
+  --iee-card: #FAFAFA;
+  --iee-side-text: #171717;
+  --iee-side-muted: #555555;
+  --iee-max-width: 210mm;
+  --iee-font-display: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --iee-font-body: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --iee-main: 65fr;
+  --iee-side: 35fr;
+  --iee-photo-w: clamp(118px, 16cqw, 140px);
+  --iee-photo-h: clamp(148px, 20cqw, 176px);
+  --iee-section-gap: 22px;
+  --iee-block-gap: 16px;
+  --iee-heading-gap: 10px;
+  --iee-lh-body: 1.58;
+  --iee-lh-tight: 1.35;
+  --iee-fs-name: clamp(30px, 4.2vw, 40px);
+  --iee-fs-job: 11px;
+  --iee-fs-section: 11px;
+  --iee-fs-body: 12.5px;
+  --iee-fs-meta: 12px;
+  --iee-fs-small: 11px;
+
+  --primary-color: var(--iee-primary);
+  --accent-color: var(--iee-accent);
+  --text-color: var(--iee-primary);
+}
+
+.iee-resume,
+.iee-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.iee-resume,
+.resume-container.iee-resume {
+  position: relative;
+  container-type: inline-size;
+  width: 794px;
+  max-width: var(--iee-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--iee-font-body);
+  font-size: var(--iee-fs-body);
+  line-height: var(--iee-lh-body);
+  color: var(--iee-primary);
+  background: var(--iee-bg) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+.iee-resume .iee-sheet {
+  background: var(--iee-bg);
+  min-height: 0;
+}
+
+.iee-resume .iee-body {
+  display: grid;
+  grid-template-columns: minmax(0, var(--iee-main)) minmax(0, var(--iee-side));
+  align-items: stretch;
+  min-height: 0;
+  gap: 0;
+}
+
+/* ── Main ── */
+.iee-resume .iee-main {
+  min-width: 0;
+  padding: 36px 28px 32px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--iee-section-gap);
+  background: var(--iee-bg);
+}
+
+.iee-resume .iee-header {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 2px;
+}
+
+/* Original accent — short vertical tick, not a full-page bar */
+.iee-resume .iee-header-mark {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 3px;
+  height: 42px;
+  border-radius: 2px;
+  background: var(--iee-accent);
+}
+
+.iee-resume .candidate-name {
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-name);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--iee-primary);
+  line-height: 1.05;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.iee-resume .candidate-name .name-first {
+  font-weight: 500;
+  display: block;
+}
+
+.iee-resume .candidate-name .name-space {
+  display: none;
+}
+
+.iee-resume .candidate-name .name-last {
+  font-weight: 800;
+  display: block;
+  margin-top: 2px;
+}
+
+.iee-resume .candidate-name .name-fallback {
+  display: none;
+  font-weight: 800;
+}
+
+.iee-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-fallback {
+  display: block;
+}
+
+.iee-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-first,
+.iee-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-last {
+  display: none;
+}
+
+.iee-resume .header-title {
+  margin-top: 10px;
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-job);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--iee-secondary);
+  line-height: var(--iee-lh-tight);
+}
+
+.iee-resume .iee-header-rule {
+  width: 56px;
+  height: 2px;
+  margin-top: 16px;
+  background: var(--iee-accent);
+  border-radius: 1px;
+}
+
+.iee-resume .iee-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.iee-resume .iee-main-title {
+  position: relative;
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iee-primary);
+  line-height: 1.3;
+  margin-bottom: var(--iee-heading-gap);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--iee-border);
+}
+
+.iee-resume .iee-main-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 28px;
+  height: 2px;
+  background: var(--iee-accent);
+  border-radius: 1px;
+}
+
+/* Summary */
+.iee-resume .iee-summary .summary-text {
+  font-size: var(--iee-fs-body);
+  color: var(--iee-secondary);
+  line-height: var(--iee-lh-body);
+  overflow-wrap: anywhere;
+}
+
+/* Experience */
+.iee-resume .iee-experience {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iee-block-gap);
+}
+
+.iee-resume .iee-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.iee-resume .iee-experience .experience-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 3px;
+  margin-bottom: 7px;
+}
+
+.iee-resume .iee-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--iee-font-display);
+  font-size: calc(var(--iee-fs-body) + 1px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--iee-primary);
+  line-height: var(--iee-lh-tight);
+  word-break: break-word;
+}
+
+.iee-resume .iee-experience .experience-header .company {
+  grid-column: 1;
+  grid-row: 2;
+  display: block;
+  font-size: var(--iee-fs-meta);
+  font-weight: 500;
+  color: var(--iee-secondary);
+  line-height: var(--iee-lh-tight);
+  word-break: break-word;
+}
+
+.iee-resume .iee-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  justify-self: end;
+  font-size: var(--iee-fs-small);
+  font-weight: 600;
+  color: var(--iee-accent);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.iee-resume .iee-experience .description {
+  font-size: var(--iee-fs-body);
+  color: var(--iee-primary);
+  line-height: var(--iee-lh-body);
+}
+
+.iee-resume .iee-experience .description ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.iee-resume .iee-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 5px;
+  color: var(--iee-secondary);
+}
+
+.iee-resume .iee-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--iee-accent);
+}
+
+/* Projects */
+.iee-resume .iee-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.iee-resume .iee-projects .project-item {
+  background: var(--iee-card);
+  border: 1px solid var(--iee-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+}
+
+.iee-resume .iee-projects .project-item > h3,
+.iee-resume .iee-projects .project-item > .project-title {
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-body);
+  font-weight: 700;
+  color: var(--iee-primary);
+  line-height: var(--iee-lh-tight);
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.iee-resume .iee-projects .project-item > .technologies,
+.iee-resume .iee-projects .project-item > .project-employer {
+  display: block;
+  font-size: var(--iee-fs-small);
+  color: var(--iee-accent);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.iee-resume .iee-projects .project-item > .description,
+.iee-resume .iee-projects .project-item > ul,
+.iee-resume .iee-projects .project-item > p {
+  font-size: var(--iee-fs-body);
+  color: var(--iee-secondary);
+  line-height: var(--iee-lh-body);
+}
+
+.iee-resume .iee-projects .project-item > ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.iee-resume .iee-projects .project-item > ul li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.iee-resume .iee-projects .project-item > ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--iee-accent);
+}
+
+.iee-resume .iee-projects .project-item > a {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--iee-fs-small);
+  color: var(--iee-accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(31, 78, 121, 0.35);
+}
+
+/* Education */
+.iee-resume .iee-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.iee-resume .iee-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.iee-resume .iee-education .education-item h3 {
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-body);
+  font-weight: 700;
+  color: var(--iee-primary);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.iee-resume .iee-education .education-item .institution {
+  display: block;
+  font-size: var(--iee-fs-meta);
+  color: var(--iee-secondary);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.iee-resume .iee-education .education-item .year,
+.iee-resume .iee-education .education-item .cgpa {
+  display: block;
+  font-size: var(--iee-fs-small);
+  font-weight: 600;
+  color: var(--iee-muted);
+  margin-top: 2px;
+}
+
+/* Achievements */
+.iee-resume .iee-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.iee-resume .iee-achievements .achievement-item h3 {
+  position: relative;
+  padding-left: 14px;
+  font-size: var(--iee-fs-body);
+  font-weight: 600;
+  color: var(--iee-primary);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.iee-resume .iee-achievements .achievement-item h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--iee-accent);
+}
+
+.iee-resume .iee-achievements .achievement-item .description,
+.iee-resume .iee-achievements .achievement-item .date {
+  display: block;
+  padding-left: 14px;
+  font-size: var(--iee-fs-small);
+  color: var(--iee-muted);
+}
+
+/* Extended */
+.iee-resume .iee-main > .extended-section,
+.iee-resume .extended-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.iee-resume .extended-section-title {
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iee-primary);
+  margin: 0 0 var(--iee-heading-gap);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--iee-border);
+  line-height: 1.3;
+}
+
+.iee-resume .extended-section-body {
+  font-size: var(--iee-fs-body);
+  color: var(--iee-secondary);
+  line-height: var(--iee-lh-body);
+}
+
+.iee-resume .extended-section--references .extended-section-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.iee-resume .extended-section--references .extended-record-item {
+  background: var(--iee-card);
+  border: 1px solid var(--iee-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.iee-resume .extended-field {
+  font-size: var(--iee-fs-small);
+  margin-bottom: 2px;
+  color: var(--iee-muted);
+}
+
+.iee-resume .extended-section--references .extended-field:first-child {
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-body);
+  font-weight: 700;
+  color: var(--iee-primary);
+  margin-bottom: 4px;
+}
+
+.iee-resume .extended-section-body ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.25rem 0 0;
+}
+
+.iee-resume .extended-section-body li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.iee-resume .extended-section-body li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--iee-accent);
+}
+
+/* ── Sidebar ── */
+.iee-resume .iee-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iee-section-gap);
+  min-width: 0;
+  background: var(--iee-bg);
+  border-left: 1px solid var(--iee-border);
+  padding: 32px 24px 28px 22px;
+  align-self: stretch;
+  overflow: visible;
+}
+
+.iee-resume .iee-side-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+  overflow: visible;
+}
+
+/* Floating portrait card — tall rounded rectangle, not a circle */
+.iee-resume .iee-portrait-card {
+  position: relative;
+  width: var(--iee-photo-w);
+  margin: 0 auto 4px;
+  padding: 0;
+}
+
+.iee-resume .iee-portrait-edge {
+  position: absolute;
+  left: -6px;
+  top: 14px;
+  bottom: 14px;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--iee-accent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.iee-resume .iee-portrait {
+  position: relative;
+  width: var(--iee-photo-w);
+  height: var(--iee-photo-h);
+  z-index: 1;
+}
+
+.iee-resume .profile-image-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--iee-border);
+  box-shadow: 0 10px 28px rgba(23, 23, 23, 0.08);
+  background: var(--iee-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iee-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: grayscale(0.15);
+}
+
+.iee-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--iee-font-display);
+  font-size: clamp(24px, 3.4vw, 32px);
+  font-weight: 800;
+  color: var(--iee-accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.iee-resume .iee-ini-f,
+.iee-resume .iee-ini-l {
+  display: inline-block;
+  max-width: 1.1ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.iee-resume .iee-side-title {
+  font-family: var(--iee-font-display);
+  font-size: var(--iee-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--iee-primary);
+  line-height: 1.3;
+  margin-bottom: var(--iee-heading-gap);
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--iee-border);
+}
+
+/* Contact — stacked labeled rows (original vs icon-underline reference) */
+.iee-resume .iee-section--contact:not(:has(.iee-contact-item)) {
+  display: none;
+}
+
+.iee-resume .iee-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.iee-resume .iee-contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--iee-border);
+}
+
+.iee-resume .iee-contact-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.iee-resume .iee-contact-label {
+  font-family: var(--iee-font-display);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--iee-accent);
+}
+
+.iee-resume .iee-contact-value {
+  font-size: var(--iee-fs-small);
+  font-weight: 500;
+  color: var(--iee-side-text);
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Skills — soft chips */
+.iee-resume .iee-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.iee-resume .iee-skills .skill-tag {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--iee-card);
+  border: 1px solid var(--iee-border);
+  font-size: var(--iee-fs-small);
+  font-weight: 600;
+  color: var(--iee-side-text);
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Languages */
+.iee-resume .iee-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.iee-resume .iee-languages .language-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--iee-fs-body);
+  color: var(--iee-side-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--iee-border);
+}
+
+.iee-resume .iee-languages .language-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.iee-resume .iee-languages .language-item .language {
+  font-weight: 600;
+}
+
+.iee-resume .iee-languages .language-item .proficiency {
+  flex-shrink: 0;
+  color: var(--iee-muted);
+  font-size: var(--iee-fs-small);
+  font-weight: 500;
+}
+
+.iee-resume .iee-languages .language-item .proficiency:not(:empty)::before {
+  content: none;
+}
+
+.iee-resume .iee-languages .language-progress,
+.iee-resume .iee-languages .progress-bar,
+.iee-resume .iee-languages .progress-fill {
+  display: none;
+}
+
+/* Certifications */
+.iee-resume .iee-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.iee-resume .iee-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.iee-resume .iee-certifications .certification-item h3,
+.iee-resume .iee-certifications .cert-name {
+  font-size: var(--iee-fs-small);
+  font-weight: 700;
+  color: var(--iee-primary);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.iee-resume .iee-certifications .issuer,
+.iee-resume .iee-certifications .date,
+.iee-resume .iee-certifications .year {
+  display: block;
+  font-size: var(--iee-fs-small);
+  color: var(--iee-side-muted);
+}
+
+/* Interests */
+.iee-resume .iee-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.iee-resume .iee-interests .hobby-item {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--iee-card);
+  border: 1px solid var(--iee-border);
+  font-size: var(--iee-fs-small);
+  color: var(--iee-side-text);
+  line-height: 1.35;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* Sidebar overrides */
+.resume-container.iee-resume .iee-sidebar .iee-contact-value,
+.resume-container.iee-resume .iee-sidebar .skill-tag,
+.resume-container.iee-resume .iee-sidebar .language-item,
+.resume-container.iee-resume .iee-sidebar .hobby-item,
+.resume-container.iee-resume .iee-sidebar .hobby-item .hobby,
+.resume-container.iee-resume .iee-sidebar .education-item h3,
+.resume-container.iee-resume .iee-sidebar .certification-item h3,
+.resume-container.iee-resume .iee-sidebar .cert-name,
+.resume-container.iee-resume .iee-sidebar .experience-header h3,
+.resume-container.iee-resume .iee-sidebar .project-item h3,
+.resume-container.iee-resume .iee-sidebar .achievement-item h3 {
+  color: var(--iee-side-text) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.iee-resume .iee-sidebar .issuer,
+.resume-container.iee-resume .iee-sidebar .date,
+.resume-container.iee-resume .iee-sidebar .duration,
+.resume-container.iee-resume .iee-sidebar .institution,
+.resume-container.iee-resume .iee-sidebar .company,
+.resume-container.iee-resume .iee-sidebar .description,
+.resume-container.iee-resume .iee-sidebar .description li,
+.resume-container.iee-resume .iee-sidebar p,
+.resume-container.iee-resume .iee-sidebar .technologies,
+.resume-container.iee-resume .iee-sidebar a,
+.resume-container.iee-resume .iee-sidebar .proficiency {
+  color: var(--iee-side-muted) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.iee-resume .iee-sidebar .year,
+.resume-container.iee-resume .iee-sidebar .cgpa {
+  color: var(--iee-muted) !important;
+}
+
+.resume-container.iee-resume .iee-sidebar .project-item {
+  background: var(--iee-card);
+  border-color: var(--iee-border);
+  box-shadow: none;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
+
+.resume-container.iee-resume .iee-sidebar .iee-main-title {
+  color: var(--iee-primary) !important;
+  opacity: 1 !important;
+}
+
+/* Density */
+.iee-resume[data-dl-density='dense'],
+.iee-resume[data-dl-density='compact'] {
+  --iee-section-gap: 14px;
+  --iee-block-gap: 10px;
+  --iee-heading-gap: 7px;
+}
+
+.iee-resume[data-dl-density='sparse'],
+.iee-resume[data-dl-page-underfill='true'] {
+  --iee-section-gap: 26px;
+  --iee-block-gap: 18px;
+}
+
+/* Lock columns */
+.resume-container.iee-resume .iee-body,
+.resume-container.iee-resume .iee-main,
+.resume-container.iee-resume .iee-sidebar {
+  min-height: 0 !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.iee-resume .iee-body,
+.resume-container.iee-resume[data-dl-page-underfill='true'] .iee-body,
+.resume-container.iee-resume[data-dl-page-underfill='false'] .iee-body,
+.resume-container.iee-resume[data-dl-density] .iee-body {
+  grid-template-columns: minmax(0, 65fr) minmax(0, 35fr) !important;
+  align-items: stretch !important;
+}
+
+.resume-container.iee-resume .iee-sidebar {
+  align-self: stretch !important;
+}
+
+.resume-container.iee-resume {
+  --acb-lh-body: 1.58;
+  --acb-lh-tight: 1.35;
+  --acb-section-gap: clamp(14px, 2vw, 22px);
+  --acb-block-gap: clamp(10px, 1.5vw, 16px);
+  --acb-heading-gap: clamp(7px, 1.1vw, 10px);
+  --acb-size-name: clamp(30px, 4.2vw, 40px);
+  --acb-size-body: clamp(11.5px, 1.45vw, 12.5px);
+  --acb-size-small: clamp(10px, 1.25vw, 11px);
+}
+
+/* Responsive */
+@container (max-width: 640px) {
+  .iee-resume .iee-body {
+    grid-template-columns: 1fr !important;
+  }
+
+  .iee-resume .iee-main {
+    padding: 24px 20px 16px;
+    order: 2;
+  }
+
+  .iee-resume .iee-sidebar {
+    order: 1;
+    border-left: none;
+    border-bottom: 1px solid var(--iee-border);
+    padding: 24px 20px 18px;
+  }
+
+  .iee-resume .iee-portrait-card {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .iee-resume .extended-section--references .extended-section-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .resume-container.iee-resume {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .iee-resume .iee-body {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: var(--iee-bg) !important;
+  }
+
+  .resume-container.iee-resume {
+    width: 794px !important;
+    max-width: 210mm !important;
+    overflow: hidden !important;
+  }
+
+  .iee-resume .iee-sidebar,
+  .iee-resume .profile-image-wrapper,
+  .iee-resume .iee-header-mark,
+  .iee-resume .iee-portrait-edge,
+  .iee-resume .iee-header-rule,
+  .iee-resume .project-item,
+  .iee-resume .skill-tag {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .iee-resume .experience-item,
+  .iee-resume .education-item,
+  .iee-resume .project-item,
+  .iee-resume .achievement-item,
+  .iee-resume .certification-item,
+  .iee-resume .iee-section,
+  .iee-resume .extended-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

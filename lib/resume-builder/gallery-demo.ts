@@ -157,6 +157,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-slate-600/45',
     hoverOverlay: 'from-slate-100/40',
   },
+  'ink-editorial-executive': {
+    glow: 'radial-gradient(circle, rgba(31,78,121,0.38) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(23,23,23,0.22) 0%, transparent 70%)',
+    borderTint: 'hover:border-slate-700/40',
+    hoverOverlay: 'from-slate-50/50',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -185,6 +191,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'cafe-editorial-executive': { firstName: 'Dennis', lastName: 'Bennette', jobTitle: 'Graphic Designer' },
   'sage-capsule-executive': { firstName: 'Olivia', lastName: 'Wilson', jobTitle: 'Administration Manager' },
   'slate-portrait-executive': { firstName: 'Marcus', lastName: 'Hale', jobTitle: 'Managing Director' },
+  'ink-editorial-executive': { firstName: 'Alexander', lastName: 'Smith', jobTitle: 'Software Engineer' },
 };
 
 export function getGalleryDemoProfileImage(_templateId?: string): string {
