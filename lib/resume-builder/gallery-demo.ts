@@ -140,10 +140,10 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     hoverOverlay: 'from-stone-100/40',
   },
   'cafe-editorial-executive': {
-    glow: 'radial-gradient(circle, rgba(182,139,106,0.4) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(92,64,51,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-stone-500/45',
-    hoverOverlay: 'from-stone-100/40',
+    glow: 'radial-gradient(circle, rgba(201,162,39,0.45) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(17,24,39,0.45) 0%, transparent 70%)',
+    borderTint: 'hover:border-yellow-600/45',
+    hoverOverlay: 'from-slate-100/40',
   },
 };
 
