@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container cbe-resume">
+    <div class="cbe-sheet">
+      <header class="cbe-header">
+        <div class="cbe-banner" aria-hidden="true"></div>
+        <div class="cbe-header-inner">
+          {{#if PROFILE_IMAGE}}
+          <div class="cbe-portrait">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          <div class="cbe-identity">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+          </div>
+        </div>
+      </header>
+
+      <div class="cbe-body">
+        <aside class="cbe-sidebar">
+          <section class="cbe-section cbe-section--contact cbe-side-section">
+            <h2 class="cbe-side-title">Contacts</h2>
+            <div class="cbe-contact-list">
+              {{#if LOCATION}}
+              <div class="cbe-contact-item cbe-contact-item--location">
+                <span class="cbe-contact-icon" aria-hidden="true"></span>
+                <span class="cbe-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+              {{#if PHONE}}
+              <div class="cbe-contact-item cbe-contact-item--phone">
+                <span class="cbe-contact-icon" aria-hidden="true"></span>
+                <span class="cbe-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if EMAIL}}
+              <div class="cbe-contact-item cbe-contact-item--email">
+                <span class="cbe-contact-icon" aria-hidden="true"></span>
+                <span class="cbe-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="cbe-contact-item cbe-contact-item--web">
+                <span class="cbe-contact-icon" aria-hidden="true"></span>
+                <span class="cbe-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+              {{#if LINKEDIN}}
+              <div class="cbe-contact-item cbe-contact-item--linkedin">
+                <span class="cbe-contact-icon" aria-hidden="true"></span>
+                <span class="cbe-contact-value">{{LINKEDIN}}</span>
+              </div>
+              {{/if}}
+            </div>
+          </section>
+
+          {{#if SUMMARY}}
+          <section class="cbe-section cbe-section--summary cbe-side-section">
+            <h2 class="cbe-side-title">Career Objective</h2>
+            <div class="cbe-summary">
+              <p class="summary-text">{{SUMMARY}}</p>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="cbe-section cbe-section--education cbe-side-section">
+            <h2 class="cbe-side-title">Education</h2>
+            <div class="education-list cbe-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if SKILLS}}
+          <section class="cbe-section cbe-section--skills cbe-side-section">
+            <h2 class="cbe-side-title">Skills</h2>
+            <div class="skills-list cbe-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="cbe-section cbe-section--languages cbe-side-section">
+            <h2 class="cbe-side-title">Languages</h2>
+            <div class="languages-list cbe-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="cbe-section cbe-section--certifications cbe-side-section">
+            <h2 class="cbe-side-title">Certifications</h2>
+            <div class="certifications-list cbe-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="cbe-section cbe-section--interests cbe-side-section">
+            <h2 class="cbe-side-title">Interests</h2>
+            <div class="hobbies-list cbe-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </aside>
+
+        <main class="cbe-main">
+          {{#if EXPERIENCE}}
+          <section class="cbe-section cbe-section--experience">
+            <h2 class="cbe-main-title">Experience</h2>
+            <div class="experience-list cbe-experience">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="cbe-section cbe-section--projects">
+            <h2 class="cbe-main-title">Projects</h2>
+            <div class="projects-list cbe-projects">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="cbe-section cbe-section--achievements">
+            <h2 class="cbe-main-title">Achievements</h2>
+            <div class="achievements-list cbe-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

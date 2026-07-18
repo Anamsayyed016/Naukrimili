@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <rect x="24" y="28" width="552" height="100" rx="12" fill="#3E3E42"/>
+  <rect x="44" y="40" width="100" height="124" rx="14" fill="#FFFFFF"/>
+  <rect x="48" y="44" width="92" height="116" rx="11" fill="#C8C8C8"/>
+  <text x="168" y="82" font-family="Georgia, serif" font-size="30" font-weight="700" fill="#FFFFFF" letter-spacing="3">DIANA FROST</text>
+  <text x="168" y="110" font-family="Arial, sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.82)" letter-spacing="4">OPERATIONS DIRECTOR</text>
+  <!-- Sidebar -->
+  <rect x="0" y="156" width="178" height="644" fill="#F3F3F3"/>
+  <text x="28" y="192" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1B1B1B" letter-spacing="2">CONTACTS</text>
+  <line x1="28" y1="202" x2="160" y2="202" stroke="#D8D8D8" stroke-width="1"/>
+  <circle cx="40" cy="230" r="5" fill="#6B6B6B"/>
+  <text x="54" y="234" font-family="Arial, sans-serif" font-size="11" fill="#1B1B1B">Boston, MA</text>
+  <circle cx="40" cy="260" r="5" fill="#6B6B6B"/>
+  <text x="54" y="264" font-family="Arial, sans-serif" font-size="11" fill="#1B1B1B">+1 (617) 555-0190</text>
+  <circle cx="40" cy="290" r="5" fill="#6B6B6B"/>
+  <text x="54" y="294" font-family="Arial, sans-serif" font-size="11" fill="#1B1B1B">diana@frost.co</text>
+  <text x="28" y="344" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1B1B1B" letter-spacing="2">CAREER OBJECTIVE</text>
+  <line x1="28" y1="354" x2="160" y2="354" stroke="#D8D8D8" stroke-width="1"/>
+  <rect x="28" y="372" width="132" height="6" rx="2" fill="#C8C8C8"/>
+  <rect x="28" y="388" width="124" height="6" rx="2" fill="#C8C8C8"/>
+  <rect x="28" y="404" width="116" height="6" rx="2" fill="#C8C8C8"/>
+  <rect x="28" y="420" width="108" height="6" rx="2" fill="#C8C8C8"/>
+  <text x="28" y="470" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1B1B1B" letter-spacing="2">EDUCATION</text>
+  <line x1="28" y1="480" x2="160" y2="480" stroke="#D8D8D8" stroke-width="1"/>
+  <text x="28" y="510" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1B1B1B">MBA Operations</text>
+  <text x="28" y="530" font-family="Arial, sans-serif" font-size="11" fill="#666666">Wharton School</text>
+  <text x="28" y="550" font-family="Arial, sans-serif" font-size="11" fill="#6B6B6B">2014</text>
+  <text x="28" y="596" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1B1B1B" letter-spacing="2">SKILLS</text>
+  <line x1="28" y1="606" x2="160" y2="606" stroke="#D8D8D8" stroke-width="1"/>
+  <circle cx="36" cy="634" r="3" fill="#6B6B6B"/>
+  <text x="48" y="638" font-family="Arial, sans-serif" font-size="12" fill="#1B1B1B">Team Leadership</text>
+  <circle cx="36" cy="662" r="3" fill="#6B6B6B"/>
+  <text x="48" y="666" font-family="Arial, sans-serif" font-size="12" fill="#1B1B1B">Process Design</text>
+  <circle cx="36" cy="690" r="3" fill="#6B6B6B"/>
+  <text x="48" y="694" font-family="Arial, sans-serif" font-size="12" fill="#1B1B1B">Compliance</text>
+  <!-- Main -->
+  <text x="208" y="192" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1B1B1B" letter-spacing="2.5">EXPERIENCE</text>
+  <line x1="208" y1="202" x2="560" y2="202" stroke="#D8D8D8" stroke-width="1"/>
+  <text x="208" y="238" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#1B1B1B">Operations Director</text>
+  <text x="560" y="238" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#6B6B6B">2018 - Present</text>
+  <text x="208" y="260" font-family="Arial, sans-serif" font-size="12" fill="#666666">Northline Health Systems</text>
+  <circle cx="216" cy="288" r="3.5" fill="#6B6B6B"/>
+  <rect x="230" y="283" width="280" height="6" rx="2" fill="#C8C8C8"/>
+  <circle cx="216" cy="312" r="3.5" fill="#6B6B6B"/>
+  <rect x="230" y="307" width="260" height="6" rx="2" fill="#C8C8C8"/>
+  <text x="208" y="362" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#1B1B1B">Laboratory Supervisor</text>
+  <text x="560" y="362" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#6B6B6B">2014 - 2018</text>
+  <text x="208" y="384" font-family="Arial, sans-serif" font-size="12" fill="#666666">Summit Diagnostics</text>
+  <circle cx="216" cy="412" r="3.5" fill="#6B6B6B"/>
+  <rect x="230" y="407" width="270" height="6" rx="2" fill="#C8C8C8"/>
+  <text x="208" y="468" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1B1B1B" letter-spacing="2.5">PROJECTS</text>
+  <line x1="208" y1="478" x2="560" y2="478" stroke="#D8D8D8" stroke-width="1"/>
+  <rect x="208" y="498" width="352" height="72" rx="8" fill="#FAFAFA" stroke="#D8D8D8"/>
+  <text x="224" y="530" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#1B1B1B">Quality System Rollout</text>
+  <text x="224" y="552" font-family="Arial, sans-serif" font-size="11" fill="#6B6B6B">Lean / Compliance / Training</text>
+  <text x="300" y="780" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#6B6B6B">Charcoal Banner Executive</text>
+</svg>

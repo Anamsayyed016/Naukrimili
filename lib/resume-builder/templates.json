@@ -1292,6 +1292,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "charcoal-banner-executive",
+      "name": "Charcoal Banner Executive",
+      "slug": "charcoal-banner-executive",
+      "description": "Premium corporate monochrome resume with an inset charcoal header banner, Cormorant Garamond name, rounded rectangular portrait overlapping the banner, soft gray sidebar for contacts and career objective, Inter body type, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/charcoal-banner-executive/thumbnail.svg",
+      "preview": "/templates/charcoal-banner-executive/preview.svg",
+      "html": "/templates/charcoal-banner-executive/index.html",
+      "css": "/templates/charcoal-banner-executive/style.css",
+      "categories": ["Premium", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "charcoal-banner", "name": "Charcoal Banner", "primary": "#3E3E42", "accent": "#6B6B6B", "text": "#1B1B1B" },
+        { "id": "slate-mono", "name": "Slate Mono", "primary": "#35353A", "accent": "#737373", "text": "#1B1B1B" },
+        { "id": "graphite-soft", "name": "Graphite Soft", "primary": "#2F2F33", "accent": "#6B6B6B", "text": "#1A1A1A" },
+        { "id": "ink-stone", "name": "Ink Stone", "primary": "#44444A", "accent": "#7A7A7A", "text": "#1B1B1B" },
+        { "id": "noir-ash", "name": "Noir Ash", "primary": "#3A3A3E", "accent": "#666666", "text": "#1B1B1B" }
+      ],
+      "defaultColor": "charcoal-banner",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 72,
+        "sidebarColumnBasisPct": 28,
+        "maxMovablePriority": 95,
+        "leftSections": ["experience", "projects", "achievements", "references", "extended"],
+        "rightSections": ["summary", "education", "skills", "languages", "certifications", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
