@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FCFBF8"/>
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="190" height="800" fill="#F3F0EA"/>
+  <line x1="190" y1="0" x2="190" y2="800" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="44" y="44" width="102" height="102" rx="18" fill="#FFFFFF"/>
+  <rect x="44" y="44" width="102" height="102" rx="18" fill="none" stroke="#B58B56" stroke-width="1.5" transform="translate(0,0)"/>
+  <rect x="50" y="50" width="90" height="90" rx="14" fill="#DDD6CB"/>
+  <rect x="28" y="180" width="8" height="8" rx="1.5" fill="#B58B56"/>
+  <text x="44" y="188" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D" letter-spacing="2">CONTACT</text>
+  <line x1="28" y1="198" x2="170" y2="198" stroke="#DDD6CB" stroke-width="1"/>
+  <circle cx="40" cy="226" r="5" fill="#B58B56"/>
+  <text x="54" y="230" font-family="Arial, sans-serif" font-size="11" fill="#222222">+1 (212) 555-0188</text>
+  <circle cx="40" cy="256" r="5" fill="#B58B56"/>
+  <text x="54" y="260" font-family="Arial, sans-serif" font-size="11" fill="#222222">elara@vance.co</text>
+  <circle cx="40" cy="286" r="5" fill="#B58B56"/>
+  <text x="54" y="290" font-family="Arial, sans-serif" font-size="11" fill="#222222">elaravance.com</text>
+  <circle cx="40" cy="316" r="5" fill="#B58B56"/>
+  <text x="54" y="320" font-family="Arial, sans-serif" font-size="11" fill="#222222">New York, NY</text>
+  <rect x="28" y="360" width="8" height="8" rx="1.5" fill="#B58B56"/>
+  <text x="44" y="368" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D" letter-spacing="2">SKILLS</text>
+  <line x1="28" y1="378" x2="170" y2="378" stroke="#DDD6CB" stroke-width="1"/>
+  <circle cx="36" cy="406" r="3" fill="#B58B56"/>
+  <text x="48" y="410" font-family="Arial, sans-serif" font-size="12" fill="#222222">Brand Strategy</text>
+  <circle cx="36" cy="434" r="3" fill="#B58B56"/>
+  <text x="48" y="438" font-family="Arial, sans-serif" font-size="12" fill="#222222">Creative Direction</text>
+  <circle cx="36" cy="462" r="3" fill="#B58B56"/>
+  <text x="48" y="466" font-family="Arial, sans-serif" font-size="12" fill="#222222">Team Leadership</text>
+  <circle cx="36" cy="490" r="3" fill="#B58B56"/>
+  <text x="48" y="494" font-family="Arial, sans-serif" font-size="12" fill="#222222">Market Research</text>
+  <rect x="28" y="534" width="8" height="8" rx="1.5" fill="#B58B56"/>
+  <text x="44" y="542" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D" letter-spacing="2">EDUCATION</text>
+  <line x1="28" y1="552" x2="170" y2="552" stroke="#DDD6CB" stroke-width="1"/>
+  <text x="28" y="582" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D">MBA Brand Strategy</text>
+  <text x="28" y="604" font-family="Arial, sans-serif" font-size="11" fill="#5B6675">Columbia Business School</text>
+  <text x="28" y="624" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#B58B56">2014</text>
+  <rect x="28" y="664" width="8" height="8" rx="1.5" fill="#B58B56"/>
+  <text x="44" y="672" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D" letter-spacing="2">LANGUAGES</text>
+  <line x1="28" y1="682" x2="170" y2="682" stroke="#DDD6CB" stroke-width="1"/>
+  <text x="28" y="710" font-family="Arial, sans-serif" font-size="12" fill="#222222">English | Fluent</text>
+  <text x="28" y="734" font-family="Arial, sans-serif" font-size="12" fill="#222222">French | Proficient</text>
+  <!-- Main -->
+  <text x="224" y="78" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#25334D" letter-spacing="3">ELARA VANCE</text>
+  <text x="224" y="108" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#5B6675" letter-spacing="3.5">STRATEGIC BRAND DIRECTOR</text>
+  <rect x="224" y="126" width="48" height="3" fill="#B58B56"/>
+  <line x1="272" y1="127.5" x2="560" y2="127.5" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="224" y="172" width="8" height="8" rx="1.5" fill="#B58B56"/>
+  <text x="240" y="180" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D" letter-spacing="2.5">PROFESSIONAL SUMMARY</text>
+  <line x1="224" y1="190" x2="560" y2="190" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="224" y="210" width="336" height="7" rx="2" fill="#C9C4BA"/>
+  <rect x="224" y="228" width="316" height="7" rx="2" fill="#C9C4BA"/>
+  <rect x="224" y="246" width="296" height="7" rx="2" fill="#C9C4BA"/>
+  <rect x="224" y="292" width="8" height="8" rx="1.5" fill="#B58B56"/>
+  <text x="240" y="300" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D" letter-spacing="2.5">EXPERIENCE</text>
+  <line x1="224" y1="310" x2="560" y2="310" stroke="#DDD6CB" stroke-width="1"/>
+  <text x="224" y="342" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#25334D">Brand Director</text>
+  <text x="560" y="342" text-anchor="end" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#B58B56">2019 - Present</text>
+  <text x="224" y="364" font-family="Arial, sans-serif" font-size="12" fill="#5B6675">Maison Collective</text>
+  <circle cx="232" cy="392" r="3.5" fill="#B58B56"/>
+  <rect x="246" y="387" width="280" height="6" rx="2" fill="#C9C4BA"/>
+  <circle cx="232" cy="416" r="3.5" fill="#B58B56"/>
+  <rect x="246" y="411" width="260" height="6" rx="2" fill="#C9C4BA"/>
+  <text x="224" y="462" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#25334D">Brand Strategist</text>
+  <text x="560" y="462" text-anchor="end" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#B58B56">2015 - 2019</text>
+  <text x="224" y="484" font-family="Arial, sans-serif" font-size="12" fill="#5B6675">Atelier North</text>
+  <circle cx="232" cy="512" r="3.5" fill="#B58B56"/>
+  <rect x="246" y="507" width="270" height="6" rx="2" fill="#C9C4BA"/>
+  <rect x="224" y="556" width="8" height="8" rx="1.5" fill="#B58B56"/>
+  <text x="240" y="564" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#25334D" letter-spacing="2.5">PROJECTS</text>
+  <line x1="224" y1="574" x2="560" y2="574" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="224" y="594" width="336" height="72" rx="8" fill="#FFFFFF" stroke="#DDD6CB"/>
+  <text x="240" y="626" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#25334D">Heritage Rebrand Platform</text>
+  <text x="240" y="648" font-family="Arial, sans-serif" font-size="11" fill="#B58B56">Figma / Brand Systems / Research</text>
+  <text x="300" y="780" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#7A7A7A">Linen Navy Executive</text>
+</svg>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#FCFBF8"/>
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="96" height="400" fill="#F3F0EA"/>
+  <line x1="96" y1="0" x2="96" y2="400" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="22" y="22" width="52" height="52" rx="10" fill="#FFFFFF" stroke="#B58B56" stroke-width="1"/>
+  <rect x="26" y="26" width="44" height="44" rx="8" fill="#DDD6CB"/>
+  <rect x="14" y="92" width="5" height="5" rx="1" fill="#B58B56"/>
+  <text x="24" y="98" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#25334D" letter-spacing="1">CONTACT</text>
+  <line x1="14" y1="102" x2="86" y2="102" stroke="#DDD6CB" stroke-width="1"/>
+  <circle cx="20" cy="116" r="2.5" fill="#B58B56"/>
+  <rect x="28" y="114" width="50" height="3" rx="1" fill="#5B6675"/>
+  <circle cx="20" cy="128" r="2.5" fill="#B58B56"/>
+  <rect x="28" y="126" width="54" height="3" rx="1" fill="#5B6675"/>
+  <circle cx="20" cy="140" r="2.5" fill="#B58B56"/>
+  <rect x="28" y="138" width="46" height="3" rx="1" fill="#5B6675"/>
+  <rect x="14" y="164" width="5" height="5" rx="1" fill="#B58B56"/>
+  <text x="24" y="170" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#25334D" letter-spacing="1">SKILLS</text>
+  <line x1="14" y1="174" x2="86" y2="174" stroke="#DDD6CB" stroke-width="1"/>
+  <circle cx="18" cy="188" r="1.5" fill="#B58B56"/>
+  <text x="26" y="191" font-family="Arial, sans-serif" font-size="5.5" fill="#222222">Strategy</text>
+  <circle cx="18" cy="202" r="1.5" fill="#B58B56"/>
+  <text x="26" y="205" font-family="Arial, sans-serif" font-size="5.5" fill="#222222">Branding</text>
+  <circle cx="18" cy="216" r="1.5" fill="#B58B56"/>
+  <text x="26" y="219" font-family="Arial, sans-serif" font-size="5.5" fill="#222222">Leadership</text>
+  <rect x="14" y="244" width="5" height="5" rx="1" fill="#B58B56"/>
+  <text x="24" y="250" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#25334D" letter-spacing="1">EDUCATION</text>
+  <line x1="14" y1="254" x2="86" y2="254" stroke="#DDD6CB" stroke-width="1"/>
+  <text x="14" y="270" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#25334D">MBA Brand</text>
+  <text x="14" y="282" font-family="Arial, sans-serif" font-size="5" fill="#5B6675">Columbia</text>
+  <text x="14" y="294" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B58B56">2014</text>
+  <rect x="14" y="316" width="5" height="5" rx="1" fill="#B58B56"/>
+  <text x="24" y="322" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#25334D" letter-spacing="1">LANGUAGES</text>
+  <line x1="14" y1="326" x2="86" y2="326" stroke="#DDD6CB" stroke-width="1"/>
+  <text x="14" y="342" font-family="Arial, sans-serif" font-size="5.5" fill="#222222">English | Fluent</text>
+  <text x="14" y="356" font-family="Arial, sans-serif" font-size="5.5" fill="#222222">French | Proficient</text>
+  <!-- Main -->
+  <text x="114" y="44" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#25334D" letter-spacing="1.5">ELARA VANCE</text>
+  <text x="114" y="60" font-family="Arial, sans-serif" font-size="6" font-weight="600" fill="#5B6675" letter-spacing="1.5">STRATEGIC BRAND DIRECTOR</text>
+  <rect x="114" y="70" width="28" height="2" fill="#B58B56"/>
+  <line x1="142" y1="71" x2="280" y2="71" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="114" y="96" width="5" height="5" rx="1" fill="#B58B56"/>
+  <text x="124" y="102" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#25334D" letter-spacing="1.2">SUMMARY</text>
+  <line x1="114" y1="106" x2="280" y2="106" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="114" y="116" width="166" height="3" rx="1" fill="#C9C4BA"/>
+  <rect x="114" y="124" width="154" height="3" rx="1" fill="#C9C4BA"/>
+  <rect x="114" y="132" width="142" height="3" rx="1" fill="#C9C4BA"/>
+  <rect x="114" y="158" width="5" height="5" rx="1" fill="#B58B56"/>
+  <text x="124" y="164" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#25334D" letter-spacing="1.2">EXPERIENCE</text>
+  <line x1="114" y1="168" x2="280" y2="168" stroke="#DDD6CB" stroke-width="1"/>
+  <text x="114" y="186" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#25334D">Brand Director</text>
+  <text x="280" y="186" text-anchor="end" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B58B56">2019-25</text>
+  <text x="114" y="198" font-family="Arial, sans-serif" font-size="5.5" fill="#5B6675">Maison Collective</text>
+  <circle cx="118" cy="212" r="1.8" fill="#B58B56"/>
+  <rect x="126" y="210" width="130" height="2.5" rx="1" fill="#C9C4BA"/>
+  <circle cx="118" cy="224" r="1.8" fill="#B58B56"/>
+  <rect x="126" y="222" width="118" height="2.5" rx="1" fill="#C9C4BA"/>
+  <text x="114" y="250" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#25334D">Brand Strategist</text>
+  <text x="280" y="250" text-anchor="end" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B58B56">2015-19</text>
+  <text x="114" y="262" font-family="Arial, sans-serif" font-size="5.5" fill="#5B6675">Atelier North</text>
+  <rect x="114" y="288" width="5" height="5" rx="1" fill="#B58B56"/>
+  <text x="124" y="294" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#25334D" letter-spacing="1.2">PROJECTS</text>
+  <line x1="114" y1="298" x2="280" y2="298" stroke="#DDD6CB" stroke-width="1"/>
+  <rect x="114" y="308" width="166" height="40" rx="6" fill="#FFFFFF" stroke="#DDD6CB"/>
+  <text x="124" y="326" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#25334D">Rebrand Platform</text>
+  <text x="124" y="338" font-family="Arial, sans-serif" font-size="5" fill="#B58B56">Figma / Brand Systems</text>
+</svg>

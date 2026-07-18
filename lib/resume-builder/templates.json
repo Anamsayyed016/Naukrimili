@@ -1142,6 +1142,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "linen-navy-executive",
+      "name": "Linen Navy Executive",
+      "slug": "linen-navy-executive",
+      "description": "Soft editorial executive resume with linen sidebar, deep navy Cormorant name, antique gold accent markers, rounded-square double-frame portrait, Manrope body type, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/linen-navy-executive/thumbnail.svg",
+      "preview": "/templates/linen-navy-executive/preview.svg",
+      "html": "/templates/linen-navy-executive/index.html",
+      "css": "/templates/linen-navy-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "linen-navy", "name": "Linen Navy", "primary": "#25334D", "accent": "#B58B56", "text": "#222222" },
+        { "id": "slate-gold", "name": "Slate Gold", "primary": "#2A3A56", "accent": "#C09760", "text": "#222222" },
+        { "id": "ink-bronze", "name": "Ink Bronze", "primary": "#1F2C44", "accent": "#A67D4A", "text": "#1E1E1E" },
+        { "id": "marine-antique", "name": "Marine Antique", "primary": "#25334D", "accent": "#A8895C", "text": "#222222" },
+        { "id": "midnight-sand", "name": "Midnight Sand", "primary": "#2C3D58", "accent": "#B58B56", "text": "#222222" }
+      ],
+      "defaultColor": "linen-navy",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 70,
+        "sidebarColumnBasisPct": 30,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "rightSections": ["skills", "education", "languages", "certifications", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

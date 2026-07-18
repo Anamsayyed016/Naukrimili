@@ -1,0 +1,961 @@
+/* Linen Navy Executive — soft editorial linen + navy, Cormorant + Manrope */
+
+.lne-resume {
+  --lne-bg: #FCFBF8;
+  --lne-sidebar: #F3F0EA;
+  --lne-navy: #25334D;
+  --lne-secondary: #5B6675;
+  --lne-gold: #B58B56;
+  --lne-border: #DDD6CB;
+  --lne-text: #222222;
+  --lne-muted: #7A7A7A;
+  --lne-card: #FFFFFF;
+  --lne-side-text: #222222;
+  --lne-side-muted: #5B6675;
+  --lne-max-width: 210mm;
+  --lne-font-display: 'Cormorant Garamond', Georgia, serif;
+  --lne-font-body: 'Manrope', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --lne-side: 30fr;
+  --lne-main: 70fr;
+  --lne-photo: clamp(112px, 15cqw, 132px);
+  --lne-section-gap: 20px;
+  --lne-block-gap: 14px;
+  --lne-heading-gap: 10px;
+  --lne-lh-body: 1.55;
+  --lne-lh-tight: 1.35;
+  --lne-fs-name: clamp(28px, 4vw, 38px);
+  --lne-fs-job: 11px;
+  --lne-fs-section: 11px;
+  --lne-fs-body: 12.5px;
+  --lne-fs-meta: 12px;
+  --lne-fs-small: 11px;
+
+  --primary-color: var(--lne-navy);
+  --accent-color: var(--lne-gold);
+  --text-color: var(--lne-text);
+}
+
+.lne-resume,
+.lne-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.lne-resume,
+.resume-container.lne-resume {
+  position: relative;
+  container-type: inline-size;
+  width: 794px;
+  max-width: var(--lne-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--lne-font-body);
+  font-size: var(--lne-fs-body);
+  line-height: var(--lne-lh-body);
+  color: var(--lne-text);
+  background: var(--lne-bg) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lne-resume .lne-sheet {
+  background: var(--lne-bg);
+  min-height: 0;
+}
+
+.lne-resume .lne-body {
+  display: grid;
+  grid-template-columns: minmax(0, var(--lne-side)) minmax(0, var(--lne-main));
+  align-items: stretch;
+  min-height: 0;
+  gap: 0;
+}
+
+/* ── Sidebar (left) ── */
+.lne-resume .lne-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lne-section-gap);
+  min-width: 0;
+  background: var(--lne-sidebar);
+  padding: 28px 18px 28px 20px;
+  align-self: stretch;
+  overflow: visible;
+  border-right: 1px solid var(--lne-border);
+}
+
+.lne-resume .lne-side-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+  overflow: visible;
+}
+
+/* Rounded-square double-frame portrait — not a circle */
+.lne-resume .lne-portrait-card {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.lne-resume .lne-portrait {
+  width: var(--lne-photo);
+  height: var(--lne-photo);
+}
+
+.lne-resume .profile-image-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 3px solid var(--lne-card);
+  outline: 1px solid var(--lne-gold);
+  outline-offset: 4px;
+  box-shadow: 0 8px 20px rgba(37, 51, 77, 0.1);
+  background: var(--lne-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lne-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.lne-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--lne-font-display);
+  font-size: clamp(24px, 3.2vw, 30px);
+  font-weight: 700;
+  color: var(--lne-navy);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lne-resume .lne-ini-f,
+.lne-resume .lne-ini-l {
+  display: inline-block;
+  max-width: 1.1ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.lne-resume .lne-side-title {
+  position: relative;
+  font-family: var(--lne-font-body);
+  font-size: var(--lne-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lne-navy);
+  line-height: 1.3;
+  margin-bottom: var(--lne-heading-gap);
+  padding: 0 0 7px 14px;
+  border-bottom: 1px solid var(--lne-border);
+}
+
+/* Soft gold square marker — original, not a rail/tick copy */
+.lne-resume .lne-side-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 6px;
+  height: 6px;
+  background: var(--lne-gold);
+  border-radius: 1px;
+}
+
+/* Contact */
+.lne-resume .lne-section--contact:not(:has(.lne-contact-item)) {
+  display: none;
+}
+
+.lne-resume .lne-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.lne-resume .lne-contact-item {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  min-width: 0;
+}
+
+.lne-resume .lne-contact-icon {
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+
+.lne-resume .lne-contact-item--phone .lne-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B58B56' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
+}
+
+.lne-resume .lne-contact-item--email .lne-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B58B56' stroke-width='1.7'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
+}
+
+.lne-resume .lne-contact-item--web .lne-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B58B56' stroke-width='1.7'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+}
+
+.lne-resume .lne-contact-item--linkedin .lne-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B58B56' stroke-width='1.7'%3E%3Crect x='3' y='3' width='18' height='18' rx='3'/%3E%3Cpath d='M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1.5-2 2.5-2s2.5.8 2.5 2.5V16'/%3E%3C/svg%3E");
+}
+
+.lne-resume .lne-contact-item--location .lne-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B58B56' stroke-width='1.7'%3E%3Cpath d='M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+}
+
+.lne-resume .lne-contact-value {
+  font-size: var(--lne-fs-small);
+  font-weight: 500;
+  color: var(--lne-side-text);
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Skills — professional list */
+.lne-resume .lne-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lne-resume .lne-skills .skill-tag {
+  position: relative;
+  display: block;
+  padding: 0 0 0 12px;
+  font-size: var(--lne-fs-small);
+  font-weight: 500;
+  color: var(--lne-side-text);
+  background: none;
+  border: none;
+  border-radius: 0;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.lne-resume .lne-skills .skill-tag::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--lne-gold);
+}
+
+/* Education */
+.lne-resume .lne-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lne-resume .lne-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.lne-resume .lne-education .education-item h3 {
+  font-size: var(--lne-fs-small);
+  font-weight: 700;
+  color: var(--lne-navy);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.lne-resume .lne-education .education-item .institution {
+  display: block;
+  font-size: var(--lne-fs-small);
+  color: var(--lne-side-muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.lne-resume .lne-education .education-item .year,
+.lne-resume .lne-education .education-item .cgpa {
+  display: block;
+  font-size: var(--lne-fs-small);
+  font-weight: 600;
+  color: var(--lne-gold);
+  margin-top: 2px;
+}
+
+/* Languages */
+.lne-resume .lne-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.lne-resume .lne-languages .language-item {
+  font-size: var(--lne-fs-body);
+  color: var(--lne-side-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.lne-resume .lne-languages .language-item .language {
+  font-weight: 600;
+}
+
+.lne-resume .lne-languages .language-item .proficiency {
+  color: var(--lne-side-muted);
+  font-size: var(--lne-fs-small);
+}
+
+.lne-resume .lne-languages .language-item .proficiency:not(:empty)::before {
+  content: ' | ';
+  color: var(--lne-border);
+}
+
+.lne-resume .lne-languages .language-progress,
+.lne-resume .lne-languages .progress-bar,
+.lne-resume .lne-languages .progress-fill {
+  display: none;
+}
+
+/* Certifications */
+.lne-resume .lne-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.lne-resume .lne-certifications .certification-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.lne-resume .lne-certifications .certification-item h3,
+.lne-resume .lne-certifications .cert-name {
+  font-size: var(--lne-fs-small);
+  font-weight: 700;
+  color: var(--lne-navy);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.lne-resume .lne-certifications .issuer,
+.lne-resume .lne-certifications .date,
+.lne-resume .lne-certifications .year {
+  display: block;
+  font-size: var(--lne-fs-small);
+  color: var(--lne-side-muted);
+}
+
+/* Interests */
+.lne-resume .lne-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lne-resume .lne-interests .hobby-item {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--lne-border);
+  font-size: var(--lne-fs-small);
+  color: var(--lne-side-text);
+  line-height: 1.35;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* Sidebar overrides */
+.resume-container.lne-resume .lne-sidebar .lne-contact-value,
+.resume-container.lne-resume .lne-sidebar .skill-tag,
+.resume-container.lne-resume .lne-sidebar .language-item,
+.resume-container.lne-resume .lne-sidebar .hobby-item,
+.resume-container.lne-resume .lne-sidebar .hobby-item .hobby,
+.resume-container.lne-resume .lne-sidebar .education-item h3,
+.resume-container.lne-resume .lne-sidebar .certification-item h3,
+.resume-container.lne-resume .lne-sidebar .cert-name,
+.resume-container.lne-resume .lne-sidebar .experience-header h3,
+.resume-container.lne-resume .lne-sidebar .project-item h3,
+.resume-container.lne-resume .lne-sidebar .achievement-item h3 {
+  color: var(--lne-side-text) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.lne-resume .lne-sidebar .issuer,
+.resume-container.lne-resume .lne-sidebar .date,
+.resume-container.lne-resume .lne-sidebar .duration,
+.resume-container.lne-resume .lne-sidebar .institution,
+.resume-container.lne-resume .lne-sidebar .company,
+.resume-container.lne-resume .lne-sidebar .description,
+.resume-container.lne-resume .lne-sidebar .description li,
+.resume-container.lne-resume .lne-sidebar p,
+.resume-container.lne-resume .lne-sidebar .technologies,
+.resume-container.lne-resume .lne-sidebar a,
+.resume-container.lne-resume .lne-sidebar .proficiency {
+  color: var(--lne-side-muted) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.lne-resume .lne-sidebar .year,
+.resume-container.lne-resume .lne-sidebar .cgpa {
+  color: var(--lne-gold) !important;
+}
+
+.resume-container.lne-resume .lne-sidebar .project-item {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: var(--lne-border);
+  box-shadow: none;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
+
+.resume-container.lne-resume .lne-sidebar .lne-main-title {
+  color: var(--lne-navy) !important;
+  opacity: 1 !important;
+}
+
+/* ── Main (right) ── */
+.lne-resume .lne-main {
+  min-width: 0;
+  padding: 32px 30px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lne-section-gap);
+  background: var(--lne-bg);
+}
+
+.lne-resume .lne-header {
+  margin-bottom: 4px;
+}
+
+.lne-resume .candidate-name {
+  font-family: var(--lne-font-display);
+  font-size: var(--lne-fs-name);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lne-navy);
+  line-height: 1.1;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.lne-resume .candidate-name .name-fallback {
+  display: none;
+}
+
+.lne-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-fallback {
+  display: inline;
+}
+
+.lne-resume .header-title {
+  margin-top: 6px;
+  font-family: var(--lne-font-body);
+  font-size: var(--lne-fs-job);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--lne-secondary);
+  line-height: var(--lne-lh-tight);
+}
+
+.lne-resume .lne-header-rule {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  margin-top: 14px;
+  height: 1px;
+  background: var(--lne-border);
+}
+
+.lne-resume .lne-header-rule::before {
+  content: '';
+  width: 36px;
+  height: 2px;
+  background: var(--lne-gold);
+  margin-top: -0.5px;
+}
+
+.lne-resume .lne-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.lne-resume .lne-main-title {
+  position: relative;
+  font-family: var(--lne-font-body);
+  font-size: var(--lne-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lne-navy);
+  line-height: 1.3;
+  margin-bottom: var(--lne-heading-gap);
+  padding: 0 0 8px 12px;
+  border-bottom: 1px solid var(--lne-border);
+}
+
+.lne-resume .lne-main-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 6px;
+  height: 6px;
+  background: var(--lne-gold);
+  border-radius: 1px;
+}
+
+/* Summary */
+.lne-resume .lne-summary .summary-text {
+  font-size: var(--lne-fs-body);
+  color: var(--lne-secondary);
+  line-height: var(--lne-lh-body);
+  overflow-wrap: anywhere;
+}
+
+/* Experience */
+.lne-resume .lne-experience {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lne-block-gap);
+}
+
+.lne-resume .lne-experience .experience-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.lne-resume .lne-experience .experience-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  margin-bottom: 6px;
+}
+
+.lne-resume .lne-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--lne-font-body);
+  font-size: calc(var(--lne-fs-body) + 0.5px);
+  font-weight: 700;
+  color: var(--lne-navy);
+  line-height: var(--lne-lh-tight);
+  word-break: break-word;
+}
+
+.lne-resume .lne-experience .experience-header .company {
+  grid-column: 1;
+  grid-row: 2;
+  display: block;
+  font-size: var(--lne-fs-meta);
+  font-weight: 500;
+  color: var(--lne-secondary);
+  line-height: var(--lne-lh-tight);
+  word-break: break-word;
+}
+
+.lne-resume .lne-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  justify-self: end;
+  font-size: var(--lne-fs-small);
+  font-weight: 600;
+  color: var(--lne-gold);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.lne-resume .lne-experience .description {
+  font-size: var(--lne-fs-body);
+  color: var(--lne-text);
+  line-height: var(--lne-lh-body);
+}
+
+.lne-resume .lne-experience .description ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.lne-resume .lne-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 5px;
+  color: var(--lne-secondary);
+}
+
+.lne-resume .lne-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--lne-gold);
+}
+
+/* Projects */
+.lne-resume .lne-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lne-resume .lne-projects .project-item {
+  background: var(--lne-card);
+  border: 1px solid var(--lne-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(37, 51, 77, 0.04);
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+}
+
+.lne-resume .lne-projects .project-item > h3,
+.lne-resume .lne-projects .project-item > .project-title {
+  font-size: var(--lne-fs-body);
+  font-weight: 700;
+  color: var(--lne-navy);
+  line-height: var(--lne-lh-tight);
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.lne-resume .lne-projects .project-item > .technologies,
+.lne-resume .lne-projects .project-item > .project-employer {
+  display: block;
+  font-size: var(--lne-fs-small);
+  color: var(--lne-gold);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.lne-resume .lne-projects .project-item > .description,
+.lne-resume .lne-projects .project-item > ul,
+.lne-resume .lne-projects .project-item > p {
+  font-size: var(--lne-fs-body);
+  color: var(--lne-secondary);
+  line-height: var(--lne-lh-body);
+}
+
+.lne-resume .lne-projects .project-item > ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.lne-resume .lne-projects .project-item > ul li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.lne-resume .lne-projects .project-item > ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--lne-gold);
+}
+
+.lne-resume .lne-projects .project-item > a {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--lne-fs-small);
+  color: var(--lne-navy);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(37, 51, 77, 0.25);
+}
+
+/* Achievements */
+.lne-resume .lne-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lne-resume .lne-achievements .achievement-item h3 {
+  position: relative;
+  padding-left: 14px;
+  font-size: var(--lne-fs-body);
+  font-weight: 600;
+  color: var(--lne-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.lne-resume .lne-achievements .achievement-item h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--lne-gold);
+}
+
+.lne-resume .lne-achievements .achievement-item .description,
+.lne-resume .lne-achievements .achievement-item .date {
+  display: block;
+  padding-left: 14px;
+  font-size: var(--lne-fs-small);
+  color: var(--lne-muted);
+}
+
+/* Extended */
+.lne-resume .lne-main > .extended-section,
+.lne-resume .extended-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.lne-resume .extended-section-title {
+  position: relative;
+  font-family: var(--lne-font-body);
+  font-size: var(--lne-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lne-navy);
+  margin: 0 0 var(--lne-heading-gap);
+  padding: 0 0 8px 12px;
+  border-bottom: 1px solid var(--lne-border);
+  line-height: 1.3;
+}
+
+.lne-resume .extended-section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 6px;
+  height: 6px;
+  background: var(--lne-gold);
+  border-radius: 1px;
+}
+
+.lne-resume .extended-section-body {
+  font-size: var(--lne-fs-body);
+  color: var(--lne-secondary);
+  line-height: var(--lne-lh-body);
+}
+
+.lne-resume .extended-section--references .extended-section-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lne-resume .extended-section--references .extended-record-item {
+  background: var(--lne-card);
+  border: 1px solid var(--lne-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(37, 51, 77, 0.04);
+  min-width: 0;
+}
+
+.lne-resume .extended-field {
+  font-size: var(--lne-fs-small);
+  margin-bottom: 2px;
+  color: var(--lne-muted);
+}
+
+.lne-resume .extended-section--references .extended-field:first-child {
+  font-size: var(--lne-fs-body);
+  font-weight: 700;
+  color: var(--lne-navy);
+  margin-bottom: 4px;
+}
+
+.lne-resume .extended-section-body ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.25rem 0 0;
+}
+
+.lne-resume .extended-section-body li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.lne-resume .extended-section-body li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--lne-gold);
+}
+
+/* Density */
+.lne-resume[data-dl-density='dense'],
+.lne-resume[data-dl-density='compact'] {
+  --lne-section-gap: 14px;
+  --lne-block-gap: 10px;
+  --lne-heading-gap: 7px;
+}
+
+.lne-resume[data-dl-density='sparse'],
+.lne-resume[data-dl-page-underfill='true'] {
+  --lne-section-gap: 24px;
+  --lne-block-gap: 16px;
+}
+
+/* Lock columns */
+.resume-container.lne-resume .lne-body,
+.resume-container.lne-resume .lne-main,
+.resume-container.lne-resume .lne-sidebar {
+  min-height: 0 !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.lne-resume .lne-body,
+.resume-container.lne-resume[data-dl-page-underfill='true'] .lne-body,
+.resume-container.lne-resume[data-dl-page-underfill='false'] .lne-body,
+.resume-container.lne-resume[data-dl-density] .lne-body {
+  grid-template-columns: minmax(0, 30fr) minmax(0, 70fr) !important;
+  align-items: stretch !important;
+}
+
+.resume-container.lne-resume .lne-sidebar {
+  align-self: stretch !important;
+}
+
+.resume-container.lne-resume {
+  --acb-lh-body: 1.55;
+  --acb-lh-tight: 1.35;
+  --acb-section-gap: clamp(14px, 1.9vw, 20px);
+  --acb-block-gap: clamp(10px, 1.5vw, 14px);
+  --acb-heading-gap: clamp(7px, 1.1vw, 10px);
+  --acb-size-name: clamp(28px, 4vw, 38px);
+  --acb-size-body: clamp(11.5px, 1.45vw, 12.5px);
+  --acb-size-small: clamp(10px, 1.25vw, 11px);
+}
+
+/* Responsive */
+@container (max-width: 640px) {
+  .lne-resume .lne-body {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lne-resume .lne-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--lne-border);
+    padding: 24px 20px 18px;
+  }
+
+  .lne-resume .lne-main {
+    padding: 22px 20px 24px;
+  }
+
+  .lne-resume .lne-header {
+    text-align: center;
+  }
+
+  .lne-resume .lne-header-rule {
+    justify-content: center;
+  }
+
+  .lne-resume .lne-header-rule::before {
+    margin: 0 auto;
+  }
+
+  .lne-resume .extended-section--references .extended-section-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .resume-container.lne-resume {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .lne-resume .lne-body {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: var(--lne-bg) !important;
+  }
+
+  .resume-container.lne-resume {
+    width: 794px !important;
+    max-width: 210mm !important;
+    overflow: hidden !important;
+  }
+
+  .lne-resume .lne-sidebar,
+  .lne-resume .profile-image-wrapper,
+  .lne-resume .lne-header-rule,
+  .lne-resume .project-item {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .lne-resume .experience-item,
+  .lne-resume .education-item,
+  .lne-resume .project-item,
+  .lne-resume .achievement-item,
+  .lne-resume .certification-item,
+  .lne-resume .lne-section,
+  .lne-resume .extended-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
