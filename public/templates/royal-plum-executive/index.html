@@ -1,162 +1,324 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume - {{FULL_NAME}}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="resume-container rpe-resume">
-    <header class="rpe-header">
-      <div class="rpe-header-row">
-        {{#if PROFILE_IMAGE}}
-        <div class="rpe-photo">
-          <div class="profile-image-wrapper">
-            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
-          </div>
-        </div>
-        {{/if}}
-
-        <div class="rpe-identity">
-          <h1 class="candidate-name">
-            <span class="name-first">{{FIRST_NAME}}</span>
-            <span class="name-space"> </span>
-            <span class="name-last">{{LAST_NAME}}</span>
-            <span class="name-fallback">{{FULL_NAME}}</span>
-          </h1>
-          {{#if JOB_TITLE}}
-          <p class="header-title">{{JOB_TITLE}}</p>
-          {{/if}}
-        </div>
-      </div>
-    </header>
-
-    <div class="rpe-body">
-      <aside class="rpe-sidebar">
-        <section class="rpe-section rpe-section--contact">
-          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Contact</span></h2>
-          <div class="rpe-contact-list" role="list">
-            {{#if PHONE}}
-            <div class="rpe-contact-row rpe-contact-row--phone" role="listitem">
-              <span class="rpe-contact-icon" aria-hidden="true"></span>
-              <span class="rpe-contact-value">{{PHONE}}</span>
-            </div>
-            {{/if}}
-            {{#if EMAIL}}
-            <div class="rpe-contact-row rpe-contact-row--email" role="listitem">
-              <span class="rpe-contact-icon" aria-hidden="true"></span>
-              <span class="rpe-contact-value">{{EMAIL}}</span>
-            </div>
-            {{/if}}
-            {{#if LINKEDIN}}
-            <div class="rpe-contact-row rpe-contact-row--linkedin" role="listitem">
-              <span class="rpe-contact-icon" aria-hidden="true"></span>
-              <span class="rpe-contact-value">{{LINKEDIN}}</span>
-            </div>
-            {{/if}}
-            {{#if PORTFOLIO}}
-            <div class="rpe-contact-row rpe-contact-row--web" role="listitem">
-              <span class="rpe-contact-icon" aria-hidden="true"></span>
-              <span class="rpe-contact-value">{{PORTFOLIO}}</span>
-            </div>
-            {{/if}}
-            {{#if LOCATION}}
-            <div class="rpe-contact-row rpe-contact-row--location" role="listitem">
-              <span class="rpe-contact-icon" aria-hidden="true"></span>
-              <span class="rpe-contact-value">{{LOCATION}}</span>
-            </div>
-            {{/if}}
-          </div>
-        </section>
-
-        {{#if SKILLS}}
-        <section class="rpe-section rpe-section--skills">
-          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Skills</span></h2>
-          <div class="skills-list rpe-skills">
-            {{SKILLS}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if LANGUAGES}}
-        <section class="rpe-section rpe-section--languages">
-          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Languages</span></h2>
-          <div class="languages-list rpe-languages">
-            {{LANGUAGES}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if CERTIFICATIONS}}
-        <section class="rpe-section rpe-section--certifications">
-          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Certifications</span></h2>
-          <div class="certifications-list rpe-certifications">
-            {{CERTIFICATIONS}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if HOBBIES}}
-        <section class="rpe-section rpe-section--interests">
-          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Interests</span></h2>
-          <div class="hobbies-list rpe-hobbies">
-            {{HOBBIES}}
-          </div>
-        </section>
-        {{/if}}
-      </aside>
-
-      <main class="rpe-main">
-        {{#if SUMMARY}}
-        <section class="rpe-section rpe-section--summary">
-          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Professional Summary</span></h2>
-          <div class="rpe-summary-card">
-            <p class="summary-text">{{SUMMARY}}</p>
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if EXPERIENCE}}
-        <section class="rpe-section rpe-section--experience">
-          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Work Experience</span></h2>
-          <div class="experience-list rpe-experience">
-            {{EXPERIENCE}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if PROJECTS}}
-        <section class="rpe-section rpe-section--projects">
-          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Projects</span></h2>
-          <div class="projects-list rpe-projects">
-            {{PROJECTS}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if EDUCATION}}
-        <section class="rpe-section rpe-section--education">
-          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Education</span></h2>
-          <div class="education-list rpe-education">
-            {{EDUCATION}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if ACHIEVEMENTS}}
-        <section class="rpe-section rpe-section--awards">
-          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Awards</span></h2>
-          <div class="achievements-list rpe-awards">
-            {{ACHIEVEMENTS}}
-          </div>
-        </section>
-        {{/if}}
-      </main>
-    </div>
-  </div>
-</body>
-</html>
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Resume - {{FULL_NAME}}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+
+</head>
+
+<body>
+
+  <div class="resume-container rpe-resume">
+
+    <header class="rpe-header">
+
+      <div class="rpe-header-row">
+
+        {{#if PROFILE_IMAGE}}
+
+        <div class="rpe-photo">
+
+          <div class="profile-image-wrapper">
+
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+
+          </div>
+
+        </div>
+
+        {{/if}}
+
+
+
+        <div class="rpe-identity">
+
+          <h1 class="candidate-name">
+
+            <span class="name-first">{{FIRST_NAME}}</span>
+
+            <span class="name-space"> </span>
+
+            <span class="name-last">{{LAST_NAME}}</span>
+
+            <span class="name-fallback">{{FULL_NAME}}</span>
+
+          </h1>
+
+          {{#if JOB_TITLE}}
+
+          <p class="header-title">{{JOB_TITLE}}</p>
+
+          {{/if}}
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+
+    <div class="rpe-body">
+
+      <aside class="rpe-sidebar">
+
+        <section class="rpe-section rpe-section--contact">
+
+          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Contact</span></h2>
+
+          <div class="rpe-contact-list" role="list">
+
+            {{#if PHONE}}
+
+            <div class="rpe-contact-row rpe-contact-row--phone" role="listitem">
+
+              <span class="rpe-contact-icon" aria-hidden="true"></span>
+
+              <span class="rpe-contact-value">{{PHONE}}</span>
+
+            </div>
+
+            {{/if}}
+
+            {{#if EMAIL}}
+
+            <div class="rpe-contact-row rpe-contact-row--email" role="listitem">
+
+              <span class="rpe-contact-icon" aria-hidden="true"></span>
+
+              <span class="rpe-contact-value">{{EMAIL}}</span>
+
+            </div>
+
+            {{/if}}
+
+            {{#if LINKEDIN}}
+
+            <div class="rpe-contact-row rpe-contact-row--linkedin" role="listitem">
+
+              <span class="rpe-contact-icon" aria-hidden="true"></span>
+
+              <span class="rpe-contact-value">{{LINKEDIN}}</span>
+
+            </div>
+
+            {{/if}}
+
+            {{#if PORTFOLIO}}
+
+            <div class="rpe-contact-row rpe-contact-row--web" role="listitem">
+
+              <span class="rpe-contact-icon" aria-hidden="true"></span>
+
+              <span class="rpe-contact-value">{{PORTFOLIO}}</span>
+
+            </div>
+
+            {{/if}}
+
+            {{#if LOCATION}}
+
+            <div class="rpe-contact-row rpe-contact-row--location" role="listitem">
+
+              <span class="rpe-contact-icon" aria-hidden="true"></span>
+
+              <span class="rpe-contact-value">{{LOCATION}}</span>
+
+            </div>
+
+            {{/if}}
+
+          </div>
+
+        </section>
+
+
+
+        {{#if SKILLS}}
+
+        <section class="rpe-section rpe-section--skills">
+
+          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Skills</span></h2>
+
+          <div class="skills-list rpe-skills">
+
+            {{SKILLS}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+
+
+        {{#if LANGUAGES}}
+
+        <section class="rpe-section rpe-section--languages">
+
+          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Languages</span></h2>
+
+          <div class="languages-list rpe-languages">
+
+            {{LANGUAGES}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+
+
+        {{#if CERTIFICATIONS}}
+
+        <section class="rpe-section rpe-section--certifications">
+
+          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Certifications</span></h2>
+
+          <div class="certifications-list rpe-certifications">
+
+            {{CERTIFICATIONS}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+
+
+        {{#if HOBBIES}}
+
+        <section class="rpe-section rpe-section--interests">
+
+          <h2 class="rpe-section-title rpe-section-title--side"><span class="rpe-section-label">Interests</span></h2>
+
+          <div class="hobbies-list rpe-hobbies">
+
+            {{HOBBIES}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+      </aside>
+
+
+
+      <main class="rpe-main">
+
+        {{#if SUMMARY}}
+
+        <section class="rpe-section rpe-section--summary">
+
+          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Professional Summary</span></h2>
+
+          <div class="rpe-summary-card">
+
+            <p class="summary-text">{{SUMMARY}}</p>
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+
+
+        {{#if EXPERIENCE}}
+
+        <section class="rpe-section rpe-section--experience">
+
+          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Work Experience</span></h2>
+
+          <div class="experience-list rpe-experience">
+
+            {{EXPERIENCE}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+
+
+        {{#if PROJECTS}}
+
+        <section class="rpe-section rpe-section--projects">
+
+          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Projects</span></h2>
+
+          <div class="projects-list rpe-projects">
+
+            {{PROJECTS}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+
+
+        {{#if EDUCATION}}
+
+        <section class="rpe-section rpe-section--education">
+
+          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Education</span></h2>
+
+          <div class="education-list rpe-education">
+
+            {{EDUCATION}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+
+
+        {{#if ACHIEVEMENTS}}
+
+        <section class="rpe-section rpe-section--awards">
+
+          <h2 class="rpe-section-title rpe-section-title--main"><span class="rpe-section-label">Awards</span></h2>
+
+          <div class="achievements-list rpe-awards">
+
+            {{ACHIEVEMENTS}}
+
+          </div>
+
+        </section>
+
+        {{/if}}
+
+      </main>
+
+    </div>
+
+  </div>
+
+</body>
+
+</html>
+

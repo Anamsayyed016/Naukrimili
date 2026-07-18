@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#FFFFFF"/>
+  <!-- Sidebar -->
+  <rect x="0" y="60" width="108" height="340" fill="#665D54"/>
+  <!-- Dark diagonal header -->
+  <path d="M0,0 H300 V96 L0,74 Z" fill="#2E2C29"/>
+  <line x1="0" y1="70" x2="300" y2="92" stroke="#B08D57" stroke-width="2.5"/>
+  <!-- Photo with offset ring -->
+  <circle cx="54" cy="62" r="34" fill="none" stroke="#B08D57" stroke-width="1.5" transform="translate(-3,-3)"/>
+  <circle cx="54" cy="62" r="32" fill="#57504A" stroke="#FFFFFF" stroke-width="3"/>
+  <!-- Name -->
+  <text x="124" y="36" font-family="Arial, sans-serif" font-size="13" font-weight="800" fill="#FFFFFF" letter-spacing="2">DANIEL</text>
+  <text x="124" y="54" font-family="Arial, sans-serif" font-size="13" font-weight="800" fill="#FFFFFF" letter-spacing="2">FOSTER</text>
+  <text x="124" y="70" font-family="Arial, sans-serif" font-size="5.5" font-weight="600" fill="#C6A876" letter-spacing="2.5">GRAPHIC DESIGNER</text>
+  <!-- Sidebar: About -->
+  <text x="16" y="120" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#FFFFFF" letter-spacing="1.5">ABOUT ME</text>
+  <rect x="16" y="124" width="14" height="2" fill="#B08D57"/>
+  <rect x="16" y="132" width="76" height="2.5" rx="1" fill="#8A8178"/>
+  <rect x="16" y="139" width="70" height="2.5" rx="1" fill="#8A8178"/>
+  <rect x="16" y="146" width="72" height="2.5" rx="1" fill="#8A8178"/>
+  <!-- Sidebar: Education -->
+  <text x="16" y="172" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#FFFFFF" letter-spacing="1.5">EDUCATION</text>
+  <rect x="16" y="176" width="14" height="2" fill="#B08D57"/>
+  <rect x="16" y="184" width="2" height="22" fill="#B08D57"/>
+  <text x="23" y="190" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="#FFFFFF">BFA DESIGN</text>
+  <text x="23" y="198" font-family="Arial, sans-serif" font-size="4.5" fill="#DDD8D1">Coast Art School</text>
+  <text x="23" y="205" font-family="Arial, sans-serif" font-size="4.5" fill="#C6A876">2012</text>
+  <rect x="16" y="214" width="2" height="22" fill="#B08D57"/>
+  <text x="23" y="220" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="#FFFFFF">MA BRANDING</text>
+  <text x="23" y="228" font-family="Arial, sans-serif" font-size="4.5" fill="#DDD8D1">North University</text>
+  <text x="23" y="235" font-family="Arial, sans-serif" font-size="4.5" fill="#C6A876">2015</text>
+  <!-- Sidebar: Languages -->
+  <text x="16" y="262" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#FFFFFF" letter-spacing="1.5">LANGUAGES</text>
+  <rect x="16" y="266" width="14" height="2" fill="#B08D57"/>
+  <rect x="16" y="275" width="4" height="4" fill="#B08D57" transform="rotate(45 18 277)"/>
+  <text x="26" y="280" font-family="Arial, sans-serif" font-size="5" fill="#F5F3F0">English</text>
+  <rect x="16" y="288" width="4" height="4" fill="#B08D57" transform="rotate(45 18 290)"/>
+  <text x="26" y="293" font-family="Arial, sans-serif" font-size="5" fill="#F5F3F0">Spanish</text>
+  <!-- Main: Experience -->
+  <rect x="124" y="112" width="6" height="6" fill="#B08D57" transform="rotate(45 127 115)"/>
+  <text x="138" y="119" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#2E2C29" letter-spacing="1.5">EXPERIENCE</text>
+  <line x1="124" y1="126" x2="284" y2="126" stroke="#E2DED8" stroke-width="1"/>
+  <text x="124" y="142" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#2E2C29">SENIOR DESIGNER</text>
+  <text x="124" y="151" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="#B08D57">NOVA CREATIVE STUDIO</text>
+  <text x="124" y="159" font-family="Arial, sans-serif" font-size="4.5" fill="#6B665F">2019 - Present</text>
+  <rect x="130" y="166" width="4" height="4" fill="#B08D57" transform="rotate(45 132 168)"/>
+  <rect x="140" y="165" width="120" height="2.5" rx="1" fill="#E2DED8"/>
+  <rect x="130" y="176" width="4" height="4" fill="#B08D57" transform="rotate(45 132 178)"/>
+  <rect x="140" y="175" width="110" height="2.5" rx="1" fill="#E2DED8"/>
+  <text x="124" y="198" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#2E2C29">BRAND DESIGNER</text>
+  <text x="124" y="207" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="#B08D57">ATLAS MEDIA</text>
+  <text x="124" y="215" font-family="Arial, sans-serif" font-size="4.5" fill="#6B665F">2015 - 2019</text>
+  <!-- Main: Skills -->
+  <rect x="124" y="232" width="6" height="6" fill="#B08D57" transform="rotate(45 127 235)"/>
+  <text x="138" y="239" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#2E2C29" letter-spacing="1.5">SKILLS</text>
+  <line x1="124" y1="246" x2="284" y2="246" stroke="#E2DED8" stroke-width="1"/>
+  <text x="124" y="260" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="#26241F">Brand Identity</text>
+  <text x="284" y="260" text-anchor="end" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="#B08D57">92%</text>
+  <rect x="124" y="264" width="160" height="4" fill="#E7E3DC"/>
+  <rect x="124" y="264" width="147" height="4" fill="#2E2C29"/>
+  <text x="124" y="282" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="#26241F">Motion Design</text>
+  <text x="284" y="282" text-anchor="end" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="#B08D57">84%</text>
+  <rect x="124" y="286" width="160" height="4" fill="#E7E3DC"/>
+  <rect x="124" y="286" width="134" height="4" fill="#2E2C29"/>
+  <!-- Main: Contact -->
+  <rect x="124" y="306" width="6" height="6" fill="#B08D57" transform="rotate(45 127 309)"/>
+  <text x="138" y="313" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#2E2C29" letter-spacing="1.5">CONTACT</text>
+  <line x1="124" y1="320" x2="284" y2="320" stroke="#E2DED8" stroke-width="1"/>
+  <rect x="124" y="330" width="11" height="11" rx="3" fill="#2E2C29"/>
+  <rect x="142" y="333" width="90" height="3" rx="1" fill="#E2DED8"/>
+  <rect x="124" y="348" width="11" height="11" rx="3" fill="#2E2C29"/>
+  <rect x="142" y="351" width="100" height="3" rx="1" fill="#E2DED8"/>
+  <rect x="124" y="366" width="11" height="11" rx="3" fill="#2E2C29"/>
+  <rect x="142" y="369" width="84" height="3" rx="1" fill="#E2DED8"/>
+</svg>
