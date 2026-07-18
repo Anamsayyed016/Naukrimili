@@ -445,13 +445,53 @@
   opacity: 1 !important;
 }
 
+/* Sidebar project cards — high-contrast readability on the dark panel */
 .resume-container.npe-resume .npe-sidebar .project-item {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #555555;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   overflow: visible;
   height: auto;
   max-height: none;
+}
+
+.resume-container.npe-resume .npe-sidebar .project-item > h3,
+.resume-container.npe-resume .npe-sidebar .project-item > .project-title {
+  color: #FFFFFF !important;
+  font-weight: 700;
+  font-size: 14px;
+  opacity: 1 !important;
+}
+
+.resume-container.npe-resume .npe-sidebar .project-item .description,
+.resume-container.npe-resume .npe-sidebar .project-item .description li,
+.resume-container.npe-resume .npe-sidebar .project-item > p,
+.resume-container.npe-resume .npe-sidebar .project-item > ul li {
+  color: rgba(255, 255, 255, 0.88) !important;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: normal;
+  opacity: 1 !important;
+}
+
+.resume-container.npe-resume .npe-sidebar .project-item .technologies,
+.resume-container.npe-resume .npe-sidebar .project-item .project-employer {
+  color: #D8D8D8 !important;
+  font-weight: 500;
+  font-size: 11px;
+  opacity: 1 !important;
+}
+
+.resume-container.npe-resume .npe-sidebar .project-item a {
+  color: #F2F2F2 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.35);
+  opacity: 1 !important;
+}
+
+.resume-container.npe-resume .npe-sidebar .project-item ul li::before,
+.resume-container.npe-resume .npe-sidebar .project-item .description li::before {
+  background: var(--npe-accent);
 }
 
 .resume-container.npe-resume .npe-sidebar .skill-tag {
