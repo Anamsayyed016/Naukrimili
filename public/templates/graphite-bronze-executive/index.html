@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container gbe-resume">
+    <header class="gbe-header">
+      <div class="gbe-header-inner">
+        <div class="gbe-photo-col">
+          {{#if PROFILE_IMAGE}}
+          <div class="gbe-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="gbe-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="gbe-ini-f">{{FIRST_NAME}}</span><span class="gbe-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="gbe-id">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+
+          <div class="gbe-contact-row">
+            {{#if PHONE}}
+            <span class="gbe-contact-chip gbe-contact-chip--phone">
+              <span class="gbe-contact-icon" aria-hidden="true"></span>
+              <span class="gbe-contact-value">{{PHONE}}</span>
+            </span>
+            {{/if}}
+            {{#if EMAIL}}
+            <span class="gbe-contact-chip gbe-contact-chip--email">
+              <span class="gbe-contact-icon" aria-hidden="true"></span>
+              <span class="gbe-contact-value">{{EMAIL}}</span>
+            </span>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <span class="gbe-contact-chip gbe-contact-chip--web">
+              <span class="gbe-contact-icon" aria-hidden="true"></span>
+              <span class="gbe-contact-value">{{PORTFOLIO}}</span>
+            </span>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <span class="gbe-contact-chip gbe-contact-chip--linkedin">
+              <span class="gbe-contact-icon" aria-hidden="true"></span>
+              <span class="gbe-contact-value">{{LINKEDIN}}</span>
+            </span>
+            {{/if}}
+            {{#if LOCATION}}
+            <span class="gbe-contact-chip gbe-contact-chip--location">
+              <span class="gbe-contact-icon" aria-hidden="true"></span>
+              <span class="gbe-contact-value">{{LOCATION}}</span>
+            </span>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+      <div class="gbe-header-rule" aria-hidden="true"></div>
+    </header>
+
+    <div class="gbe-body">
+      <aside class="gbe-sidebar">
+        <div class="gbe-side-panel">
+          {{#if SUMMARY}}
+          <section class="gbe-section gbe-section--summary gbe-side-section">
+            <h2 class="gbe-side-title">Summary</h2>
+            <div class="gbe-summary">
+              <p class="summary-text">{{SUMMARY}}</p>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if SKILLS}}
+          <section class="gbe-section gbe-section--skills gbe-side-section">
+            <h2 class="gbe-side-title">Skills</h2>
+            <div class="skills-list gbe-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="gbe-section gbe-section--languages gbe-side-section">
+            <h2 class="gbe-side-title">Languages</h2>
+            <div class="languages-list gbe-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="gbe-section gbe-section--certifications gbe-side-section">
+            <h2 class="gbe-side-title">Certificates</h2>
+            <div class="certifications-list gbe-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="gbe-section gbe-section--achievements gbe-side-section">
+            <h2 class="gbe-side-title">Achievements</h2>
+            <div class="achievements-list gbe-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="gbe-section gbe-section--interests gbe-side-section">
+            <h2 class="gbe-side-title">Interests</h2>
+            <div class="hobbies-list gbe-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+
+      <main class="gbe-main">
+        {{#if EXPERIENCE}}
+        <section class="gbe-section gbe-section--experience">
+          <h2 class="gbe-main-title"><span class="gbe-title-text">Experience</span><span class="gbe-title-line" aria-hidden="true"></span></h2>
+          <div class="experience-list gbe-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="gbe-section gbe-section--projects">
+          <h2 class="gbe-main-title"><span class="gbe-title-text">Projects</span><span class="gbe-title-line" aria-hidden="true"></span></h2>
+          <div class="projects-list gbe-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="gbe-section gbe-section--education">
+          <h2 class="gbe-main-title"><span class="gbe-title-text">Education</span><span class="gbe-title-line" aria-hidden="true"></span></h2>
+          <div class="education-list gbe-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FCFAF7"/>
+  <!-- Header band -->
+  <path d="M0,0 H600 V156 Q600,192 564,192 H36 Q0,192 0,156 Z" fill="#F5F2EC"/>
+  <line x1="28" y1="180" x2="572" y2="180" stroke="#B57A54" stroke-width="2.5" opacity="0.55"/>
+  <!-- Photo -->
+  <circle cx="88" cy="92" r="54" fill="#364250" stroke="#FFFFFF" stroke-width="7"/>
+  <circle cx="88" cy="92" r="60" fill="none" stroke="#ECE8E1" stroke-width="2"/>
+  <!-- Name -->
+  <text x="168" y="76" font-family="Georgia, serif" font-size="30" font-weight="700" fill="#364250" letter-spacing="2">HELENA MARSH</text>
+  <text x="168" y="106" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#B57A54" letter-spacing="4">EXECUTIVE OPERATIONS DIRECTOR</text>
+  <!-- Contact row -->
+  <circle cx="176" cy="136" r="8" fill="#B57A54"/>
+  <text x="190" y="140" font-family="Arial, sans-serif" font-size="10" fill="#2B333D">+32 555 0164</text>
+  <circle cx="286" cy="136" r="8" fill="#B57A54"/>
+  <text x="300" y="140" font-family="Arial, sans-serif" font-size="10" fill="#2B333D">helena@email.com</text>
+  <circle cx="420" cy="136" r="8" fill="#B57A54"/>
+  <text x="434" y="140" font-family="Arial, sans-serif" font-size="10" fill="#2B333D">helenamarsh.com</text>
+  <circle cx="176" cy="160" r="8" fill="#B57A54"/>
+  <text x="190" y="164" font-family="Arial, sans-serif" font-size="10" fill="#2B333D">linkedin.com/in/hmarsh</text>
+  <circle cx="360" cy="160" r="8" fill="#B57A54"/>
+  <text x="374" y="164" font-family="Arial, sans-serif" font-size="10" fill="#2B333D">Brussels, BE</text>
+  <!-- Sidebar panel -->
+  <path d="M28,216 Q28,208 36,208 H150 Q196,208 196,254 V740 Q196,776 160,776 H60 Q28,776 28,744 Z" fill="#364250"/>
+  <!-- Summary -->
+  <text x="52" y="248" font-family="Georgia, serif" font-size="15" fill="#FFFFFF">Summary</text>
+  <rect x="52" y="256" width="30" height="3" fill="#CE9A76"/>
+  <rect x="52" y="272" width="118" height="5" rx="2" fill="#8A93A0"/>
+  <rect x="52" y="286" width="110" height="5" rx="2" fill="#8A93A0"/>
+  <rect x="52" y="300" width="114" height="5" rx="2" fill="#8A93A0"/>
+  <rect x="52" y="314" width="96" height="5" rx="2" fill="#8A93A0"/>
+  <!-- Skills chips -->
+  <text x="52" y="362" font-family="Georgia, serif" font-size="15" fill="#FFFFFF">Skills</text>
+  <rect x="52" y="370" width="30" height="3" fill="#CE9A76"/>
+  <rect x="52" y="382" width="72" height="20" rx="10" fill="none" stroke="#CE9A76" stroke-width="1.5"/>
+  <text x="88" y="396" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#F4F2EE">Strategy</text>
+  <rect x="130" y="382" width="52" height="20" rx="10" fill="none" stroke="#CE9A76" stroke-width="1.5"/>
+  <text x="156" y="396" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#F4F2EE">Teams</text>
+  <rect x="52" y="408" width="60" height="20" rx="10" fill="none" stroke="#CE9A76" stroke-width="1.5"/>
+  <text x="82" y="422" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#F4F2EE">Budget</text>
+  <rect x="118" y="408" width="46" height="20" rx="10" fill="none" stroke="#CE9A76" stroke-width="1.5"/>
+  <text x="141" y="422" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#F4F2EE">Risk</text>
+  <!-- Languages -->
+  <text x="52" y="478" font-family="Georgia, serif" font-size="15" fill="#FFFFFF">Languages</text>
+  <rect x="52" y="486" width="30" height="3" fill="#CE9A76"/>
+  <circle cx="58" cy="504" r="4" fill="#CE9A76"/>
+  <text x="70" y="508" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">English · Fluent</text>
+  <circle cx="58" cy="528" r="4" fill="#CE9A76"/>
+  <text x="70" y="532" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">German · Advanced</text>
+  <!-- Certificates -->
+  <text x="52" y="582" font-family="Georgia, serif" font-size="15" fill="#FFFFFF">Certificates</text>
+  <rect x="52" y="590" width="30" height="3" fill="#CE9A76"/>
+  <circle cx="58" cy="608" r="4" fill="#CE9A76"/>
+  <text x="70" y="612" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">PMP</text>
+  <circle cx="58" cy="632" r="4" fill="#CE9A76"/>
+  <text x="70" y="636" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">Lean Six Sigma</text>
+  <!-- Achievements -->
+  <text x="52" y="686" font-family="Georgia, serif" font-size="15" fill="#FFFFFF">Achievements</text>
+  <rect x="52" y="694" width="30" height="3" fill="#CE9A76"/>
+  <circle cx="58" cy="712" r="4" fill="#CE9A76"/>
+  <rect x="70" y="708" width="96" height="5" rx="2" fill="#8A93A0"/>
+  <circle cx="58" cy="734" r="4" fill="#CE9A76"/>
+  <rect x="70" y="730" width="88" height="5" rx="2" fill="#8A93A0"/>
+  <!-- Main: Experience -->
+  <text x="220" y="240" font-family="Georgia, serif" font-size="18" fill="#B57A54">Experience</text>
+  <line x1="330" y1="234" x2="572" y2="234" stroke="#ECE8E1" stroke-width="1.5"/>
+  <rect x="220" y="254" width="352" height="104" rx="12" fill="#F5F2EC" stroke="#ECE8E1" stroke-width="1.5"/>
+  <text x="238" y="282" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#364250">Operations Director</text>
+  <text x="556" y="282" text-anchor="end" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B57A54">2020 - 2025</text>
+  <text x="238" y="300" font-family="Arial, sans-serif" font-size="10" fill="#6E7681">Lightstone Companies</text>
+  <circle cx="243" cy="318" r="3" fill="#B57A54"/>
+  <rect x="254" y="314" width="280" height="5" rx="2" fill="#DBD6CC"/>
+  <circle cx="243" cy="338" r="3" fill="#B57A54"/>
+  <rect x="254" y="334" width="256" height="5" rx="2" fill="#DBD6CC"/>
+  <rect x="220" y="370" width="352" height="86" rx="12" fill="#F5F2EC" stroke="#ECE8E1" stroke-width="1.5"/>
+  <text x="238" y="398" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#364250">Senior Program Manager</text>
+  <text x="556" y="398" text-anchor="end" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B57A54">2016 - 2020</text>
+  <text x="238" y="416" font-family="Arial, sans-serif" font-size="10" fill="#6E7681">Meridian Group</text>
+  <circle cx="243" cy="434" r="3" fill="#B57A54"/>
+  <rect x="254" y="430" width="264" height="5" rx="2" fill="#DBD6CC"/>
+  <!-- Main: Projects -->
+  <text x="220" y="500" font-family="Georgia, serif" font-size="18" fill="#B57A54">Projects</text>
+  <line x1="308" y1="494" x2="572" y2="494" stroke="#ECE8E1" stroke-width="1.5"/>
+  <rect x="220" y="514" width="170" height="74" rx="12" fill="#FFFFFF" stroke="#ECE8E1" stroke-width="1.5"/>
+  <text x="234" y="540" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#364250">Digital Transformation</text>
+  <text x="234" y="558" font-family="Arial, sans-serif" font-size="9" fill="#B57A54">Lead / Enterprise</text>
+  <rect x="234" y="568" width="130" height="4" rx="2" fill="#ECE8E1"/>
+  <rect x="402" y="514" width="170" height="74" rx="12" fill="#FFFFFF" stroke="#ECE8E1" stroke-width="1.5"/>
+  <text x="416" y="540" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#364250">Process Optimization</text>
+  <text x="416" y="558" font-family="Arial, sans-serif" font-size="9" fill="#B57A54">Owner / Global</text>
+  <rect x="416" y="568" width="124" height="4" rx="2" fill="#ECE8E1"/>
+  <!-- Main: Education -->
+  <text x="220" y="632" font-family="Georgia, serif" font-size="18" fill="#B57A54">Education</text>
+  <line x1="322" y1="626" x2="572" y2="626" stroke="#ECE8E1" stroke-width="1.5"/>
+  <rect x="220" y="646" width="170" height="80" rx="12" fill="#F5F2EC" stroke="#ECE8E1" stroke-width="1.5"/>
+  <text x="234" y="672" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#364250">MBA, Operations</text>
+  <text x="234" y="690" font-family="Arial, sans-serif" font-size="9" fill="#6E7681">Kellton University</text>
+  <text x="234" y="708" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#B57A54">2014</text>
+  <rect x="402" y="646" width="170" height="80" rx="12" fill="#F5F2EC" stroke="#ECE8E1" stroke-width="1.5"/>
+  <text x="416" y="672" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#364250">BSc, Management</text>
+  <text x="416" y="690" font-family="Arial, sans-serif" font-size="9" fill="#6E7681">Harlow College</text>
+  <text x="416" y="708" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#B57A54">2011</text>
+  <text x="300" y="768" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#6E7681">Graphite Bronze Executive</text>
+</svg>

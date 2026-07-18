@@ -842,6 +842,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "graphite-bronze-executive",
+      "name": "Graphite Bronze Executive",
+      "slug": "graphite-bronze-executive",
+      "description": "Premium soft-luxury executive resume with a beige header band, layered circular portrait, serif Playfair name, inline contact chips, rounded graphite sidebar with skill chips, beige experience cards, responsive project and education card grids, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/graphite-bronze-executive/thumbnail.svg",
+      "preview": "/templates/graphite-bronze-executive/preview.svg",
+      "html": "/templates/graphite-bronze-executive/index.html",
+      "css": "/templates/graphite-bronze-executive/style.css",
+      "categories": ["Premium", "Executive", "Professional", "Modern", "Luxury", "Corporate", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "graphite-bronze", "name": "Graphite Bronze", "primary": "#364250", "accent": "#B57A54", "text": "#2B333D" },
+        { "id": "slate-copper", "name": "Slate Copper", "primary": "#3A4653", "accent": "#A96F4B", "text": "#2B333D" },
+        { "id": "midnight-clay", "name": "Midnight Clay", "primary": "#2F3945", "accent": "#B57A54", "text": "#28303A" },
+        { "id": "steel-amber", "name": "Steel Amber", "primary": "#364250", "accent": "#C08A5E", "text": "#2B333D" },
+        { "id": "ink-terracotta", "name": "Ink Terracotta", "primary": "#313B47", "accent": "#AD7150", "text": "#293139" }
+      ],
+      "defaultColor": "graphite-bronze",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 67,
+        "sidebarColumnBasisPct": 33,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "skills", "languages", "certifications", "achievements", "interests"],
+        "rightSections": ["contact", "experience", "projects", "education", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
