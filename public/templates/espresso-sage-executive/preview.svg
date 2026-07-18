@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#F8F6F1"/>
+  <path d="M0,0 L180,0 L0,110 Z" fill="#B97A57" opacity="0.22"/>
+  <path d="M600,800 L420,800 L600,660 Z" fill="#9AA58D" opacity="0.28"/>
+  <!-- Sidebar sheet -->
+  <rect x="24" y="36" width="200" height="728" rx="22" fill="#ECE5D8"/>
+  <ellipse cx="124" cy="116" rx="72" ry="68" fill="#E2D9C8"/>
+  <circle cx="124" cy="108" r="56" fill="#4A372B" stroke="#FFFFFF" stroke-width="6"/>
+  <!-- Contact -->
+  <text x="48" y="200" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B" letter-spacing="2.5">CONTACT</text>
+  <rect x="48" y="208" width="36" height="3" fill="#B97A57"/>
+  <rect x="84" y="208" width="108" height="3" fill="#E2D9C8"/>
+  <circle cx="56" cy="232" r="5" fill="#B97A57"/>
+  <text x="70" y="236" font-family="Arial, sans-serif" font-size="10" fill="#3D322A">+1 (415) 555-0192</text>
+  <circle cx="56" cy="258" r="5" fill="#B97A57"/>
+  <text x="70" y="262" font-family="Arial, sans-serif" font-size="10" fill="#3D322A">leo.chen@email.com</text>
+  <circle cx="56" cy="284" r="5" fill="#B97A57"/>
+  <text x="70" y="288" font-family="Arial, sans-serif" font-size="10" fill="#3D322A">San Francisco, CA</text>
+  <circle cx="56" cy="310" r="5" fill="#B97A57"/>
+  <text x="70" y="314" font-family="Arial, sans-serif" font-size="10" fill="#3D322A">linkedin.com/in/leochen</text>
+  <!-- Education -->
+  <text x="48" y="360" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B" letter-spacing="2.5">EDUCATION</text>
+  <rect x="48" y="368" width="36" height="3" fill="#B97A57"/>
+  <rect x="84" y="368" width="108" height="3" fill="#E2D9C8"/>
+  <text x="48" y="396" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#4A372B">MBA, Operations</text>
+  <text x="48" y="414" font-family="Arial, sans-serif" font-size="10" fill="#6F6358">Kellton University</text>
+  <text x="48" y="432" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B97A57">2015</text>
+  <text x="48" y="462" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#4A372B">BFA, Design</text>
+  <text x="48" y="480" font-family="Arial, sans-serif" font-size="10" fill="#6F6358">Pacific Arts College</text>
+  <text x="48" y="498" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B97A57">2012</text>
+  <!-- Skills -->
+  <text x="48" y="546" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B" letter-spacing="2.5">SKILLS</text>
+  <rect x="48" y="554" width="36" height="3" fill="#B97A57"/>
+  <rect x="84" y="554" width="108" height="3" fill="#E2D9C8"/>
+  <text x="48" y="580" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#3D322A">Leadership</text>
+  <rect x="140" y="572" width="56" height="8" fill="#E2D9C8"/>
+  <rect x="140" y="572" width="42" height="8" fill="#B97A57"/>
+  <text x="48" y="606" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#3D322A">Strategy</text>
+  <rect x="140" y="598" width="56" height="8" fill="#E2D9C8"/>
+  <rect x="140" y="598" width="36" height="8" fill="#B97A57"/>
+  <text x="48" y="632" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#3D322A">Budgeting</text>
+  <rect x="140" y="624" width="56" height="8" fill="#E2D9C8"/>
+  <rect x="140" y="624" width="48" height="8" fill="#B97A57"/>
+  <!-- Languages -->
+  <text x="48" y="680" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B" letter-spacing="2.5">LANGUAGES</text>
+  <rect x="48" y="688" width="36" height="3" fill="#B97A57"/>
+  <rect x="84" y="688" width="108" height="3" fill="#E2D9C8"/>
+  <rect x="48" y="706" width="8" height="8" fill="#9AA58D" transform="rotate(45 52 710)"/>
+  <text x="66" y="716" font-family="Arial, sans-serif" font-size="10" fill="#3D322A">English  Fluent</text>
+  <rect x="48" y="732" width="8" height="8" fill="#9AA58D" transform="rotate(45 52 736)"/>
+  <text x="66" y="742" font-family="Arial, sans-serif" font-size="10" fill="#3D322A">Mandarin  Advanced</text>
+  <!-- Main name -->
+  <text x="256" y="84" font-family="Georgia, serif" font-size="36" font-weight="700" fill="#4A372B" letter-spacing="3">LEO CHEN</text>
+  <text x="256" y="116" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#6F6358" letter-spacing="4">CREATIVE OPERATIONS DIRECTOR</text>
+  <!-- Summary -->
+  <path d="M248,144 H560 L536,190 H248 Z" fill="#B97A57" opacity="0.7"/>
+  <rect x="256" y="156" width="312" height="84" rx="10" fill="#FFFFFF"/>
+  <text x="272" y="182" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B" letter-spacing="2">SUMMARY</text>
+  <rect x="272" y="194" width="260" height="5" rx="2" fill="#D8CFC0"/>
+  <rect x="272" y="208" width="240" height="5" rx="2" fill="#D8CFC0"/>
+  <rect x="272" y="222" width="220" height="5" rx="2" fill="#D8CFC0"/>
+  <!-- Experience -->
+  <text x="256" y="280" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#4A372B" letter-spacing="2.5">EXPERIENCE</text>
+  <path d="M372,270 H568 L568,286 H372 Z" fill="#4A372B" opacity="0.75"/>
+  <rect x="256" y="296" width="316" height="104" rx="10" fill="#FFFFFF"/>
+  <text x="272" y="324" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B">Creative Operations Director</text>
+  <text x="556" y="324" text-anchor="end" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B97A57">2020 - Present</text>
+  <text x="272" y="344" font-family="Arial, sans-serif" font-size="10" fill="#6F6358">Northwind Creative</text>
+  <rect x="278" y="360" width="7" height="7" fill="#9AA58D" transform="rotate(45 281 363)"/>
+  <rect x="294" y="358" width="240" height="5" rx="2" fill="#D8CFC0"/>
+  <rect x="278" y="380" width="7" height="7" fill="#9AA58D" transform="rotate(45 281 383)"/>
+  <rect x="294" y="378" width="220" height="5" rx="2" fill="#D8CFC0"/>
+  <rect x="256" y="414" width="316" height="86" rx="10" fill="#FFFFFF"/>
+  <text x="272" y="442" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B">Senior Program Lead</text>
+  <text x="556" y="442" text-anchor="end" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#B97A57">2016 - 2020</text>
+  <text x="272" y="462" font-family="Arial, sans-serif" font-size="10" fill="#6F6358">Atlas Studio Group</text>
+  <rect x="278" y="478" width="7" height="7" fill="#9AA58D" transform="rotate(45 281 481)"/>
+  <rect x="294" y="476" width="230" height="5" rx="2" fill="#D8CFC0"/>
+  <!-- Projects -->
+  <text x="256" y="544" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#4A372B" letter-spacing="2.5">PROJECTS</text>
+  <path d="M352,534 H568 L568,550 H352 Z" fill="#9AA58D" opacity="0.85"/>
+  <rect x="256" y="560" width="316" height="72" rx="10" fill="#ECE5D8"/>
+  <text x="272" y="588" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#4A372B">Brand Platform Refresh</text>
+  <text x="272" y="608" font-family="Arial, sans-serif" font-size="10" fill="#B97A57">Figma / Notion / Asana</text>
+  <!-- Achievements -->
+  <text x="256" y="676" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#4A372B" letter-spacing="2.5">ACHIEVEMENTS</text>
+  <path d="M400,666 H568 L568,682 H400 Z" fill="#B97A57" opacity="0.8"/>
+  <rect x="262" y="698" width="8" height="8" fill="#9AA58D" transform="rotate(45 266 702)"/>
+  <rect x="280" y="696" width="260" height="5" rx="2" fill="#D8CFC0"/>
+  <rect x="262" y="722" width="8" height="8" fill="#9AA58D" transform="rotate(45 266 726)"/>
+  <rect x="280" y="720" width="240" height="5" rx="2" fill="#D8CFC0"/>
+  <text x="300" y="770" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#6F6358">Espresso Sage Executive</text>
+</svg>

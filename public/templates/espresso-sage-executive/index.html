@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ese-resume">
+    <div class="ese-deco ese-deco--tl" aria-hidden="true"></div>
+    <div class="ese-deco ese-deco--br" aria-hidden="true"></div>
+
+    <div class="ese-body">
+      <aside class="ese-sidebar">
+        <div class="ese-side-sheet">
+          <div class="ese-photo-block">
+            <span class="ese-photo-cutout" aria-hidden="true"></span>
+            {{#if PROFILE_IMAGE}}
+            <div class="ese-photo">
+              <div class="profile-image-wrapper">
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+              </div>
+            </div>
+            {{/if}}
+            {{#unless PROFILE_IMAGE}}
+            <div class="ese-photo">
+              <div class="profile-image-wrapper profile-image-wrapper--initials">
+                <span class="profile-initials" aria-hidden="true">
+                  <span class="ese-ini-f">{{FIRST_NAME}}</span><span class="ese-ini-l">{{LAST_NAME}}</span>
+                </span>
+              </div>
+            </div>
+            {{/unless}}
+          </div>
+
+          <section class="ese-section ese-section--contact ese-side-section">
+            <h2 class="ese-side-title">Contact</h2>
+            <div class="ese-contact-list">
+              {{#if PHONE}}
+              <div class="ese-contact-item ese-contact-item--phone">
+                <span class="ese-contact-icon" aria-hidden="true"></span>
+                <span class="ese-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if EMAIL}}
+              <div class="ese-contact-item ese-contact-item--email">
+                <span class="ese-contact-icon" aria-hidden="true"></span>
+                <span class="ese-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if LOCATION}}
+              <div class="ese-contact-item ese-contact-item--location">
+                <span class="ese-contact-icon" aria-hidden="true"></span>
+                <span class="ese-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+              {{#if LINKEDIN}}
+              <div class="ese-contact-item ese-contact-item--linkedin">
+                <span class="ese-contact-icon" aria-hidden="true"></span>
+                <span class="ese-contact-value">{{LINKEDIN}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="ese-contact-item ese-contact-item--web">
+                <span class="ese-contact-icon" aria-hidden="true"></span>
+                <span class="ese-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+            </div>
+          </section>
+
+          {{#if EDUCATION}}
+          <section class="ese-section ese-section--education ese-side-section">
+            <h2 class="ese-side-title">Education</h2>
+            <div class="education-list ese-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if SKILLS}}
+          <section class="ese-section ese-section--skills ese-side-section">
+            <h2 class="ese-side-title">Skills</h2>
+            <div class="skills-list ese-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="ese-section ese-section--languages ese-side-section">
+            <h2 class="ese-side-title">Languages</h2>
+            <div class="languages-list ese-languages">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="ese-section ese-section--certifications ese-side-section">
+            <h2 class="ese-side-title">Certifications</h2>
+            <div class="certifications-list ese-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="ese-section ese-section--interests ese-side-section">
+            <h2 class="ese-side-title">Interests</h2>
+            <div class="hobbies-list ese-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+
+      <main class="ese-main">
+        <header class="ese-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-space"> </span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="ese-section ese-section--summary">
+          <div class="ese-summary-wrap">
+            <div class="ese-summary-ribbon" aria-hidden="true"></div>
+            <div class="ese-summary-card">
+              <h2 class="ese-main-title"><span class="ese-title-text">Summary</span></h2>
+              <div class="ese-summary">
+                <p class="summary-text">{{SUMMARY}}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="ese-section ese-section--experience">
+          <h2 class="ese-main-title">
+            <span class="ese-title-text">Experience</span>
+            <span class="ese-title-ribbon ese-title-ribbon--espresso" aria-hidden="true"></span>
+          </h2>
+          <div class="experience-list ese-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="ese-section ese-section--projects">
+          <h2 class="ese-main-title">
+            <span class="ese-title-text">Projects</span>
+            <span class="ese-title-ribbon ese-title-ribbon--sage" aria-hidden="true"></span>
+          </h2>
+          <div class="projects-list ese-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="ese-section ese-section--achievements">
+          <h2 class="ese-main-title">
+            <span class="ese-title-text">Achievements</span>
+            <span class="ese-title-ribbon ese-title-ribbon--bronze" aria-hidden="true"></span>
+          </h2>
+          <div class="achievements-list ese-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

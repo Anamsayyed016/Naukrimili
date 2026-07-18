@@ -1,0 +1,1080 @@
+/* Espresso Sage Executive — warm ivory layered paper, original geometric ribbons */
+
+.ese-resume {
+  --ese-ivory: #F8F6F1;
+  --ese-espresso: #4A372B;
+  --ese-bronze: #B97A57;
+  --ese-sage: #9AA58D;
+  --ese-beige: #ECE5D8;
+  --ese-beige-deep: #E2D9C8;
+  --ese-text: #3D322A;
+  --ese-muted: #6F6358;
+  --ese-side-text: #3D322A;
+  --ese-side-muted: #6F6358;
+  --ese-max-width: 210mm;
+  --ese-font-display: 'Cormorant Garamond', Georgia, serif;
+  --ese-font-body: 'Manrope', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ese-side: 34fr;
+  --ese-main: 66fr;
+  --ese-photo: clamp(118px, 15.5cqw, 142px);
+  --ese-section-gap: 22px;
+  --ese-block-gap: 14px;
+  --ese-heading-gap: 11px;
+  --ese-lh-body: 1.58;
+  --ese-lh-tight: 1.38;
+  --ese-fs-name: clamp(30px, 4.2vw, 40px);
+  --ese-fs-job: 12px;
+  --ese-fs-section: 12.5px;
+  --ese-fs-body: 12.5px;
+  --ese-fs-meta: 12px;
+  --ese-fs-small: 11px;
+
+  --primary-color: var(--ese-espresso);
+  --accent-color: var(--ese-bronze);
+  --text-color: var(--ese-text);
+}
+
+.ese-resume,
+.ese-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ese-resume,
+.resume-container.ese-resume {
+  position: relative;
+  container-type: inline-size;
+  width: 794px;
+  max-width: var(--ese-max-width);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--ese-font-body);
+  font-size: var(--ese-fs-body);
+  line-height: var(--ese-lh-body);
+  color: var(--ese-text);
+  background: var(--ese-ivory) !important;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Original corner folds — soft translucent parallelograms, not reference triangles */
+.ese-resume .ese-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ese-resume .ese-deco--tl {
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 72px;
+  background: linear-gradient(135deg, rgba(185, 122, 87, 0.22) 0%, transparent 70%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.ese-resume .ese-deco--br {
+  right: 0;
+  bottom: 0;
+  width: 140px;
+  height: 88px;
+  background: linear-gradient(315deg, rgba(154, 165, 141, 0.28) 0%, transparent 72%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.ese-resume .ese-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, var(--ese-side)) minmax(0, var(--ese-main));
+  align-items: stretch;
+  min-height: 0;
+  gap: 0;
+  padding: 28px 26px 32px;
+}
+
+/* ── Sidebar sheet ── */
+.ese-resume .ese-sidebar {
+  min-width: 0;
+  padding-right: 18px;
+  align-self: stretch;
+}
+
+.ese-resume .ese-side-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ese-section-gap);
+  min-height: 100%;
+  background: var(--ese-beige);
+  border-radius: 22px 8px 22px 8px;
+  padding: 26px 20px 30px;
+  box-shadow:
+    4px 0 0 rgba(74, 55, 43, 0.04),
+    0 8px 22px rgba(74, 55, 43, 0.08);
+  overflow: visible;
+}
+
+.ese-resume .ese-side-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+  overflow: visible;
+}
+
+/* Photo with original soft cutout pedestal */
+.ese-resume .ese-photo-block {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 4px;
+}
+
+.ese-resume .ese-photo-cutout {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: 78%;
+  height: 78%;
+  transform: translateX(-50%);
+  background: var(--ese-beige-deep);
+  border-radius: 48% 48% 28% 28% / 42% 42% 58% 58%;
+  box-shadow: inset 0 0 0 1px rgba(74, 55, 43, 0.06);
+  z-index: 0;
+}
+
+.ese-resume .ese-photo {
+  position: relative;
+  z-index: 1;
+  width: var(--ese-photo);
+  height: var(--ese-photo);
+}
+
+.ese-resume .profile-image-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 4px 14px rgba(74, 55, 43, 0.14);
+  background: var(--ese-espresso);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ese-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.ese-resume .profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ese-font-display);
+  font-size: clamp(26px, 3.6vw, 34px);
+  font-weight: 700;
+  color: var(--ese-beige);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ese-resume .ese-ini-f,
+.ese-resume .ese-ini-l {
+  display: inline-block;
+  max-width: 1.1ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Sidebar titles */
+.ese-resume .ese-side-title {
+  font-family: var(--ese-font-body);
+  font-size: var(--ese-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ese-espresso);
+  line-height: 1.25;
+  margin-bottom: var(--ese-heading-gap);
+  padding-bottom: 7px;
+  position: relative;
+}
+
+.ese-resume .ese-side-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ese-bronze) 0 28px, var(--ese-beige-deep) 28px 100%);
+}
+
+/* Contact — immediately under photo */
+.ese-resume .ese-section--contact:not(:has(.ese-contact-item)) {
+  display: none;
+}
+
+.ese-resume .ese-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.ese-resume .ese-contact-item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  min-width: 0;
+}
+
+.ese-resume .ese-contact-icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
+}
+
+.ese-resume .ese-contact-item--phone .ese-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B97A57' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
+}
+
+.ese-resume .ese-contact-item--email .ese-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B97A57' stroke-width='1.8'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
+}
+
+.ese-resume .ese-contact-item--location .ese-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B97A57' stroke-width='1.8'%3E%3Cpath d='M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+}
+
+.ese-resume .ese-contact-item--linkedin .ese-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B97A57' stroke-width='1.8'%3E%3Crect x='3' y='3' width='18' height='18' rx='3'/%3E%3Cpath d='M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1.5-2 2.5-2s2.5.8 2.5 2.5V16'/%3E%3C/svg%3E");
+}
+
+.ese-resume .ese-contact-item--web .ese-contact-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B97A57' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+}
+
+.ese-resume .ese-contact-value {
+  font-size: var(--ese-fs-small);
+  font-weight: 500;
+  color: var(--ese-side-text);
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Education */
+.ese-resume .ese-education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ese-resume .ese-education .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ese-resume .ese-education .education-item h3 {
+  font-size: var(--ese-fs-small);
+  font-weight: 700;
+  color: var(--ese-espresso);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.ese-resume .ese-education .education-item .institution {
+  display: block;
+  font-size: var(--ese-fs-small);
+  color: var(--ese-side-muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.ese-resume .ese-education .education-item .year,
+.ese-resume .ese-education .education-item .cgpa {
+  display: block;
+  font-size: var(--ese-fs-small);
+  font-weight: 600;
+  color: var(--ese-bronze);
+  margin-top: 2px;
+}
+
+/* Skills — name + soft segment meter (original, not star/dot copy) */
+.ese-resume .ese-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ese-resume .ese-skills .skill-tag {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--ese-fs-small);
+  font-weight: 600;
+  color: var(--ese-side-text);
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  --ese-skill-fill: 3;
+}
+
+.ese-resume .ese-skills .skill-tag:nth-child(4n + 1) { --ese-skill-fill: 4; }
+.ese-resume .ese-skills .skill-tag:nth-child(4n + 2) { --ese-skill-fill: 3; }
+.ese-resume .ese-skills .skill-tag:nth-child(4n + 3) { --ese-skill-fill: 4; }
+.ese-resume .ese-skills .skill-tag:nth-child(4n) { --ese-skill-fill: 2; }
+
+.ese-resume .ese-skills .skill-tag::after {
+  content: '';
+  width: 56px;
+  height: 7px;
+  border-radius: 2px;
+  background:
+    linear-gradient(
+      to right,
+      var(--ese-bronze) 0 calc(var(--ese-skill-fill) * 25%),
+      var(--ese-beige-deep) calc(var(--ese-skill-fill) * 25%) 100%
+    );
+  box-shadow:
+    inset 14px 0 0 -12px rgba(255, 255, 255, 0.55),
+    inset 28px 0 0 -12px rgba(255, 255, 255, 0.55),
+    inset 42px 0 0 -12px rgba(255, 255, 255, 0.55);
+}
+
+/* Languages */
+.ese-resume .ese-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ese-resume .ese-languages .language-item {
+  position: relative;
+  padding-left: 14px;
+  font-size: var(--ese-fs-body);
+  color: var(--ese-side-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.ese-resume .ese-languages .language-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--ese-sage);
+  transform: rotate(45deg);
+}
+
+.ese-resume .ese-languages .language-item .language {
+  font-weight: 600;
+}
+
+.ese-resume .ese-languages .language-item .proficiency {
+  color: var(--ese-side-muted);
+  font-size: var(--ese-fs-small);
+}
+
+.ese-resume .ese-languages .language-item .proficiency:not(:empty)::before {
+  content: ' — ';
+}
+
+.ese-resume .ese-languages .language-progress,
+.ese-resume .ese-languages .progress-bar,
+.ese-resume .ese-languages .progress-fill {
+  display: none;
+}
+
+/* Certifications */
+.ese-resume .ese-certifications {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.ese-resume .ese-certifications .certification-item {
+  position: relative;
+  padding-left: 14px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ese-resume .ese-certifications .certification-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--ese-bronze);
+  transform: rotate(45deg);
+}
+
+.ese-resume .ese-certifications .certification-item h3,
+.ese-resume .ese-certifications .cert-name {
+  font-size: var(--ese-fs-small);
+  font-weight: 700;
+  color: var(--ese-espresso);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.ese-resume .ese-certifications .issuer,
+.ese-resume .ese-certifications .date,
+.ese-resume .ese-certifications .year {
+  display: block;
+  font-size: var(--ese-fs-small);
+  color: var(--ese-side-muted);
+}
+
+/* Interests chips */
+.ese-resume .ese-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.ese-resume .ese-interests .hobby-item {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(74, 55, 43, 0.1);
+  font-size: var(--ese-fs-small);
+  font-weight: 500;
+  color: var(--ese-side-text);
+  line-height: 1.35;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* Sidebar readability overrides for moved sections */
+.resume-container.ese-resume .ese-sidebar .ese-contact-value,
+.resume-container.ese-resume .ese-sidebar .skill-tag,
+.resume-container.ese-resume .ese-sidebar .language-item,
+.resume-container.ese-resume .ese-sidebar .hobby-item,
+.resume-container.ese-resume .ese-sidebar .hobby-item .hobby,
+.resume-container.ese-resume .ese-sidebar .education-item h3,
+.resume-container.ese-resume .ese-sidebar .certification-item h3,
+.resume-container.ese-resume .ese-sidebar .cert-name,
+.resume-container.ese-resume .ese-sidebar .experience-header h3,
+.resume-container.ese-resume .ese-sidebar .project-item h3,
+.resume-container.ese-resume .ese-sidebar .achievement-item h3 {
+  color: var(--ese-side-text) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.ese-resume .ese-sidebar .issuer,
+.resume-container.ese-resume .ese-sidebar .date,
+.resume-container.ese-resume .ese-sidebar .duration,
+.resume-container.ese-resume .ese-sidebar .institution,
+.resume-container.ese-resume .ese-sidebar .description,
+.resume-container.ese-resume .ese-sidebar .description li,
+.resume-container.ese-resume .ese-sidebar p,
+.resume-container.ese-resume .ese-sidebar .technologies,
+.resume-container.ese-resume .ese-sidebar a {
+  color: var(--ese-side-muted) !important;
+  opacity: 1 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.resume-container.ese-resume .ese-sidebar .year,
+.resume-container.ese-resume .ese-sidebar .cgpa {
+  color: var(--ese-bronze) !important;
+}
+
+.resume-container.ese-resume .ese-sidebar .project-item {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(74, 55, 43, 0.12);
+  box-shadow: none;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
+
+.resume-container.ese-resume .ese-sidebar .ese-main-title .ese-title-text {
+  color: var(--ese-espresso) !important;
+  opacity: 1 !important;
+}
+
+/* ── Main ── */
+.ese-resume .ese-main {
+  position: relative;
+  min-width: 0;
+  padding: 8px 6px 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ese-section-gap);
+}
+
+.ese-resume .ese-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ese-resume .ese-header {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin-bottom: 4px;
+}
+
+.ese-resume .candidate-name {
+  font-family: var(--ese-font-display);
+  font-size: var(--ese-fs-name);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ese-espresso);
+  line-height: 1.08;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.ese-resume .candidate-name .name-fallback {
+  display: none;
+}
+
+.ese-resume .candidate-name:not(:has(.name-first:not(:empty))):not(:has(.name-last:not(:empty))) .name-fallback {
+  display: inline;
+}
+
+.ese-resume .header-title {
+  margin-top: 8px;
+  font-family: var(--ese-font-body);
+  font-size: var(--ese-fs-job);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ese-muted);
+  line-height: var(--ese-lh-tight);
+}
+
+/* Main titles + angled ribbon separators (original) */
+.ese-resume .ese-main-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--ese-heading-gap);
+}
+
+.ese-resume .ese-title-text {
+  font-family: var(--ese-font-body);
+  font-size: var(--ese-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ese-espresso);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.ese-resume .ese-title-ribbon {
+  flex: 1;
+  min-width: 24px;
+  height: 8px;
+  opacity: 0.85;
+  clip-path: polygon(0 35%, 100% 0, 100% 100%, 0 65%);
+}
+
+.ese-resume .ese-title-ribbon--espresso {
+  background: linear-gradient(90deg, var(--ese-espresso), rgba(74, 55, 43, 0.15));
+}
+
+.ese-resume .ese-title-ribbon--sage {
+  background: linear-gradient(90deg, var(--ese-sage), rgba(154, 165, 141, 0.15));
+}
+
+.ese-resume .ese-title-ribbon--bronze {
+  background: linear-gradient(90deg, var(--ese-bronze), rgba(185, 122, 87, 0.15));
+}
+
+/* Summary: elevated card over bronze ribbon strip */
+.ese-resume .ese-summary-wrap {
+  position: relative;
+  padding-top: 10px;
+}
+
+.ese-resume .ese-summary-ribbon {
+  position: absolute;
+  left: -6px;
+  right: 18px;
+  top: 0;
+  height: 36px;
+  background: var(--ese-bronze);
+  opacity: 0.7;
+  clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 100%);
+  border-radius: 0 4px 0 0;
+  z-index: 0;
+}
+
+.ese-resume .ese-summary-card {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  border: 1px solid rgba(74, 55, 43, 0.08);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 18px rgba(74, 55, 43, 0.08);
+}
+
+.ese-resume .ese-summary-card .ese-main-title {
+  margin-bottom: 8px;
+}
+
+.ese-resume .ese-summary .summary-text {
+  font-size: var(--ese-fs-body);
+  color: var(--ese-muted);
+  line-height: var(--ese-lh-body);
+  overflow-wrap: anywhere;
+}
+
+/* Experience cards */
+.ese-resume .ese-experience {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ese-block-gap);
+}
+
+.ese-resume .ese-experience .experience-item {
+  background: #FFFFFF;
+  border: 1px solid rgba(74, 55, 43, 0.08);
+  border-radius: 10px;
+  padding: 13px 15px;
+  box-shadow: 0 2px 8px rgba(74, 55, 43, 0.05);
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+}
+
+.ese-resume .ese-experience .experience-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  margin-bottom: 7px;
+}
+
+.ese-resume .ese-experience .experience-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: calc(var(--ese-fs-body) + 0.5px);
+  font-weight: 700;
+  color: var(--ese-espresso);
+  line-height: var(--ese-lh-tight);
+  word-break: break-word;
+}
+
+.ese-resume .ese-experience .experience-header .company {
+  grid-column: 1;
+  grid-row: 2;
+  display: block;
+  font-size: var(--ese-fs-meta);
+  font-weight: 500;
+  color: var(--ese-muted);
+  line-height: var(--ese-lh-tight);
+  word-break: break-word;
+}
+
+.ese-resume .ese-experience .experience-header .duration {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  justify-self: end;
+  font-size: var(--ese-fs-small);
+  font-weight: 600;
+  color: var(--ese-bronze);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.ese-resume .ese-experience .description {
+  font-size: var(--ese-fs-body);
+  color: var(--ese-text);
+  line-height: var(--ese-lh-body);
+}
+
+.ese-resume .ese-experience .description ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.ese-resume .ese-experience .description li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 5px;
+}
+
+.ese-resume .ese-experience .description li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--ese-sage);
+  transform: rotate(45deg);
+}
+
+/* Projects */
+.ese-resume .ese-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ese-resume .ese-projects .project-item {
+  background: var(--ese-beige);
+  border: 1px solid rgba(74, 55, 43, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(74, 55, 43, 0.04);
+  page-break-inside: avoid;
+  break-inside: avoid;
+  min-width: 0;
+}
+
+.ese-resume .ese-projects .project-item > h3,
+.ese-resume .ese-projects .project-item > .project-title {
+  font-size: var(--ese-fs-body);
+  font-weight: 700;
+  color: var(--ese-espresso);
+  line-height: var(--ese-lh-tight);
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.ese-resume .ese-projects .project-item > .technologies,
+.ese-resume .ese-projects .project-item > .project-employer {
+  display: block;
+  font-size: var(--ese-fs-small);
+  color: var(--ese-bronze);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.ese-resume .ese-projects .project-item > .description,
+.ese-resume .ese-projects .project-item > ul,
+.ese-resume .ese-projects .project-item > p {
+  font-size: var(--ese-fs-body);
+  color: var(--ese-muted);
+  line-height: var(--ese-lh-body);
+}
+
+.ese-resume .ese-projects .project-item > ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0;
+}
+
+.ese-resume .ese-projects .project-item > ul li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.ese-resume .ese-projects .project-item > ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--ese-bronze);
+  transform: rotate(45deg);
+}
+
+.ese-resume .ese-projects .project-item > a {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--ese-fs-small);
+  color: var(--ese-bronze);
+  text-decoration: none;
+}
+
+/* Achievements */
+.ese-resume .ese-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ese-resume .ese-achievements .achievement-item h3 {
+  position: relative;
+  padding-left: 14px;
+  font-size: var(--ese-fs-body);
+  font-weight: 600;
+  color: var(--ese-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.ese-resume .ese-achievements .achievement-item h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--ese-sage);
+  transform: rotate(45deg);
+}
+
+.ese-resume .ese-achievements .achievement-item .description,
+.ese-resume .ese-achievements .achievement-item .date {
+  display: block;
+  padding-left: 14px;
+  font-size: var(--ese-fs-small);
+  color: var(--ese-muted);
+}
+
+/* Extended */
+.ese-resume .ese-main > .extended-section,
+.ese-resume .extended-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ese-resume .extended-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--ese-font-body);
+  font-size: var(--ese-fs-section);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ese-espresso);
+  margin: 0 0 var(--ese-heading-gap);
+  line-height: 1.25;
+}
+
+.ese-resume .extended-section-title::after {
+  content: '';
+  flex: 1;
+  min-width: 24px;
+  height: 8px;
+  background: linear-gradient(90deg, var(--ese-sage), rgba(154, 165, 141, 0.15));
+  clip-path: polygon(0 35%, 100% 0, 100% 100%, 0 65%);
+  opacity: 0.85;
+}
+
+.ese-resume .extended-section-body {
+  font-size: var(--ese-fs-body);
+  color: var(--ese-text);
+  line-height: var(--ese-lh-body);
+}
+
+.ese-resume .extended-section--references .extended-section-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ese-resume .extended-section--references .extended-record-item {
+  background: #FFFFFF;
+  border: 1px solid rgba(74, 55, 43, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(74, 55, 43, 0.04);
+  min-width: 0;
+}
+
+.ese-resume .extended-field {
+  font-size: var(--ese-fs-small);
+  margin-bottom: 2px;
+  color: var(--ese-muted);
+}
+
+.ese-resume .extended-section--references .extended-field:first-child {
+  font-size: var(--ese-fs-body);
+  font-weight: 700;
+  color: var(--ese-espresso);
+  margin-bottom: 4px;
+}
+
+.ese-resume .extended-section-body ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.25rem 0 0;
+}
+
+.ese-resume .extended-section-body li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.ese-resume .extended-section-body li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--ese-bronze);
+  transform: rotate(45deg);
+}
+
+/* Density */
+.ese-resume[data-dl-density='dense'],
+.ese-resume[data-dl-density='compact'] {
+  --ese-section-gap: 16px;
+  --ese-block-gap: 10px;
+  --ese-heading-gap: 8px;
+}
+
+.ese-resume[data-dl-density='sparse'],
+.ese-resume[data-dl-page-underfill='true'] {
+  --ese-section-gap: 26px;
+  --ese-block-gap: 17px;
+}
+
+/* Lock columns */
+.resume-container.ese-resume .ese-body,
+.resume-container.ese-resume .ese-main,
+.resume-container.ese-resume .ese-sidebar {
+  min-height: 0 !important;
+  height: auto !important;
+  justify-content: flex-start !important;
+}
+
+.resume-container.ese-resume .ese-body,
+.resume-container.ese-resume[data-dl-page-underfill='true'] .ese-body,
+.resume-container.ese-resume[data-dl-page-underfill='false'] .ese-body,
+.resume-container.ese-resume[data-dl-density] .ese-body {
+  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr) !important;
+  align-items: stretch !important;
+}
+
+.resume-container.ese-resume .ese-sidebar {
+  align-self: stretch !important;
+}
+
+.resume-container.ese-resume {
+  --acb-lh-body: 1.58;
+  --acb-lh-tight: 1.38;
+  --acb-section-gap: clamp(16px, 2vw, 22px);
+  --acb-block-gap: clamp(10px, 1.5vw, 14px);
+  --acb-heading-gap: clamp(8px, 1.2vw, 11px);
+  --acb-size-name: clamp(30px, 4.2vw, 40px);
+  --acb-size-body: clamp(11.5px, 1.45vw, 12.5px);
+  --acb-size-small: clamp(10px, 1.25vw, 11px);
+}
+
+/* Responsive */
+@container (max-width: 640px) {
+  .ese-resume .ese-body {
+    grid-template-columns: 1fr !important;
+    padding: 20px;
+  }
+
+  .ese-resume .ese-sidebar {
+    padding-right: 0;
+  }
+
+  .ese-resume .ese-side-sheet {
+    border-radius: 16px;
+  }
+
+  .ese-resume .ese-main {
+    padding: 18px 0 0;
+  }
+
+  .ese-resume .ese-deco {
+    opacity: 0.45;
+  }
+
+  .ese-resume .extended-section--references .extended-section-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .resume-container.ese-resume {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .ese-resume .ese-body {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: var(--ese-ivory) !important;
+  }
+
+  .resume-container.ese-resume {
+    width: 794px !important;
+    max-width: 210mm !important;
+    overflow: hidden !important;
+  }
+
+  .ese-resume .ese-side-sheet,
+  .ese-resume .ese-summary-ribbon,
+  .ese-resume .ese-summary-card,
+  .ese-resume .ese-title-ribbon,
+  .ese-resume .ese-deco,
+  .ese-resume .profile-image-wrapper,
+  .ese-resume .ese-photo-cutout,
+  .ese-resume .skill-tag::after,
+  .ese-resume .experience-item,
+  .ese-resume .project-item {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ese-resume .experience-item,
+  .ese-resume .education-item,
+  .ese-resume .project-item,
+  .ese-resume .achievement-item,
+  .ese-resume .certification-item,
+  .ese-resume .ese-section,
+  .ese-resume .extended-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

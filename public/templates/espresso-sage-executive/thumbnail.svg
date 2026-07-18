@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#F8F6F1"/>
+  <path d="M0,0 L90,0 L0,55 Z" fill="#B97A57" opacity="0.22"/>
+  <path d="M300,400 L210,400 L300,330 Z" fill="#9AA58D" opacity="0.28"/>
+  <!-- Sidebar sheet -->
+  <rect x="12" y="18" width="100" height="364" rx="14" fill="#ECE5D8"/>
+  <!-- Photo cutout + circle -->
+  <ellipse cx="62" cy="58" rx="36" ry="34" fill="#E2D9C8"/>
+  <circle cx="62" cy="54" r="28" fill="#4A372B" stroke="#FFFFFF" stroke-width="3"/>
+  <!-- Contact -->
+  <text x="24" y="100" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#4A372B" letter-spacing="1.2">CONTACT</text>
+  <rect x="24" y="104" width="18" height="2" fill="#B97A57"/>
+  <rect x="42" y="104" width="54" height="2" fill="#E2D9C8"/>
+  <circle cx="28" cy="116" r="2.5" fill="#B97A57"/>
+  <rect x="36" y="114" width="58" height="3" rx="1" fill="#6F6358"/>
+  <circle cx="28" cy="128" r="2.5" fill="#B97A57"/>
+  <rect x="36" y="126" width="62" height="3" rx="1" fill="#6F6358"/>
+  <circle cx="28" cy="140" r="2.5" fill="#B97A57"/>
+  <rect x="36" y="138" width="50" height="3" rx="1" fill="#6F6358"/>
+  <!-- Education -->
+  <text x="24" y="164" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#4A372B" letter-spacing="1.2">EDUCATION</text>
+  <rect x="24" y="168" width="18" height="2" fill="#B97A57"/>
+  <rect x="42" y="168" width="54" height="2" fill="#E2D9C8"/>
+  <text x="24" y="182" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="#4A372B">MBA OPERATIONS</text>
+  <text x="24" y="191" font-family="Arial, sans-serif" font-size="4.5" fill="#6F6358">Kellton University</text>
+  <text x="24" y="199" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="#B97A57">2015</text>
+  <!-- Skills -->
+  <text x="24" y="222" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#4A372B" letter-spacing="1.2">SKILLS</text>
+  <rect x="24" y="226" width="18" height="2" fill="#B97A57"/>
+  <rect x="42" y="226" width="54" height="2" fill="#E2D9C8"/>
+  <text x="24" y="240" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#3D322A">Leadership</text>
+  <rect x="72" y="235" width="28" height="5" fill="#E2D9C8"/>
+  <rect x="72" y="235" width="21" height="5" fill="#B97A57"/>
+  <text x="24" y="254" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#3D322A">Strategy</text>
+  <rect x="72" y="249" width="28" height="5" fill="#E2D9C8"/>
+  <rect x="72" y="249" width="18" height="5" fill="#B97A57"/>
+  <!-- Languages -->
+  <text x="24" y="278" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#4A372B" letter-spacing="1.2">LANGUAGES</text>
+  <rect x="24" y="282" width="18" height="2" fill="#B97A57"/>
+  <rect x="42" y="282" width="54" height="2" fill="#E2D9C8"/>
+  <rect x="24" y="292" width="4" height="4" fill="#9AA58D" transform="rotate(45 26 294)"/>
+  <text x="34" y="297" font-family="Arial, sans-serif" font-size="5" fill="#3D322A">English</text>
+  <rect x="24" y="306" width="4" height="4" fill="#9AA58D" transform="rotate(45 26 308)"/>
+  <text x="34" y="311" font-family="Arial, sans-serif" font-size="5" fill="#3D322A">Mandarin</text>
+  <!-- Interests -->
+  <text x="24" y="336" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#4A372B" letter-spacing="1.2">INTERESTS</text>
+  <rect x="24" y="340" width="18" height="2" fill="#B97A57"/>
+  <rect x="24" y="350" width="32" height="10" rx="3" fill="#FFFFFF" stroke="#D8CFC0"/>
+  <text x="40" y="357" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" fill="#3D322A">Design</text>
+  <rect x="60" y="350" width="34" height="10" rx="3" fill="#FFFFFF" stroke="#D8CFC0"/>
+  <text x="77" y="357" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" fill="#3D322A">Travel</text>
+  <!-- Main: Name -->
+  <text x="128" y="42" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#4A372B" letter-spacing="1.5">LEO CHEN</text>
+  <text x="128" y="58" font-family="Arial, sans-serif" font-size="5.5" font-weight="600" fill="#6F6358" letter-spacing="2">CREATIVE OPERATIONS DIRECTOR</text>
+  <!-- Summary card -->
+  <path d="M124,72 H280 L268,96 H124 Z" fill="#B97A57" opacity="0.7"/>
+  <rect x="128" y="78" width="156" height="42" rx="6" fill="#FFFFFF"/>
+  <text x="136" y="92" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#4A372B" letter-spacing="1">SUMMARY</text>
+  <rect x="136" y="98" width="130" height="2.5" rx="1" fill="#D8CFC0"/>
+  <rect x="136" y="105" width="120" height="2.5" rx="1" fill="#D8CFC0"/>
+  <rect x="136" y="112" width="110" height="2.5" rx="1" fill="#D8CFC0"/>
+  <!-- Experience -->
+  <text x="128" y="142" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#4A372B" letter-spacing="1.2">EXPERIENCE</text>
+  <path d="M188,136 H286 L286,144 H188 Z" fill="#4A372B" opacity="0.75"/>
+  <rect x="128" y="150" width="158" height="48" rx="6" fill="#FFFFFF"/>
+  <text x="136" y="164" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#4A372B">Operations Director</text>
+  <text x="276" y="164" text-anchor="end" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="#B97A57">2020-25</text>
+  <text x="136" y="174" font-family="Arial, sans-serif" font-size="4.5" fill="#6F6358">Northwind Creative</text>
+  <rect x="140" y="180" width="4" height="4" fill="#9AA58D" transform="rotate(45 142 182)"/>
+  <rect x="148" y="180" width="110" height="2.5" rx="1" fill="#D8CFC0"/>
+  <rect x="140" y="188" width="4" height="4" fill="#9AA58D" transform="rotate(45 142 190)"/>
+  <rect x="148" y="188" width="100" height="2.5" rx="1" fill="#D8CFC0"/>
+  <!-- Projects -->
+  <text x="128" y="220" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#4A372B" letter-spacing="1.2">PROJECTS</text>
+  <path d="M178,214 H286 L286,222 H178 Z" fill="#9AA58D" opacity="0.85"/>
+  <rect x="128" y="228" width="158" height="36" rx="6" fill="#ECE5D8"/>
+  <text x="136" y="242" font-family="Arial, sans-serif" font-size="5.5" font-weight="700" fill="#4A372B">Brand Platform Refresh</text>
+  <text x="136" y="252" font-family="Arial, sans-serif" font-size="4.5" fill="#B97A57">Figma / Notion</text>
+  <!-- Achievements -->
+  <text x="128" y="286" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#4A372B" letter-spacing="1.2">ACHIEVEMENTS</text>
+  <path d="M204,280 H286 L286,288 H204 Z" fill="#B97A57" opacity="0.8"/>
+  <rect x="132" y="298" width="4" height="4" fill="#9AA58D" transform="rotate(45 134 300)"/>
+  <rect x="142" y="298" width="120" height="2.5" rx="1" fill="#D8CFC0"/>
+  <rect x="132" y="310" width="4" height="4" fill="#9AA58D" transform="rotate(45 134 312)"/>
+  <rect x="142" y="310" width="108" height="2.5" rx="1" fill="#D8CFC0"/>
+</svg>

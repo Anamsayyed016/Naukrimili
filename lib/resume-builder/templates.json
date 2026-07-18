@@ -892,6 +892,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "espresso-sage-executive",
+      "name": "Espresso Sage Executive",
+      "slug": "espresso-sage-executive",
+      "description": "Premium warm-ivory executive resume with layered paper sidebar, circular portrait over a soft cutout pedestal, Contact directly under the photo, Cormorant Garamond name, angled ribbon section dividers, elevated summary card, soft experience cards, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/espresso-sage-executive/thumbnail.svg",
+      "preview": "/templates/espresso-sage-executive/preview.svg",
+      "html": "/templates/espresso-sage-executive/index.html",
+      "css": "/templates/espresso-sage-executive/style.css",
+      "categories": ["Premium", "Executive", "Professional", "Modern", "Luxury", "Corporate", "Two Column", "With Photo", "ATS", "Sidebar", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "espresso-sage", "name": "Espresso Sage", "primary": "#4A372B", "accent": "#B97A57", "text": "#3D322A" },
+        { "id": "cocoa-olive", "name": "Cocoa Olive", "primary": "#453328", "accent": "#A86E4D", "text": "#3D322A" },
+        { "id": "umber-clay", "name": "Umber Clay", "primary": "#4A372B", "accent": "#C48760", "text": "#382E27" },
+        { "id": "mocha-fern", "name": "Mocha Fern", "primary": "#403125", "accent": "#B97A57", "text": "#3D322A" },
+        { "id": "walnut-sand", "name": "Walnut Sand", "primary": "#4F3B2E", "accent": "#B06F4C", "text": "#3A3028" }
+      ],
+      "defaultColor": "espresso-sage",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "education", "skills", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
