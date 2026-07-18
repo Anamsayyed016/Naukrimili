@@ -1192,6 +1192,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "ice-teal-executive",
+      "name": "Ice Teal Executive",
+      "slug": "ice-teal-executive",
+      "description": "Modern SaaS executive resume with slate navy Plus Jakarta Sans name, Space Grotesk section labels, ice-blue floating sidebar card, soft squircle portrait, teal accent underlines, horizontal contact row, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/ice-teal-executive/thumbnail.svg",
+      "preview": "/templates/ice-teal-executive/preview.svg",
+      "html": "/templates/ice-teal-executive/index.html",
+      "css": "/templates/ice-teal-executive/style.css",
+      "categories": ["Premium", "Modern", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "ice-teal", "name": "Ice Teal", "primary": "#1E293B", "accent": "#0F766E", "text": "#1E293B" },
+        { "id": "slate-aqua", "name": "Slate Aqua", "primary": "#0F172A", "accent": "#0D9488", "text": "#1E293B" },
+        { "id": "navy-mint", "name": "Navy Mint", "primary": "#1E293B", "accent": "#14B8A6", "text": "#1E293B" },
+        { "id": "graphite-teal", "name": "Graphite Teal", "primary": "#334155", "accent": "#0F766E", "text": "#1E293B" },
+        { "id": "ocean-frost", "name": "Ocean Frost", "primary": "#1E3A5F", "accent": "#0F766E", "text": "#1E293B" }
+      ],
+      "defaultColor": "ice-teal",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 70,
+        "sidebarColumnBasisPct": 30,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "rightSections": ["education", "skills", "languages", "certifications", "interests"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

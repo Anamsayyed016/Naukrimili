@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FFFFFF"/>
+  <text x="36" y="64" font-family="Arial, sans-serif" font-size="30" font-weight="800" fill="#1E293B">Jordan Blake</text>
+  <text x="36" y="92" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#0F766E">Product Director</text>
+  <circle cx="48" cy="122" r="6" fill="#0F766E"/>
+  <text x="62" y="126" font-family="Arial, sans-serif" font-size="11" fill="#64748B">+1 (415) 555-0176</text>
+  <line x1="196" y1="112" x2="196" y2="134" stroke="#D9E2EC" stroke-width="1"/>
+  <circle cx="214" cy="122" r="6" fill="#0F766E"/>
+  <text x="228" y="126" font-family="Arial, sans-serif" font-size="11" fill="#64748B">jordan@blake.co</text>
+  <line x1="368" y1="112" x2="368" y2="134" stroke="#D9E2EC" stroke-width="1"/>
+  <circle cx="386" cy="122" r="6" fill="#0F766E"/>
+  <text x="400" y="126" font-family="Arial, sans-serif" font-size="11" fill="#64748B">San Francisco, CA</text>
+  <line x1="36" y1="150" x2="564" y2="150" stroke="#D9E2EC" stroke-width="1"/>
+  <rect x="36" y="150" width="56" height="3" fill="url(#g)"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0F766E"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+  <!-- Sidebar card -->
+  <rect x="36" y="174" width="176" height="580" rx="20" fill="#EEF6F7" stroke="#D9E2EC"/>
+  <rect x="70" y="198" width="108" height="108" rx="26" fill="#FFFFFF"/>
+  <rect x="74" y="202" width="100" height="100" rx="24" fill="#D9E2EC" stroke="#FFFFFF" stroke-width="3"/>
+  <text x="56" y="342" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#1E293B" letter-spacing="2">EDUCATION</text>
+  <line x1="56" y1="352" x2="192" y2="352" stroke="rgba(15,118,110,0.2)" stroke-width="1"/>
+  <rect x="56" y="351" width="28" height="3" fill="#0F766E"/>
+  <text x="56" y="382" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#1E293B">MBA Product Strategy</text>
+  <text x="56" y="404" font-family="Arial, sans-serif" font-size="11" fill="#475569">Stanford GSB</text>
+  <text x="56" y="424" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#0F766E">2016</text>
+  <text x="56" y="470" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#1E293B" letter-spacing="2">SKILLS</text>
+  <line x1="56" y1="480" x2="192" y2="480" stroke="rgba(15,118,110,0.2)" stroke-width="1"/>
+  <rect x="56" y="479" width="28" height="3" fill="#0F766E"/>
+  <rect x="56" y="500" width="64" height="24" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="88" y="516" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#1E293B">Strategy</text>
+  <rect x="128" y="500" width="56" height="24" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="156" y="516" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#1E293B">Roadmaps</text>
+  <rect x="56" y="532" width="72" height="24" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="92" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#1E293B">Analytics</text>
+  <text x="56" y="596" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#1E293B" letter-spacing="2">LANGUAGES</text>
+  <line x1="56" y1="606" x2="192" y2="606" stroke="rgba(15,118,110,0.2)" stroke-width="1"/>
+  <rect x="56" y="605" width="28" height="3" fill="#0F766E"/>
+  <text x="56" y="634" font-family="Arial, sans-serif" font-size="12" fill="#1E293B">English</text>
+  <text x="192" y="634" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#64748B">Fluent</text>
+  <text x="56" y="660" font-family="Arial, sans-serif" font-size="12" fill="#1E293B">Spanish</text>
+  <text x="192" y="660" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#64748B">Proficient</text>
+  <!-- Main -->
+  <text x="236" y="200" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1E293B" letter-spacing="2.5">PROFESSIONAL SUMMARY</text>
+  <line x1="236" y1="210" x2="564" y2="210" stroke="#D9E2EC" stroke-width="1"/>
+  <rect x="236" y="209" width="36" height="3" fill="#0F766E"/>
+  <rect x="236" y="230" width="328" height="7" rx="2" fill="#CBD5E1"/>
+  <rect x="236" y="248" width="308" height="7" rx="2" fill="#CBD5E1"/>
+  <rect x="236" y="266" width="288" height="7" rx="2" fill="#CBD5E1"/>
+  <text x="236" y="316" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1E293B" letter-spacing="2.5">EXPERIENCE</text>
+  <line x1="236" y1="326" x2="564" y2="326" stroke="#D9E2EC" stroke-width="1"/>
+  <rect x="236" y="325" width="36" height="3" fill="#0F766E"/>
+  <text x="236" y="358" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#1E293B">Product Director</text>
+  <text x="564" y="358" text-anchor="end" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#0F766E">2020 - Present</text>
+  <text x="236" y="380" font-family="Arial, sans-serif" font-size="12" fill="#475569">Northstar SaaS</text>
+  <circle cx="244" cy="408" r="3.5" fill="#14B8A6"/>
+  <rect x="258" y="403" width="270" height="6" rx="2" fill="#CBD5E1"/>
+  <circle cx="244" cy="432" r="3.5" fill="#14B8A6"/>
+  <rect x="258" y="427" width="250" height="6" rx="2" fill="#CBD5E1"/>
+  <text x="236" y="480" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#1E293B">Senior Product Manager</text>
+  <text x="564" y="480" text-anchor="end" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#0F766E">2016 - 2020</text>
+  <text x="236" y="502" font-family="Arial, sans-serif" font-size="12" fill="#475569">Orbit Labs</text>
+  <circle cx="244" cy="530" r="3.5" fill="#14B8A6"/>
+  <rect x="258" y="525" width="260" height="6" rx="2" fill="#CBD5E1"/>
+  <text x="236" y="580" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1E293B" letter-spacing="2.5">PROJECTS</text>
+  <line x1="236" y1="590" x2="564" y2="590" stroke="#D9E2EC" stroke-width="1"/>
+  <rect x="236" y="589" width="36" height="3" fill="#0F766E"/>
+  <rect x="236" y="610" width="328" height="72" rx="10" fill="#F8FAFC" stroke="#D9E2EC"/>
+  <text x="252" y="642" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#1E293B">Growth Experiment Platform</text>
+  <text x="252" y="664" font-family="Arial, sans-serif" font-size="11" fill="#0F766E">React / Node.js / Amplitude</text>
+  <text x="300" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#64748B">Ice Teal Executive</text>
+</svg>
