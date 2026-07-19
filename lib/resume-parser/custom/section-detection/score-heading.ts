@@ -35,6 +35,39 @@ const CITY_STATE_LINE_RE =
   /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?,\s*(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?|[A-Z]{2,})$/;
 
 /**
+ * In-role field labels ("Project:", "Role:", "Team Size:") describe a job
+ * entry — they must never open a top-level Projects / custom section.
+ */
+function isInRoleFieldLabel(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length > 80) return false;
+  return /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|client|employer|company|duration|period|tenure|location|reporting\s+to|tools?\s+used|technologies?\s+used)\s*(?:[:\-–—].*)?$/i.test(
+    t
+  );
+}
+
+/** OCR/wrap debris and unfinished sidebar labels are never section headings. */
+function isHeadingDebris(text: string): boolean {
+  const t = text.trim();
+  if (!t) return true;
+  // Incomplete compound labels: "Team Building &", "Planning and"
+  if (/[&/]\s*$/.test(t) || /\b(?:and|or|of|the|for|with|to)\s*$/i.test(t)) return true;
+  // Lone sentence-wrap fragments: "works.", "suppliers.", "Processes."
+  if (/^[A-Za-z][A-Za-z'’\-]{0,24}\.\s*$/.test(t)) return true;
+  // Mid-sentence continuation crumbs (not known section words).
+  if (
+    /^[a-z]/.test(t) &&
+    t.length <= 48 &&
+    !/^(?:skills?|education|experience|summary|projects?|certifications?|certificates?|languages?|achievements?|awards?|references?|publications?|objective|profile|interests?|hobbies?|training|qualifications?|employment|internship)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Short in-role workstream labels common on CA / audit / consulting resumes.
  * These must not open a new top-level custom section mid-experience.
  */
@@ -82,6 +115,25 @@ function isExperienceWorkstreamLabel(text: string): boolean {
   return false;
 }
 
+/** OCR-glued multi-section compounds must not steal the surrounding body. */
+function isGluedMultiSectionHeading(text: string): boolean {
+  const outsideParens = text.replace(/\([^)]*\)/g, ' ').trim();
+  if (/\s/.test(outsideParens)) return false;
+  const compact = outsideParens.replace(/[^A-Za-z]/g, '').toLowerCase();
+  if (compact.length < 18) return false;
+
+  const families: string[][] = [
+    ['profile', 'summary', 'objective', 'about'],
+    ['experience', 'employment', 'organizational', 'organisational', 'career'],
+    ['education', 'academic', 'qualification'],
+    ['skill', 'expertise', 'competenc'],
+    ['project'],
+    ['certif', 'licence', 'license', 'training'],
+  ];
+  const hitFamilies = families.filter((fam) => fam.some((k) => compact.includes(k)));
+  return hitFamilies.length >= 2;
+}
+
 function isSectionContentLineNotHeading(text: string): boolean {
   const t = text.trim();
   if (!t) return false;
@@ -90,6 +142,9 @@ function isSectionContentLineNotHeading(text: string): boolean {
   if (/^[:：]/.test(t)) return true;
   // Stream/OCR debris like "like Project Experience:"
   if (/^(?:like|and|or|with|for|the|a|an)\s+/i.test(t) && t.length < 60) return true;
+  if (isHeadingDebris(t)) return true;
+  if (isInRoleFieldLabel(t)) return true;
+  if (isGluedMultiSectionHeading(t)) return true;
   if (
     /^(?:male|female|other|married|unmarried|single|indian|nationality|passport|gender|dob|date of birth)\b/i.test(
       t
@@ -119,13 +174,14 @@ function isSectionContentLineNotHeading(text: string): boolean {
   // e.g. "Internal Audit", "Statutory Audit", "Tax & Compliance".
   if (isExperienceWorkstreamLabel(t)) return true;
 
-  // Job titles are never section headings — even when a shared token (e.g. "Professional")
-  // accidentally scores against a taxonomy phrase like professional-qualifications.
-  if (looksLikeJobTitleLine(t)) return true;
-
   const typeScores = scoreHeadingKeywords(t);
   const bestKeyword = Math.max(0, ...Object.values(typeScores));
+  // Strong section taxonomy wins over job-title heuristics so headings like
+  // "Organizational Experience" are not discarded as titles.
   if (bestKeyword >= MIN_KNOWN_TYPE_SCORE) return false;
+
+  // Job titles are never section headings when they only weakly touch taxonomy tokens.
+  if (looksLikeJobTitleLine(t)) return true;
 
   if (looksLikeCompanyNameLine(t)) return true;
   if (CITY_STATE_LINE_RE.test(t)) return true;
@@ -274,6 +330,14 @@ export function scoreHeadingCandidate(
 ): HeadingCandidate | null {
   const line = lines[lineIndex];
   if (!line || line.isBlank || !looksLikeHeadingLine(line.text)) return null;
+
+  // Values immediately under in-role field labels ("Project:\nFiber Rollout")
+  // are never top-level section headings.
+  for (let p = lineIndex - 1; p >= 0; p--) {
+    if (lines[p].isBlank) continue;
+    if (isInRoleFieldLabel(lines[p].text)) return null;
+    break;
+  }
 
   const rawHeading = line.text.trim();
   const typeScores = scoreHeadingKeywords(rawHeading);

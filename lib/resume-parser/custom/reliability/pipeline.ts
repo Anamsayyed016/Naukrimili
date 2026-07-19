@@ -97,6 +97,9 @@ function selectBetterExperiences(
   const sectionPlausible = countPlausibleExperienceRows(fromSection);
   const recoveryPlausible = countPlausibleExperienceRows(fromRecovery);
 
+  // Tiny / low-quality section parse must not block a rich full-text recovery
+  // (common when Role:/Project: labels fragmented the experience section).
+  if (sectionPlausible <= 1 && recoveryPlausible >= 2) return fromRecovery;
   if (sectionPlausible === 0 && recoveryPlausible >= 1) return fromRecovery;
   if (recoveryPlausible >= sectionPlausible + 2) return fromRecovery;
   if (

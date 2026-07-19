@@ -198,6 +198,66 @@ export function toCustomSectionBlock(section: DetectedSectionBlock): CustomSecti
 
 type SectionFieldMap = Record<Exclude<NormalizedSectionType, 'custom'>, string>;
 
+/** Structural signals that a block is employment history, not projects/certs. */
+export function looksLikeEmploymentShapedText(text: string): boolean {
+  const t = String(text || '');
+  if (t.trim().length < 40) return false;
+  const hasRole = /^\s*(?:role|designation|position|title)\s*:/im.test(t);
+  const hasResponsibility = /\b(?:key\s+)?responsibilit(?:y|ies)\s*:/i.test(t);
+  const hasTeamSize = /\bteam\s*size\s*:/i.test(t);
+  const hasDates =
+    /\b(?:19|20)\d{2}\b/.test(t) &&
+    /(?:present|current|till\s*date|to\s*date|[-–—]|to\s+)/i.test(t);
+  const hasCompanySuffix =
+    /\b(?:ltd|limited|pvt|private\s+limited|llc|inc|corp|corporation|gmbh|plc)\b\.?/i.test(t);
+  if (hasRole && (hasDates || hasCompanySuffix || hasResponsibility || hasTeamSize)) return true;
+  if (hasTeamSize && hasResponsibility && (hasDates || hasCompanySuffix)) return true;
+  if (hasCompanySuffix && hasDates && hasResponsibility) return true;
+  return false;
+}
+
+/**
+ * Reclassify project/certification sections whose bodies are clearly employment
+ * history (Role:/Team Size:/Key Responsibility: patterns). Generic — no
+ * resume-specific keywords.
+ */
+export function reclassifyEmploymentShapedSections(
+  sections: DetectedSectionBlock[]
+): DetectedSectionBlock[] {
+  return sections.map((section) => {
+    if (section.type !== 'projects' && section.type !== 'certifications') return section;
+    if (!looksLikeEmploymentShapedText(section.content)) return section;
+    return {
+      ...section,
+      type: 'experience' as NormalizedSectionType,
+      confidence: Math.max(section.confidence, 55),
+    };
+  });
+}
+
+/**
+ * Append employment-shaped custom blocks into the experience field so sidebar
+ * / pre-heading employer entries are not dropped.
+ */
+export function harvestEmploymentFromCustomSections(
+  fields: SectionFieldMap,
+  customSections: CustomSectionBlock[]
+): SectionFieldMap {
+  const out = { ...fields };
+  const extras: string[] = [];
+  for (const custom of customSections) {
+    const blob = [custom.rawHeading, custom.content].filter(Boolean).join('\n');
+    if (!looksLikeEmploymentShapedText(blob) && !looksLikeEmploymentShapedText(custom.content)) {
+      continue;
+    }
+    extras.push(blob.trim());
+  }
+  if (extras.length === 0) return out;
+  const joined = extras.join('\n\n').trim();
+  out.experience = out.experience ? `${joined}\n\n${out.experience}`.trim() : joined;
+  return out;
+}
+
 /**
  * Infer section bodies from content patterns when headings are missing or non-standard.
  */

@@ -229,4 +229,66 @@ describe('custom section detection engine', () => {
     expect(parsed.skills.length).toBeGreaterThan(0);
     expect(parsed.confidence).toBeGreaterThan(0);
   });
+
+  it('in-role Project:/Role: labels do not open a Projects section', () => {
+    const text = [
+      'Alex Builder',
+      'alex@example.com',
+      '',
+      'Organizational Experience',
+      'Acme Infrastructure Ltd.',
+      '(January 2020 - Present)',
+      'Project:',
+      'Fiber Rollout Phase II',
+      'Role: Area Manager',
+      'Team Size: 12',
+      'Key Responsibility:',
+      'Managed vendor billing and site execution.',
+      '',
+      'Beta Construction Pvt Ltd.',
+      '(March 2018 - December 2019)',
+      'Project: Real Estate',
+      'Role: Project Manager',
+      'Key Responsibility:',
+      'Supervised civil works and contractor bills.',
+      '',
+      'Education',
+      'B.E. Civil — State University 2002',
+    ].join('\n');
+
+    const result = detectResumeSections(text);
+    expect(result.sections.some((s) => s.type === 'projects' && /^project:?$/i.test(s.rawHeading))).toBe(
+      false
+    );
+    expect(result.experience).toMatch(/Acme Infrastructure|Beta Construction/i);
+    expect(result.experience).toMatch(/Area Manager|Project Manager/i);
+    expect(result.education).toMatch(/B\.E\.|Civil/i);
+  });
+
+  it('sentence-wrap debris and glued multi-section compounds are not headings', () => {
+    const text = [
+      'Pat Lee',
+      'pat@example.com',
+      '',
+      'Work Experience',
+      'Nova Corp',
+      'Engineer | 2019 - 2022',
+      'Handled civil, electrical, and various other project',
+      'works.',
+      'Manage Project, QA/QC, Contract administration.',
+      '',
+      'PROFILESUMMARYAREASOFEXPERTISE',
+      'Should stay inside experience when glued.',
+      '',
+      'Education',
+      'B.Tech CS — 2018',
+    ].join('\n');
+
+    const result = detectResumeSections(text);
+    expect(result.sections.some((s) => /^works\.?$/i.test(s.rawHeading))).toBe(false);
+    expect(
+      result.sections.some((s) => /PROFILESUMMARYAREASOFEXPERTISE/i.test(s.rawHeading))
+    ).toBe(false);
+    expect(result.experience).toMatch(/Nova Corp|QA\/QC/i);
+  });
 });

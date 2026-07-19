@@ -57,6 +57,17 @@ function isUnrelatedCertificationContent(name: string, issuer: string): boolean 
   if (/^(?:father|mother|gender|nationality|marital|passport|notice\s+period)\b/i.test(name)) {
     return true;
   }
+  // Role:/Team Size: employment blocks mis-routed into certifications.
+  if (/^(?:role|designation|position|team\s*size|key\s+responsibilit)\s*:/i.test(name)) {
+    return true;
+  }
+  if (
+    /\b(?:ltd|limited|pvt|llc|inc|corp|corporation)\b\.?/i.test(combined) &&
+    !CERT_KEYWORD_RE.test(combined) &&
+    !AWS_CERT_NAME_RE.test(combined)
+  ) {
+    return true;
+  }
   // Job-title-shaped training names are valid when an issuer (or dated course) is present.
   if (
     looksLikeJobTitleLine(name) &&

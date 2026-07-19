@@ -615,7 +615,39 @@ function hasStrongEmploymentMisfileEvidence(project: Record<string, unknown>): b
  */
 function shouldRejectProjectAsExperience(project: Record<string, unknown>): boolean {
   if (!hasPreservableProjectEvidence(project)) return true;
-  return hasStrongEmploymentMisfileEvidence(project);
+  if (hasStrongEmploymentMisfileEvidence(project)) return true;
+
+  const name = readImportProjectField(project, [
+    'name',
+    'Name',
+    'title',
+    'Title',
+    'projectName',
+    'ProjectName',
+  ]);
+  const desc = readImportProjectField(project, ['description', 'Description', 'summary', 'Summary']);
+  const blob = `${name}\n${desc}`;
+
+  // In-role field labels recovered as projects by text heuristics.
+  if (/^(?:role|team\s*size|key\s+responsibilit(?:y|ies)|processes?|suppliers?)\b/i.test(name)) {
+    return true;
+  }
+  if (
+    /^\s*(?:role|designation|position)\s*:/im.test(blob) &&
+    /\bteam\s*size\s*:/i.test(blob)
+  ) {
+    return true;
+  }
+  // Short job-title fragments with almost no project body.
+  if (
+    name.length <= 40 &&
+    desc.length < 24 &&
+    /\b(?:billing|manager|engineer|officer|controller|executive|lead|head)\b/i.test(name) &&
+    !/\b(?:app|website|portal|system|platform|dashboard|tool|api)\b/i.test(name)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function isJobTitleMisclassifiedAsProject(
@@ -3546,8 +3578,20 @@ function transformEducationArray(education: unknown, isCustomParser = false): an
 
   const seen = new Set<string>();
   return mapped.filter((edu) => {
-    const degreeKey = normalizeDegreeKey(String(edu.degree || ''));
-    const hasSchool = String(edu.institution || '').trim().length >= 3;
+    const degree = String(edu.degree || '').trim();
+    const school = String(edu.institution || '').trim();
+    // Drop responsibility / logistics prose misfiled as education.
+    if (
+      /^(?:material|maintain|monitor|responsible|managed|conducted|assisted)\b/i.test(degree) ||
+      /^(?:material|maintain|monitor|responsible|managed|conducted|assisted)\b/i.test(school)
+    ) {
+      return false;
+    }
+    if (degree.split(/\s+/).length >= 8 && !/\b(?:bachelor|master|b\.?e|b\.?tech|m\.?tech|mba|diploma|ph\.?d|high\s+school|secondary)\b/i.test(degree)) {
+      return false;
+    }
+    const degreeKey = normalizeDegreeKey(degree);
+    const hasSchool = school.length >= 3;
     // Prefer complete Degree+School rows over degree-only spillover remnants.
     if (degreeKey && !hasSchool && completeDegrees.has(degreeKey)) {
       return false;

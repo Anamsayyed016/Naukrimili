@@ -37,6 +37,26 @@ export function isValidSummaryContent(text: string): boolean {
   if (!trimmed || trimmed.length < 20) return false;
   if (isResumeSectionHeadingLine(trimmed) && trimmed.length < 80) return false;
   if (isSuspectSummary(trimmed)) return false;
+  // OCR-glued heading remnants / employer stubs are not summaries.
+  if (
+    /^(?:summary|profile|areas?\s*of\s*expertise|organizational\s*experience)/i.test(
+      trimmed.replace(/[^A-Za-z\s]/g, ' ').replace(/\s+/g, ' ').trim()
+    ) &&
+    trimmed.length < 80
+  ) {
+    return false;
+  }
+  if (/^[A-Z]{8,}$/.test(trimmed.replace(/[^A-Za-z]/g, '')) && trimmed.length < 60) {
+    return false;
+  }
+  if (
+    /\b(?:pvt\.?\s*ltd|limited|llc|inc)\b/i.test(trimmed) &&
+    /\b(?:19|20)\d{2}\b/.test(trimmed) &&
+    trimmed.length < 120 &&
+    !/\b(?:years?|experienced|skilled|professional)\b/i.test(trimmed)
+  ) {
+    return false;
+  }
 
   const lines = trimmed.split('\n').map((l) => l.trim()).filter(Boolean);
   if (lines.length === 1) {

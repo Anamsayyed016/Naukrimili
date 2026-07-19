@@ -145,6 +145,17 @@ export function repairProjectEntry(
   return fixed;
 }
 
+function looksLikeMisclassifiedEmploymentProject(p: CustomExtractedProject): boolean {
+  const title = (p.title || '').trim();
+  const blob = [title, p.description, ...(p.achievements || [])].join('\n');
+  if (/^(?:role|team\s*size|key\s+responsibilit|processes?|suppliers?)\b/i.test(title)) return true;
+  if (/^\s*(?:role|designation|position)\s*:/im.test(blob) && /\bteam\s*size\s*:/i.test(blob)) {
+    return true;
+  }
+  if (isPlausibleExperienceCompany(title) && /\brole\s*:/i.test(blob)) return true;
+  return false;
+}
+
 export function validateAndRepairProjects(
   projects: CustomExtractedProject[] | undefined,
   ctx: RepairContext
@@ -157,6 +168,16 @@ export function validateAndRepairProjects(
 
   for (let i = 0; i < repaired.length; i++) {
     const p = repaired[i];
+    if (looksLikeMisclassifiedEmploymentProject(p)) {
+      recordIssue(ctx, {
+        severity: 'warning',
+        section: 'projects',
+        index: i,
+        code: 'employment_as_project',
+        message: 'Dropped employment-shaped block misclassified as project.',
+      });
+      continue;
+    }
     if (!isValidProject(p)) {
       recordIssue(ctx, {
         severity: 'error',

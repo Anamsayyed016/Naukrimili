@@ -1161,7 +1161,7 @@ export function recoverSummaryFromRawText(rawText: string): string {
     if (/^(subject|ref)\s*:/i.test(line)) continue;
     if (
       inLetter ||
-      /\b(i am|i have|in my current role|my professional exposure|my responsibilities include|with over|years? of|seeking|application|possess|professional experience|currently working|presently|writing to|apply for)\b/i.test(
+      /\b(i am|i have|i oversee|in my current role|my professional exposure|my responsibilities include|with over|years?\s*(?:\+|of)|seeking|application|possess|professional experience|experienced in|skilled in|currently working|presently|writing to|apply for)\b/i.test(
         line
       )
     ) {
@@ -6099,6 +6099,199 @@ export function recoverLabelValueExperienceRecords(
 }
 
 /**
+ * Recover employment entries that use Role:/Project:/Team Size: field labels
+ * under a company header — common on infrastructure / project-manager CVs.
+ * Fully generic: no employer or title hardcoding.
+ */
+export function recoverRoleLabeledExperienceFromRawText(
+  rawText: string
+): Record<string, unknown>[] {
+  const healed = String(rawText || '')
+    .replace(/\r\n/g, '\n')
+    // Collapse OCR ordinal date wraps inside parentheses.
+    .replace(/\(([^)]{0,100})\)/g, (full, inner: string) => {
+      if (!/\b(?:19|20)\d{2}\b|till\s*date|present|current/i.test(inner)) return full;
+      if (!/\n/.test(inner) && !/\b\d{1,2}\s*(?:st|nd|rd|th)\b/i.test(inner) && !/(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\d{4}/i.test(inner)) {
+        return full;
+      }
+      const flat = inner
+        .replace(/\b(\d{1,2})\s*(?:\r?\n|\s)*(?:st|nd|rd|th)\b/gi, '$1')
+        .replace(
+          /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)((?:19|20)\d{2})\b/gi,
+          '$1 $2'
+        )
+        .replace(/\bto\s*till\s*date\b/gi, 'to present')
+        .replace(/\btill\s*date\b/gi, 'present')
+        .replace(/\s*\n\s*/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return `(${flat})`;
+    });
+
+  const lines = healed.split('\n').map((l) => l.trim());
+  const out: Record<string, unknown>[] = [];
+
+  const roleLineRe = /^(?:role|designation|position|title)\s*[:\-–—]\s*(.+)$/i;
+  const dateRangeRe =
+    /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}|\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}|(?:19|20)\d{2})\s*(?:[-–—−]|to)\s*((?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}|\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}|(?:19|20)\d{2}|present|current|till\s*date|to\s*date|ongoing)\b/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    const roleMatch = lines[i].match(roleLineRe);
+    if (!roleMatch) continue;
+
+    let title = sanitizeFieldText(
+      roleMatch[1].replace(/\s*[\(\[].*$/, '').replace(/[.\s]+$/, ''),
+      120
+    );
+    if (!title || title.length < 2) continue;
+
+    // Walk upward for company + dates (within a small window).
+    let company = '';
+    let startDate = '';
+    let endDate = '';
+    let current = false;
+    const bodyStart = i + 1;
+    const companyCandidates: Array<{ value: string; score: number }> = [];
+
+    for (let u = i - 1; u >= Math.max(0, i - 8); u--) {
+      const line = lines[u];
+      if (!line) {
+        // Blank line usually separates prior job body — stop once we already
+        // have a strong employer candidate near this Role label.
+        if (companyCandidates.some((c) => c.score >= 70)) break;
+        continue;
+      }
+      if (/^(?:project|team\s*size|key\s+responsibilit|responsibilit)/i.test(line)) continue;
+      if (roleLineRe.test(line)) break;
+
+      const dateHit = line.match(dateRangeRe);
+      if (dateHit && !startDate) {
+        startDate = normalizeDate(dateHit[1]) || '';
+        if (/^(present|current|till\s*date|to\s*date|ongoing)$/i.test(dateHit[2])) {
+          current = true;
+          endDate = 'Present';
+        } else {
+          endDate = normalizeDate(dateHit[2]) || '';
+        }
+      }
+
+      // Parenthetical date-only lines are never employers.
+      if (/^\(.*\)$/.test(line) && dateRangeRe.test(line)) continue;
+
+      // Inline "Company (dates)" on one line.
+      const companyInline = line.match(
+        /^(.+?)\s*[\(\[]\s*(.+(?:present|current|till\s*date|(?:19|20)\d{2}).*)\s*[\)\]]\s*$/i
+      );
+      if (companyInline) {
+        const candidate = sanitizeFieldText(companyInline[1].replace(/[:\-–—]+$/g, ''), 160);
+        if (candidate && isPlausibleExperienceCompany(candidate) && !/^projects?\b/i.test(candidate)) {
+          let score = 70;
+          if (/\b(?:ltd|limited|pvt|llc|inc|corp|corporation|gmbh|plc)\b/i.test(candidate)) score += 20;
+          companyCandidates.push({ value: candidate, score });
+          if (!startDate) {
+            const innerDate = companyInline[2].match(dateRangeRe);
+            if (innerDate) {
+              startDate = normalizeDate(innerDate[1]) || '';
+              if (/^(present|current|till\s*date|to\s*date|ongoing)$/i.test(innerDate[2])) {
+                current = true;
+                endDate = 'Present';
+              } else {
+                endDate = normalizeDate(innerDate[2]) || '';
+              }
+            }
+          }
+          continue;
+        }
+      }
+
+      const cleaned = line.replace(/[.\s]+$/g, '');
+      if (
+        cleaned.length >= 3 &&
+        cleaned.length <= 100 &&
+        !dateRangeRe.test(line) &&
+        !/^projects?\b/i.test(cleaned) &&
+        !/\//.test(cleaned) && // Dept slash-lists are not employers
+        !/^(?:conducted|managed|responsible|handled|prepared|developed|supported|coordinated|assisted|monitor|maintain|material)\b/i.test(
+          cleaned
+        ) &&
+        isPlausibleExperienceCompany(cleaned)
+      ) {
+        let score = 50;
+        if (/\b(?:ltd|limited|pvt|llc|inc|corp|corporation|gmbh|plc)\b/i.test(cleaned)) score += 30;
+        if (/^[A-Z]/.test(cleaned) && cleaned.split(/\s+/).length <= 8) score += 10;
+        companyCandidates.push({ value: sanitizeFieldText(cleaned, 160), score });
+      }
+    }
+
+    companyCandidates.sort((a, b) => b.score - a.score);
+    company = companyCandidates[0]?.value || '';
+    if (!company) continue;
+
+    // Collect responsibility body until next employer/role/section.
+    const bodyLines: string[] = [];
+    for (let b = bodyStart; b < Math.min(lines.length, bodyStart + 30); b++) {
+      const line = lines[b];
+      if (!line) {
+        if (bodyLines.length > 0) break;
+        continue;
+      }
+      if (roleLineRe.test(line)) break;
+      if (
+        /^(?:education|academic|qualification|skills?|certifications?|projects?|summary|profile|references?|personal\s*details)\b/i.test(
+          line
+        )
+      ) {
+        break;
+      }
+      if (
+        isPlausibleExperienceCompany(line.replace(/[.\s]+$/g, '')) &&
+        line.length <= 80 &&
+        bodyLines.length >= 2
+      ) {
+        break;
+      }
+      if (/^(?:project|team\s*size)\s*[:\-–—]/i.test(line)) continue;
+      if (/^(?:key\s+)?responsibilit(?:y|ies)\s*:?\s*$/i.test(line)) continue;
+      bodyLines.push(line);
+    }
+
+    const description = sanitizeMultilineFieldText(bodyLines.join('\n'), 4000);
+    out.push({
+      company,
+      Company: company,
+      title,
+      position: title,
+      designation: title,
+      startDate,
+      endDate: current ? 'Present' : endDate,
+      current,
+      description,
+      Description: description,
+      achievements: [],
+    });
+  }
+
+  // Prefer repeating Role: patterns — a single hit is too ambiguous.
+  const plausible = out.filter(
+    (r) =>
+      String(r.company || '').length >= 3 &&
+      String(r.title || '').length >= 2 &&
+      isPlausibleExperienceCompany(String(r.company))
+  );
+  if (plausible.length < 2) return [];
+
+  const seen = new Set<string>();
+  const deduped: Record<string, unknown>[] = [];
+  for (const r of plausible) {
+    const key = `${String(r.company).toLowerCase()}|${String(r.title).toLowerCase()}|${String(r.startDate || '')}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(r);
+  }
+  return deduped;
+}
+
+/**
  * Recover Naukri-style dated employment lines from raw text when the parser
  * collapses experience into competency stubs (e.g. "Dec 2002 – Jul 2004 with X as Y").
  */
@@ -6110,6 +6303,24 @@ export function recoverStructuredExperienceFromRawText(
   const labelValueRows = recoverLabelValueExperienceRecords(rawText);
   if (labelValueRows.length >= 2) {
     return labelValueRows.map((row) => reconcileExperienceHeaderFields(row));
+  }
+
+  // Role:/Project:/Team Size: labeled employment blocks (infrastructure CVs).
+  // Only take them exclusively when employer attribution is strong; otherwise
+  // merge with other recoveries so weak project-name companies do not dominate.
+  const roleLabeled = recoverRoleLabeledExperienceFromRawText(rawText).filter((row) => {
+    const company = String(row.company || '').trim();
+    return (
+      isPlausibleExperienceCompany(company) &&
+      !/^projects?\b/i.test(company) &&
+      !/^\(/.test(company) &&
+      !/^(?:conducted|managed|responsible|maintain|material)\b/i.test(company) &&
+      (/\b(?:ltd|limited|pvt|llc|inc|corp|corporation|gmbh|plc|university|college)\b/i.test(company) ||
+        company.split(/\s+/).length <= 6)
+    );
+  });
+  if (roleLabeled.length >= 3) {
+    return roleLabeled.map((row) => reconcileExperienceHeaderFields(row));
   }
 
   const blob = flattenExperienceSectionBlob(rawText);
@@ -6283,6 +6494,23 @@ export function recoverStructuredExperienceFromRawText(
   }
 
   for (const row of recoverTitleCompanyDateExperienceFromRawText(rawText)) {
+    const company = String(row.company || '').toLowerCase();
+    const title = String(row.title || row.position || '').toLowerCase();
+    const key = `${company}|${title}|${String(row.startDate || '')}`;
+    if (
+      out.some((existing) => {
+        const c = String(existing.company || '').toLowerCase();
+        const t = String(existing.title || existing.position || '').toLowerCase();
+        return `${c}|${t}|${String(existing.startDate || '')}` === key;
+      })
+    ) {
+      continue;
+    }
+    out.push(row);
+  }
+
+  // Supplement with strong Role:-labeled rows when exclusive path did not fire.
+  for (const row of roleLabeled) {
     const company = String(row.company || '').toLowerCase();
     const title = String(row.title || row.position || '').toLowerCase();
     const key = `${company}|${title}|${String(row.startDate || '')}`;

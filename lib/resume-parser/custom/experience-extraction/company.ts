@@ -29,6 +29,9 @@ const PROPRIETARY_NAME_SUFFIX_RE =
 const FALSE_COMPANY_RE =
   /^(python|react|node\.?js|javascript|typescript|java|django|flask|aws|docker|redis|kafka|postgresql|mongodb|bhopal|mumbai|delhi|bangalore|hyderabad|pune|chennai|remote|hybrid|onsite|wfh)$/i;
 
+const ROLE_OR_PROJECT_LABEL_RE =
+  /^(?:role|designation|position|title|project|team\s*size|key\s+responsibilit)\s*[:\-–—]/i;
+
 const SENTENCE_VERB_RE =
   /\b(led|built|designed|developed|wrote|managed|created|implemented|integrated|responsible|delivered|achieved|maintained|optimized|collaborated)\b/i;
 
@@ -126,6 +129,7 @@ export function scoreCompanyCandidate(text: string): number {
   if (/^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}$/i.test(trimmed)) {
     return 0;
   }
+  if (ROLE_OR_PROJECT_LABEL_RE.test(trimmed)) return 0;
   if (looksLikeSentenceNotCompany(trimmed)) return 0;
   if (FALSE_COMPANY_RE.test(trimmed)) return 0;
   if (TECH_SKILL_AS_COMPANY_RE.test(trimmed.toLowerCase())) return 0;

@@ -1,0 +1,12 @@
+custom          conf 30   lines 26-30      heading "Team Building &" chars 34
+custom          conf 54   lines 31-39      heading "QSD & BILLING" chars 108
+projects        conf 38   lines 40-53      heading "Project:" chars 759
+experience      conf 48   lines 54-55      heading "ORGANIZATIONALEXPERIENCE (TOTAL: 22+ YEARS)" chars 23
+summary         conf 44   lines 56-63      heading "PROFILESUMMARYAREASOFEXPERTISE" chars 60
+projects        conf 39   lines 64-91      heading "Project:" chars 1397
+projects        conf 39   lines 92-127     heading "Project:" chars 1972
+projects        conf 39   lines 128-143    heading "Project:" chars 1045
+certifications  conf 43   lines 144-245    heading "works." chars 6196
+custom          conf 22   lines 246-269    heading "replace/repair in shortest time." chars 984
+education       conf 45   lines 270-286    heading "ACADEMICQUALIFICATIONS" chars 325
+references      conf 42   lines 287-303    heading "References" chars 429

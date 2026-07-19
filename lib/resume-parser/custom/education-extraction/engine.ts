@@ -15,6 +15,16 @@ export interface EducationExtractionResult {
   blockCount: number;
 }
 
+/** Drop personal-details / references tails that OCR glued onto education. */
+function trimEducationSectionTail(sectionText: string): string {
+  const text = String(sectionText || '');
+  const cut = text.search(
+    /\n\s*(?:personal\s*details|personal\s*information|personal\s*data|biodata|bio\s*data|references?|declaration|i\s+hereby\s+declare)\b/i
+  );
+  if (cut > 40) return text.slice(0, cut).trim();
+  return text.trim();
+}
+
 export function extractEducationFromSection(
   educationSectionText: string
 ): CustomExtractedEducation[] {
@@ -24,7 +34,8 @@ export function extractEducationFromSection(
 export function extractEducationWithMeta(
   educationSectionText: string
 ): EducationExtractionResult {
-  const blocks = partitionEducationBlocks(educationSectionText || '');
+  const trimmed = trimEducationSectionTail(educationSectionText || '');
+  const blocks = partitionEducationBlocks(trimmed);
   const built = blocks.map(buildEducationFromBlock);
   const educations = filterValidEducation(built);
 

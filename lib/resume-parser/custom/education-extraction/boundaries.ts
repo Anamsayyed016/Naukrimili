@@ -95,6 +95,19 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
       if (openHasDegree) return true;
     }
 
+    // School-level rows ("Higher Secondary", "High School", "Senior Secondary")
+    // after a college/degree entry start a new education block.
+    if (
+      idx > currentStart &&
+      /^(?:higher\s+secondary|senior\s+secondary|high\s+school|secondary\s+school|matriculation|intermediate|ssc|hsc|class\s+(?:x|xii|10|12))\b/i.test(
+        text
+      )
+    ) {
+      const openSlice = scored.slice(currentStart, idx).filter((l) => !l.isBlank);
+      const openHasDegree = openSlice.some((l) => detectDegreeFromLine(l.text).confidence >= 38);
+      if (openHasDegree) return true;
+    }
+
     if (line.boundaryScore < threshold) return false;
 
     // Affiliating university / college lines must not split an open degree entry.

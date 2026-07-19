@@ -56,6 +56,10 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'professional exposure',
       'nature of duties',
       'job profile',
+      'organizational experience',
+      'organisational experience',
+      'organization experience',
+      'organisation experience',
     ],
     tokens: [
       'experience',
@@ -71,6 +75,8 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'practical',
       'exposure',
       'duties',
+      'organizational',
+      'organisational',
     ],
     typicalOrder: 0.35,
   },
@@ -148,7 +154,7 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'key projects',
       'notable projects',
     ],
-    tokens: ['projects', 'project', 'portfolio', 'case', 'studies'],
+    tokens: ['projects', 'portfolio', 'case', 'studies'],
     typicalOrder: 0.48,
   },
   languages: {
@@ -278,6 +284,12 @@ export function scoreHeadingKeywords(
       best = Math.max(best, partScore);
     }
     if (best > 0) scores[type] = Math.min(100, best);
+  }
+
+  // Singular "project" is an in-role field label on many CVs ("Project: Fiber Rollout").
+  // Only plural / multi-word project headings open a Projects section.
+  if (scores.projects && /^(?:project)\s*$/i.test(normalized)) {
+    scores.projects = Math.min(scores.projects, 20);
   }
 
   // In-role duty labels ("Activities Performed", "Tasks Assigned/Undertaken")

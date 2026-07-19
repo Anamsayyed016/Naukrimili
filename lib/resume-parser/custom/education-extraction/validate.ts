@@ -47,6 +47,21 @@ export function isValidEducation(edu: CustomExtractedEducation): boolean {
     return false;
   }
 
+  // Responsibility / logistics prose must never become education rows.
+  if (
+    /^(?:material|maintain|monitor|responsible|managed|conducted|assisted)\b/i.test(
+      edu.degree || edu.institution || ''
+    )
+  ) {
+    return false;
+  }
+  if (
+    (edu.degree || edu.institution || '').split(/\s+/).length >= 8 &&
+    !isLikelyEducationLine(`${edu.degree} ${edu.institution}`)
+  ) {
+    return false;
+  }
+
   const combined = [edu.institution, edu.degree, edu.description, ...edu.achievements].join(' ');
   if (SKILL_LIST_RE.test(combined.trim()) && !hasIdentity) return false;
   if (EMAIL_RE.test(combined) && combined.length < 100) return false;

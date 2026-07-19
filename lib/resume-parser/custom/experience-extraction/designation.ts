@@ -74,6 +74,21 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
     }
   }
 
+  // Explicit role labels: "Role: Credit Controller", "Designation: Site Engineer"
+  const roleLabel = working.match(
+    /^(?:role|designation|position|title|post)\s*[:\-–—]\s*(.+)$/i
+  );
+  if (roleLabel) {
+    const titlePart = roleLabel[1].replace(/\s*[\(\[].*$/, '').trim();
+    const conf = scoreDesignationCandidate(titlePart);
+    if (titlePart.length >= 2) {
+      return {
+        designation: titlePart,
+        confidence: Math.max(conf, 62),
+      };
+    }
+  }
+
   const asPrefix = working.match(/^As\s+(.+)$/i);
   if (asPrefix) {
     const titlePart = asPrefix[1].trim();

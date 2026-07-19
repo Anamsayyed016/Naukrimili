@@ -13,7 +13,9 @@ import { buildLineIndex, lineContentDensity, sliceTextByLines } from './line-ind
 import {
   buildCoverageReport,
   dedupeContentLines,
+  harvestEmploymentFromCustomSections,
   inferSectionsFromContent,
+  reclassifyEmploymentShapedSections,
   repairGapsIntoPreamble,
   toCustomSectionBlock,
 } from './partition';
@@ -239,8 +241,10 @@ export function detectResumeSections(resumeText: string): DetectedResumeSections
     });
   }
 
+  sections = reclassifyEmploymentShapedSections(sections);
   const { fields: mergedFields, customSections } = mergeSectionsIntoFields(sections);
-  const fields = inferSectionsFromContent(text, mergedFields);
+  const withHarvest = harvestEmploymentFromCustomSections(mergedFields, customSections);
+  const fields = inferSectionsFromContent(text, withHarvest);
 
   return {
     detectionVersion: SECTION_DETECTION_VERSION,

@@ -1,0 +1,44 @@
+SECTIONS:
+experience "Organizational Experience" chars 342
+education "Education" chars 34
+---EXP---
+Acme Infrastructure Ltd.
+(January 2020 - Present)
+Project:
+Fiber Rollout Phase II
+Role: Area Manager
+Team Size: 12
+Key Responsibility:
+Managed vendor billing and site execution.
+
+Beta Construction Pvt Ltd.
+(March 2018 - December 2019)
+Project: Real Estate
+Role: Project Manager
+Key Responsibility:
+Supervised civil works and contractor bills.
+---EDU---
+B.E. Civil — State University 2002
+---PREPARED---
+Alex Builder
+alex@example.com
+
+Organizational Experience
+Acme Infrastructure Ltd.
+(January 2020 - Present)
+Project:
+Fiber Rollout Phase II
+Role: Area Manager
+Team Size: 12
+Key Responsibility:
+Managed vendor billing and site execution.
+
+Beta Construction Pvt Ltd.
+(March 2018 - December 2019)
+Project: Real Estate
+Role: Project Manager
+Key Responsibility:
+Supervised civil works and contractor bills.
+
+Education
+B.E. Civil — State University 2002

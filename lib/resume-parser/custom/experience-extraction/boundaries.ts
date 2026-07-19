@@ -53,6 +53,16 @@ function isExperienceSubsectionLabel(text: string): boolean {
   if (EXPERIENCE_SUBSECTION_RE.test(t)) return true;
   // "Quality Manager Roles & Responsibilities" — role label subsections.
   if (/\broles?\s*(?:&|and)\s*responsibilit/i.test(t) && t.length <= 80) return true;
+  // In-role field labels must never open a new experience block.
+  if (
+    /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies))\s*(?:[:\-–—].*)?$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // "Project- Fiber Rollout" / "Project: Real Estate" under an employer.
+  if (/^projects?\s*[:\-–—]/i.test(t) && t.length <= 100) return true;
   return false;
 }
 

@@ -63,12 +63,36 @@ export function isValidExperience(exp: CustomExtractedExperience): boolean {
     return false;
   }
 
+  // Role:/Project- field labels must never become the employer identity.
+  if (
+    /^(?:role|designation|position|title|project|team\s*size)\s*[:\-–—]/i.test(exp.company || '') ||
+    /^(?:role|designation|position|title|project|team\s*size)\s*[:\-–—]/i.test(exp.designation || '')
+  ) {
+    return false;
+  }
+
   if (
     exp.company &&
     SENTENCE_ONLY_RE.test(exp.company) &&
     !exp.designation &&
     exp.bulletPoints.length === 0
   ) {
+    return false;
+  }
+
+  // Long imperative / prose lines are never employers.
+  if (
+    exp.company &&
+    exp.company.split(/\s+/).length >= 10 &&
+    /^(?:conducted|managed|responsible|handled|prepared|developed|supported|coordinated|assisted|monitor)\b/i.test(
+      exp.company
+    )
+  ) {
+    return false;
+  }
+
+  // Slash-separated department lists are not employers.
+  if (exp.company && (exp.company.match(/\//g) || []).length >= 2) {
     return false;
   }
 

@@ -128,6 +128,8 @@ export const SEMANTIC_SECTION_DEFINITIONS: SemanticSectionDefinition[] = [
       'internship',
       'internships',
       'internship experience',
+      'organizational experience',
+      'organisational experience',
     ],
     tokens: ['experience', 'employment', 'work', 'career', 'internship', 'positions'],
     nodeTypes: ['EXPERIENCE', 'JOB_TITLE', 'COMPANY', 'RESPONSIBILITY'],
@@ -245,7 +247,7 @@ export const SEMANTIC_SECTION_DEFINITIONS: SemanticSectionDefinition[] = [
       'case studies',
       'selected work',
     ],
-    tokens: ['projects', 'project', 'portfolio'],
+    tokens: ['projects', 'portfolio'],
     nodeTypes: ['PROJECT'],
     builderTarget: { kind: 'standard', field: 'projects' },
     parserType: 'projects',
@@ -563,7 +565,16 @@ export function classifySectionHeading(rawHeading: string): SemanticClassificati
     }
     if (section.tokens) {
       const words = normalized.split(/\s+/);
-      const tokenHits = words.filter((w) => section.tokens!.some((t) => w === t || w.startsWith(t)));
+      const tokenHits = words.filter((w) =>
+        section.tokens!.some((t) => {
+          if (w === t) return true;
+          // Simple English plurals only — never prefix-match ("works" ↛ "work",
+          // "workshop" ↛ "work") which mis-routes wrap debris into sections.
+          if (t.length >= 4 && (w === `${t}s` || w === `${t}es`)) return true;
+          if (w.length >= 4 && (t === `${w}s` || t === `${w}es`)) return true;
+          return false;
+        })
+      );
       // Multi-token definitions (e.g. professional + qualification) must not fire on a
       // single shared word like "Professional" inside a job title.
       const minHits = section.tokens.length >= 2 ? 2 : 1;
