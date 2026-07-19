@@ -44,9 +44,9 @@
   <text x="52" y="478" font-family="Georgia, serif" font-size="15" fill="#FFFFFF">Languages</text>
   <rect x="52" y="486" width="30" height="3" fill="#CE9A76"/>
   <circle cx="58" cy="504" r="4" fill="#CE9A76"/>
-  <text x="70" y="508" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">English · Fluent</text>
+  <text x="70" y="508" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">English ï¿½ Fluent</text>
   <circle cx="58" cy="528" r="4" fill="#CE9A76"/>
-  <text x="70" y="532" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">German · Advanced</text>
+  <text x="70" y="532" font-family="Arial, sans-serif" font-size="10" fill="#F4F2EE">German ï¿½ Advanced</text>
   <!-- Certificates -->
   <text x="52" y="582" font-family="Georgia, serif" font-size="15" fill="#FFFFFF">Certificates</text>
   <rect x="52" y="590" width="30" height="3" fill="#CE9A76"/>

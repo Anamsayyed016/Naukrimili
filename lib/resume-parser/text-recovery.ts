@@ -1440,9 +1440,116 @@ function partitionSidebarForOutput(sidebar: string[]): string[] {
   return out;
 }
 
+/** Standalone pagination marker: "Page 3", "Page-3", "pg. 3 of 12", "- 4 -". */
+const PAGE_MARKER_LINE_RE =
+  /^[\s\-–—|]*(?:page|pg)[\s.\-–—:]*\d{1,3}(?:\s*(?:of|\/)\s*\d{1,3})?[\s\-–—|]*$/i;
+
+/**
+ * Remove repeated per-page furniture from multi-page PDF text:
+ * standalone pagination markers plus the short header/footer lines that
+ * recur next to them on every page (candidate name, degree strip, doc title).
+ * Frequency + proximity based — no resume-specific content matching.
+ */
+export function stripRepeatedPageArtifacts(input: string): string {
+  if (!input || input.length < 400) return input;
+  const lines = input.split('\n');
+
+  const markerIdx: number[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (PAGE_MARKER_LINE_RE.test(lines[i].trim())) markerIdx.push(i);
+  }
+  // A single "Page 1" is not a repeating pagination pattern.
+  if (markerIdx.length < 2) return input;
+
+  const remove = new Set<number>(markerIdx);
+
+  // Short non-bullet lines repeated 3+ times whose occurrences cluster around
+  // pagination markers are page headers/footers, not resume content.
+  const freq = new Map<string, number[]>();
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim();
+    if (!t || t.length > 60) continue;
+    if (/^[-–—•·*▪‣●○◦]/.test(t)) continue;
+    if (/^[:：]/.test(t)) continue;
+    const key = t.toLowerCase().replace(/\s+/g, ' ');
+    const arr = freq.get(key);
+    if (arr) arr.push(i);
+    else freq.set(key, [i]);
+  }
+  // Proximity in non-blank lines — page footers are often separated from the
+  // page number by blank lines.
+  const isNearMarker = (i: number): boolean => {
+    for (const m of markerIdx) {
+      const lo = Math.min(i, m);
+      const hi = Math.max(i, m);
+      if (hi - lo > 6) continue;
+      let nonBlankBetween = 0;
+      for (let k = lo + 1; k < hi; k++) {
+        if (lines[k].trim()) nonBlankBetween += 1;
+      }
+      if (nonBlankBetween <= 2) return true;
+    }
+    return false;
+  };
+
+  for (const idxs of freq.values()) {
+    if (idxs.length < 3) continue;
+    let nearMarker = 0;
+    for (const i of idxs) {
+      if (isNearMarker(i)) nearMarker += 1;
+    }
+    if (nearMarker / idxs.length >= 0.6) {
+      for (const i of idxs) remove.add(i);
+    }
+  }
+
+  const out: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (remove.has(i)) continue;
+    out.push(lines[i]);
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n');
+}
+
+/** Generic resume-section vocabulary for inline/numbered heading recognition. */
+const INLINE_SECTION_WORD_RE =
+  /^(?:summary|professional\s+summary|career\s+summary|objective|career\s+objective|profile|about\s*me|education(?:al)?(?:\s+qualifications?)?|academic\s+(?:background|qualifications?)|qualifications?|(?:work|professional)\s+experience|experience|employment(?:\s+record|\s+history)?|skills?|technical\s+skills?|core\s+competenc(?:y|ies)|key\s+skills?|certifications?|licenses?|trainings?|other\s+trainings?|languages?(?:\s+known)?|achievements?|awards?|projects?|declaration|personal\s+(?:details?|information)|hobbies|interests?|strengths?|references?|publications?)$/i;
+
+/**
+ * Normalize headings that heading-line scanners cannot see:
+ * 1. "SUMMARY: text…" → "SUMMARY:\ntext…" (inline heading + body on one line)
+ * 2. "11. EMPLOYMENT RECORD:" → "EMPLOYMENT RECORD:" (numbered list headings
+ *    otherwise rejected as bullet lines)
+ * Only fires when the prefix is generic resume-section vocabulary.
+ */
+export function normalizeInlineSectionHeadings(input: string): string {
+  if (!input) return input;
+  return input
+    .split('\n')
+    .map((line) => {
+      const m = line.match(/^\s*(?:\d{1,2}\s*[.)]\s*)?([A-Za-z][A-Za-z\s]{2,40}?)\s*([:：])\s*(.*)$/);
+      if (!m) {
+        // Numbered heading without colon: "11. EMPLOYMENT RECORD"
+        const numbered = line.match(/^\s*\d{1,2}\s*[.)]\s*([A-Za-z][A-Za-z\s]{2,40})\s*$/);
+        if (numbered && INLINE_SECTION_WORD_RE.test(numbered[1].trim())) {
+          return numbered[1].trim();
+        }
+        return line;
+      }
+      const label = m[1].trim();
+      if (!INLINE_SECTION_WORD_RE.test(label)) return line;
+      const body = m[3].trim();
+      // Keep heading and body on separate lines so the heading scanner sees both.
+      return body.length >= 12 ? `${label}:\n${body}` : `${label}:${body ? ` ${body}` : ''}`;
+    })
+    .join('\n');
+}
+
 export function prepareResumeTextForParsing(rawText: string): { text: string; signals: ResumeTextSignals } {
   const withColumnGaps = preserveColumnGaps(rawText || '');
   let text = cleanResumeTextPreservingLines(withColumnGaps);
+  text = stripRepeatedPageArtifacts(text);
+  text = normalizeInlineSectionHeadings(text);
   text = collapseDecorativeSpacedHeadings(text);
   text = reassembleFragmentedResumeLines(text);
   const signals = classifyResumeTextSignals(text);

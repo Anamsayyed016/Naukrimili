@@ -1827,6 +1827,31 @@ export function isPersonalMetadataResumeLine(line: string): boolean {
 export function isPlaceholderProjectTitle(value: unknown): boolean {
   const t = sanitizeFieldText(value, 120);
   if (!t) return true;
+  // Dot leaders / underscores / punctuation-only rows ("......................").
+  if (!/[A-Za-z0-9]/.test(t)) return true;
+  if (/^[.\s…·_\-–—]{4,}$/.test(t)) return true;
+  // Attribute rows / bare labels ("Employer : X", "Client", "FUNDING AGENCIES")
+  // are record metadata, not titles.
+  if (
+    /^(?:[ivxlc0-9]+\s*[).:\-]{1,2}\s*)?(?:employer|client|contractor|consultants?|consultancy|concessionaire|location|country|funded\s+by|funding(?:\s+agenc(?:y|ies))?|project\s+(?:cost|length)|position\s+held|appointed\s+date|duration|period|year|main\s+project|features?)\s*[:：]?\s*$/i.test(
+      t
+    ) ||
+    /^(?:[ivxlc0-9]+\s*[).:\-]{1,2}\s*)?(?:employer|client|contractor|consultants?|consultancy|concessionaire|location|country|funded\s+by|funding|project\s+(?:cost|length)|position\s+held|appointed\s+date|duration|period|year)\s*[:：]/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Line-wrap fragments ending in a dangling function word ("Monitoring and").
+  if (/\b(?:and|or|of|by|with|for|in|to|at|on|the|a|an)$/i.test(t)) return true;
+  // Bare employer names bleeding into project slots ("M/s Theme Engineering…", "Austria GmbH").
+  if (/^m\/s[\s.]/i.test(t)) return true;
+  if (
+    t.split(/\s+/).length <= 5 &&
+    /\b(?:gmbh|pvt\.?(?:\s*ltd\.?)?|private\s+limited|ltd\.?|llp|llc|inc\.?|corp\.?)$/i.test(t)
+  ) {
+    return true;
+  }
   return PLACEHOLDER_PROJECT_TITLE_RE.test(t);
 }
 
@@ -5903,6 +5928,176 @@ function cleanTitleDashCompanyBlob(raw: string): { company: string; location: st
   return { company: sanitizeFieldText(first, 160), location: '' };
 }
 
+const LV_EMPLOYER_LABEL_RE =
+  /^(?:employer|company|organi[sz]ation|firm|name\s+of\s+(?:the\s+)?(?:firm|employer|company|organi[sz]ation))\s*[:：]?\s*(.*)$/i;
+const LV_POSITION_LABEL_RE =
+  /^(?:position(?:\s+held)?|designation|job\s+title|role|post(?:\s+held)?)\s*[:：]?\s*(.*)$/i;
+const LV_LOCATION_LABEL_RE = /^(?:country|location|place\s+of\s+(?:work|posting))\s*[:：]?\s*(.*)$/i;
+const LV_PERIOD_LABEL_RE = /^(?:from|period|duration|tenure)\b\s*[:：]?\s*(.*)$/i;
+const LV_DATE_TOKEN_RE =
+  /\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?,?\s*\d{4}\b|\b(?:19|20)\d{2}\b/i;
+const LV_PRESENT_RE = /\b(?:present|current|now|till\s*date|to\s*date|ongoing)\b/i;
+
+function normalizeLabelValueDate(raw: string): { value: string; current: boolean } {
+  const t = String(raw || '')
+    .replace(/^[\s:：,\-–—]+|[\s:：,.\-–—]+$/g, '')
+    .replace(/^to\s+/i, '')
+    // Un-glue "Dec2012" / "July2018" and drop day-of-month ("27 July 2018").
+    .replace(/([A-Za-z])(\d{4})\b/g, '$1 $2')
+    .replace(/^\d{1,2}(?:st|nd|rd|th)?[\s.]+(?=[A-Za-z])/, '')
+    .trim();
+  if (!t) return { value: '', current: false };
+  if (LV_PRESENT_RE.test(t)) return { value: 'Present', current: true };
+  const dated = t.match(LV_DATE_TOKEN_RE);
+  if (!dated) return { value: '', current: false };
+  return { value: normalizeDate(t) || t, current: false };
+}
+
+/**
+ * Recover experience entries from label-value employment records — the
+ * tabular CV format common in consultancy / government / engineering resumes:
+ *
+ *   FROM Dec 2023        (or "FROM Aug 2016 : Jul 2018" on one line)
+ *   : Till Date
+ *   EMPLOYER
+ *   : AICONS Engineering Pvt Ltd.
+ *   POSITION HELD
+ *   : Materials Engineer
+ *   COUNTRY
+ *   : INDIA
+ *
+ * Purely structural — matches generic record labels, never resume content.
+ */
+export function recoverLabelValueExperienceRecords(
+  rawText: string
+): Record<string, unknown>[] {
+  const lines = String(rawText || '')
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((l) => l.trim());
+
+  type Record_ = {
+    company: string;
+    title: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    current: boolean;
+  };
+  const records: Record_[] = [];
+  let cur: Record_ | null = null;
+
+  const readValue = (inline: string, idx: number): { value: string; consumed: number } => {
+    const v = inline.replace(/^[\s:：]+/, '').trim();
+    if (v) return { value: v, consumed: 0 };
+    // Value may sit on the following line(s) as ": value".
+    let consumed = 0;
+    for (let n = idx + 1; n < Math.min(lines.length, idx + 3); n++) {
+      const t = lines[n];
+      if (!t) {
+        consumed += 1;
+        continue;
+      }
+      const m = t.match(/^[:：]\s*(.+)$/);
+      if (m) return { value: m[1].trim(), consumed: consumed + 1 };
+      break;
+    }
+    return { value: '', consumed: 0 };
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line) continue;
+
+    const period = line.match(LV_PERIOD_LABEL_RE);
+    if (period && (LV_DATE_TOKEN_RE.test(line) || LV_DATE_TOKEN_RE.test(lines[i + 1] || ''))) {
+      // "FROM <start>" opens a new record; end date is inline after ":" or on the next line.
+      if (cur && (cur.company || cur.title)) records.push(cur);
+      cur = { company: '', title: '', location: '', startDate: '', endDate: '', current: false };
+
+      const inline = period[1] || '';
+      const rangeSplit = inline.split(/\s*[:：]\s*/);
+      const start = normalizeLabelValueDate(rangeSplit[0] || '');
+      cur.startDate = start.value;
+      if (rangeSplit.length > 1) {
+        const end = normalizeLabelValueDate(rangeSplit.slice(1).join(' '));
+        cur.endDate = end.value;
+        cur.current = end.current;
+      } else {
+        const next = readValue('', i);
+        if (next.value) {
+          const end = normalizeLabelValueDate(next.value);
+          cur.endDate = end.value;
+          cur.current = end.current;
+          i += next.consumed;
+        }
+      }
+      continue;
+    }
+
+    if (!cur) continue;
+
+    const employer = line.match(LV_EMPLOYER_LABEL_RE);
+    if (employer && !cur.company) {
+      const { value, consumed } = readValue(employer[1] || '', i);
+      if (value) {
+        cur.company = sanitizeFieldText(value.replace(/^M\/s\.?\s*/i, ''), 160);
+        i += consumed;
+      }
+      continue;
+    }
+
+    const position = line.match(LV_POSITION_LABEL_RE);
+    if (position && !cur.title) {
+      const { value, consumed } = readValue(position[1] || '', i);
+      if (value) {
+        cur.title = sanitizeFieldText(value.replace(/[.\s]+$/, ''), 120);
+        i += consumed;
+      }
+      continue;
+    }
+
+    const location = line.match(LV_LOCATION_LABEL_RE);
+    if (location && !cur.location) {
+      const { value, consumed } = readValue(location[1] || '', i);
+      if (value) {
+        cur.location = sanitizeFieldText(value.replace(/[,.\s]+$/, ''), 80);
+        i += consumed;
+      }
+      continue;
+    }
+  }
+  if (cur && (cur.company || cur.title)) records.push(cur);
+
+  const plausible = records.filter(
+    (r) => r.company && isPlausibleExperienceCompany(r.company) && (r.startDate || r.title)
+  );
+  // Require a repeating record pattern — a single hit is too ambiguous.
+  if (plausible.length < 2) return [];
+
+  const seen = new Set<string>();
+  const out: Record<string, unknown>[] = [];
+  for (const r of plausible) {
+    const key = `${r.company.toLowerCase()}|${r.title.toLowerCase()}|${r.startDate}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      company: r.company,
+      Company: r.company,
+      title: r.title,
+      position: r.title,
+      designation: r.title,
+      location: r.location,
+      startDate: r.startDate,
+      endDate: r.current ? 'Present' : r.endDate,
+      current: r.current,
+      description: '',
+      achievements: [],
+    });
+  }
+  return out;
+}
+
 /**
  * Recover Naukri-style dated employment lines from raw text when the parser
  * collapses experience into competency stubs (e.g. "Dec 2002 – Jul 2004 with X as Y").
@@ -5910,6 +6105,13 @@ function cleanTitleDashCompanyBlob(raw: string): { company: string; location: st
 export function recoverStructuredExperienceFromRawText(
   rawText: string
 ): Record<string, unknown>[] {
+  // Label-value employment records (tabular "EMPLOYER / POSITION HELD / FROM"
+  // format) are authoritative when they repeat — prefer them outright.
+  const labelValueRows = recoverLabelValueExperienceRecords(rawText);
+  if (labelValueRows.length >= 2) {
+    return labelValueRows.map((row) => reconcileExperienceHeaderFields(row));
+  }
+
   const blob = flattenExperienceSectionBlob(rawText);
   const searchBlob =
     blob.length >= 40
@@ -6341,11 +6543,16 @@ export function resolveMergedExperienceCompany(
   return '';
 }
 
+/** Bare record-table labels ("EMPLOYER", "POSITION HELD") — never company names. */
+const RECORD_LABEL_AS_COMPANY_RE =
+  /^(?:employer|company|organi[sz]ation|firm|country|location|position(?:\s+held)?|designation|duration|period|tenure|client|contractor|consultants?|funded\s+by|from|to)[\s:：.]*$/i;
+
 export function isPlausibleExperienceCompany(value: unknown): boolean {
   const company = sanitizeExperienceCompanyValue(value);
   if (!company) return false;
   if (isExperienceDomainHeading(company)) return false;
   if (/^name$/i.test(company.trim())) return false;
+  if (RECORD_LABEL_AS_COMPANY_RE.test(company.trim())) return false;
   if (
     /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+|marks?\s+obtained|percentage\s*(?:obtained|scored)?)\b/i.test(
       company

@@ -21,8 +21,8 @@
   <text x="28" y="472" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2F80ED">2012 - 2016</text>
   <text x="28" y="524" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="2">LANGUAGES</text>
   <line x1="28" y1="536" x2="164" y2="536" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
-  <text x="28" y="566" font-family="Arial, sans-serif" font-size="13" fill="#F2F2F2">English · Native</text>
-  <text x="28" y="592" font-family="Arial, sans-serif" font-size="13" fill="#F2F2F2">Spanish · Fluent</text>
+  <text x="28" y="566" font-family="Arial, sans-serif" font-size="13" fill="#F2F2F2">English ï¿½ Native</text>
+  <text x="28" y="592" font-family="Arial, sans-serif" font-size="13" fill="#F2F2F2">Spanish ï¿½ Fluent</text>
   <text x="28" y="644" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="2">INTERESTS</text>
   <line x1="28" y1="656" x2="164" y2="656" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
   <rect x="28" y="676" width="58" height="22" rx="11" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.14)"/>

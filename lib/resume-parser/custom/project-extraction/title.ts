@@ -27,10 +27,40 @@ const ACADEMIC_PROJECT_RE =
 
 const OPEN_SOURCE_RE = /\b(open\s*source|oss|contribution)\b/i;
 
+/** Generic project-metadata labels — attribute rows, never project titles. */
+const PROJECT_METADATA_LABEL_RE =
+  /^(?:[ivxlc0-9]+\s*[).:\-]{1,2}\s*)?(?:employer|client|contractor|consultants?|consultancy|concessionaire|location|country|funded\s+by|funding|project\s+(?:cost|length|features?)|main\s+project|features?|mode(?:\s+of\b.*)?|year|duration|period|appointed\s+date|scheduled(?:\s+\w+)*\s+date|position\s+held|name\s+of\s+(?:the\s+)?(?:assignment|project|work))\s*[:：]/i;
+
+/** Strong metadata keys anywhere in the line — measurement/cost rows, not titles. */
+const PROJECT_METADATA_ANYWHERE_RE =
+  /\bproject\s+(?:cost|length)\s*[:：]|\bfunded\s+by\s*[:：]/i;
+
+/** Fragments ending in a dangling function word are broken line wraps, not titles. */
+const DANGLING_FRAGMENT_RE = /\b(?:and|or|of|by|with|for|in|to|at|on|the|a|an)$/i;
+
 export function scoreProjectTitleCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 2) return 0;
   if (trimmed.length > 100) return 0;
+  // Dot leaders / punctuation-only rows ("......................").
+  if (!/[A-Za-z0-9]/.test(trimmed)) return 0;
+  if (/^[.\s…·_\-–—]{4,}$/.test(trimmed)) return 0;
+  if (/^[:：]/.test(trimmed)) return 0;
+  if (PROJECT_METADATA_LABEL_RE.test(trimmed)) return 0;
+  if (PROJECT_METADATA_ANYWHERE_RE.test(trimmed)) return 0;
+  // Bare generic labels ("Main Project", "Position Held", "Features") are headings, not titles.
+  if (/^(?:main\s+)?projects?\.?$/i.test(trimmed) || /^features?\s*[:：]?$/i.test(trimmed)) return 0;
+  if (
+    /^(?:position\s+held|employer|client|contractor|consultants?|concessionaire|location|country|funded\s+by|duration|period|year)\s*[:：.]?$/i.test(
+      trimmed
+    )
+  ) {
+    return 0;
+  }
+  if (DANGLING_FRAGMENT_RE.test(trimmed)) return 0;
+  // Line-wrap fragments: trailing comma/semicolon or an unclosed parenthesis.
+  if (/[,;]$/.test(trimmed)) return 0;
+  if (/\([^)]*$/.test(trimmed)) return 0;
   if (/https?:\/\//i.test(trimmed)) return 0;
   if (/(?:github|gitlab|bitbucket)\.com/i.test(trimmed)) return 0;
   if (parseDateRangeFromText(trimmed)) return 0;

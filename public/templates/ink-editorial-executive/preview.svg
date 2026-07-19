@@ -37,7 +37,7 @@
   <line x1="36" y1="724" x2="380" y2="724" stroke="#E7E7E7" stroke-width="1"/>
   <rect x="36" y="723" width="36" height="3" fill="#1F4E79"/>
   <text x="36" y="754" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#171717">B.S. Computer Science</text>
-  <text x="36" y="776" font-family="Arial, sans-serif" font-size="12" fill="#555555">State University · 2018</text>
+  <text x="36" y="776" font-family="Arial, sans-serif" font-size="12" fill="#555555">State University ï¿½ 2018</text>
   <!-- Sidebar -->
   <line x1="408" y1="40" x2="408" y2="780" stroke="#E7E7E7" stroke-width="1"/>
   <rect x="436" y="72" width="5" height="140" rx="2.5" fill="#1F4E79"/>

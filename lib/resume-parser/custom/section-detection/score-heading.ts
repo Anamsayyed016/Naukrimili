@@ -157,9 +157,15 @@ export function isTitleCaseHeading(line: string): boolean {
   return titled >= Math.max(1, Math.ceil(words.length * 0.6));
 }
 
+/** Bare function words / fragments that must never become section headings. */
+const STOPWORD_HEADING_RE =
+  /^(?:in|at|on|to|of|for|the|and|or|with|by|a|an|as|is|from)$/i;
+
 export function looksLikeHeadingLine(line: string): boolean {
   const t = line.trim();
   if (!t || t.length > 80) return false;
+  if (STOPWORD_HEADING_RE.test(t)) return false;
+  if (t.replace(/[^A-Za-z]/g, '').length < 2) return false;
   if (isSectionContentLineNotHeading(t)) return false;
   if (isBulletLine(t)) return false;
   if (CONTACT_LINE_RE.test(t) && t.length < 120) return false;
@@ -275,6 +281,32 @@ export function scoreHeadingCandidate(
   const capScore = scoreCapitalization(rawHeading);
   const formattingScore = scoreFormatting(lineIndex, lines);
   const { type, keywordScore } = pickBestType(typeScores, formattingScore, capScore);
+
+  // Table-label rows ("EMPLOYER" / ": AICONS Ltd", "FROM Dec 2023" / ": Till Date")
+  // must not open custom sections that fragment the surrounding block.
+  if (type === 'custom') {
+    for (let n = lineIndex + 1; n < lines.length; n++) {
+      if (lines[n].isBlank) continue;
+      if (/^\s*[:：]/.test(lines[n].text)) return null;
+      break;
+    }
+  }
+
+  // Fragmented in-role duty labels ("Activities" / "Performed" / ": …") are
+  // responsibility tables, not hobbies/interests sections.
+  if (type === 'hobbies') {
+    for (let n = lineIndex + 1; n < lines.length; n++) {
+      if (lines[n].isBlank) continue;
+      if (
+        /^\s*(?:performed|undertaken|carried\s+out|assigned|handled|discharged|rendered)\b/i.test(
+          lines[n].text
+        )
+      ) {
+        return null;
+      }
+      break;
+    }
+  }
 
   const contextScore = scoreDocumentContext(type, lineIndex, lines.length, profile);
   const contentScore = contentDensity ? scoreContentHint(type, contentDensity) : 0;

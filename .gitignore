@@ -9,6 +9,8 @@ out/
 release.tar.gz
 release.tar.zst
 deploy/
+*.tmp
+.cursor/
 
 # Environment files (NEVER commit secrets!)
 # Cache
@@ -126,7 +128,10 @@ Thumbs.db
 # Prisma
 # (Previously ignored) We now version migrations. If you need to regenerate cleanly, keep them committed.
 
-# Environment production files & backups (ensure secrets not committed)
+# Environment files (NEVER commit secrets!)
+.env
+.env.*
+!.env.example
 .env.production
 .env.production.bak.*
 
@@ -135,6 +140,11 @@ API_KEYS_SECURE.md
 *.key
 *.pem
 secrets/
+.ssh_temp/
+*deploy_key*
+id_rsa*
+id_ed25519*
+id_ecdsa*
 
 # Uploads
 uploads/

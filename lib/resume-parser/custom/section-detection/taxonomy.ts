@@ -280,6 +280,15 @@ export function scoreHeadingKeywords(
     if (best > 0) scores[type] = Math.min(100, best);
   }
 
+  // In-role duty labels ("Activities Performed", "Tasks Assigned/Undertaken")
+  // describe work responsibilities — never a hobbies/interests section.
+  if (
+    scores.hobbies &&
+    /\b(?:performed|undertaken|carried\s+out|assigned|handled|discharged|rendered)\b/i.test(normalized)
+  ) {
+    scores.hobbies = Math.min(scores.hobbies, 20);
+  }
+
   return scores;
 }
 

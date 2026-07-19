@@ -28,12 +28,35 @@ const HUMAN_LANGUAGE_NAMES = new Set([
 const PROFICIENCY_PATTERNS: Array<{ re: RegExp; label: string; weight: number }> = [
   { re: /\b(?:native|mother\s*tongue|mothertongue|first\s*language)\b/i, label: 'Native', weight: 95 },
   { re: /\b(?:fluent|fluency|full\s*professional)\b/i, label: 'Fluent', weight: 90 },
+  { re: /\b(?:excellent)\b/i, label: 'Fluent', weight: 85 },
   { re: /\b(?:professional(?:\s+working)?|proficient|advanced|expert)\b/i, label: 'Professional', weight: 85 },
-  { re: /\b(?:intermediate|conversational|working)\b/i, label: 'Intermediate', weight: 75 },
+  { re: /\b(?:very\s+good|good)\b/i, label: 'Professional', weight: 70 },
+  { re: /\b(?:intermediate|conversational|working|fair|average|moderate)\b/i, label: 'Intermediate', weight: 75 },
   { re: /\b(?:basic|elementary|beginner|limited)\b/i, label: 'Basic', weight: 65 },
   { re: /\b(?:reading|write|writing|speak|speaking|listen|listening)\b/i, label: 'Partial', weight: 55 },
   { re: /\b(?:c1|c2|b1|b2|a1|a2)\b/i, label: 'CEFR', weight: 80 },
 ];
+
+/** Skill-mode column words from proficiency grids — never language names. */
+const LANGUAGE_MODE_WORD_RE = /\b(?:speaking|reading|writing|listening|understanding|spoken|written)\b/i;
+
+/** Grid header row like "Speaking Reading Writing" — only mode words. */
+function isProficiencyGridHeader(text: string): boolean {
+  const words = text.trim().split(/[\s,|/]+/).filter(Boolean);
+  if (words.length < 2 || words.length > 5) return false;
+  return words.every((w) => LANGUAGE_MODE_WORD_RE.test(w));
+}
+
+/** Line made only of proficiency adjectives — a grid row like "Excellent Excellent Excellent". */
+function isProficiencyOnlyLine(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length > 80) return false;
+  const leftover = t
+    .replace(/\b(?:native|fluent|excellent|very\s+good|good|professional|proficient|advanced|expert|intermediate|conversational|working|fair|average|moderate|basic|elementary|beginner|limited|c1|c2|b1|b2|a1|a2)\b/gi, ' ')
+    .replace(/[\s,;|/·•-]+/g, ' ')
+    .trim();
+  return leftover.length === 0 && t.length >= 4;
+}
 
 const PROGRAMMING_LANGUAGE_RE =
   /\b(?:javascript|typescript|python|java|c\+\+|c#|ruby|php|go|rust|kotlin|swift|scala|perl|r\b|matlab|sql|html|css)\b/i;
@@ -52,6 +75,7 @@ function normalizeLanguageName(raw: string): string {
 function isHumanLanguageName(name: string): boolean {
   const lower = name.toLowerCase().trim();
   if (!lower || lower.length < 2 || lower.length > 40) return false;
+  if (LANGUAGE_MODE_WORD_RE.test(lower)) return false;
   if (
     /^(?:native|fluent|professional|intermediate|basic|beginner|conversational|advanced|elementary|mother\s*tongue|proficient)$/i.test(
       lower
@@ -227,6 +251,11 @@ export function parseLanguagesFromSectionWithStats(sectionText: string): Languag
       continue;
     }
 
+    // Proficiency-grid header row ("Speaking Reading Writing") — skip it.
+    if (LANGUAGE_MODE_WORD_RE.test(line) && isProficiencyGridHeader(line)) {
+      continue;
+    }
+
     // Split proficiency onto the next line: "English" / "(Fluent)"
     const next = lines[i + 1];
     if (
@@ -237,6 +266,23 @@ export function parseLanguagesFromSectionWithStats(sectionText: string): Languag
     ) {
       line = `${line} ${next}`;
       i += 1;
+    }
+
+    // Proficiency-grid row pair: "English" / "Excellent Excellent Excellent".
+    if (next && isHumanLanguageName(line) && isProficiencyOnlyLine(next)) {
+      const prof = extractProficiency(next);
+      const key = normalizeLanguageName(line).toLowerCase();
+      attemptCount += 1;
+      if (!seen.has(key)) {
+        seen.add(key);
+        results.push({
+          name: normalizeLanguageName(line),
+          proficiency: prof.proficiency || 'Professional',
+          confidence: 85,
+        });
+      }
+      i += 1;
+      continue;
     }
 
     const fromLine = parseLanguageLinesFromLine(line);
