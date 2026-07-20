@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="420" viewBox="0 0 320 420">
+  <rect width="108" height="420" fill="#EAF3EE"/>
+  <rect x="108" y="0" width="212" height="420" fill="#FFFFFF"/>
+  <polygon points="108,0 124,0 108,16" fill="#C8DDD3"/>
+  <circle cx="54" cy="52" r="30" fill="#FFFFFF" stroke="#EAF3EE" stroke-width="2"/>
+  <text x="54" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#1F5F53">Aiden</text>
+  <rect x="120" y="28" width="12" height="12" rx="2" fill="#1F5F53"/>
+  <text x="138" y="38" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#183B35">Education</text>
+  <rect x="120" y="44" width="180" height="2" fill="#B69A57"/>
+  <line x1="132" y1="58" x2="132" y2="120" stroke="#2E6B5D" stroke-width="1.5"/>
+  <circle cx="132" cy="64" r="3.5" fill="#2E6B5D"/>
+  <rect x="144" y="60" width="120" height="3" rx="1.5" fill="#888888"/>
+</svg>

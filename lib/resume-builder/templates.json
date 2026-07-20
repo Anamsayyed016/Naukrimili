@@ -1894,6 +1894,56 @@
       }
     },
     {
+      "id": "modern-sage-timeline-executive",
+      "name": "Modern Sage Timeline Executive",
+      "slug": "modern-sage-timeline-executive",
+      "description": "Premium sage sidebar resume with circular portrait, Manrope nameplate, forest green section icons, gold accent dividers, vertical timeline education and experience, bullet skills list, two-column references, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/modern-sage-timeline-executive/thumbnail.svg",
+      "preview": "/templates/modern-sage-timeline-executive/preview.svg",
+      "html": "/templates/modern-sage-timeline-executive/index.html",
+      "css": "/templates/modern-sage-timeline-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Modern", "Professional", "Two Column", "With Photo", "ATS", "Sidebar", "Timeline"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "sage-forest", "name": "Sage & Forest", "primary": "#1F5F53", "accent": "#B69A57", "text": "#2D2D2D" },
+        { "id": "deep-pine-gold", "name": "Deep Pine & Gold", "primary": "#184840", "accent": "#B69A57", "text": "#2D2D2D" },
+        { "id": "mint-forest", "name": "Mint & Forest", "primary": "#2E6B5D", "accent": "#C4A25A", "text": "#2D2D2D" },
+        { "id": "emerald-gold", "name": "Emerald & Gold", "primary": "#1A5248", "accent": "#A8894F", "text": "#333333" },
+        { "id": "teal-gold", "name": "Teal & Gold", "primary": "#1F5F53", "accent": "#C9A961", "text": "#2D2D2D" }
+      ],
+      "defaultColor": "sage-forest",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "summary", "skills", "languages", "certifications", "interests"],
+        "rightSections": ["education", "experience", "projects", "references", "achievements", "extended"],
+        "fixedSections": ["contact", "summary", "skills", "education", "experience"],
+        "movableSections": ["projects", "certifications", "achievements", "languages", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "plum-lavender-pill-executive",
       "name": "Plum Lavender Pill Executive",
       "slug": "plum-lavender-pill-executive",

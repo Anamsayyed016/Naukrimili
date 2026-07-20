@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container mste-resume">
+    <div class="mste-body">
+      <aside class="mste-sidebar">
+        <span class="mste-sidebar-corner" aria-hidden="true"></span>
+
+        <div class="mste-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="mste-photo-ring">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="mste-photo-ring">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="mste-ini-f">{{FIRST_NAME}}</span><span class="mste-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <header class="mste-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </header>
+
+        <section class="mste-section mste-section--contact mste-side-section">
+          <h2 class="mste-side-title mste-side-title--contact">Contact</h2>
+          <div class="mste-side-divider" aria-hidden="true"></div>
+          <div class="mste-contact-list contact-list">
+            {{#if PHONE}}
+            <div class="mste-contact-item mste-contact-item--phone">
+              <span class="mste-contact-icon" aria-hidden="true"></span>
+              <span class="mste-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="mste-contact-item mste-contact-item--email">
+              <span class="mste-contact-icon" aria-hidden="true"></span>
+              <span class="mste-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="mste-contact-item mste-contact-item--location">
+              <span class="mste-contact-icon" aria-hidden="true"></span>
+              <span class="mste-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="mste-contact-item mste-contact-item--web">
+              <span class="mste-contact-icon" aria-hidden="true"></span>
+              <span class="mste-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="mste-contact-item mste-contact-item--linkedin">
+              <span class="mste-contact-icon" aria-hidden="true"></span>
+              <span class="mste-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if SUMMARY}}
+        <section class="mste-section mste-section--summary mste-side-section">
+          <h2 class="mste-side-title mste-side-title--about">About Me</h2>
+          <div class="mste-side-divider" aria-hidden="true"></div>
+          <div class="mste-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="mste-section mste-section--skills mste-side-section">
+          <h2 class="mste-side-title mste-side-title--skills">Skills</h2>
+          <div class="mste-side-divider" aria-hidden="true"></div>
+          <div class="skills-list mste-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="mste-main">
+        {{#if EDUCATION}}
+        <section class="mste-section mste-section--education">
+          <h2 class="mste-main-title mste-main-title--education">Education</h2>
+          <div class="mste-accent-rule" aria-hidden="true"></div>
+          <div class="education-list mste-education mste-timeline">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="mste-section mste-section--experience">
+          <h2 class="mste-main-title mste-main-title--experience">Experience</h2>
+          <div class="mste-accent-rule" aria-hidden="true"></div>
+          <div class="experience-list mste-experience mste-timeline">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="mste-section mste-section--projects">
+          <h2 class="mste-main-title mste-main-title--projects">Projects</h2>
+          <div class="mste-accent-rule" aria-hidden="true"></div>
+          <div class="projects-list mste-projects mste-timeline">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="mste-section mste-section--certifications">
+          <h2 class="mste-main-title mste-main-title--certifications">Certifications</h2>
+          <div class="mste-accent-rule" aria-hidden="true"></div>
+          <div class="certifications-list mste-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="mste-section mste-section--achievements">
+          <h2 class="mste-main-title mste-main-title--achievements">Achievements</h2>
+          <div class="mste-accent-rule" aria-hidden="true"></div>
+          <div class="achievements-list mste-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="mste-section mste-section--languages">
+          <h2 class="mste-main-title mste-main-title--languages">Languages</h2>
+          <div class="mste-accent-rule" aria-hidden="true"></div>
+          <div class="languages-list mste-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="mste-section mste-section--interests">
+          <h2 class="mste-main-title mste-main-title--interests">Interests</h2>
+          <div class="mste-accent-rule" aria-hidden="true"></div>
+          <div class="hobbies-list mste-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>
