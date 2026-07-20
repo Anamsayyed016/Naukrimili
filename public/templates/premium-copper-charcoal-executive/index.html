@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container pcce-resume">
+    <header class="pcce-banner">
+      <div class="pcce-banner-inner">
+        <div class="pcce-photo-col">
+          {{#if PROFILE_IMAGE}}
+          <div class="pcce-photo-shield">
+            <span class="pcce-photo-ribbon" aria-hidden="true"></span>
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="pcce-photo-shield">
+            <span class="pcce-photo-ribbon" aria-hidden="true"></span>
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="pcce-ini-f">{{FIRST_NAME}}</span><span class="pcce-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="pcce-identity">
+          <div class="pcce-identity-row">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            <span class="pcce-deco-icon" aria-hidden="true"></span>
+          </div>
+          <div class="pcce-name-rule" aria-hidden="true"></div>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+      </div>
+    </header>
+
+    <div class="pcce-body">
+      <main class="pcce-main">
+        {{#if SUMMARY}}
+        <section class="pcce-section pcce-section--summary">
+          <h2 class="pcce-main-title">
+            <span class="pcce-section-icon pcce-section-icon--summary" aria-hidden="true"></span>
+            <span class="pcce-title-text">Professional Summary</span>
+          </h2>
+          <div class="pcce-main-divider" aria-hidden="true"></div>
+          <div class="pcce-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="pcce-section pcce-section--experience">
+          <h2 class="pcce-main-title">
+            <span class="pcce-section-icon pcce-section-icon--experience" aria-hidden="true"></span>
+            <span class="pcce-title-text">Experience</span>
+          </h2>
+          <div class="pcce-main-divider" aria-hidden="true"></div>
+          <div class="experience-list pcce-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="pcce-section pcce-section--education">
+          <h2 class="pcce-main-title">
+            <span class="pcce-section-icon pcce-section-icon--education" aria-hidden="true"></span>
+            <span class="pcce-title-text">Education</span>
+          </h2>
+          <div class="pcce-main-divider" aria-hidden="true"></div>
+          <div class="education-list pcce-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="pcce-section pcce-section--projects">
+          <h2 class="pcce-main-title">
+            <span class="pcce-section-icon pcce-section-icon--projects" aria-hidden="true"></span>
+            <span class="pcce-title-text">Projects</span>
+          </h2>
+          <div class="pcce-main-divider" aria-hidden="true"></div>
+          <div class="projects-list pcce-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="pcce-section pcce-section--achievements">
+          <h2 class="pcce-main-title">
+            <span class="pcce-section-icon pcce-section-icon--achievements" aria-hidden="true"></span>
+            <span class="pcce-title-text">Achievements</span>
+          </h2>
+          <div class="pcce-main-divider" aria-hidden="true"></div>
+          <div class="achievements-list pcce-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="pcce-sidebar">
+        <section class="pcce-section pcce-section--contact pcce-side-section">
+          <h2 class="pcce-side-title">
+            <span class="pcce-section-icon pcce-section-icon--contact" aria-hidden="true"></span>
+            <span class="pcce-title-text">Contact</span>
+          </h2>
+          <div class="pcce-side-divider" aria-hidden="true"></div>
+          <div class="pcce-contact-list">
+            {{#if PHONE}}
+            <div class="pcce-contact-item pcce-contact-item--phone">
+              <span class="pcce-contact-icon" aria-hidden="true"></span>
+              <span class="pcce-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="pcce-contact-item pcce-contact-item--email">
+              <span class="pcce-contact-icon" aria-hidden="true"></span>
+              <span class="pcce-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="pcce-contact-item pcce-contact-item--location">
+              <span class="pcce-contact-icon" aria-hidden="true"></span>
+              <span class="pcce-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="pcce-contact-item pcce-contact-item--linkedin">
+              <span class="pcce-contact-icon" aria-hidden="true"></span>
+              <span class="pcce-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="pcce-contact-item pcce-contact-item--web">
+              <span class="pcce-contact-icon" aria-hidden="true"></span>
+              <span class="pcce-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if SKILLS}}
+        <section class="pcce-section pcce-section--skills pcce-side-section">
+          <h2 class="pcce-side-title">
+            <span class="pcce-section-icon pcce-section-icon--skills" aria-hidden="true"></span>
+            <span class="pcce-title-text">Skills</span>
+          </h2>
+          <div class="pcce-side-divider" aria-hidden="true"></div>
+          <div class="skills-list pcce-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="pcce-section pcce-section--languages pcce-side-section">
+          <h2 class="pcce-side-title">
+            <span class="pcce-section-icon pcce-section-icon--languages" aria-hidden="true"></span>
+            <span class="pcce-title-text">Languages</span>
+          </h2>
+          <div class="pcce-side-divider" aria-hidden="true"></div>
+          <div class="languages-list pcce-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="pcce-section pcce-section--interests pcce-side-section">
+          <h2 class="pcce-side-title">
+            <span class="pcce-section-icon pcce-section-icon--interests" aria-hidden="true"></span>
+            <span class="pcce-title-text">Interests</span>
+          </h2>
+          <div class="pcce-side-divider" aria-hidden="true"></div>
+          <div class="hobbies-list pcce-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="pcce-section pcce-section--certifications pcce-side-section">
+          <h2 class="pcce-side-title">
+            <span class="pcce-section-icon pcce-section-icon--certs" aria-hidden="true"></span>
+            <span class="pcce-title-text">Certifications</span>
+          </h2>
+          <div class="pcce-side-divider" aria-hidden="true"></div>
+          <div class="certifications-list pcce-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

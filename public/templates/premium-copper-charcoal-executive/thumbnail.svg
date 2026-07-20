@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#F8F5EF"/>
+  <!-- Banner -->
+  <rect width="300" height="88" fill="#25252B"/>
+  <rect x="18" y="10" width="8" height="10" rx="3" fill="#B77B52"/>
+  <rect x="22" y="18" width="52" height="58" rx="22" fill="#3A3A42" stroke="#B77B52" stroke-width="2"/>
+  <text x="92" y="38" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#FFFFFF" letter-spacing="1.5">ELARA VANCE</text>
+  <line x1="92" y1="44" x2="170" y2="44" stroke="#B77B52" stroke-width="1"/>
+  <text x="92" y="58" font-family="Arial, sans-serif" font-size="6" font-weight="600" fill="rgba(255,255,255,0.8)" letter-spacing="1.2">SENIOR DIRECTOR</text>
+  <circle cx="248" cy="34" r="8" fill="#B77B52"/>
+  <!-- Main -->
+  <text x="16" y="112" font-family="Georgia, serif" font-size="8" font-weight="600" fill="#202020">Professional Summary</text>
+  <line x1="16" y1="116" x2="196" y2="116" stroke="#D8D2C9" stroke-width="1"/>
+  <line x1="16" y1="118" x2="56" y2="118" stroke="#B77B52" stroke-width="1.5"/>
+  <rect x="16" y="124" width="178" height="2.5" rx="1" fill="#C9C4BC"/>
+  <rect x="16" y="132" width="166" height="2.5" rx="1" fill="#C9C4BC"/>
+  <rect x="16" y="140" width="154" height="2.5" rx="1" fill="#C9C4BC"/>
+  <text x="16" y="164" font-family="Georgia, serif" font-size="8" font-weight="600" fill="#202020">Experience</text>
+  <line x1="16" y1="168" x2="196" y2="168" stroke="#D8D2C9" stroke-width="1"/>
+  <line x1="16" y1="170" x2="48" y2="170" stroke="#B77B52" stroke-width="1.5"/>
+  <text x="16" y="184" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#202020">VP Partnerships</text>
+  <text x="188" y="184" text-anchor="end" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B77B52">2019-25</text>
+  <text x="16" y="196" font-family="Arial, sans-serif" font-size="5.5" fill="#6B6560">Global Corp</text>
+  <circle cx="20" cy="208" r="1.8" fill="#B77B52"/>
+  <rect x="28" y="206" width="130" height="2.5" rx="1" fill="#C9C4BC"/>
+  <circle cx="20" cy="220" r="1.8" fill="#B77B52"/>
+  <rect x="28" y="218" width="118" height="2.5" rx="1" fill="#C9C4BC"/>
+  <text x="16" y="244" font-family="Georgia, serif" font-size="8" font-weight="600" fill="#202020">Education</text>
+  <line x1="16" y1="248" x2="196" y2="248" stroke="#D8D2C9" stroke-width="1"/>
+  <text x="16" y="264" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#202020">MBA Strategy</text>
+  <text x="16" y="276" font-family="Arial, sans-serif" font-size="5.5" fill="#6B6560">Columbia Business School</text>
+  <!-- Sidebar -->
+  <rect x="204" y="88" width="96" height="312" fill="#25252B"/>
+  <text x="214" y="112" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#C99A72" letter-spacing="1">CONTACT</text>
+  <line x1="214" y1="116" x2="286" y2="116" stroke="rgba(183,123,82,0.4)" stroke-width="1"/>
+  <circle cx="218" cy="128" r="3" fill="#B77B52"/>
+  <rect x="226" y="126" width="52" height="3" rx="1" fill="rgba(244,240,234,0.7)"/>
+  <circle cx="218" cy="142" r="3" fill="#B77B52"/>
+  <rect x="226" y="140" width="48" height="3" rx="1" fill="rgba(244,240,234,0.7)"/>
+  <text x="214" y="168" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#C99A72" letter-spacing="1">SKILLS</text>
+  <line x1="214" y1="172" x2="286" y2="172" stroke="rgba(183,123,82,0.4)" stroke-width="1"/>
+  <text x="214" y="186" font-family="Arial, sans-serif" font-size="5" fill="#F4F0EA">LEADERSHIP</text>
+  <text x="268" y="186" font-family="Arial, sans-serif" font-size="5" fill="#B77B52"></text>
+  <text x="214" y="200" font-family="Arial, sans-serif" font-size="5" fill="#F4F0EA">STRATEGY</text>
+  <text x="268" y="200" font-family="Arial, sans-serif" font-size="5" fill="#B77B52"></text>
+  <text x="214" y="224" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#C99A72" letter-spacing="1">LANGUAGES</text>
+  <line x1="214" y1="228" x2="286" y2="228" stroke="rgba(183,123,82,0.4)" stroke-width="1"/>
+  <text x="214" y="244" font-family="Arial, sans-serif" font-size="5" fill="#F4F0EA">English</text>
+  <circle cx="276" cy="242" r="10" fill="none" stroke="#B77B52" stroke-width="2.5" stroke-dasharray="44 20" transform="rotate(-90 276 242)"/>
+  <text x="214" y="272" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#C99A72" letter-spacing="1">INTERESTS</text>
+  <line x1="214" y1="276" x2="286" y2="276" stroke="rgba(183,123,82,0.4)" stroke-width="1"/>
+  <rect x="214" y="284" width="34" height="14" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(183,123,82,0.3)"/>
+  <rect x="252" y="284" width="34" height="14" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(183,123,82,0.3)"/>
+</svg>

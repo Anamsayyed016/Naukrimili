@@ -1442,6 +1442,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "premium-copper-charcoal-executive",
+      "name": "Premium Copper Charcoal Executive",
+      "slug": "premium-copper-charcoal-executive",
+      "description": "Premium executive resume with a full-width charcoal banner, shield portrait frame with copper ribbon, Cormorant Garamond nameplate, warm ivory main column, deep charcoal sidebar, copper section icons, star-rated skills, circular language gauges, interest icon chips, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/premium-copper-charcoal-executive/thumbnail.svg",
+      "preview": "/templates/premium-copper-charcoal-executive/preview.svg",
+      "html": "/templates/premium-copper-charcoal-executive/index.html",
+      "css": "/templates/premium-copper-charcoal-executive/style.css",
+      "categories": ["Premium", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Modern", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "copper-charcoal", "name": "Copper Charcoal", "primary": "#202020", "accent": "#B77B52", "text": "#3F3F3F" },
+        { "id": "warm-bronze", "name": "Warm Bronze", "primary": "#1E1E1E", "accent": "#A8724A", "text": "#3A3A3A" },
+        { "id": "sand-gold", "name": "Sand Gold", "primary": "#222222", "accent": "#C99A72", "text": "#404040" },
+        { "id": "espresso-copper", "name": "Espresso Copper", "primary": "#1A1714", "accent": "#9E6840", "text": "#3F3F3F" },
+        { "id": "slate-amber", "name": "Slate Amber", "primary": "#25252B", "accent": "#B8875A", "text": "#444444" }
+      ],
+      "defaultColor": "copper-charcoal",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 68,
+        "sidebarColumnBasisPct": 32,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "education", "projects", "achievements", "references", "extended"],
+        "rightSections": ["contact", "skills", "languages", "interests", "certifications"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
