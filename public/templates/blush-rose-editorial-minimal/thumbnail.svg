@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260" viewBox="0 0 200 260">
+  <rect width="200" height="260" fill="#FAF8F5"/>
+  <text x="14" y="22" font-family="Georgia, serif" font-size="8" font-weight="500" fill="#B8878D" letter-spacing="0.8">ISABELLA</text>
+  <text x="14" y="36" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#222222">CHEN</text>
+  <text x="14" y="48" font-family="Georgia, serif" font-size="5" font-style="italic" fill="#666666">Lead Product Designer</text>
+  <line x1="14" y1="54" x2="68" y2="54" stroke="#B8878D" stroke-width="0.8"/>
+  <circle cx="38" cy="78" r="20" fill="none" stroke="#D8B5BA" stroke-width="1.5"/>
+  <circle cx="38" cy="78" r="16" fill="#FFFFFF" stroke="#B8878D" stroke-width="1"/>
+  <circle cx="38" cy="78" r="12" fill="#E8E0DC"/>
+  <rect x="14" y="108" width="50" height="2" rx="1" fill="#B8878D" opacity="0.6"/>
+  <rect x="14" y="116" width="46" height="2" rx="1" fill="#C9C4BC"/>
+  <rect x="14" y="124" width="42" height="2" rx="1" fill="#C9C4BC"/>
+  <text x="78" y="22" font-family="Arial, sans-serif" font-size="5.5" font-weight="600" fill="#222222" letter-spacing="0.8">EDUCATION</text>
+  <line x1="78" y1="28" x2="186" y2="28" stroke="#D9D9D9" stroke-width="0.6"/>
+  <text x="78" y="40" font-family="Arial, sans-serif" font-size="4.5" fill="#666666">2018-2020</text>
+  <text x="108" y="40" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="#222222">MSc, HCI</text>
+  <line x1="78" y1="52" x2="186" y2="52" stroke="#D9D9D9" stroke-width="0.6"/>
+  <text x="78" y="64" font-family="Arial, sans-serif" font-size="5.5" font-weight="600" fill="#222222" letter-spacing="0.8">EXPERIENCE</text>
+  <text x="78" y="78" font-family="Arial, sans-serif" font-size="4.5" fill="#666666">2020-24</text>
+  <text x="108" y="78" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="#222222">Sr. Designer</text>
+  <circle cx="112" cy="90" r="1.5" fill="#B8878D"/>
+  <rect x="118" y="88.5" width="60" height="2" rx="1" fill="#C9C4BC"/>
+  <text x="78" y="108" font-family="Arial, sans-serif" font-size="5.5" font-weight="600" fill="#222222" letter-spacing="0.8">SKILLS</text>
+  <line x1="78" y1="114" x2="186" y2="114" stroke="#D9D9D9" stroke-width="0.6"/>
+  <text x="78" y="126" font-family="Arial, sans-serif" font-size="4.5" fill="#444444">Figma | UX | Prototyping</text>
+</svg>

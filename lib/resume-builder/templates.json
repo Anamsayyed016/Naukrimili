@@ -1694,6 +1694,56 @@
       }
     },
     {
+      "id": "blush-rose-editorial-minimal",
+      "name": "Blush Rose Editorial Minimal",
+      "slug": "blush-rose-editorial-minimal",
+      "description": "Premium modern editorial resume with a warm ivory background, soft blush-rose accents, stacked Cormorant Garamond and Playfair Display nameplate, Lora italic title, double-ring circular portrait, left profile and contact column, timeline-based education and experience, inline pipe-separated skills, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/blush-rose-editorial-minimal/thumbnail.svg",
+      "preview": "/templates/blush-rose-editorial-minimal/preview.svg",
+      "html": "/templates/blush-rose-editorial-minimal/index.html",
+      "css": "/templates/blush-rose-editorial-minimal/style.css",
+      "categories": ["Premium", "Editorial", "Creative", "Modern", "Minimal", "Professional", "Executive", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "blush-rose", "name": "Blush Rose", "primary": "#222222", "accent": "#B8878D", "text": "#444444" },
+        { "id": "dusty-rose", "name": "Dusty Rose", "primary": "#222222", "accent": "#C49A9F", "text": "#444444" },
+        { "id": "mauve-editorial", "name": "Mauve Editorial", "primary": "#1F1F1F", "accent": "#A87B8A", "text": "#444444" },
+        { "id": "soft-coral", "name": "Soft Coral", "primary": "#252525", "accent": "#C9958E", "text": "#444444" },
+        { "id": "warm-taupe", "name": "Warm Taupe", "primary": "#2A2A2A", "accent": "#B89B8D", "text": "#444444" }
+      ],
+      "defaultColor": "blush-rose",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 65,
+        "sidebarColumnBasisPct": 35,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "contact", "languages", "interests"],
+        "rightSections": ["education", "experience", "projects", "skills", "certifications", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "plum-lavender-pill-executive",
       "name": "Plum Lavender Pill Executive",
       "slug": "plum-lavender-pill-executive",

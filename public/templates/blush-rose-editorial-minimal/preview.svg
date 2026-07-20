@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FAF8F5"/>
+  <!-- Left column -->
+  <text x="36" y="56" font-family="Georgia, serif" font-size="22" font-weight="500" fill="#B8878D" letter-spacing="2">ISABELLA</text>
+  <text x="36" y="88" font-family="Georgia, serif" font-size="30" font-weight="700" fill="#222222" letter-spacing="1.5">CHEN</text>
+  <text x="36" y="112" font-family="Georgia, serif" font-size="12" font-style="italic" fill="#666666">Lead Product Designer</text>
+  <line x1="36" y1="126" x2="196" y2="126" stroke="#B8878D" stroke-width="1"/>
+  <circle cx="96" cy="188" r="52" fill="none" stroke="#D8B5BA" stroke-width="4"/>
+  <circle cx="96" cy="188" r="44" fill="#FFFFFF" stroke="#B8878D" stroke-width="2.5"/>
+  <circle cx="96" cy="188" r="36" fill="#E8E0DC"/>
+  <text x="36" y="268" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#222222" letter-spacing="1.8">PROFILE</text>
+  <line x1="36" y1="276" x2="196" y2="276" stroke="#B8878D" stroke-width="1"/>
+  <rect x="36" y="288" width="150" height="4" rx="2" fill="#C9C4BC"/>
+  <rect x="36" y="298" width="140" height="4" rx="2" fill="#C9C4BC"/>
+  <rect x="36" y="308" width="130" height="4" rx="2" fill="#C9C4BC"/>
+  <text x="36" y="344" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#222222" letter-spacing="1.8">CONTACT</text>
+  <line x1="36" y1="352" x2="196" y2="352" stroke="#B8878D" stroke-width="1"/>
+  <circle cx="44" cy="370" r="4" fill="#B8878D"/>
+  <rect x="54" y="366" width="120" height="4" rx="2" fill="#666666"/>
+  <circle cx="44" cy="390" r="4" fill="#B8878D"/>
+  <rect x="54" y="386" width="100" height="4" rx="2" fill="#666666"/>
+  <text x="36" y="424" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#222222" letter-spacing="1.8">SOCIAL</text>
+  <line x1="36" y1="432" x2="196" y2="432" stroke="#B8878D" stroke-width="1"/>
+  <circle cx="44" cy="450" r="4" fill="#B8878D"/>
+  <rect x="54" y="446" width="110" height="4" rx="2" fill="#666666"/>
+  <!-- Right column -->
+  <text x="228" y="56" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#222222" letter-spacing="1.8">EDUCATION</text>
+  <line x1="228" y1="66" x2="564" y2="66" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="228" y="92" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#666666">2018-2020</text>
+  <line x1="288" y1="84" x2="288" y2="118" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="300" y="92" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#222222">MSc, Human-Computer Interaction</text>
+  <text x="300" y="110" font-family="Arial, sans-serif" font-size="10" fill="#666666">University of Washington</text>
+  <text x="228" y="148" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#222222" letter-spacing="1.8">EXPERIENCE</text>
+  <line x1="228" y1="158" x2="564" y2="158" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="228" y="184" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#666666">2020-2024</text>
+  <line x1="288" y1="176" x2="288" y2="230" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="300" y="184" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#222222">Senior Product Designer</text>
+  <text x="300" y="202" font-family="Arial, sans-serif" font-size="10" fill="#666666">TechFlow Inc.</text>
+  <circle cx="308" cy="222" r="2.5" fill="#B8878D"/>
+  <rect x="318" y="218" width="220" height="4" rx="2" fill="#C9C4BC"/>
+  <text x="228" y="262" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#222222" letter-spacing="1.8">SKILLS</text>
+  <line x1="228" y1="272" x2="564" y2="272" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="228" y="294" font-family="Arial, sans-serif" font-size="10" fill="#444444">Figma | UX Research | Wireframing | Prototyping | Design Systems</text>
+  <text x="228" y="328" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#222222" letter-spacing="1.8">CERTIFICATIONS</text>
+  <line x1="228" y1="338" x2="564" y2="338" stroke="#D9D9D9" stroke-width="1"/>
+  <text x="228" y="360" font-family="Arial, sans-serif" font-size="10" fill="#444444">Google UX Design Certificate | 2021</text>
+</svg>

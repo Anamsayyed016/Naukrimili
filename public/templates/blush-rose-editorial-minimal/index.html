@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Montserrat:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container brem-resume">
+    <div class="brem-body">
+      <aside class="brem-sidebar">
+        <header class="brem-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+          <div class="brem-name-rule" aria-hidden="true"></div>
+        </header>
+
+        <div class="brem-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="brem-photo-ring">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="brem-photo-ring">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="brem-ini-f">{{FIRST_NAME}}</span><span class="brem-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        {{#if SUMMARY}}
+        <section class="brem-section brem-section--profile brem-side-section">
+          <h2 class="brem-side-title">Profile</h2>
+          <div class="brem-side-divider" aria-hidden="true"></div>
+          <div class="brem-profile">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        <section class="brem-section brem-section--contact brem-side-section">
+          <h2 class="brem-side-title">Contact</h2>
+          <div class="brem-side-divider" aria-hidden="true"></div>
+          <div class="brem-contact-list">
+            {{#if LOCATION}}
+            <div class="brem-contact-item brem-contact-item--location">
+              <span class="brem-contact-icon" aria-hidden="true"></span>
+              <span class="brem-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if PHONE}}
+            <div class="brem-contact-item brem-contact-item--phone">
+              <span class="brem-contact-icon" aria-hidden="true"></span>
+              <span class="brem-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="brem-contact-item brem-contact-item--email">
+              <span class="brem-contact-icon" aria-hidden="true"></span>
+              <span class="brem-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        <section class="brem-section brem-section--social brem-side-section">
+          <h2 class="brem-side-title">Social</h2>
+          <div class="brem-side-divider" aria-hidden="true"></div>
+          <div class="brem-social-list">
+            {{#if LINKEDIN}}
+            <div class="brem-social-item brem-social-item--linkedin">
+              <span class="brem-social-icon" aria-hidden="true"></span>
+              <span class="brem-social-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="brem-social-item brem-social-item--portfolio">
+              <span class="brem-social-icon" aria-hidden="true"></span>
+              <span class="brem-social-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+      </aside>
+
+      <main class="brem-main">
+        {{#if EDUCATION}}
+        <section class="brem-section brem-section--education">
+          <h2 class="brem-main-title">Education</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="education-list brem-education brem-timeline">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="brem-section brem-section--experience">
+          <h2 class="brem-main-title">Experience</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="experience-list brem-experience brem-timeline">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="brem-section brem-section--projects">
+          <h2 class="brem-main-title">Projects</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="projects-list brem-projects brem-timeline">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="brem-section brem-section--skills">
+          <h2 class="brem-main-title">Skills</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="skills-list brem-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="brem-section brem-section--certifications">
+          <h2 class="brem-main-title">Certifications</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="certifications-list brem-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="brem-section brem-section--achievements">
+          <h2 class="brem-main-title">Achievements</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="achievements-list brem-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="brem-section brem-section--languages">
+          <h2 class="brem-main-title">Languages</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="languages-list brem-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="brem-section brem-section--interests">
+          <h2 class="brem-main-title">Interests</h2>
+          <div class="brem-main-divider" aria-hidden="true"></div>
+          <div class="hobbies-list brem-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>
