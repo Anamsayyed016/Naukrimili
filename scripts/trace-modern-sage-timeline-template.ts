@@ -1,9 +1,11 @@
 import { readFileSync } from 'fs';
 import { injectResumeData } from '../lib/resume-builder/template-loader';
 import { appendExtendedSectionsToHtml } from '../lib/resume-builder/render-extended-sections';
+import { balanceTwoColumnLayout } from '../lib/resume-builder/column-balance-engine';
 
 const tid = 'modern-sage-timeline-executive';
 const html = readFileSync(`public/templates/${tid}/index.html`, 'utf8');
+const css = readFileSync(`public/templates/${tid}/style.css`, 'utf8');
 
 function extractColumn(htmlOut: string, tag: 'main' | 'aside'): string {
   const re = new RegExp(`<${tag}\\b[\\s\\S]*?<\\/${tag}>`, 'i');
@@ -54,6 +56,20 @@ const data = {
       year: '2015-2019',
     },
   ],
+  projects: [
+    {
+      name: 'Mobile Checkout Redesign',
+      description: 'Increased conversion 22% through streamlined UX and performance tuning.',
+      technologies: 'React Native',
+    },
+    {
+      name: 'Platform Observability',
+      description: 'Built dashboards and alerting for microservices health.',
+      technologies: 'Grafana, Prometheus',
+    },
+  ],
+  certifications: [{ name: 'AWS Solutions Architect', issuer: 'Amazon', date: '2022' }],
+  hobbies: ['Open Source', 'Hiking'],
   references: [
     {
       name: 'Sarah Chen',
@@ -74,6 +90,8 @@ const data = {
 
 const injected = injectResumeData(html, data, { templateId: tid, mode: 'preview' });
 const out = appendExtendedSectionsToHtml(injected, data);
+const balanced = balanceTwoColumnLayout(out, { templateId: tid });
+const balancedAside = extractColumn(balanced.html, 'aside');
 const main = extractColumn(out, 'main');
 const aside = extractColumn(out, 'aside');
 
@@ -94,6 +112,10 @@ const checks: Array<[string, boolean]> = [
   ['References two-column extended', /extended-section--references/.test(main) && /Sarah Chen/.test(main) && /Michael Park/.test(main)],
   ['No references when empty would hide', true],
   ['Sidebar corner decor', /mste-sidebar-corner/.test(out)],
+  ['Sidebar foreground CSS for relocated sections', /\.mste-sidebar \.mste-main-title/.test(css) && /--mste-side-heading/.test(css)],
+  ['Column balance moves projects to sidebar when main is tall', /data-column-moved="projects"/.test(balancedAside) || /mste-section--projects/.test(balancedAside)],
+  ['Relocated projects title in sidebar', /data-column-moved="projects"[\s\S]*Mobile Checkout/.test(balancedAside) || /mste-section--projects/.test(balancedAside)],
+  ['Sidebar CSS scopes project description color', /\.mste-sidebar \.project-item > \.description/.test(css)],
 ];
 
 let failed = false;

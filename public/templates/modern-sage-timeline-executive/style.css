@@ -90,9 +90,11 @@
   min-width: 0;
   padding: 32px 22px 36px;
   background: var(--mste-sidebar-bg) !important;
+  color: var(--mste-side-text);
   display: flex;
   flex-direction: column;
   gap: var(--mste-section-gap);
+  overflow: visible;
 }
 
 .mste-resume .mste-sidebar-corner {
@@ -338,6 +340,112 @@
   height: 5px;
   border-radius: 50%;
   background: var(--mste-icon-gold);
+}
+
+/*
+ * Sidebar foreground for ALL sections — including sections relocated from main
+ * by the column-balance engine (data-column-moved). Native and moved blocks
+ * must share the same light-on-dark tokens, not main-column --mste-text/--mste-heading.
+ */
+.mste-resume .mste-sidebar .mste-main-title,
+.mste-resume .mste-sidebar .mste-side-title,
+.mste-resume .mste-sidebar .extended-section-title,
+.mste-resume .mste-sidebar .extended-section h2,
+.mste-resume .mste-sidebar .experience-header h3,
+.mste-resume .mste-sidebar .education-item h3,
+.mste-resume .mste-sidebar .project-item > h3,
+.mste-resume .mste-sidebar .project-item > .project-title,
+.mste-resume .mste-sidebar .certification-item h3,
+.mste-resume .mste-sidebar .certification-item .cert-name,
+.mste-resume .mste-sidebar .language-item .language {
+  color: var(--mste-side-heading);
+}
+
+.mste-resume .mste-sidebar .mste-main-title {
+  font-size: var(--mste-fs-side-title);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.mste-resume .mste-sidebar .mste-main-title::before {
+  background-color: var(--mste-icon-gold);
+}
+
+.mste-resume .mste-sidebar .mste-accent-rule {
+  height: 1px;
+  background: var(--mste-divider-gold);
+  margin-bottom: var(--mste-content-gap);
+}
+
+.mste-resume .mste-sidebar .summary-text,
+.mste-resume .mste-sidebar .description,
+.mste-resume .mste-sidebar .description p,
+.mste-resume .mste-sidebar .description li,
+.mste-resume .mste-sidebar .company,
+.mste-resume .mste-sidebar .institution,
+.mste-resume .mste-sidebar .project-item > .description,
+.mste-resume .mste-sidebar .project-item > p,
+.mste-resume .mste-sidebar .project-item > ul,
+.mste-resume .mste-sidebar .project-item > ul li,
+.mste-resume .mste-sidebar .achievement-item,
+.mste-resume .mste-sidebar .achievement-item .achievement,
+.mste-resume .mste-sidebar .hobby-item .hobby,
+.mste-resume .mste-sidebar .language-item,
+.mste-resume .mste-sidebar .extended-section-body,
+.mste-resume .mste-sidebar .extended-field,
+.mste-resume .mste-sidebar .extended-record-item,
+.mste-resume .mste-sidebar .mste-certifications,
+.mste-resume .mste-sidebar .mste-achievements,
+.mste-resume .mste-sidebar .mste-interests,
+.mste-resume .mste-sidebar .mste-languages {
+  color: var(--mste-side-text);
+}
+
+.mste-resume .mste-sidebar .duration,
+.mste-resume .mste-sidebar .year,
+.mste-resume .mste-sidebar .cgpa,
+.mste-resume .mste-sidebar .issuer,
+.mste-resume .mste-sidebar .date,
+.mste-resume .mste-sidebar .project-item > .technologies,
+.mste-resume .mste-sidebar .project-item > .project-employer,
+.mste-resume .mste-sidebar .language-item .proficiency {
+  color: var(--mste-side-muted);
+}
+
+.mste-resume .mste-sidebar .project-item > .technologies,
+.mste-resume .mste-sidebar .project-item > a,
+.mste-resume .mste-sidebar a {
+  color: var(--mste-icon-gold);
+}
+
+.mste-resume .mste-sidebar .extended-field strong {
+  color: var(--mste-side-heading);
+}
+
+.mste-resume .mste-sidebar .mste-timeline::before {
+  background: var(--mste-timeline);
+}
+
+.mste-resume .mste-sidebar .mste-timeline .project-item::before,
+.mste-resume .mste-sidebar .mste-timeline .experience-item::before,
+.mste-resume .mste-sidebar .mste-timeline .education-item::before {
+  background: var(--mste-dot-fill);
+  border: 2px solid var(--mste-dot-border);
+  box-shadow: 0 0 0 2px var(--mste-sidebar-bg);
+  box-sizing: border-box;
+}
+
+.mste-resume .mste-sidebar .description li::before {
+  background: var(--mste-icon-gold);
+}
+
+.mste-resume .mste-sidebar .project-item > ul li::before {
+  background: var(--mste-icon-gold);
+}
+
+.mste-resume .mste-sidebar section[data-column-moved] {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 /* ── Main column ── */
@@ -727,6 +835,53 @@
 
 .resume-container.mste-resume .mste-sidebar {
   background: var(--mste-sidebar-bg) !important;
+  color: var(--mste-side-text) !important;
+}
+
+.resume-container.mste-resume .mste-sidebar .mste-main-title,
+.resume-container.mste-resume .mste-sidebar .mste-side-title,
+.resume-container.mste-resume .mste-sidebar .extended-section-title,
+.resume-container.mste-resume .mste-sidebar .extended-section h2,
+.resume-container.mste-resume .mste-sidebar .experience-header h3,
+.resume-container.mste-resume .mste-sidebar .education-item h3,
+.resume-container.mste-resume .mste-sidebar .project-item > h3,
+.resume-container.mste-resume .mste-sidebar .project-item > .project-title,
+.resume-container.mste-resume .mste-sidebar .certification-item h3,
+.resume-container.mste-resume .mste-sidebar .language-item .language,
+.resume-container.mste-resume .mste-sidebar .extended-field strong {
+  color: var(--mste-side-heading) !important;
+}
+
+.resume-container.mste-resume .mste-sidebar .summary-text,
+.resume-container.mste-resume .mste-sidebar .description,
+.resume-container.mste-resume .mste-sidebar .description p,
+.resume-container.mste-resume .mste-sidebar .description li,
+.resume-container.mste-resume .mste-sidebar .company,
+.resume-container.mste-resume .mste-sidebar .institution,
+.resume-container.mste-resume .mste-sidebar .project-item > .description,
+.resume-container.mste-resume .mste-sidebar .project-item > p,
+.resume-container.mste-resume .mste-sidebar .project-item > ul,
+.resume-container.mste-resume .mste-sidebar .achievement-item,
+.resume-container.mste-resume .mste-sidebar .hobby-item .hobby,
+.resume-container.mste-resume .mste-sidebar .language-item,
+.resume-container.mste-resume .mste-sidebar .extended-field,
+.resume-container.mste-resume .mste-sidebar .extended-section-body {
+  color: var(--mste-side-text) !important;
+}
+
+.resume-container.mste-resume .mste-sidebar .duration,
+.resume-container.mste-resume .mste-sidebar .year,
+.resume-container.mste-resume .mste-sidebar .technologies,
+.resume-container.mste-resume .mste-sidebar .project-employer,
+.resume-container.mste-resume .mste-sidebar .issuer,
+.resume-container.mste-resume .mste-sidebar .language-item .proficiency {
+  color: var(--mste-side-muted) !important;
+}
+
+.resume-container.mste-resume .mste-sidebar .technologies,
+.resume-container.mste-resume .mste-sidebar .project-item > a,
+.resume-container.mste-resume .mste-sidebar a {
+  color: var(--mste-icon-gold) !important;
 }
 
 .resume-container.mste-resume .summary-text,
