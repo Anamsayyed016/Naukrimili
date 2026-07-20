@@ -40,7 +40,8 @@ const data = {
     {
       name: 'Design System Library',
       description: 'Built component library adopted across product suite.',
-      technologies: '2023',
+      technologies: 'React, Figma',
+      employer: '2023',
       link: 'https://example.com/project',
     },
   ],
@@ -72,6 +73,9 @@ const checks = [
   ['Has certifications', /Google UX Design Certificate/.test(out)],
   ['Has social linkedin', /brem-social-item--linkedin/.test(out)],
   ['Has photo ring', /brem-photo-ring/.test(out)],
+  ['Projects use timeline grid', /brem-projects brem-timeline/.test(out) && /project-employer/.test(out)],
+  ['Projects avoid card padding hack', !/padding-left:\s*calc\(var\(--brem-timeline\)/.test(out)],
+  ['Name first stays single line class', out.includes('class="name-first">Isabella<')],
 ];
 
 let failed = false;

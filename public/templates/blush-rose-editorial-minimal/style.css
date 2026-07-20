@@ -20,9 +20,10 @@
   --brem-col-gap: clamp(28px, 3.5cqw, 40px);
   --brem-timeline: 52px;
   --brem-photo: clamp(112px, 14.5cqw, 132px);
-  --brem-section-gap: 24px;
-  --brem-block-gap: 16px;
+  --brem-section-gap: 22px;
+  --brem-block-gap: 14px;
   --brem-heading-gap: 10px;
+  --brem-content-gap: 12px;
   --brem-lh-body: 1.62;
   --brem-lh-tight: 1.34;
   --brem-fs-name-first: clamp(26px, 3.6cqw, 32px);
@@ -107,27 +108,39 @@
   display: flex;
   flex-direction: column;
   gap: var(--brem-section-gap);
-  padding-right: 8px;
+  padding-right: 0;
+  min-width: 0;
   overflow: visible;
 }
 
 .brem-resume .brem-identity {
   page-break-inside: avoid;
   break-inside: avoid;
+  min-width: 0;
+  width: 100%;
 }
 
 .brem-resume .candidate-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
   line-height: 1.02;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  max-width: 100%;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: manual;
 }
 
 .brem-resume .name-first {
   display: block;
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
   font-family: var(--brem-font-name-light);
   font-size: var(--brem-fs-name-first);
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--brem-rose);
   line-height: 1.05;
@@ -135,11 +148,14 @@
 
 .brem-resume .name-last {
   display: block;
-  margin-top: 2px;
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
+  margin-top: 1px;
   font-family: var(--brem-font-display);
   font-size: var(--brem-fs-name-last);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--brem-ink);
   line-height: 1.02;
@@ -165,7 +181,9 @@
 }
 
 .brem-resume .header-title {
-  margin-top: 10px;
+  margin-top: 8px;
+  width: 100%;
+  max-width: 100%;
   font-family: var(--brem-font-title);
   font-size: var(--brem-fs-job);
   font-weight: 400;
@@ -173,14 +191,50 @@
   letter-spacing: 0.02em;
   color: var(--brem-muted);
   line-height: var(--brem-lh-tight);
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .brem-resume .brem-name-rule {
   width: 100%;
   height: 1px;
-  margin-top: 16px;
+  margin-top: 14px;
   background: var(--brem-rose);
   opacity: 0.75;
+}
+
+/* Scale long names within the sidebar instead of wrapping mid-word */
+@container (max-width: 300px) {
+  .brem-resume .name-first {
+    font-size: clamp(22px, 7.8cqw, 30px);
+    letter-spacing: 0.1em;
+  }
+
+  .brem-resume .name-last {
+    font-size: clamp(28px, 9.2cqw, 38px);
+    letter-spacing: 0.04em;
+  }
+}
+
+@container (max-width: 240px) {
+  .brem-resume .name-first {
+    font-size: clamp(20px, 7.2cqw, 26px);
+    letter-spacing: 0.08em;
+  }
+
+  .brem-resume .name-last {
+    font-size: clamp(24px, 8.4cqw, 32px);
+    letter-spacing: 0.03em;
+  }
+}
+
+@container (max-width: 210px) {
+  .brem-resume .name-first,
+  .brem-resume .name-last {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
 }
 
 /* Double-ring portrait */
@@ -240,9 +294,35 @@
 }
 
 .brem-resume .brem-section {
-  page-break-inside: avoid;
-  break-inside: avoid;
+  page-break-inside: auto;
+  break-inside: auto;
   overflow: visible;
+}
+
+.brem-resume .brem-side-section,
+.brem-resume .brem-main .brem-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.brem-resume .brem-side-title,
+.brem-resume .brem-main-title {
+  margin-bottom: 6px;
+}
+
+.brem-resume .brem-side-divider,
+.brem-resume .brem-main-divider {
+  margin-bottom: var(--brem-content-gap);
+}
+
+.brem-resume .brem-side-divider {
+  background: var(--brem-rose);
+  opacity: 0.65;
+}
+
+.brem-resume .brem-main-divider {
+  background: var(--brem-divider);
 }
 
 .brem-resume .brem-section--contact:not(:has(.brem-contact-item)),
@@ -258,22 +338,19 @@
   text-transform: uppercase;
   color: var(--brem-ink);
   line-height: 1.25;
-  margin-bottom: 6px;
 }
 
 .brem-resume .brem-side-divider {
   width: 100%;
   height: 1px;
-  margin-bottom: 12px;
-  background: var(--brem-rose);
-  opacity: 0.65;
 }
 
 .brem-resume .brem-profile .summary-text {
   font-size: var(--brem-fs-body);
   color: var(--brem-text);
   line-height: var(--brem-lh-body);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 /* Contact */
@@ -354,14 +431,11 @@
   text-transform: uppercase;
   color: var(--brem-ink);
   line-height: 1.25;
-  margin-bottom: var(--brem-heading-gap);
 }
 
 .brem-resume .brem-main-divider {
   width: 100%;
   height: 1px;
-  margin-bottom: 14px;
-  background: var(--brem-divider);
 }
 
 /* Timeline rail */
@@ -384,7 +458,7 @@
 .brem-resume .brem-education {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--brem-block-gap);
 }
 
 .brem-resume .brem-education .education-item {
@@ -519,31 +593,40 @@
   background: var(--brem-rose);
 }
 
-/* Projects timeline */
+/* Projects timeline — match Experience/Education editorial rhythm */
 .brem-resume .brem-projects {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--brem-block-gap);
 }
 
 .brem-resume .brem-projects .project-item {
   display: grid;
   grid-template-columns: var(--brem-timeline) minmax(0, 1fr);
+  grid-template-rows: auto;
   column-gap: 14px;
+  row-gap: 3px;
   page-break-inside: avoid;
   break-inside: avoid;
   min-width: 0;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-.brem-resume .brem-projects .project-item > .technologies,
 .brem-resume .brem-projects .project-item > .project-employer {
   grid-column: 1;
   grid-row: 1;
+  align-self: start;
   font-size: var(--brem-fs-small);
   font-weight: 600;
   color: var(--brem-muted);
   line-height: 1.35;
   word-break: break-word;
+  margin: 0;
 }
 
 .brem-resume .brem-projects .project-item > h3,
@@ -555,40 +638,96 @@
   font-weight: 700;
   color: var(--brem-ink);
   line-height: var(--brem-lh-tight);
-  margin-bottom: 0;
+  margin: 0;
+  word-break: break-word;
 }
 
 .brem-resume .brem-projects .project-item > .description,
-.brem-resume .brem-projects .project-item > p,
-.brem-resume .brem-projects .project-item > ul,
-.brem-resume .brem-projects .project-item > a {
+.brem-resume .brem-projects .project-item > p.description,
+.brem-resume .brem-projects .project-item > ul {
   grid-column: 2;
   grid-row: 2;
   font-size: var(--brem-fs-body);
   color: var(--brem-text);
   line-height: var(--brem-lh-body);
-  margin-top: 4px;
+  margin: 2px 0 0;
+  padding: 0;
+}
+
+.brem-resume .brem-projects .project-item > ul {
+  list-style: none;
+}
+
+.brem-resume .brem-projects .project-item > ul li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 4px;
+}
+
+.brem-resume .brem-projects .project-item > ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--brem-rose);
+}
+
+.brem-resume .brem-projects .project-item > ul li:last-child {
+  margin-bottom: 0;
+}
+
+.brem-resume .brem-projects .project-item > .technologies {
+  grid-column: 2;
+  grid-row: 3;
+  font-size: var(--brem-fs-meta);
+  font-weight: 500;
+  color: var(--brem-muted);
+  line-height: 1.45;
+  margin: 2px 0 0;
 }
 
 .brem-resume .brem-projects .project-item > a {
+  grid-column: 2;
+  grid-row: 4;
   color: var(--brem-rose);
   text-decoration: none;
   font-size: var(--brem-fs-small);
   font-weight: 600;
+  line-height: 1.4;
+  margin: 2px 0 0;
 }
 
-.brem-resume .brem-projects .project-item:not(:has(.technologies:not(:empty))):not(:has(.project-employer:not(:empty))) > h3,
-.brem-resume .brem-projects .project-item:not(:has(.technologies:not(:empty))):not(:has(.project-employer:not(:empty))) > .project-title {
-  grid-column: 1 / -1;
-  padding-left: calc(var(--brem-timeline) + 14px);
+/* No employer: keep title in timeline content column; leave year column empty */
+.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > h3,
+.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > .project-title {
+  grid-column: 2;
+  grid-row: 1;
 }
 
-.brem-resume .brem-projects .project-item:not(:has(.technologies:not(:empty))):not(:has(.project-employer:not(:empty))) > .description,
-.brem-resume .brem-projects .project-item:not(:has(.technologies:not(:empty))):not(:has(.project-employer:not(:empty))) > p,
-.brem-resume .brem-projects .project-item:not(:has(.technologies:not(:empty))):not(:has(.project-employer:not(:empty))) > ul,
-.brem-resume .brem-projects .project-item:not(:has(.technologies:not(:empty))):not(:has(.project-employer:not(:empty))) > a {
-  grid-column: 1 / -1;
-  padding-left: calc(var(--brem-timeline) + 14px);
+.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > .description,
+.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > p.description,
+.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > ul {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > .technologies {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > a {
+  grid-column: 2;
+  grid-row: 4;
+}
+
+/* Both employer + technologies: year left, tech stack under description */
+.brem-resume .brem-projects .project-item:has(.project-employer:not(:empty)):has(.technologies:not(:empty)) > .technologies {
+  grid-column: 2;
+  grid-row: 3;
 }
 
 /* Skills — editorial inline */
@@ -765,9 +904,17 @@
 /* Extended / injected sections */
 .brem-resume .extended-section,
 .brem-resume .dynamic-section {
-  page-break-inside: avoid;
-  break-inside: avoid;
+  page-break-inside: auto;
+  break-inside: auto;
   overflow: visible;
+  margin-top: 0 !important;
+}
+
+.brem-resume .brem-main .extended-section,
+.brem-resume .brem-main .dynamic-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .brem-resume .extended-section h2,
@@ -779,9 +926,19 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--brem-ink);
-  margin-bottom: var(--brem-heading-gap);
+  margin-bottom: 6px;
   padding-bottom: 0;
   border: none;
+}
+
+.brem-resume .brem-main .extended-section .extended-section-body,
+.brem-resume .brem-main .dynamic-section .dynamic-section-body {
+  margin-top: 0;
+}
+
+.brem-resume .brem-main .extended-section::after,
+.brem-resume .brem-main .dynamic-section::after {
+  content: none;
 }
 
 .brem-resume .extended-section--references .extended-section-body {
@@ -828,13 +985,146 @@
   color: var(--brem-text) !important;
 }
 
-/* ATS overrides */
+/* ATS overrides — preserve editorial hierarchy and layout rhythm */
+.resume-container.brem-resume .candidate-name {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+  line-height: 1.02 !important;
+}
+
 .resume-container.brem-resume .candidate-name .name-first {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  font-family: var(--brem-font-name-light) !important;
+  font-size: var(--brem-fs-name-first) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.12em !important;
+  line-height: 1.05 !important;
   color: var(--brem-rose) !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
 }
 
 .resume-container.brem-resume .candidate-name .name-last {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  font-family: var(--brem-font-display) !important;
+  font-size: var(--brem-fs-name-last) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1.02 !important;
   color: var(--brem-ink) !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+.resume-container.brem-resume .header-title {
+  font-family: var(--brem-font-title) !important;
+  font-size: var(--brem-fs-job) !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  letter-spacing: 0.02em !important;
+  line-height: var(--brem-lh-tight) !important;
+  color: var(--brem-muted) !important;
+}
+
+.resume-container.brem-resume .brem-main-title,
+.resume-container.brem-resume .brem-side-title,
+.resume-container.brem-resume .extended-section-title,
+.resume-container.brem-resume .extended-section h2,
+.resume-container.brem-resume .dynamic-section h2 {
+  font-family: var(--brem-font-heading) !important;
+  font-size: var(--brem-fs-section) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+
+.resume-container.brem-resume .brem-skills:not(:has(.psp-skill-item)),
+.resume-container.brem-resume .skills-list.brem-skills:not(:has(.psp-skill-item)) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0 !important;
+  grid-template-columns: unset !important;
+  width: 100% !important;
+}
+
+.resume-container.brem-resume .brem-skills:not(:has(.psp-skill-item)) > .skill-tag,
+.resume-container.brem-resume .skills-list.brem-skills:not(:has(.psp-skill-item)) > .skill-tag {
+  display: inline !important;
+  width: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  font-size: var(--brem-fs-body) !important;
+  font-weight: 500 !important;
+  line-height: 1.6 !important;
+  white-space: normal !important;
+}
+
+.resume-container.brem-resume .brem-languages .language-item {
+  display: inline !important;
+}
+
+.resume-container.brem-resume .project-item {
+  display: grid !important;
+  grid-template-columns: var(--brem-timeline) minmax(0, 1fr) !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.resume-container.brem-resume .brem-projects .project-item > h3,
+.resume-container.brem-resume .brem-projects .project-item > .project-title {
+  font-size: calc(var(--brem-fs-body) + 1px) !important;
+  font-weight: 700 !important;
+  margin-bottom: 0 !important;
+}
+
+.resume-container.brem-resume .brem-projects .project-item > .technologies {
+  font-size: var(--brem-fs-meta) !important;
+  font-weight: 500 !important;
+  margin-bottom: 0 !important;
+}
+
+.resume-container.brem-resume .brem-projects .project-item > .description,
+.resume-container.brem-resume .brem-projects .project-item > p.description,
+.resume-container.brem-resume .brem-projects .project-item > ul {
+  margin-bottom: 0 !important;
+}
+
+.resume-container.brem-resume .brem-projects .project-item > a {
+  font-size: var(--brem-fs-small) !important;
+  line-height: 1.4 !important;
+}
+
+.resume-container.brem-resume .brem-sidebar .project-item {
+  display: block !important;
+  grid-template-columns: unset !important;
+  padding-left: 0 !important;
+}
+
+.resume-container.brem-resume .brem-sidebar .project-item > * {
+  grid-column: auto !important;
+  grid-row: auto !important;
 }
 
 .resume-container.brem-resume .brem-experience .experience-header {
