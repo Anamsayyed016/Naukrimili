@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="300" height="400" fill="#F8F4EC"/>
+  <!-- Sidebar -->
+  <circle cx="52" cy="52" r="30" fill="none" stroke="#C4A574" stroke-width="3"/>
+  <circle cx="52" cy="52" r="26" fill="#FFFFFF" stroke="#B08A56" stroke-width="2"/>
+  <circle cx="52" cy="52" r="22" fill="#E8E0D4"/>
+  <text x="16" y="98" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1D2C4A" letter-spacing="1">CONTACT</text>
+  <line x1="16" y1="102" x2="52" y2="102" stroke="#B08A56" stroke-width="1.5"/>
+  <line x1="52" y1="102" x2="96" y2="102" stroke="#D8CDBB" stroke-width="1"/>
+  <circle cx="20" cy="114" r="2.5" fill="#B08A56"/>
+  <rect x="28" y="112" width="60" height="3" rx="1" fill="#666666"/>
+  <circle cx="20" cy="126" r="2.5" fill="#B08A56"/>
+  <rect x="28" y="124" width="52" height="3" rx="1" fill="#666666"/>
+  <text x="16" y="148" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1D2C4A" letter-spacing="1">EDUCATION</text>
+  <line x1="16" y1="152" x2="52" y2="152" stroke="#B08A56" stroke-width="1.5"/>
+  <text x="16" y="166" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#1D2C4A">MBA Finance</text>
+  <text x="16" y="178" font-family="Arial, sans-serif" font-size="5.5" fill="#666666">Columbia</text>
+  <text x="16" y="198" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1D2C4A" letter-spacing="1">SKILLS</text>
+  <line x1="16" y1="202" x2="52" y2="202" stroke="#B08A56" stroke-width="1.5"/>
+  <text x="16" y="216" font-family="Arial, sans-serif" font-size="5.5" fill="#333333">Strategy | Finance</text>
+  <!-- Main -->
+  <text x="112" y="42" font-family="Georgia, serif" font-size="15" font-weight="700" fill="#1D2C4A" letter-spacing="1.5">KATHERINE LEE</text>
+  <text x="112" y="58" font-family="Arial, sans-serif" font-size="6.5" font-weight="600" fill="#B08A56" letter-spacing="1.5">CHIEF FINANCIAL OFFICER</text>
+  <line x1="112" y1="68" x2="284" y2="68" stroke="#D8CDBB" stroke-width="1"/>
+  <circle cx="198" cy="68" r="2.5" fill="#B08A56"/>
+  <text x="112" y="88" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1D2C4A" letter-spacing="1">SUMMARY</text>
+  <line x1="112" y1="92" x2="160" y2="92" stroke="#B08A56" stroke-width="1.5"/>
+  <line x1="160" y1="92" x2="284" y2="92" stroke="#D8CDBB" stroke-width="1"/>
+  <rect x="112" y="100" width="168" height="3" rx="1" fill="#C9C4BC"/>
+  <rect x="112" y="108" width="156" height="3" rx="1" fill="#C9C4BC"/>
+  <text x="112" y="132" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1D2C4A" letter-spacing="1">EXPERIENCE</text>
+  <line x1="112" y1="136" x2="284" y2="136" stroke="#D8CDBB" stroke-width="1"/>
+  <text x="112" y="152" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1D2C4A">VP Finance</text>
+  <text x="284" y="152" text-anchor="end" font-family="Arial, sans-serif" font-size="5" font-weight="600" fill="#B08A56">2018-25</text>
+  <text x="112" y="164" font-family="Arial, sans-serif" font-size="5.5" fill="#666666">Apex Global Solutions</text>
+  <circle cx="118" cy="178" r="1.8" fill="#1D2C4A"/>
+  <rect x="126" y="176" width="130" height="2.5" rx="1" fill="#C9C4BC"/>
+  <circle cx="118" cy="190" r="1.8" fill="#1D2C4A"/>
+  <rect x="126" y="188" width="118" height="2.5" rx="1" fill="#C9C4BC"/>
+  <text x="112" y="216" font-family="Arial, sans-serif" font-size="6.5" font-weight="700" fill="#1D2C4A" letter-spacing="1">PROJECTS</text>
+  <line x1="112" y1="220" x2="284" y2="220" stroke="#D8CDBB" stroke-width="1"/>
+  <text x="112" y="236" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#1D2C4A">ERP Migration</text>
+  <rect x="112" y="244" width="140" height="2.5" rx="1" fill="#C9C4BC"/>
+</svg>
