@@ -15,8 +15,9 @@
   --wee-font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --wee-font-title: 'Montserrat', 'Segoe UI', sans-serif;
   --wee-font-body: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-  --wee-side: 30fr;
-  --wee-main: 70fr;
+  --wee-side: 32fr;
+  --wee-main: 68fr;
+  --wee-col-gap: clamp(28px, 3.5cqw, 36px);
   --wee-photo-w: clamp(140px, 18cqw, 156px);
   --wee-photo-h: clamp(158px, 20cqw, 172px);
   --wee-section-gap: 22px;
@@ -230,9 +231,28 @@
   display: grid;
   grid-template-columns: minmax(0, var(--wee-side)) minmax(0, var(--wee-main));
   align-items: start;
-  gap: 0;
+  gap: var(--wee-col-gap);
   padding: 0 26px 32px;
   min-height: 0;
+}
+
+/* Lock columns — viewport media queries must not collapse A4-width previews (794px). */
+.resume-container.wee-resume .wee-body,
+.resume-container.wee-resume[data-dl-page-underfill='true'] .wee-body,
+.resume-container.wee-resume[data-dl-page-underfill='false'] .wee-body,
+.resume-container.wee-resume[data-dl-density] .wee-body {
+  display: grid !important;
+  grid-template-columns: minmax(0, var(--wee-side)) minmax(0, var(--wee-main)) !important;
+  align-items: start !important;
+  gap: var(--wee-col-gap) !important;
+}
+
+.resume-container.wee-resume .wee-sidebar,
+.resume-container.wee-resume .wee-main {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  justify-content: flex-start !important;
 }
 
 .wee-resume .wee-sidebar {
@@ -760,16 +780,10 @@
   border-bottom: 1px solid var(--wee-divider);
 }
 
-/* Responsive */
-@media (max-width: 820px) {
-  .wee-resume,
-  .resume-container.wee-resume {
-    width: 100%;
-    max-width: 100%;
-  }
-
+/* Responsive — container width, not viewport (794px A4 must stay two-column). */
+@container (max-width: 560px) {
   .wee-resume .wee-body {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     padding: 0 18px 24px;
     gap: 20px;
   }
@@ -819,6 +833,22 @@
     width: 794px !important;
     overflow: visible !important;
     background: var(--wee-bg) !important;
+  }
+
+  .wee-resume .wee-body,
+  .resume-container.wee-resume .wee-body {
+    display: grid !important;
+    grid-template-columns: minmax(0, var(--wee-side)) minmax(0, var(--wee-main)) !important;
+    gap: var(--wee-col-gap) !important;
+    align-items: start !important;
+  }
+
+  .wee-resume .wee-sidebar {
+    order: 0 !important;
+  }
+
+  .wee-resume .wee-main {
+    order: 0 !important;
   }
 
   .wee-resume .wee-sidebar-card,
