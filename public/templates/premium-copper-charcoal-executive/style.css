@@ -78,7 +78,8 @@
 .pcce-resume .pcce-banner {
   background: var(--pcce-banner);
   position: relative;
-  z-index: 2;
+  z-index: 1;
+  overflow: visible;
 }
 
 .pcce-resume .pcce-banner-inner {
@@ -86,14 +87,14 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 22px 28px;
-  padding: 22px 24px 26px 28px;
+  padding: 22px 24px clamp(30px, 3.8cqw, 38px) 28px;
 }
 
 .pcce-resume .pcce-photo-col {
   position: relative;
-  z-index: 3;
+  z-index: 2;
   align-self: end;
-  margin-bottom: -20px;
+  margin-bottom: 0;
 }
 
 /* Shield portrait frame with copper ribbon tab */
@@ -164,6 +165,7 @@
 .pcce-resume .pcce-identity {
   min-width: 0;
   padding: 4px 0 0;
+  color: #FFFFFF;
 }
 
 .pcce-resume .pcce-identity-row {
@@ -230,9 +232,12 @@
 .pcce-resume .pcce-body {
   display: grid;
   grid-template-columns: minmax(0, var(--pcce-main)) minmax(0, var(--pcce-side));
-  align-items: stretch;
+  align-items: start;
   gap: var(--pcce-col-gap);
   min-height: 0;
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(6px, 1cqw, 10px);
 }
 
 .resume-container.pcce-resume .pcce-body,
@@ -241,7 +246,7 @@
 .resume-container.pcce-resume[data-dl-density] .pcce-body {
   display: grid !important;
   grid-template-columns: minmax(0, 68fr) minmax(0, 32fr) !important;
-  align-items: stretch !important;
+  align-items: start !important;
 }
 
 .resume-container.pcce-resume .pcce-main,
@@ -249,29 +254,35 @@
   min-width: 0 !important;
   min-height: 0 !important;
   height: auto !important;
+  max-height: none !important;
+  max-width: none !important;
+  flex: none !important;
+  width: auto !important;
+  overflow: visible !important;
   justify-content: flex-start !important;
-}
-
-.resume-container.pcce-resume .pcce-sidebar {
-  align-self: stretch !important;
+  align-self: start !important;
 }
 
 /* Main column — warm ivory with rounded top-right */
 .pcce-resume .pcce-main {
   min-width: 0;
-  padding: 28px 28px 32px 32px;
+  padding: clamp(30px, 3.8cqw, 40px) 28px 32px 32px;
   background: var(--pcce-bg);
   border-radius: 0 var(--pcce-radius-main) 0 0;
   display: flex;
   flex-direction: column;
   gap: var(--pcce-section-gap);
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  overflow: visible;
 }
 
 .pcce-resume .pcce-section {
   page-break-inside: avoid;
   break-inside: avoid;
+  overflow: visible;
+  min-height: 0;
+  max-height: none;
 }
 
 /* Section icons */
@@ -552,11 +563,14 @@
 /* ── Sidebar (right) — deep charcoal ── */
 .pcce-resume .pcce-sidebar {
   min-width: 0;
-  padding: 24px 22px 32px 20px;
+  padding: clamp(34px, 4.2cqw, 44px) 22px 32px 20px;
   background: var(--pcce-sidebar);
   display: flex;
   flex-direction: column;
   gap: var(--pcce-section-gap);
+  overflow: visible;
+  position: relative;
+  z-index: 2;
 }
 
 .pcce-resume .pcce-side-title {
@@ -697,20 +711,11 @@
   text-shadow: 0 0 0 var(--pcce-accent);
 }
 
-.pcce-resume .psp-skill-item:nth-child(5n + 1)::after { content: '★★★★★'; }
+.pcce-resume .psp-skill-item:nth-child(5n + 1)::after { content: '★★★★★'; color: var(--pcce-accent); }
 .pcce-resume .psp-skill-item:nth-child(5n + 2)::after { content: '★★★★☆'; color: var(--pcce-accent); }
-.pcce-resume .psp-skill-item:nth-child(5n + 3)::after { content: '★★★★☆'; }
-.pcce-resume .psp-skill-item:nth-child(5n + 4)::after { content: '★★★☆☆'; }
-.pcce-resume .psp-skill-item:nth-child(5n)::after { content: '★★★★★'; }
-
-.pcce-resume .psp-skill-item:nth-child(5n + 2)::after,
-.pcce-resume .psp-skill-item:nth-child(5n + 3)::after,
-.pcce-resume .psp-skill-item:nth-child(5n + 4)::after {
-  background: linear-gradient(90deg, var(--pcce-accent) 0 72%, var(--pcce-star-empty) 72% 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+.pcce-resume .psp-skill-item:nth-child(5n + 3)::after { content: '★★★★☆'; color: var(--pcce-accent); }
+.pcce-resume .psp-skill-item:nth-child(5n + 4)::after { content: '★★★☆☆'; color: var(--pcce-accent-soft); }
+.pcce-resume .psp-skill-item:nth-child(5n)::after { content: '★★★★★'; color: var(--pcce-accent); }
 
 /* Languages — circular donut gauges */
 .pcce-resume .pcce-languages.psp-languages-progress,
@@ -924,14 +929,53 @@
 .resume-container.pcce-resume .pcce-sidebar .education-item h3,
 .resume-container.pcce-resume .pcce-sidebar .experience-header h3,
 .resume-container.pcce-resume .pcce-sidebar .achievement-item h3,
-.resume-container.pcce-resume .pcce-sidebar .project-item > h3 {
+.resume-container.pcce-resume .pcce-sidebar .project-item > h3,
+.resume-container.pcce-resume .pcce-sidebar .project-item > .project-title,
+.resume-container.pcce-resume .pcce-sidebar .certification-item h3,
+.resume-container.pcce-resume .pcce-sidebar .cert-name,
+.resume-container.pcce-resume .pcce-sidebar .psp-skill-name,
+.resume-container.pcce-resume .pcce-sidebar .psp-language-name,
+.resume-container.pcce-resume .pcce-sidebar .pcce-contact-value,
+.resume-container.pcce-resume .pcce-sidebar .language-item,
+.resume-container.pcce-resume .pcce-sidebar .hobby-item,
+.resume-container.pcce-resume .pcce-sidebar .hobby-item .hobby {
   color: var(--pcce-side-text) !important;
+  opacity: 1 !important;
 }
 
 .resume-container.pcce-resume .pcce-sidebar .description,
+.resume-container.pcce-resume .pcce-sidebar .description li,
+.resume-container.pcce-resume .pcce-sidebar .description p,
 .resume-container.pcce-resume .pcce-sidebar .company,
-.resume-container.pcce-resume .pcce-sidebar .institution {
+.resume-container.pcce-resume .pcce-sidebar .institution,
+.resume-container.pcce-resume .pcce-sidebar .issuer,
+.resume-container.pcce-resume .pcce-sidebar .date,
+.resume-container.pcce-resume .pcce-sidebar .year,
+.resume-container.pcce-resume .pcce-sidebar .technologies,
+.resume-container.pcce-resume .pcce-sidebar .project-item > .description,
+.resume-container.pcce-resume .pcce-sidebar .project-item p,
+.resume-container.pcce-resume .pcce-sidebar .project-item li,
+.resume-container.pcce-resume .pcce-sidebar a,
+.resume-container.pcce-resume .pcce-sidebar .proficiency {
   color: var(--pcce-side-muted) !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  max-height: none !important;
+  white-space: normal !important;
+}
+
+.resume-container.pcce-resume .pcce-sidebar .duration,
+.resume-container.pcce-resume .pcce-sidebar .cgpa {
+  color: var(--pcce-accent-soft) !important;
+}
+
+.resume-container.pcce-resume .pcce-sidebar .project-item {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(183, 123, 82, 0.28) !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
 }
 
 .resume-container.pcce-resume .pcce-sidebar .pcce-main-title .pcce-title-text {
@@ -939,6 +983,86 @@
   font-size: var(--pcce-fs-side-section) !important;
   letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
+}
+
+/* ATS + dynamic-layout overrides — preserve template layout/readability */
+.resume-container.pcce-resume .pcce-banner .candidate-name,
+.resume-container.pcce-resume .pcce-banner .candidate-name .name-first,
+.resume-container.pcce-resume .pcce-banner .candidate-name .name-last,
+.resume-container.pcce-resume .pcce-banner .candidate-name .name-fallback {
+  color: #FFFFFF !important;
+  letter-spacing: 0.14em !important;
+  line-height: 1.06 !important;
+}
+
+.resume-container.pcce-resume .pcce-banner .header-title {
+  color: rgba(255, 255, 255, 0.88) !important;
+  letter-spacing: 0.24em !important;
+}
+
+.resume-container.pcce-resume .pcce-experience .experience-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  flex-direction: unset !important;
+  column-gap: 12px !important;
+  row-gap: 2px !important;
+}
+
+.resume-container.pcce-resume .pcce-experience .experience-header h3 {
+  order: unset !important;
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  font-size: calc(var(--pcce-fs-body) + 1px) !important;
+  font-weight: 700 !important;
+  color: var(--pcce-ink) !important;
+}
+
+.resume-container.pcce-resume .pcce-experience .experience-header .company {
+  order: unset !important;
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  display: block !important;
+  font-size: var(--pcce-fs-meta) !important;
+  font-weight: 500 !important;
+  color: var(--pcce-muted) !important;
+}
+
+.resume-container.pcce-resume .pcce-experience .experience-header .duration {
+  order: unset !important;
+  grid-column: 2 !important;
+  grid-row: 1 / span 2 !important;
+  align-self: start !important;
+  justify-self: end !important;
+  font-size: var(--pcce-fs-small) !important;
+  font-weight: 600 !important;
+  color: var(--pcce-accent) !important;
+  white-space: nowrap !important;
+}
+
+.resume-container.pcce-resume .summary-text,
+.resume-container.pcce-resume .pcce-summary .summary-text,
+.resume-container.pcce-resume .pcce-experience .description,
+.resume-container.pcce-resume .pcce-projects .description,
+.resume-container.pcce-resume .pcce-education .description,
+.resume-container.pcce-resume .project-item .description,
+.resume-container.pcce-resume .experience-item .description {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  white-space: normal !important;
+  opacity: 1 !important;
+  color: var(--pcce-text) !important;
+}
+
+.resume-container.pcce-resume .pcce-main-title .pcce-title-text {
+  color: var(--pcce-ink) !important;
+  opacity: 1 !important;
+}
+
+.resume-container.pcce-resume .pcce-side-title .pcce-title-text {
+  color: var(--pcce-accent-soft) !important;
+  opacity: 1 !important;
 }
 
 /* ATS balance overrides */
@@ -991,7 +1115,7 @@
   }
 
   .pcce-resume .pcce-photo-col {
-    margin: 0 auto -12px;
+    margin: 0 auto 0;
   }
 
   .pcce-resume .pcce-identity-row {
@@ -1037,7 +1161,7 @@
   .resume-container.pcce-resume .pcce-body {
     display: grid !important;
     grid-template-columns: minmax(0, 68fr) minmax(0, 32fr) !important;
-    align-items: stretch !important;
+    align-items: start !important;
   }
 
   .pcce-resume .pcce-main {
