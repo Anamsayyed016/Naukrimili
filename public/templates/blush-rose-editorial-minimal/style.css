@@ -593,46 +593,32 @@
   background: var(--brem-rose);
 }
 
-/* Projects timeline — match Experience/Education editorial rhythm */
-.brem-resume .brem-projects {
+/* Sidebar projects — editorial blocks matching Experience rhythm (no timeline rail) */
+.brem-resume .brem-sidebar .brem-projects {
   display: flex;
   flex-direction: column;
-  gap: var(--brem-block-gap);
+  gap: 0;
 }
 
-.brem-resume .brem-projects .project-item {
-  display: grid;
-  grid-template-columns: var(--brem-timeline) minmax(0, 1fr);
-  grid-template-rows: auto;
-  column-gap: 14px;
-  row-gap: 3px;
+.brem-resume .brem-sidebar .brem-projects .project-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   page-break-inside: avoid;
   break-inside: avoid;
   min-width: 0;
   margin: 0;
-  padding: 0;
-  background: none;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
+  padding: 0 0 var(--brem-block-gap);
+  border-bottom: 1px solid color-mix(in srgb, var(--brem-rose) 22%, transparent);
 }
 
-.brem-resume .brem-projects .project-item > .project-employer {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: start;
-  font-size: var(--brem-fs-small);
-  font-weight: 600;
-  color: var(--brem-muted);
-  line-height: 1.35;
-  word-break: break-word;
-  margin: 0;
+.brem-resume .brem-sidebar .brem-projects .project-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
-.brem-resume .brem-projects .project-item > h3,
-.brem-resume .brem-projects .project-item > .project-title {
-  grid-column: 2;
-  grid-row: 1;
+.brem-resume .brem-sidebar .brem-projects .project-item > h3,
+.brem-resume .brem-sidebar .brem-projects .project-item > .project-title {
   font-family: var(--brem-font-body);
   font-size: calc(var(--brem-fs-body) + 1px);
   font-weight: 700;
@@ -642,11 +628,17 @@
   word-break: break-word;
 }
 
-.brem-resume .brem-projects .project-item > .description,
-.brem-resume .brem-projects .project-item > p.description,
-.brem-resume .brem-projects .project-item > ul {
-  grid-column: 2;
-  grid-row: 2;
+.brem-resume .brem-sidebar .brem-projects .project-item > .project-employer {
+  font-size: var(--brem-fs-small);
+  font-weight: 600;
+  color: var(--brem-muted);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.brem-resume .brem-sidebar .brem-projects .project-item > .description,
+.brem-resume .brem-sidebar .brem-projects .project-item > p.description,
+.brem-resume .brem-sidebar .brem-projects .project-item > ul {
   font-size: var(--brem-fs-body);
   color: var(--brem-text);
   line-height: var(--brem-lh-body);
@@ -654,17 +646,17 @@
   padding: 0;
 }
 
-.brem-resume .brem-projects .project-item > ul {
+.brem-resume .brem-sidebar .brem-projects .project-item > ul {
   list-style: none;
 }
 
-.brem-resume .brem-projects .project-item > ul li {
+.brem-resume .brem-sidebar .brem-projects .project-item > ul li {
   position: relative;
   padding-left: 14px;
   margin-bottom: 4px;
 }
 
-.brem-resume .brem-projects .project-item > ul li::before {
+.brem-resume .brem-sidebar .brem-projects .project-item > ul li::before {
   content: '';
   position: absolute;
   left: 0;
@@ -675,13 +667,11 @@
   background: var(--brem-rose);
 }
 
-.brem-resume .brem-projects .project-item > ul li:last-child {
+.brem-resume .brem-sidebar .brem-projects .project-item > ul li:last-child {
   margin-bottom: 0;
 }
 
-.brem-resume .brem-projects .project-item > .technologies {
-  grid-column: 2;
-  grid-row: 3;
+.brem-resume .brem-sidebar .brem-projects .project-item > .technologies {
   font-size: var(--brem-fs-meta);
   font-weight: 500;
   color: var(--brem-muted);
@@ -689,45 +679,13 @@
   margin: 2px 0 0;
 }
 
-.brem-resume .brem-projects .project-item > a {
-  grid-column: 2;
-  grid-row: 4;
+.brem-resume .brem-sidebar .brem-projects .project-item > a {
   color: var(--brem-rose);
   text-decoration: none;
   font-size: var(--brem-fs-small);
   font-weight: 600;
   line-height: 1.4;
   margin: 2px 0 0;
-}
-
-/* No employer: keep title in timeline content column; leave year column empty */
-.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > h3,
-.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > .project-title {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > .description,
-.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > p.description,
-.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > ul {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > .technologies {
-  grid-column: 2;
-  grid-row: 3;
-}
-
-.brem-resume .brem-projects .project-item:not(:has(.project-employer:not(:empty))) > a {
-  grid-column: 2;
-  grid-row: 4;
-}
-
-/* Both employer + technologies: year left, tech stack under description */
-.brem-resume .brem-projects .project-item:has(.project-employer:not(:empty)):has(.technologies:not(:empty)) > .technologies {
-  grid-column: 2;
-  grid-row: 3;
 }
 
 /* Skills — editorial inline */
@@ -966,7 +924,19 @@
   line-height: 1.45;
 }
 
-/* Sidebar relocated sections */
+/* Sidebar relocated sections — normalize main-column sections if balance moves references */
+.resume-container.brem-resume .brem-sidebar section[data-column-moved] .brem-main-title {
+  font-family: var(--brem-font-heading) !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+}
+
+.resume-container.brem-resume .brem-sidebar section[data-column-moved] .brem-main-divider {
+  background: var(--brem-rose) !important;
+  opacity: 0.65 !important;
+  margin-bottom: var(--brem-content-gap) !important;
+}
+
 .resume-container.brem-resume .brem-sidebar .summary-text,
 .resume-container.brem-resume .brem-sidebar .brem-side-title,
 .resume-container.brem-resume .brem-sidebar .brem-main-title,
@@ -1081,50 +1051,46 @@
   display: inline !important;
 }
 
-.resume-container.brem-resume .project-item {
-  display: grid !important;
-  grid-template-columns: var(--brem-timeline) minmax(0, 1fr) !important;
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: unset !important;
   margin-bottom: 0 !important;
-  padding: 0 !important;
+  padding: 0 0 var(--brem-block-gap) !important;
   background: none !important;
   border: none !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--brem-rose) 22%, transparent) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
 
-.resume-container.brem-resume .brem-projects .project-item > h3,
-.resume-container.brem-resume .brem-projects .project-item > .project-title {
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item:last-child {
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+}
+
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item > h3,
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item > .project-title {
   font-size: calc(var(--brem-fs-body) + 1px) !important;
   font-weight: 700 !important;
   margin-bottom: 0 !important;
 }
 
-.resume-container.brem-resume .brem-projects .project-item > .technologies {
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item > .technologies {
   font-size: var(--brem-fs-meta) !important;
   font-weight: 500 !important;
   margin-bottom: 0 !important;
 }
 
-.resume-container.brem-resume .brem-projects .project-item > .description,
-.resume-container.brem-resume .brem-projects .project-item > p.description,
-.resume-container.brem-resume .brem-projects .project-item > ul {
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item > .description,
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item > p.description,
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item > ul {
   margin-bottom: 0 !important;
 }
 
-.resume-container.brem-resume .brem-projects .project-item > a {
+.resume-container.brem-resume .brem-sidebar .brem-projects .project-item > a {
   font-size: var(--brem-fs-small) !important;
   line-height: 1.4 !important;
-}
-
-.resume-container.brem-resume .brem-sidebar .project-item {
-  display: block !important;
-  grid-template-columns: unset !important;
-  padding-left: 0 !important;
-}
-
-.resume-container.brem-resume .brem-sidebar .project-item > * {
-  grid-column: auto !important;
-  grid-row: auto !important;
 }
 
 .resume-container.brem-resume .brem-experience .experience-header {

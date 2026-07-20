@@ -97,6 +97,16 @@
             {{/if}}
           </div>
         </section>
+
+        {{#if PROJECTS}}
+        <section class="brem-section brem-section--projects brem-side-section">
+          <h2 class="brem-side-title">Projects</h2>
+          <div class="brem-side-divider" aria-hidden="true"></div>
+          <div class="projects-list brem-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
       </aside>
 
       <main class="brem-main">
@@ -116,16 +126,6 @@
           <div class="brem-main-divider" aria-hidden="true"></div>
           <div class="experience-list brem-experience brem-timeline">
             {{EXPERIENCE}}
-          </div>
-        </section>
-        {{/if}}
-
-        {{#if PROJECTS}}
-        <section class="brem-section brem-section--projects">
-          <h2 class="brem-main-title">Projects</h2>
-          <div class="brem-main-divider" aria-hidden="true"></div>
-          <div class="projects-list brem-projects brem-timeline">
-            {{PROJECTS}}
           </div>
         </section>
         {{/if}}
