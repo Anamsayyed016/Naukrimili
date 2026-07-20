@@ -1,0 +1,6 @@
+experience      conf 48   lines 9-11       heading "Experience Summary:" chars 164
+experience      conf 43   lines 12-47      heading "Quality Deputy Manager Roles & Responsibilities" chars 2454
+experience      conf 45   lines 48-58      heading "Project Roles & Responsibilities:" chars 652
+education       conf 48   lines 59-70      heading "Professional and Educational Qualification:" chars 782
+skills          conf 48   lines 71-91      heading "Software Skills:" chars 834
+languages       conf 49   lines 92-99      heading "Language Known:" chars 537

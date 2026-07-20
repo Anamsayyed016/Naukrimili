@@ -99,7 +99,7 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
     // after a college/degree entry start a new education block.
     if (
       idx > currentStart &&
-      /^(?:higher\s+secondary|senior\s+secondary|high\s+school|secondary\s+school|matriculation|intermediate|ssc|hsc|class\s+(?:x|xii|10|12))\b/i.test(
+      /^(?:higher\s+secondary|high\s+secondary|senior\s+secondary|high\s+school|secondary\s+school|matriculation|intermediate|ssc|hsc|class\s+(?:x|xii|10|12))\b/i.test(
         text
       )
     ) {

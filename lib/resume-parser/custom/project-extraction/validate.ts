@@ -46,6 +46,16 @@ export function isValidProject(project: CustomExtractedProject): boolean {
   }
 
   if (isLikelyEducationLine(project.title) && !hasDescription) return false;
+  if (isLikelyEducationLine(project.title) && isLikelyEducationLine(combined)) return false;
+  // School / board / career-summary bleed must not become projects.
+  if (
+    /\b(?:high\s+school|higher\s+secondary|high\s+secondary|senior\s+secondary|career\s+counter|at\s+present\s*,?\s*i\s+am\s+working|madhya\s+pradesh\s+board|state\s+board)\b/i.test(
+      combined
+    ) &&
+    !/\b(?:github|gitlab|demo|prototype|app|portal|dashboard|api)\b/i.test(combined)
+  ) {
+    return false;
+  }
   if (project.title && isPlausibleExperienceCompany(project.title) && !hasDescription) return false;
   if (project.title && looksLikeJobTitleLine(project.title) && !hasDescription && !project.role) {
     return false;

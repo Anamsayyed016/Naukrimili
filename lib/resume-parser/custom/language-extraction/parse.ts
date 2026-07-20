@@ -176,6 +176,25 @@ export function parseLanguageLinesFromLine(line: string): ParsedLanguageLine[] {
     return [];
   }
 
+  // Proficiency-mode grid: "Speak Read Write English Hindi Urdu"
+  // (or Speaking/Reading/Writing followed by known language names).
+  const gridModes = trimmed.match(
+    /^(?:speak(?:ing)?|read(?:ing)?|write(?:ing)?|listen(?:ing)?)(?:\s+(?:speak(?:ing)?|read(?:ing)?|write(?:ing)?|listen(?:ing)?)){1,3}\s+(.+)$/i
+  );
+  if (gridModes?.[1]) {
+    const tokens = gridModes[1].split(/[\s,;/|·•]+/).map((t) => t.trim()).filter(Boolean);
+    const parsed: ParsedLanguageLine[] = [];
+    for (const token of tokens) {
+      if (!isHumanLanguageName(token)) continue;
+      parsed.push({
+        name: normalizeLanguageName(token),
+        proficiency: 'Partial',
+        confidence: 78,
+      });
+    }
+    if (parsed.length > 0) return parsed;
+  }
+
   const inline = trimmed.match(/^(?:languages?)\s*:\s*(.+)$/i);
   if (inline) {
     const tokens = inline[1].split(/[,;|·•]/).map((t) => t.trim()).filter(Boolean);

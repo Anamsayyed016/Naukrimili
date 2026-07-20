@@ -36,6 +36,13 @@ export function normalizeNameLine(line: string): string {
   if (!trimmed) return '';
 
   trimmed = trimmed.replace(HONORIFIC_PREFIX_RE, '').trim();
+  // "CURRICULUM VITAE NAME" / "RESUME NAME" / "CV — NAME" document titles.
+  trimmed = trimmed
+    .replace(
+      /^(?:curriculum\s+vitae|curriculum\s+vita|resume|bio[- ]?data|biodata|c\.?v\.?)\s*[:\-–—]?\s+/i,
+      ''
+    )
+    .trim();
 
   const multiCol = trimmed.match(
     /^([A-Z][A-Za-z'.\-]+(?:\s+[A-Z][A-Za-z'.\-]+){0,4})\s+(.+)$/
@@ -68,14 +75,29 @@ export function looksLikePersonNameShape(text: string): boolean {
   if (!trimmed || trimmed.length < 3 || trimmed.length > 80) return false;
   if (/[@+0-9]|https?:\/\//i.test(trimmed)) return false;
   if (isResumeSectionHeadingLine(trimmed)) return false;
-  if (looksLikeCompanyNameLine(trimmed)) return false;
-  if (looksLikeJobTitleLine(trimmed) && !/^[A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+)+$/.test(trimmed)) {
-    return false;
-  }
 
   const words = trimmed.split(/\s+/).filter(Boolean);
   if (words.length < 2 || words.length > 5) return false;
-  if (/^[A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+){1,3}$/.test(trimmed)) return true;
+
+  const isTitleCaseName = /^[A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+){1,3}$/.test(trimmed);
+  const isAllCapsName =
+    /^[A-Z](?:[A-Z]|[\s'-]){3,}$/.test(trimmed) &&
+    words.every((w) => /^[A-Z][A-Z'-]*$/.test(w));
+
+  // Multi-word length heuristics often flag person names as "company lines".
+  if (looksLikeCompanyNameLine(trimmed) && !isTitleCaseName && !isAllCapsName) {
+    return false;
+  }
+  if (
+    looksLikeJobTitleLine(trimmed) &&
+    !isTitleCaseName &&
+    !isAllCapsName
+  ) {
+    return false;
+  }
+
+  if (isTitleCaseName) return true;
+  if (isAllCapsName) return true;
   if (/^[A-Z][A-Z\s'-]{3,}$/.test(trimmed)) return true;
   return false;
 }

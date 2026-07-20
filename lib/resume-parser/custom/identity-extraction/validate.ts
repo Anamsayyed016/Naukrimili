@@ -29,8 +29,22 @@ export function sanitizeIdentityField(
     const normalized = normalizeNameLine(trimmed);
     if (!isPlausiblePersonName(normalized) && !looksLikePersonNameShape(normalized)) return '';
     if (isResumeSectionHeadingLine(normalized)) return '';
-    if (looksLikeCompanyNameLine(normalized)) return '';
-    if (isPlausibleProjectName(normalized) && !looksLikePersonNameShape(normalized)) return '';
+    // looksLikeCompanyNameLine treats many multi-word headers as employers;
+    // do not let that wipe a plausible person name.
+    if (
+      looksLikeCompanyNameLine(normalized) &&
+      !isPlausiblePersonName(normalized) &&
+      !looksLikePersonNameShape(normalized)
+    ) {
+      return '';
+    }
+    if (
+      isPlausibleProjectName(normalized) &&
+      !looksLikePersonNameShape(normalized) &&
+      !isPlausiblePersonName(normalized)
+    ) {
+      return '';
+    }
     if (isLikelyEducationLine(normalized)) return '';
     return normalized;
   }

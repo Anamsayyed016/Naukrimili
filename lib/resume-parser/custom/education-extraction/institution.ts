@@ -13,7 +13,7 @@ export interface InstitutionDetection {
 }
 
 const INSTITUTION_MARKERS_RE =
-  /\b(university|college|institute|institution|school|academy|polytechnic|campus|vishwavidyalaya|vidyalaya|iit|nit|iiit|bits|rgpv|vtu|anna\s+university|open\s+university|board)\b/i;
+  /\b(university|college|institute|institution|school|academy|polytechnic|campus|vishwavidyalaya|vidyalaya|h\.?\s*sec\.?|iit|nit|iiit|bits|rgpv|vtu|anna\s+university|open\s+university|board)\b/i;
 
 const GOVT_INSTITUTION_RE =
   /\b(government|public|state|central|national)\s+(?:university|college|institute|school)\b/i;
@@ -49,7 +49,12 @@ export function scoreInstitutionCandidate(text: string): number {
 }
 
 export function detectInstitutionFromLine(text: string): InstitutionDetection {
-  const trimmed = text.trim();
+  const trimmed = text
+    .trim()
+    // "from Satyam Convent H.Sec. School…" / "at Delhi University"
+    .replace(/^(?:from|at|of)\s+/i, '')
+    .replace(/^[\s)\]}>]+/, '')
+    .trim();
   if (!trimmed) return { institution: '', confidence: 0 };
 
   // Strip parenthetical years first — greedy `,?\s*20xx.*$` would leave a bare "("
@@ -61,6 +66,7 @@ export function detectInstitutionFromLine(text: string): InstitutionDetection {
     .replace(/\s+(?:19|20)\d{2}\s*[|]\s*\d{1,3}(?:\.\d+)?\s*%?\s*$/i, '')
     .replace(/,?\s*(?:19|20)\d{2}\s*$/i, '')
     .replace(/\t+/g, ' ')
+    .replace(/[,;:\s]+$/g, '')
     .trim();
   const conf = scoreInstitutionCandidate(withoutDates);
   if (conf >= 38) {

@@ -481,11 +481,19 @@ export function isGarbageEducationDegree(degree: string): boolean {
   if (isSpacedLetterFragment(t)) return true;
   if (/^f-?\d+/i.test(t)) return true;
   if (/^\d+%$/.test(t) || /^s\.s\.c\.?$/i.test(t)) return true;
+  // Personal-detail labels recovered as education.
+  if (
+    /^(?:marital\s+status|date\s+of\s+birth|d\.?o\.?b\.?|nationality|gender|religion|blood\s+group|father(?:'s)?\s+name|mother(?:'s)?\s+name|passport)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
   if (/\b(made corporate|announcements at|listing regulations|bse|nse)\b/i.test(t)) return true;
   if (/\b(raising equity|drafting\/vetting|management,)\b/i.test(t)) return true;
   if (
     t.split(/\s+/).length > 10 &&
-    !/\b(bachelor|master|mba|b\.?\s*com|m\.?\s*com|llb|ph\.?\s*d|b\.?\s*tech|company secretary)\b/i.test(
+    !/\b(bachelor|master|mba|b\.?\s*com|m\.?\s*com|llb|ph\.?\s*d|b\.?\s*tech|company secretary|high\s+secondary|higher\s+secondary|high\s+school)\b/i.test(
       t
     )
   ) {
@@ -1226,6 +1234,7 @@ export function isImplausibleResumeLocation(value: unknown): boolean {
     return true;
   }
   if (isResumeSectionHeadingLine(t)) return true;
+  if (/\b(?:declaration|i\s+hereby\s+declare|hereby\s+declare)\b/i.test(t)) return true;
   return false;
 }
 
@@ -1240,11 +1249,26 @@ export function recoverLocationFromImportText(rawText: string): string {
     const loc = sanitizeFieldText(addressMatch[1], 200);
     if (loc.length >= 8 && !isImplausibleResumeLocation(loc)) return loc;
   }
+  const preferredMatch = flat.match(
+    /\b(?:preferred\s+location|willing\s+to\s+relocate(?:\s+to)?|current\s+location|location)\s*[:\-]\s*([^|]+?)(?=\s*\||\s+(?:Declaration|I\s+hereby|Place\s*:|Signature|Mobile|Email|Phone|E-?mail|Core\s+Skills?|Technical\s+Skills?|Key\s+Skills?|Professional|Education|Experience|Employment|Notice\s+period|Current\s+salary)\b|$)/i
+  );
+  if (preferredMatch) {
+    let loc = sanitizeFieldText(preferredMatch[1], 200);
+    loc = loc
+      .replace(/\b(?:declaration|i\s+hereby\s+declare)\b[\s\S]*$/i, '')
+      .replace(/[.\s]+$/g, '')
+      .trim();
+    if (loc.length >= 4 && !isImplausibleResumeLocation(loc)) return loc;
+  }
   const locMatch = flat.match(
     /\b(?:location|current\s+location)\s*[:\-]\s*([^|]+?)(?=\s*\||\s+(?:Mobile|Email|Phone|E-?mail|Core\s+Skills?|Technical\s+Skills?|Key\s+Skills?|Professional|Education|Experience|Employment)\b|$)/i
   );
   if (locMatch) {
-    const loc = sanitizeFieldText(locMatch[1], 200);
+    let loc = sanitizeFieldText(locMatch[1], 200);
+    loc = loc
+      .replace(/\b(?:declaration|i\s+hereby\s+declare)\b[\s\S]*$/i, '')
+      .replace(/[.\s]+$/g, '')
+      .trim();
     if (loc.length >= 4 && !isImplausibleResumeLocation(loc)) return loc;
   }
   return '';
@@ -1384,9 +1408,16 @@ export function isPlausiblePersonName(value: unknown): boolean {
   const words = s.split(/\s+/).filter(Boolean);
   if (
     words.length >= 2 &&
-    words.length <= 3 &&
-    words.every((w) => /^[A-Za-z][a-z]{2,}$/.test(w))
+    words.length <= 5 &&
+    words.every((w) => /^[A-Za-z][A-Za-z]{1,}$/.test(w))
   ) {
+    // Title Case or ALL CAPS document headers are both common on CVs.
+    const titleCaseOk = words.every((w) => /^[A-Za-z][a-z]{1,}$/.test(w));
+    const allCapsOk = words.every((w) => /^[A-Z]{2,}$/.test(w));
+    if (!titleCaseOk && !allCapsOk) {
+      // Mixed tokens like "McDonald" / "O'Neil" still allowed via classifier above.
+      if (!words.every((w) => /^[A-Z][a-zA-Z'-]+$/.test(w))) return false;
+    }
     if (NON_NAME_VOCAB.test(s)) return false;
     if (/\b(company|secretary|officer|compliance|governance|legal|head|director|manager)\b/i.test(s)) {
       return false;
@@ -1557,7 +1588,8 @@ export function nameWordCount(name: string): number {
     .filter(Boolean).length;
 }
 
-/** Contact-first: email local-part beats near-contact lines and domain fragments. */
+/** Contact-first: email local-part helps when document names are weak, but must
+ *  not outrank a richer multi-token document name that clearly differs. */
 function scoreNameCandidate(candidate: NameCandidate, email: string): number {
   const value = sanitizePersonName(candidate.value);
   if (!value || isEmailOrDomainFragment(value)) return 0;
@@ -1566,11 +1598,19 @@ function scoreNameCandidate(candidate: NameCandidate, email: string): number {
   const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
 
   if (candidate.source === 'email_derived' && emailDerived) {
-    confidence = Math.max(confidence, 88);
+    // Vanity / brand emails ("allam.tesla") are weak identity signals.
+    const words = emailDerived.split(/\s+/).filter(Boolean).length;
+    confidence = Math.max(confidence, words >= 3 ? 88 : 72);
   } else if (emailDerived && isEmailDerivedName(value, email)) {
-    confidence = Math.max(confidence, 88);
+    confidence = Math.max(confidence, 72);
   } else if (candidate.source === 'labeled_name') {
     confidence = Math.max(confidence, 94);
+  }
+
+  // Richer document names (3+ tokens) outrank short email-derived names.
+  const docWords = nameWordCount(value);
+  if (docWords >= 3 && candidate.source !== 'email_derived') {
+    confidence = Math.max(confidence, 90);
   }
 
   if (candidate.source === 'near_contact' && emailDerived) {
@@ -1595,7 +1635,8 @@ export function pickBestNameFromCandidates(candidates: NameCandidate[], email = 
           ...candidates,
           {
             value: emailDerived,
-            confidence: 92,
+            // Seed below strong document names so vanity emails do not dominate.
+            confidence: nameWordCount(emailDerived) >= 3 ? 86 : 70,
             source: 'email_derived' as const,
           },
         ]
@@ -1610,6 +1651,26 @@ export function pickBestNameFromCandidates(candidates: NameCandidate[], email = 
     .filter((c) => c.value && c.confidence > 0);
 
   if (!scored.length) return '';
+
+  // Prefer a multi-token document name over a shorter email-derived spelling
+  // when they do not share the same token set (e.g. "Mohammed Sarfaraz Allam"
+  // vs vanity "Allam Tesla").
+  const documentRich = scored
+    .filter((c) => c.source !== 'email_derived' && nameWordCount(c.value) >= 3)
+    .sort((a, b) => b.confidence - a.confidence || nameWordCount(b.value) - nameWordCount(a.value));
+  const emailCand = scored.find((c) => c.source === 'email_derived');
+  if (documentRich.length > 0 && emailCand) {
+    const doc = documentRich[0];
+    const docTokens = new Set(doc.value.toLowerCase().split(/\s+/).filter((t) => t.length >= 3));
+    const emailTokens = emailCand.value
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((t) => t.length >= 3);
+    const shared = emailTokens.filter((t) => docTokens.has(t)).length;
+    if (shared < Math.min(2, emailTokens.length) || nameWordCount(doc.value) > nameWordCount(emailCand.value)) {
+      return doc.value;
+    }
+  }
 
   scored.sort((a, b) => b.confidence - a.confidence);
   const topConfidence = scored[0].confidence;
@@ -1643,9 +1704,9 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
   if (!a) return b;
   if (!b) return a;
 
-  // Prefer the spelling whose letters match the email local exactly. Never replace a
-  // correct 2-token header ("Divyansh Shrivastava") with a longer glued split
-  // ("Divyans Hshrivas Tava") just because it has more words.
+  // Prefer the spelling whose letters match the email local exactly — but never
+  // let a short vanity email name ("allam.tesla" → "Allam Tesla") beat a richer
+  // multi-token document name that only weakly overlaps.
   const localGlued = email
     ? String(email.split('@')[0] || '')
         .replace(/\d/g, '')
@@ -1657,8 +1718,27 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
     const bGlued = b.toLowerCase().replace(/[^a-z]/g, '');
     const aWords = nameWordCount(a);
     const bWords = nameWordCount(b);
-    if (aGlued === localGlued && bGlued !== localGlued) return a;
-    if (bGlued === localGlued && aGlued !== localGlued) return b;
+    const tokenOverlap = (left: string, right: string) => {
+      const l = new Set(left.toLowerCase().split(/\s+/).filter((t) => t.length >= 3));
+      return right
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((t) => t.length >= 3 && l.has(t)).length;
+    };
+    const docBeatsEmailExact = (doc: string, emailExact: string) =>
+      nameWordCount(doc) >= 3 &&
+      isPlausiblePersonName(doc) &&
+      (isEmailDerivedName(emailExact, email) || isAcceptedEmailDerivedName(emailExact)) &&
+      tokenOverlap(doc, emailExact) <= 1;
+
+    if (aGlued === localGlued && bGlued !== localGlued) {
+      if (docBeatsEmailExact(b, a)) return b;
+      return a;
+    }
+    if (bGlued === localGlued && aGlued !== localGlued) {
+      if (docBeatsEmailExact(a, b)) return a;
+      return b;
+    }
     if (aGlued === localGlued && bGlued === localGlued && aWords !== bWords) {
       return aWords <= bWords ? a : b;
     }
@@ -2449,14 +2529,35 @@ export function isPlausibleProjectName(value: unknown): boolean {
   if (isResumeSectionHeadingLine(s)) return false;
   if (isSpacedLetterFragment(String(value || ''))) return false;
   if (
-    /^(?:practical\s+experience|work\s+experience|employment(?:\s+history)?|examination\s+(?:institution|university|council)|qualifications?|technical\s+skills?|work\s+exposure|career\s+objective)\s*:?$/i.test(
+    /^(?:practical\s+experience|work\s+experience|employment(?:\s+history)?|examination\s+(?:institution|university|council)|qualifications?|technical\s+skills?|work\s+exposure|career\s+objective|career\s+counter|high\s+secondary|higher\s+secondary|high\s+school|senior\s+secondary)\s*:?$/i.test(
       s
     )
   ) {
     return false;
   }
+  // Education stage / board / school rows mislabeled as projects.
+  if (
+    /\b(?:high\s+school|higher\s+secondary|high\s+secondary|senior\s+secondary|secondary\s+school|matriculation|intermediate|ssc|hsc|cbse|icse|madhya\s+pradesh\s+board|state\s+board)\b/i.test(
+      s
+    ) &&
+    !PROJECT_TITLE_SUFFIX_RE.test(s)
+  ) {
+    return false;
+  }
+  // Location / year fragments ("M.P. in 2008.") are not project titles.
+  if (/^(?:[A-Z]{1,3}\.?){1,3}\s+in\s+\d{4}\.?$/i.test(s)) return false;
+  if (/^(?:in\s+)?\d{4}\.?$/i.test(s)) return false;
   // Truncated location / postal bleed from multi-column CVs.
   if (/^(?:new\s+delhi|delhi|mumbai|bengaluru|bangalore|hyderabad|chennai|kolkata|pune|gurgaon|noida)\)?$/i.test(s)) {
+    return false;
+  }
+  // Person-name shaped tokens are not project titles.
+  if (
+    /^[A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+){1,3}$/.test(s) ||
+    (/^[A-Z](?:[A-Z]|[\s'-]){3,}$/.test(s) &&
+      s.split(/\s+/).length >= 2 &&
+      s.split(/\s+/).every((w) => /^[A-Z][A-Z'-]*$/.test(w)))
+  ) {
     return false;
   }
   if (s.length > 90) return false;
@@ -4078,8 +4179,23 @@ function splitExperienceOnCompanyColonLines(
     const left = line.slice(0, colonAt).trim();
     const right = line.slice(colonAt + 1).trim();
     if (!right || right.length < 8) continue;
-    if (!looksLikeCompanyNameLine(left) && !/\b(ltd|limited|pvt|llp|inc|corp|company|group)\b/i.test(left)) continue;
+    // Standards / clause versioning ("ISO/IEC 17025:2017") is not an employer split.
+    if (/\biso(?:\s*[/:-]?\s*iec)?\s*\d{4,5}\s*$/i.test(left) || /^\d{4}\b/.test(right)) {
+      continue;
+    }
+    if (looksLikeSentenceNotCompany(left) || !isPlausibleExperienceCompany(left)) continue;
+    if (!looksLikeCompanyNameLine(left) && !/\b(ltd|limited|pvt|llp|inc|corp|company|group)\b/i.test(left)) {
+      continue;
+    }
     if (isExperienceDomainHeading(left) || isResumeCompetencySectionEntry({ company: left })) continue;
+    // Duty / responsibility openers must never open a new employer row.
+    if (
+      /^(?:authorized|authorised|training|responsibility|responsible|to\s+\w+|carry\s+out|organize|implement|maintain|monitor|prepare|plan)\b/i.test(
+        left
+      )
+    ) {
+      continue;
+    }
     colonRows.push({ company: left, lead: right, lineIdx: i });
   }
 
@@ -5238,6 +5354,18 @@ export function recoverSkillsFromCompetencySections(rawText: string): string[] {
 /** Recover languages from personal-details lines ("Languages known: Hindi, English"). */
 export function recoverLanguagesFromPersonalDetails(rawText: string): string[] {
   const text = normalizePdfLigatureText(String(rawText || ''));
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  const pushName = (raw: string) => {
+    const entry = sanitizeLanguageEntry(raw.replace(/\s*\([^)]*\)\s*$/, '').trim());
+    if (!entry) return;
+    const key = entry.name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(entry.name);
+  };
+
   const match =
     text.match(
       /\blanguages?\s+known\s*:?\s*([A-Za-z][A-Za-z\s,&]+?)(?=\s*(?:\(|age|date\s+of\s+birth|dob|local\s+address|permanent\s+address|marital|nationality|father|mother|academic|education|personal\s+details)\b|$)/i
@@ -5245,20 +5373,27 @@ export function recoverLanguagesFromPersonalDetails(rawText: string): string[] {
     text.match(
       /\blanguages?\s*:?\s*([A-Za-z][A-Za-z\s,&]+?)(?=\s*(?:\(|address|mobile|e-?mail|academics|personal\s+details|professional|education)\b|$)/i
     );
-  if (!match?.[1]) return [];
-  const chunk = match[1].replace(/\s+/g, ' ').trim();
-  const parts = chunk.split(/,\s*|\s+&\s+/).map((p) => p.trim()).filter(Boolean);
-  const out: string[] = [];
-  const seen = new Set<string>();
-  for (const part of parts) {
-    const name = part.replace(/\s*\([^)]*\)\s*$/, '').trim();
-    const entry = sanitizeLanguageEntry(name);
-    if (!entry) continue;
-    const key = entry.name.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(entry.name);
+  if (match?.[1]) {
+    const chunk = match[1].replace(/\s+/g, ' ').trim();
+    for (const part of chunk.split(/,\s*|\s+&\s+/).map((p) => p.trim()).filter(Boolean)) {
+      pushName(part);
+    }
   }
+
+  // Multi-column OCR often emits "Speak Read Write English Hindi Urdu".
+  const grid = text.match(
+    /\b(?:speak(?:ing)?|read(?:ing)?|write(?:ing)?)(?:\s+(?:speak(?:ing)?|read(?:ing)?|write(?:ing)?|listen(?:ing)?)){1,3}\s+([A-Za-z][A-Za-z\s,/]{2,80})/i
+  );
+  if (grid?.[1]) {
+    for (const token of grid[1].split(/[\s,;/|·•]+/).map((t) => t.trim()).filter(Boolean)) {
+      // Stop at personal-detail labels that trail the language list.
+      if (/^(?:passport|date|father|mother|gender|nationality|marital|personal|notice|declaration)\b/i.test(token)) {
+        break;
+      }
+      pushName(token);
+    }
+  }
+
   return out;
 }
 
@@ -6824,10 +6959,22 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   }
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
   if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;
+  // Soft org-word hits only count near the end of a short Title-Case name
+  // (avoids "establishing systems" / "quality control systems" duty prose).
+  const softOrgRe =
+    /\b(technologies?|solutions?|systems?|services?|consulting|processors?|industries|enterprises?|laborator(?:y|ies)|university|college|pvt|ltd|llc|inc|corp|group|holdings)\b/i;
+  const softWords = company.trim().split(/\s+/).filter(Boolean);
+  const softNearEnd =
+    softOrgRe.test(lower) &&
+    softWords.length >= 2 &&
+    softWords.length <= 10 &&
+    softOrgRe.test(softWords.slice(-3).join(' ')) &&
+    /^[A-Z]/.test(company.trim()) &&
+    !/^(?:to|the|for|with|by|ensure|carry|organize|planning|taking|doing|coordinating|responsible)\b/i.test(
+      company.trim()
+    );
   if (
-    /\b(technologies?|solutions?|systems?|services?|consulting|processors?|industries|enterprises?|laborator(?:y|ies)|university|college|pvt|ltd|llc|inc|corp|group|holdings)\b/i.test(
-      lower
-    ) &&
+    softNearEnd &&
     !/\b(developer|engineer|manager|analyst|consultant|designer|architect|lead|intern|programmer|specialist)\b/i.test(
       lower
     ) &&

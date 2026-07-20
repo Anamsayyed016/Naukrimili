@@ -78,6 +78,15 @@ export function isValidEducation(edu: CustomExtractedEducation): boolean {
     return false;
   }
 
+  // Personal-detail labels must never become education rows.
+  if (
+    /^(?:marital\s+status|date\s+of\s+birth|d\.?o\.?b\.?|nationality|gender|religion|blood\s+group|father(?:'s)?\s+name|mother(?:'s)?\s+name|passport)\b/i.test(
+      `${edu.degree || ''} ${edu.institution || ''} ${edu.fieldOfStudy || ''}`.trim()
+    )
+  ) {
+    return false;
+  }
+
   return true;
 }
 

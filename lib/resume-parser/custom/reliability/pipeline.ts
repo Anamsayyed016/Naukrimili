@@ -16,6 +16,7 @@ import {
   isPlausibleExperienceCompany,
   recoverStructuredExperienceFromRawText,
   recoverSummaryFromRawText,
+  recoverLanguagesFromPersonalDetails,
 } from '@/lib/resume-parser/import-sanitize';
 import type { CustomExtractedExperience } from '../experience-extraction/types';
 import type { CustomExtractedSummary } from '../summary-extraction/types';
@@ -82,10 +83,20 @@ function countPlausibleExperienceRows(rows: CustomExtractedExperience[]): number
   return rows.filter((row) => isPlausibleExperienceCompany(row.company)).length;
 }
 
+function experienceBodyScore(rows: CustomExtractedExperience[]): number {
+  return rows.reduce((sum, row) => {
+    const desc = String(row.description || '').trim().length;
+    const bullets = (row.bulletPoints || []).join('\n').trim().length;
+    const titled = row.designation?.trim() ? 40 : 0;
+    return sum + desc + bullets + titled;
+  }, 0);
+}
+
 /**
  * Prefer section extraction when it yields real employers; otherwise use structured
  * recovery from full text (prose bullets, Naukri-style lines, dual-company splits).
  * Never keep a non-empty but low-quality section set that would block recovery.
+ * When employer counts are similar, prefer the set with richer duty/body text.
  */
 function selectBetterExperiences(
   fromSection: CustomExtractedExperience[],
@@ -96,16 +107,30 @@ function selectBetterExperiences(
 
   const sectionPlausible = countPlausibleExperienceRows(fromSection);
   const recoveryPlausible = countPlausibleExperienceRows(fromRecovery);
+  const sectionBody = experienceBodyScore(fromSection);
+  const recoveryBody = experienceBodyScore(fromRecovery);
+
+  // Section parse with solid employers + meaningful bodies beats sparse recovery.
+  if (sectionPlausible >= 1 && sectionBody >= 200 && sectionBody >= recoveryBody * 0.75) {
+    if (!(recoveryPlausible >= sectionPlausible + 2 && recoveryBody > sectionBody * 1.5)) {
+      return fromSection;
+    }
+  }
 
   // Tiny / low-quality section parse must not block a rich full-text recovery
   // (common when Role:/Project: labels fragmented the experience section).
-  if (sectionPlausible <= 1 && recoveryPlausible >= 2) return fromRecovery;
+  if (sectionPlausible <= 1 && recoveryPlausible >= 2 && recoveryBody >= sectionBody) {
+    return fromRecovery;
+  }
   if (sectionPlausible === 0 && recoveryPlausible >= 1) return fromRecovery;
-  if (recoveryPlausible >= sectionPlausible + 2) return fromRecovery;
+  if (recoveryPlausible >= sectionPlausible + 2 && recoveryBody >= sectionBody) {
+    return fromRecovery;
+  }
   if (
     recoveryPlausible > sectionPlausible &&
     recoveryPlausible >= 3 &&
-    fromRecovery.length > fromSection.length
+    fromRecovery.length > fromSection.length &&
+    recoveryBody >= sectionBody
   ) {
     return fromRecovery;
   }
@@ -160,6 +185,11 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
   const educations = sections.education ? extractEducationFromSection(sections.education) : [];
   const projects = sections.projects ? extractProjectsFromSection(sections.projects) : [];
   const languages = sections.languages ? extractLanguagesFromSection(sections.languages) : [];
+  const languageFallback = recoverLanguagesFromPersonalDetails(rawText).map((name) => ({ name }));
+  const resolvedLanguages =
+    languages.length > 0
+      ? languages
+      : languageFallback.map((l) => ({ name: l.name, proficiency: '' }));
   const certifications = sections.certifications
     ? extractCertificationsFromSection(sections.certifications)
     : [];
@@ -199,7 +229,7 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
     educations,
     projects,
     skills,
-    languages: languages.map((l) =>
+    languages: resolvedLanguages.map((l) =>
       l.proficiency ? { name: l.name, proficiency: l.proficiency } : l.name
     ),
     certifications: certifications.map((c) => ({

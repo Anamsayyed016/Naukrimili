@@ -20,8 +20,31 @@ export interface CompanyDetection {
   confidence: number;
 }
 
-const COMPANY_SUFFIX_RE =
-  /\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|llp|inc\.?|incorporated|corporation|corp\.?|technologies?|solutions|systems|software|labs|healthcare|university|government|startup|freelance|self[- ]?employed)\b/i;
+/** Hard legal / institutional suffixes — safe mid-string signals of an employer. */
+const HARD_COMPANY_SUFFIX_RE =
+  /\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|llp|inc\.?|incorporated|corporation|corp\.?|gmbh|plc|university|government|startup|freelance|self[- ]?employed)\b/i;
+
+/**
+ * Soft product-style suffixes. These appear inside duty prose ("establishing systems")
+ * and must only count when they look like a trailing employer name token.
+ */
+const SOFT_COMPANY_SUFFIX_RE =
+  /\b(?:technologies?|solutions|systems|software|labs|healthcare|consulting|services)\b/i;
+
+const COMPANY_SUFFIX_RE = new RegExp(
+  `${HARD_COMPANY_SUFFIX_RE.source}|${SOFT_COMPANY_SUFFIX_RE.source}`,
+  'i'
+);
+
+function hasTrailingSoftCompanySuffix(text: string): boolean {
+  const trimmed = text.trim();
+  if (!SOFT_COMPANY_SUFFIX_RE.test(trimmed)) return false;
+  // Soft suffix must land in the final 1–3 tokens of a short-ish name.
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.length > 10) return false;
+  const tail = words.slice(-3).join(' ');
+  return SOFT_COMPANY_SUFFIX_RE.test(tail) && /^[A-Z]/.test(trimmed);
+}
 
 const PROPRIETARY_NAME_SUFFIX_RE =
   /\b[A-Z][A-Za-z0-9&.'-]+(?:\s+[A-Z][A-Za-z0-9&.'-]+)*\s+(?:Technology|Technologies|Solutions|Systems|Software|Labs|Digital|Infotech|Consulting|Services)\b/;
@@ -100,7 +123,21 @@ export function looksLikeSentenceNotCompany(text: string): boolean {
   if (!trimmed) return false;
   // Employment headers like "As Counsel in ACME Ltd" are role lines, not prose.
   if (/^as\s+.+\s+(?:in|at|with|for)\s+.+/i.test(trimmed)) return false;
-  if (COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 120) return false;
+  // Duty openers are never employers — even when a soft suffix like "systems" appears.
+  if (
+    /^(?:to|the|for|with|by|ensure|carry|organize|planning|taking|doing|coordinating|responsible|implement|prepare|monitor|maintain|identify|acquire|overview|authorize|authori[sz]ed|liason|liaise|training)\b/i.test(
+      trimmed
+    )
+  ) {
+    return true;
+  }
+  // Standards / audit clause fragments are not company names.
+  if (/\biso(?:\s*[/:-]?\s*iec)?\s*\d{4,5}\b/i.test(trimmed) && !/\b(?:ltd|limited|pvt|inc|corp|company|group)\b/i.test(trimmed)) {
+    return true;
+  }
+  // Hard legal suffixes can exempt short employer strings; soft suffixes only when trailing.
+  if (HARD_COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 120) return false;
+  if (hasTrailingSoftCompanySuffix(trimmed) && trimmed.length <= 80) return false;
   if (
     /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+)\b/i.test(
       trimmed

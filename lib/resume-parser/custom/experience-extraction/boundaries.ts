@@ -143,7 +143,23 @@ export function partitionExperienceBlocks(
     blockStart: number,
     lineIndex: number
   ): boolean => {
-    if (line.isBullet || isExperienceSubsectionLabel(line.text)) return false;
+    if (line.isBullet) return false;
+
+    // Role-labeled duty sections after a completed tenure/header must open a new
+    // block so orphan-body redistribution can attach them to earlier sparse rows.
+    // Keep other subsection labels (Key Result Areas, etc.) inside the open role.
+    if (isExperienceSubsectionLabel(line.text)) {
+      const state = blockIdentityState(scored, blockStart, lineIndex);
+      if (
+        /\broles?\s*(?:&|and)\s*responsibilit/i.test(line.text.trim()) &&
+        state.hasCompany &&
+        state.hasDesignation &&
+        lineIndex > blockStart
+      ) {
+        return true;
+      }
+      return false;
+    }
 
     const state = blockIdentityState(scored, blockStart, lineIndex);
     const isDateLine = parseDateRangeFromText(line.text) !== null;

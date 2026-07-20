@@ -1,0 +1,124 @@
+{
+  "name": "MOHAMMED SARFARAZ ALLAM",
+  "fullName": "MOHAMMED SARFARAZ ALLAM",
+  "firstName": "MOHAMMED",
+  "lastName": "SARFARAZ ALLAM",
+  "email": "allam.tesla@gmail.com",
+  "phone": "91-7694826364",
+  "address": "",
+  "location": "",
+  "linkedin": "",
+  "github": "",
+  "headline": "Electrical Engineer.",
+  "designation": "",
+  "portfolio": "",
+  "skills": [
+    "Excel",
+    "Electrical",
+    "AND Result-oriented",
+    "Open-minded",
+    "Self-innovative"
+  ],
+  "experience": [
+    {
+      "company": "Tesla Transformers (Global) Pvt. Ltd",
+      "organization": "Tesla Transformers (Global) Pvt. Ltd",
+      "employer": "Tesla Transformers (Global) Pvt. Ltd",
+      "position": "Deputy Quality Manager",
+      "title": "Deputy Quality Manager",
+      "designation": "Deputy Quality Manager",
+      "job_title": "Deputy Quality Manager",
+      "startDate": "",
+      "endDate": "",
+      "start_date": "",
+      "end_date": "",
+      "description": "",
+      "achievements": [
+        "of nonconforming purchased products/products under manufacturing.",
+        "Brazing & Welding Sample preparation and testing as per ASME-IX",
+        "Authorized signatory for ISO/IEC 17025:2017 for PT/VT.",
+        "Responsibility for Dye Penetration Testing as per ASME-IX.",
+        "33 KV Sub Station Erection, Commissioning and Testing under NTPC Koldam.",
+        "11 KV line Erection, Commissioning and Testing under Meja Thermal Power Plant, NTPC.",
+        "30 Meter High Mask Erection, Commissioning and Testing at Meja Thermal Power Plant, NTPC.",
+        "Street Light Erection, Commissioning and Testing at Meja Thermal Power Plant, NTPC.",
+        "HT & LT Switch Gear Installation, Commissioning at Testing at Meja Thermal Power Plant, NTPC.",
+        "HT & LT and Control cable laying, installation, commissioning and Testing at Meja Thermal",
+        "Power Plant, NTPC.",
+        "Transformers Erection, Commissioning and Testing at Meja Thermal Power Plant, NTPC.",
+        "Construction of 07 No. Substation and HT switch gear building at Meja Thermal Power Plant,",
+        "Taking Work Measurements along with the NTPC Executive at the site.",
+        "Allocating work as per construction planning and Handling Man-Power at the site.",
+        "Coordinating with vendor and Inspection agency.",
+        "Reviewing Electrical, Civil, and Mechanical Drawings and Standard/Instruction etc.",
+        "Performing Quality inspection according to approved MQP.",
+        "Doing safety assessment before execution of work.",
+        "Training of Employees for ISO 14001:2015, ISO 45001:2018, etc.",
+        "Liaising of payment and approvals.",
+        "Preparation of Construction Planning as per CPM and PERT.",
+        "Experience in plate & piping-related drawings and well-familiar with codes and standards like",
+        "ASME standards."
+      ],
+      "current": true,
+      "location": ""
+    },
+    {
+      "company": "Tesla Transformers Ltd",
+      "organization": "Tesla Transformers Ltd",
+      "employer": "Tesla Transformers Ltd",
+      "position": "Project Engineer",
+      "title": "Project Engineer",
+      "designation": "Project Engineer",
+      "job_title": "Project Engineer",
+      "startDate": "",
+      "endDate": "",
+      "start_date": "",
+      "end_date": "",
+      "description": "To ensure the quality of conformance through planning, establishing systems, taking CAPA, and following\n\nprinciples of QC in Incoming/In-process/ Final Inspections and Tests. To organize planned systematic actions\n\nnecessary for meeting the requirements of quality of product service and their compliance.\n\nTo carry out inspection at receiving, in process, the final stage, and maintain the record.\n\nCarry Out Physical inspection of Core, Winding, CCA, Tanking, CRGO Slitting, Fabrication,\n\nPainting, Strip Covering, etc.\n\nTo implement the Documents System in the Quality Control and Testing Department.\n\nTo Plan and Implement Incoming/In-Process/Final Inspection.\n\nTo prepare QAP and other Quality-related Docs.\n\nOrganize Testing as per the QAP.\n\nPlanning and Conducting Transformer for Dynamic Short Circuit, Impulse, High voltage, and\n\nother Type Tests as per IS/IEC at 3\n\nParty Laboratory like CPRI/ERDA.\n\nResponsibilities of ISO 9001:2015, ISO 14001:2015 and ISO 45001:2018, ISO/IEC 17025:2017\n\nTo Liason with Quality Control/inspection authority.\n\nTo monitor the Implementation of CA and PA.\n\nInternal and Certification/Surveillance audit.\n\nTo identify NC and take Corrective/Preventive Action by analyzing measured/recorded data for\n\nqualitative improvement of the process.\n\nTo develop new vendors through assessment.\n\nTo maintain traceability of product with respect to testing samples and testing results.\n\nTo acquire identified measuring devices/ instruments and update QC/ inspection techniques.",
+      "achievements": [],
+      "current": false,
+      "location": ""
+    }
+  ],
+  "education": [
+    {
+      "institution": "Corporate Institute of Science & Technology, Bhopal",
+      "school": "Corporate Institute of Science & Technology, Bhopal",
+      "Institution": "Corporate Institute of Science & Technology, Bhopal",
+      "degree": "B.E. (Electrical and Electronics)",
+      "Degree": "B.E. (Electrical and Electronics)",
+      "field": "",
+      "Field": "",
+      "year": "",
+      "startDate": "2008",
+      "endDate": "",
+      "gpa": "68%",
+      "cgpa": "68%",
+      "percentage": "68%",
+      "description": ""
+    }
+  ],
+  "projects": [],
+  "certifications": [],
+  "languages": [
+    {
+      "name": "English",
+      "proficiency": "Fluent"
+    },
+    {
+      "name": "Hindi",
+      "proficiency": "Fluent"
+    },
+    {
+      "name": "Urdu",
+      "proficiency": "Fluent"
+    }
+  ],
+  "summary": "A self-motivated person who believes in growth and is very open to new ideas. I am looking for a place\nwhere my skills and expertise are being fully utilized and prove to be an asset to the organization.",
+  "achievements": [],
+  "hobbies": [],
+  "confidence": 70,
+  "_aiProvider": "custom-parser",
+  "customParserUsed": true,
+  "selectedParser": "custom"
+}

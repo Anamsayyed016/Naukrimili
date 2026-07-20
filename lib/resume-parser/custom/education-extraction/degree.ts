@@ -44,9 +44,12 @@ const DEGREE_PATTERNS: Array<{ re: RegExp; confidence: number }> = [
   { re: /\bdiploma\b/i, confidence: 80 },
   { re: /\bcertificate\b/i, confidence: 75 },
   { re: /\bhigh\s+school\b/i, confidence: 78 },
+  { re: /\b(?:higher|high|senior)\s+secondary\b/i, confidence: 80 },
+  { re: /\bsecondary\s+school\b/i, confidence: 76 },
   { re: /\bclass\s+(?:x{1,2}|10(?:th)?|12(?:th)?)\b/i, confidence: 84 },
   { re: /\bintermediate\b/i, confidence: 76 },
   { re: /\b(?:10th|12th|x{1,2}(?:th)?|xii|ssc|hsc)\b/i, confidence: 78 },
+  { re: /\bh\.?\s*sec\.?\b/i, confidence: 74 },
   { re: /\bpost\s+graduation\b/i, confidence: 82 },
   { re: /\bunder\s+graduation\b/i, confidence: 80 },
 ];

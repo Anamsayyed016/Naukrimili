@@ -81,6 +81,7 @@ import {
   sanitizeExperienceCompanyValue,
   isCorporateStructurePhrase,
   isMisclassifiedExperienceProject,
+  isPlausibleProjectName,
   isAcceptedEmailDerivedName,
   sanitizeImportSummary,
   sanitizeImportJobTitle,
@@ -638,12 +639,12 @@ function shouldRejectProjectAsExperience(project: Record<string, unknown>): bool
   ) {
     return true;
   }
-  // Short job-title fragments with almost no project body.
+  // School / board / career-summary bleed recovered as projects.
   if (
-    name.length <= 40 &&
-    desc.length < 24 &&
-    /\b(?:billing|manager|engineer|officer|controller|executive|lead|head)\b/i.test(name) &&
-    !/\b(?:app|website|portal|system|platform|dashboard|tool|api)\b/i.test(name)
+    /\b(?:high\s+school|higher\s+secondary|high\s+secondary|senior\s+secondary|career\s+counter|at\s+present\s*,?\s*i\s+am\s+working|madhya\s+pradesh\s+board|state\s+board)\b/i.test(
+      blob
+    ) &&
+    !/\b(?:github|gitlab|demo|prototype|app|portal|dashboard|api)\b/i.test(blob)
   ) {
     return true;
   }
@@ -3661,6 +3662,9 @@ function transformProjectsArray(
         return false;
       }
       if (name && shouldRejectProjectAsExperience(p)) {
+        return false;
+      }
+      if (name && !isPlausibleProjectName(name)) {
         return false;
       }
       if (name && isSpacedLetterFragment(name)) {

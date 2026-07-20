@@ -34,6 +34,10 @@ export function detectFieldFromLine(text: string): FieldDetection {
     trimmed.length <= 80 &&
     /^[A-Z][A-Za-z ,&/-]+$/.test(trimmed) &&
     !/\b(university|college|institute|b\.?tech|m\.?tech|mba|ll\.?b)\b/i.test(trimmed) &&
+    // School-stage labels are their own education entries, never a degree field.
+    !/^(?:higher\s+secondary|high\s+secondary|senior\s+secondary|high\s+school|secondary\s+school|matriculation|intermediate|ssc|hsc)\b/i.test(
+      trimmed
+    ) &&
     !lineHasDegreeSignal(trimmed)
   ) {
     return { fieldOfStudy: trimmed, specialization: '', confidence: 45 };
