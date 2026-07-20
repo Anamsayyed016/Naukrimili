@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500;1,600&family=Great+Vibes&family=IBM+Plex+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ime-resume">
+    <div class="ime-body">
+      <aside class="ime-sidebar">
+        <header class="ime-identity">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </header>
+
+        <div class="ime-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="ime-photo-frame">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="ime-photo-frame">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="ime-ini-f">{{FIRST_NAME}}</span><span class="ime-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        {{#if SUMMARY}}
+        <section class="ime-section ime-section--profile ime-side-section">
+          <h2 class="ime-side-title">Profile</h2>
+          <div class="ime-side-divider" aria-hidden="true"></div>
+          <div class="ime-profile">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        <section class="ime-section ime-section--contact ime-contact-card ime-side-section">
+          <p class="ime-contact-eyebrow">Personal</p>
+          <h2 class="ime-side-title">Contact &amp; Details</h2>
+          <div class="ime-contact-list">
+            {{#if PHONE}}
+            <div class="ime-contact-item ime-contact-item--phone">
+              <span class="ime-contact-icon" aria-hidden="true"></span>
+              <span class="ime-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="ime-contact-item ime-contact-item--email">
+              <span class="ime-contact-icon" aria-hidden="true"></span>
+              <span class="ime-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="ime-contact-item ime-contact-item--location">
+              <span class="ime-contact-icon" aria-hidden="true"></span>
+              <span class="ime-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="ime-contact-item ime-contact-item--linkedin">
+              <span class="ime-contact-icon" aria-hidden="true"></span>
+              <span class="ime-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="ime-contact-item ime-contact-item--web">
+              <span class="ime-contact-icon" aria-hidden="true"></span>
+              <span class="ime-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+          {{#if LANGUAGES}}
+          <div class="ime-contact-languages">
+            <div class="languages-list ime-languages ime-languages--contact">
+              {{LANGUAGES}}
+            </div>
+          </div>
+          {{/if}}
+        </section>
+
+        <footer class="ime-signature">
+          {{#if LOCATION}}
+          <p class="ime-signature-meta">{{LOCATION}}</p>
+          {{/if}}
+          <p class="ime-signature-script">{{FULL_NAME}}</p>
+        </footer>
+      </aside>
+
+      <main class="ime-main">
+        {{#if EXPERIENCE}}
+        <section class="ime-section ime-section--experience ime-journey-panel">
+          <h2 class="ime-main-title">Professional Journey</h2>
+          <div class="ime-main-divider" aria-hidden="true"></div>
+          <div class="experience-list ime-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        <div class="ime-main-stack">
+          {{#if EDUCATION}}
+          <section class="ime-section ime-section--education">
+            <h2 class="ime-main-title">Education</h2>
+            <div class="ime-main-divider" aria-hidden="true"></div>
+            <div class="education-list ime-education">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="ime-section ime-section--projects">
+            <h2 class="ime-main-title">Projects</h2>
+            <div class="ime-main-divider" aria-hidden="true"></div>
+            <div class="projects-list ime-projects">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if SKILLS}}
+          <section class="ime-section ime-section--skills">
+            <h2 class="ime-main-title">Skills</h2>
+            <div class="ime-main-divider" aria-hidden="true"></div>
+            <div class="skills-list ime-skills">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="ime-section ime-section--certifications">
+            <h2 class="ime-main-title">Certifications</h2>
+            <div class="ime-main-divider" aria-hidden="true"></div>
+            <div class="certifications-list ime-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="ime-section ime-section--achievements">
+            <h2 class="ime-main-title">Achievements</h2>
+            <div class="ime-main-divider" aria-hidden="true"></div>
+            <div class="achievements-list ime-achievements">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="ime-section ime-section--interests">
+            <h2 class="ime-main-title">Interests</h2>
+            <div class="ime-main-divider" aria-hidden="true"></div>
+            <div class="hobbies-list ime-interests">
+              {{HOBBIES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

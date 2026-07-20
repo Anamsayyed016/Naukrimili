@@ -1744,6 +1744,56 @@
       }
     },
     {
+      "id": "ivory-monochrome-editorial",
+      "name": "Ivory Monochrome Editorial",
+      "slug": "ivory-monochrome-editorial",
+      "description": "Premium luxury editorial resume with a warm ivory background, monochrome palette, stacked Bodoni Moda and Playfair Display nameplate, large rectangular grayscale portrait, beige contact and journey panels, Cormorant Garamond italic role titles, compact bullet skills, script signature footer, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/ivory-monochrome-editorial/thumbnail.svg",
+      "preview": "/templates/ivory-monochrome-editorial/preview.svg",
+      "html": "/templates/ivory-monochrome-editorial/index.html",
+      "css": "/templates/ivory-monochrome-editorial/style.css",
+      "categories": ["Premium", "Editorial", "Luxury", "Minimal", "Modern", "Professional", "Executive", "Creative", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "ivory-monochrome", "name": "Ivory Monochrome", "primary": "#1E1E1E", "accent": "#1E1E1E", "text": "#3F3F3F" },
+        { "id": "warm-charcoal", "name": "Warm Charcoal", "primary": "#2A2A2A", "accent": "#2A2A2A", "text": "#444444" },
+        { "id": "soft-graphite", "name": "Soft Graphite", "primary": "#333333", "accent": "#333333", "text": "#4A4A4A" },
+        { "id": "classic-noir", "name": "Classic Noir", "primary": "#111111", "accent": "#111111", "text": "#3A3A3A" },
+        { "id": "editorial-stone", "name": "Editorial Stone", "primary": "#252525", "accent": "#252525", "text": "#454545" }
+      ],
+      "defaultColor": "ivory-monochrome",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 58,
+        "sidebarColumnBasisPct": 42,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "contact", "languages"],
+        "rightSections": ["experience", "education", "projects", "skills", "certifications", "achievements", "interests", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "projects", "certifications", "achievements", "interests"],
+        "movableSections": ["references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "plum-lavender-pill-executive",
       "name": "Plum Lavender Pill Executive",
       "slug": "plum-lavender-pill-executive",
