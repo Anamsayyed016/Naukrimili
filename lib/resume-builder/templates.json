@@ -1624,8 +1624,8 @@
         "maxMovablePriority": 95,
         "leftSections": ["contact", "skills", "languages", "interests", "certifications"],
         "rightSections": ["summary", "experience", "education", "projects", "achievements", "references", "extended"],
-        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
-        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "projects", "achievements", "references"],
+        "movableSections": ["extended"],
         "sectionPriorities": {
           "header": 100,
           "contact": 98,

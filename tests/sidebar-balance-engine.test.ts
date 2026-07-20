@@ -262,6 +262,50 @@ describe('dynamic sidebar balancing engine', () => {
 
   });
 
+  it('luxury-burgundy-gold-executive keeps projects in main when main is taller than sidebar', () => {
+    const templateId = 'luxury-burgundy-gold-executive';
+    const htmlTemplate = `
+      <div class="resume-container lbge-resume">
+        <div class="lbge-body">
+          <aside class="lbge-sidebar">
+            <section class="lbge-section lbge-section--contact"><div class="lbge-contact-list"></div></section>
+            <section class="lbge-section lbge-section--skills"><div class="skills-list psp-skill-item"></div></section>
+          </aside>
+          <main class="lbge-main">
+            <section class="lbge-section lbge-section--summary"><p class="summary-text">Summary</p></section>
+            <section class="lbge-section lbge-section--experience"><div class="experience-list"><div class="experience-item"><div class="experience-header"><h3>Role</h3><span class="company">Co</span></div><div class="description"><ul><li>One</li><li>Two</li><li>Three</li></ul></div></div></div></section>
+            <section class="lbge-section lbge-section--projects"><div class="projects-list"><div class="project-item"><h3>Project A</h3><p class="description">Desc</p></div></div></section>
+            <section class="lbge-section lbge-section--achievements"><div class="achievements-list"><div class="achievement-item"><h3>Award</h3></div></div></section>
+          </main>
+        </div>
+      </div>`;
+
+    const experienceItems = Array.from({ length: 6 }, (_, i) => `
+      <div class="experience-item">
+        <div class="experience-header"><h3>Role ${i}</h3><span class="company">Company ${i}</span><span class="duration">2018-24</span></div>
+        <div class="description"><ul>${Array.from({ length: 8 }, (_, j) => `<li>Bullet ${j} with enough text for height estimation</li>`).join('')}</ul></div>
+      </div>`).join('');
+
+    const rendered = htmlTemplate.replace(
+      '<div class="experience-list"><div class="experience-item">',
+      `<div class="experience-list">${experienceItems}<div class="experience-item" style="display:none">`
+    );
+
+    const result = balanceTwoColumnLayout(rendered, {
+      htmlTemplate,
+      templateId,
+      sidebarAdequateRatio: 0.5,
+      emptySpaceRatio: 0.1,
+      minGapPx: 40,
+    });
+
+    expect(result.moved.some((m) => m.kind === 'projects')).toBe(false);
+    const mainHtml = result.html.match(/<main[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
+    const asideHtml = result.html.match(/<aside[^>]*>([\s\S]*?)<\/aside>/i)?.[1] ?? '';
+    expect(mainHtml).toMatch(/lbge-section--projects/);
+    expect(asideHtml).not.toMatch(/lbge-section--projects|project-item/);
+  });
+
 });
 
 
