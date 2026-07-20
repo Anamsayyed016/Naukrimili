@@ -79,7 +79,7 @@ const aside = extractColumn(out, 'aside');
 
 const checks: Array<[string, boolean]> = [
   ['Has mste resume root', /mste-resume/.test(out)],
-  ['Has sage sidebar', /mste-sidebar/.test(out) && /#EAF3EE|mste-sidebar-bg/.test(readFileSync(`public/templates/${tid}/style.css`, 'utf8'))],
+  ['Has sage sidebar', /mste-sidebar/.test(out) && /#1F3A34|mste-sidebar-bg/.test(readFileSync(`public/templates/${tid}/style.css`, 'utf8'))],
   ['Photo in sidebar', /mste-photo-ring/.test(aside)],
   ['Name Aiden in sidebar', aside.includes('class="name-first">Aiden<')],
   ['Bold last name Brooks', aside.includes('class="name-last">Brooks<')],

@@ -1,16 +1,26 @@
-/* Modern Sage Timeline Executive — sage sidebar, forest green timeline, gold accents */
+/* Modern Sage Timeline Executive — dark emerald sidebar, gold accents, timeline main */
 
 .mste-resume {
-  --mste-sidebar-bg: #EAF3EE;
+  --mste-page-bg: #FAF8F4;
+  --mste-sidebar-bg: #1F3A34;
   --mste-main-bg: #FFFFFF;
-  --mste-green: var(--primary-color, #1F5F53);
-  --mste-timeline: #2E6B5D;
-  --mste-heading: #183B35;
-  --mste-gold: var(--accent-color, #B69A57);
-  --mste-text: var(--text-color, #2D2D2D);
-  --mste-muted: #5A6B66;
-  --mste-divider: #C8DDD3;
-  --mste-shadow: rgba(31, 95, 83, 0.14);
+  --mste-card: #FFFFFF;
+  --mste-green: var(--primary-color, #295548);
+  --mste-dark-accent: #18322C;
+  --mste-timeline: #3E7A67;
+  --mste-heading: #18322C;
+  --mste-gold: var(--accent-color, #B88C45);
+  --mste-icon-gold: #D4B06A;
+  --mste-divider-gold: #B88C45;
+  --mste-text: #2D2D2D;
+  --mste-muted: #295548;
+  --mste-divider: #B88C45;
+  --mste-side-heading: #F7F6F3;
+  --mste-side-text: #E7E4DD;
+  --mste-side-muted: #BFC9C4;
+  --mste-dot-fill: #D4B06A;
+  --mste-dot-border: #18322C;
+  --mste-shadow: rgba(0, 0, 0, 0.28);
   --mste-max-width: 210mm;
   --mste-font-display: 'Manrope', 'Segoe UI', sans-serif;
   --mste-font-body: 'Inter', 'Segoe UI', sans-serif;
@@ -32,11 +42,11 @@
   --mste-fs-small: 10.5px;
   --mste-photo: clamp(108px, 14cqw, 128px);
 
-  --primary-color: #1F5F53;
-  --accent-color: #B69A57;
+  --primary-color: #295548;
+  --accent-color: #B88C45;
   --text-color: #2D2D2D;
   --light-bg: var(--mste-sidebar-bg);
-  --border-color: var(--mste-divider);
+  --border-color: var(--mste-divider-gold);
 }
 
 .mste-resume,
@@ -59,7 +69,7 @@
   font-size: var(--mste-fs-body);
   line-height: var(--mste-lh-body);
   color: var(--mste-text);
-  background: var(--mste-main-bg) !important;
+  background: var(--mste-page-bg) !important;
   overflow: visible;
   isolation: isolate;
   -webkit-print-color-adjust: exact;
@@ -93,7 +103,7 @@
   height: 0;
   border-style: solid;
   border-width: 0 28px 28px 0;
-  border-color: transparent color-mix(in srgb, var(--mste-green) 18%, var(--mste-sidebar-bg)) transparent transparent;
+  border-color: transparent color-mix(in srgb, var(--mste-dark-accent) 85%, #000000) transparent transparent;
   pointer-events: none;
 }
 
@@ -114,8 +124,8 @@
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid #FFFFFF;
-  box-shadow: 0 6px 20px var(--mste-shadow);
   background: #FFFFFF;
+  box-shadow: 0 8px 24px var(--mste-shadow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,7 +140,7 @@
 }
 
 .mste-resume .profile-image-wrapper--initials {
-  background: linear-gradient(165deg, #FFFFFF 0%, var(--mste-sidebar-bg) 100%);
+  background: linear-gradient(165deg, var(--mste-dark-accent) 0%, var(--mste-sidebar-bg) 100%);
 }
 
 .mste-resume .profile-initials {
@@ -139,20 +149,12 @@
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--mste-green);
+  color: var(--mste-side-heading);
   line-height: 1;
 }
 
-.mste-resume .mste-identity {
-  text-align: center;
-}
-
-.mste-resume .candidate-name {
-  font-family: var(--mste-font-display);
-  line-height: 1.08;
-  color: var(--mste-green);
-  word-break: break-word;
-  overflow-wrap: anywhere;
+.mste-resume .mste-sidebar .candidate-name {
+  color: var(--mste-side-heading);
 }
 
 .mste-resume .candidate-name .name-first {
@@ -188,8 +190,11 @@
   font-family: var(--mste-font-display);
   font-size: var(--mste-fs-job);
   font-weight: 500;
-  color: var(--mste-heading);
   line-height: var(--mste-lh-tight);
+}
+
+.mste-resume .mste-sidebar .header-title {
+  color: var(--mste-side-text);
 }
 
 .mste-resume .mste-side-title {
@@ -199,7 +204,7 @@
   font-family: var(--mste-font-display);
   font-size: var(--mste-fs-side-title);
   font-weight: 600;
-  color: var(--mste-heading);
+  color: var(--mste-side-heading);
   line-height: var(--mste-lh-tight);
   margin-bottom: 6px;
 }
@@ -209,7 +214,7 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  background-color: var(--mste-green);
+  background-color: var(--mste-icon-gold);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 10px 10px;
@@ -231,7 +236,7 @@
 .mste-resume .mste-side-divider {
   width: 100%;
   height: 1px;
-  background: var(--mste-divider);
+  background: var(--mste-divider-gold);
   margin-bottom: var(--mste-content-gap);
 }
 
@@ -262,6 +267,10 @@
   background-size: 12px 12px;
 }
 
+.mste-resume .mste-sidebar .mste-contact-value {
+  color: var(--mste-side-text);
+}
+
 .mste-resume .mste-contact-value {
   font-size: var(--mste-fs-meta);
   font-weight: 500;
@@ -272,20 +281,24 @@
 }
 
 .mste-resume .mste-contact-item--phone .mste-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231F5F53' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4B06A' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
 }
 
 .mste-resume .mste-contact-item--email .mste-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231F5F53' stroke-width='2'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4B06A' stroke-width='2'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
 }
 
 .mste-resume .mste-contact-item--location .mste-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231F5F53' stroke-width='2'%3E%3Cpath d='M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4B06A' stroke-width='2'%3E%3Cpath d='M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
 }
 
 .mste-resume .mste-contact-item--web .mste-contact-icon,
 .mste-resume .mste-contact-item--linkedin .mste-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231F5F53' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4B06A' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+}
+
+.mste-resume .mste-sidebar .mste-summary .summary-text {
+  color: var(--mste-side-text);
 }
 
 .mste-resume .mste-summary .summary-text {
@@ -298,6 +311,10 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.mste-resume .mste-sidebar .mste-skills > .skill-tag {
+  color: var(--mste-side-text);
 }
 
 .mste-resume .mste-skills > .skill-tag {
@@ -320,7 +337,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--mste-timeline);
+  background: var(--mste-icon-gold);
 }
 
 /* ── Main column ── */
@@ -376,7 +393,7 @@
 .mste-resume .mste-accent-rule {
   width: 100%;
   height: 2px;
-  background: var(--mste-gold);
+  background: var(--mste-divider-gold);
   margin-bottom: var(--mste-content-gap);
 }
 
@@ -418,9 +435,11 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--mste-timeline);
+  background: var(--mste-dot-fill);
+  border: 2px solid var(--mste-dot-border);
   z-index: 1;
   box-shadow: 0 0 0 2px var(--mste-main-bg);
+  box-sizing: border-box;
 }
 
 .mste-resume .mste-education .education-item {
@@ -645,6 +664,8 @@
 .mste-resume .extended-section--references .extended-record-item {
   page-break-inside: avoid;
   break-inside: avoid;
+  background: var(--mste-card);
+  border-bottom: 2px solid var(--mste-divider-gold);
 }
 
 .mste-resume .extended-section--references .extended-field {
@@ -667,7 +688,7 @@
   color: var(--mste-heading);
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--mste-gold);
+  border-bottom: 2px solid var(--mste-divider-gold);
 }
 
 .mste-resume .extended-section:not(.extended-section--references) .extended-section-body {
@@ -687,21 +708,21 @@
   font-family: var(--mste-font-display) !important;
   font-size: var(--mste-fs-name-first) !important;
   font-weight: 400 !important;
-  color: var(--mste-green) !important;
+  color: var(--mste-side-heading) !important;
 }
 
 .resume-container.mste-resume .candidate-name .name-last {
   font-family: var(--mste-font-display) !important;
   font-size: var(--mste-fs-name-last) !important;
   font-weight: 800 !important;
-  color: var(--mste-green) !important;
+  color: var(--mste-side-heading) !important;
 }
 
 .resume-container.mste-resume .header-title {
   font-family: var(--mste-font-display) !important;
   font-size: var(--mste-fs-job) !important;
   font-weight: 500 !important;
-  color: var(--mste-heading) !important;
+  color: var(--mste-side-text) !important;
 }
 
 .resume-container.mste-resume .mste-sidebar {
@@ -762,7 +783,7 @@
   .resume-container.mste-resume {
     width: 794px !important;
     overflow: visible !important;
-    background: var(--mste-main-bg) !important;
+    background: var(--mste-page-bg) !important;
   }
 
   .mste-resume .mste-body {

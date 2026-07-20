@@ -1897,7 +1897,7 @@
       "id": "modern-sage-timeline-executive",
       "name": "Modern Sage Timeline Executive",
       "slug": "modern-sage-timeline-executive",
-      "description": "Premium sage sidebar resume with circular portrait, Manrope nameplate, forest green section icons, gold accent dividers, vertical timeline education and experience, bullet skills list, two-column references, and ATS-friendly multi-page PDF export.",
+      "description": "Premium dark emerald sidebar resume with circular portrait, Manrope nameplate, gold section icons and dividers, forest timeline education and experience, bullet skills list, two-column references, and ATS-friendly multi-page PDF export.",
       "thumbnail": "/templates/modern-sage-timeline-executive/thumbnail.svg",
       "preview": "/templates/modern-sage-timeline-executive/preview.svg",
       "html": "/templates/modern-sage-timeline-executive/index.html",
@@ -1908,13 +1908,13 @@
       "hasPhoto": true,
       "recommended": true,
       "colors": [
-        { "id": "sage-forest", "name": "Sage & Forest", "primary": "#1F5F53", "accent": "#B69A57", "text": "#2D2D2D" },
-        { "id": "deep-pine-gold", "name": "Deep Pine & Gold", "primary": "#184840", "accent": "#B69A57", "text": "#2D2D2D" },
-        { "id": "mint-forest", "name": "Mint & Forest", "primary": "#2E6B5D", "accent": "#C4A25A", "text": "#2D2D2D" },
-        { "id": "emerald-gold", "name": "Emerald & Gold", "primary": "#1A5248", "accent": "#A8894F", "text": "#333333" },
-        { "id": "teal-gold", "name": "Teal & Gold", "primary": "#1F5F53", "accent": "#C9A961", "text": "#2D2D2D" }
+        { "id": "dark-emerald-gold", "name": "Dark Emerald & Gold", "primary": "#295548", "accent": "#B88C45", "text": "#2D2D2D" },
+        { "id": "deep-pine-gold", "name": "Deep Pine & Gold", "primary": "#1F3A34", "accent": "#D4B06A", "text": "#2D2D2D" },
+        { "id": "forest-gold", "name": "Forest & Gold", "primary": "#18322C", "accent": "#B88C45", "text": "#2D2D2D" },
+        { "id": "emerald-gold", "name": "Emerald & Gold", "primary": "#3E7A67", "accent": "#C4A25A", "text": "#333333" },
+        { "id": "executive-gold", "name": "Executive & Gold", "primary": "#295548", "accent": "#D4B06A", "text": "#2D2D2D" }
       ],
-      "defaultColor": "sage-forest",
+      "defaultColor": "dark-emerald-gold",
       "layoutMetadata": {
         "layoutType": "two-column",
         "columnCount": 2,
