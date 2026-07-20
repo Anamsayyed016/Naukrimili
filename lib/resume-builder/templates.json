@@ -1642,6 +1642,54 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "plum-lavender-pill-executive",
+      "name": "Plum Lavender Pill Executive",
+      "slug": "plum-lavender-pill-executive",
+      "description": "Premium modern executive resume with a deep plum sidebar, lavender accent pills, split first/last name header, rounded circular profile image, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/plum-lavender-pill-executive/thumbnail.svg",
+      "preview": "/templates/plum-lavender-pill-executive/preview.svg",
+      "html": "/templates/plum-lavender-pill-executive/index.html",
+      "css": "/templates/plum-lavender-pill-executive/style.css",
+      "categories": ["Premium", "Executive", "Modern", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "plum-lavender", "name": "Plum & Lavender", "primary": "#4A3558", "accent": "#E8D8F5", "text": "#222222" },
+        { "id": "deep-eggplant-lavender", "name": "Deep Eggplant & Lavender", "primary": "#5A1D4B", "accent": "#E8D8F5", "text": "#222222" },
+        { "id": "royal-plum-lavender", "name": "Royal Plum & Lavender", "primary": "#3D2B59", "accent": "#E8D8F5", "text": "#222222" }
+      ],
+      "defaultColor": "plum-lavender",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "skills", "languages", "references"],
+        "rightSections": ["summary", "experience", "education", "projects", "achievements", "certifications", "interests", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact", "projects", "achievements", "certifications", "interests"],
+        "movableSections": ["references"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

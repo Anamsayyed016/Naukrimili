@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="595" height="842" viewBox="0 0 595 842">
+  <rect width="202" height="842" x="0" y="0" fill="#4A3558"/>
+  <rect width="393" height="842" x="202" y="0" fill="#FBF8F3"/>
+
+  <!-- Photo -->
+  <circle cx="101" cy="128" r="68" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="101" cy="128" r="56" fill="#2F2141"/>
+
+  <!-- Sidebar pills -->
+  <rect x="28" y="248" width="146" height="34" rx="17" fill="#FFFFFF"/>
+  <text x="101" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4A3558" letter-spacing="1">CONTACT</text>
+
+  <rect x="28" y="292" width="146" height="34" rx="17" fill="#FFFFFF"/>
+  <text x="101" y="314" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4A3558" letter-spacing="1">SKILLS</text>
+
+  <rect x="28" y="650" width="146" height="34" rx="17" fill="#FFFFFF"/>
+  <text x="101" y="672" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4A3558" letter-spacing="1">LANG</text>
+
+  <!-- Main header split names -->
+  <text x="234" y="94" font-family="Arial, sans-serif" font-size="34" font-weight="800" fill="#4A3558" letter-spacing="6">ALEXANDER</text>
+  <text x="234" y="150" font-family="Arial, sans-serif" font-size="46" font-weight="900" fill="#1F1F1F" letter-spacing="2">HARRISON</text>
+  <line x1="234" y1="192" x2="555" y2="192" stroke="#E8E0D6"/>
+  <text x="234" y="218" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#666666" letter-spacing="3">MARKETING MANAGER</text>
+
+  <!-- Main section pills -->
+  <rect x="234" y="256" width="330" height="34" rx="17" fill="#E8D8F5"/>
+  <text x="399" y="278" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="800" fill="#4A3558" letter-spacing="2">ABOUT ME</text>
+
+  <rect x="234" y="334" width="360" height="28" rx="14" fill="#E8D8F5"/>
+  <text x="414" y="353" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="800" fill="#4A3558" letter-spacing="2">EXPERIENCE</text>
+
+  <rect x="234" y="610" width="330" height="28" rx="14" fill="#E8D8F5"/>
+  <text x="399" y="629" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="800" fill="#4A3558" letter-spacing="2">EDUCATION</text>
+</svg>
+

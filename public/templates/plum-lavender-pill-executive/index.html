@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Manrope:wght@400;600;700;800&family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container plpe-resume">
+    <div class="plpe-body">
+      <aside class="plpe-sidebar">
+        <div class="plpe-sidebar-hero" aria-hidden="true"></div>
+
+        <div class="plpe-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="plpe-photo-ring">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="plpe-photo-ring">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="plpe-ini-f">{{FIRST_NAME}}</span><span class="plpe-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="plpe-sidebar-cards">
+          <section class="plpe-card plpe-section plpe-section--contact">
+            <div class="plpe-pill-head" aria-hidden="true">Contact</div>
+            <div class="plpe-card-body">
+              <div class="plpe-contact-list">
+                {{#if PHONE}}
+                <div class="plpe-contact-item plpe-contact-item--phone">
+                  <span class="plpe-contact-icon" aria-hidden="true"></span>
+                  <span class="plpe-contact-value">{{PHONE}}</span>
+                </div>
+                {{/if}}
+                {{#if EMAIL}}
+                <div class="plpe-contact-item plpe-contact-item--email">
+                  <span class="plpe-contact-icon" aria-hidden="true"></span>
+                  <span class="plpe-contact-value">{{EMAIL}}</span>
+                </div>
+                {{/if}}
+                {{#if PORTFOLIO}}
+                <div class="plpe-contact-item plpe-contact-item--web">
+                  <span class="plpe-contact-icon" aria-hidden="true"></span>
+                  <span class="plpe-contact-value">{{PORTFOLIO}}</span>
+                </div>
+                {{/if}}
+                {{#if LINKEDIN}}
+                <div class="plpe-contact-item plpe-contact-item--linkedin">
+                  <span class="plpe-contact-icon" aria-hidden="true"></span>
+                  <span class="plpe-contact-value">{{LINKEDIN}}</span>
+                </div>
+                {{/if}}
+                {{#if LOCATION}}
+                <div class="plpe-contact-item plpe-contact-item--location">
+                  <span class="plpe-contact-icon" aria-hidden="true"></span>
+                  <span class="plpe-contact-value">{{LOCATION}}</span>
+                </div>
+                {{/if}}
+              </div>
+            </div>
+          </section>
+
+          {{#if SKILLS}}
+          <section class="plpe-card plpe-section plpe-section--skills">
+            <div class="plpe-pill-head" aria-hidden="true">Skills</div>
+            <div class="plpe-card-body">
+              <div class="plpe-skills psp-skills-progress">
+                {{SKILLS}}
+              </div>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="plpe-card plpe-section plpe-section--languages">
+            <div class="plpe-pill-head" aria-hidden="true">Languages</div>
+            <div class="plpe-card-body">
+              <div class="plpe-languages psp-languages-progress">
+                {{LANGUAGES}}
+              </div>
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+
+      <main class="plpe-main">
+        <header class="plpe-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <div class="header-title">{{JOB_TITLE}}</div>
+          {{/if}}
+          <div class="plpe-divider" aria-hidden="true"></div>
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="plpe-section plpe-section--summary">
+          <div class="plpe-main-pill">About Me</div>
+          <div class="plpe-main-card">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="plpe-section plpe-section--experience">
+          <div class="plpe-main-pill">Experience</div>
+          <div class="plpe-main-card">
+            <div class="experience-list plpe-experience">
+              {{EXPERIENCE}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="plpe-section plpe-section--projects">
+          <div class="plpe-main-pill">Projects</div>
+          <div class="plpe-main-card">
+            <div class="projects-list">
+              {{PROJECTS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="plpe-section plpe-section--education">
+          <div class="plpe-main-pill">Education</div>
+          <div class="plpe-main-card">
+            <div class="education-list">
+              {{EDUCATION}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="plpe-section plpe-section--achievements">
+          <div class="plpe-main-pill">Achievements</div>
+          <div class="plpe-main-card">
+            <div class="achievements-list">
+              {{ACHIEVEMENTS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="plpe-section plpe-section--certifications">
+          <div class="plpe-main-pill">Certificates</div>
+          <div class="plpe-main-card">
+            <div class="certifications-list">
+              {{CERTIFICATIONS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="plpe-section plpe-section--interests">
+          <div class="plpe-main-pill">Interests</div>
+          <div class="plpe-main-card">
+            <div class="hobbies-list">
+              {{HOBBIES}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>
+
