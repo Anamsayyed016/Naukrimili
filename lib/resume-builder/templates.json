@@ -1644,6 +1644,56 @@
       }
     },
     {
+      "id": "olive-ivory-editorial-executive",
+      "name": "Olive Ivory Editorial Executive",
+      "slug": "olive-ivory-editorial-executive",
+      "description": "Premium luxury executive resume with a full olive green sidebar, warm ivory main column, Cormorant Garamond first name | last name header, Montserrat section headings, double-ring circular portrait, editorial dividers, optional skill and language progress bars, two-column references, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/olive-ivory-editorial-executive/thumbnail.svg",
+      "preview": "/templates/olive-ivory-editorial-executive/preview.svg",
+      "html": "/templates/olive-ivory-editorial-executive/index.html",
+      "css": "/templates/olive-ivory-editorial-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "olive-ivory", "name": "Olive Ivory", "primary": "#5E6433", "accent": "#B9975B", "text": "#444444" },
+        { "id": "forest-gold", "name": "Forest Gold", "primary": "#4A5230", "accent": "#C4A35A", "text": "#444444" },
+        { "id": "sage-editorial", "name": "Sage Editorial", "primary": "#6B7344", "accent": "#A88B5A", "text": "#444444" },
+        { "id": "deep-olive", "name": "Deep Olive", "primary": "#4E5530", "accent": "#B9975B", "text": "#333333" },
+        { "id": "antique-gold", "name": "Antique Gold", "primary": "#5E6433", "accent": "#C9AB72", "text": "#444444" }
+      ],
+      "defaultColor": "olive-ivory",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 68,
+        "sidebarColumnBasisPct": 32,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "education", "skills", "certifications", "languages", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "plum-lavender-pill-executive",
       "name": "Plum Lavender Pill Executive",
       "slug": "plum-lavender-pill-executive",

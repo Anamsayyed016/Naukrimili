@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container oiee-resume">
+    <div class="oiee-body">
+      <aside class="oiee-sidebar">
+        <div class="oiee-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="oiee-photo-ring">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="oiee-photo-ring">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="oiee-ini-f">{{FIRST_NAME}}</span><span class="oiee-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <section class="oiee-section oiee-section--contact oiee-side-section">
+          <h2 class="oiee-side-title">Contact</h2>
+          <div class="oiee-side-divider" aria-hidden="true"></div>
+          <div class="oiee-contact-list">
+            {{#if PHONE}}
+            <div class="oiee-contact-item oiee-contact-item--phone">
+              <span class="oiee-contact-icon" aria-hidden="true"></span>
+              <span class="oiee-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="oiee-contact-item oiee-contact-item--email">
+              <span class="oiee-contact-icon" aria-hidden="true"></span>
+              <span class="oiee-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="oiee-contact-item oiee-contact-item--web">
+              <span class="oiee-contact-icon" aria-hidden="true"></span>
+              <span class="oiee-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="oiee-contact-item oiee-contact-item--linkedin">
+              <span class="oiee-contact-icon" aria-hidden="true"></span>
+              <span class="oiee-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="oiee-contact-item oiee-contact-item--location">
+              <span class="oiee-contact-icon" aria-hidden="true"></span>
+              <span class="oiee-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        {{#if EDUCATION}}
+        <section class="oiee-section oiee-section--education oiee-side-section">
+          <h2 class="oiee-side-title">Education</h2>
+          <div class="oiee-side-divider" aria-hidden="true"></div>
+          <div class="education-list oiee-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="oiee-section oiee-section--skills oiee-side-section">
+          <h2 class="oiee-side-title">Skills</h2>
+          <div class="oiee-side-divider" aria-hidden="true"></div>
+          <div class="skills-list oiee-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="oiee-section oiee-section--languages oiee-side-section">
+          <h2 class="oiee-side-title">Languages</h2>
+          <div class="oiee-side-divider" aria-hidden="true"></div>
+          <div class="languages-list oiee-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="oiee-section oiee-section--certifications oiee-side-section">
+          <h2 class="oiee-side-title">Certifications</h2>
+          <div class="oiee-side-divider" aria-hidden="true"></div>
+          <div class="certifications-list oiee-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="oiee-section oiee-section--interests oiee-side-section">
+          <h2 class="oiee-side-title">Interests</h2>
+          <div class="oiee-side-divider" aria-hidden="true"></div>
+          <div class="hobbies-list oiee-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="oiee-main">
+        <header class="oiee-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-separator" aria-hidden="true">|</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+          <div class="oiee-header-rule" aria-hidden="true"></div>
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="oiee-section oiee-section--summary">
+          <h2 class="oiee-main-title">Professional Summary</h2>
+          <div class="oiee-main-divider" aria-hidden="true"></div>
+          <div class="oiee-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="oiee-section oiee-section--experience">
+          <h2 class="oiee-main-title">Work Experience</h2>
+          <div class="oiee-main-divider" aria-hidden="true"></div>
+          <div class="experience-list oiee-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="oiee-section oiee-section--projects">
+          <h2 class="oiee-main-title">Projects</h2>
+          <div class="oiee-main-divider" aria-hidden="true"></div>
+          <div class="projects-list oiee-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="oiee-section oiee-section--achievements">
+          <h2 class="oiee-main-title">Achievements</h2>
+          <div class="oiee-main-divider" aria-hidden="true"></div>
+          <div class="achievements-list oiee-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>
