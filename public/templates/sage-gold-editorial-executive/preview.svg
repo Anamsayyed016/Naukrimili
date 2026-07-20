@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FAFBF8"/>
+  <!-- Header frame -->
+  <rect x="28" y="18" width="544" height="3" fill="#355A4A"/>
+  <rect x="28" y="18" width="3" height="148" fill="#355A4A"/>
+  <rect x="340" y="18" width="3" height="148" fill="#355A4A"/>
+  <rect x="28" y="163" width="544" height="3" fill="#355A4A"/>
+  <rect x="28" y="0" width="160" height="90" fill="#DDE9E2"/>
+  <circle cx="96" cy="88" r="52" fill="#FFFFFF" stroke="#355A4A" stroke-width="2"/>
+  <circle cx="96" cy="88" r="44" fill="#C8D4CC"/>
+  <text x="200" y="72" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#355A4A">Hello.. I'm</text>
+  <text x="200" y="104" font-family="Arial, sans-serif" font-size="32" font-weight="800" fill="#303030">Shawn</text>
+  <text x="200" y="124" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#C4A25A" letter-spacing="2">GARCIA</text>
+  <text x="200" y="142" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#355A4A">I'm your..</text>
+  <text x="200" y="158" font-family="Arial, sans-serif" font-size="13" font-weight="500" fill="#303030" letter-spacing="4">PSYCHOLOGIST</text>
+  <circle cx="370" cy="72" r="14" fill="#355A4A"/>
+  <rect x="392" y="66" width="140" height="4" rx="2" fill="#666666"/>
+  <circle cx="370" cy="104" r="14" fill="#355A4A"/>
+  <rect x="392" y="98" width="120" height="4" rx="2" fill="#666666"/>
+  <circle cx="370" cy="136" r="14" fill="#355A4A"/>
+  <rect x="392" y="130" width="100" height="4" rx="2" fill="#666666"/>
+  <!-- Left main -->
+  <rect x="0" y="166" width="372" height="634" fill="#FAFBF8"/>
+  <rect x="36" y="188" width="26" height="2" fill="#355A4A"/>
+  <text x="70" y="194" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#303030" letter-spacing="2.5">ABOUT ME</text>
+  <rect x="36" y="208" width="300" height="4" rx="2" fill="#C9D2CC"/>
+  <rect x="36" y="220" width="280" height="4" rx="2" fill="#C9D2CC"/>
+  <rect x="36" y="252" width="26" height="2" fill="#355A4A"/>
+  <text x="70" y="258" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#303030" letter-spacing="2.5">EXPERIENCE</text>
+  <text x="36" y="284" font-family="Arial, sans-serif" font-size="11" fill="#303030">Head Clinical Psychologist</text>
+  <text x="36" y="302" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#303030">SPIES HOSPITAL</text>
+  <text x="36" y="318" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#C4A25A">2017 - 2021</text>
+  <rect x="36" y="358" width="26" height="2" fill="#355A4A"/>
+  <text x="70" y="364" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#303030" letter-spacing="2.5">SKILLS</text>
+  <circle cx="44" cy="386" r="2.5" fill="#355A4A"/>
+  <rect x="54" y="382" width="80" height="4" rx="2" fill="#666666"/>
+  <circle cx="200" cy="386" r="2.5" fill="#355A4A"/>
+  <rect x="210" y="382" width="80" height="4" rx="2" fill="#666666"/>
+  <!-- Right sidebar -->
+  <rect x="372" y="166" width="228" height="634" fill="#DDE9E2"/>
+  <rect x="392" y="188" width="26" height="2" fill="#355A4A"/>
+  <text x="426" y="194" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#303030" letter-spacing="2.5">EDUCATION</text>
+  <text x="392" y="218" font-family="Arial, sans-serif" font-size="10" fill="#303030">Master of Clinical Psychology</text>
+  <text x="392" y="234" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#303030">PSYCHOLOGY UNIVERSITY</text>
+  <text x="392" y="250" font-family="Arial, sans-serif" font-size="9" font-style="italic" fill="#C4A25A">2015 - 2017</text>
+  <rect x="392" y="278" width="26" height="2" fill="#355A4A"/>
+  <text x="426" y="284" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#303030" letter-spacing="2.5">LANGUAGES</text>
+  <text x="392" y="308" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#303030">English</text>
+  <rect x="392" y="316" width="180" height="8" rx="4" fill="#E4EBE6"/>
+  <rect x="392" y="316" width="160" height="8" rx="4" fill="#355A4A"/>
+  <text x="392" y="344" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#303030">French</text>
+  <rect x="392" y="352" width="180" height="8" rx="4" fill="#E4EBE6"/>
+  <rect x="392" y="352" width="120" height="8" rx="4" fill="#355A4A"/>
+</svg>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&family=Poppins:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container sgge-resume">
+    <header class="sgge-header">
+      <div class="sgge-header-frame" aria-hidden="true">
+        <span class="sgge-frame sgge-frame--top"></span>
+        <span class="sgge-frame sgge-frame--vert"></span>
+        <span class="sgge-frame sgge-frame--horiz"></span>
+      </div>
+
+      <div class="sgge-header-grid">
+        <div class="sgge-photo-col">
+          <span class="sgge-photo-accent" aria-hidden="true"></span>
+          {{#if PROFILE_IMAGE}}
+          <div class="sgge-photo-ring">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="sgge-photo-ring">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="sgge-ini-f">{{FIRST_NAME}}</span><span class="sgge-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="sgge-identity-col">
+          <p class="sgge-greeting">Hello.. I'm</p>
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          <p class="sgge-intro">I'm your..</p>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+
+        <div class="sgge-contact-col">
+          <div class="sgge-header-contact">
+            {{#if EMAIL}}
+            <div class="sgge-contact-item sgge-contact-item--email">
+              <span class="sgge-contact-icon" aria-hidden="true"></span>
+              <span class="sgge-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="sgge-contact-item sgge-contact-item--location">
+              <span class="sgge-contact-icon" aria-hidden="true"></span>
+              <span class="sgge-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if PHONE}}
+            <div class="sgge-contact-item sgge-contact-item--phone">
+              <span class="sgge-contact-icon" aria-hidden="true"></span>
+              <span class="sgge-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="sgge-contact-item sgge-contact-item--linkedin">
+              <span class="sgge-contact-icon" aria-hidden="true"></span>
+              <span class="sgge-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="sgge-contact-item sgge-contact-item--web">
+              <span class="sgge-contact-icon" aria-hidden="true"></span>
+              <span class="sgge-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="sgge-body">
+      <main class="sgge-main">
+        {{#if SUMMARY}}
+        <section class="sgge-section sgge-section--about">
+          <h2 class="sgge-section-title">About Me</h2>
+          <div class="sgge-about">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="sgge-section sgge-section--experience">
+          <h2 class="sgge-section-title">Experience</h2>
+          <div class="experience-list sgge-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="sgge-section sgge-section--skills">
+          <h2 class="sgge-section-title">Skills</h2>
+          <div class="skills-list sgge-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="sgge-section sgge-section--projects">
+          <h2 class="sgge-section-title">Projects</h2>
+          <div class="projects-list sgge-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="sgge-section sgge-section--certifications">
+          <h2 class="sgge-section-title">Certifications</h2>
+          <div class="certifications-list sgge-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="sgge-section sgge-section--achievements">
+          <h2 class="sgge-section-title">Achievements</h2>
+          <div class="achievements-list sgge-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="sgge-sidebar">
+        {{#if EDUCATION}}
+        <section class="sgge-section sgge-section--education sgge-side-section">
+          <h2 class="sgge-section-title">Education</h2>
+          <div class="education-list sgge-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="sgge-section sgge-section--languages sgge-side-section">
+          <h2 class="sgge-section-title">Languages</h2>
+          <div class="languages-list sgge-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="sgge-section sgge-section--interests sgge-side-section">
+          <h2 class="sgge-section-title">Interest</h2>
+          <div class="hobbies-list sgge-interests">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
