@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="595" height="842" viewBox="0 0 595 842">
+  <rect width="190" height="842" fill="#6B2335"/>
+  <rect x="190" width="405" height="842" fill="#FCFAF6"/>
+  <!-- Photo block -->
+  <path d="M0 0 H190 V200 Q190 240 150 240 H0 Z" fill="#6B2335"/>
+  <circle cx="95" cy="100" r="58" fill="none" stroke="#D4B06A" stroke-width="4"/>
+  <circle cx="95" cy="100" r="52" fill="#FFFFFF" stroke="#C9A45A" stroke-width="3"/>
+  <circle cx="95" cy="100" r="46" fill="#5A1D2E"/>
+  <!-- Contact card -->
+  <rect x="20" y="260" width="150" height="28" rx="14" fill="#6B2335"/>
+  <circle cx="158" cy="274" r="10" fill="#C9A45A"/>
+  <rect x="20" y="288" width="150" height="100" rx="0" fill="#FFFFFF"/>
+  <circle cx="38" cy="312" r="12" fill="#6B2335"/>
+  <rect x="58" y="308" width="90" height="6" rx="2" fill="#666666"/>
+  <circle cx="38" cy="338" r="12" fill="#6B2335"/>
+  <rect x="58" y="334" width="80" height="6" rx="2" fill="#666666"/>
+  <circle cx="38" cy="364" r="12" fill="#6B2335"/>
+  <rect x="58" y="360" width="72" height="6" rx="2" fill="#666666"/>
+  <!-- Skills card -->
+  <rect x="20" y="404" width="150" height="28" rx="14" fill="#6B2335"/>
+  <circle cx="158" cy="418" r="10" fill="#C9A45A"/>
+  <rect x="20" y="432" width="150" height="110" rx="0" fill="#FFFFFF"/>
+  <text x="32" y="458" font-family="Arial, sans-serif" font-size="11" fill="#2A2A2A">Brand Strategy</text>
+  <text x="110" y="458" font-family="Arial, sans-serif" font-size="10" fill="#C9A45A">ооооо</text>
+  <text x="32" y="484" font-family="Arial, sans-serif" font-size="11" fill="#2A2A2A">UI Design</text>
+  <text x="110" y="484" font-family="Arial, sans-serif" font-size="10" fill="#C9A45A">оооок</text>
+  <text x="32" y="510" font-family="Arial, sans-serif" font-size="11" fill="#2A2A2A">Typography</text>
+  <text x="110" y="510" font-family="Arial, sans-serif" font-size="10" fill="#C9A45A">ооооо</text>
+  <!-- Languages -->
+  <rect x="20" y="558" width="150" height="28" rx="14" fill="#6B2335"/>
+  <circle cx="158" cy="572" r="10" fill="#C9A45A"/>
+  <rect x="20" y="586" width="150" height="90" rx="0" fill="#FFFFFF"/>
+  <circle cx="130" cy="620" r="22" fill="none" stroke="#C9A45A" stroke-width="4"/>
+  <text x="130" y="624" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#6B2335">95%</text>
+  <text x="54" y="624" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#2A2A2A">English</text>
+  <!-- Main header -->
+  <text x="214" y="72" font-family="Arial, sans-serif" font-size="13" font-weight="300" fill="#666666" letter-spacing="3">ALEXANDER</text>
+  <text x="214" y="112" font-family="Arial, sans-serif" font-size="36" font-weight="700" fill="#2A2A2A" letter-spacing="2">HARRISON</text>
+  <line x1="214" y1="128" x2="320" y2="128" stroke="#C9A45A" stroke-width="3"/>
+  <line x1="320" y1="128" x2="560" y2="128" stroke="#E8E0D6" stroke-width="1"/>
+  <text x="214" y="152" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#666666" letter-spacing="2.5">GRAPHIC DESIGNER</text>
+  <!-- Profile -->
+  <rect x="214" y="172" width="346" height="28" fill="#6B2335"/>
+  <circle cx="544" cy="186" r="10" fill="#C9A45A"/>
+  <text x="226" y="192" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#FFFFFF" letter-spacing="2">PROFILE</text>
+  <rect x="214" y="212" width="300" height="5" rx="1" fill="#CCCCCC"/>
+  <rect x="214" y="224" width="280" height="5" rx="1" fill="#CCCCCC"/>
+  <rect x="214" y="236" width="290" height="5" rx="1" fill="#CCCCCC"/>
+  <!-- Experience -->
+  <rect x="214" y="264" width="346" height="28" fill="#6B2335"/>
+  <circle cx="544" cy="278" r="10" fill="#C9A45A"/>
+  <text x="226" y="284" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#FFFFFF" letter-spacing="2">WORK EXPERIENCE</text>
+  <line x1="248" y1="308" x2="248" y2="420" stroke="#C9A45A" stroke-width="2"/>
+  <text x="214" y="320" font-family="Arial, sans-serif" font-size="10" fill="#666666">201925</text>
+  <text x="262" y="320" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#2A2A2A">Senior Graphic Designer</text>
+  <text x="262" y="338" font-family="Arial, sans-serif" font-size="11" fill="#666666">Creative Studio Inc.</text>
+  <circle cx="270" cy="362" r="3" fill="#C9A45A"/>
+  <rect x="282" y="358" width="220" height="5" rx="1" fill="#CCCCCC"/>
+  <circle cx="270" cy="378" r="3" fill="#C9A45A"/>
+  <rect x="282" y="374" width="200" height="5" rx="1" fill="#CCCCCC"/>
+  <text x="214" y="408" font-family="Arial, sans-serif" font-size="10" fill="#666666">201519</text>
+  <text x="262" y="408" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#2A2A2A">Graphic Designer</text>
+  <!-- Education -->
+  <rect x="214" y="440" width="346" height="28" fill="#6B2335"/>
+  <circle cx="544" cy="454" r="10" fill="#C9A45A"/>
+  <text x="226" y="460" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#FFFFFF" letter-spacing="2">EDUCATION</text>
+  <line x1="248" y1="484" x2="248" y2="540" stroke="#C9A45A" stroke-width="2"/>
+  <text x="214" y="496" font-family="Arial, sans-serif" font-size="10" fill="#666666">201115</text>
+  <text x="262" y="496" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#2A2A2A">BFA Graphic Design</text>
+  <text x="262" y="514" font-family="Arial, sans-serif" font-size="11" fill="#666666">Rhode Island School of Design</text>
+</svg>

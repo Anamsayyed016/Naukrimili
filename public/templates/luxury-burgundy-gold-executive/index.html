@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;500;600;700&family=Montserrat:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container lbge-resume">
+    <div class="lbge-body">
+      <aside class="lbge-sidebar">
+        <div class="lbge-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="lbge-photo-ring">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="lbge-photo-ring">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="lbge-ini-f">{{FIRST_NAME}}</span><span class="lbge-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="lbge-cards">
+          <section class="lbge-card lbge-section lbge-section--contact">
+            <div class="lbge-card-head">
+              <span class="lbge-card-title">Contact</span>
+              <span class="lbge-card-badge lbge-card-badge--contact" aria-hidden="true"></span>
+            </div>
+            <div class="lbge-card-body">
+              <div class="lbge-contact-list">
+                {{#if PHONE}}
+                <div class="lbge-contact-item lbge-contact-item--phone">
+                  <span class="lbge-contact-icon" aria-hidden="true"></span>
+                  <span class="lbge-contact-value">{{PHONE}}</span>
+                </div>
+                {{/if}}
+                {{#if EMAIL}}
+                <div class="lbge-contact-item lbge-contact-item--email">
+                  <span class="lbge-contact-icon" aria-hidden="true"></span>
+                  <span class="lbge-contact-value">{{EMAIL}}</span>
+                </div>
+                {{/if}}
+                {{#if LOCATION}}
+                <div class="lbge-contact-item lbge-contact-item--location">
+                  <span class="lbge-contact-icon" aria-hidden="true"></span>
+                  <span class="lbge-contact-value">{{LOCATION}}</span>
+                </div>
+                {{/if}}
+                {{#if PORTFOLIO}}
+                <div class="lbge-contact-item lbge-contact-item--web">
+                  <span class="lbge-contact-icon" aria-hidden="true"></span>
+                  <span class="lbge-contact-value">{{PORTFOLIO}}</span>
+                </div>
+                {{/if}}
+                {{#if LINKEDIN}}
+                <div class="lbge-contact-item lbge-contact-item--linkedin">
+                  <span class="lbge-contact-icon" aria-hidden="true"></span>
+                  <span class="lbge-contact-value">{{LINKEDIN}}</span>
+                </div>
+                {{/if}}
+              </div>
+            </div>
+          </section>
+
+          {{#if SKILLS}}
+          <section class="lbge-card lbge-section lbge-section--skills">
+            <div class="lbge-card-head">
+              <span class="lbge-card-title">Skills</span>
+              <span class="lbge-card-badge lbge-card-badge--skills" aria-hidden="true"></span>
+            </div>
+            <div class="lbge-card-body">
+              <div class="skills-list lbge-skills psp-skills-progress">
+                {{SKILLS}}
+              </div>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="lbge-card lbge-section lbge-section--languages">
+            <div class="lbge-card-head">
+              <span class="lbge-card-title">Language</span>
+              <span class="lbge-card-badge lbge-card-badge--languages" aria-hidden="true"></span>
+            </div>
+            <div class="lbge-card-body">
+              <div class="languages-list lbge-languages psp-languages-progress">
+                {{LANGUAGES}}
+              </div>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if HOBBIES}}
+          <section class="lbge-card lbge-section lbge-section--interests">
+            <div class="lbge-card-head">
+              <span class="lbge-card-title">Passions</span>
+              <span class="lbge-card-badge lbge-card-badge--interests" aria-hidden="true"></span>
+            </div>
+            <div class="lbge-card-body">
+              <div class="hobbies-list lbge-interests">
+                {{HOBBIES}}
+              </div>
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="lbge-card lbge-section lbge-section--certifications">
+            <div class="lbge-card-head">
+              <span class="lbge-card-title">Certifications</span>
+              <span class="lbge-card-badge lbge-card-badge--certifications" aria-hidden="true"></span>
+            </div>
+            <div class="lbge-card-body">
+              <div class="certifications-list lbge-certifications">
+                {{CERTIFICATIONS}}
+              </div>
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+
+      <main class="lbge-main">
+        <header class="lbge-header">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          <div class="lbge-name-rule" aria-hidden="true"></div>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </header>
+
+        {{#if SUMMARY}}
+        <section class="lbge-section lbge-section--summary">
+          <h2 class="lbge-main-bar">
+            <span class="lbge-bar-text">Profile</span>
+            <span class="lbge-bar-badge lbge-bar-badge--summary" aria-hidden="true"></span>
+          </h2>
+          <div class="lbge-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="lbge-section lbge-section--experience">
+          <h2 class="lbge-main-bar">
+            <span class="lbge-bar-text">Work Experience</span>
+            <span class="lbge-bar-badge lbge-bar-badge--experience" aria-hidden="true"></span>
+          </h2>
+          <div class="experience-list lbge-experience lbge-timeline">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="lbge-section lbge-section--education">
+          <h2 class="lbge-main-bar">
+            <span class="lbge-bar-text">Education</span>
+            <span class="lbge-bar-badge lbge-bar-badge--education" aria-hidden="true"></span>
+          </h2>
+          <div class="education-list lbge-education lbge-timeline">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="lbge-section lbge-section--projects">
+          <h2 class="lbge-main-bar">
+            <span class="lbge-bar-text">Projects</span>
+            <span class="lbge-bar-badge lbge-bar-badge--projects" aria-hidden="true"></span>
+          </h2>
+          <div class="projects-list lbge-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="lbge-section lbge-section--achievements">
+          <h2 class="lbge-main-bar">
+            <span class="lbge-bar-text">Achievements</span>
+            <span class="lbge-bar-badge lbge-bar-badge--achievements" aria-hidden="true"></span>
+          </h2>
+          <div class="achievements-list lbge-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

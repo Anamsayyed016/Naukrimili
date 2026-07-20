@@ -1592,6 +1592,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "luxury-burgundy-gold-executive",
+      "name": "Luxury Burgundy Gold Executive",
+      "slug": "luxury-burgundy-gold-executive",
+      "description": "Premium luxury executive resume with a rich burgundy sidebar, double-ring gold portrait, rounded white sidebar cards with burgundy headers and gold icon badges, dot-rated skills, circular language gauges, passion icon chips, ivory main column with League Spartan nameplate, gold timeline experience, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/luxury-burgundy-gold-executive/thumbnail.svg",
+      "preview": "/templates/luxury-burgundy-gold-executive/preview.svg",
+      "html": "/templates/luxury-burgundy-gold-executive/index.html",
+      "css": "/templates/luxury-burgundy-gold-executive/style.css",
+      "categories": ["Premium", "Luxury", "Executive", "Corporate", "Professional", "Creative", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "burgundy-gold", "name": "Burgundy Gold", "primary": "#6B2335", "accent": "#C9A45A", "text": "#2A2A2A" },
+        { "id": "deep-wine-gold", "name": "Deep Wine Gold", "primary": "#5A1D2E", "accent": "#B89048", "text": "#2A2A2A" },
+        { "id": "classic-burgundy", "name": "Classic Burgundy", "primary": "#742840", "accent": "#D4AD6A", "text": "#333333" },
+        { "id": "heritage-wine", "name": "Heritage Wine", "primary": "#4E1826", "accent": "#C9A45A", "text": "#2A2A2A" },
+        { "id": "warm-gold-accent", "name": "Warm Gold Accent", "primary": "#6B2335", "accent": "#D4B06A", "text": "#333333" }
+      ],
+      "defaultColor": "burgundy-gold",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 68,
+        "sidebarColumnBasisPct": 32,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "skills", "languages", "interests", "certifications"],
+        "rightSections": ["summary", "experience", "education", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {

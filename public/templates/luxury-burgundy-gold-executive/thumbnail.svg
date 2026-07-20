@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <rect width="96" height="400" fill="#6B2335"/>
+  <rect x="96" width="204" height="400" fill="#FCFAF6"/>
+  <!-- Photo -->
+  <circle cx="48" cy="52" r="30" fill="none" stroke="#D4B06A" stroke-width="3"/>
+  <circle cx="48" cy="52" r="26" fill="#FFFFFF" stroke="#C9A45A" stroke-width="2"/>
+  <circle cx="48" cy="52" r="22" fill="#5A1D2E"/>
+  <!-- Card -->
+  <rect x="12" y="96" width="74" height="16" rx="8" fill="#6B2335"/>
+  <circle cx="76" cy="104" r="6" fill="#C9A45A"/>
+  <rect x="12" y="112" width="74" height="52" rx="0" fill="#FFFFFF"/>
+  <circle cx="24" cy="128" r="6" fill="#6B2335"/>
+  <rect x="34" y="126" width="44" height="3" rx="1" fill="#666666"/>
+  <circle cx="24" cy="144" r="6" fill="#6B2335"/>
+  <rect x="34" y="142" width="38" height="3" rx="1" fill="#666666"/>
+  <!-- Skills card -->
+  <rect x="12" y="174" width="74" height="16" rx="8" fill="#6B2335"/>
+  <circle cx="76" cy="182" r="6" fill="#C9A45A"/>
+  <rect x="12" y="190" width="74" height="56" rx="0" fill="#FFFFFF"/>
+  <text x="18" y="206" font-family="Arial, sans-serif" font-size="5.5" fill="#2A2A2A">Strategy</text>
+  <text x="58" y="206" font-family="Arial, sans-serif" font-size="5" fill="#C9A45A">ооооо</text>
+  <text x="18" y="222" font-family="Arial, sans-serif" font-size="5.5" fill="#2A2A2A">Leadership</text>
+  <text x="58" y="222" font-family="Arial, sans-serif" font-size="5" fill="#C9A45A">оооок</text>
+  <!-- Main -->
+  <text x="108" y="36" font-family="Arial, sans-serif" font-size="6" font-weight="300" fill="#666666" letter-spacing="1.5">ALEXANDER</text>
+  <text x="108" y="56" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#2A2A2A" letter-spacing="1">HARRISON</text>
+  <line x1="108" y1="64" x2="180" y2="64" stroke="#C9A45A" stroke-width="2"/>
+  <line x1="180" y1="64" x2="284" y2="64" stroke="#E8E0D6" stroke-width="1"/>
+  <text x="108" y="78" font-family="Arial, sans-serif" font-size="6" font-weight="600" fill="#666666" letter-spacing="1.2">GRAPHIC DESIGNER</text>
+  <rect x="108" y="92" width="176" height="14" fill="#6B2335"/>
+  <circle cx="276" cy="99" r="5" fill="#C9A45A"/>
+  <text x="116" y="102" font-family="Arial, sans-serif" font-size="6" font-weight="600" fill="#FFFFFF" letter-spacing="1">PROFILE</text>
+  <rect x="108" y="112" width="160" height="3" rx="1" fill="#CCCCCC"/>
+  <rect x="108" y="120" width="148" height="3" rx="1" fill="#CCCCCC"/>
+  <rect x="108" y="136" width="176" height="14" fill="#6B2335"/>
+  <circle cx="276" cy="143" r="5" fill="#C9A45A"/>
+  <text x="116" y="146" font-family="Arial, sans-serif" font-size="6" font-weight="600" fill="#FFFFFF" letter-spacing="1">WORK EXPERIENCE</text>
+  <line x1="124" y1="160" x2="124" y2="220" stroke="#C9A45A" stroke-width="1.5"/>
+  <text x="108" y="168" font-family="Arial, sans-serif" font-size="5" fill="#666666">2019-25</text>
+  <text x="132" y="168" font-family="Arial, sans-serif" font-size="6" font-weight="700" fill="#2A2A2A">Senior Designer</text>
+  <text x="132" y="180" font-family="Arial, sans-serif" font-size="5.5" fill="#666666">Creative Studio</text>
+  <rect x="108" y="232" width="176" height="14" fill="#6B2335"/>
+  <circle cx="276" cy="239" r="5" fill="#C9A45A"/>
+  <text x="116" y="242" font-family="Arial, sans-serif" font-size="6" font-weight="600" fill="#FFFFFF" letter-spacing="1">EDUCATION</text>
+</svg>
