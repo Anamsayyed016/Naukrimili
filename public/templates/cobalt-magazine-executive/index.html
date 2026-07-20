@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&family=Poppins:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container cme-resume">
+    <header class="cme-header">
+      <div class="cme-header-grid">
+        <div class="cme-nameplate">
+          <h1 class="candidate-name">
+            <span class="name-first">{{FIRST_NAME}}</span>
+            <span class="name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+        </div>
+
+        <div class="cme-header-contact">
+          <div class="cme-contact-rule" aria-hidden="true">
+            <span class="cme-rule-line"></span>
+            <span class="cme-rule-arrow"></span>
+          </div>
+          <div class="cme-header-contact-list">
+            {{#if PHONE}}
+            <div class="cme-contact-item cme-contact-item--phone">
+              <span class="cme-contact-icon" aria-hidden="true"></span>
+              <span class="cme-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="cme-contact-item cme-contact-item--email">
+              <span class="cme-contact-icon" aria-hidden="true"></span>
+              <span class="cme-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="cme-contact-item cme-contact-item--location">
+              <span class="cme-contact-icon" aria-hidden="true"></span>
+              <span class="cme-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="cme-contact-item cme-contact-item--linkedin">
+              <span class="cme-contact-icon" aria-hidden="true"></span>
+              <span class="cme-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="cme-contact-item cme-contact-item--web">
+              <span class="cme-contact-icon" aria-hidden="true"></span>
+              <span class="cme-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="cme-body">
+      <main class="cme-main">
+        {{#if SUMMARY}}
+        <section class="cme-section cme-section--summary">
+          <h2 class="cme-section-title">About Me</h2>
+          <div class="cme-summary">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EXPERIENCE}}
+        <section class="cme-section cme-section--experience">
+          <h2 class="cme-section-title">My Work Experience</h2>
+          <div class="experience-list cme-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="cme-section cme-section--projects">
+          <h2 class="cme-section-title">Projects</h2>
+          <div class="projects-list cme-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="cme-section cme-section--education">
+          <h2 class="cme-section-title">My Education</h2>
+          <div class="education-list cme-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+
+      <aside class="cme-sidebar">
+        <section class="cme-section cme-section--contact cme-side-section">
+          <h2 class="cme-section-title cme-section-title--side">Contact</h2>
+          <div class="cme-contact-list contact-list">
+            {{#if PHONE}}
+            <div class="cme-side-contact cme-side-contact--phone">
+              <span class="cme-side-contact-icon" aria-hidden="true"></span>
+              <span class="cme-side-contact-value">{{PHONE}}</span>
+            </div>
+            {{/if}}
+            {{#if EMAIL}}
+            <div class="cme-side-contact cme-side-contact--email">
+              <span class="cme-side-contact-icon" aria-hidden="true"></span>
+              <span class="cme-side-contact-value">{{EMAIL}}</span>
+            </div>
+            {{/if}}
+            {{#if LOCATION}}
+            <div class="cme-side-contact cme-side-contact--location">
+              <span class="cme-side-contact-icon" aria-hidden="true"></span>
+              <span class="cme-side-contact-value">{{LOCATION}}</span>
+            </div>
+            {{/if}}
+            {{#if LINKEDIN}}
+            <div class="cme-side-contact cme-side-contact--linkedin">
+              <span class="cme-side-contact-icon" aria-hidden="true"></span>
+              <span class="cme-side-contact-value">{{LINKEDIN}}</span>
+            </div>
+            {{/if}}
+            {{#if PORTFOLIO}}
+            <div class="cme-side-contact cme-side-contact--web">
+              <span class="cme-side-contact-icon" aria-hidden="true"></span>
+              <span class="cme-side-contact-value">{{PORTFOLIO}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </section>
+
+        <div class="cme-portrait-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="cme-portrait">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="cme-portrait">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="cme-ini-f">{{FIRST_NAME}}</span><span class="cme-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        {{#if HOBBIES}}
+        <section class="cme-section cme-section--activities cme-side-section">
+          <h2 class="cme-section-title cme-section-title--side">Activities</h2>
+          <div class="hobbies-list cme-activities">
+            {{HOBBIES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if SKILLS}}
+        <section class="cme-section cme-section--skills cme-side-section">
+          <h2 class="cme-section-title cme-section-title--side">My Skills</h2>
+          <div class="skills-list cme-skills psp-skills-progress">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="cme-section cme-section--languages cme-side-section">
+          <h2 class="cme-section-title cme-section-title--side">Languages</h2>
+          <div class="languages-list cme-languages psp-languages-progress">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="cme-section cme-section--certifications cme-side-section">
+          <h2 class="cme-section-title cme-section-title--side">Certifications</h2>
+          <div class="certifications-list cme-certifications">
+            {{CERTIFICATIONS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="cme-section cme-section--achievements cme-side-section">
+          <h2 class="cme-section-title cme-section-title--side">Achievements</h2>
+          <div class="achievements-list cme-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

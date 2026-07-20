@@ -1844,6 +1844,56 @@
       }
     },
     {
+      "id": "cobalt-magazine-executive",
+      "name": "Cobalt Magazine Executive",
+      "slug": "cobalt-magazine-executive",
+      "description": "Premium modern editorial resume with cobalt blue accents, ivory magazine layout, split-row experience timeline, rectangular portrait sidebar, six-dot skill proficiency indicators, activities icon grid, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/cobalt-magazine-executive/thumbnail.svg",
+      "preview": "/templates/cobalt-magazine-executive/preview.svg",
+      "html": "/templates/cobalt-magazine-executive/index.html",
+      "css": "/templates/cobalt-magazine-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Modern", "Professional", "Creative", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "cobalt-blue", "name": "Cobalt Blue", "primary": "#2357C8", "accent": "#2357C8", "text": "#1F1F1F" },
+        { "id": "royal-blue", "name": "Royal Blue", "primary": "#1A4BB5", "accent": "#1A4BB5", "text": "#1F1F1F" },
+        { "id": "sapphire", "name": "Sapphire", "primary": "#2B6CB0", "accent": "#2B6CB0", "text": "#1A1A1A" },
+        { "id": "navy-cobalt", "name": "Navy Cobalt", "primary": "#1E3A8A", "accent": "#2563EB", "text": "#1F1F1F" },
+        { "id": "azure", "name": "Azure", "primary": "#2563EB", "accent": "#3B82F6", "text": "#222222" }
+      ],
+      "defaultColor": "cobalt-blue",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 66,
+        "sidebarColumnBasisPct": 34,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "experience", "projects", "education", "references", "extended"],
+        "rightSections": ["contact", "skills", "languages", "certifications", "achievements", "interests", "extended"],
+        "fixedSections": ["summary", "experience", "education", "contact", "skills", "interests"],
+        "movableSections": ["projects", "certifications", "achievements", "languages", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
+    },
+    {
       "id": "plum-lavender-pill-executive",
       "name": "Plum Lavender Pill Executive",
       "slug": "plum-lavender-pill-executive",

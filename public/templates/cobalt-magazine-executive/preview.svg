@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#FAF9F5"/>
+  <text x="36" y="64" font-family="Arial, sans-serif" font-size="42" font-weight="800" fill="#2357C8">OWEN</text>
+  <text x="36" y="104" font-family="Arial, sans-serif" font-size="42" font-weight="800" fill="#2357C8">REED</text>
+  <text x="36" y="128" font-family="Arial, sans-serif" font-size="10" font-weight="500" fill="#1F1F1F" letter-spacing="3">EXECUTIVE PRODUCT DIRECTOR</text>
+  <rect x="400" y="48" width="164" height="2" fill="#2357C8"/>
+  <polygon points="564,48 572,43 572,53" fill="#2357C8"/>
+  <circle cx="412" cy="72" r="6" fill="none" stroke="#2357C8" stroke-width="1.5"/>
+  <rect x="426" y="68" width="120" height="4" rx="2" fill="#555555"/>
+  <rect x="0" y="148" width="396" height="652" fill="#FAF9F5"/>
+  <rect x="396" y="148" width="204" height="652" fill="#FAF9F5"/>
+  <line x1="396" y1="148" x2="396" y2="800" stroke="#D8DDE7" stroke-width="1"/>
+  <text x="36" y="184" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#2357C8">About Me</text>
+  <line x1="36" y1="192" x2="360" y2="192" stroke="#D8DDE7"/>
+  <rect x="36" y="206" width="320" height="4" rx="2" fill="#C9C9C9"/>
+  <rect x="36" y="218" width="300" height="4" rx="2" fill="#C9C9C9"/>
+  <text x="36" y="262" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#2357C8">My Work Experience</text>
+  <line x1="36" y1="270" x2="360" y2="270" stroke="#D8DDE7"/>
+  <text x="36" y="296" font-family="Arial, sans-serif" font-size="10" fill="#555555">May 2023 - Present</text>
+  <text x="36" y="314" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#1F1F1F">FLORES &amp; CO.</text>
+  <text x="170" y="296" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#1F1F1F">Product Director</text>
+  <rect x="170" y="306" width="180" height="4" rx="2" fill="#AAAAAA"/>
+  <text x="416" y="184" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#2357C8">Contact</text>
+  <line x1="416" y1="192" x2="564" y2="192" stroke="#D8DDE7"/>
+  <rect x="416" y="210" width="164" height="180" fill="#D8DDE7"/>
+  <text x="416" y="414" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#2357C8">Activities</text>
+  <rect x="416" y="428" width="34" height="34" rx="4" fill="#2357C8"/>
+  <rect x="470" y="428" width="34" height="34" rx="4" fill="#2357C8"/>
+  <rect x="524" y="428" width="34" height="34" rx="4" fill="#2357C8"/>
+  <text x="416" y="492" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#2357C8">My Skills</text>
+  <text x="416" y="518" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#1F1F1F">Product Strategy</text>
+  <text x="520" y="518" font-family="Arial, sans-serif" font-size="8" fill="#2357C8">ооооок</text>
+</svg>
