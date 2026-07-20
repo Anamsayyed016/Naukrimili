@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Montserrat:wght@500;600;700&family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container egm-resume">
+    <div class="egm-body">
+      <aside class="egm-sidebar">
+        <div class="egm-photo-block">
+          {{#if PROFILE_IMAGE}}
+          <div class="egm-photo">
+            <div class="profile-image-wrapper">
+              <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+            </div>
+          </div>
+          {{/if}}
+          {{#unless PROFILE_IMAGE}}
+          <div class="egm-photo">
+            <div class="profile-image-wrapper profile-image-wrapper--initials">
+              <span class="profile-initials" aria-hidden="true">
+                <span class="egm-ini-f">{{FIRST_NAME}}</span><span class="egm-ini-l">{{LAST_NAME}}</span>
+              </span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        {{#if SUMMARY}}
+        <section class="egm-card egm-card--about egm-section egm-section--summary">
+          <h2 class="egm-card-head">About Me</h2>
+          <div class="egm-card-body">
+            <p class="summary-text">{{SUMMARY}}</p>
+          </div>
+        </section>
+        {{/if}}
+
+        <section class="egm-card egm-card--contact egm-section egm-section--contact">
+          <h2 class="egm-card-head">Contact Info</h2>
+          <div class="egm-card-body">
+            <div class="egm-contact-list">
+              {{#if PHONE}}
+              <div class="egm-contact-item egm-contact-item--phone">
+                <span class="egm-contact-icon" aria-hidden="true"></span>
+                <span class="egm-contact-value">{{PHONE}}</span>
+              </div>
+              {{/if}}
+              {{#if EMAIL}}
+              <div class="egm-contact-item egm-contact-item--email">
+                <span class="egm-contact-icon" aria-hidden="true"></span>
+                <span class="egm-contact-value">{{EMAIL}}</span>
+              </div>
+              {{/if}}
+              {{#if PORTFOLIO}}
+              <div class="egm-contact-item egm-contact-item--web">
+                <span class="egm-contact-icon" aria-hidden="true"></span>
+                <span class="egm-contact-value">{{PORTFOLIO}}</span>
+              </div>
+              {{/if}}
+              {{#if LINKEDIN}}
+              <div class="egm-contact-item egm-contact-item--linkedin">
+                <span class="egm-contact-icon" aria-hidden="true"></span>
+                <span class="egm-contact-value">{{LINKEDIN}}</span>
+              </div>
+              {{/if}}
+              {{#if LOCATION}}
+              <div class="egm-contact-item egm-contact-item--location">
+                <span class="egm-contact-icon" aria-hidden="true"></span>
+                <span class="egm-contact-value">{{LOCATION}}</span>
+              </div>
+              {{/if}}
+            </div>
+          </div>
+        </section>
+
+        {{#if SKILLS}}
+        <section class="egm-card egm-card--skills egm-section egm-section--skills">
+          <h2 class="egm-card-head">Skills</h2>
+          <div class="egm-card-body">
+            <div class="skills-list egm-skills">
+              {{SKILLS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="egm-card egm-card--languages egm-section egm-section--languages">
+          <h2 class="egm-card-head">Languages</h2>
+          <div class="egm-card-body">
+            <div class="languages-list egm-languages">
+              {{LANGUAGES}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if CERTIFICATIONS}}
+        <section class="egm-card egm-card--certifications egm-section egm-section--certifications">
+          <h2 class="egm-card-head">Certifications</h2>
+          <div class="egm-card-body">
+            <div class="certifications-list egm-certifications">
+              {{CERTIFICATIONS}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if HOBBIES}}
+        <section class="egm-card egm-card--interests egm-section egm-section--interests">
+          <h2 class="egm-card-head">Interests</h2>
+          <div class="egm-card-body">
+            <div class="hobbies-list egm-interests">
+              {{HOBBIES}}
+            </div>
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+
+      <main class="egm-main">
+        <header class="egm-header">
+          <h1 class="candidate-name">
+            <span class="name-script name-first">{{FIRST_NAME}}</span>
+            <span class="name-bold name-last">{{LAST_NAME}}</span>
+            <span class="name-fallback">{{FULL_NAME}}</span>
+          </h1>
+          {{#if JOB_TITLE}}
+          <p class="header-title">{{JOB_TITLE}}</p>
+          {{/if}}
+          <div class="egm-header-rule" aria-hidden="true"></div>
+        </header>
+
+        {{#if EXPERIENCE}}
+        <section class="egm-section egm-section--experience">
+          <h2 class="egm-section-bar">Experience</h2>
+          <div class="experience-list egm-experience">
+            {{EXPERIENCE}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if EDUCATION}}
+        <section class="egm-section egm-section--education">
+          <h2 class="egm-section-bar">Education</h2>
+          <div class="education-list egm-education">
+            {{EDUCATION}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if PROJECTS}}
+        <section class="egm-section egm-section--projects">
+          <h2 class="egm-section-bar">Projects</h2>
+          <div class="projects-list egm-projects">
+            {{PROJECTS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if ACHIEVEMENTS}}
+        <section class="egm-section egm-section--achievements">
+          <h2 class="egm-section-bar">Achievements</h2>
+          <div class="achievements-list egm-achievements">
+            {{ACHIEVEMENTS}}
+          </div>
+        </section>
+        {{/if}}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

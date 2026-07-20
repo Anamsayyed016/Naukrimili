@@ -1542,6 +1542,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "emerald-gold-minimal-executive",
+      "name": "Emerald Gold Minimal Executive",
+      "slug": "emerald-gold-minimal-executive",
+      "description": "Premium minimalist executive resume with a deep emerald green sidebar, portrait photo with rounded frame, sage card headers for About Me and Contact, luxury gold section bars, Allura script first name with Playfair Display surname, warm ivory main column, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/emerald-gold-minimal-executive/thumbnail.svg",
+      "preview": "/templates/emerald-gold-minimal-executive/preview.svg",
+      "html": "/templates/emerald-gold-minimal-executive/index.html",
+      "css": "/templates/emerald-gold-minimal-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "emerald-gold", "name": "Emerald Gold", "primary": "#1F5A4D", "accent": "#C79A4A", "text": "#444444" },
+        { "id": "deep-forest-gold", "name": "Deep Forest Gold", "primary": "#1A4D42", "accent": "#B89048", "text": "#444444" },
+        { "id": "classic-emerald", "name": "Classic Emerald", "primary": "#245C50", "accent": "#D4A85A", "text": "#3A3A3A" },
+        { "id": "heritage-green", "name": "Heritage Green", "primary": "#163F36", "accent": "#C79A4A", "text": "#444444" },
+        { "id": "warm-gold-accent", "name": "Warm Gold Accent", "primary": "#1F5A4D", "accent": "#D4AD6A", "text": "#333333" }
+      ],
+      "defaultColor": "emerald-gold",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 65,
+        "sidebarColumnBasisPct": 35,
+        "maxMovablePriority": 95,
+        "leftSections": ["summary", "contact", "skills", "languages", "certifications", "interests"],
+        "rightSections": ["experience", "education", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
