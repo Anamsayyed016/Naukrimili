@@ -6,7 +6,7 @@
   <title>Resume - {{FULL_NAME}}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500;1,600&family=Great+Vibes&family=IBM+Plex+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500;1,600&family=IBM+Plex+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -55,7 +55,7 @@
 
         <section class="ime-section ime-section--contact ime-contact-card ime-side-section">
           <p class="ime-contact-eyebrow">Personal</p>
-          <h2 class="ime-side-title">Contact &amp; Details</h2>
+          <h2 class="ime-side-title">Contact</h2>
           <div class="ime-contact-list">
             {{#if PHONE}}
             <div class="ime-contact-item ime-contact-item--phone">
@@ -75,34 +75,47 @@
               <span class="ime-contact-value">{{LOCATION}}</span>
             </div>
             {{/if}}
+          </div>
+        </section>
+
+        <section class="ime-section ime-section--social ime-side-section">
+          <h2 class="ime-side-title">Social</h2>
+          <div class="ime-side-divider" aria-hidden="true"></div>
+          <div class="ime-social-list">
             {{#if LINKEDIN}}
-            <div class="ime-contact-item ime-contact-item--linkedin">
-              <span class="ime-contact-icon" aria-hidden="true"></span>
-              <span class="ime-contact-value">{{LINKEDIN}}</span>
+            <div class="ime-social-item ime-social-item--linkedin">
+              <span class="ime-social-icon" aria-hidden="true"></span>
+              <span class="ime-social-value">{{LINKEDIN}}</span>
             </div>
             {{/if}}
             {{#if PORTFOLIO}}
-            <div class="ime-contact-item ime-contact-item--web">
-              <span class="ime-contact-icon" aria-hidden="true"></span>
-              <span class="ime-contact-value">{{PORTFOLIO}}</span>
+            <div class="ime-social-item ime-social-item--web">
+              <span class="ime-social-icon" aria-hidden="true"></span>
+              <span class="ime-social-value">{{PORTFOLIO}}</span>
             </div>
             {{/if}}
           </div>
-          {{#if LANGUAGES}}
-          <div class="ime-contact-languages">
-            <div class="languages-list ime-languages ime-languages--contact">
-              {{LANGUAGES}}
-            </div>
-          </div>
-          {{/if}}
         </section>
 
-        <footer class="ime-signature">
-          {{#if LOCATION}}
-          <p class="ime-signature-meta">{{LOCATION}}</p>
-          {{/if}}
-          <p class="ime-signature-script">{{FULL_NAME}}</p>
-        </footer>
+        {{#if SKILLS}}
+        <section class="ime-section ime-section--skills ime-side-section">
+          <h2 class="ime-side-title">Skills</h2>
+          <div class="ime-side-divider" aria-hidden="true"></div>
+          <div class="skills-list ime-skills">
+            {{SKILLS}}
+          </div>
+        </section>
+        {{/if}}
+
+        {{#if LANGUAGES}}
+        <section class="ime-section ime-section--languages ime-side-section">
+          <h2 class="ime-side-title">Languages</h2>
+          <div class="ime-side-divider" aria-hidden="true"></div>
+          <div class="languages-list ime-languages">
+            {{LANGUAGES}}
+          </div>
+        </section>
+        {{/if}}
       </aside>
 
       <main class="ime-main">
@@ -133,16 +146,6 @@
             <div class="ime-main-divider" aria-hidden="true"></div>
             <div class="projects-list ime-projects">
               {{PROJECTS}}
-            </div>
-          </section>
-          {{/if}}
-
-          {{#if SKILLS}}
-          <section class="ime-section ime-section--skills">
-            <h2 class="ime-main-title">Skills</h2>
-            <div class="ime-main-divider" aria-hidden="true"></div>
-            <div class="skills-list ime-skills">
-              {{SKILLS}}
             </div>
           </section>
           {{/if}}

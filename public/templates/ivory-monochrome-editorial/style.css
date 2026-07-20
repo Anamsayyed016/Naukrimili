@@ -1,20 +1,22 @@
-/* Ivory Monochrome Editorial — luxury magazine layout, ivory & charcoal */
+/* Ivory Monochrome Editorial — slate navy luxury magazine layout */
 
 .ime-resume {
-  --ime-bg: #F8F6F2;
-  --ime-ink: var(--primary-color, #1E1E1E);
-  --ime-text: var(--text-color, #3F3F3F);
-  --ime-muted: #666666;
-  --ime-card: #EFE9E1;
-  --ime-divider: #D8D2C8;
-  --ime-border: #D4CEC5;
-  --ime-shadow: rgba(30, 30, 30, 0.1);
+  --ime-bg: #FAF8F3;
+  --ime-ink: var(--primary-color, #1F1F1F);
+  --ime-text: var(--text-color, #575757);
+  --ime-muted: #575757;
+  --ime-accent: var(--accent-color, #2F3E56);
+  --ime-accent-light: #6E88A6;
+  --ime-accent-hover: #4E6B8C;
+  --ime-card: #EEF2F7;
+  --ime-divider: #C9D2DD;
+  --ime-border: #D6DEE7;
+  --ime-shadow: rgba(47, 62, 86, 0.12);
   --ime-max-width: 210mm;
   --ime-font-display: 'Playfair Display', 'Bodoni Moda', Georgia, 'Times New Roman', serif;
   --ime-font-name: 'Bodoni Moda', 'Playfair Display', Georgia, serif;
   --ime-font-heading: 'Montserrat', 'Inter', 'Segoe UI', sans-serif;
   --ime-font-role: 'Cormorant Garamond', 'Libre Baskerville', Georgia, serif;
-  --ime-font-script: 'Great Vibes', 'Cormorant Garamond', cursive;
   --ime-font-body: 'Inter', 'Source Sans 3', 'IBM Plex Sans', 'Segoe UI', sans-serif;
   --ime-side: 42fr;
   --ime-main: 58fr;
@@ -35,9 +37,9 @@
   --ime-fs-small: 10px;
   --ime-fs-role: clamp(22px, 2.8cqw, 28px);
 
-  --primary-color: #1E1E1E;
-  --accent-color: #1E1E1E;
-  --text-color: #3F3F3F;
+  --primary-color: #1F1F1F;
+  --accent-color: #2F3E56;
+  --text-color: #575757;
   --light-bg: var(--ime-bg);
   --border-color: var(--ime-border);
 }
@@ -176,7 +178,7 @@
   font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--ime-muted);
+  color: var(--ime-accent);
   line-height: var(--ime-lh-tight);
   word-break: break-word;
 }
@@ -258,13 +260,22 @@
   margin-bottom: var(--ime-content-gap);
 }
 
+.ime-resume .ime-side-divider {
+  background: var(--ime-accent-light);
+  opacity: 0.55;
+}
+
+.ime-resume .ime-main-divider {
+  background: var(--ime-divider);
+}
+
 .ime-resume .ime-side-title {
   font-family: var(--ime-font-heading);
   font-size: var(--ime-fs-section);
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ime-ink);
+  color: var(--ime-accent);
   line-height: 1.25;
 }
 
@@ -293,7 +304,11 @@
   margin-bottom: 4px;
 }
 
-.ime-resume .ime-section--contact:not(:has(.ime-contact-item)):not(:has(.language-item)) {
+.ime-resume .ime-section--contact:not(:has(.ime-contact-item)) {
+  display: none;
+}
+
+.ime-resume .ime-section--social:not(:has(.ime-social-item)) {
   display: none;
 }
 
@@ -323,20 +338,15 @@
 }
 
 .ime-resume .ime-contact-item--phone .ime-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E88A6' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.1a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9z'/%3E%3C/svg%3E");
 }
 
 .ime-resume .ime-contact-item--email .ime-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='1.8'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E88A6' stroke-width='1.8'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
 }
 
 .ime-resume .ime-contact-item--location .ime-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='1.8'%3E%3Cpath d='M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
-}
-
-.ime-resume .ime-contact-item--linkedin .ime-contact-icon,
-.ime-resume .ime-contact-item--web .ime-contact-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E88A6' stroke-width='1.8'%3E%3Cpath d='M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z'/%3E%3Ccircle cx='12' cy='10' r='2.5'/%3E%3C/svg%3E");
 }
 
 .ime-resume .ime-contact-value {
@@ -348,36 +358,73 @@
   overflow-wrap: anywhere;
 }
 
-.ime-resume .ime-contact-languages {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid color-mix(in srgb, var(--ime-divider) 80%, transparent);
+/* Social */
+.ime-resume .ime-social-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.ime-resume .ime-languages--contact {
+.ime-resume .ime-social-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ime-resume .ime-social-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px 13px;
+  opacity: 0.85;
+}
+
+.ime-resume .ime-social-item--linkedin .ime-social-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232F3E56' stroke-width='1.8'%3E%3Crect x='3' y='3' width='18' height='18' rx='3'/%3E%3Cpath d='M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1.5-2 2.5-2s2.5.8 2.5 2.5V16'/%3E%3C/svg%3E");
+}
+
+.ime-resume .ime-social-item--web .ime-social-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232F3E56' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18'/%3E%3C/svg%3E");
+}
+
+.ime-resume .ime-social-value {
+  font-size: var(--ime-fs-meta);
+  font-weight: 500;
+  color: var(--ime-text);
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Sidebar languages */
+.ime-resume .ime-sidebar .ime-languages {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.ime-resume .ime-languages--contact .language-item {
+.ime-resume .ime-sidebar .ime-languages .language-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: baseline;
+  gap: 0;
   font-size: var(--ime-fs-meta);
   color: var(--ime-text);
 }
 
-.ime-resume .ime-languages--contact .language-item .language {
+.ime-resume .ime-sidebar .ime-languages .language-item .language {
   font-weight: 600;
   color: var(--ime-ink);
 }
 
-.ime-resume .ime-languages--contact .language-item .proficiency {
+.ime-resume .ime-sidebar .ime-languages .language-item .proficiency {
   color: var(--ime-muted);
 }
 
-.ime-resume .ime-languages--contact .language-item .proficiency::before {
+.ime-resume .ime-sidebar .ime-languages .language-item .proficiency::before {
   content: ' — ';
   color: var(--ime-muted);
   font-weight: 400;
@@ -387,35 +434,6 @@
 .ime-resume .ime-languages .progress-bar,
 .ime-resume .ime-languages .psp-language-bar-container {
   display: none;
-}
-
-/* Signature footer */
-.ime-resume .ime-signature {
-  margin-top: auto;
-  padding-top: 8px;
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.ime-resume .ime-signature-meta {
-  font-family: var(--ime-font-heading);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ime-muted);
-  margin-bottom: 6px;
-}
-
-.ime-resume .ime-signature-script {
-  font-family: var(--ime-font-script);
-  font-size: clamp(34px, 4.8cqw, 44px);
-  font-weight: 400;
-  color: var(--ime-ink);
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ── Main column ── */
@@ -444,7 +462,11 @@
 }
 
 .ime-resume .ime-journey-panel .ime-main-divider {
-  background: color-mix(in srgb, var(--ime-divider) 90%, var(--ime-ink));
+  background: color-mix(in srgb, var(--ime-accent-light) 65%, var(--ime-divider));
+}
+
+.ime-resume .ime-journey-panel .ime-main-title {
+  color: var(--ime-accent);
 }
 
 .ime-resume .ime-main-stack {
@@ -543,7 +565,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--ime-ink);
+  background: var(--ime-accent);
 }
 
 /* Education */
@@ -641,7 +663,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--ime-ink);
+  background: var(--ime-accent);
 }
 
 .ime-resume .ime-projects .project-item > .technologies,
@@ -689,7 +711,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--ime-ink);
+  background: var(--ime-accent);
 }
 
 /* Certifications */
@@ -714,7 +736,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--ime-ink);
+  background: var(--ime-accent);
 }
 
 .ime-resume .ime-certifications .certification-item h3 {
@@ -770,7 +792,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--ime-ink);
+  background: var(--ime-accent);
 }
 
 .ime-resume .ime-achievements .achievement-item h3 {
@@ -889,7 +911,11 @@
   font-weight: 600 !important;
   letter-spacing: 0.28em !important;
   text-transform: uppercase !important;
-  color: var(--ime-muted) !important;
+  color: var(--ime-accent) !important;
+}
+
+.resume-container.ime-resume .ime-side-title {
+  color: var(--ime-accent) !important;
 }
 
 .resume-container.ime-resume .ime-main-title,
