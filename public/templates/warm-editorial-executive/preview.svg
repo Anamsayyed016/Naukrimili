@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="595" height="842" viewBox="0 0 595 842">
+  <rect width="595" height="842" fill="#F9F7F3"/>
+  <rect x="36" y="28" width="523" height="168" rx="14" fill="rgba(232,222,211,0.55)"/>
+  <text x="298" y="72" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#222222" letter-spacing="2">ELEANOR WHITFIELD</text>
+  <text x="298" y="98" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="600" fill="#666666" letter-spacing="2.2">STRATEGIC OPERATIONS LEADER</text>
+  <rect x="238" y="112" width="120" height="132" rx="60" fill="#FFFFFF" stroke="#9B7653" stroke-width="2"/>
+  <ellipse cx="298" cy="162" rx="46" ry="50" fill="#E8DED3"/>
+  <line x1="120" y1="258" x2="476" y2="258" stroke="#9B7653" opacity="0.45"/>
+  <text x="150" y="280" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#666666">+44 20 7946 0958</text>
+  <text x="298" y="280" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#666666">eleanor@example.com</text>
+  <text x="446" y="280" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#666666">London, UK</text>
+  <rect x="40" y="300" width="158" height="490" rx="14" fill="#E8DED3" stroke="#DDD4C9"/>
+  <text x="58" y="334" font-family="Georgia,serif" font-size="14" fill="#222222">Skills</text>
+  <line x1="58" y1="342" x2="180" y2="342" stroke="#D7CFC5"/>
+  <rect x="58" y="354" width="52" height="16" rx="8" fill="#F9F7F3" stroke="#DDD4C9"/>
+  <rect x="116" y="354" width="62" height="16" rx="8" fill="#F9F7F3" stroke="#DDD4C9"/>
+  <rect x="58" y="376" width="72" height="16" rx="8" fill="#F9F7F3" stroke="#DDD4C9"/>
+  <text x="58" y="418" font-family="Georgia,serif" font-size="14" fill="#222222">Education</text>
+  <line x1="58" y1="426" x2="180" y2="426" stroke="#D7CFC5"/>
+  <text x="58" y="448" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#222222">MBA, Finance</text>
+  <text x="58" y="464" font-family="Arial,sans-serif" font-size="9" fill="#666666">London Business School</text>
+  <text x="58" y="500" font-family="Georgia,serif" font-size="14" fill="#222222">Languages</text>
+  <line x1="58" y1="508" x2="180" y2="508" stroke="#D7CFC5"/>
+  <rect x="58" y="520" width="56" height="16" rx="8" fill="#F9F7F3" stroke="#DDD4C9"/>
+  <rect x="120" y="520" width="52" height="16" rx="8" fill="#F9F7F3" stroke="#DDD4C9"/>
+  <text x="228" y="334" font-family="Georgia,serif" font-size="17" fill="#222222">Professional Summary</text>
+  <line x1="228" y1="344" x2="548" y2="344" stroke="#9B7653"/>
+  <rect x="228" y="358" width="300" height="6" rx="3" fill="#D7CFC5"/>
+  <rect x="228" y="372" width="280" height="6" rx="3" fill="#D7CFC5"/>
+  <rect x="228" y="386" width="260" height="6" rx="3" fill="#D7CFC5"/>
+  <text x="228" y="430" font-family="Georgia,serif" font-size="17" fill="#222222">Experience</text>
+  <line x1="228" y1="440" x2="548" y2="440" stroke="#9B7653"/>
+  <text x="228" y="466" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#222222">Director of Operations</text>
+  <text x="480" y="466" font-family="Arial,sans-serif" font-size="9" fill="#666666">2019  Present</text>
+  <text x="228" y="484" font-family="Arial,sans-serif" font-size="10" fill="#9B7653">Northbridge Group</text>
+  <circle cx="234" cy="504" r="3" fill="#9B7653"/>
+  <rect x="244" y="500" width="280" height="5" rx="2.5" fill="#D7CFC5"/>
+  <circle cx="234" cy="520" r="3" fill="#9B7653"/>
+  <rect x="244" y="516" width="260" height="5" rx="2.5" fill="#D7CFC5"/>
+  <circle cx="234" cy="536" r="3" fill="#9B7653"/>
+  <rect x="244" y="532" width="240" height="5" rx="2.5" fill="#D7CFC5"/>
+  <text x="228" y="578" font-family="Georgia,serif" font-size="17" fill="#222222">Projects</text>
+  <line x1="228" y1="588" x2="548" y2="588" stroke="#9B7653"/>
+  <rect x="228" y="602" width="300" height="72" rx="10" fill="#EFE8DF" stroke="#DDD4C9"/>
+  <text x="242" y="626" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#222222">Supply Chain Modernization</text>
+  <text x="242" y="646" font-family="Arial,sans-serif" font-size="9" fill="#666666">Led cross-functional rollout across 12 regions.</text>
+</svg>

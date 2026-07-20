@@ -1392,6 +1392,56 @@
           "extended": 36
         }
       }
+    },
+    {
+      "id": "warm-editorial-executive",
+      "name": "Warm Editorial Executive",
+      "slug": "warm-editorial-executive",
+      "description": "Premium warm editorial executive resume with a centered Cormorant Garamond nameplate, arch portrait, Montserrat title, soft rounded sidebar card, Source Sans Pro body, bronze accent dividers, optional skill and language progress bars, and ATS-friendly multi-page PDF export.",
+      "thumbnail": "/templates/warm-editorial-executive/thumbnail.svg",
+      "preview": "/templates/warm-editorial-executive/preview.svg",
+      "html": "/templates/warm-editorial-executive/index.html",
+      "css": "/templates/warm-editorial-executive/style.css",
+      "categories": ["Premium", "Editorial", "Executive", "Corporate", "Professional", "Minimal", "Luxury", "Two Column", "With Photo", "ATS", "Sidebar"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "warm-bronze", "name": "Warm Bronze", "primary": "#222222", "accent": "#9B7653", "text": "#222222" },
+        { "id": "sand-gold", "name": "Sand Gold", "primary": "#2A2520", "accent": "#A8845E", "text": "#2A2520" },
+        { "id": "taupe-classic", "name": "Taupe Classic", "primary": "#1F1F1F", "accent": "#8A6848", "text": "#333333" },
+        { "id": "linen-copper", "name": "Linen Copper", "primary": "#252525", "accent": "#B08968", "text": "#252525" },
+        { "id": "espresso-walnut", "name": "Espresso Walnut", "primary": "#1A1714", "accent": "#7A5C42", "text": "#1A1714" }
+      ],
+      "defaultColor": "warm-bronze",
+      "layoutMetadata": {
+        "layoutType": "two-column",
+        "columnCount": 2,
+        "hasSidebar": true,
+        "mainColumnBasisPct": 70,
+        "sidebarColumnBasisPct": 30,
+        "maxMovablePriority": 95,
+        "leftSections": ["contact", "skills", "education", "languages", "certifications", "interests"],
+        "rightSections": ["summary", "experience", "projects", "achievements", "references", "extended"],
+        "fixedSections": ["summary", "experience", "education", "skills", "languages", "contact"],
+        "movableSections": ["projects", "certifications", "achievements", "interests", "references", "extended"],
+        "sectionPriorities": {
+          "header": 100,
+          "contact": 98,
+          "experience": 95,
+          "summary": 94,
+          "skills": 90,
+          "education": 88,
+          "languages": 76,
+          "projects": 70,
+          "achievements": 62,
+          "certifications": 56,
+          "interests": 44,
+          "references": 40,
+          "extended": 36
+        }
+      }
     }
   ],
   "filters": {
