@@ -16,6 +16,7 @@ import {
 import {
   looksLikeCompanyNameLine,
   looksLikeStandaloneLocationLine,
+  looksLikeJobTitleLine,
   isPlausibleExperienceCompany,
   isExperienceBlurbFragment,
   isExperienceDateOrDurationToken,
@@ -547,6 +548,7 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
       !lineLooksLikeTenureExperience(line) &&
       !isCondensedTenureExperienceLine(line) &&
       !/^responsibilit/i.test(line) &&
+      !(looksLikeJobTitleLine(line) && detectDesignationFromLine(line).confidence >= 40) &&
       (looksLikeCompanyNameLine(line) ||
         looksLikeInstitutionalEmployer(line) ||
         isPlausibleExperienceCompany(line) ||

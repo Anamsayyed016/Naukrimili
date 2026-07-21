@@ -224,6 +224,17 @@ export function parseLanguageLinesFromLine(line: string): ParsedLanguageLine[] {
     return lang ? [lang] : [];
   }
 
+  // "English (Fluent) • Hindi (Native)" — common inline language list without a heading prefix.
+  if (/[·•]/.test(trimmed) && !/^(?:languages?)\s*:/i.test(trimmed)) {
+    const tokens = trimmed.split(/[·•]/).map((t) => t.trim()).filter(Boolean);
+    if (tokens.length >= 2) {
+      const parsed = tokens
+        .map((token) => parseLanguageToken(token))
+        .filter((lang): lang is ParsedLanguageLine => lang != null);
+      if (parsed.length >= 2) return parsed;
+    }
+  }
+
   if (trimmed.includes(',') && !/[-–—:]/.test(trimmed)) {
     const tokens = trimmed.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
     if (tokens.length >= 2 && tokens.every((t) => isHumanLanguageName(t.split(/\s+/)[0]))) {

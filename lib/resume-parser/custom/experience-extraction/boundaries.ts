@@ -13,6 +13,7 @@ import { detectDesignationFromLine } from './designation';
 import { buildExperienceFromBlock } from './fields';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
 import { lineLooksLikeTenureExperience, parseTenureExperienceLine } from './tenure';
+import { isEmbeddedMajorSectionHeading } from './lines';
 import { looksLikeCompanyNameLine } from '@/lib/resume-parser/import-sanitize';
 import type { ExperienceLine, ExperienceRawBlock } from './types';
 
@@ -56,12 +57,14 @@ function isExperienceSubsectionLabel(text: string): boolean {
   if (/\broles?\s*(?:&|and)\s*responsibilit/i.test(t) && t.length <= 80) return true;
   // In-role field labels must never open a new experience block.
   if (
-    /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|tenure|duration|period)\s*(?:[:\-–—].*)?$/i.test(
+    /^(?:project|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|tenure|duration|period)\s*(?:[:\-–—].*)?$/i.test(
       t
     )
   ) {
     return true;
   }
+  // Standalone major section headings are terminators — handled outside experience blocks.
+  if (isEmbeddedMajorSectionHeading(t)) return false;
   // "Responsibilities – All HR activities…" mid-role body.
   if (/^responsibilit(?:y|ies)\s*[-–—:]/i.test(t)) return true;
   // Tenure / date-only headers belong to the open role.
@@ -309,7 +312,17 @@ export function partitionExperienceBlocks(
       }
     }
 
-    return true;
+    // Duty / achievement sentences after a complete role are body — never split.
+    if (
+      state.hasDates &&
+      (state.hasCompany || state.hasDesignation) &&
+      looksLikeSentenceNotCompany(line.text.trim()) &&
+      !looksLikeInstitutionalEmployer(line.text.trim())
+    ) {
+      return false;
+    }
+
+    return false;
   };
 
   for (let i = 0; i < scored.length; i++) {
@@ -317,6 +330,12 @@ export function partitionExperienceBlocks(
     if (line.isBlank) {
       prevWasBlank = true;
       continue;
+    }
+
+    if (!line.isBullet && isEmbeddedMajorSectionHeading(line.text)) {
+      const slice = scored.slice(currentStart, i).filter((l) => !l.isBlank);
+      if (slice.length > 0) blocks.push(buildRawBlock(slice, currentStart, i - 1));
+      break;
     }
 
     if (shouldStartNew(line, prevWasBlank, currentStart, i) && i > currentStart) {
@@ -449,7 +468,10 @@ function buildRawBlock(lines: ExperienceLine[], startLine: number, endLine: numb
   for (let i = 0; i < headerLimit; i++) {
     const l = lines[i];
     if (l.isBullet) break;
-    if (i > 0 && isExperienceSubsectionLabel(l.text)) break;
+    const trimmedLine = l.text.trim();
+    const isDateOnlyRoleHeader =
+      isTenureOrDateOnlyHeaderLine(trimmedLine) || parseDateRangeFromText(trimmedLine) !== null;
+    if (i > 0 && isExperienceSubsectionLabel(l.text) && !isDateOnlyRoleHeader) break;
     if (i > 0 && /^experience\s+summary\s*:?\s*$/i.test(l.text.trim())) break;
     if (i > 0 && l.text.trim().length > 140) break;
     if (i > 0) {

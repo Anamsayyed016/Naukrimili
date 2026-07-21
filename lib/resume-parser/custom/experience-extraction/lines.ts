@@ -3,8 +3,33 @@
  */
 
 import type { ExperienceLine } from './types';
+import { looksLikeJobTitleLine } from '@/lib/resume-parser/import-sanitize';
+import { detectDesignationFromLine } from './designation';
 
 const BULLET_RE = /^[\s]*(?:[-–—•·▪‣●○◦]|\d+[\.\)])\s+/;
+
+const EMBEDDED_MAJOR_SECTION_HEADING_RE =
+  /^(?:projects?(?:\s+experience)?|technical\s+skills|skills|education|certifications?(?:\s*(?:&|and)\s*\w+(?:\s+\w+)*)?|achievements?|languages?|references?|publications?|volunteer|hobbies?(?:\s+(?:&|and)\s+interests?)?|interests?)\s*$/i;
+
+/** Standalone major section headings embedded inside an experience body. */
+export function isEmbeddedMajorSectionHeading(text: string): boolean {
+  const t = String(text || '').trim();
+  if (!t || t.length > 64) return false;
+  if (looksLikeJobTitleLine(t) || detectDesignationFromLine(t).confidence >= 50) return false;
+  return EMBEDDED_MAJOR_SECTION_HEADING_RE.test(t);
+}
+
+/** Drop project/education/skills headings that leaked into an experience section body. */
+export function truncateExperienceSectionAtEmbeddedHeadings(sectionText: string): string {
+  const lines = String(sectionText || '').replace(/\r\n/g, '\n').split('\n');
+  const kept: string[] = [];
+  for (const line of lines) {
+    const t = line.trim();
+    if (t && isEmbeddedMajorSectionHeading(t)) break;
+    kept.push(line);
+  }
+  return kept.join('\n').trim();
+}
 
 export function isBulletLine(text: string): boolean {
   return BULLET_RE.test(text);

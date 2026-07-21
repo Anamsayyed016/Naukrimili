@@ -10,7 +10,7 @@ import {
   recoverLocationFromImportText,
   splitExperienceEntriesWithEmbeddedJobs,
 } from '@/lib/resume-parser/import-sanitize';
-import { looksLikeSentenceNotCompany } from '@/lib/resume-parser/custom/experience-extraction/company';
+import { looksLikeSentenceNotCompany, looksLikeInstitutionalEmployer } from '@/lib/resume-parser/custom/experience-extraction/company';
 import { sanitizeIdentityField } from '@/lib/resume-parser/custom/identity-extraction/validate';
 
 describe('generic resume parser robustness', () => {
@@ -106,5 +106,44 @@ describe('generic resume parser robustness', () => {
     );
     expect(loc.toLowerCase()).toContain('anywhere');
     expect(loc.toLowerCase()).not.toContain('declare');
+  });
+
+  it('does not treat duty prose mentioning systems as institutional employers', () => {
+    const dutyLine =
+      'Optimized SQL queries and backend systems improving performance by 40%';
+    expect(looksLikeSentenceNotCompany(dutyLine)).toBe(true);
+    expect(looksLikeInstitutionalEmployer(dutyLine)).toBe(false);
+    expect(looksLikeInstitutionalEmployer('Acme Systems Pvt. Ltd.')).toBe(true);
+  });
+
+  it('parses stacked title/date/company roles when duty lines mention systems', () => {
+    const section = [
+      'Full-Stack Python Developer',
+      'Mar 2025 – Present',
+      'Cybrom Technology Pvt. Ltd. | Bhopal, Madhya Pradesh',
+      'Led design and deployment of full-stack web applications using Python.',
+      'Designed secure, scalable RESTful APIs reducing data retrieval time.',
+      'Optimized SQL queries and backend systems improving performance by 40%.',
+      'Mentored junior developers promoting best practices in code quality.',
+      'Full Stack Developer',
+      '2020 – 2024',
+      'Techroot | Bhopal',
+      'Engineered dynamic web applications using Python, Django, and React.js.',
+    ].join('\n');
+
+    const exps = extractExperiencesFromSection(section);
+    expect(exps).toHaveLength(2);
+    expect(exps[0].designation).toMatch(/Full-Stack Python Developer/i);
+    expect(exps[0].company).toMatch(/Cybrom Technology/i);
+    expect(exps[0].startDate).toMatch(/2025/);
+    expect(exps[1].designation).toMatch(/Full Stack Developer/i);
+    expect(exps[1].company).toMatch(/Techroot/i);
+    expect(exps[1].startDate).toMatch(/2020/);
+    expect(exps[1].endDate).toMatch(/2024/);
+  });
+
+  it('parses inline bullet-separated language proficiency lists', () => {
+    const langs = extractLanguagesFromSection('English (Fluent) • Hindi (Native)');
+    expect(langs.map((l) => l.name.toLowerCase()).sort()).toEqual(['english', 'hindi']);
   });
 });

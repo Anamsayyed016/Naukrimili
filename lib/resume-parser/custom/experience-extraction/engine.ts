@@ -7,7 +7,7 @@ import { isPlausibleExperienceCompany } from '@/lib/resume-parser/import-sanitiz
 import { partitionExperienceBlocks } from './boundaries';
 import { looksLikeSentenceNotCompany } from './company';
 import { buildExperienceFromBlock } from './fields';
-import { buildExperienceLines } from './lines';
+import { buildExperienceLines, truncateExperienceSectionAtEmbeddedHeadings } from './lines';
 import { parseTenureExperienceLine } from './tenure';
 import type { CanonicalExperience, CustomExtractedExperience } from './types';
 import { toCanonicalExperience } from './types';
@@ -228,7 +228,8 @@ export function extractExperiencesWithMeta(
   experienceSectionText: string,
   boundaryOptions?: import('./boundaries').ExperienceBoundaryOptions
 ): ExperienceExtractionResult {
-  const lines = buildExperienceLines(experienceSectionText || '');
+  const trimmedSection = truncateExperienceSectionAtEmbeddedHeadings(experienceSectionText || '');
+  const lines = buildExperienceLines(trimmedSection);
   const blocks = partitionExperienceBlocks(lines, boundaryOptions);
   const built = blocks.map(buildExperienceFromBlock);
   // Merge duty bodies onto sparse tenure headers BEFORE company inheritance.

@@ -1,203 +1,113 @@
 {
-  "fullName": "SHISHUPAL SINGH YADAV",
-  "email": "ssyadav24@outlook.com",
-  "phone": "+91 91655 07669",
-  "location": "",
-  "linkedin": "",
+  "fullName": "ANAM SAYYED",
+  "email": "anamsayyed58@gmail.com",
+  "phone": "(810) 773-8186",
+  "location": "ခ Bhopal, MP",
+  "linkedin": "https://linkedin.com/in/sayyedanam",
   "portfolio": "",
-  "summary": "Strategic HR/L&D/IR/SME-HR Digitalization/Admin specialist with 16+ Years of experience. Strategic HR, L&D, IR, and Administration professional with 16+ years of experience leading Recruitment, Audits Industrial Relations, Payroll, Policy framing and Implementations, including configuration, and optimization HR technology transformation, LMS, EHS, Payroll & Compliance Portals, Admin Digitalization etc. Proven expertise in implementing custom workflows, automations, integrations, and ensuring seamless data governance, security, and compliance. Adept at collaborating cross-functionally to translate business needs into technical HR solutions, delivering data-driven insights through advanced reporting and analytics. Glimpse: Corporate/Plant HR/IR/Admin SME-HR Digitliazation",
+  "summary": "Highly motivated Full-Stack Python Developer with expertise in Python, Django, and React.js. Proven experience building\nresponsive web applications, developing secure RESTful APIs, and managing databases. Skilled in prompt engineering and AI\nintegration. Committed to writing clean, secure code with excellent UX design.",
   "skills": [
-    "Zing HR",
-    "Compliance Applications – Legatrix",
-    "PMS Applications - Synergita",
-    "Effective IN Addressing Change AND Transformation",
-    "Recruitment",
-    "Talent Acquisition (with Strong TPO Network)",
-    "HR Policy Drafting & Implementation",
-    "HRMS Configuration & Integrations",
-    "Data Governance & Compliance",
-    "System Upgrades & Data Migration",
-    "Project Management & Payroll Applications – HRMS",
-    "LMS",
-    "Payroll Process",
-    "Compliance Portals ETC",
-    "UAT Done FOR Matrix",
-    "People Strong",
-    "LMS Successfactors",
-    "Compliance Manager",
-    "SAP Success Factor"
+    "HTML",
+    "CSS",
+    "Python",
+    "Django",
+    "React",
+    "MySQL",
+    "Node.js",
+    "JavaScript",
+    "PostgreSQL",
+    "TypeScript",
+    "C++",
+    "Git",
+    "Figma",
+    "Postman",
+    "Tailwind CSS",
+    "SCSS",
+    "REST Apis"
   ],
   "experience": [
     {
-      "company": "Shivganga Drillers Limited, Indore, Madhya Pradesh",
-      "position": "Senior Manager Corporate HR",
-      "location": "Indore, Madhya Pradesh",
-      "startDate": "2025-05",
+      "company": "Cybrom Technology Pvt. Ltd.",
+      "position": "Full-Stack Python Developer",
+      "location": "Bhopal, Madhya Pradesh",
+      "startDate": "2025-03",
       "current": true,
-      "description": "Overall responsible for Corporate & Rigs HR IR activities, Employee Life Cycle, Policies drafting and implementation,\n\nRecruitment, Training & Development , HRMS & automations activities, MIS monitoring.",
+      "description": "Led design and deployment of full-stack web applications using Python, Django, React.js\n\nDesigned secure, scalable RESTful APIs reducing data retrieval time by 35%\n\nOptimized SQL queries and backend systems improving performance by 40%\n\nMentored junior developers promoting best practices in code quality",
       "achievements": []
     },
     {
-      "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
-      "position": "Senior Manager – Plant HR Head",
-      "startDate": "2022-07",
-      "endDate": "2025-04",
+      "company": "Techroot",
+      "position": "Full Stack Developer",
+      "location": "Bhopal",
+      "startDate": "2020",
+      "endDate": "2024",
       "current": false,
-      "description": "Manpower Planning, Policies drafting and implementation, Recruitment, Government liaison works, MIS monitoring, etc.",
-      "achievements": []
-    },
-    {
-      "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
-      "position": "Deputy Manager - HRBP Operations/OD",
-      "startDate": "2020-07",
-      "endDate": "2022-07",
-      "current": false,
-      "description": "HRBP Operations/OD, Digitalization of personnel files, Policy harmonization across 6 sites and corporate office. COVID-\n\n19 SPOC, LMS & HRMS implementation etc.",
-      "achievements": []
-    },
-    {
-      "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
-      "position": "Deputy Manager – Plant HR & Admin Head",
-      "startDate": "2018-05",
-      "endDate": "2020-07",
-      "current": false,
-      "description": "All activities related to HR IR Admin of Plant, Warehouses, Sale Offices, MPPCB, Health & Safety etc.",
-      "achievements": [
-        "Shishupal Singh Yadav, HRD, Mentor & Industrial Relations",
-        "ssyadav24@outlook.com +91"
-      ]
-    },
-    {
-      "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
-      "position": "JM HRBP",
-      "startDate": "2017-05",
-      "endDate": "2018-05",
-      "current": false,
-      "description": "Recruitment, Training & Development & Statutory Compliances, etc.",
-      "achievements": []
-    },
-    {
-      "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
-      "position": "Junior Manager Industrial Relations",
-      "location": "Madhya Pradesh",
-      "startDate": "2014-11",
-      "endDate": "2017-05",
-      "current": false,
-      "description": "Payroll, Recruitment, PMS, Union, etc.",
-      "achievements": []
-    },
-    {
-      "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
-      "position": "AM HR Generalist",
-      "startDate": "2013-08",
-      "endDate": "2014-10",
-      "current": false,
-      "description": "Payroll, Admin, Union, etc.",
-      "achievements": []
-    },
-    {
-      "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
-      "position": "Personnel Officer – Site HR Head",
-      "startDate": "2010-10",
-      "endDate": "2013-08",
-      "current": false,
-      "description": "Recruitment, Compliance, Training & Development, Union Handling, MIS, Admin Activities. OHC, etc.",
+      "description": "Engineered 5+ dynamic web applications using Python, Django, React.js boosting performance by 30%\n\nConstructed 10+ RESTful APIs cutting response times by 40%\n\nDeveloped responsive front-end interfaces using React.js, HTML, CSS, JavaScript\n\nAdministered MySQL and PostgreSQL databases trimming query times by 20%",
       "achievements": []
     }
   ],
   "education": [
     {
-      "institution": "S.D.Bansal College of Technology, Devi",
-      "degree": "MBA (CORE) (2008",
-      "field": "Professional Qualification",
-      "startDate": "",
-      "endDate": ""
-    },
-    {
-      "institution": "Govt. MLB College of Excellence, Jiwaji University, Gwalior (MP).",
-      "degree": "B.Com. (2005",
+      "institution": "All Saints' College of Technology (ASCT)",
+      "degree": "Master of Business Administration (MBA)",
       "field": "",
       "startDate": "",
       "endDate": ""
     },
     {
-      "institution": "I.Com. (2005) from Army Public School (CBSE-DELHI) Babina Cantt, Jhansi (UP).",
-      "degree": "I.Com. (2005) from Army Public School (CBSE",
+      "institution": "Govind Guru Tribal University",
+      "degree": "Bachelor of Computer Applications (BCA)",
       "field": "",
-      "startDate": "",
-      "endDate": ""
-    },
-    {
-      "institution": "Army Public School (CBSE-DELHI) Ferozepur Cantt, (PB).",
-      "degree": "High School (2003)",
-      "field": "",
-      "startDate": "",
-      "endDate": ""
+      "startDate": "2015-06",
+      "endDate": "2017-07"
     }
   ],
-  "projects": [],
+  "projects": [
+    {
+      "name": "Naukrimili Job Portal",
+      "description": "Developed dynamic job portal with seamless job search and applications. Integrated Google APIs for authentication. Built\n\nscalable React.js front-end with robust Node.js backend. Live Demo →",
+      "technologies": [
+        "Node",
+        "Node.js",
+        "React",
+        "React.js",
+        "TypeScript"
+      ]
+    },
+    {
+      "name": "Cafe Zafran Restaurant Website",
+      "description": "Created responsive restaurant website with bilingual support (English/Hindi). Implemented MySQL database for content\n\nmanagement. Deployed on PythonAnywhere with mobile-first optimization. Live Demo →",
+      "technologies": [
+        "CSS",
+        "Django",
+        "HTML",
+        "MySQL",
+        "Python"
+      ]
+    }
+  ],
   "certifications": [
     {
-      "name": "Generative AI in HR & Business Leaders",
-      "issuer": "",
-      "date": ""
-    },
-    {
-      "name": "AI for Organizational Leaders",
-      "issuer": "Microsoft & LinkedIn",
-      "date": ""
-    },
-    {
-      "name": "American Staffing Association Corporate Recruiting Professional Certificate",
-      "issuer": "",
-      "date": ""
-    },
-    {
-      "name": "Human Resources: Selecting an HR System",
-      "issuer": "",
-      "date": ""
-    },
-    {
-      "name": "Uncovering Unconscious Bias in Recruiting and Interviewing",
-      "issuer": "",
-      "date": ""
-    },
-    {
-      "name": "Internal Auditor certificate",
-      "issuer": "TUV SUD on ISO 45001:2018",
-      "date": ""
-    },
-    {
-      "name": "HR Audit Professional",
-      "issuer": "",
-      "date": ""
-    },
-    {
-      "name": "HR Analytics using Excel",
-      "issuer": "Udemy",
-      "date": ""
-    },
-    {
-      "name": "Diploma in Labour Laws and Statutory Compliance for HRs",
-      "issuer": "Udemy",
-      "date": ""
+      "name": "Full-Stack Python Developer",
+      "issuer": "Cybrom Technology",
+      "date": "2024"
     }
   ],
   "languages": [
-    "Hindi",
-    "English",
-    "Punjabi"
+    {
+      "name": "English",
+      "proficiency": "Fluent"
+    },
+    {
+      "name": "Hindi",
+      "proficiency": "Native"
+    }
   ],
   "hobbies": [],
-  "achievements": [
-    "In recruitment and campus drives reduced by 10%.",
-    "Reduced Canteen Expenses, Contract labour & Travel cost reduced by 5% each.",
-    "New LMS center with zero new investments & with in-house resources.",
-    "Won appeal under Section 45AA of ESIC act 1948 and saved company cost of 8 Lakhs."
-  ],
-  "confidence": 73,
-  "rawText": "Shishupal Singh Yadav, HRD, Mentor & Industrial Relations - ssyadav24@outlook.com +91 - 9165507669 \nSHISHUPAL SINGH YADAV \nssyadav24@outlook.com \n+91 - 9165507669 \n\n\nStrategic HR/L&D/IR/SME-HR Digitalization/Admin specialist with 16+ Years of experience. \nStrategic HR, L&D, IR, and Administration professional with 16+ years of experience leading Recruitment, Audits Industrial \nRelations, Payroll, Policy framing and Implementations, including configuration, and optimization HR technology transformation, \nLMS, EHS, Payroll & Compliance Portals, Admin Digitalization etc. Proven expertise in implementing custom workflows, \nautomations, integrations, and ensuring seamless data governance, security, and compliance. Adept at collaborating cross-functionally \nto translate business needs into technical HR solutions, delivering data-driven insights through advanced reporting and analytics. \nGlimpse: Corporate/Plant HR/IR/Admin SME-HR Digitliazation \n• Worked across the HR spectrum from hiring to retirement with leading companies that stand out as breakthrough success stories in their \nfields of automotive, engineering, wire and cable and steel wire manufacturers, pharmaceuticals, well-established and green field \ncompanies. Experience with Indian, UK, US, and German multinational corporations. \n• Experience in handling multiple plants and warehouses at different locations, worked in plants with staff strength ranging from 200 to \n5000. \n• Drive the continuous improvement agenda with a focus on engagement and well-being activities, maximizing productivity, transferring \nresponsibilities HR to supervisors, and building leadership capacity. \n• Taking a leadership role in transforming and strengthening organizational culture and ensuring that the company's values and approach \nare communicated. \n• Annual budget for HR, administration and welfare and monthly cost evaluating analysis. \n• Drafting & Implementation of corporate policies and experience in implementing HR policies in factory and warehouse. Harmonization \nof HR practices across the 6 sites including corporates. \n• Implementation of training systems, HRMS, payroll software. Fever screening systems. \n• Experience working with EXPATS, administrative and day to day activities. \n• Excellent experience handling audits such as IMS, IATF 16949, customer audits, government agencies, etc. \n• Performance assessment: quarterly reviews, annual performance, success factor assessments and feedback, strategic HR with \nknowledge of MBO and 360-degree assessment (PMS). Competency Assessment and Training, Skill Matrix. \n• Identify training needs (TNI) through performance appraisal process, organizational changes. Formulating training calendars involving \nmultiple sources, measuring effectiveness of training programs, compliance/maintenance of systems/procedures related to training \nactivities as per ISO. Dealing with LMS (Learning Management System) SAP success factor. \n• Recruitment of ITIs, graduate students, engineers, senior manager & Leadership level. Mass recruitment, campus recruitment, special \nrecruitment for different genders, regions and people with special needs. Use of portals like Naukri LinkedIn for recruitment. \nSuccession planning, workforce planning. \n• Team building competitions and employee engagement activities: sports day, family day, monthly birthday parties, festivities, team \nbuilding programs - outdoor activities, picnics, movies, workshops, enrolment programs, painting competitions, Kaizen and 5S, safety \nweeks, environmental days, Hindi Pakhwada for all functions inside and outside the plant. \n• Mentoring staff for multiple SOPs, safety procedures and behavioral training. \n• Conducting Monthly review meetings for HR & different Sites. \n• Well versed in usage of Artificial Intelligence (AI) tools related to HR & Management. \nIndustrial Relations & Administration \n• Union Handling exposure like Union Elections, Union Meetings, Grievances. \n• Exposure of handling Land Disputes of company and support from local administration. \n• Labour office exposure, letters, drafts and replies. \n• Welfare activities related to staff and associates. \n• Warning letters and disciplinary actions. \n• Worked on raw data for LTS discussion. \n• Liaison & Statutory Compliances (Factory license, Contract Labour, HSE, PCB CTO CTE, PF ESIC, NAPS etc.) \n• Well-versed with Time Office & Payroll Functions. \n• Administrative activities. Transportation, Horticulture, Canteen, Security, Tour Bills, visits etc. \nAdditional Exposure IR & Admin \n• Observed & Handled labours strike period for 5 months. Experience of handling Unions. \n• Done complete exercises for starting B Shift working for female employees. (Self-defense program, route study, dry runs, \nsecurity response, and transportation control through GPS + CCTV etc.) \n• Experience in transactions related to Weights & Measurement Department. \n• Knowledge of Pharmaceutical GMP, GDP, SOPs revisions, Change Controls, Audits Preparations. \n• Certified First Aider from Indian Red Cross Society. \n• COVID-19 – SPOC and Implementations of SOP and Guidelines related to COVID-19. \n• Exposure to work with Green filed project. \n• HR Digital transformation (Multiple software and systems implementations) \n\n\n\n\n\n\n\nShishupal Singh Yadav, HRD, Mentor & Industrial Relations - ssyadav24@outlook.com +91 - 9165507669 \nTraining & Development \n• Managed End to End Training & Development Process. \n• TNI & Training calendars. \n• Implemented LMS center and Biometric attendance with training modules. \n• Programs like Junior Manager Development, communication program for shopfloor supervisors etc. \n• Maintenance of Training records as per the requirement of Audits. \n• Used Synergita & Success-factor LMS for training modules. \n• Teambuilding workshops for shopfloor employees. \n\nCost Saving Activities \n• In recruitment and campus drives reduced by 10%. \n• Reduced Canteen Expenses, Contract labour & Travel cost reduced by 5% each. \n• New LMS center with zero new investments & with in-house resources. \n• Won appeal under Section 45AA of ESIC act 1948 and saved company cost of 8 Lakhs. \nStrengths & IT Skills \n• Recruitment, Talent Acquisition (with Strong TPO network) \n• HR Policy Drafting & Implementation. \n• HRMS Configuration & Integrations. \n• Data Governance & Compliance. \n• Cross-Functional Collaboration. \n• System Upgrades & Data Migration. \n• Project Management & Payroll applications – HRMS/LMS/Payroll Process/Compliance Portals etc. \n• UAT done for Matrix, Zing HR, People Strong, LMS SuccessFactors. \n• Compliance Applications – Legatrix, Compliance Manager \n• PMS Applications - Synergita, SAP Success factor,. \n• Effective in Addressing Change and Transformation. \nCertification (Online Paid Courses) \n• Generative AI in HR & Business Leaders. \n• AI for Organizational Leaders by Microsoft & LinkedIn. \n• American Staffing Association Corporate Recruiting Professional Certificate. \n• Human Resources: Selecting an HR System. \n• Uncovering Unconscious Bias in Recruiting and Interviewing. \n• Internal Auditor certificate from TUV SUD on ISO 45001:2018. \n• Certified HR Audit Professional \n• HR Analytics using Excel by Udemy. \n• Diploma in Labour Laws and Statutory Compliance for HRs by Udemy. \nEducational \nProfessional Qualification \n• MBA (CORE) (2008-10) in Human Resource Management and Marketing from S.D.Bansal College of Technology, Devi \nAhilya University, Indore (MP) \nAcademics Qualification \n• B.Com. (2005-08) from Govt. MLB College of Excellence, Jiwaji University, Gwalior (MP). \n• I.Com. (2005) from Army Public School (CBSE-DELHI) Babina Cantt, Jhansi (UP). \n• High School (2003) from Army Public School (CBSE-DELHI) Ferozepur Cantt, (PB). \n\nJob Experience from Oct’2010 to till date. \nShivganga Drillers Limited, Indore, Madhya Pradesh \nDesignation: Senior Manager Corporate HR \nTenure – May 25 – till date \nResponsibilities – Overall responsible for Corporate & Rigs HR IR activities, Employee Life Cycle, Policies drafting and implementation, \nRecruitment, Training & Development , HRMS & automations activities, MIS monitoring. \nKnovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh \nDesignation: Senior Manager, Role – Plant HR Head \nTenure - July’22 – Apr’25 \nResponsibilities – Manpower Planning, Policies drafting and implementation, Recruitment, Government liaison works, MIS monitoring, etc. \nUnichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh \nDesignation: Deputy Manager - HRBP Operations/OD \nTenure - July’20 – July’22 \nResponsibilities - HRBP Operations/OD, Digitalization of personnel files, Policy harmonization across 6 sites and corporate office. COVID-\n19 SPOC, LMS & HRMS implementation etc. \nLAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations) \nDesignation: Deputy Manager, Role – Plant HR & Admin Head \nTenure - May’18 – July’20 \nResponsibilities – All activities related to HR IR Admin of Plant, Warehouses, Sale Offices, MPPCB, Health & Safety etc. \n\n\n\n\nShishupal Singh Yadav, HRD, Mentor & Industrial Relations - ssyadav24@outlook.com +91 - 9165507669 \n\nCummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh \nDesignation: JM HRBP, \nTenure- May’17 – May’18 \nResponsibilities – Recruitment, Training & Development & Statutory Compliances, etc. \n\nVE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur, \nMadhya Pradesh \nDesignation – Junior Manager Industrial Relations, \nTenure - Nov’14 to May’17 \nResponsibilities – Payroll, Recruitment, PMS, Union, etc. \nCAPARO Engineering India Ltd. Pithampur, Madhya Pradesh \nDesignation: AM HR Generalist (3\nrd\n P) \nTenure - Aug’13 to Oct’14 \nResponsibilities – Payroll, Admin, Union, etc. \nTata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh \nDesignation: Personnel Officer, Role – Site HR Head \nTenure - Oct’10 to Aug’13 \nResponsibilities – Recruitment, Compliance, Training & Development, Union Handling, MIS, Admin Activities. OHC, etc. \nPersonal Details \nFather's Name Hon. Capt. Prem Singh (Retd) \nDate of Birth 25ᵗʰ Oct 1986 \nBlood Group O+ve \nMarital Status Married \nLanguages Hindi, English, Punjabi \nExposure of MP, UP, J&K, PB, RJ, KA, JH, \n\n\n\n\nShishupal Singh Yadav",
+  "achievements": [],
+  "confidence": 83,
+  "rawText": "ANAM SAYYED\nFull-Stack Python Developer\nခ 8107738186 | ခ anamsayyed58@gmail.com | ခ Bhopal, MP \nခ linkedin.com/in/sayyedanam | ခ anamportfolio.vercel.app \nPROFESSIONAL SUMMARY\nHighly motivated Full-Stack Python Developer with expertise in Python, Django, and React.js. Proven experience building\nresponsive web applications, developing secure RESTful APIs, and managing databases. Skilled in prompt engineering and AI\nintegration. Committed to writing clean, secure code with excellent UX design. \nWORK EXPERIENCE\nFull-Stack Python Developer\nMar 2025 – Present\nCybrom Technology Pvt. Ltd. | Bhopal, Madhya Pradesh\nLed design and deployment of full-stack web applications using Python, Django, React.js\nDesigned secure, scalable RESTful APIs reducing data retrieval time by 35%\nOptimized SQL queries and backend systems improving performance by 40%\nMentored junior developers promoting best practices in code quality\nFull Stack Developer\n2020 – 2024\nTechroot | Bhopal\nEngineered 5+ dynamic web applications using Python, Django, React.js boosting performance by 30%\nConstructed 10+ RESTful APIs cutting response times by 40%\nDeveloped responsive front-end interfaces using React.js, HTML, CSS, JavaScript\nAdministered MySQL and PostgreSQL databases trimming query times by 20%\nPROJECTS\nNaukrimili Job Portal\nTypeScript • Node.js • React.js • Google APIs\nDeveloped dynamic job portal with seamless job search and applications. Integrated Google APIs for authentication. Built\nscalable React.js front-end with robust Node.js backend. Live Demo →\nCafe Zafran Restaurant Website\nDjango • Python • MySQL • HTML • CSS\nCreated responsive restaurant website with bilingual support (English/Hindi). Implemented MySQL database for content\nmanagement. Deployed on PythonAnywhere with mobile-first optimization. Live Demo →\nTECHNICAL SKILLS\nLanguages\nPython, JavaScript, TypeScript, HTML, CSS, C++\nFrameworks\nDjango, React.js, Node.js, Tailwind CSS, SCSS\nDatabases\nMySQL, PostgreSQL\nTools\nGit, REST APIs, Postman, Figma\nEDUCATION\nMaster of Business Administration (MBA)\nAll Saints' College of Technology (ASCT)\nBarkatullah University, Bhopal\nSpecializations: HR and Finance\nBachelor of Computer Applications (BCA)\nLeo College, Govind Guru Tribal University\nJune 2015 – July 2017\nCERTIFICATIONS & LANGUAGES\nFull-Stack Python Developer – Cybrom Technology (2024–2025) \nLanguages:\nEnglish (Fluent) • Hindi (Native)\n• \n• \n• \n• \n• \n• \n• \n•",
   "github": "",
-  "headline": "",
+  "headline": "Full-Stack Python Developer",
   "designation": ""
 }

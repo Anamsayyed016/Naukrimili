@@ -50,6 +50,8 @@ function stripUnicodeArtifacts(input: string): string {
     .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F]/g, '')
     // Private use area (U+E000-U+F8FF) - parser garbage
     .replace(/[\uE000-\uF8FF]/g, '')
+    // Myanmar / icon glyphs used as PDF bullet substitutes (e.g. ခ before phone/email)
+    .replace(/[\u1000-\u109F]/g, ' ')
     // Supplementary private use (often shown as ߮ ࡆ etc. when embedded in PDF font streams)
     .replace(/[\u0700-\u074F\u0780-\u07BF\u0800-\u085F\u0860-\u086F\u08A0-\u08FF]/g, ' ')
     // Box-drawing / geometric shapes that PDFs use for separators

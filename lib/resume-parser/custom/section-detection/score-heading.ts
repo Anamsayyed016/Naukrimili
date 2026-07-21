@@ -41,9 +41,24 @@ const CITY_STATE_LINE_RE =
 function isInRoleFieldLabel(text: string): boolean {
   const t = text.trim();
   if (!t || t.length > 80) return false;
-  return /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|client|employer|company|duration|period|tenure|location|reporting\s+to|tools?\s+used|technologies?\s+used)\s*(?:[:\-–—].*)?$/i.test(
-    t
-  );
+  // Standalone plural section headings are never in-role field labels.
+  if (
+    /^(?:projects|skills|certifications|achievements|languages|references|publications|volunteer|hobbies|interests|education)$/i.test(
+      t
+    )
+  ) {
+    return false;
+  }
+  // In-role labels require a separator and trailing value ("Project: Fiber Rollout").
+  if (
+    /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|client|employer|company|duration|period|tenure|location|reporting\s+to|tools?\s+used|technologies?\s+used)\s*[:\-–—]\s*.+/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Lone singular "Project" without a body — in-role subsection, not a resume section.
+  return /^project\s*$/i.test(t) && !isAllCapsHeading(t);
 }
 
 /** OCR/wrap debris and unfinished sidebar labels are never section headings. */

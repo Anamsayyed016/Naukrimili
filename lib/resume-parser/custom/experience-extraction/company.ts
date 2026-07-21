@@ -72,10 +72,14 @@ const INSTITUTIONAL_EMPLOYER_RE =
 export function looksLikeInstitutionalEmployer(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 4) return false;
+  // Duty sentences often mention "systems", "services", etc. — not employers.
+  if (looksLikeSentenceNotCompany(trimmed)) return false;
   return (
     INSTITUTIONAL_EMPLOYER_RE.test(trimmed) ||
     SHORT_ORG_RE.test(trimmed) ||
-    COMPANY_SUFFIX_RE.test(trimmed)
+    HARD_COMPANY_SUFFIX_RE.test(trimmed) ||
+    hasTrailingSoftCompanySuffix(trimmed) ||
+    PROPRIETARY_NAME_SUFFIX_RE.test(trimmed)
   );
 }
 
