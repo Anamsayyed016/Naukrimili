@@ -1044,12 +1044,30 @@ export default function ResumeEditorPage() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Navigation Buttons */}
+            {/* Section visibility — form column only (must not live in preview chrome) */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="resume-form-aux-panel mt-6 p-4 sm:p-5"
+            >
+              <SectionVisibilityPanel
+                formData={formData}
+                updateFormData={updateFormData}
+              />
+            </motion.div>
+          </motion.div>
+            </div>
+            </div>
+
+            {/* Step navigation — pinned footer, outside scroll region */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="resume-form-nav flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6"
+              role="navigation"
+              aria-label="Step navigation"
+              className="resume-form-nav-footer resume-form-nav flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3"
             >
               <Button
                 variant="outline"
@@ -1068,22 +1086,6 @@ export default function ResumeEditorPage() {
                 </Button>
               )}
             </motion.div>
-
-            {/* Section visibility — form column only (must not live in preview chrome) */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-              className="resume-form-aux-panel mt-6 p-4 sm:p-5"
-            >
-              <SectionVisibilityPanel
-                formData={formData}
-                updateFormData={updateFormData}
-              />
-            </motion.div>
-          </motion.div>
-            </div>
-            </div>
           </aside>
           </ResumeOptimizationProvider>
 

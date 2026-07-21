@@ -211,10 +211,23 @@
   box-shadow: 0 0 0 3px var(--form-focus);
 }
 
-/* Form footer nav */
-.resume-form-nav {
+/* Form footer nav — pinned to bottom of form column (sibling of scroll region) */
+.resume-form-nav-footer {
+  flex-shrink: 0;
+  z-index: 15;
+  margin-top: 0;
   border-top: 1px solid var(--form-border);
-  padding-top: 1.25rem;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -8px 24px -16px rgba(15, 23, 42, 0.18);
+  padding: 0.875rem 1.25rem;
+  padding-bottom: max(0.875rem, env(safe-area-inset-bottom, 0px));
+}
+
+.resume-form-nav-footer.resume-form-nav {
+  border-top: 1px solid var(--form-border);
+  padding-top: 0.875rem;
 }
 
 .resume-form-nav .resume-form-btn-primary {
