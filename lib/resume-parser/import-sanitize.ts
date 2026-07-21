@@ -1235,6 +1235,16 @@ export function isImplausibleResumeLocation(value: unknown): boolean {
   }
   if (isResumeSectionHeadingLine(t)) return true;
   if (/\b(?:declaration|i\s+hereby\s+declare|hereby\s+declare)\b/i.test(t)) return true;
+  // Person names (optionally with credentials) must not occupy the location field.
+  if (isValidatedContactName(t, '')) return true;
+  if (
+    isPlausiblePersonName(t) &&
+    !/\b(?:street|road|nagar|colony|sector|block|district|pradesh|nadu|india|usa|uk|pincode|pin\s*code)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
   return false;
 }
 

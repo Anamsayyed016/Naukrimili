@@ -318,11 +318,28 @@ export function ensureBuilderContactFields(
   return out;
 }
 
+/** Keep canonical contact aliases in sync whenever import data is normalized. */
+export function syncBuilderContactAliases(
+  data: Record<string, unknown>
+): Record<string, unknown> {
+  const out = ensureBuilderContactFields({ ...data });
+  const first = String(out.firstName ?? '').trim();
+  const last = String(out.lastName ?? '').trim();
+  const combined = [first, last].filter(Boolean).join(' ').trim();
+  const full = String(out.fullName || out.name || combined || '').trim();
+  if (full) {
+    out.fullName = full;
+    out.name = full;
+    out['Full Name'] = full;
+  }
+  return out;
+}
+
 /** Sync experience aliases so editor forms match template preview fields. */
 export function normalizeImportedFormForEditor(
   data: Record<string, unknown>
 ): Record<string, unknown> {
-  const out = ensureBuilderContactFields({ ...data });
+  const out = syncBuilderContactAliases({ ...data });
   const withExperience = backfillImportedExperienceForDisplay(out);
   if (Array.isArray(withExperience.experience)) {
     const normalized = (withExperience.experience as Record<string, unknown>[]).map((entry) =>

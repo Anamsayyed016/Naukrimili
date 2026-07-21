@@ -11,6 +11,7 @@ import {
   countPlausibleExperienceCompanies,
   countPlausibleProjects,
   isMisclassifiedExperienceProject,
+  isPlausibleExperienceCompany,
   isPlausibleProjectName,
   looksLikeJobTitleLine,
   demoteImplausibleExperienceCompany,
@@ -561,6 +562,9 @@ function isExperiencePersonalMetadataOnly(exp: Record<string, unknown>): boolean
     exp.title ?? exp.Title ?? exp.position ?? exp.Position ?? ''
   ).trim();
   const desc = String(exp.description ?? exp.Description ?? '').trim();
+  // Plausible employers must never be dropped — isPersonalMetadataEntry treats
+  // long company names (>48 chars) as personal lines, which wiped most jobs.
+  if (company && isPlausibleExperienceCompany(company)) return false;
   if (company && isPersonalMetadataEntry(company)) return true;
   if (title && isPersonalMetadataEntry(title) && !company && !desc) return true;
   if (!company && !title && desc && isPersonalMetadataEntry(desc)) return true;
