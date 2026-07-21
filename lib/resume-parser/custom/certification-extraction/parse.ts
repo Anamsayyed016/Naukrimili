@@ -276,7 +276,7 @@ export function parseCertificationLine(line: string): ParsedCertification | null
   // "certificate" — accept when confidence is moderate or platform/issuer cues exist.
   const courseCue =
     Boolean(issuer) ||
-    /\b(?:udemy|coursera|linkedin|diploma|auditor|course|certificate|professional|recruiting|analytics)\b/i.test(
+    /\b(?:udemy|coursera|linkedin|microsoft|generative\s+ai|diploma|auditor|course|certificate|professional|recruiting|analytics|human\s+resources?|staffing)\b/i.test(
       `${name} ${issuer} ${working}`
     );
   if (confidence < 45 && !CERT_KEYWORD_RE.test(name) && !courseCue) return null;

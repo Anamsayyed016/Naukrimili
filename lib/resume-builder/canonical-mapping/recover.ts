@@ -2,7 +2,7 @@
  * Self-repair Builder fields from canonical node pool.
  */
 
-import { sanitizeFieldText, sanitizeExperienceCompanyValue } from '@/lib/resume-parser/import-sanitize';
+import { sanitizeFieldText, sanitizeExperienceCompanyValue, sanitizePersonName, isValidatedContactName } from '@/lib/resume-parser/import-sanitize';
 import { bestNodeValue, findNodes } from './ingest';
 import type { CanonicalFieldNode, CanonicalMappingReport } from './types';
 
@@ -35,7 +35,16 @@ export function recoverBuilderFromNodes(
 
   if (isEmpty(out.location)) {
     const v = bestNodeValue(nodes, ['LOCATION', 'ADDRESS']);
-    if (v) {
+    const fullName = sanitizePersonName(
+      String(out.fullName || out.name || [out.firstName, out.lastName].filter(Boolean).join(' ')),
+      120
+    );
+    const locationHint = String(out.location || out.address || '');
+    if (
+      v &&
+      !isValidatedContactName(v, locationHint) &&
+      (!fullName || v.toLowerCase() !== fullName.toLowerCase())
+    ) {
       out.location = v;
       report.recovered.push('identity:location');
     }

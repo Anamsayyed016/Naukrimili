@@ -2685,11 +2685,12 @@ function applyBuilderImportGuards(
     }
   }
   const extracurricular = rawText.length >= 80 ? recoverExtracurricularAchievementsFromRawText(rawText) : [];
+  const trustParserAchievements = isCustomParserImport(out);
   if (extracurricular.length > 0) {
     const existingAch = Array.isArray(out.achievements) ? (out.achievements as string[]) : [];
-    out.achievements = transformAchievementsArray([...existingAch, ...extracurricular], false);
+    out.achievements = transformAchievementsArray([...existingAch, ...extracurricular], trustParserAchievements);
   } else {
-    out.achievements = transformAchievementsArray(out.achievements, false);
+    out.achievements = transformAchievementsArray(out.achievements, trustParserAchievements);
   }
   out.Achievements = out.achievements;
   const cleanSummary = sanitizeImportSummary(String(out.summary || out.bio || ''), rawText);

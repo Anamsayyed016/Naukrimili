@@ -3480,6 +3480,7 @@ const JOB_TITLE_HINT_RE =
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
   if (!t) return false;
+  if (isExperienceFieldLabelLine(t)) return false;
   // Duty sentences mentioning SEBI/governance/etc. are not employer names.
   if (looksLikeSentenceNotCompany(t)) return false;
   if (SPECIAL_EMPLOYER_RE.test(t)) return true;
@@ -3525,6 +3526,24 @@ export function looksLikeStandaloneLocationLine(text: string): boolean {
 
 const TECH_SKILL_AS_COMPANY_RE =
   /^(python3?|django|flask|fastapi|react(?:\.?js)?|node\.?js|javascript|typescript|java|kotlin|swift|ruby|php|laravel|express|next\.?js|vue\.?js|angular|sql|mysql|postgresql|mongodb|redis|docker|kubernetes|aws|azure|gcp|html5?|css3?|git|go|golang|rust|c\+\+|c#|\.net)$/i;
+
+/** Split "Acme Pvt Ltd, Indore, Madhya Pradesh" into employer + location. */
+export function splitCompanyTrailingLocation(text: string): { company: string; location: string } | null {
+  const t = sanitizeFieldText(text, 160);
+  if (!t || !/,/.test(t)) return null;
+  if (!/\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp)\b/i.test(t)) {
+    return null;
+  }
+  const m = t.match(
+    /^(.+?\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp))\.?\s*,\s*(.+)$/i
+  );
+  if (!m) return null;
+  const company = m[1].trim();
+  const location = m[2].trim();
+  if (company.length < 4 || location.length < 3) return null;
+  if (looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) return null;
+  return { company, location };
+}
 
 /** Split "Technoart | Bhopal" or "Acme / San Francisco" into company + location. */
 export function splitCompanyLocationPipe(text: string): { company: string; location: string } | null {
@@ -3573,6 +3592,7 @@ function recoverCompanyFromExperienceText(
 ): string {
   const lines = description.split('\n').map((l) => l.trim()).filter(Boolean);
   for (const line of lines.slice(0, 3)) {
+    if (isExperienceFieldLabelLine(line)) continue;
     const atMatch = line.match(/\bat\s+(.+?)(?:\s*[,;|(]|$)/i);
     if (atMatch) {
       const candidate = sanitizeFieldText(atMatch[1].replace(/[.,;:!?]+$/, '').trim(), 120);
@@ -3686,6 +3706,11 @@ export function reconcileExperienceHeaderFields(
   }
 
   if (company) {
+    const trailingLoc = splitCompanyTrailingLocation(company);
+    if (trailingLoc) {
+      company = trailingLoc.company;
+      if (!location) location = trailingLoc.location;
+    }
     const pipeSplit = splitCompanyLocationPipe(company);
     if (pipeSplit) {
       company = pipeSplit.company;
@@ -3873,6 +3898,7 @@ export function reconcileExperienceHeaderFields(
   if (!company && deduped.description) {
     const descLines = deduped.description.split('\n').map((l) => l.trim()).filter(Boolean);
     for (const line of descLines.slice(0, 2)) {
+      if (isExperienceFieldLabelLine(line)) continue;
       if (looksLikeSentenceNotCompany(line)) continue;
       if (looksLikeCompanyNameLine(line) && !looksLikeJobTitleLine(line) && line !== position) {
         if (!isPlausibleExperienceCompany(line)) continue;
@@ -6875,8 +6901,21 @@ export function demoteImplausibleExperienceCompany(
 ): Record<string, unknown> {
   if (!exp || typeof exp !== 'object') return exp;
   const out = { ...exp };
-  const company = readExperienceCompanySlot(out);
-  if (!company || isPlausibleExperienceCompany(company)) {
+  let company = readExperienceCompanySlot(out);
+  if (!company) return out;
+
+  const trailingLoc = splitCompanyTrailingLocation(company);
+  if (trailingLoc) {
+    company = trailingLoc.company;
+    out.company = company;
+    out.Company = company;
+    if (!sanitizeFieldText(out.location ?? out.Location, 120)) {
+      out.location = trailingLoc.location;
+      out.Location = trailingLoc.location;
+    }
+  }
+
+  if (isPlausibleExperienceCompany(company)) {
     return out;
   }
 
@@ -6946,16 +6985,22 @@ export function resolveMergedExperienceCompany(
   return '';
 }
 
-/** Bare record-table labels ("EMPLOYER", "POSITION HELD") — never company names. */
+/** Bare record-table / in-role field labels — never company names. */
 const RECORD_LABEL_AS_COMPANY_RE =
-  /^(?:employer|company|organi[sz]ation|firm|country|location|position(?:\s+held)?|designation|duration|period|tenure|client|contractor|consultants?|funded\s+by|from|to)[\s:：.]*$/i;
+  /^(?:employer|company|organi[sz]ation|firm|country|location|position(?:\s+held)?|designation|duration|period|tenure|client|contractor|consultants?|funded\s+by|from|to|responsibilit(?:y|ies)|roles?(?:\s*(?:&|and)\s*responsibilit(?:y|ies))?)[\s:：.]*$/i;
+
+export function isExperienceFieldLabelLine(text: string): boolean {
+  const t = sanitizeFieldText(text, 80).replace(/[:\-–—.]+$/g, '').trim();
+  if (!t) return false;
+  return RECORD_LABEL_AS_COMPANY_RE.test(t);
+}
 
 export function isPlausibleExperienceCompany(value: unknown): boolean {
   const company = sanitizeExperienceCompanyValue(value);
   if (!company) return false;
   if (isExperienceDomainHeading(company)) return false;
   if (/^name$/i.test(company.trim())) return false;
-  if (RECORD_LABEL_AS_COMPANY_RE.test(company.trim())) return false;
+  if (RECORD_LABEL_AS_COMPANY_RE.test(company.trim()) || isExperienceFieldLabelLine(company)) return false;
   if (
     /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+|marks?\s+obtained|percentage\s*(?:obtained|scored)?)\b/i.test(
       company
@@ -6967,12 +7012,16 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     return false;
   }
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
+  const hasLegalSuffix = /\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp)\b/i.test(lower);
   if (/,/.test(company) && !/\b(ltd|limited|pvt|inc|corp|llp|mills|industries|systems|company|group|motors|vehicles|ventures?|laborator(?:y|ies)|enterprises|holdings)\b/i.test(lower)) {
     return false;
   }
   if (looksLikeSentenceNotCompany(company)) return false;
+  // Duty-verb false positives must not reject legal employer names containing
+  // "Engineering", "Industries", etc. (e.g. "CAPARO Engineering India Ltd., City").
   if (
     company.length > 40 &&
+    !hasLegalSuffix &&
     /\b(improv|optimiz|reduc|increas|develop|design|mentor|administer|engineer|construct|deliver)\w*/i.test(
       lower
     )

@@ -6,6 +6,7 @@
 import {
   isLikelyCertificationLine,
   isLikelyEducationLine,
+  isMeasurableAchievement,
   shouldKeepAsGlobalAchievement,
 } from '@/lib/resume-parser/field-classification';
 import {
@@ -85,7 +86,7 @@ export function validateAndRepairResumeExtraction<T extends Record<string, unkno
       report.repairs.push(`Moved certification out of achievements: ${line.slice(0, 60)}`);
       continue;
     }
-    if (shouldKeepAsGlobalAchievement(line)) {
+    if (shouldKeepAsGlobalAchievement(line) || isMeasurableAchievement(line)) {
       keptAchievements.push(raw);
     } else {
       responsibilityLines.push(line);

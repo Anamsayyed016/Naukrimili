@@ -26,6 +26,10 @@ export function scoreHeadlineCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 3 || trimmed.length > 120) return 0;
   if (isResumeSectionHeadingLine(trimmed)) return 0;
+  // Narrative subheadings ("Glimpse: …", "Profile: …") are not professional titles.
+  if (/^(?:glimpse|snapshot|profile|summary|objective|about(?:\s+me)?|overview)\s*:/i.test(trimmed)) {
+    return 0;
+  }
   if (
     isPlausiblePersonName(trimmed) &&
     !looksLikeJobTitleLine(trimmed) &&

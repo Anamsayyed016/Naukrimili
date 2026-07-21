@@ -154,6 +154,17 @@ export function mapCanonicalNodesToBuilder(
       continue;
     }
     const value = bestNodeValue(nodes, types);
+    if (key === 'location') {
+      const fullName = sanitizePersonName(String(builder.fullName || builder.name || ''), 120);
+      if (
+        value &&
+        (!fullName || value.toLowerCase() !== fullName.toLowerCase()) &&
+        !isValidatedContactName(value, locationHint)
+      ) {
+        if (setIfEmpty(builder, key, value)) matched.push(`identity:${key}`);
+      }
+      continue;
+    }
     if (setIfEmpty(builder, key, value)) matched.push(`identity:${key}`);
   }
 

@@ -566,6 +566,13 @@ export function shouldKeepAsGlobalAchievement(text: string): boolean {
   if (!s) return false;
   if (isLikelyEducationLine(s) || isLikelyCertificationLine(s)) return false;
   if (isExperienceResponsibility(s) && !isMeasurableAchievement(s)) return false;
+  if (
+    /\b(?:cost\s+sav(?:ing|ings)|saved\s+(?:company\s+)?(?:cost|expense|₹|rs\.?|inr)|zero\s+new\s+investments?|won\s+appeal|reduced?\s+(?:canteen|expenses?|costs?|travel))\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
   return isMeasurableAchievement(s);
 }
 
