@@ -74,7 +74,12 @@ export function validateCertifications(
     }
 
     const issuer = (cert.issuer || '').trim();
-    if (!isPlausibleCertificationEntry(name, issuer)) {
+    const courseCue =
+      Boolean(issuer) ||
+      /\b(?:udemy|coursera|linkedin|microsoft|generative\s+ai|diploma|auditor|course|certificate|professional|recruiting|analytics|human\s+resources?|staffing|business\s+leaders?|unconscious\s+bias|labour\s+laws?)\b/i.test(
+        `${name} ${issuer}`
+      );
+    if (!isPlausibleCertificationEntry(name, issuer) && !courseCue) {
       recordIssue(ctx, {
         severity: 'warning',
         section: 'certifications',

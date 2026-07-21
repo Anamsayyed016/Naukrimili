@@ -510,7 +510,7 @@ const EXPERIENCE_RESPONSIBILITY_RE =
 
 /** Measurable impact markers — true achievements when present. */
 const MEASURABLE_ACHIEVEMENT_RE =
-  /\b(?:\d+\s*(?:%|percent|percentage)|(?:₹|rs\.?\s*|inr\s*|\$\s*|€\s*|£\s*)\s*\d[\d,.]*|\d[\d,.]*\s*(?:crore?s?|lakh?s?|million?s?|bn\b|k\+?)\b|team\s+of\s+\d+|\d+\+\s*(?:people|employees|clients|customers|users|projects|members)|\d{2,}\s*(?:people|employees|clients|customers|users|projects|members)|(?:increased|reduced|improved|decreased|lowered|raised|grew|boosted|saved|generated|achieved|delivered|exceeded|surpassed|cut)\s+(?:by\s+)?\d+\s*%|from\s+\d[\d,.]*\s*(?:%|to)\s+\d|within\s+\d+\s*(?:days?|weeks?|months?|years?))\b/i;
+  /\b(?:\d+\s*\.?%\.?|\d+\s*(?:percent|percentage)\b|(?:₹|rs\.?\s*|inr\s*|\$\s*|€\s*|£\s*)\s*\d[\d,.]*|\d[\d,.]*\s*(?:crore?s?|lakh?s?|million?s?|bn\b|k\+?)\b|team\s+of\s+\d+|\d+\+\s*(?:people|employees|clients|customers|users|projects|members)|\d{2,}\s*(?:people|employees|clients|customers|users|projects|members)|(?:increased|reduced|improved|decreased|lowered|raised|grew|boosted|saved|generated|achieved|delivered|exceeded|surpassed|cut)\s+(?:by\s+)?\d+\s*\.?%\.?|from\s+\d[\d,.]*\s*(?:%|to)\s+\d|within\s+\d+\s*(?:days?|weeks?|months?|years?)\b)/i;
 
 const EDUCATION_LINE_RE =
   /\b(?:university|college|school|institute|academy|b\.?\s*tech|m\.?\s*tech|bachelor|master|mba|ph\.?d|doctorate|diploma|graduation|post\s+graduation|b\.?\s*com|m\.?\s*com|b\.?\s*a\.?|m\.?\s*a\.?|ll\.?\s*b\.?|ll\.?\s*m\.?|b\.?\s*all\.?\s*b\.?|hsc|ssc|intermediate|matriculation|degree|articleship|high\s+secondary|higher\s+secondary|senior\s+secondary|high\s+school)\b/i;

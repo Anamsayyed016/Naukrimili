@@ -70,12 +70,21 @@ export interface ParsedDateRange {
 
 export type CanonicalExperience = ExtractedResumeData['experience'][number];
 
+function isSubstantiveExperienceBullet(text: string): boolean {
+  const trimmed = (text || '').trim();
+  if (!trimmed || trimmed.length < 12) return false;
+  if (/^(?:tenure|responsibilities?|designation|role|duration)$/i.test(trimmed)) return false;
+  if (/^(?:may|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)[a-z]*['']?\d{2}\b/i.test(trimmed)) {
+    return false;
+  }
+  if (/^(?:till\s*date|present|current|to\s*date)$/i.test(trimmed)) return false;
+  return true;
+}
+
 export function toCanonicalExperience(exp: CustomExtractedExperience): CanonicalExperience {
-  const achievements = [...exp.bulletPoints];
-  const description =
-    achievements.length > 0
-      ? ''
-      : exp.description || '';
+  const substantiveBullets = (exp.bulletPoints || []).filter(isSubstantiveExperienceBullet);
+  const achievements = [...substantiveBullets];
+  const description = exp.description?.trim() || '';
 
   return {
     company: exp.company || '',

@@ -956,6 +956,9 @@ const ACHIEVEMENT_FIRM_LINE_RE =
 function isMisplacedAchievementLine(line: string): boolean {
   const t = line.trim();
   if (!t || t.length > 280) return true;
+  // Never treat contact details as achievements (common OCR spillover).
+  if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(t)) return true;
+  if (/\b\+?\d[\d\s().-]{6,}\d\b/.test(t)) return true;
   if (isCorporateStructurePhrase(t)) return true;
   if (ACHIEVEMENT_SECTION_HEADER_RE.test(t)) return true;
   if (/^\d+[\.\):\-]\s+\S/.test(t) && t.length < 100) return true;
@@ -2615,14 +2618,26 @@ function applyBuilderImportGuards(
   }
 
   out = mergeExtendedSkillBuckets(out);
-  const existingSkills = cleanSkills(out.skills) as string[];
+  const parserSkillsFromImport = isCustomParserImport(out)
+    ? normalizeCustomParserSkillsList(
+        readFirstArray(mergedImport, SKILL_SECTION_KEYS) as unknown[]
+      )
+    : [];
+  const trustParserSkills = parserSkillsFromImport.length >= 3;
+  const existingSkills = trustParserSkills
+    ? parserSkillsFromImport
+    : (cleanSkills(out.skills) as string[]);
   if (skillsLookLikeAddressContamination(existingSkills) && rawText.length >= 80) {
     const fromSection = recoverSkillsFromTechnicalSkillsSection(rawText);
     if (fromSection.length >= 2) {
       out.skills = fromSection;
-    } else {
+    } else if (!trustParserSkills) {
       out.skills = recoverSkillsFromRawText(rawText, []);
+    } else {
+      out.skills = existingSkills;
     }
+  } else if (trustParserSkills) {
+    out.skills = existingSkills;
   } else {
     out.skills = recoverSkillsFromRawText(rawText, existingSkills);
     if (rawText.length >= 80 && (out.skills as string[]).length < 8) {
@@ -3793,9 +3808,12 @@ function transformAchievementsArray(achievements: unknown, trustParserList = fal
   for (const a of achievements) {
     const value = sanitizeAchievementEntry(a);
     if (!value || isMisplacedAchievementLine(value)) continue;
-    if (!trustParserList && !shouldKeepAsGlobalAchievement(value)) continue;
-    if (isExperienceResponsibility(value) && !shouldKeepAsGlobalAchievement(value)) continue;
-    if (isMisclassifiedExperienceProject(value)) continue;
+    const keepAsGlobal = shouldKeepAsGlobalAchievement(value);
+    if (!trustParserList && !keepAsGlobal) continue;
+    if (isExperienceResponsibility(value) && !keepAsGlobal) continue;
+    // Avoid dropping measurable achievements just because they don't resemble
+    // a "project-title" string shape.
+    if (!keepAsGlobal && isMisclassifiedExperienceProject(value)) continue;
     const key = value.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);

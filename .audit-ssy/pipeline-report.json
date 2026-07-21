@@ -1,0 +1,1982 @@
+{
+  "pdfPath": "C:\\Users\\admin\\Downloads\\Resume - SSY HRD IR.pdf",
+  "generatedAt": "2026-07-21T09:57:19.053Z",
+  "ocrUsed": false,
+  "stages": [
+    {
+      "stage": "01 Raw PDF text",
+      "counts": {
+        "experience": 0,
+        "education": 0,
+        "projects": 0,
+        "skills": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 0,
+        "summaryChars": 0
+      },
+      "identity": {
+        "firstName": "",
+        "lastName": "",
+        "fullName": "",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [],
+      "skills": [],
+      "languages": [],
+      "certifications": [],
+      "achievements": 0,
+      "warnings": []
+    },
+    {
+      "stage": "02 Section detection",
+      "counts": {
+        "experience": 0,
+        "education": 0,
+        "projects": 0,
+        "skills": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 0,
+        "summaryChars": 5362
+      },
+      "identity": {
+        "firstName": "",
+        "lastName": "",
+        "fullName": "",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [],
+      "skills": [],
+      "languages": [],
+      "certifications": [],
+      "achievements": 0,
+      "warnings": [],
+      "transitions": [
+        "OK"
+      ]
+    },
+    {
+      "stage": "03 Custom parser",
+      "counts": {
+        "experience": 8,
+        "education": 4,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "",
+        "lastName": "",
+        "fullName": "SHISHUPAL SINGH YADAV",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited, Indore, Madhya Pradesh",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "",
+          "descLen": 203
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "",
+          "descLen": 160
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "",
+          "descLen": 101
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Effective IN Addressing Change AND Transformation",
+        "Recruitment",
+        "Talent Acquisition (with Strong TPO Network)",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "Data Governance & Compliance",
+        "System Upgrades & Data Migration",
+        "Project Management & Payroll Applications – HRMS",
+        "LMS",
+        "Payroll Process",
+        "Compliance Portals ETC",
+        "UAT Done FOR Matrix",
+        "People Strong",
+        "LMS Successfactors",
+        "Compliance Manager",
+        "SAP Success Factor"
+      ],
+      "languages": [
+        "Hindi",
+        "English",
+        "Punjabi"
+      ],
+      "certifications": [
+        {
+          "name": "Generative AI in HR & Business Leaders",
+          "issuer": "",
+          "date": ""
+        },
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "",
+          "date": ""
+        },
+        {
+          "name": "Human Resources: Selecting an HR System",
+          "issuer": "",
+          "date": ""
+        },
+        {
+          "name": "Uncovering Unconscious Bias in Recruiting and Interviewing",
+          "issuer": "",
+          "date": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "experience count 0 → 8",
+        "exp#1 added: Shivganga Drillers Limited, Indore, Madhya Pradesh",
+        "exp#2 added: Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+        "exp#3 added: Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+        "exp#4 added: LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+        "exp#5 added: Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+        "exp#6 added: VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+        "exp#7 added: CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+        "exp#8 added: Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+        "skills 0 → 19",
+        "achievements 0 → 4"
+      ]
+    },
+    {
+      "stage": "04 Canonical resume",
+      "counts": {
+        "experience": 8,
+        "education": 4,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 0,
+        "summaryChars": 0
+      },
+      "identity": {
+        "firstName": "",
+        "lastName": "",
+        "fullName": "",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        },
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        },
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        },
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        },
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        },
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        },
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        },
+        {
+          "company": "",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "",
+          "descLen": 0
+        }
+      ],
+      "skills": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "languages": [
+        {
+          "id": "lang_413905b3",
+          "data": {
+            "name": "Hindi"
+          }
+        },
+        {
+          "id": "lang_1a510182",
+          "data": {
+            "name": "English"
+          }
+        },
+        {
+          "id": "lang_d2ee7300",
+          "data": {
+            "name": "Punjabi"
+          }
+        }
+      ],
+      "certifications": [
+        {
+          "id": "cert_ede51392",
+          "data": {
+            "name": "Generative AI in HR & Business Leaders",
+            "issuer": "",
+            "date": ""
+          }
+        },
+        {
+          "id": "cert_31ce50af",
+          "data": {
+            "name": "AI for Organizational Leaders",
+            "issuer": "Microsoft & LinkedIn",
+            "date": ""
+          }
+        },
+        {
+          "id": "cert_cd1718b3",
+          "data": {
+            "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+            "issuer": "",
+            "date": ""
+          }
+        },
+        {
+          "id": "cert_edb6e254",
+          "data": {
+            "name": "Human Resources: Selecting an HR System",
+            "issuer": "",
+            "date": ""
+          }
+        },
+        {
+          "id": "cert_e6a9c30c",
+          "data": {
+            "name": "Uncovering Unconscious Bias in Recruiting and Interviewing",
+            "issuer": "",
+            "date": ""
+          }
+        }
+      ],
+      "achievements": 0,
+      "warnings": [],
+      "transitions": [
+        "exp#1 company cleared",
+        "exp#1 startDate lost (Shivganga Drillers Limited, Indore, Madhya Pradesh)",
+        "exp#2 company cleared",
+        "exp#2 startDate lost (Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh)",
+        "exp#3 company cleared",
+        "exp#3 startDate lost (Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh)",
+        "exp#4 company cleared",
+        "exp#4 startDate lost (LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations))",
+        "exp#5 company cleared",
+        "exp#5 startDate lost (Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh)",
+        "exp#6 company cleared",
+        "exp#6 startDate lost (VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,)",
+        "exp#7 company cleared",
+        "exp#7 startDate lost (CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh)",
+        "exp#8 company cleared",
+        "exp#8 startDate lost (Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh)",
+        "achievements 4 → 0"
+      ]
+    },
+    {
+      "stage": "05 Upload profile (mapped)",
+      "counts": {
+        "experience": 8,
+        "education": 4,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "SHISHUPAL",
+        "lastName": "SINGH YADAV",
+        "fullName": "SHISHUPAL SINGH YADAV",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited, Indore, Madhya Pradesh",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "",
+          "descLen": 203
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "",
+          "descLen": 160
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "",
+          "descLen": 101
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Effective IN Addressing Change AND Transformation",
+        "Recruitment",
+        "Talent Acquisition (with Strong TPO Network)",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "Data Governance & Compliance",
+        "System Upgrades & Data Migration",
+        "Project Management & Payroll Applications – HRMS",
+        "LMS",
+        "Payroll Process",
+        "Compliance Portals ETC",
+        "UAT Done FOR Matrix",
+        "People Strong",
+        "LMS Successfactors",
+        "Compliance Manager",
+        "SAP Success Factor"
+      ],
+      "languages": [
+        "Hindi",
+        "English",
+        "Punjabi"
+      ],
+      "certifications": [
+        {
+          "name": "Generative AI in HR & Business Leaders",
+          "issuer": "",
+          "date": ""
+        },
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "",
+          "date": ""
+        },
+        {
+          "name": "Human Resources: Selecting an HR System",
+          "issuer": "",
+          "date": ""
+        },
+        {
+          "name": "Uncovering Unconscious Bias in Recruiting and Interviewing",
+          "issuer": "",
+          "date": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "achievements 0 → 4"
+      ]
+    },
+    {
+      "stage": "06 Upload profile (normalized)",
+      "counts": {
+        "experience": 8,
+        "education": 4,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "SHISHUPAL",
+        "lastName": "SINGH YADAV",
+        "fullName": "SHISHUPAL SINGH YADAV",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited, Indore, Madhya Pradesh",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "",
+          "descLen": 203
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "",
+          "descLen": 160
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "",
+          "descLen": 101
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Compliance Manager",
+        "Compliance Portals ETC",
+        "Data Governance & Compliance",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "LMS",
+        "LMS Successfactors",
+        "Payroll Process",
+        "People Strong",
+        "Project Management & Payroll Applications – HRMS",
+        "SAP Success Factor",
+        "System Upgrades & Data Migration",
+        "Talent Acquisition (with Strong TPO Network)",
+        "UAT Done FOR Matrix",
+        "Effective IN Addressing Change AND Transformation",
+        "Recruitment"
+      ],
+      "languages": [
+        {
+          "name": "Hindi",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "English",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "Punjabi",
+          "proficiency": "Fluent"
+        }
+      ],
+      "certifications": [
+        {
+          "name": "Generative AI in HR & Business Leaders",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "Human Resources: Selecting an HR System",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "Uncovering Unconscious Bias in Recruiting and Interviewing",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "OK"
+      ]
+    },
+    {
+      "stage": "07 Extraction repair",
+      "counts": {
+        "experience": 8,
+        "education": 4,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "SHISHUPAL",
+        "lastName": "SINGH YADAV",
+        "fullName": "SHISHUPAL SINGH YADAV",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "",
+          "descLen": 203
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "",
+          "descLen": 160
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "",
+          "descLen": 101
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Compliance Manager",
+        "Compliance Portals ETC",
+        "Data Governance & Compliance",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "LMS",
+        "LMS Successfactors",
+        "Payroll Process",
+        "People Strong",
+        "Project Management & Payroll Applications – HRMS",
+        "SAP Success Factor",
+        "System Upgrades & Data Migration",
+        "Talent Acquisition (with Strong TPO Network)",
+        "UAT Done FOR Matrix",
+        "Effective IN Addressing Change AND Transformation",
+        "Recruitment"
+      ],
+      "languages": [
+        {
+          "name": "Hindi",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "English",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "Punjabi",
+          "proficiency": "Fluent"
+        }
+      ],
+      "certifications": [
+        {
+          "name": "Generative AI in HR & Business Leaders",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "Human Resources: Selecting an HR System",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        },
+        {
+          "name": "Uncovering Unconscious Bias in Recruiting and Interviewing",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "OK"
+      ]
+    },
+    {
+      "stage": "08 Builder FormData",
+      "counts": {
+        "experience": 8,
+        "education": 5,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "Shishupal",
+        "lastName": "Singh Yadav",
+        "fullName": "Shishupal Singh Yadav",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "Indore, Madhya Pradesh",
+        "jobTitle": "Senior Manager Corporate HR"
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "2025-05 - Present",
+          "descLen": 202
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "2022-07 - 2025-04",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "2020-07 - 2022-07",
+          "descLen": 158
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "2018-05 - 2020-07",
+          "descLen": 185
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "2017-05 - 2018-05",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "2014-11 - 2017-05",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "2013-08 - 2014-10",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "2010-10 - 2013-08",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Compliance Manager",
+        "Compliance Portals ETC",
+        "Data Governance & Compliance",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "LMS",
+        "LMS Successfactors",
+        "Payroll Process",
+        "People Strong",
+        "Project Management & Payroll Applications – HRMS",
+        "SAP Success Factor",
+        "System Upgrades & Data Migration",
+        "Talent Acquisition (with Strong TPO Network)",
+        "UAT Done FOR Matrix",
+        "Effective IN Addressing Change AND Transformation",
+        "Recruitment"
+      ],
+      "languages": [
+        {
+          "name": "Hindi",
+          "language": "Hindi",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "English",
+          "language": "English",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "Punjabi",
+          "language": "Punjabi",
+          "proficiency": "Fluent"
+        }
+      ],
+      "certifications": [
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "HR Analytics using Excel",
+          "issuer": "Udemy",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Uncovering Unconscious Bias in Recruiting and Interviewing",
+          "issuer": "",
+          "date": "",
+          "url": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "OK"
+      ]
+    },
+    {
+      "stage": "09 Session payload",
+      "counts": {
+        "experience": 8,
+        "education": 5,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "Shishupal",
+        "lastName": "Singh Yadav",
+        "fullName": "Shishupal Singh Yadav",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "Indore, Madhya Pradesh",
+        "jobTitle": "Senior Manager Corporate HR"
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "2025-05 - Present",
+          "descLen": 202
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "2022-07 - 2025-04",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "2020-07 - 2022-07",
+          "descLen": 158
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "2018-05 - 2020-07",
+          "descLen": 185
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "2017-05 - 2018-05",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "2014-11 - 2017-05",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "2013-08 - 2014-10",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "2010-10 - 2013-08",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Compliance Manager",
+        "Compliance Portals ETC",
+        "Data Governance & Compliance",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "LMS",
+        "LMS Successfactors",
+        "Payroll Process",
+        "People Strong",
+        "Project Management & Payroll Applications – HRMS",
+        "SAP Success Factor",
+        "System Upgrades & Data Migration",
+        "Talent Acquisition (with Strong TPO Network)",
+        "UAT Done FOR Matrix",
+        "Effective IN Addressing Change AND Transformation",
+        "Recruitment"
+      ],
+      "languages": [
+        {
+          "name": "Hindi",
+          "language": "Hindi",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "English",
+          "language": "English",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "Punjabi",
+          "language": "Punjabi",
+          "proficiency": "Fluent"
+        }
+      ],
+      "certifications": [
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "HR Analytics using Excel",
+          "issuer": "Udemy",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "OK"
+      ]
+    },
+    {
+      "stage": "10 Editor normalized",
+      "counts": {
+        "experience": 8,
+        "education": 5,
+        "projects": 0,
+        "skills": 19,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "Shishupal",
+        "lastName": "Singh Yadav",
+        "fullName": "Shishupal Singh Yadav",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "Indore, Madhya Pradesh",
+        "jobTitle": "Senior Manager Corporate HR"
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "2025-05 - Present",
+          "descLen": 202
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "2022-07 - 2025-04",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "2020-07 - 2022-07",
+          "descLen": 158
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "2018-05 - 2020-07",
+          "descLen": 185
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "2017-05 - 2018-05",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "2014-11 - 2017-05",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "2013-08 - 2014-10",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "2010-10 - 2013-08",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Compliance Manager",
+        "Compliance Portals ETC",
+        "Data Governance & Compliance",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "LMS",
+        "LMS Successfactors",
+        "Payroll Process",
+        "People Strong",
+        "Project Management & Payroll Applications – HRMS",
+        "SAP Success Factor",
+        "System Upgrades & Data Migration",
+        "Talent Acquisition (with Strong TPO Network)",
+        "UAT Done FOR Matrix",
+        "Effective IN Addressing Change AND Transformation",
+        "Recruitment"
+      ],
+      "languages": [
+        {
+          "name": "Hindi",
+          "language": "Hindi",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "English",
+          "language": "English",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "Punjabi",
+          "language": "Punjabi",
+          "proficiency": "Fluent"
+        }
+      ],
+      "certifications": [
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "HR Analytics using Excel",
+          "issuer": "Udemy",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "OK"
+      ]
+    },
+    {
+      "stage": "11 Render coalesced",
+      "counts": {
+        "experience": 8,
+        "education": 5,
+        "projects": 0,
+        "skills": 22,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "Shishupal",
+        "lastName": "Singh Yadav",
+        "fullName": "Shishupal Singh Yadav",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "Indore, Madhya Pradesh",
+        "jobTitle": "Senior Manager Corporate HR"
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "2025-05 - Present",
+          "descLen": 202
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "2022-07 - 2025-04",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "2020-07 - 2022-07",
+          "descLen": 158
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "2018-05 - 2020-07",
+          "descLen": 185
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "2017-05 - 2018-05",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "2014-11 - 2017-05",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "2013-08 - 2014-10",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "2010-10 - 2013-08",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Compliance Manager",
+        "Compliance Portals ETC",
+        "Data Governance & Compliance",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "LMS",
+        "LMS Successfactors",
+        "Payroll Process",
+        "People Strong",
+        "Project Management & Payroll Applications – HRMS",
+        "SAP Success Factor",
+        "System Upgrades & Data Migration",
+        "Talent Acquisition (with Strong TPO Network)",
+        "UAT Done FOR Matrix",
+        "Recruitment",
+        "Payroll",
+        "Union",
+        "ETC.",
+        "Admin"
+      ],
+      "languages": [
+        {
+          "name": "Hindi",
+          "language": "Hindi",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "English",
+          "language": "English",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "Punjabi",
+          "language": "Punjabi",
+          "proficiency": "Fluent"
+        }
+      ],
+      "certifications": [
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "HR Analytics using Excel",
+          "issuer": "Udemy",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "skills 19 → 22"
+      ]
+    },
+    {
+      "stage": "12 Render optimized",
+      "counts": {
+        "experience": 8,
+        "education": 5,
+        "projects": 0,
+        "skills": 22,
+        "certifications": 9,
+        "languages": 3,
+        "achievements": 4,
+        "summaryChars": 780
+      },
+      "identity": {
+        "firstName": "Shishupal",
+        "lastName": "Singh Yadav",
+        "fullName": "Shishupal Singh Yadav",
+        "email": "ssyadav24@outlook.com",
+        "phone": "+91 91655 07669",
+        "location": "Indore, Madhya Pradesh",
+        "jobTitle": "Senior Manager Corporate HR"
+      },
+      "experience": [
+        {
+          "company": "Shivganga Drillers Limited",
+          "title": "Senior Manager Corporate HR",
+          "startDate": "2025-05",
+          "endDate": "",
+          "current": true,
+          "duration": "2025-05 - Present",
+          "descLen": 202
+        },
+        {
+          "company": "Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh",
+          "title": "Senior Manager – Plant HR Head",
+          "startDate": "2022-07",
+          "endDate": "2025-04",
+          "current": false,
+          "duration": "2022-07 - 2025-04",
+          "descLen": 116
+        },
+        {
+          "company": "Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh",
+          "title": "Deputy Manager - HRBP Operations/OD",
+          "startDate": "2020-07",
+          "endDate": "2022-07",
+          "current": false,
+          "duration": "2020-07 - 2022-07",
+          "descLen": 158
+        },
+        {
+          "company": "LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)",
+          "title": "Deputy Manager – Plant HR & Admin Head",
+          "startDate": "2018-05",
+          "endDate": "2020-07",
+          "current": false,
+          "duration": "2018-05 - 2020-07",
+          "descLen": 185
+        },
+        {
+          "company": "Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh",
+          "title": "JM HRBP",
+          "startDate": "2017-05",
+          "endDate": "2018-05",
+          "current": false,
+          "duration": "2017-05 - 2018-05",
+          "descLen": 65
+        },
+        {
+          "company": "VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,",
+          "title": "Junior Manager Industrial Relations",
+          "startDate": "2014-11",
+          "endDate": "2017-05",
+          "current": false,
+          "duration": "2014-11 - 2017-05",
+          "descLen": 38
+        },
+        {
+          "company": "CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh",
+          "title": "AM HR Generalist",
+          "startDate": "2013-08",
+          "endDate": "2014-10",
+          "current": false,
+          "duration": "2013-08 - 2014-10",
+          "descLen": 27
+        },
+        {
+          "company": "Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh",
+          "title": "Personnel Officer – Site HR Head",
+          "startDate": "2010-10",
+          "endDate": "2013-08",
+          "current": false,
+          "duration": "2010-10 - 2013-08",
+          "descLen": 97
+        }
+      ],
+      "skills": [
+        "Zing HR",
+        "Compliance Applications – Legatrix",
+        "PMS Applications - Synergita",
+        "Compliance Manager",
+        "Compliance Portals ETC",
+        "Data Governance & Compliance",
+        "HR Policy Drafting & Implementation",
+        "HRMS Configuration & Integrations",
+        "LMS",
+        "LMS Successfactors",
+        "Payroll Process",
+        "People Strong",
+        "Project Management & Payroll Applications – HRMS",
+        "SAP Success Factor",
+        "System Upgrades & Data Migration",
+        "Talent Acquisition (with Strong TPO Network)",
+        "UAT Done FOR Matrix",
+        "Recruitment",
+        "Payroll",
+        "Union",
+        "ETC.",
+        "Admin"
+      ],
+      "languages": [
+        {
+          "name": "Hindi",
+          "language": "Hindi",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "English",
+          "language": "English",
+          "proficiency": "Fluent"
+        },
+        {
+          "name": "Punjabi",
+          "language": "Punjabi",
+          "proficiency": "Fluent"
+        }
+      ],
+      "certifications": [
+        {
+          "name": "AI for Organizational Leaders",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "American Staffing Association Corporate Recruiting Professional Certificate",
+          "issuer": "Microsoft & LinkedIn",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "HR Analytics using Excel",
+          "issuer": "Udemy",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        },
+        {
+          "name": "Internal Auditor certificate",
+          "issuer": "TUV SUD on ISO 45001:2018",
+          "date": "",
+          "link": "",
+          "url": "",
+          "credentialId": "",
+          "expiryDate": ""
+        }
+      ],
+      "achievements": 4,
+      "warnings": [],
+      "transitions": [
+        "OK"
+      ]
+    },
+    {
+      "stage": "13 Live preview HTML",
+      "counts": {
+        "experience": 8,
+        "education": 0,
+        "projects": 0,
+        "skills": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 0,
+        "summaryChars": 0
+      },
+      "identity": {
+        "firstName": "",
+        "lastName": "",
+        "fullName": "",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "jobTitle": ""
+      },
+      "experience": [
+        {
+          "company": "item-1",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2025-05 - Present",
+          "descLen": 0
+        },
+        {
+          "company": "item-2",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2022-07 - 2025-04",
+          "descLen": 0
+        },
+        {
+          "company": "item-3",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2020-07 - 2022-07",
+          "descLen": 0
+        },
+        {
+          "company": "item-4",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2018-05 - 2020-07",
+          "descLen": 0
+        },
+        {
+          "company": "item-5",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2017-05 - 2018-05",
+          "descLen": 0
+        },
+        {
+          "company": "item-6",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2014-11 - 2017-05",
+          "descLen": 0
+        },
+        {
+          "company": "item-7",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2013-08 - 2014-10",
+          "descLen": 0
+        },
+        {
+          "company": "item-8",
+          "title": "",
+          "startDate": "",
+          "endDate": "",
+          "current": false,
+          "duration": "2010-10 - 2013-08",
+          "descLen": 0
+        }
+      ],
+      "skills": [],
+      "languages": [],
+      "certifications": [],
+      "achievements": 0,
+      "warnings": [],
+      "transitions": [
+        "exp#1 startDate lost (Shivganga Drillers Limited)",
+        "exp#2 startDate lost (Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh)",
+        "exp#3 startDate lost (Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh)",
+        "exp#4 startDate lost (LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations))",
+        "exp#5 startDate lost (Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh)",
+        "exp#6 startDate lost (VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,)",
+        "exp#7 startDate lost (CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh)",
+        "exp#8 startDate lost (Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh)",
+        "skills 22 → 0",
+        "achievements 4 → 0"
+      ]
+    }
+  ],
+  "renderMetrics": {
+    "experienceItemsInHtml": 8,
+    "durationsInHtml": [
+      "2025-05 - Present",
+      "2022-07 - 2025-04",
+      "2020-07 - 2022-07",
+      "2018-05 - 2020-07",
+      "2017-05 - 2018-05",
+      "2014-11 - 2017-05",
+      "2013-08 - 2014-10",
+      "2010-10 - 2013-08"
+    ],
+    "integrityExpCount": 8,
+    "editorExpCount": 8
+  },
+  "openAiPath": "skipped — custom-parser-only production path for this upload"
+}

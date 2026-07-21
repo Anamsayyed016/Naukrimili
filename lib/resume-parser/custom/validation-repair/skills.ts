@@ -20,17 +20,33 @@ export function validateAndRepairSkills(
   for (let i = 0; i < skills.length; i++) {
     const skill = skills[i];
     const raw = skill.name;
+    const fromSkillsSection = skill.sources?.includes('skills_section');
 
     if (!isValidSkillCandidate(raw)) {
-      recordIssue(ctx, {
-        severity: 'warning',
-        section: 'skills',
-        field: 'name',
-        index: i,
-        code: 'invalid_skill',
-        message: `Skill rejected: "${raw}".`,
-      });
-      continue;
+      const cleaned = String(raw || '')
+        .trim()
+        .replace(/[.:]+$/g, '')
+        .trim();
+      const competencyBullet =
+        fromSkillsSection &&
+        cleaned.length >= 3 &&
+        cleaned.length <= 90 &&
+        cleaned.split(/\s+/).length <= 12 &&
+        /[A-Za-z]/.test(cleaned) &&
+        !/\b(?:responsible for|managed|mentored|developed|implemented|designed|delivered|led migration|worked across)\b/i.test(
+          cleaned
+        );
+      if (!competencyBullet) {
+        recordIssue(ctx, {
+          severity: 'warning',
+          section: 'skills',
+          field: 'name',
+          index: i,
+          code: 'invalid_skill',
+          message: `Skill rejected: "${raw}".`,
+        });
+        continue;
+      }
     }
 
     const normalized = normalizeSkillAlias(raw);

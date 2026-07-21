@@ -1,0 +1,344 @@
+﻿node.exe : npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm 
+help npmrc` for supported config options.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...config options.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[resume-extraction-validation] { warnings: 0, repairs: 2 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:summary',
+    'education:3',
+    'certifications:9',
+    'languages:3',
+    'achievements:3',
+    'skills:19'
+  ],
+  recovered: [
+    'certifications[1]:fields',
+    'certifications[4]:full-entry',
+    'certifications[5]:full-entry',
+    'certifications[6]:full-entry',
+    'certifications[7]:full-entry',
+    'certifications[8]:full-entry'
+  ],
+  missing: [
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'certifications:count-loss:4/9'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'education:3',
+    'certifications:9',
+    'languages:3',
+    'achievements:6',
+    'skills:19'
+  ],
+  recovered: [],
+  missing: [ 'identity:linkedin', 'identity:github', 'identity:portfolio' ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 4,
+    certifications: 9,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 3,
+    certifications: 9,
+    languages: 3
+  },
+  builder: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 11,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  }
+}
+[import-transformer] mapping validation {
+  issues: [ 'skills:loss:11/19', 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 8,
+  rawCompanyCount: 8,
+  builtCompanyCount: 8
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 11,
+  experience: 8,
+  education: 5,
+  projects: 0,
+  certifications: 9,
+  languages: 3,
+  achievements: 3,
+  hobbies: 0
+}
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'education:5',
+    'certifications:9',
+    'languages:3',
+    'achievements:3',
+    'skills:20'
+  ],
+  recovered: [
+    'certifications[6]:full-entry',
+    'certifications[7]:full-entry',
+    'certifications[8]:full-entry'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'certifications:count-loss:6/9'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 20,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 20,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  },
+  builder: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 11,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  }
+}
+[import-transformer] mapping validation {
+  issues: [ 'skills:loss:11/20', 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 8,
+  rawCompanyCount: 8,
+  builtCompanyCount: 8
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 11,
+  experience: 8,
+  education: 5,
+  projects: 0,
+  certifications: 9,
+  languages: 3,
+  achievements: 3,
+  hobbies: 0
+}
+[renderLanguages] Input: {
+  languages: [
+    { name: 'Hindi', language: 'Hindi', proficiency: 'Fluent' },
+    { name: 'English', language: 'English', proficiency: 'Fluent' },
+    { name: 'Punjabi', language: 'Punjabi', proficiency: 'Fluent' }
+  ],
+  type: 'object',
+  isArray: true,
+  length: 3,
+  useProgressBars: true
+}
+[renderLanguages] Processing as object array
+[renderLanguages] Valid languages (object): 3 [
+  { name: 'Hindi', language: 'Hindi', proficiency: 'Fluent' },
+  { name: 'English', language: 'English', proficiency: 'Fluent' },
+  { name: 'Punjabi', language: 'Punjabi', proficiency: 'Fluent' }
+]
+[renderLanguages] Final result length (progress bars): 991 Preview: 
+          <div class="psp-language-item">
+            <div class="psp-language-name">Hindi</div>
+            <div class="psp-language-bar-container">
+              <div class="psp-language-bar-fill" 
+========================================================================
+SSY PRODUCTION PIPELINE AUDIT
+========================================================================
+PDF: C:\Users\admin\Downloads\Resume - SSY HRD IR.pdf
+OCR: false
+Raw text chars: 10277
+
+STAGE SUMMARY
+Stage                         Exp  Edu Skills  Certs  Lang  Ach
+01 Raw PDF text                 0    0      0      0     0    0
+02 Section detection            0    0      0      0     0    0
+03 Custom parser                8    4     19      9     3    4
+04 Canonical resume             8    4     19      9     3    0
+05 Upload profile (mapped)      8    4     19      9     3    4
+06 Upload profile (normalized)    8    4     19      9     3    4
+07 Extraction repair            8    4     19      9     3    3
+08 Builder FormData             8    5     11      9     3    3
+09 Session payload              8    5     11      9     3    3
+10 Editor normalized            8    5     11      9     3    3
+11 Render coalesced             8    5     12      9     3    0
+12 Render optimized             8    5     12      9     3    0
+13 Live preview HTML            8    0      0      0     0    0
+
+TRANSITIONS (non-OK only)
+
+ΓåÆ 03 Custom parser
+  ΓÜá experience count 0 ΓåÆ 8
+  ΓÜá exp#1 added: Shivganga Drillers Limited, Indore, Madhya Pradesh
+  ΓÜá exp#2 added: Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh
+  ΓÜá exp#3 added: Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh
+  ΓÜá exp#4 added: LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations)
+  ΓÜá exp#5 added: Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh
+  ΓÜá exp#6 added: VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,
+  ΓÜá exp#7 added: CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh
+  ΓÜá exp#8 added: Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh
+  ΓÜá skills 0 ΓåÆ 19
+  ΓÜá achievements 0 ΓåÆ 4
+
+ΓåÆ 04 Canonical resume
+  ΓÜá exp#1 company cleared
+  ΓÜá exp#1 startDate lost (Shivganga Drillers Limited, Indore, Madhya Pradesh)
+  ΓÜá exp#2 company cleared
+  ΓÜá exp#2 startDate lost (Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh)
+  ΓÜá exp#3 company cleared
+  ΓÜá exp#3 startDate lost (Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh)
+  ΓÜá exp#4 company cleared
+  ΓÜá exp#4 startDate lost (LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations))
+  ΓÜá exp#5 company cleared
+  ΓÜá exp#5 startDate lost (Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh)
+  ΓÜá exp#6 company cleared
+  ΓÜá exp#6 startDate lost (VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,)
+  ΓÜá exp#7 company cleared
+  ΓÜá exp#7 startDate lost (CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh)
+  ΓÜá exp#8 company cleared
+  ΓÜá exp#8 startDate lost (Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh)
+  ΓÜá achievements 4 ΓåÆ 0
+
+ΓåÆ 05 Upload profile (mapped)
+  ΓÜá achievements 0 ΓåÆ 4
+
+ΓåÆ 07 Extraction repair
+  ΓÜá achievements 4 ΓåÆ 3
+
+ΓåÆ 08 Builder FormData
+  ΓÜá skills 19 ΓåÆ 11
+
+ΓåÆ 11 Render coalesced
+  ΓÜá skills 11 ΓåÆ 12
+  ΓÜá achievements 3 ΓåÆ 0
+
+ΓåÆ 13 Live preview HTML
+  ΓÜá exp#1 startDate lost (Shivganga Drillers Limited)
+  ΓÜá exp#2 startDate lost (Knovea Pharmaceutical Pvt. Ltd (Injectables Green Field Plant), Indore, Madhya Pradesh)
+  ΓÜá exp#3 startDate lost (Unichem Laboratories Limited (USFDA). Pithampur, Madhya Pradesh)
+  ΓÜá exp#4 startDate lost (LAPP India Pvt. Ltd. (A Lapp Group Company, Germany) (Brown Field with Multiple locations))
+  ΓÜá exp#5 startDate lost (Cummins Technologies India Pvt. Ltd. Pithampur, Madhya Pradesh)
+  ΓÜá exp#6 startDate lost (VE Commercial Vehicles (A VOLVO GROUP AND EICHER MOTORS JOINT VENTURE) VE Powertrain, Pithampur,)
+  ΓÜá exp#7 startDate lost (CAPARO Engineering India Ltd. Pithampur, Madhya Pradesh)
+  ΓÜá exp#8 startDate lost (Tata Steel Ltd. (Payroll of IWCPL), Pithampur, Madhya Pradesh)
+  ΓÜá skills 12 ΓåÆ 0
+
+IDENTITY (builder vs render)
+Builder: {
+  firstName: 'Shishupal',
+  lastName: 'Singh Yadav',
+  fullName: 'Shishupal Singh Yadav',
+  email: 'ssyadav24@outlook.com',
+  phone: '+91 91655 07669',
+  location: 'Indore, Madhya Pradesh',
+  jobTitle: 'Senior Manager Corporate HR'
+}
+Editor: {
+  firstName: 'Shishupal',
+  lastName: 'Singh Yadav',
+  fullName: 'Shishupal Singh Yadav',
+  email: 'ssyadav24@outlook.com',
+  phone: '+91 91655 07669',
+  location: 'Indore, Madhya Pradesh',
+  jobTitle: 'Senior Manager Corporate HR'
+}
+
+RENDER
+Editor experience: 8
+Integrity filter: 8
+HTML experience-item: 8
+HTML durations: 2025-05 - Present | 2022-07 - 2025-04 | 2020-07 - 2022-07 | 2018-05 - 2020-07 | 2017-05 - 2018-05 | 2014-11 - 2017-05 | 2013-08 - 2014-10 | 2010-10 - 2013-08
+
+SKILLS (builder): Admin, ETC, Naukri, Payroll, Pithampur, Union, 19 SPOC, Zing HR, Compliance Applications ΓÇô Legatrix, PMS Applications - Synergita, Responsibilities ΓÇô Payroll
+
+Report written to F:\myprojects\jobportal\.audit-ssy\pipeline-report.json

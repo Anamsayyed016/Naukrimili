@@ -1167,25 +1167,27 @@ export function recoverSummaryFromRawText(rawText: string): string {
     if (line.length < 35) continue;
     if (isLikelyEducationLine(line)) continue;
     if (/^(subject|ref)\s*:/i.test(line)) continue;
-    if (
+    const isProfileProse =
       inLetter ||
-      /\b(i am|i have|i oversee|in my current role|my professional exposure|my responsibilities include|with over|years?\s*(?:\+|of)|seeking|application|possess|professional experience|experienced in|skilled in|currently working|presently|writing to|apply for)\b/i.test(
+      /\b(i am|i have|i oversee|in my current role|my professional exposure|my responsibilities include|with over|years?\s*(?:\+|of)|seeking|application|possess|professional experience|experienced in|skilled in|currently working|presently|writing to|apply for|proven expertise|adept at|specialist with)\b/i.test(
         line
-      )
-    ) {
+      );
+    const isProseContinuation =
+      paras.length > 0 &&
+      line.length >= 30 &&
+      !/^[\s•●\-–—*·▪]/.test(line) &&
+      !/^(?:\d+[\.\):\-]\s*)?(?:education|experience|employment|skills?|projects|certifications?|job experience)\b/i.test(
+        line
+      ) &&
+      !isLikelyEducationLine(line) &&
+      !/^[A-Za-z][A-Za-z\s/&]{2,48}:\s*$/.test(line);
+
+    if (isProfileProse || isProseContinuation) {
       paras.push(line);
-      const next = lines[i + 1];
-      if (
-        next &&
-        next.length > 30 &&
-        !/^(?:\d+[\.\):\-]\s*)?(?:education|experience|skills)\b/i.test(next) &&
-        !isLikelyEducationLine(next)
-      ) {
-        paras.push(next);
-        i += 1;
-      }
-      if (paras.join(' ').length >= 120) break;
+      continue;
     }
+
+    if (paras.length > 0) break;
   }
 
   const joined = paras.join(' ').replace(/\s+/g, ' ').trim();
@@ -1236,9 +1238,11 @@ export function isImplausibleResumeLocation(value: unknown): boolean {
   if (isResumeSectionHeadingLine(t)) return true;
   if (/\b(?:declaration|i\s+hereby\s+declare|hereby\s+declare)\b/i.test(t)) return true;
   // Person names (optionally with credentials) must not occupy the location field.
-  if (isValidatedContactName(t, '')) return true;
+  // Allow generic relocation phrases in explicit location fields.
+  if (isValidatedContactName(t, '') && !/\b(?:anywhere|world)\b/i.test(t)) return true;
   if (
     isPlausiblePersonName(t) &&
+    !/\b(?:anywhere|world)\b/i.test(t) &&
     !/\b(?:street|road|nagar|colony|sector|block|district|pradesh|nadu|india|usa|uk|pincode|pin\s*code)\b/i.test(
       t
     )
@@ -2419,6 +2423,13 @@ export function sanitizeAchievementEntry(value: unknown): string {
   if (value == null) return '';
   if (typeof value === 'string') {
     const cleaned = sanitizeFieldText(value.replace(/^[\s\u2022\u25aa\u2023*\-]+/, ''), 280);
+    // Never keep contact details in achievements.
+    if (
+      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(cleaned) ||
+      /\b\+?\d[\d\s().-]{6,}\d\b/.test(cleaned)
+    ) {
+      return '';
+    }
     if (isPersonalMetadataResumeLine(cleaned)) return '';
     return cleaned;
   }

@@ -1,0 +1,69 @@
+{
+  "keys": [
+    "detectionVersion",
+    "normalizedText",
+    "documentProfile",
+    "documentAnalysis",
+    "parseStrategy",
+    "preamble",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "languages",
+    "certifications",
+    "achievements",
+    "hobbies",
+    "references",
+    "volunteer",
+    "publications",
+    "customSections",
+    "sections",
+    "coverage"
+  ],
+  "coverage": {
+    "complete": true,
+    "assignedChars": 10255,
+    "totalChars": 10264,
+    "gaps": [],
+    "overlaps": []
+  },
+  "profile": {
+    "primaryType": "TYPE_A_ATS",
+    "types": [
+      "TYPE_A_ATS"
+    ],
+    "signals": {
+      "coverLetterDetected": false,
+      "executiveLayout": false,
+      "multiColumnLikely": false,
+      "sidebarLikely": false,
+      "imageHeavyLikely": false,
+      "scannedLikely": false
+    }
+  },
+  "sectionLengths": {
+    "detectionVersion": 5,
+    "normalizedText": 10264,
+    "documentProfile": "object",
+    "documentAnalysis": "object",
+    "parseStrategy": "object",
+    "preamble": 5362,
+    "summary": 0,
+    "experience": 2258,
+    "education": 423,
+    "skills": 572,
+    "projects": 0,
+    "languages": 88,
+    "certifications": 492,
+    "achievements": 285,
+    "hobbies": 0,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0,
+    "customSections": 2,
+    "sections": 9,
+    "coverage": "object"
+  }
+}

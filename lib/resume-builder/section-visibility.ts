@@ -39,6 +39,7 @@ import {
   DEFAULT_DEMO_PROFILE_IMAGE,
   isDemoProfileImageUrl,
 } from '@/lib/resume-builder/demo-profile-image';
+import { shouldKeepAsGlobalAchievement } from '@/lib/resume-parser/field-classification';
 
 export type ResumeSectionKey =
   | 'contact'
@@ -542,7 +543,10 @@ export function isInvalidProjectEntry(project: Record<string, unknown>): boolean
 
 export function isInvalidAchievementEntry(item: unknown): boolean {
   if (typeof item === 'string') {
-    return !hasMeaningfulText(item) || isPersonalMetadataEntry(item);
+    if (!hasMeaningfulText(item)) return true;
+    // Never drop measurable achievements just because they look like long prose.
+    if (shouldKeepAsGlobalAchievement(item)) return false;
+    return isPersonalMetadataEntry(item);
   }
   if (item && typeof item === 'object') {
     const record = item as Record<string, unknown>;
@@ -1659,7 +1663,11 @@ export function recoverRenderableSectionsForCoalesce(input: {
       continue;
     }
     const text = item.trim();
-    if (!text || isPersonalMetadataEntry(text)) continue;
+    if (
+      !text ||
+      (isPersonalMetadataEntry(text) && !shouldKeepAsGlobalAchievement(text))
+    )
+      continue;
 
     if (looksLikeEmbeddedSkillList(text)) {
       for (const token of splitSkillTokensFromLine(text)) addSkill(token);
