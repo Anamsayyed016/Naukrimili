@@ -11,7 +11,7 @@ import {
   Upload, Camera, Crop, RotateCw, RotateCcw, ZoomIn, ZoomOut, 
   X, Check, Image as ImageIcon, RefreshCw, Circle, Square, Loader2,
   Sun, Contrast as ContrastIcon, Palette, Filter, 
-  ImageOff, ChevronDown, ChevronUp, Trash2
+  ChevronDown, ChevronUp, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { renderProfileImageCrop } from '@/lib/resume-builder/profile-image-crop';
@@ -26,6 +26,30 @@ interface PhotoUploadProps {
 
 type CropShape = 'circle' | 'square';
 type FilterType = 'brightness' | 'contrast' | 'saturate' | 'blur' | 'grayscale';
+type CameraFacing = 'user' | 'environment';
+
+function getCameraErrorMessage(error: unknown): string {
+  const name = error instanceof DOMException ? error.name : (error as { name?: string })?.name;
+  switch (name) {
+    case 'NotAllowedError':
+    case 'PermissionDeniedError':
+      return 'Camera permission denied. Allow access in your browser settings, then retry.';
+    case 'NotFoundError':
+    case 'DevicesNotFoundError':
+      return 'No camera found on this device.';
+    case 'NotReadableError':
+    case 'TrackStartError':
+      return 'Camera is in use by another app or disconnected. Close other apps and retry.';
+    case 'OverconstrainedError':
+      return 'The selected camera does not support the requested settings. Try switching cameras.';
+    case 'SecurityError':
+      return 'Camera access requires a secure (HTTPS) connection.';
+    case 'AbortError':
+      return 'Camera access was interrupted. Please try again.';
+    default:
+      return 'Unable to access the camera. Check permissions and try again.';
+  }
+}
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -146,6 +170,11 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>('transform');
+  const [cameraMode, setCameraMode] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraFacing, setCameraFacing] = useState<CameraFacing>('user');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -153,6 +182,15 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
   const streamRef = useRef<MediaStream | null>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const isNewImageRef = useRef(false);
+
+  const stopCameraStream = useCallback(() => {
+    const stream = streamRef.current;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    streamRef.current = null;
+    setCameraStream(null);
+  }, []);
 
   useEffect(() => {
     if (!isOpen && value !== undefined) {
@@ -179,12 +217,26 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
 
   useEffect(() => {
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
+      stopCameraStream();
     };
-  }, []);
+  }, [stopCameraStream]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !cameraStream) return;
+
+    video.srcObject = cameraStream;
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        console.error('[PhotoUpload] Video play failed:', err);
+      });
+    }
+
+    return () => {
+      video.srcObject = null;
+    };
+  }, [cameraStream]);
 
   const validateFile = useCallback((file: File): { valid: boolean; error?: string } => {
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -289,110 +341,106 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
     }
   }, [toast]);
 
-  const handleCamera = useCallback(async () => {
-    console.log('[PhotoUpload] Camera button clicked');
-    try {
-      // Check for camera support
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.error('[PhotoUpload] Camera API not supported');
-        toast({
-          title: 'Camera not supported',
-          description: 'Your browser does not support camera access.',
-          variant: 'destructive',
-        });
-        return;
-      }
+  const handleCamera = useCallback(async (facingOverride?: CameraFacing) => {
+    const facing = facingOverride ?? cameraFacing;
+    if (facingOverride) {
+      setCameraFacing(facingOverride);
+    }
 
-      // Stop existing stream if any
-      if (streamRef.current) {
-        console.log('[PhotoUpload] Stopping existing stream');
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
-
-      // Open dialog first so video element is rendered
-      console.log('[PhotoUpload] Opening dialog to render video element');
-      setIsOpen(true);
-      
-      // Wait for dialog to render and video element to be available
-      await new Promise<void>((resolve, reject) => {
-        let attempts = 0;
-        const maxAttempts = 50; // 50 * 50ms = 2.5 seconds max wait
-        const checkVideoElement = () => {
-          if (videoRef.current) {
-            console.log('[PhotoUpload] Video element is now available');
-            resolve();
-          } else if (attempts < maxAttempts) {
-            attempts++;
-            setTimeout(checkVideoElement, 50);
-          } else {
-            console.error('[PhotoUpload] Video element timeout - dialog may not have rendered');
-            reject(new Error('Video element not available - dialog failed to render'));
-          }
-        };
-        checkVideoElement();
-      });
-
-      // Now request camera access
-      console.log('[PhotoUpload] Requesting camera access');
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
-      });
-      
-      console.log('[PhotoUpload] Camera stream obtained, setting on video element');
-      streamRef.current = stream;
-      
-      // Set stream on video element
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        console.log('[PhotoUpload] Video stream set successfully');
-      } else {
-        console.error('[PhotoUpload] Video ref not available after dialog opened');
-        // Clean up stream
-        stream.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-        throw new Error('Video element not available');
-      }
-    } catch (error: unknown) {
-      console.error('[PhotoUpload] Camera access error:', error);
-      const errorObj = error as { name?: string };
-      const errorMessage = errorObj?.name === 'NotAllowedError' 
-        ? 'Camera permission denied. Please allow camera access in your browser settings.'
-        : errorObj?.name === 'NotFoundError'
-        ? 'No camera found on this device.'
-        : 'Unable to access camera. Please check permissions and try again.';
-      
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
       toast({
-        title: 'Camera access denied',
-        description: errorMessage,
+        title: 'Camera unavailable',
+        description: 'Camera access requires a secure (HTTPS) connection.',
         variant: 'destructive',
       });
-      // Close dialog if camera access failed
-      setIsOpen(false);
+      return;
     }
-  }, [toast]);
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast({
+        title: 'Camera not supported',
+        description: 'Your browser does not support camera access.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    stopCameraStream();
+    setCameraMode(true);
+    setCameraError(null);
+    setIsOpen(true);
+    setCameraLoading(true);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: facing },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setCameraStream(stream);
+    } catch (error: unknown) {
+      console.error('[PhotoUpload] Camera access error:', error);
+      setCameraError(getCameraErrorMessage(error));
+      toast({
+        title: 'Camera access failed',
+        description: getCameraErrorMessage(error),
+        variant: 'destructive',
+      });
+    } finally {
+      setCameraLoading(false);
+    }
+  }, [cameraFacing, stopCameraStream, toast]);
+
+  const flipCamera = useCallback(() => {
+    const nextFacing: CameraFacing = cameraFacing === 'user' ? 'environment' : 'user';
+    void handleCamera(nextFacing);
+  }, [cameraFacing, handleCamera]);
 
   const captureFromCamera = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
-    const canvas = canvasRef.current;
     const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) {
+      toast({
+        title: 'Capture failed',
+        description: 'Camera preview is not ready. Please try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      toast({
+        title: 'Capture failed',
+        description: 'Camera is still initializing. Wait a moment and try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      toast({
+        title: 'Capture failed',
+        description: 'Could not process the captured image.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
+
+    stopCameraStream();
+    setCameraMode(false);
+
     const dataUrl = canvas.toDataURL('image/png');
-    isNewImageRef.current = true; // Mark as new image
+    isNewImageRef.current = true;
     setImageSrc(dataUrl);
-  }, []);
+  }, [stopCameraStream, toast]);
 
   const processImage = useCallback(() => {
     if (!imageSrc) return Promise.resolve('');
@@ -440,10 +488,8 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
         title: 'Photo saved',
         description: 'Your profile photo has been updated.',
       });
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
+      stopCameraStream();
+      setCameraMode(false);
     } catch (error) {
       console.error('Error processing image:', error);
       toast({
@@ -454,35 +500,36 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
     } finally {
       setIsProcessing(false);
     }
-  }, [processImage, onChange, imageSrc, toast, handleReset]);
+  }, [processImage, onChange, imageSrc, toast, handleReset, stopCameraStream]);
 
   const handleDialogOpenChange = useCallback((open: boolean) => {
     if (!open) {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
+      stopCameraStream();
+      setCameraMode(false);
+      setCameraLoading(false);
+      setCameraError(null);
       setIsOpen(false);
+      if (value !== undefined) {
+        setImageSrc(value || '');
+      }
     } else {
       setIsOpen(true);
     }
-  }, []);
+  }, [stopCameraStream, value]);
 
   const handleRemovePhoto = useCallback(() => {
     if (!value) return;
     onChange('');
     setImageSrc('');
     handleReset();
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
+    stopCameraStream();
+    setCameraMode(false);
     setIsOpen(false);
     toast({
       title: 'Photo removed',
       description: 'Profile photo has been removed.',
     });
-  }, [onChange, handleReset, toast, value]);
+  }, [onChange, handleReset, toast, value, stopCameraStream]);
 
   const toggleSection = useCallback((section: string) => {
     setActiveSection((prev) => (prev === section ? null : section));
@@ -795,7 +842,82 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
               'shrink-0 flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20',
               isDesktop ? 'w-[240px] border-r border-gray-100 p-4' : 'p-3 border-b border-gray-100'
             )}>
-              {imageSrc ? (
+              <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
+
+              {cameraMode ? (
+                <div className="text-center text-gray-500 space-y-3 py-2 w-full">
+                  {cameraError ? (
+                    <div className="space-y-3 px-2">
+                      <p className="text-xs text-red-600">{cameraError}</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-10"
+                          onClick={() => void handleCamera()}
+                        >
+                          <RefreshCw className="w-4 h-4 mr-1.5" />
+                          Retry Camera
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-10"
+                          onClick={handleUpload}
+                        >
+                          <Upload className="w-4 h-4 mr-1.5" />
+                          Upload Instead
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="relative mx-auto">
+                        {cameraLoading && !cameraStream && (
+                          <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/5">
+                            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                          </div>
+                        )}
+                        <video
+                          ref={videoRef}
+                          autoPlay
+                          playsInline
+                          muted
+                          className={cn(
+                            'max-w-full rounded-lg shadow-md max-h-[180px] mx-auto',
+                            cameraLoading && !cameraStream && 'opacity-0'
+                          )}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={flipCamera}
+                          size="sm"
+                          className="h-10"
+                          disabled={cameraLoading || !cameraStream}
+                        >
+                          <RefreshCw className="w-4 h-4 mr-1.5" />
+                          Flip
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={captureFromCamera}
+                          size="sm"
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-10"
+                          disabled={cameraLoading || !cameraStream}
+                        >
+                          <Camera className="w-4 h-4 mr-1.5" />
+                          Capture Photo
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : imageSrc ? (
                 <div className="relative">
                   <div
                     className={cn(
@@ -816,39 +938,23 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
                       }}
                     />
                   </div>
-                  <canvas ref={canvasRef} className="hidden" />
                 </div>
               ) : (
                 <div className="text-center text-gray-500 space-y-3 py-2">
-                  {streamRef.current ? (
-                    <div className="space-y-3">
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="max-w-full rounded-lg shadow-md max-h-[180px]"
-                      />
-                      <Button 
-                        type="button"
-                        onClick={captureFromCamera} 
-                        size="sm"
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-10"
-                      >
-                        <Camera className="w-4 h-4 mr-1.5" />
-                        Capture Photo
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <ImageIcon className="w-10 h-10 mx-auto text-gray-300" />
-                      <p className="text-xs">No image selected</p>
+                  <div className="space-y-2">
+                    <ImageIcon className="w-10 h-10 mx-auto text-gray-300" />
+                    <p className="text-xs">No image selected</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
                       <Button type="button" variant="outline" onClick={handleUpload} size="sm" className="h-10">
                         <Upload className="w-4 h-4 mr-1.5" />
                         Select Image
                       </Button>
+                      <Button type="button" variant="outline" onClick={() => void handleCamera()} size="sm" className="h-10">
+                        <Camera className="w-4 h-4 mr-1.5" />
+                        Use Camera
+                      </Button>
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
@@ -1039,6 +1145,20 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
               </div>
             )}
           </div>
+
+          {cameraMode && !imageSrc && (
+            <div className="shrink-0 border-t border-gray-200 bg-white px-3 py-3 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleDialogOpenChange(false)}
+                size="sm"
+                className="h-9"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
 
           {imageSrc && (
             <div className="shrink-0 border-t border-gray-200 bg-white px-3 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
