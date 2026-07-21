@@ -8,7 +8,7 @@ import {
   looksLikeSentenceNotCompany,
   looksLikeInstitutionalEmployer,
 } from './company';
-import { parseDateRangeFromText } from './dates';
+import { parseDateRangeFromText, isTenureOrDateOnlyHeaderLine } from './dates';
 import { detectDesignationFromLine } from './designation';
 import { buildExperienceFromBlock } from './fields';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
@@ -37,6 +37,7 @@ function blockIdentityState(lines: ExperienceLine[], start: number, end: number)
       if (tenure.years != null) hasDates = true;
     }
     if (parseDateRangeFromText(line.text)) hasDates = true;
+    if (isTenureOrDateOnlyHeaderLine(line.text)) hasDates = true;
     // Use employer-presence (not whole-line score alone): compressed
     // "Employer Title | Dates" lines often fail detectCompanyFromLine because
     // the full string looks like prose, which would leave hasCompany false and
@@ -55,12 +56,16 @@ function isExperienceSubsectionLabel(text: string): boolean {
   if (/\broles?\s*(?:&|and)\s*responsibilit/i.test(t) && t.length <= 80) return true;
   // In-role field labels must never open a new experience block.
   if (
-    /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies))\s*(?:[:\-–—].*)?$/i.test(
+    /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|tenure|duration|period)\s*(?:[:\-–—].*)?$/i.test(
       t
     )
   ) {
     return true;
   }
+  // "Responsibilities – All HR activities…" mid-role body.
+  if (/^responsibilit(?:y|ies)\s*[-–—:]/i.test(t)) return true;
+  // Tenure / date-only headers belong to the open role.
+  if (isTenureOrDateOnlyHeaderLine(t)) return true;
   // "Project- Fiber Rollout" / "Project: Real Estate" under an employer.
   if (/^projects?\s*[:\-–—]/i.test(t) && t.length <= 100) return true;
   return false;
@@ -162,10 +167,16 @@ export function partitionExperienceBlocks(
     }
 
     const state = blockIdentityState(scored, blockStart, lineIndex);
-    const isDateLine = parseDateRangeFromText(line.text) !== null;
+    const isDateLine =
+      parseDateRangeFromText(line.text) !== null || isTenureOrDateOnlyHeaderLine(line.text);
     const isCompanyLine = detectCompanyFromLine(line.text).confidence >= 45;
     const isDesignationLine = detectDesignationFromLine(line.text).confidence >= 40;
     const isTenureLine = lineLooksLikeTenureExperience(line.text);
+
+    // Tenure/date-only headers never open a new role (they finish the current header).
+    if (isTenureOrDateOnlyHeaderLine(line.text)) {
+      return false;
+    }
 
     // Each "N years experience as Title at Company" starts a new role
     // (including the first tenure line after a section label).
@@ -201,23 +212,40 @@ export function partitionExperienceBlocks(
     ) {
       const text = line.text.trim();
       const wordCount = text.split(/\s+/).filter(Boolean).length;
+      const institutional = looksLikeInstitutionalEmployer(text);
       const looksLikeBodyProse =
-        looksLikeSentenceNotCompany(text) ||
-        /^(?:managed|led|oversaw|drove|executed|prepared|supported|coordinated|developed|implemented|worked|responsible|handled|maintained|processed|created|designed|built|delivered)\b/i.test(
-          text
-        ) ||
-        (wordCount >= 8 && !looksLikeInstitutionalEmployer(text));
+        !institutional &&
+        (looksLikeSentenceNotCompany(text) ||
+          /^(?:managed|led|oversaw|drove|executed|prepared|supported|coordinated|developed|implemented|worked|responsible|handled|maintained|processed|created|designed|built|delivered)\b/i.test(
+            text
+          ) ||
+          (wordCount >= 10 && !looksLikeCompanyNameLine(text)));
       const strongEmployerHeader =
-        looksLikeInstitutionalEmployer(text) ||
+        institutional ||
         (looksLikeCompanyNameLine(text) &&
           wordCount >= 2 &&
-          wordCount <= 7 &&
-          detectCompanyFromLine(text).confidence >= 58 &&
+          wordCount <= 14 &&
+          detectCompanyFromLine(text).confidence >= 50 &&
           // Reject short body fragments like "Bank Guarantees." that wrap mid-sentence.
           !(wordCount <= 3 && /\.\s*$/.test(text) && !/(?:ltd|limited|llc|inc|corp|llp|pvt|gmbh|plc)\.?$/i.test(text)));
       if (!looksLikeBodyProse && strongEmployerHeader) {
         return true;
       }
+    }
+
+    // Labeled CV format: a bare employer line after Designation/Tenure of the prior
+    // role always starts the next block — even when company confidence is middling.
+    if (
+      !isDesignationLine &&
+      !isDateLine &&
+      !isTenureLine &&
+      state.hasDesignation &&
+      state.hasCompany &&
+      state.hasDates &&
+      looksLikeInstitutionalEmployer(line.text) &&
+      !/^responsibilit/i.test(line.text.trim())
+    ) {
+      return true;
     }
 
     const threshold = afterBlank ? boundaryThresholdAfterBlank : boundaryThreshold;

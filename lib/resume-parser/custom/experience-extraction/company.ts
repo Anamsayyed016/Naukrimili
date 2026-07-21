@@ -22,7 +22,7 @@ export interface CompanyDetection {
 
 /** Hard legal / institutional suffixes — safe mid-string signals of an employer. */
 const HARD_COMPANY_SUFFIX_RE =
-  /\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|llp|inc\.?|incorporated|corporation|corp\.?|gmbh|plc|university|government|startup|freelance|self[- ]?employed)\b/i;
+  /\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|limited|llp|inc\.?|incorporated|corporation|corp\.?|gmbh|plc|university|government|startup|freelance|self[- ]?employed)\b/i;
 
 /**
  * Soft product-style suffixes. These appear inside duty prose ("establishing systems")
@@ -135,8 +135,18 @@ export function looksLikeSentenceNotCompany(text: string): boolean {
   if (/\biso(?:\s*[/:-]?\s*iec)?\s*\d{4,5}\b/i.test(trimmed) && !/\b(?:ltd|limited|pvt|inc|corp|company|group)\b/i.test(trimmed)) {
     return true;
   }
-  // Hard legal suffixes can exempt short employer strings; soft suffixes only when trailing.
-  if (HARD_COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 120) return false;
+  // Hard legal suffixes can exempt employer strings; soft suffixes only when trailing.
+  if (HARD_COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 140) return false;
+  // Joint-venture / industrial employer phrases without Ltd/Limited.
+  if (
+    /\b(?:motors|vehicles|ventures?|laborator(?:y|ies)|industries|enterprises|holdings|railways?)\b/i.test(
+      trimmed
+    ) &&
+    /^[A-Z]/.test(trimmed) &&
+    trimmed.length <= 140
+  ) {
+    return false;
+  }
   if (hasTrailingSoftCompanySuffix(trimmed) && trimmed.length <= 80) return false;
   if (
     /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+)\b/i.test(

@@ -148,7 +148,17 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
   for (const section of sections) {
     if (section.type === 'custom') continue;
     const key = section.type;
-    fields[key] = fields[key] ? `${fields[key]}\n\n${section.content}`.trim() : section.content;
+    // Inline heading payloads: "Languages Hindi, English, Punjabi"
+    let content = section.content;
+    if (key === 'languages') {
+      const inline = section.rawHeading.match(
+        /^(?:languages?(?:\s+known)?|linguistic\s+skills?|spoken\s+languages?)\s*[:\-–—]?\s*(.+)$/i
+      );
+      if (inline?.[1] && /[a-zA-Z]/.test(inline[1])) {
+        content = content ? `${inline[1].trim()}\n${content}` : inline[1].trim();
+      }
+    }
+    fields[key] = fields[key] ? `${fields[key]}\n\n${content}`.trim() : content;
 
     // Combined headings ("Certifications & Languages") — mirror body into every
     // strongly matched section type so secondary extractors still see the text.
@@ -176,6 +186,10 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
         key === 'education' &&
         /\beducational?\b|\bqualification/i.test(headingLower)
       ) {
+        continue;
+      }
+      // Employer-shaped skills false positives must not mirror experience bodies into skills.
+      if (type === 'skills' && /\b(?:pvt\.?\s*ltd|limited|llc|inc\.?|corp)\b/i.test(headingLower)) {
         continue;
       }
       const typed = type as Exclude<NormalizedSectionType, 'custom'>;

@@ -2551,12 +2551,14 @@ export function isPlausibleProjectName(value: unknown): boolean {
   if (/^(?:new\s+delhi|delhi|mumbai|bengaluru|bangalore|hyderabad|chennai|kolkata|pune|gurgaon|noida)\)?$/i.test(s)) {
     return false;
   }
-  // Person-name shaped tokens are not project titles.
+  // Person-name shaped tokens are not project titles — unless they carry a
+  // project-product suffix ("Sample Job Portal", "Acme Dashboard").
   if (
-    /^[A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+){1,3}$/.test(s) ||
-    (/^[A-Z](?:[A-Z]|[\s'-]){3,}$/.test(s) &&
-      s.split(/\s+/).length >= 2 &&
-      s.split(/\s+/).every((w) => /^[A-Z][A-Z'-]*$/.test(w)))
+    !PROJECT_TITLE_SUFFIX_RE.test(s) &&
+    (/^[A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+){1,3}$/.test(s) ||
+      (/^[A-Z](?:[A-Z]|[\s'-]){3,}$/.test(s) &&
+        s.split(/\s+/).length >= 2 &&
+        s.split(/\s+/).every((w) => /^[A-Z][A-Z'-]*$/.test(w))))
   ) {
     return false;
   }
@@ -3227,7 +3229,43 @@ export function isExperienceDateOrDurationToken(value: unknown): boolean {
   ) {
     return true;
   }
+  // Labeled tenure headers: "Tenure - July'22 – Apr'25", "Tenure: May 25 – till date"
+  if (/^tenure\b/.test(s) && (/\d/.test(s) || /\b(?:present|current|till|to)\s*date\b/.test(s))) {
+    return true;
+  }
+  // Abbreviated-year ranges: "july'22 – apr'25", "may'18 – july'20" (straight or curly apostrophe)
+  if (
+    /^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s*['’]?\d{2}\s*[-–—to]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s*['’]?\d{2}|present|current|till\s*date|to\s*date)$/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  // "may 25 – till date", "oct 10 to aug 13" (2-digit year without apostrophe)
+  if (
+    /^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{2}\s*[-–—to]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{2}|present|current|till\s*date|to\s*date)$/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  // Any short line that is only a date range ending in till/to date
+  if (
+    s.length <= 48 &&
+    /\b(?:till|to)\s*date\b/.test(s) &&
+    /\d/.test(s) &&
+    !/\b(?:ltd|limited|pvt|llc|inc|corp|company|group)\b/.test(s)
+  ) {
+    return true;
+  }
   return false;
+}
+
+/** Condensed "N years experience as Title at Company" lines are never employers. */
+export function isCondensedTenureExperienceLine(value: unknown): boolean {
+  const s = sanitizeFieldText(value, 220).replace(/\s+/g, ' ').trim();
+  if (!s || s.length < 20) return false;
+  return /^\d{1,2}\+?\s*(?:years?|yrs?|year)\s+(?:of\s+)?experience\s+as\b/i.test(s);
 }
 
 export function sanitizeExperienceCompanyValue(value: unknown): string {
@@ -3236,6 +3274,8 @@ export function sanitizeExperienceCompanyValue(value: unknown): string {
   // Builder/canonical entry ids must never occupy the company slot.
   if (/^exp[-_]/i.test(s)) return '';
   if (isExperienceBlurbFragment(s)) return '';
+  // Whole condensed tenure headers must never become the company field.
+  if (isCondensedTenureExperienceLine(s)) return '';
   return s;
 }
 
@@ -6927,7 +6967,7 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     return false;
   }
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
-  if (/,/.test(company) && !/\b(ltd|limited|pvt|inc|corp|llp|mills|industries|systems|company|group)\b/i.test(lower)) {
+  if (/,/.test(company) && !/\b(ltd|limited|pvt|inc|corp|llp|mills|industries|systems|company|group|motors|vehicles|ventures?|laborator(?:y|ies)|enterprises|holdings)\b/i.test(lower)) {
     return false;
   }
   if (looksLikeSentenceNotCompany(company)) return false;

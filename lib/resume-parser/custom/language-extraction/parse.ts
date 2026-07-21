@@ -86,10 +86,15 @@ function isHumanLanguageName(name: string): boolean {
   if (KNOWN_TECH_ACRONYMS_RE.test(lower)) return false;
   if (PROGRAMMING_LANGUAGE_RE.test(lower) && !HUMAN_LANGUAGE_NAMES.has(lower)) return false;
   if (HUMAN_LANGUAGE_NAMES.has(lower)) return true;
-  // Unknown single-token names are too ambiguous ("Full", "Stack", company stubs).
-  // Require the allow-list unless the candidate is a multi-word language name.
+  // Multi-word language names only when every significant token is known
+  // (e.g. "Scottish Gaelic") — never accept person names like "First Last".
   if (/^[A-Za-z][a-z]+(?:\s+[A-Za-z][a-z]+)+$/.test(name) && !PROGRAMMING_LANGUAGE_RE.test(lower)) {
-    return true;
+    const parts = lower.split(/\s+/).filter(Boolean);
+    if (parts.every((p) => HUMAN_LANGUAGE_NAMES.has(p) || HUMAN_LANGUAGE_NAMES.has(parts.join(' ')))) {
+      return true;
+    }
+    if (HUMAN_LANGUAGE_NAMES.has(lower)) return true;
+    return false;
   }
   return false;
 }

@@ -8,6 +8,7 @@ import { detectResumeSections } from '../section-detection';
 import {
   resolveAchievementsSectionText,
   resolveHobbiesSectionText,
+  resolveLanguagesSectionText,
 } from '../section-detection/resolve-section';
 import { extractIdentityFromSections } from '../identity-extraction';
 import { extractSummaryFromSection } from '../summary-extraction';
@@ -111,7 +112,12 @@ function selectBetterExperiences(
   const recoveryBody = experienceBodyScore(fromRecovery);
 
   // Section parse with solid employers + meaningful bodies beats sparse recovery.
+  // Exception: recovery that finds materially more employers wins (labeled CVs
+  // where section boundaries merged adjacent roles).
   if (sectionPlausible >= 1 && sectionBody >= 200 && sectionBody >= recoveryBody * 0.75) {
+    if (recoveryPlausible >= sectionPlausible + 2) {
+      return fromRecovery;
+    }
     if (!(recoveryPlausible >= sectionPlausible + 2 && recoveryBody > sectionBody * 1.5)) {
       return fromSection;
     }
@@ -130,8 +136,12 @@ function selectBetterExperiences(
     recoveryPlausible > sectionPlausible &&
     recoveryPlausible >= 3 &&
     fromRecovery.length > fromSection.length &&
-    recoveryBody >= sectionBody
+    recoveryBody >= sectionBody * 0.5
   ) {
+    return fromRecovery;
+  }
+  // Prefer recovery when it has more distinct employers even if body scores are close.
+  if (recoveryPlausible >= sectionPlausible + 2) {
     return fromRecovery;
   }
   return fromSection;
@@ -184,7 +194,10 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
   const resolvedExperiences = selectBetterExperiences(experiences, experienceFallback);
   const educations = sections.education ? extractEducationFromSection(sections.education) : [];
   const projects = sections.projects ? extractProjectsFromSection(sections.projects) : [];
-  const languages = sections.languages ? extractLanguagesFromSection(sections.languages) : [];
+  const languages = (() => {
+    const langText = sections.languages?.trim() || resolveLanguagesSectionText(sections);
+    return langText ? extractLanguagesFromSection(langText) : [];
+  })();
   const languageFallback = recoverLanguagesFromPersonalDetails(rawText).map((name) => ({ name }));
   const resolvedLanguages =
     languages.length > 0
@@ -200,7 +213,8 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
 
   const skills = extractSkillsIntelligence({
     skillsSectionText: sections.skills,
-    preambleText: sections.preamble,
+    // Prefer dedicated skills section; skip narrative preamble scrape when skills body exists.
+    preambleText: sections.skills?.trim() ? '' : sections.preamble,
     experienceTechnologies: resolvedExperiences.map((e) => e.technologies),
     experienceTexts: resolvedExperiences.map((e) =>
       [e.description, ...(e.bulletPoints || [])].filter(Boolean).join('\n')
@@ -247,7 +261,7 @@ export function runCustomParserPipeline(rawText: string): CustomParserPipelineRe
       skills: sections.skills,
       summary: sections.summary,
       contact: sections.preamble,
-      languages: sections.languages,
+      languages: sections.languages || resolveLanguagesSectionText(sections),
       certifications: sections.certifications,
       achievements: resolveAchievementsSectionText(sections),
       hobbies: resolveHobbiesSectionText(sections),

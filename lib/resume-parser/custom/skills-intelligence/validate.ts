@@ -102,7 +102,7 @@ export function isValidSkillCandidate(raw: string): boolean {
   return true;
 }
 
-export function filterValidCandidates<T extends { raw: string }>(candidates: T[]): {
+export function filterValidCandidates<T extends { raw: string; source?: string }>(candidates: T[]): {
   valid: T[];
   rejectedCount: number;
 } {
@@ -110,8 +110,28 @@ export function filterValidCandidates<T extends { raw: string }>(candidates: T[]
   let rejectedCount = 0;
 
   for (const c of candidates) {
-    if (isValidSkillCandidate(c.raw)) valid.push(c);
-    else rejectedCount += 1;
+    if (isValidSkillCandidate(c.raw)) {
+      valid.push(c);
+      continue;
+    }
+    // Explicit skills-section competency bullets (Strengths & IT Skills, etc.)
+    const cleaned = String(c.raw || '')
+      .trim()
+      .replace(/[.:]+$/g, '')
+      .trim();
+    if (
+      c.source === 'skills_section' &&
+      cleaned.length >= 3 &&
+      cleaned.length <= 90 &&
+      cleaned.split(/\s+/).length <= 12 &&
+      /[A-Za-z]/.test(cleaned) &&
+      !DUTY_VERB_SKILL_RE.test(cleaned) &&
+      !RESPONSIBILITY_RE.test(cleaned)
+    ) {
+      valid.push({ ...c, raw: cleaned });
+      continue;
+    }
+    rejectedCount += 1;
   }
 
   return { valid, rejectedCount };

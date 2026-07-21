@@ -36,8 +36,10 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
     phrases: [
       'professional experience',
       'work experience',
+      'job experience',
       'practical experience',
       'employment history',
+      'employment details',
       'career history',
       'work history',
       'professional background',
@@ -54,6 +56,7 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'work exposure',
       'areas of exposure',
       'professional exposure',
+      'additional exposure',
       'nature of duties',
       'job profile',
       'organizational experience',
@@ -84,7 +87,9 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
     phrases: [
       'academic background',
       'academic qualification',
+      'academics qualification',
       'educational qualification',
+      'educational',
       'academic history',
       'qualifications',
       'education history',
@@ -98,7 +103,9 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
     ],
     tokens: [
       'education',
+      'educational',
       'academic',
+      'academics',
       'academia',
       'qualification',
       'qualifications',
@@ -115,6 +122,10 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'technical skills',
       'core skills',
       'key skills',
+      'it skills',
+      'strengths and it skills',
+      'strengths it skills',
+      'key strengths',
       'technical competencies',
       'core competencies',
       'professional skills',
@@ -142,6 +153,7 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'toolkit',
       'stack',
       'synopsis',
+      'strengths',
     ],
     typicalOrder: 0.28,
   },
@@ -179,6 +191,8 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'professional development',
       'licenses certifications',
       'certificates and training',
+      'online paid courses',
+      'certification online',
     ],
     tokens: [
       'certifications',
@@ -188,7 +202,6 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'licenses',
       'licences',
       'license',
-      'training',
       'courses',
       'workshops',
       'credentials',
@@ -196,13 +209,32 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
     typicalOrder: 0.65,
   },
   achievements: {
-    phrases: ['key achievements', 'awards and honors', 'honors and awards', 'notable achievements'],
-    tokens: ['achievements', 'achievement', 'awards', 'award', 'honors', 'honours', 'recognition', 'accomplishments'],
+    phrases: [
+      'key achievements',
+      'awards and honors',
+      'honors and awards',
+      'notable achievements',
+      'cost saving activities',
+      'cost savings',
+      'cost saving',
+      'key accomplishments',
+    ],
+    tokens: [
+      'achievements',
+      'achievement',
+      'awards',
+      'award',
+      'honors',
+      'honours',
+      'recognition',
+      'accomplishments',
+      'savings',
+    ],
     typicalOrder: 0.58,
   },
   hobbies: {
     phrases: ['hobbies and interests', 'interests and hobbies', 'personal interests'],
-    tokens: ['interests', 'interest', 'hobbies', 'hobby', 'activities', 'extracurricular', 'passions'],
+    tokens: ['interests', 'interest', 'hobbies', 'hobby', 'extracurricular', 'passions'],
     typicalOrder: 0.82,
   },
   references: {
@@ -224,12 +256,31 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
 
 const COMBINED_SPLIT_RE = /\s*(?:&|\/|,|\+|\band\b|\bor\b)\s*/i;
 
+/** Strip trailing employment date ranges so "Job Experience from Oct 2010 to till date" scores as "job experience". */
+export function stripHeadingDateSuffix(normalized: string): string {
+  if (!normalized) return '';
+  let s = normalized
+    .replace(
+      /\bfrom\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+)?(?:(?:19|20)?\d{2}|oct|nov|dec|jan|feb|mar|apr|may|jun|jul|aug|sep).*$/i,
+      ''
+    )
+    .replace(
+      /\b(?:(?:19|20)\d{2}|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s*(?:'\d{2})?\s*(?:[-–—to]|till|present).*$/i,
+      ''
+    )
+    .replace(/\b(?:to\s+)?(?:till\s*date|present|current|ongoing)\s*$/i, '')
+    .replace(/\(\s*(?:online|paid|courses?|certificate?s?|licenses?)[^)]*\)\s*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return s.length >= 3 ? s : normalized;
+}
+
 export function normalizeHeadingText(raw: string): string {
   return raw
     .trim()
     .toLowerCase()
     .replace(/[:\-–—|•·]+$/g, '')
-    .replace(/[^\p{L}\p{N}\s&/+]/gu, ' ')
+    .replace(/[^\p{L}\p{N}\s&/+']/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -240,11 +291,34 @@ export function splitCombinedHeadingParts(normalized: string): string[] {
   return parts.length > 0 ? parts : [normalized];
 }
 
+function scorePartAgainstTaxonomy(part: string, tax: SectionTaxonomyEntry): number {
+  let partScore = 0;
+  for (const phrase of tax.phrases) {
+    if (part === phrase) partScore = Math.max(partScore, 88);
+    else if (part.startsWith(phrase) || part.endsWith(phrase)) partScore = Math.max(partScore, 78);
+    else if (part.includes(phrase)) partScore = Math.max(partScore, 58);
+  }
+  for (const token of tax.tokens) {
+    const re = new RegExp(`\\b${escapeRegExp(token)}\\b`, 'i');
+    if (re.test(part)) partScore = Math.max(partScore, part === token ? 70 : 48);
+  }
+  // Lead-in boost: heading begins with a known phrase/token (dated suffixes already stripped).
+  for (const phrase of tax.phrases) {
+    if (part.startsWith(phrase) && phrase.split(/\s+/).length >= 2) {
+      partScore = Math.max(partScore, 82);
+    }
+  }
+  return partScore;
+}
+
 export function scoreHeadingKeywords(
   rawHeading: string
 ): Partial<Record<NormalizedSectionType, number>> {
   const normalized = normalizeHeadingText(rawHeading);
-  const parts = splitCombinedHeadingParts(normalized);
+  const stripped = stripHeadingDateSuffix(normalized);
+  const parts = [
+    ...new Set([...splitCombinedHeadingParts(normalized), ...splitCombinedHeadingParts(stripped), stripped, normalized]),
+  ].filter(Boolean);
   const scores: Partial<Record<NormalizedSectionType, number>> = {};
 
   const semantic = classifySectionHeading(rawHeading);
@@ -261,7 +335,8 @@ export function scoreHeadingKeywords(
       scores.summary = Math.min(scores.summary ?? 0, 40);
       scores.achievements = Math.max(scores.achievements ?? 0, semantic.confidence);
     }
-    if (semantic.definition.id === 'strengths') {
+    // Strengths alone may dampen skills, but "Strengths & IT Skills" compounds stay skills.
+    if (semantic.definition.id === 'strengths' && !/\bskills?\b/i.test(normalized)) {
       scores.skills = Math.min(scores.skills ?? 0, 45);
     }
   }
@@ -271,19 +346,28 @@ export function scoreHeadingKeywords(
   >) {
     let best = 0;
     for (const part of parts) {
-      let partScore = 0;
-      for (const phrase of tax.phrases) {
-        if (part === phrase) partScore = Math.max(partScore, 88);
-        else if (part.startsWith(phrase) || part.endsWith(phrase)) partScore = Math.max(partScore, 72);
-        else if (part.includes(phrase)) partScore = Math.max(partScore, 58);
-      }
-      for (const token of tax.tokens) {
-        const re = new RegExp(`\\b${escapeRegExp(token)}\\b`, 'i');
-        if (re.test(part)) partScore = Math.max(partScore, part === token ? 70 : 42);
-      }
-      best = Math.max(best, partScore);
+      best = Math.max(best, scorePartAgainstTaxonomy(part, tax));
     }
-    if (best > 0) scores[type] = Math.min(100, best);
+    if (best > 0) scores[type] = Math.min(100, Math.max(scores[type] ?? 0, best));
+  }
+
+  // "Cost Saving Activities" / savings headings are achievements, not hobbies.
+  if (
+    scores.hobbies &&
+    /\b(?:cost\s+sav(?:ing|ings)|savings?\s+activit|accomplishments?)\b/i.test(normalized)
+  ) {
+    scores.achievements = Math.max(scores.achievements ?? 0, Math.max(scores.hobbies, 72));
+    delete scores.hobbies;
+  }
+
+  // Bare "Training & Development" thematic blocks are not certifications unless
+  // the heading itself names certificates/courses/licenses.
+  if (
+    scores.certifications &&
+    /\btraining\b/i.test(normalized) &&
+    !/\b(?:certif|licence|license|course|workshop|credential)\b/i.test(normalized)
+  ) {
+    delete scores.certifications;
   }
 
   // Singular "project" is an in-role field label on many CVs ("Project: Fiber Rollout").

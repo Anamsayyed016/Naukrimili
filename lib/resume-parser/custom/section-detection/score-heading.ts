@@ -57,10 +57,19 @@ function isHeadingDebris(text: string): boolean {
   // Mid-sentence continuation crumbs (not known section words).
   if (
     /^[a-z]/.test(t) &&
-    t.length <= 48 &&
     !/^(?:skills?|education|experience|summary|projects?|certifications?|certificates?|languages?|achievements?|awards?|references?|publications?|objective|profile|interests?|hobbies?|training|qualifications?|employment|internship)\b/i.test(
       t
     )
+  ) {
+    return true;
+  }
+  // Sentence-wrap debris that starts with duty verbs / mid-bullet fragments.
+  if (
+    /^(?:responsibilities|responsibility|duties|ensuring|including|building|transferring|maximizing|working|handling|managing|leading)\b/i.test(
+      t
+    ) &&
+    !/^(?:responsibilities|duties)\s*$/i.test(t) &&
+    (/,/.test(t) || /\band\b/i.test(t) || /[.!?]$/.test(t))
   ) {
     return true;
   }
@@ -176,6 +185,23 @@ function isSectionContentLineNotHeading(text: string): boolean {
 
   const typeScores = scoreHeadingKeywords(t);
   const bestKeyword = Math.max(0, ...Object.values(typeScores));
+  const looksEmployer =
+    looksLikeCompanyNameLine(t) ||
+    /\b(?:pvt\.?\s*ltd\.?|private\s+limited|ltd\.?|limited|llc|inc\.?|corp\.?|gmbh|plc)\b/i.test(t);
+
+  // Employer / company lines that merely contain skill taxonomy tokens
+  // ("… Technologies …") must never become section headings.
+  // Education/skills section titles must not be blocked by false company heuristics
+  // (e.g. looksLikeCompanyNameLine("Educational") === true).
+  if (
+    looksEmployer &&
+    !/^(?:skills?|experience|educations?|educational|academics?|summary|projects?|certifications?|certificates?|languages?|achievements?|qualifications?|professional\s+qualification)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+
   // Strong section taxonomy wins over job-title heuristics so headings like
   // "Organizational Experience" are not discarded as titles.
   if (bestKeyword >= MIN_KNOWN_TYPE_SCORE) return false;
@@ -226,7 +252,17 @@ export function looksLikeHeadingLine(line: string): boolean {
   if (isBulletLine(t)) return false;
   if (CONTACT_LINE_RE.test(t) && t.length < 120) return false;
   if (t.split(/\s+/).length > 12) return false;
-  if (/[.!?]$/.test(t) && t.split(/\s+/).length > 7) return false;
+  // Trailing period on long lines usually means prose — but dated section
+  // lead-ins ("Job Experience from Oct 2010 to till date.") are valid headings.
+  if (/[.!?]$/.test(t) && t.split(/\s+/).length > 7) {
+    const keywordPeak = Math.max(0, ...Object.values(scoreHeadingKeywords(t)));
+    if (keywordPeak < 70) return false;
+  }
+  // Comma-heavy sentence fragments are never headings unless a strong section phrase.
+  if ((t.match(/,/g) || []).length >= 1 && /\band\b/i.test(t) && /[.!?]$/.test(t)) {
+    const keywordPeak = Math.max(0, ...Object.values(scoreHeadingKeywords(t)));
+    if (keywordPeak < 70) return false;
+  }
   return true;
 }
 
@@ -387,7 +423,15 @@ export function scoreHeadingCandidate(
     }
   }
   if (type === 'custom' && total < MIN_CUSTOM_HEADING_SCORE) return null;
-  if (type !== 'custom' && total < MIN_KNOWN_TYPE_SCORE) return null;
+  // Strong taxonomy matches (phrase/token lead-ins) always clear the known-type floor
+  // even when formatting/context are weak (common for dated section titles).
+  if (type !== 'custom' && total < MIN_KNOWN_TYPE_SCORE) {
+    if (keywordScore >= 70) {
+      total = MIN_KNOWN_TYPE_SCORE;
+    } else {
+      return null;
+    }
+  }
 
   if (type !== 'custom') {
     total = Math.max(total, MIN_KNOWN_TYPE_SCORE);

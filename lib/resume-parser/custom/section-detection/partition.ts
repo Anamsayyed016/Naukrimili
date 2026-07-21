@@ -266,13 +266,25 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
   const lines = text.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean);
 
   if (!out.skills) {
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       const inline = line.match(
-        /^(?:skills?|technical\s+skills|core\s+skills|competencies|expertise)\s*:?\s*(.+)$/i
+        /^(?:skills?|technical\s+skills|core\s+skills|it\s+skills|strengths?\s*(?:&|and)?\s*it\s+skills|competencies|expertise)\s*:?\s*(.+)$/i
       );
       if (inline?.[1]?.includes(',')) {
         out.skills = inline[1].trim();
         break;
+      }
+      if (
+        /^(?:strengths?\s*(?:&|and)?\s*(?:it\s+)?skills?|technical\s+skills|core\s+skills|key\s+skills|it\s+skills)\s*:?\s*$/i.test(
+          line
+        )
+      ) {
+        const body = lines.slice(i + 1, i + 20).filter((l) => /^[-•*·]/.test(l) || l.length <= 80);
+        if (body.length >= 2) {
+          out.skills = body.join('\n');
+          break;
+        }
       }
     }
   }
@@ -307,7 +319,7 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
   if (!out.achievements) {
     for (let i = 0; i < lines.length; i++) {
       if (
-        !/^(?:achievements?|awards?|honors?|recognition|accomplishments?|highlights?|key\s+achievements?|professional\s+highlights?)\s*:?\s*$/i.test(
+        !/^(?:achievements?|awards?|honors?|recognition|accomplishments?|highlights?|key\s+achievements?|professional\s+highlights?|cost\s+sav(?:ing|ings)(?:\s+activit(?:y|ies))?)\s*:?\s*$/i.test(
           lines[i]
         )
       ) {
@@ -321,17 +333,29 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
     }
   }
 
+  if (!out.languages) {
+    for (const line of lines) {
+      const m = line.match(
+        /^(?:languages?(?:\s+known)?|linguistic\s+skills?)\s*[:\-–—]?\s*(.+)$/i
+      );
+      if (m?.[1] && /[,/]/.test(m[1])) {
+        out.languages = m[1].trim();
+        break;
+      }
+    }
+  }
+
   if (!out.hobbies) {
     for (let i = 0; i < lines.length; i++) {
       if (
-        !/^(?:hobbies?|interests?|personal\s+interests?|extracurricular|activities)\s*:?\s*$/i.test(
+        !/^(?:hobbies?|interests?|personal\s+interests?|extracurricular)\s*:?\s*$/i.test(
           lines[i]
         )
       ) {
         continue;
       }
       const inline = lines[i].match(
-        /^(?:hobbies?|interests?|personal\s+interests?|extracurricular|activities)\s*:?\s*(.+)$/i
+        /^(?:hobbies?|interests?|personal\s+interests?|extracurricular)\s*:?\s*(.+)$/i
       );
       if (inline?.[1]?.includes(',')) {
         out.hobbies = inline[1].trim();

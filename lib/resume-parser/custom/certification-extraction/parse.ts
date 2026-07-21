@@ -28,7 +28,7 @@ const ISSUER_SUFFIX_RE =
   /\b(?:amazon\s+web\s+services|aws|microsoft|google|cisco|comptia|oracle|ibm|salesforce|pmi|scrum\.org|isc2|ec-council|red\s+hat|hashicorp|sap|adobe)\b/i;
 
 const CERT_KEYWORD_RE =
-  /\b(?:certified|certification|certificate|license|licence|credential|accreditation|chartered|fellowship)\b/i;
+  /\b(?:certified|certification|certificate|license|licence|credential|accreditation|chartered|fellowship|diploma|auditor)\b/i;
 
 const AWS_CERT_NAME_RE = /\baws\s+(?:certified\s+)?(?:solutions\s+)?architect\b/i;
 
@@ -68,17 +68,29 @@ function isUnrelatedCertificationContent(name: string, issuer: string): boolean 
   ) {
     return true;
   }
-  // Job-title-shaped training names are valid when an issuer (or dated course) is present.
+  // Job-title-shaped training names are valid when an issuer (or dated course) is present,
+  // or when the line names a course platform / diploma / audit credential.
   if (
     looksLikeJobTitleLine(name) &&
     !CERT_KEYWORD_RE.test(name) &&
     !AWS_CERT_NAME_RE.test(name) &&
-    !issuer.trim()
+    !issuer.trim() &&
+    !/\b(?:by|udemy|coursera|linkedin|microsoft|google|ibm|diploma|course|auditor|analytics|recruiting|certificate)\b/i.test(
+      combined
+    )
   ) {
     return true;
   }
   if (EXPERIENCE_VERB_RE.test(combined) && combined.split(/\s+/).length > 5) return true;
-  if (looksLikeSentenceNotCompany(name) && name.split(/\s+/).length > 6) return true;
+  // Credential / course titles with a trailing period are not prose sentences.
+  if (
+    looksLikeSentenceNotCompany(name) &&
+    name.split(/\s+/).length > 6 &&
+    !CERT_KEYWORD_RE.test(combined) &&
+    !/\b(?:diploma|auditor|course|udemy|coursera|linkedin|professional)\b/i.test(combined)
+  ) {
+    return true;
+  }
   if (SKILL_LIST_RE.test(name)) return true;
   if (/^(?:summary|objective|profile|experience|skills?|projects?|education)\b/i.test(name)) {
     return true;
@@ -160,6 +172,11 @@ function splitNameIssuer(text: string): { name: string; issuer: string } {
     return { name: byPipe[1].trim(), issuer: byPipe[2].trim() };
   }
 
+  const byIssuer = trimmed.match(/^(.+?)\s+by\s+(.+)$/i);
+  if (byIssuer && byIssuer[1].trim().length >= 4 && byIssuer[2].trim().length >= 2) {
+    return { name: byIssuer[1].trim(), issuer: byIssuer[2].trim() };
+  }
+
   const byParen = trimmed.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
   if (byParen) {
     const inner = byParen[2].trim();
@@ -194,8 +211,17 @@ export function parseCertificationLine(line: string): ParsedCertification | null
     return null;
   }
 
-  let working = trimmed.replace(/^[-•*·]\s*/, '');
+  let working = trimmed
+    .replace(/^[-•*·]\s*/, '')
+    .replace(/[.:]+$/g, '')
+    .trim();
   if (/^(?:spoken\s+)?languages?\s*:/i.test(working)) return null;
+
+  // "… from Issuer on ISO …" / "… from Issuer"
+  const fromIssuer = working.match(/^(.+?)\s+from\s+(.+)$/i);
+  if (fromIssuer && !/\bby\b/i.test(working)) {
+    working = `${fromIssuer[1].trim()} by ${fromIssuer[2].trim()}`;
+  }
 
   // Accept (2024), (2024-2025), (2024–2025) as course year annotations.
   const parenYear = working.match(
@@ -215,9 +241,12 @@ export function parseCertificationLine(line: string): ParsedCertification | null
       const date = parenYear?.[1] || '';
       const confidence = scoreCertification(name, issuer, Boolean(date), false);
       if (
-        (confidence >= 45 || CERT_KEYWORD_RE.test(name)) &&
+        (confidence >= 45 || CERT_KEYWORD_RE.test(name) || CERT_KEYWORD_RE.test(working)) &&
         !isUnrelatedCertificationContent(name, issuer) &&
-        (isPlausibleCertificationEntry(name, issuer) || CERT_KEYWORD_RE.test(name) || AWS_CERT_NAME_RE.test(name))
+        (isPlausibleCertificationEntry(name, issuer) ||
+          CERT_KEYWORD_RE.test(name) ||
+          CERT_KEYWORD_RE.test(working) ||
+          AWS_CERT_NAME_RE.test(name))
       ) {
         return { name, issuer, date, url: '', credentialId: '', confidence };
       }
@@ -243,13 +272,33 @@ export function parseCertificationLine(line: string): ParsedCertification | null
   if (name.split(/\s+/).length > 20) return null;
 
   const confidence = scoreCertification(name, issuer, Boolean(date), Boolean(url));
-  if (confidence < 45 && !CERT_KEYWORD_RE.test(name)) return null;
-  if (isUnrelatedCertificationContent(name, issuer)) return null;
-  if (!isPlausibleCertificationEntry(name, issuer) && !CERT_KEYWORD_RE.test(name) && !AWS_CERT_NAME_RE.test(name)) {
+  // Course / training bullets inside a certifications section often omit the word
+  // "certificate" — accept when confidence is moderate or platform/issuer cues exist.
+  const courseCue =
+    Boolean(issuer) ||
+    /\b(?:udemy|coursera|linkedin|diploma|auditor|course|certificate|professional|recruiting|analytics)\b/i.test(
+      `${name} ${issuer} ${working}`
+    );
+  if (confidence < 45 && !CERT_KEYWORD_RE.test(name) && !courseCue) return null;
+  if (confidence < 28) return null;
+  if (isUnrelatedCertificationContent(name, issuer) && !courseCue) return null;
+  if (
+    !isPlausibleCertificationEntry(name, issuer) &&
+    !CERT_KEYWORD_RE.test(name) &&
+    !AWS_CERT_NAME_RE.test(name) &&
+    !courseCue
+  ) {
     return null;
   }
 
-  return { name, issuer, date, url, credentialId, confidence };
+  return {
+    name,
+    issuer,
+    date,
+    url,
+    credentialId,
+    confidence: Math.max(confidence, courseCue ? 52 : confidence),
+  };
 }
 
 export function partitionCertificationBlocks(sectionText: string): string[][] {

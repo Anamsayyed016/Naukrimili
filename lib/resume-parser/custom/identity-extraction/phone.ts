@@ -9,19 +9,29 @@ export interface PhoneCandidate {
 }
 
 const PHONE_PATTERNS = [
-  /\+\d{1,3}[\s.-]?\(?\d{1,4}\)?[\s.-]?\d{2,4}[\s.-]?\d{2,4}[\s.-]?\d{0,4}(?:\s*(?:ext|x)\s*\d{1,6})?/g,
-  /(?:\+?\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}(?:\s*(?:ext|x)\s*\d{1,6})?/g,
+  /\+\s*\d{1,3}(?:[\s.-]*\d{2,5}){2,4}(?:\s*(?:ext|x)\s*\d{1,6})?/g,
+  /(?:\+?\s*\d{1,3}[\s.-]*)?\(?\d{2,5}\)?[\s.-]?\d{3,5}[\s.-]?\d{3,5}(?:\s*(?:ext|x)\s*\d{1,6})?/g,
 ];
 
+/** Heal common PDF spacing around country codes before digit extraction. */
+function healPhoneRaw(raw: string): string {
+  return String(raw || '')
+    .replace(/\+\s*91\s*[-–—.]?\s*/gi, '+91 ')
+    .replace(/\b91\s*[-–—.]\s*(?=[6-9]\d{9}\b)/g, '+91 ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function normalizePhoneNumber(raw: string): string {
-  const trimmed = raw.trim();
+  const trimmed = healPhoneRaw(raw);
   const extMatch = trimmed.match(/(?:ext|x)\s*(\d{1,6})$/i);
   const ext = extMatch ? ` ext ${extMatch[1]}` : '';
 
   const digits = trimmed.replace(/(?:ext|x)\s*\d{1,6}$/i, '').replace(/\D/g, '');
   if (digits.length < 7 || digits.length > 15) return trimmed;
 
-  if (trimmed.startsWith('+')) {
+  // Explicit +country or leading country code.
+  if (trimmed.startsWith('+') || /^00\d/.test(trimmed.replace(/\s/g, ''))) {
     if (digits.length === 12 && digits.startsWith('91')) {
       return `+91 ${digits.slice(2, 7)} ${digits.slice(7)}${ext}`.trim();
     }
@@ -31,7 +41,17 @@ export function normalizePhoneNumber(raw: string): string {
     return `+${digits}${ext ? ` ${ext.trim()}` : ''}`;
   }
 
+  // "91 - 91655…" without plus — treat as India when 12 digits.
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return `+91 ${digits.slice(2, 7)} ${digits.slice(7)}${ext}`.trim();
+  }
+
   if (digits.length === 10) {
+    // Prefer +91 when the raw capture retained an India country-code hint.
+    const rawHasIndiaHint = /(?:\+?\s*91)\b/i.test(raw) || /(?:\+?\s*91)\b/i.test(trimmed);
+    if (rawHasIndiaHint && /^[6-9]\d{9}$/.test(digits)) {
+      return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}${ext}`.trim();
+    }
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}${ext}`.trim();
   }
 
@@ -54,10 +74,11 @@ export function extractPhoneCandidates(text: string, zoneWeight = 1): PhoneCandi
   if (!text?.trim()) return [];
   const seen = new Set<string>();
   const out: PhoneCandidate[] = [];
+  const healedText = healPhoneRaw(text);
 
   for (const re of PHONE_PATTERNS) {
-    for (const match of text.matchAll(re)) {
-      const raw = match[0].trim();
+    for (const match of healedText.matchAll(re)) {
+      const raw = healPhoneRaw(match[0]);
       const digits = raw.replace(/\D/g, '');
       if (digits.length < 7 || digits.length > 15) continue;
       if (seen.has(digits)) continue;

@@ -3,13 +3,14 @@
  */
 
 import { detectCompanyFromLine, looksLikeInstitutionalEmployer } from './company';
-import { parseDateRangeFromText } from './dates';
+import { isTenureOrDateOnlyHeaderLine, parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine, scoreDesignationCandidate, stripTrailingEmploymentDates } from './designation';
 import { extractDescriptionFromBlock } from './description';
 import { detectEmploymentTypeFromText, detectLocationFromLine } from './location';
 import { extractTechnologiesFromBlock } from './technologies';
 import {
   parseTenureExperienceLine,
+  lineLooksLikeTenureExperience,
   stripRolesResponsibilitiesSuffix,
 } from './tenure';
 import {
@@ -18,6 +19,7 @@ import {
   isPlausibleExperienceCompany,
   isExperienceBlurbFragment,
   isExperienceDateOrDurationToken,
+  isCondensedTenureExperienceLine,
 } from '@/lib/resume-parser/import-sanitize';
 import { splitOnFieldSeparatorDash } from '@/lib/resume-parser/field-separator-dash';
 import type {
@@ -319,12 +321,18 @@ function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<st
   }
 
   for (const line of expandHeaderSegments(lines)) {
+    if (isTenureOrDateOnlyHeaderLine(line)) continue;
+    if (lineLooksLikeTenureExperience(line) || isCondensedTenureExperienceLine(line)) continue;
     if (parseDateRangeFromText(line)) continue;
     if (isExperienceDateOrDurationToken(line)) continue;
     if (isExperienceBlurbFragment(line)) continue;
+    if (/^responsibilit(?:y|ies)\s*[-–—:]/i.test(line.trim())) continue;
+    if (/^(?:designation|role|position|title|post)\s*[:\-–—]/i.test(line.trim())) continue;
     const det = detectCompanyFromLine(line);
     if (!det.company) continue;
+    if (isExperienceDateOrDurationToken(det.company)) continue;
     if (isExperienceBlurbFragment(det.company)) continue;
+    if (isCondensedTenureExperienceLine(det.company)) continue;
     if (exclude && det.company.toLowerCase().trim() === exclude) continue;
     if (det.confidence > best.confidence) {
       best = { value: det.company, confidence: det.confidence };
@@ -362,6 +370,8 @@ function pickBestDesignation(lines: string[], exclude: string): FieldPick<string
     // Do not skip dated title lines ("Associate Apr 2025 – Jan 2026") —
     // detectDesignationFromLine already strips trailing employment ranges.
     if (isExperienceDateOrDurationToken(line)) continue;
+    // Condensed tenure headers are parsed separately — avoid mangled titles.
+    if (lineLooksLikeTenureExperience(line) || isCondensedTenureExperienceLine(line)) continue;
     const det = detectDesignationFromLine(line);
     if (!det.designation || det.designation === exclude) continue;
     if (det.confidence > best.confidence) {
@@ -464,11 +474,102 @@ function computeOverallConfidence(fc: ExperienceFieldConfidence, hasBullets: boo
   return Math.min(100, Math.round(overall));
 }
 
+function cleanDesignationValue(value: string): string {
+  return stripTrailingEmploymentDates(
+    stripRolesResponsibilitiesSuffix(
+      value
+        .replace(/,\s*role\s*[-–—:]\s*/i, ' – ')
+        .replace(/\(\s*\d+\s*$/g, '') // OCR-broken "(3" from "(3rd P)"
+        .replace(/\(\s*$/g, '')
+        .replace(/,\s*$/, '')
+        .replace(/\s+,/g, ',')
+        .trim()
+    )
+  );
+}
+
+/** Labeled Company / Designation: / Tenure / Responsibilities blocks. */
+function extractLabeledExperienceFields(headerLines: string[], bodyLines: string[]): {
+  company: FieldPick<string>;
+  designation: FieldPick<string>;
+  startDate: string;
+  endDate: string | null;
+  current: boolean;
+  startConf: number;
+  endConf: number;
+  descriptionBoost: string;
+} {
+  let company: FieldPick<string> = { value: '', confidence: 0 };
+  let designation: FieldPick<string> = { value: '', confidence: 0 };
+  let startDate = '';
+  let endDate: string | null = null;
+  let current = false;
+  let startConf = 0;
+  let endConf = 0;
+  let descriptionBoost = '';
+
+  const allLines = [...headerLines, ...bodyLines.slice(0, 6)];
+  for (const raw of allLines) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    const desLabel = line.match(/^(?:designation|role|position|title|post)\s*[:\-–—]\s*(.+)$/i);
+    if (desLabel) {
+      const title = cleanDesignationValue(desLabel[1]);
+      if (title.length >= 2) {
+        designation = { value: title, confidence: Math.max(designation.confidence, 78) };
+      }
+      continue;
+    }
+
+    if (isTenureOrDateOnlyHeaderLine(line) || /^tenure\b/i.test(line)) {
+      const range = parseDateRangeFromText(line);
+      if (range && range.confidence >= startConf) {
+        startDate = range.startDate || startDate;
+        endDate = range.endDate;
+        current = range.current;
+        startConf = range.confidence;
+        endConf = range.endDate || range.current ? range.confidence : endConf;
+      }
+      continue;
+    }
+
+    const resp = line.match(/^responsibilit(?:y|ies)\s*[-–—:]\s*(.+)$/i);
+    if (resp) {
+      descriptionBoost = resp[1].trim();
+      continue;
+    }
+
+    if (
+      !company.value &&
+      !isExperienceDateOrDurationToken(line) &&
+      !isTenureOrDateOnlyHeaderLine(line) &&
+      !lineLooksLikeTenureExperience(line) &&
+      !isCondensedTenureExperienceLine(line) &&
+      !/^responsibilit/i.test(line) &&
+      (looksLikeCompanyNameLine(line) ||
+        looksLikeInstitutionalEmployer(line) ||
+        isPlausibleExperienceCompany(line) ||
+        detectCompanyFromLine(line).confidence >= 40)
+    ) {
+      const det = detectCompanyFromLine(line);
+      company = {
+        value: det.company || line,
+        confidence: Math.max(det.confidence, looksLikeInstitutionalEmployer(line) ? 70 : 58),
+      };
+    }
+  }
+
+  return { company, designation, startDate, endDate, current, startConf, endConf, descriptionBoost };
+}
+
 export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtractedExperience {
   const headerLines = block.headerText
     .split('\n')
     .map((l) => l.trim())
     .filter(Boolean);
+
+  const labeled = extractLabeledExperienceFields(headerLines, block.bodyLines);
 
   // Prefer explicit "N years experience as Title at Company" tenure headers.
   let tenureDesignation: FieldPick<string> = { value: '', confidence: 0 };
@@ -489,38 +590,41 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   const compositeComplete =
     Boolean(compositePick.designation.value) && Boolean(compositePick.company.value);
   let finalDesignation =
-    tenureDesignation.confidence >= 70
-      ? tenureDesignation
-      : compositeComplete &&
-          compositePick.designation.confidence + 8 >= designationPick.confidence
-        ? compositePick.designation
-        : compositePick.designation.confidence > designationPick.confidence
+    labeled.designation.confidence >= 70
+      ? labeled.designation
+      : tenureDesignation.confidence >= 70
+        ? tenureDesignation
+        : compositeComplete &&
+            compositePick.designation.confidence + 8 >= designationPick.confidence
           ? compositePick.designation
-          : designationPick;
+          : compositePick.designation.confidence > designationPick.confidence
+            ? compositePick.designation
+            : designationPick;
   let finalCompany =
     tenureCompany.confidence >= 70
       ? tenureCompany
-      : compositeComplete &&
-          compositePick.company.confidence + 8 >= companyPick.confidence
-        ? compositePick.company
-        : compositePick.company.confidence > companyPick.confidence
+      : labeled.company.confidence >= 55
+        ? labeled.company
+        : compositeComplete &&
+            compositePick.company.confidence + 8 >= companyPick.confidence
           ? compositePick.company
-          : companyPick;
+          : compositePick.company.confidence > companyPick.confidence
+            ? compositePick.company
+            : companyPick;
 
   finalDesignation = {
     ...finalDesignation,
-    value: stripTrailingEmploymentDates(
-      stripRolesResponsibilitiesSuffix(finalDesignation.value)
-    ),
+    value: cleanDesignationValue(finalDesignation.value),
   };
-  if (tenureDesignation.confidence >= 70) {
+  // Strong condensed-tenure parses always own both title and employer.
+  if (tenureDesignation.confidence >= 70 && tenureCompany.confidence >= 70) {
     finalDesignation = {
-      value: finalDesignation.value,
-      confidence: Math.max(finalDesignation.confidence, tenureDesignation.confidence),
+      value: cleanDesignationValue(tenureDesignation.value),
+      confidence: tenureDesignation.confidence,
     };
     finalCompany = {
-      value: finalCompany.value,
-      confidence: Math.max(finalCompany.confidence, tenureCompany.confidence),
+      value: tenureCompany.value,
+      confidence: tenureCompany.confidence,
     };
   }
 
@@ -557,7 +661,9 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   // Never keep date tokens as company.
   if (finalCompany.value && isExperienceDateOrDurationToken(finalCompany.value)) {
     finalCompany = { value: '', confidence: 0 };
-    if (compositePick.company.value && !isExperienceDateOrDurationToken(compositePick.company.value)) {
+    if (labeled.company.value && !isExperienceDateOrDurationToken(labeled.company.value)) {
+      finalCompany = labeled.company;
+    } else if (compositePick.company.value && !isExperienceDateOrDurationToken(compositePick.company.value)) {
       finalCompany = compositePick.company;
     } else if (companyPick.value && !isExperienceDateOrDurationToken(companyPick.value)) {
       finalCompany = companyPick;
@@ -568,9 +674,28 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   const datePick = pickBestDateRange(headerLines, block.bodyLines);
   const employmentPick = pickEmploymentType(headerLines);
 
+  let startDate = datePick.startDate;
+  let endDate = datePick.endDate;
+  let current = datePick.current;
+  let startConf = datePick.startConf;
+  let endConf = datePick.endConf;
+  if (labeled.startConf >= startConf && labeled.startDate) {
+    startDate = labeled.startDate;
+    endDate = labeled.endDate;
+    current = labeled.current;
+    startConf = labeled.startConf;
+    endConf = labeled.endConf;
+  }
+
   let { description, bulletPoints, confidence: descConf } = extractDescriptionFromBlock(
     block.bodyLines
   );
+  if (labeled.descriptionBoost && !description) {
+    description = labeled.descriptionBoost;
+    descConf = Math.max(descConf, 55);
+  } else if (labeled.descriptionBoost && description && !description.includes(labeled.descriptionBoost.slice(0, 40))) {
+    description = `${labeled.descriptionBoost}\n${description}`.trim();
+  }
   if (!description && bulletPoints.length > 0) {
     descConf = Math.max(descConf, Math.min(90, 40 + bulletPoints.length * 8));
   }
@@ -581,8 +706,8 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     designation: finalDesignation.confidence,
     location: locationPick.confidence,
     employmentType: employmentPick.confidence,
-    startDate: datePick.startConf,
-    endDate: datePick.endConf,
+    startDate: startConf,
+    endDate: endConf,
     description: descConf,
   };
 
@@ -593,9 +718,9 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     designation: finalDesignation.value,
     location: locationPick.value,
     employmentType: employmentPick.value,
-    startDate: datePick.startDate,
-    endDate: datePick.endDate,
-    current: datePick.current,
+    startDate,
+    endDate,
+    current,
     description,
     bulletPoints,
     technologies,

@@ -40,7 +40,7 @@ function pushCandidate(
   raw: string,
   source: SkillSource
 ): void {
-  const trimmed = raw.trim();
+  const trimmed = raw.trim().replace(/[.:]+$/g, '').trim();
   if (!trimmed || trimmed.length < 2) return;
   if (MULTI_WORD_SKILL_ALLOW_RE.test(trimmed.toLowerCase())) {
     const normalized = normalizeSkillAlias(trimmed);
@@ -52,11 +52,26 @@ function pushCandidate(
     if (normalized) out.push({ raw: trimmed, normalized, source });
     return;
   }
+  // Strengths / competency bullets from an explicit skills section.
+  if (
+    source === 'skills_section' &&
+    trimmed.length <= 90 &&
+    trimmed.split(/\s+/).length <= 12 &&
+    /[A-Za-z]/.test(trimmed) &&
+    !RESPONSIBILITY_LIKE_SKILL_RE.test(trimmed)
+  ) {
+    const normalized = normalizeSkillAlias(trimmed) || trimmed;
+    out.push({ raw: trimmed, normalized, source });
+    return;
+  }
   if (!isValidSkillCandidate(trimmed)) return;
   const normalized = normalizeSkillAlias(trimmed);
   if (!normalized || normalized.length < 2) return;
   out.push({ raw: trimmed, normalized, source });
 }
+
+const RESPONSIBILITY_LIKE_SKILL_RE =
+  /\b(?:responsible for|managed|mentored|developed|implemented|designed|delivered|led migration|worked across)\b/i;
 
 function splitSkillTokens(line: string): string[] {
   return line
@@ -147,7 +162,16 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
     const normalized = withoutBullet.toLowerCase().replace(/[:\-]+$/, '').replace(/\s+/g, ' ').trim();
     if (SKILL_SUBHEADERS.has(normalized)) continue;
     if (isPlausiblePersonName(withoutBullet)) continue;
-    if (looksLikeJobTitleLine(withoutBullet) && !withoutBullet.includes(',')) continue;
+    // Job-title shaped lines are skipped unless they look like competency bullets
+    // (short Strengths/IT Skills entries often resemble titles).
+    const competencyBullet =
+      withoutBullet.length <= 90 &&
+      withoutBullet.split(/\s+/).length <= 12 &&
+      !/\b(?:at|with|for)\s+[A-Z]/.test(withoutBullet) &&
+      !/\b(?:19|20)\d{2}\b/.test(withoutBullet);
+    if (looksLikeJobTitleLine(withoutBullet) && !withoutBullet.includes(',') && !competencyBullet) {
+      continue;
+    }
 
     const afterContact = stripContactNoise(withoutBullet);
     if (!afterContact) continue;
@@ -163,8 +187,9 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
       tokens.length < 2 &&
       !/:/.test(withoutBullet)
     ) {
-      if (tokens.length === 1 && isValidSkillCandidate(tokens[0])) {
-        pushCandidate(out, tokens[0], 'skills_section');
+      const single = tokens[0] || afterContact.replace(/[.:]+$/, '').trim();
+      if (single && (isValidSkillCandidate(single) || competencyBullet)) {
+        pushCandidate(out, single, 'skills_section');
       }
       continue;
     }
@@ -184,6 +209,10 @@ export function collectFromPreambleText(preambleText: string): SkillCandidate[] 
 
   for (const line of lines) {
     if (/^(skills?|technical\s+skills|core\s+skills|expertise)\s*:?\s*$/i.test(line)) continue;
+    // Skip narrative / summary bullets — they pollute skills with prose fragments.
+    if (/^[-–—•·▪‣●○◦✓✔]\s+/.test(line) && (line.split(/\s+/).length > 12 || /[.!?]$/.test(line))) {
+      continue;
+    }
     if (lineLooksSkillList(line)) {
       collectTokensFromLine(line, 'skills_section', out);
       continue;

@@ -963,6 +963,33 @@ function isProficiencyOnlyToken(text: string): boolean {
   );
 }
 
+/** Standalone section headings must never be glued into adjacent prose fragments. */
+function isLikelyStandaloneSectionHeadingLine(line: string): boolean {
+  const t = line.trim().replace(/[:\-–—|]+$/g, '').trim();
+  if (!t || t.length > 64) return false;
+  if (HEADING_ONLY_TOKEN.test(t)) return true;
+  const letters = t.replace(/[^A-Za-z]/g, '');
+  if (letters.length >= 4 && letters === letters.toUpperCase()) {
+    if (
+      /\b(?:SUMMARY|EXPERIENCE|EDUCATION|SKILLS?|CERTIFICATIONS?|CERTIFICATES?|LANGUAGES?|PROJECTS?|ACHIEVEMENTS?|AWARDS?|OBJECTIVE|PROFILE|EMPLOYMENT|QUALIFICATIONS?|TRAINING|INTERESTS?|HOBBIES|REFERENCES?)\b/.test(
+        t
+      )
+    ) {
+      return true;
+    }
+  }
+  // Combined caps headings: "CERTIFICATIONS & LANGUAGES"
+  if (
+    letters.length >= 8 &&
+    letters === letters.toUpperCase() &&
+    /\b(?:CERTIFICATIONS?|LANGUAGES?|SKILLS?|EDUCATION|EXPERIENCE)\b/.test(t) &&
+    /(?:&|\band\b|\bwith\b)/i.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function isFragmentableLine(line: string): boolean {
   const t = line.trim();
   if (!t || t.length > 48) return false;
@@ -970,6 +997,7 @@ function isFragmentableLine(line: string): boolean {
   if (/^[✓✔]\s*$/.test(t)) return false;
   if (/[|•▸]/.test(t) && t.length > 8) return false;
   if (lineHasDateRange(t)) return false;
+  if (isLikelyStandaloneSectionHeadingLine(t)) return false;
   if (/[.!?]$/.test(t) && t.split(/\s+/).length >= 4) return false;
   const words = t.split(/\s+/).filter(Boolean);
   return words.length <= 3;
@@ -1237,6 +1265,16 @@ export function reassembleFragmentedResumeLines(text: string): string {
       // Complete section headings must not absorb the next company/degree line.
       if (buffer.length === 1 && HEADING_ONLY_TOKEN.test(joinedSoFar)) {
         flush();
+      }
+      // Never glue a finished prose sentence onto a following section heading.
+      if (
+        buffer.length >= 1 &&
+        /\.\s*$/.test(joinedSoFar) &&
+        isLikelyStandaloneSectionHeadingLine(trimmed)
+      ) {
+        flush();
+        buffered.push(trimmed);
+        continue;
       }
       if (
         buffer.length >= 1 &&
