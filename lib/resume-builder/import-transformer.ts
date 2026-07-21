@@ -1295,6 +1295,26 @@ function experienceMostlyFilled(data: Record<string, unknown>): boolean {
   return countPlausibleExperienceCompanies(experience) >= Math.ceil(experience.length * 0.75);
 }
 
+/** True when most experience rows already carry parseable start dates. */
+function experienceHasReliableDates(data: Record<string, unknown>): boolean {
+  const experience = firstNonEmptyArray(data, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]);
+  if (experience.length === 0) return false;
+  const withStart = experience.filter((row) => {
+    if (!row || typeof row !== 'object') return false;
+    const rec = row as Record<string, unknown>;
+    const start = String(rec.startDate ?? rec.StartDate ?? '').trim();
+    if (start) return true;
+    const stored = String(rec.duration ?? rec.Duration ?? '').trim();
+    return /^(?:19|20)\d{2}/.test(stored);
+  }).length;
+  return withStart >= Math.ceil(experience.length * 0.75);
+}
+
 /**
  * Prefer full PDF/text extraction; when AI leaves only a bloated summary, parse that instead.
  */
@@ -1949,7 +1969,8 @@ export function transformImportDataToBuilder(
   // remapped by canonical nodes (those occasionally bind entry ids / cities
   // into the company slot and wipe tenure rows on a second transform pass).
   const skipCanonicalExperienceRemap =
-    importedData._builderCoalesced === true && experienceMostlyFilled(transformed);
+    (importedData._builderCoalesced === true && experienceMostlyFilled(transformed)) ||
+    (isCustomParserImport(importedData) && experienceHasReliableDates(transformed));
 
   if (!skipCanonicalExperienceRemap) {
     const canonical = runCanonicalBuilderMapping({
@@ -2832,7 +2853,13 @@ function mergeExtendedSkillBuckets(builder: Record<string, unknown>): Record<str
     else if (typeof bucket === 'string' && bucket.trim()) flat.push(bucket);
   }
   if (!flat.length) return builder;
-  const merged = cleanSkills([...(Array.isArray(builder.skills) ? builder.skills : []), ...flat]);
+  const combined = [
+    ...(Array.isArray(builder.skills) ? builder.skills : []),
+    ...flat,
+  ];
+  const merged = isCustomParserImport(builder)
+    ? normalizeCustomParserSkillsList(combined)
+    : cleanSkills(combined);
   return { ...builder, skills: merged, Skills: merged };
 }
 

@@ -522,6 +522,8 @@ function isPlausibleLanguageName(name: string): boolean {
   const KNOWN =
     /^(english|hindi|french|german|spanish|arabic|mandarin|chinese|japanese|korean|tamil|telugu|marathi|gujarati|bengali|punjabi|urdu|portuguese|russian|italian|sanskrit|assamese|odia|nepali|dutch|swedish|norwegian|danish|polish|turkish|thai|vietnamese|hebrew|persian|farsi|malayalam|kannada|odia|oriya)$/i;
   if (KNOWN.test(n)) return true;
+  // Person names must never be classified as spoken languages.
+  if (isPlausiblePersonName(n) || isValidatedContactName(n, '')) return false;
   // Reject ambiguous single-token adjectives / title stubs ("Full", "Stack").
   if (/^(full|stack|front|back|end|native|fluent|basic|proficient)$/i.test(n)) return false;
   // Multi-word unknown language names only (e.g. Scottish Gaelic).
@@ -1240,6 +1242,27 @@ export function isImplausibleResumeLocation(value: unknown): boolean {
   // Person names (optionally with credentials) must not occupy the location field.
   // Allow generic relocation phrases in explicit location fields.
   if (isValidatedContactName(t, '') && !/\b(?:anywhere|world)\b/i.test(t)) return true;
+  // Name + professional credential suffixes (e.g. ", HRD", ", Mentor") without geography.
+  if (
+    /,\s*(?:hrd|hrm|hrbp|hr|mentor|industrial\s+relations|consultant|manager|director|lead(?:er)?|specialist|analyst|engineer|developer|secretary|officer|executive|administrator|admin)\b/i.test(
+      t
+    ) &&
+    !/\b(?:street|road|nagar|colony|sector|block|district|pradesh|nadu|india|usa|uk|city|state|province|pincode|pin\s*code|\d{5,6})\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  const namePrefix = t.split(',')[0]?.trim() || t;
+  if (
+    (isPlausiblePersonName(namePrefix) || isValidatedContactName(namePrefix, '')) &&
+    !/\b(?:anywhere|world)\b/i.test(t) &&
+    !/\b(?:street|road|nagar|colony|sector|block|district|pradesh|nadu|india|usa|uk|pincode|pin\s*code|\d{5,6})\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
   if (
     isPlausiblePersonName(t) &&
     !/\b(?:anywhere|world)\b/i.test(t) &&

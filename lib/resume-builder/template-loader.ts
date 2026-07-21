@@ -45,6 +45,7 @@ import {
   collectExperienceBodyFields,
   dedupeExperienceBodyLines,
   reconcileEducationDegreeAndField,
+  sanitizeLanguageEntry,
 } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { templateSupportsProfilePhoto } from './template-photo-metadata';
@@ -1145,6 +1146,27 @@ function renderLanguages(languages: Array<string | Record<string, unknown>>, use
     console.log('[renderLanguages] Empty or not array, returning empty string');
     return '';
   }
+
+  const sanitizedLanguages: Array<string | Record<string, unknown>> = [];
+  const seen = new Set<string>();
+  for (const raw of languages) {
+    const item = sanitizeLanguageEntry(raw);
+    if (!item) continue;
+    const key = item.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    sanitizedLanguages.push({
+      name: item.name,
+      language: item.language,
+      Language: item.language,
+      proficiency: item.proficiency,
+    });
+  }
+  if (sanitizedLanguages.length === 0) {
+    console.log('[renderLanguages] No plausible languages after sanitize, returning empty string');
+    return '';
+  }
+  languages = sanitizedLanguages;
 
   // Map proficiency levels to percentages for progress bars
   const proficiencyToPercentage = (proficiency: string): number => {

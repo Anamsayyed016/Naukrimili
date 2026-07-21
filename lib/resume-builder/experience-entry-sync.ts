@@ -23,6 +23,39 @@ export function readExperienceEndDate(entry: Record<string, unknown>): string {
   return String(entry.endDate ?? entry.EndDate ?? '').trim();
 }
 
+/** Recover YYYY-MM dates embedded in a duration string when discrete fields were lost. */
+export function parseDatesFromDurationString(
+  stored: string
+): { startDate: string; endDate: string; current: boolean } {
+  const t = String(stored || '').trim();
+  if (!t) return { startDate: '', endDate: '', current: false };
+  const range = t.match(
+    /^((?:19|20)\d{2}(?:-\d{1,2})?)\s*[-–—]\s*(Present|Current|Now|Ongoing|\d{4}(?:-\d{1,2})?)$/i
+  );
+  if (range) {
+    const startDate = normalizeMonthToken(range[1]);
+    const endPart = range[2].trim();
+    if (/^(?:present|current|now|ongoing)$/i.test(endPart)) {
+      return { startDate, endDate: '', current: true };
+    }
+    return { startDate, endDate: normalizeMonthToken(endPart), current: false };
+  }
+  if (/^(?:present|current|now|ongoing)$/i.test(t)) {
+    return { startDate: '', endDate: '', current: true };
+  }
+  return { startDate: '', endDate: '', current: false };
+}
+
+function normalizeMonthToken(value: string): string {
+  const t = value.trim();
+  if (/^\d{4}-\d{1,2}$/.test(t)) {
+    const [y, m] = t.split('-');
+    return `${y}-${String(Math.max(1, Math.min(12, parseInt(m, 10)))).padStart(2, '0')}`;
+  }
+  if (/^(19|20)\d{2}$/.test(t)) return `${t}-01`;
+  return t;
+}
+
 /**
  * Resolve a display duration for templates — prefer explicit YYYY-MM fields over
  * stale Duration tokens (e.g. bare "Present" on past roles).
@@ -30,10 +63,17 @@ export function readExperienceEndDate(entry: Record<string, unknown>): string {
 export function resolveExperienceDurationForDisplay(
   entry: Record<string, unknown>
 ): string {
-  const startDate = readExperienceStartDate(entry);
-  const endDate = readExperienceEndDate(entry);
-  const isCurrent = readExperienceCurrentFlag(entry);
+  let startDate = readExperienceStartDate(entry);
+  let endDate = readExperienceEndDate(entry);
+  let isCurrent = readExperienceCurrentFlag(entry);
   const stored = String(entry.duration ?? entry.Duration ?? '').trim();
+
+  if (!startDate && stored) {
+    const fromDuration = parseDatesFromDurationString(stored);
+    if (fromDuration.startDate) startDate = fromDuration.startDate;
+    if (fromDuration.endDate) endDate = fromDuration.endDate;
+    if (fromDuration.current) isCurrent = true;
+  }
 
   if (startDate) {
     if (isCurrent) return `${startDate} - Present`;
@@ -174,9 +214,16 @@ export function syncExperienceEntryAliases(
   const location = String(reconciled.location ?? reconciled.Location ?? '').trim();
   const description = readExperienceDescriptionForSync(reconciled);
   const id = stableExperienceEntryId(reconciled, Number(reconciled._index ?? 0));
-  const isCurrent = readExperienceCurrentFlag(reconciled);
-  const startDate = readExperienceStartDate(reconciled);
-  const endDate = readExperienceEndDate(reconciled);
+  let isCurrent = readExperienceCurrentFlag(reconciled);
+  let startDate = readExperienceStartDate(reconciled);
+  let endDate = readExperienceEndDate(reconciled);
+  const storedDuration = String(reconciled.duration ?? reconciled.Duration ?? '').trim();
+  if (!startDate && storedDuration) {
+    const fromDuration = parseDatesFromDurationString(storedDuration);
+    if (fromDuration.startDate) startDate = fromDuration.startDate;
+    if (fromDuration.endDate) endDate = fromDuration.endDate;
+    if (fromDuration.current) isCurrent = true;
+  }
   const duration = resolveExperienceDurationForDisplay({
     ...reconciled,
     startDate,

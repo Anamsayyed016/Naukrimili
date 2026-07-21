@@ -3,6 +3,7 @@
  */
 
 import { sanitizeFieldText, sanitizeExperienceCompanyValue, preferWholeExperienceField, sanitizePersonName, isValidatedContactName } from '@/lib/resume-parser/import-sanitize';
+import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
 import { bestNodeValue, findNodes } from './ingest';
 import type { CanonicalFieldNode, CanonicalNodeType } from './types';
 
@@ -73,24 +74,27 @@ function buildExperienceFromNodes(
       existingId ||
       `exp_${index}_${parent.id.replace(/[^a-z0-9]/gi, '').slice(0, 12)}`;
 
-    return {
-      ...base,
-      _id: entryId,
-      company,
-      Company: company,
-      title,
-      position: title,
-      designation: title,
-      location,
-      Location: location,
-      description,
-      Description: description,
-      achievements: achievements.length ? achievements : base.achievements || [],
-      bullets: achievements.length ? achievements : base.bullets || [],
-      startDate,
-      endDate,
-      current: base.current === true,
-    };
+    return syncExperienceEntryAliases(
+      {
+        ...base,
+        _id: entryId,
+        company,
+        Company: company,
+        title,
+        position: title,
+        designation: title,
+        location,
+        Location: location,
+        description,
+        Description: description,
+        achievements: achievements.length ? achievements : base.achievements || [],
+        bullets: achievements.length ? achievements : base.bullets || [],
+        startDate,
+        endDate,
+        current: base.current === true,
+      },
+      { reconcileHeaders: false }
+    );
   });
 }
 

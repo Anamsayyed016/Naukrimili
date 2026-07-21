@@ -276,7 +276,7 @@ export function ensureBuilderContactFields(
   const fullEarly = String(out.fullName || out.name || '').trim();
   if (fullEarly && (!first || !last)) {
     const safeFullEarly = sanitizePersonName(fullEarly, 120);
-    if (safeFullEarly && isValidatedContactName(safeFullEarly, locationHint)) {
+    if (safeFullEarly) {
       const parts = safeFullEarly.split(/\s+/).filter(Boolean);
       const repairedEarly = repairStuckContactNameParts(
         parts[0] ?? '',

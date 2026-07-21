@@ -17,6 +17,7 @@ import {
   demoteImplausibleExperienceCompany,
   finalizeExperienceListForCustomParserImport,
   recoverStructuredExperienceFromRawText,
+  sanitizeLanguageEntry,
 } from '@/lib/resume-parser/import-sanitize';
 import { overlaySparseSectionsFromTextRecovery } from '@/lib/resume-parser/prefer-recovered-wording';
 import { extractResumeFromText } from '@/lib/resume-parser/text-recovery';
@@ -959,9 +960,9 @@ export function filterMeaningfulStringList(items: unknown[]): string[] {
 }
 
 function mergeLanguageHints(existing: unknown[], hints: string[]): unknown[] {
-  const out = [...existing];
+  const out = filterMeaningfulLanguages(existing);
   const seen = new Set(
-    existing.map((l) => {
+    out.map((l) => {
       if (typeof l === 'string') return l.toLowerCase();
       if (l && typeof l === 'object') {
         const r = l as Record<string, unknown>;
@@ -973,8 +974,35 @@ function mergeLanguageHints(existing: unknown[], hints: string[]): unknown[] {
   for (const hint of hints) {
     const key = hint.toLowerCase();
     if (!key || seen.has(key)) continue;
+    const sanitized = sanitizeLanguageEntry(hint);
+    if (!sanitized) continue;
     seen.add(key);
-    out.push({ language: hint, name: hint, Language: hint, proficiency: '' });
+    out.push({
+      language: sanitized.language,
+      name: sanitized.name,
+      Language: sanitized.language,
+      proficiency: sanitized.proficiency,
+    });
+  }
+  return out;
+}
+
+function filterMeaningfulLanguages(languages: unknown[]): unknown[] {
+  if (!Array.isArray(languages)) return [];
+  const out: unknown[] = [];
+  const seen = new Set<string>();
+  for (const raw of languages) {
+    const sanitized = sanitizeLanguageEntry(raw);
+    if (!sanitized) continue;
+    const key = sanitized.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      name: sanitized.name,
+      language: sanitized.language,
+      Language: sanitized.language,
+      proficiency: sanitized.proficiency,
+    });
   }
   return out;
 }
@@ -1577,6 +1605,7 @@ export function recoverRenderableSectionsForCoalesce(input: {
   projects: Record<string, unknown>[];
   skills: string[];
   achievements: unknown[];
+  formData?: Record<string, unknown>;
 }): {
   experience: Record<string, unknown>[];
   projects: Record<string, unknown>[];
@@ -1584,6 +1613,10 @@ export function recoverRenderableSectionsForCoalesce(input: {
   achievements: unknown[];
 } {
   let { experience, projects, skills, achievements } = input;
+  const trustParserSkills =
+    !!input.formData &&
+    isCustomParserImport(input.formData) &&
+    skills.length >= 3;
   const recoveredProjects: Record<string, unknown>[] = [];
 
   for (const raw of projects) {
@@ -1685,6 +1718,7 @@ export function recoverRenderableSectionsForCoalesce(input: {
   }
 
   for (const exp of experience) {
+    if (trustParserSkills) continue;
     for (const bullet of extractExperienceBullets(exp)) {
       if (looksLikeEmbeddedSkillList(bullet)) {
         for (const token of splitSkillTokensFromLine(bullet)) addSkill(token);
@@ -1775,6 +1809,7 @@ export function coalesceFormDataForTemplateRender(
     projects: projectsRepaired,
     skills,
     achievements,
+    formData,
   });
   const experienceForRender = recovered.experience;
   let projectsForRender = recovered.projects;

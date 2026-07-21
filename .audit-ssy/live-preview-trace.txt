@@ -1,0 +1,329 @@
+﻿node.exe : npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm 
+help npmrc` for supported config options.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...config options.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:summary',
+    'education:3',
+    'certifications:9',
+    'languages:3',
+    'achievements:4',
+    'skills:19'
+  ],
+  recovered: [
+    'certifications[1]:fields',
+    'certifications[4]:full-entry',
+    'certifications[5]:full-entry',
+    'certifications[6]:full-entry',
+    'certifications[7]:full-entry',
+    'certifications[8]:full-entry'
+  ],
+  missing: [
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'certifications:count-loss:4/9'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'education:3',
+    'certifications:9',
+    'languages:3',
+    'achievements:6',
+    'skills:19'
+  ],
+  recovered: [],
+  missing: [ 'identity:linkedin', 'identity:github', 'identity:portfolio' ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 4,
+    certifications: 9,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 3,
+    certifications: 9,
+    languages: 3
+  },
+  builder: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  }
+}
+[import-transformer] mapping validation {
+  issues: [ 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 8,
+  rawCompanyCount: 8,
+  builtCompanyCount: 8
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 19,
+  experience: 8,
+  education: 5,
+  projects: 0,
+  certifications: 9,
+  languages: 3,
+  achievements: 4,
+  hobbies: 0
+}
+
+=== builder ===
+identity: {
+  firstName: 'Shishupal',
+  lastName: 'Singh Yadav',
+  fullName: 'Shishupal Singh Yadav',
+  location: 'Indore, Madhya Pradesh',
+  jobTitle: 'Senior Manager Corporate HR'
+}
+skills: [
+  'Zing HR',
+  'Compliance Applications ΓÇô Legatrix',
+  'PMS Applications - Synergita',
+  'Compliance Manager',
+  'Compliance Portals ETC',
+  'Data Governance & Compliance',
+  'HR Policy Drafting & Implementation',
+  'HRMS Configuration & Integrations'
+]
+experience dates:
+  1. Shivganga Drillers Limited | start=2025-05 end= current=true duration=undefined display=2025-05 - Present
+  2. Knovea Pharmaceutical Pvt. Ltd (Injectab | start=2022-07 end=2025-04 current=false duration=undefined display=2022-07 - 2025-04
+  3. Unichem Laboratories Limited (USFDA). Pi | start=2020-07 end=2022-07 current=false duration=undefined display=2020-07 - 2022-07
+  4. LAPP India Pvt. Ltd. (A Lapp Group Compa | start=2018-05 end=2020-07 current=false duration=undefined display=2018-05 - 2020-07
+  5. Cummins Technologies India Pvt. Ltd. Pit | start=2017-05 end=2018-05 current=false duration=undefined display=2017-05 - 2018-05
+  6. VE Commercial Vehicles (A VOLVO GROUP AN | start=2014-11 end=2017-05 current=false duration=undefined display=2014-11 - 2017-05
+  7. CAPARO Engineering India Ltd. Pithampur, | start=2013-08 end=2014-10 current=false duration=undefined display=2013-08 - 2014-10
+  8. Tata Steel Ltd. (Payroll of IWCPL), Pith | start=2010-10 end=2013-08 current=false duration=undefined display=2010-10 - 2013-08
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'education:5',
+    'certifications:9',
+    'languages:3',
+    'achievements:4',
+    'skills:19'
+  ],
+  recovered: [
+    'certifications[6]:full-entry',
+    'certifications[7]:full-entry',
+    'certifications[8]:full-entry'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'certifications:count-loss:6/9'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  },
+  builder: {
+    summaryChars: 780,
+    experience: 8,
+    experienceCompanies: 8,
+    projects: 0,
+    skills: 19,
+    education: 5,
+    certifications: 9,
+    languages: 3
+  }
+}
+[import-transformer] mapping validation {
+  issues: [ 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 8,
+  rawCompanyCount: 8,
+  builtCompanyCount: 8
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 19,
+  experience: 8,
+  education: 5,
+  projects: 0,
+  certifications: 9,
+  languages: 3,
+  achievements: 4,
+  hobbies: 0
+}
+
+=== session ===
+identity: {
+  firstName: 'Shishupal',
+  lastName: 'Singh Yadav',
+  fullName: 'Shishupal Singh Yadav',
+  location: 'Indore, Madhya Pradesh',
+  jobTitle: 'Senior Manager Corporate HR'
+}
+skills: [
+  'Zing HR',
+  'Compliance Applications ΓÇô Legatrix',
+  'PMS Applications - Synergita',
+  'Compliance Manager',
+  'Compliance Portals ETC',
+  'Data Governance & Compliance',
+  'HR Policy Drafting & Implementation',
+  'HRMS Configuration & Integrations'
+]
+experience dates:
+  1. Shivganga Drillers Limited | start=2025-05 end= current=true duration=undefined display=2025-05 - Present
+  2. Knovea Pharmaceutical Pvt. Ltd (Injectab | start=2022-07 end=2025-04 current=false duration=undefined display=2022-07 - 2025-04
+  3. Unichem Laboratories Limited (USFDA). Pi | start=2020-07 end=2022-07 current=false duration=undefined display=2020-07 - 2022-07
+  4. LAPP India Pvt. Ltd. (A Lapp Group Compa | start=2018-05 end=2020-07 current=false duration=undefined display=2018-05 - 2020-07
+  5. Cummins Technologies India Pvt. Ltd. Pit | start=2017-05 end=2018-05 current=false duration=undefined display=2017-05 - 2018-05
+  6. VE Commercial Vehicles (A VOLVO GROUP AN | start=2014-11 end=2017-05 current=false duration=undefined display=2014-11 - 2017-05
+  7. CAPARO Engineering India Ltd. Pithampur, | start=2013-08 end=2014-10 current=false duration=undefined display=2013-08 - 2014-10
+  8. Tata Steel Ltd. (Payroll of IWCPL), Pith | start=2010-10 end=2013-08 current=false duration=undefined display=2010-10 - 2013-08
+
+=== editor ===
+identity: {
+  firstName: 'Shishupal',
+  lastName: 'Singh Yadav',
+  fullName: 'Shishupal Singh Yadav',
+  location: 'Indore, Madhya Pradesh',
+  jobTitle: 'Senior Manager Corporate HR'
+}
+skills: [
+  'Zing HR',
+  'Compliance Applications ΓÇô Legatrix',
+  'PMS Applications - Synergita',
+  'Compliance Manager',
+  'Compliance Portals ETC',
+  'Data Governance & Compliance',
+  'HR Policy Drafting & Implementation',
+  'HRMS Configuration & Integrations'
+]
+experience dates:
+  1. Shivganga Drillers Limited | start=2025-05 end= current=true duration=2025-05 - Present display=2025-05 - Present
+  2. Knovea Pharmaceutical Pvt. Ltd (Injectab | start=2022-07 end=2025-04 current=false duration=2022-07 - 2025-04 display=2022-07 - 2025-04
+  3. Unichem Laboratories Limited (USFDA). Pi | start=2020-07 end=2022-07 current=false duration=2020-07 - 2022-07 display=2020-07 - 2022-07
+  4. LAPP India Pvt. Ltd. (A Lapp Group Compa | start=2018-05 end=2020-07 current=false duration=2018-05 - 2020-07 display=2018-05 - 2020-07
+  5. Cummins Technologies India Pvt. Ltd. Pit | start=2017-05 end=2018-05 current=false duration=2017-05 - 2018-05 display=2017-05 - 2018-05
+  6. VE Commercial Vehicles (A VOLVO GROUP AN | start=2014-11 end=2017-05 current=false duration=2014-11 - 2017-05 display=2014-11 - 2017-05
+  7. CAPARO Engineering India Ltd. Pithampur, | start=2013-08 end=2014-10 current=false duration=2013-08 - 2014-10 display=2013-08 - 2014-10
+  8. Tata Steel Ltd. (Payroll of IWCPL), Pith | start=2010-10 end=2013-08 current=false duration=2010-10 - 2013-08 display=2010-10 - 2013-08
+[renderLanguages] Input: {
+  languages: [
+    { name: 'Hindi', language: 'Hindi', proficiency: 'Fluent' },
+    { name: 'English', language: 'English', proficiency: 'Fluent' },
+    { name: 'Punjabi', language: 'Punjabi', proficiency: 'Fluent' }
+  ],
+  type: 'object',
+  isArray: true,
+  length: 3,
+  useProgressBars: true
+}
+[renderLanguages] Processing as object array
+[renderLanguages] Valid languages (object): 3 [
+  { name: 'Hindi', language: 'Hindi', proficiency: 'Fluent' },
+  { name: 'English', language: 'English', proficiency: 'Fluent' },
+  { name: 'Punjabi', language: 'Punjabi', proficiency: 'Fluent' }
+]
+[renderLanguages] Final result length (progress bars): 991 Preview: 
+          <div class="psp-language-item">
+            <div class="psp-language-name">Hindi</div>
+            <div class="psp-language-bar-container">
+              <div class="psp-language-bar-fill" 
+
+=== HTML name block ===
+class="candidate-name"> <span class="name-first">Shishupal</span> <span class="name-space"> </span> <span class="name-last">Singh Yadav</span> <span class="name-fallback">Shishupal Singh Yadav</span> 
+
+=== HTML durations ===
+2025-05 - Present | 2022-07 - 2025-04 | 2020-07 - 2022-07 | 2018-05 - 2020-07 | 2017-05 - 2018-05 | 2014-11 - 2017-05 | 2013-08 - 2014-10 | 2010-10 - 2013-08
+
+=== HTML location ===
+coe-contact-item--location"> <span class="coe-contact-icon" aria-hidden="true"></span> <span class="coe-contact-value">Indore, Madhya Pradesh</span> </div>
+
+=== HTML skills (first 12) ===
+Zing HR, Compliance Applications ΓÇô Legatrix, PMS Applications - Synergita, Compliance Manager, Compliance Portals ETC, Data Governance &amp; Compliance, HR Policy Drafting &amp; Implementation, HRMS Configuration &amp; Integrations, LMS, LMS Successfactors, Payroll Process, People Strong
