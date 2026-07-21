@@ -19,6 +19,7 @@ export type { Template, ColorVariant, LoadedTemplate } from './types';
 
 // Import types for use in function signatures
 import type { Template, ColorVariant, LoadedTemplate } from './types';
+import { resolveExperienceDurationForDisplay } from './experience-entry-sync';
 import {
   filterMeaningfulExperiences,
   filterMeaningfulEducation,
@@ -480,7 +481,7 @@ export function injectResumeData(
 
   const firstName = getString(['firstName', 'First Name']).trim();
   const lastName = getString(['lastName', 'Last Name']).trim();
-  const legacyFullName = getString(['Full Name', 'name']).trim();
+  const legacyFullName = getString(['Full Name', 'fullName', 'name']).trim();
 
   // Prefer live first/last name over stale imported `name` (fixes preview not clearing)
   let fullName = '';
@@ -754,23 +755,12 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       ]);
       const duration = readCanonicalString(exp, 'duration', ['Duration']);
       const description = readCanonicalString(exp, 'description', ['Description']);
-      
-      // Build duration from start/end dates if not provided directly
-      let finalDuration = duration;
-      if (!finalDuration) {
-        const startDate = readCanonicalString(exp, 'startDate', ['StartDate', 'Start Date']);
-        // Check current flag first, then endDate
-        const isCurrent = exp.current === true || exp.Current === true;
-        const endDateValue = readCanonicalString(exp, 'endDate', ['EndDate', 'End Date']);
-        const endDate = isCurrent ? 'Present' : endDateValue;
-        if (startDate && endDate) {
-          finalDuration = `${startDate} - ${endDate}`;
-        } else if (startDate) {
-          finalDuration = isCurrent ? `${startDate} - Present` : startDate;
-        } else if (endDate) {
-          finalDuration = endDate;
-        }
-      }
+
+      const finalDuration = resolveExperienceDurationForDisplay({
+        ...exp,
+        duration,
+        Duration: duration,
+      });
       
       const location = readCanonicalString(exp, 'location', ['Location']);
       const companyWithLocation = location ? `${company}${company ? ' / ' : ''}${location}` : company;

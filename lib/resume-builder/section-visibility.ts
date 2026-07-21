@@ -274,7 +274,7 @@ export function isMeaningfulExperience(exp: Record<string, unknown>): boolean {
     return true;
   }
 
-  return exp.current === true || exp.Current === true;
+  return exp.current === true || exp.Current === true || exp.isCurrent === true;
 }
 
 export function filterMeaningfulEducation(

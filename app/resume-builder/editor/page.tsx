@@ -321,7 +321,8 @@ export default function ResumeEditorPage() {
 
         const sessionForm = resolveEditorFormFromImport();
         const explicitGalleryImport = shouldPrefill || sourceImport;
-        let formLoaded = hasImportableContent(formData);
+        let formLoaded =
+          hasImportableContent(sessionForm ?? {}) || hasImportableContent(formData);
 
         if (
           formLoaded &&

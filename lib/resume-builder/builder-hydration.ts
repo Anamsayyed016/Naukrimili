@@ -66,8 +66,9 @@ export function readImportMeta(): ResumeImportMeta | null {
 export function prepareBuilderSessionPayload(
   payload: Record<string, unknown>
 ): Record<string, unknown> {
+  const backfilled = backfillImportedExperienceForDisplay(payload);
   const out: Record<string, unknown> = {
-    ...backfillImportedExperienceForDisplay(payload),
+    ...ensureBuilderContactFields(backfilled),
     _builderCoalesced: true,
   };
 
@@ -269,6 +270,26 @@ export function ensureBuilderContactFields(
 
   if (combined && isValidatedContactName(combined, locationHint)) {
     return out;
+  }
+
+  // Partial or stale first/last parts — rebuild from fullName when available.
+  const fullEarly = String(out.fullName || out.name || '').trim();
+  if (fullEarly && (!first || !last)) {
+    const safeFullEarly = sanitizePersonName(fullEarly, 120);
+    if (safeFullEarly && isValidatedContactName(safeFullEarly, locationHint)) {
+      const parts = safeFullEarly.split(/\s+/).filter(Boolean);
+      const repairedEarly = repairStuckContactNameParts(
+        parts[0] ?? '',
+        parts.slice(1).join(' '),
+        safeFullEarly
+      );
+      out.firstName = (repairedEarly.firstName || parts[0]) ?? '';
+      out.lastName = repairedEarly.lastName || parts.slice(1).join(' ');
+      out.name = [out.firstName, out.lastName].filter(Boolean).join(' ').trim() || safeFullEarly;
+      out.fullName = out.name;
+      out['Full Name'] = out.name;
+      return out;
+    }
   }
 
   const full = String(out.fullName || out.name || '').trim();

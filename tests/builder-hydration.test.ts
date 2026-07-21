@@ -6,6 +6,9 @@ import {
   builderFormChecksum,
   ensureBuilderContactFields,
 } from '../lib/resume-builder/builder-hydration';
+import {
+  resolveExperienceDurationForDisplay,
+} from '../lib/resume-builder/experience-entry-sync';
 
 describe('builder-hydration', () => {
   it('shouldForceImportHydration when prefill or pending session', () => {
@@ -26,6 +29,35 @@ describe('builder-hydration', () => {
     });
     assert.equal(out.firstName, 'Anam');
     assert.equal(out.lastName, 'Sayyed');
+  });
+
+  it('ensureBuilderContactFields rebuilds from fullName when first/last are empty', () => {
+    const out = ensureBuilderContactFields({
+      fullName: 'Shishupal Singh Yadav',
+      firstName: '',
+      lastName: '',
+      email: 'ssy@example.com',
+    });
+    assert.equal(out.firstName, 'Shishupal');
+    assert.equal(out.lastName, 'Singh Yadav');
+  });
+
+  it('resolveExperienceDurationForDisplay prefers dates over stale Present token', () => {
+    const past = resolveExperienceDurationForDisplay({
+      Duration: 'Present',
+      startDate: '2022-07',
+      endDate: '2025-04',
+      current: false,
+    });
+    assert.equal(past, '2022-07 - 2025-04');
+
+    const current = resolveExperienceDurationForDisplay({
+      Duration: 'Present',
+      startDate: '2025-05',
+      current: true,
+      isCurrent: true,
+    });
+    assert.equal(current, '2025-05 - Present');
   });
 
   it('isImportFresherThanDraft respects user edits after import', () => {

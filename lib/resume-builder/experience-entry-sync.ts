@@ -6,6 +6,57 @@ import {
   sanitizeExperienceCompanyValue,
 } from '@/lib/resume-parser/import-sanitize';
 
+/** Unified current-role flag across parser, builder, and editor aliases. */
+export function readExperienceCurrentFlag(entry: Record<string, unknown>): boolean {
+  return (
+    entry.current === true ||
+    entry.Current === true ||
+    entry.isCurrent === true
+  );
+}
+
+export function readExperienceStartDate(entry: Record<string, unknown>): string {
+  return String(entry.startDate ?? entry.StartDate ?? '').trim();
+}
+
+export function readExperienceEndDate(entry: Record<string, unknown>): string {
+  return String(entry.endDate ?? entry.EndDate ?? '').trim();
+}
+
+/**
+ * Resolve a display duration for templates — prefer explicit YYYY-MM fields over
+ * stale Duration tokens (e.g. bare "Present" on past roles).
+ */
+export function resolveExperienceDurationForDisplay(
+  entry: Record<string, unknown>
+): string {
+  const startDate = readExperienceStartDate(entry);
+  const endDate = readExperienceEndDate(entry);
+  const isCurrent = readExperienceCurrentFlag(entry);
+  const stored = String(entry.duration ?? entry.Duration ?? '').trim();
+
+  if (startDate) {
+    if (isCurrent) return `${startDate} - Present`;
+    if (endDate) return `${startDate} - ${endDate}`;
+    return startDate;
+  }
+
+  if (stored) {
+    if (/^present$/i.test(stored)) {
+      if (isCurrent) return 'Present';
+      if (endDate) return endDate;
+      return '';
+    }
+    if (/\d{4}/.test(stored) || /\s[-–—]\s/.test(stored)) {
+      return stored;
+    }
+    return stored;
+  }
+
+  if (isCurrent) return 'Present';
+  return endDate || '';
+}
+
 export function stableExperienceEntryId(entry: Record<string, unknown>, index: number): string {
   const existing =
     typeof entry._id === 'string' && entry._id.trim() ? entry._id.trim() : '';
@@ -123,6 +174,22 @@ export function syncExperienceEntryAliases(
   const location = String(reconciled.location ?? reconciled.Location ?? '').trim();
   const description = readExperienceDescriptionForSync(reconciled);
   const id = stableExperienceEntryId(reconciled, Number(reconciled._index ?? 0));
+  const isCurrent = readExperienceCurrentFlag(reconciled);
+  const startDate = readExperienceStartDate(reconciled);
+  const endDate = readExperienceEndDate(reconciled);
+  const duration = resolveExperienceDurationForDisplay({
+    ...reconciled,
+    startDate,
+    endDate,
+    current: isCurrent,
+    isCurrent,
+  });
+
+  const existingAchievements = Array.isArray(reconciled.achievements)
+    ? (reconciled.achievements as unknown[]).filter(
+        (item) => typeof item === 'string' && item.trim().length > 0
+      )
+    : [];
 
   const synced: Record<string, unknown> = {
     ...reconciled,
@@ -142,10 +209,19 @@ export function syncExperienceEntryAliases(
     Location: location,
     description,
     Description: description,
-    achievements: [],
-    bullets: [],
-    bulletPoints: [],
-    Achievements: [],
+    startDate,
+    StartDate: startDate,
+    endDate,
+    EndDate: endDate,
+    current: isCurrent,
+    Current: isCurrent,
+    isCurrent,
+    duration,
+    Duration: duration,
+    achievements: existingAchievements,
+    bullets: existingAchievements,
+    bulletPoints: existingAchievements,
+    Achievements: existingAchievements,
   };
 
   return synced;
@@ -174,10 +250,10 @@ export function readExperienceEntryForForm(
         : readExperienceCompanySlot(entry)
   );
   const location = String(entry.location ?? entry.Location ?? '').trim();
-  const startDate = String(entry.startDate ?? '').trim();
-  const endDate = String(entry.endDate ?? '').trim();
+  const startDate = readExperienceStartDate(entry);
+  const endDate = readExperienceEndDate(entry);
   const description = readExperienceDescriptionForForm(entry).trim();
-  const current = entry.current === true || entry.Current === true;
+  const current = readExperienceCurrentFlag(entry);
 
   return {
     id: stableExperienceEntryId(entry, index),
