@@ -1,5 +1,6 @@
 import type { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import { transformImportDataToBuilder } from '@/lib/resume-builder/import-transformer';
+import { resolveImportExperienceCurrentFlag } from '@/lib/resume-builder/experience-entry-sync';
 import {
   deriveDisplayNameFromEmail,
   isPlausiblePersonName,
@@ -889,6 +890,93 @@ describe('resume preview data binding', () => {
     expect(transformed.experience.length).toBeGreaterThan(0);
     expect(transformed.education.length).toBeGreaterThan(0);
     expect(transformed.skills.length).toBeGreaterThan(0);
+  });
+
+  it('coalesce + editor normalize backfills contact name from fullName on finalized session', async () => {
+    const { coalesceBuilderImportPayload } = await import(
+      '@/lib/resume-builder/import-transformer'
+    );
+    const { normalizeImportedFormForEditor } = await import(
+      '@/lib/resume-builder/builder-hydration'
+    );
+    const coalesced = coalesceBuilderImportPayload({
+      firstName: '',
+      lastName: '',
+      fullName: 'Shishupal Singh Yadav',
+      email: 'contact@example.com',
+      customParserUsed: true,
+      _imported: true,
+      _builderCoalesced: true,
+      experience: [{ company: 'Acme Corp', title: 'Engineer', startDate: '2020-01', endDate: '2022-06' }],
+      skills: ['HR Policy'],
+    });
+    const editor = normalizeImportedFormForEditor(coalesced);
+    expect(String(editor.firstName || '')).toMatch(/Shishupal/i);
+    expect(String(editor.lastName || '')).toMatch(/Yadav/i);
+  });
+
+  it('resolveImportExperienceCurrentFlag does not treat missing end date as current', () => {
+    expect(
+      resolveImportExperienceCurrentFlag({
+        startDate: '2018-05',
+        endDate: '',
+        current: false,
+      })
+    ).toBe(false);
+    expect(
+      resolveImportExperienceCurrentFlag({
+        startDate: '2025-05',
+        endDate: 'Present',
+      })
+    ).toBe(true);
+    expect(
+      resolveImportExperienceCurrentFlag({
+        startDate: '2022-07',
+        endDate: '2025-04',
+        current: false,
+      })
+    ).toBe(false);
+  });
+
+  it('coalesceBuilderImportPayload skips re-overlay when _builderCoalesced preserves start dates', async () => {
+    const { coalesceBuilderImportPayload } = await import(
+      '@/lib/resume-builder/import-transformer'
+    );
+    const session = {
+      firstName: 'Shishupal',
+      lastName: 'Singh Yadav',
+      email: 'ssyadav24@outlook.com',
+      customParserUsed: true,
+      _imported: true,
+      _builderCoalesced: true,
+      rawText: 'Experience\nSenior Manager\nAcme Corp\n2018 - 2020\nSkills\nAdmin ETC',
+      skills: ['HR Policy Drafting', 'Payroll', 'Compliance Manager'],
+      experience: [
+        {
+          company: 'Acme Corp',
+          title: 'Senior Manager',
+          startDate: '2018-05',
+          endDate: '2020-07',
+          current: false,
+          Duration: '2018-05 - 2020-07',
+        },
+        {
+          company: 'Beta Ltd',
+          title: 'Manager',
+          startDate: '2020-08',
+          endDate: '2022-12',
+          current: false,
+          Duration: '2020-08 - 2022-12',
+        },
+      ],
+    };
+    const secondPass = coalesceBuilderImportPayload(session);
+    expect(secondPass.experience[0].startDate).toBe('2018-05');
+    expect(secondPass.experience[1].startDate).toBe('2020-08');
+    expect(secondPass.skills).toEqual(
+      expect.arrayContaining(['HR Policy Drafting', 'Compliance Manager'])
+    );
+    expect(secondPass.skills).not.toEqual(expect.arrayContaining(['Admin', 'ETC']));
   });
 
   it('coalesceBuilderImportPayload preserves parent experience without full re-sanitize drop', async () => {

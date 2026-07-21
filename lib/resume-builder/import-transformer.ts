@@ -154,6 +154,7 @@ import {
 import { runCanonicalBuilderMapping } from '@/lib/resume-builder/canonical-mapping';
 import { DYNAMIC_SECTION_REGISTRY } from '@/lib/resume-builder/dynamic-section-registry';
 import { pruneAndMergeDynamicSections } from '@/lib/resume-builder/dynamic-section-visibility';
+import { syncExperienceEntryAliases, resolveImportExperienceCurrentFlag } from './experience-entry-sync';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
@@ -800,7 +801,59 @@ function mergeBuilderFormWithParent(
   out._aiProvider = parent._aiProvider ?? builderFormData._aiProvider;
   out.rawText = parent.rawText ?? builderFormData.rawText ?? out.rawText;
 
+  mergeIdentityFieldsFromParent(parent, out);
+
   return out;
+}
+
+/** Preserve parser identity on nested builderFormData when builder contact fields are empty. */
+function mergeIdentityFieldsFromParent(
+  parent: Record<string, unknown>,
+  out: Record<string, any>
+): void {
+  const scalarKeys = [
+    'firstName',
+    'lastName',
+    'fullName',
+    'name',
+    'Full Name',
+    'email',
+    'phone',
+    'location',
+    'address',
+    'Location',
+    'linkedin',
+    'github',
+    'portfolio',
+    'jobTitle',
+  ] as const;
+
+  for (const key of scalarKeys) {
+    const builderVal = String(out[key] ?? '').trim();
+    const parentVal = String(parent[key] ?? '').trim();
+    if (!builderVal && parentVal) {
+      out[key] = parent[key];
+    }
+  }
+
+  const personal = parent.personalInformation;
+  if (personal && typeof personal === 'object' && !Array.isArray(personal)) {
+    const p = personal as Record<string, unknown>;
+    const map: Array<[string, string]> = [
+      ['firstName', 'firstName'],
+      ['lastName', 'lastName'],
+      ['fullName', 'fullName'],
+      ['email', 'email'],
+      ['phone', 'phone'],
+    ];
+    for (const [parentKey, outKey] of map) {
+      const builderVal = String(out[outKey] ?? '').trim();
+      const parentVal = String(p[parentKey] ?? '').trim();
+      if (!builderVal && parentVal) {
+        out[outKey] = p[parentKey];
+      }
+    }
+  }
 }
 
 function applySummaryHygieneToBuilderForm(formData: Record<string, any>): Record<string, any> {
@@ -871,6 +924,27 @@ export function coalesceBuilderImportPayload(
       );
     }
 
+    // Gallery/editor session payloads are finalized in prepareBuilderSessionPayload —
+    // never re-overlay or re-normalize (raw-text recovery can strip dates and pollute skills).
+    if (parsed._builderCoalesced === true && hasImportableContent(parsed)) {
+      let stable = { ...(parsed as Record<string, any>) };
+      delete stable.builderFormData;
+      if (Array.isArray(stable.experience) && stable.experience.length > 0) {
+        stable.experience = stable.experience.map((entry: unknown) =>
+          entry && typeof entry === 'object'
+            ? syncExperienceEntryAliases(entry as Record<string, unknown>, {
+                reconcileHeaders: false,
+              })
+            : entry
+        );
+        stable['Work Experience'] = stable.experience;
+        stable.Experience = stable.experience;
+      }
+      return applySummaryHygieneToBuilderForm(
+        backfillImportedExperienceForDisplay(stable)
+      );
+    }
+
     const rawText = String(parsed.rawText ?? '').trim();
     if (isSparseSectionImport(parsed) && rawText.length >= 80) {
       const { builderFormData: _drop, ...profile } = parsed;
@@ -890,11 +964,9 @@ export function coalesceBuilderImportPayload(
       out.experience = normalizeMergedExperienceList(out.experience, out);
     }
 
-    // Re-coalesce of gallery/editor session — skip field-mapper re-recovery (inflates achievements).
+    // Re-coalesce after overlay — skip heavy guards when custom parser already finalized dates.
     if (isAlreadyBuilderCoalescedImport(out) && hasImportableContent(out)) {
-      // Gallery/editor session payloads are finalized in prepareBuilderSessionPayload —
-      // skip heavy import guards (raw-text skill/edu recovery) to avoid crashes and N× preview cost.
-      if (out._builderCoalesced === true) {
+      if (isCustomParserImport(out) && experienceHasReliableDates(out)) {
         return applySummaryHygieneToBuilderForm(out);
       }
       return applySummaryHygieneToBuilderForm(
@@ -2475,6 +2547,15 @@ function ensureImportedExperiencePopulated(
 
   if (!isImport || text.length < 80) return builder;
 
+  if (
+    isCustomParserImport(builder) &&
+    meaningful.length >= 2 &&
+    plausible >= 2 &&
+    experienceHasReliableDates(builder)
+  ) {
+    return builder;
+  }
+
   const bodyBullets = countExperienceBodyBullets(expRows);
   const sparseBodies =
     meaningful.length >= 2 &&
@@ -2613,6 +2694,12 @@ function applyBuilderImportGuards(
 
     if (sparseCompanies || eduWithDegree < 2 || noisySkills || experienceUnderRepresented) {
       const experienceNeedsOverlay = sparseCompanies || experienceUnderRepresented;
+      const skipExperienceOverlay =
+        isCustomParserImport(out) &&
+        experienceHasReliableDates(out) &&
+        countExperienceWithPlausibleCompany(
+          Array.isArray(out.experience) ? (out.experience as unknown[]) : []
+        ) >= 2;
       const overlaid = overlaySparseSectionsFromTextRecovery({ ...out, rawText }) as Record<
         string,
         unknown
@@ -2621,6 +2708,7 @@ function applyBuilderImportGuards(
       // weak text-heuristic rematches (cities promoted into company slots).
       if (
         experienceNeedsOverlay &&
+        !skipExperienceOverlay &&
         Array.isArray(overlaid.experience) &&
         overlaid.experience.length > 0
       ) {
@@ -3403,9 +3491,7 @@ function transformExperienceArray(experiences: unknown): any[] {
 
       const startMonth = toMonthInput(exp.startDate);
       const endRawStr = String(exp.endDate || '').trim();
-      const isCurrent =
-        exp.current === true ||
-        /^(present|current|now|ongoing|running|till date)$/i.test(endRawStr);
+      const isCurrent = resolveImportExperienceCurrentFlag(exp);
       const endMonth = isCurrent ? '' : toMonthInput(endRawStr);
 
       const body = collectExperienceBodyFields(exp);

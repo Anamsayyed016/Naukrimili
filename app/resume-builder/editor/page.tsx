@@ -246,8 +246,23 @@ export default function ResumeEditorPage() {
       if (prev._userEdited === true) return prev;
       const normalized = normalizeImportedFormForEditor(resolved);
       if (explicitGalleryImport) return normalized;
-      if (hasImportableContent(prev)) return ensureBuilderContactFields(prev);
-      return normalized;
+      const prevName = [prev.firstName, prev.lastName]
+        .map((v) => String(v ?? '').trim())
+        .filter(Boolean)
+        .join(' ');
+      const importName = [normalized.firstName, normalized.lastName]
+        .map((v) => String(v ?? '').trim())
+        .filter(Boolean)
+        .join(' ');
+      if (
+        !prevName &&
+        importName &&
+        hasImportableContent(normalized)
+      ) {
+        return normalized;
+      }
+      if (!hasImportableContent(prev)) return normalized;
+      return ensureBuilderContactFields(prev);
     });
     commitBuilderDraft(templateId, normalizeImportedFormForEditor(resolved));
     const importMeta = readImportMeta();

@@ -15,6 +15,27 @@ export function readExperienceCurrentFlag(entry: Record<string, unknown>): boole
   );
 }
 
+/**
+ * Resolve whether an import/API experience row is current.
+ * Missing end dates alone must not imply "Present" — only explicit flags or keywords.
+ */
+export function resolveImportExperienceCurrentFlag(
+  exp: Record<string, unknown>
+): boolean {
+  if (readExperienceCurrentFlag(exp)) return true;
+  const endDateRaw = String(
+    exp.end_date ?? exp.endDate ?? exp.EndDate ?? ''
+  ).trim();
+  if (/^(present|current|now|ongoing|running|till date)$/i.test(endDateRaw)) {
+    return true;
+  }
+  const durationRaw = String(exp.duration ?? exp.Duration ?? '').trim();
+  if (/[-–—]\s*(present|current|now|ongoing)\s*$/i.test(durationRaw)) {
+    return true;
+  }
+  return false;
+}
+
 export function readExperienceStartDate(entry: Record<string, unknown>): string {
   return String(entry.startDate ?? entry.StartDate ?? '').trim();
 }
@@ -297,10 +318,19 @@ export function readExperienceEntryForForm(
         : readExperienceCompanySlot(entry)
   );
   const location = String(entry.location ?? entry.Location ?? '').trim();
-  const startDate = readExperienceStartDate(entry);
-  const endDate = readExperienceEndDate(entry);
+  let startDate = readExperienceStartDate(entry);
+  let endDate = readExperienceEndDate(entry);
+  let current = readExperienceCurrentFlag(entry);
+  if (!startDate) {
+    const storedDuration = String(entry.duration ?? entry.Duration ?? '').trim();
+    if (storedDuration) {
+      const fromDuration = parseDatesFromDurationString(storedDuration);
+      if (fromDuration.startDate) startDate = fromDuration.startDate;
+      if (fromDuration.endDate) endDate = fromDuration.endDate;
+      if (fromDuration.current) current = true;
+    }
+  }
   const description = readExperienceDescriptionForForm(entry).trim();
-  const current = readExperienceCurrentFlag(entry);
 
   return {
     id: stableExperienceEntryId(entry, index),

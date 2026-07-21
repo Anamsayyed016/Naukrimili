@@ -78,6 +78,7 @@ import {
   isCustomParserActive,
   logOrchestratorMetrics,
 } from '@/lib/resume-parser/custom/integration';
+import { resolveImportExperienceCurrentFlag } from '@/lib/resume-builder/experience-entry-sync';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -1870,10 +1871,7 @@ export async function POST(request: NextRequest) {
         const location = exp.location || '';
         const startDate = exp.start_date || exp.startDate || '';
         const endDateRaw = exp.end_date || exp.endDate || '';
-        const isCurrent =
-          exp.current === true ||
-          !endDateRaw ||
-          /^(present|current|now|ongoing)$/i.test(String(endDateRaw));
+        const isCurrent = resolveImportExperienceCurrentFlag(exp);
         // CRITICAL: when current, force endDate to '' so templates don't render
         // "Present" twice (once from endDate + once from current flag).
         const endDate = isCurrent ? '' : endDateRaw;
