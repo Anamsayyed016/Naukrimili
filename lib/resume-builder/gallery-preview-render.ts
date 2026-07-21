@@ -10,7 +10,7 @@ export function resolveGalleryInjectOptions(
   templateId?: string;
   mode?: 'preview';
 } {
-  if (isGalleryEmptyFormData(previewData)) {
+  if (isGalleryEmptyFormData(previewData) || previewData._galleryDemo === true) {
     return { galleryPreview: true, galleryTemplateId: templateId };
   }
   return { templateId, mode: 'preview' };
@@ -18,7 +18,7 @@ export function resolveGalleryInjectOptions(
 
 /** Demo/sample cards use compact typography; user resumes mirror Live Preview CSS. */
 export function isGalleryCompactPreview(previewData: Record<string, unknown>): boolean {
-  return isGalleryEmptyFormData(previewData);
+  return isGalleryEmptyFormData(previewData) || previewData._galleryDemo === true;
 }
 
 export function buildGalleryPreviewDocumentHtml(

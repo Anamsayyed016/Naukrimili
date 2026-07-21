@@ -79,6 +79,30 @@ export function syncPersistedProfileImageFromFormData(
 }
 
 /**
+ * Whether persisted user photo should be merged before template injection.
+ * Gallery demo cards and marketing previews must never read the global photo store.
+ */
+export function shouldMergePersistedProfileImageForRender(
+  formData: Record<string, unknown>,
+  options?: { galleryPreview?: boolean }
+): boolean {
+  if (options?.galleryPreview) return false;
+  if (formData._galleryDemo === true) return false;
+  return true;
+}
+
+/** Merge global user photo only for editor/export renders — not gallery demo cards. */
+export function prepareFormDataForResumeRender(
+  formData: Record<string, unknown>,
+  options?: { galleryPreview?: boolean }
+): Record<string, unknown> {
+  if (!shouldMergePersistedProfileImageForRender(formData, options)) {
+    return formData;
+  }
+  return mergePersistedProfileImageIntoFormData(formData);
+}
+
+/**
  * Restore a user-uploaded photo onto form data when the draft/import omitted it.
  * Never overwrites an existing valid user photo.
  */

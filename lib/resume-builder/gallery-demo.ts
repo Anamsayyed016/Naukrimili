@@ -253,6 +253,9 @@ export function resolveGalleryProfileImage(
   _getString: (keys: string[]) => string,
   templateId?: string
 ): string {
+  if (formData._galleryDemo === true) {
+    return getGalleryDemoProfileImage(templateId);
+  }
   const userImage = resolveProfileImageForRender(formData);
   if (userImage) {
     return userImage;
@@ -355,6 +358,7 @@ export function buildGallerySampleFormData(templateId?: string): Record<string, 
   const sections = GALLERY_DEMO_RESUME_SECTIONS;
 
   return {
+    _galleryDemo: true,
     firstName: persona.firstName,
     lastName: persona.lastName,
     name: `${persona.firstName} ${persona.lastName}`,

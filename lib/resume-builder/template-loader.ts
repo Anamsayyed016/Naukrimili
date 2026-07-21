@@ -48,6 +48,7 @@ import {
   sanitizeLanguageEntry,
 } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
+import { prepareFormDataForResumeRender } from './profile-image-persistence';
 import { templateSupportsProfilePhoto } from './template-photo-metadata';
 import { resolveTemplateId } from './template-aliases';
 import {
@@ -440,8 +441,9 @@ export function injectResumeData(
   formData: Record<string, unknown>,
   options?: InjectResumeDataOptions
 ): string {
+  const renderInput = prepareFormDataForResumeRender(formData, options);
   const coalesced = pruneAndMergeDynamicSections(
-    coalesceFormDataForTemplateRender(formData),
+    coalesceFormDataForTemplateRender(renderInput),
     DYNAMIC_SECTION_REGISTRY
   );
   const renderMode = resolveResumeRenderMode(options);

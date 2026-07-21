@@ -13,6 +13,15 @@ describe('gallery preview render helpers', () => {
     expect(isGalleryCompactPreview({})).toBe(true);
   });
 
+  it('uses compact inject options for gallery demo sample data', () => {
+    const demo = { _galleryDemo: true, firstName: 'Alex', lastName: 'Reed', experience: [{}] };
+    expect(resolveGalleryInjectOptions('soft-coral-executive', demo)).toEqual({
+      galleryPreview: true,
+      galleryTemplateId: 'soft-coral-executive',
+    });
+    expect(isGalleryCompactPreview(demo)).toBe(true);
+  });
+
   it('uses live preview inject options for imported user data', () => {
     const imported = { firstName: 'Qamar', lastName: 'Ali', _imported: true, experience: [{ title: 'CS' }] };
     expect(resolveGalleryInjectOptions('soft-coral-executive', imported)).toEqual({

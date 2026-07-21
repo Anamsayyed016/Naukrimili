@@ -40,7 +40,6 @@ import {
   DEFAULT_DEMO_PROFILE_IMAGE,
   isDemoProfileImageUrl,
 } from '@/lib/resume-builder/demo-profile-image';
-import { mergePersistedProfileImageIntoFormData } from '@/lib/resume-builder/profile-image-persistence';
 import { shouldKeepAsGlobalAchievement } from '@/lib/resume-parser/field-classification';
 
 export type ResumeSectionKey =
@@ -1826,7 +1825,7 @@ export function coalesceFormDataForTemplateRender(
   const skillsForRender = recovered.skills;
   const achievementsForRender = recovered.achievements;
 
-  const coalesced = mergePersistedProfileImageIntoFormData({
+  const coalesced = {
     ...formData,
     experience: experienceForRender,
     education,
@@ -1849,7 +1848,7 @@ export function coalesceFormDataForTemplateRender(
     interests: hobbies,
     Interests: hobbies,
     personalInterests: hobbies,
-  });
+  };
   const integrity = applyRenderSectionIntegrity({
     experience: experienceForRender,
     projects: projectsForRender,
