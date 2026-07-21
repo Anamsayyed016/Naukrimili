@@ -14,6 +14,7 @@ import {
   ImageOff, ChevronDown, ChevronUp, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { renderProfileImageCrop } from '@/lib/resume-builder/profile-image-crop';
 
 interface PhotoUploadProps {
   value?: string;
@@ -395,147 +396,14 @@ export default function PhotoUpload({ value, placeholderImage, onChange, classNa
 
   const processImage = useCallback(() => {
     if (!imageSrc) return Promise.resolve('');
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    return new Promise<string>((resolve, reject) => {
-      img.onerror = () => reject(new Error('Failed to load image'));
-      img.onload = () => {
-        try {
-          // Ensure canvas is available - create one if ref is not set
-          let canvas = canvasRef.current;
-          if (!canvas) {
-            canvas = document.createElement('canvas');
-            canvasRef.current = canvas;
-          }
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            resolve(imageSrc);
-            return;
-          }
-          const baseSize = Math.max(img.width, img.height);
-          const size = baseSize * Math.max(zoom, 1);
-          canvas.width = size;
-          canvas.height = size;
-          ctx.clearRect(0, 0, size, size);
-          ctx.save();
-          ctx.translate(size / 2, size / 2);
-          ctx.rotate((rotation * Math.PI) / 180);
-          ctx.translate(-size / 2, -size / 2);
-          const zoomedWidth = img.width * zoom;
-          const zoomedHeight = img.height * zoom;
-          const offsetX = (size - zoomedWidth) / 2;
-          const offsetY = (size - zoomedHeight) / 2;
-          ctx.drawImage(img, offsetX, offsetY, zoomedWidth, zoomedHeight);
-          ctx.restore();
-          // Apply brightness, contrast, and grayscale filters to image data
-          // Note: These need to be applied via pixel manipulation to match CSS filter behavior
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
-          const brightnessFactor = filters.brightness / 100; // CSS brightness is multiplicative
-          const contrastFactor = filters.contrast / 100;
-          const intercept = 128 * (1 - contrastFactor);
-          
-          for (let i = 0; i < data.length; i += 4) {
-            // Store original RGB values
-            let r = data[i];
-            let g = data[i + 1];
-            let b = data[i + 2];
-            
-            // Apply brightness (multiplicative to match CSS filter)
-            r = r * brightnessFactor;
-            g = g * brightnessFactor;
-            b = b * brightnessFactor;
-            
-            // Apply contrast (multiplicative with intercept)
-            r = r * contrastFactor + intercept;
-            g = g * contrastFactor + intercept;
-            b = b * contrastFactor + intercept;
-
-            // Apply saturation
-            if (filters.saturate !== 100) {
-              const satFactor = filters.saturate / 100;
-              const gray = r * 0.299 + g * 0.587 + b * 0.114;
-              r = gray + (r - gray) * satFactor;
-              g = gray + (g - gray) * satFactor;
-              b = gray + (b - gray) * satFactor;
-            }
-            
-            // Apply grayscale if needed
-            if (filters.grayscale > 0) {
-              const gray = r * 0.299 + g * 0.587 + b * 0.114;
-              const grayAmount = filters.grayscale / 100;
-              r = r * (1 - grayAmount) + gray * grayAmount;
-              g = g * (1 - grayAmount) + gray * grayAmount;
-              b = b * (1 - grayAmount) + gray * grayAmount;
-            }
-            
-            // Clamp values to valid range and apply
-            data[i] = Math.min(255, Math.max(0, Math.round(r)));
-            data[i + 1] = Math.min(255, Math.max(0, Math.round(g)));
-            data[i + 2] = Math.min(255, Math.max(0, Math.round(b)));
-          }
-          
-          ctx.putImageData(imageData, 0, 0);
-          
-          // Apply blur using CSS filter on canvas (matches live preview)
-          if (filters.blur > 0) {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            if (tempCtx) {
-              tempCtx.filter = `blur(${filters.blur}px)`;
-              tempCtx.drawImage(canvas, 0, 0);
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              ctx.drawImage(tempCanvas, 0, 0);
-            }
-          }
-          // Apply crop shape to create final image
-          const finalSize = Math.min(canvas.width, canvas.height);
-          const finalCanvas = document.createElement('canvas');
-          finalCanvas.width = finalSize;
-          finalCanvas.height = finalSize;
-          const finalCtx = finalCanvas.getContext('2d', { willReadFrequently: false });
-          if (!finalCtx) {
-            resolve(canvas.toDataURL('image/png'));
-            return;
-          }
-          
-          // Clear the final canvas
-          finalCtx.clearRect(0, 0, finalSize, finalSize);
-          
-          // Calculate source coordinates for center crop
-          const sourceX = Math.round((canvas.width - finalSize) / 2);
-          const sourceY = Math.round((canvas.height - finalSize) / 2);
-          
-          if (cropShape === 'circle') {
-            // For circle: create clipping path, then draw image
-            finalCtx.save();
-            finalCtx.beginPath();
-            finalCtx.arc(finalSize / 2, finalSize / 2, finalSize / 2, 0, Math.PI * 2);
-            finalCtx.closePath();
-            finalCtx.clip();
-            // Fill with white background first (for transparency)
-            finalCtx.fillStyle = '#FFFFFF';
-            finalCtx.fill();
-            // Draw the cropped image
-            finalCtx.drawImage(canvas, sourceX, sourceY, finalSize, finalSize, 0, 0, finalSize, finalSize);
-            finalCtx.restore();
-          } else {
-            // For square: draw image directly (no clipping needed)
-            finalCtx.drawImage(canvas, sourceX, sourceY, finalSize, finalSize, 0, 0, finalSize, finalSize);
-          }
-          
-          // Generate and return the cropped image as base64
-          const croppedImageDataUrl = finalCanvas.toDataURL('image/png');
-          resolve(croppedImageDataUrl);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      img.src = imageSrc;
-    });
-  }, [imageSrc, zoom, rotation, filters, cropShape]);
+    return renderProfileImageCrop({
+      imageSrc,
+      zoom,
+      rotation,
+      filters,
+      preferPng: /^data:image\/png/i.test(imageSrc),
+    }).catch(() => imageSrc);
+  }, [imageSrc, zoom, rotation, filters]);
 
   const handleReset = useCallback(() => {
     setZoom(1);

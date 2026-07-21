@@ -18,6 +18,10 @@ import {
   sanitizePersonName,
   repairStuckContactNameParts,
 } from '@/lib/resume-parser/import-sanitize';
+import {
+  mergePersistedProfileImageIntoFormData,
+  syncPersistedProfileImageFromFormData,
+} from '@/lib/resume-builder/profile-image-persistence';
 
 const MAX_SESSION_EXPERIENCE_DESC = 6000;
 const MAX_SESSION_ACHIEVEMENTS = 24;
@@ -201,6 +205,7 @@ export function commitBuilderDraft(
   formData: Record<string, unknown>
 ): void {
   if (typeof window === 'undefined' || !templateId) return;
+  syncPersistedProfileImageFromFormData(formData);
   const payload = {
     ...formData,
     _imported: formData._imported ?? true,
@@ -216,9 +221,13 @@ export function commitBuilderDraft(
 export function readLocalDraft(templateId: string): Record<string, unknown> | null {
   if (typeof window === 'undefined' || !templateId) return null;
   const raw = localStorage.getItem(draftStorageKey(templateId));
-  if (!raw) return null;
+  if (!raw) {
+    const persistedOnly = mergePersistedProfileImageIntoFormData({});
+    return Object.keys(persistedOnly).length > 0 ? persistedOnly : null;
+  }
   try {
-    return JSON.parse(raw) as Record<string, unknown>;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return mergePersistedProfileImageIntoFormData(parsed);
   } catch {
     return null;
   }
@@ -351,7 +360,7 @@ export function normalizeImportedFormForEditor(
     withExperience['Work Experience'] = normalized;
     withExperience.Experience = normalized;
   }
-  return withExperience;
+  return mergePersistedProfileImageIntoFormData(withExperience);
 }
 
 /**

@@ -58,6 +58,10 @@ import {
   resolveEditorFormFromImport,
   ensureBuilderContactFields,
 } from '@/lib/resume-builder/builder-hydration';
+import {
+  mergePersistedProfileImageIntoFormData,
+  syncPersistedProfileImageFromFormData,
+} from '@/lib/resume-builder/profile-image-persistence';
 import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import type { Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
@@ -571,8 +575,14 @@ export default function ResumeEditorPage() {
   useEffect(() => {
     if (templateId && Object.keys(formData).length > 0) {
       const timeoutId = setTimeout(() => {
-        localStorage.setItem(`resume-${templateId}`, JSON.stringify(formData));
-        saveResumeBuilderLastEditor(templateId, typeId || undefined);
+        syncPersistedProfileImageFromFormData(formData);
+        const payload = mergePersistedProfileImageIntoFormData(formData);
+        try {
+          localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
+          saveResumeBuilderLastEditor(templateId, typeId || undefined);
+        } catch {
+          /* quota — global profile-image key still holds the photo */
+        }
       }, 1000); // Debounce 1 second
 
       return () => clearTimeout(timeoutId);
@@ -758,7 +768,9 @@ export default function ResumeEditorPage() {
     if (typeof window !== 'undefined') {
       // Best-effort flush in case the debounced save hasn't fired yet.
       try {
-        localStorage.setItem(`resume-${templateId}`, JSON.stringify(formData));
+        syncPersistedProfileImageFromFormData(formData);
+        const payload = mergePersistedProfileImageIntoFormData(formData);
+        localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
       } catch {
         // ignore quota errors
       }

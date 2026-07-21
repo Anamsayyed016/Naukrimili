@@ -50,20 +50,25 @@ import {
   type TypographyOverrides,
 } from '@/lib/resume-builder/typography';
 import { cn } from '@/lib/utils';
+import {
+  mergePersistedProfileImageIntoFormData,
+  syncPersistedProfileImageFromFormData,
+} from '@/lib/resume-builder/profile-image-persistence';
 
 type SidebarTab = 'templates' | 'colors' | 'typography';
 
 const DESIGN_STUDIO_RETURN_KEY = 'resume-builder-design-studio-return';
 
 function readLocalFormData(templateId: string): Record<string, unknown> {
-  if (typeof window === 'undefined') return {};
+  if (typeof window === 'undefined') return mergePersistedProfileImageIntoFormData({});
   try {
     const raw = localStorage.getItem(`resume-${templateId}`);
-    if (!raw) return {};
+    if (!raw) return mergePersistedProfileImageIntoFormData({});
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
+    const data = parsed && typeof parsed === 'object' ? parsed : {};
+    return mergePersistedProfileImageIntoFormData(data);
   } catch {
-    return {};
+    return mergePersistedProfileImageIntoFormData({});
   }
 }
 
@@ -72,8 +77,10 @@ function writeLocalFormData(
   data: Record<string, unknown>
 ): void {
   if (typeof window === 'undefined') return;
+  syncPersistedProfileImageFromFormData(data);
+  const payload = mergePersistedProfileImageIntoFormData(data);
   try {
-    localStorage.setItem(`resume-${templateId}`, JSON.stringify(data));
+    localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
   } catch {
     // ignore quota errors — preview still works in memory
   }
@@ -205,14 +212,16 @@ export default function DesignStudioPage() {
   const handleApply = useCallback(() => {
     if (!selectedTemplate) return;
 
+    const payload = mergePersistedProfileImageIntoFormData(formData);
+
     // If the template id changed, migrate the current formData onto the new
     // template's localStorage key BEFORE navigating so the editor reload
     // picks it up. This fixes the silent data loss in the old modal flow.
     const movingTemplate = selectedTemplate.id !== originalTemplateId;
     if (movingTemplate) {
-      writeLocalFormData(selectedTemplate.id, formData);
+      writeLocalFormData(selectedTemplate.id, payload);
     } else {
-      writeLocalFormData(originalTemplateId, formData);
+      writeLocalFormData(originalTemplateId, payload);
     }
 
     if (typeof window !== 'undefined') {

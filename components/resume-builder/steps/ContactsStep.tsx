@@ -10,6 +10,10 @@ import PhotoUpload from '@/components/resume-builder/PhotoUpload';
 import TitleSuggestionChips from '@/components/resume-builder/form-inputs/TitleSuggestionChips';
 import { DEFAULT_DEMO_PROFILE_IMAGE } from '@/lib/resume-builder/demo-profile-image';
 import {
+  persistProfileImage,
+  profileImageFieldPatch,
+} from '@/lib/resume-builder/profile-image-persistence';
+import {
   isSectionForcedHidden,
   resolveProfileImageForRender,
 } from '@/lib/resume-builder/section-visibility';
@@ -260,14 +264,12 @@ export default function ContactsStep({
             value={userProfileImage}
             placeholderImage={demoPlaceholderImage}
             onChange={(value) => {
-              // Update all possible field names for compatibility
-              updateFormData({
-                profileImage: value,
-                photo: value,
-                profilePhoto: value,
-                'Profile Image': value,
-                'Photo': value,
-              });
+              if (value) {
+                persistProfileImage(value);
+              } else {
+                persistProfileImage('');
+              }
+              updateFormData(value ? profileImageFieldPatch(value) : profileImageFieldPatch(''));
             }}
           />
         </div>
