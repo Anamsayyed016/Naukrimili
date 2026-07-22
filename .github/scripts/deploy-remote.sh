@@ -247,6 +247,23 @@ if [ -d ".next/standalone" ]; then
         else
           echo "✅ BingSiteAuth.xml found in standalone/public"
         fi
+
+        # CRITICAL: Verify Google Search Console HTML verification file
+        if [ ! -f ".next/standalone/public/google7b54007b8758a799.html" ]; then
+          echo "❌ CRITICAL: google7b54007b8758a799.html not found in standalone/public"
+          if [ -f "public/google7b54007b8758a799.html" ]; then
+            cp "public/google7b54007b8758a799.html" ".next/standalone/public/google7b54007b8758a799.html" || {
+              echo "❌ Failed to copy google7b54007b8758a799.html to standalone/public"
+              exit 1
+            }
+            echo "✅ google7b54007b8758a799.html copied to standalone/public"
+          else
+            echo "❌ Source google7b54007b8758a799.html not found in public/ directory"
+            exit 1
+          fi
+        else
+          echo "✅ google7b54007b8758a799.html found in standalone/public"
+        fi
         
         # Count public files
         PUBLIC_FILE_COUNT=$(find ".next/standalone/public" -type f 2>/dev/null | wc -l)

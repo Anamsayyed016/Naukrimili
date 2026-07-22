@@ -94,6 +94,8 @@ public/*
 !public/robots.txt
 # CRITICAL: Allow Bing Webmaster verification file
 !public/BingSiteAuth.xml
+# CRITICAL: Allow Google Search Console HTML verification file
+!public/google7b54007b8758a799.html
 # CRITICAL: Allow favicon and manifest for PWA
 !public/favicon.svg
 !public/manifest.json
