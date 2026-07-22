@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
           data: {
             jobs: [],
             pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
-            stats: { totalJobs: 0, totalApplications: 0 },
+            stats: { totalJobs: 0, totalApplications: 0, activeJobs: 0, featuredJobs: 0 },
             requiresCompanyProfile: true,
           },
           message: authResult.error,
@@ -122,6 +122,14 @@ export async function GET(request: NextRequest) {
       where: { companyId: company.id }
     });
 
+    const activeJobs = await prisma.job.count({
+      where: { companyId: company.id, isActive: true }
+    });
+
+    const featuredJobs = await prisma.job.count({
+      where: { companyId: company.id, isFeatured: true }
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -134,7 +142,9 @@ export async function GET(request: NextRequest) {
         },
         stats: {
           totalJobs: stats._count.id,
-          totalApplications
+          totalApplications,
+          activeJobs,
+          featuredJobs,
         }
       }
     });

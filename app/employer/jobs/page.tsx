@@ -208,7 +208,6 @@ export default function EmployerJobsPage() {
       if (cached) {
         setJobs(cached.jobs);
         setPagination(cached.pagination);
-        setLoading(false);
         return;
       }
 
@@ -216,7 +215,7 @@ export default function EmployerJobsPage() {
       
       if (response.success && response.data) {
         const data = response.data as any;
-        setJobs(data.jobs || []);
+        setJobs(Array.isArray(data.jobs) ? data.jobs : []);
         setPagination(
           data.pagination || {
             page: 1,
@@ -246,7 +245,9 @@ export default function EmployerJobsPage() {
         });
         
         // Check if it's a company profile issue
-        const errMsg = response.error || response.message || '';
+        const errMsg = (response as { error?: string; message?: string }).error
+          || (response as { message?: string }).message
+          || '';
         if (
           typeof errMsg === 'string' &&
           (errMsg.toLowerCase().includes('company profile') ||
@@ -351,7 +352,7 @@ export default function EmployerJobsPage() {
       socket.disconnect();
       setIsSocketConnected(false);
     };
-  }, [session, status, fetchJobsCallback]);
+  }, [session?.user?.id, status, fetchJobsCallback]);
 
   // Fetch enhanced stats with trends and caching
   const fetchStats = useCallback(async () => {
@@ -372,37 +373,36 @@ export default function EmployerJobsPage() {
       
       if (response.success && response.data) {
         const statsData = response.data.stats || response.data.data?.stats;
-        const { totalJobs, activeJobs, totalApplications } = statsData || {
-          totalJobs: jobs.length,
-          activeJobs: jobs.filter(j => j.isActive).length,
-          totalApplications: jobs.reduce((sum, job) => sum + job._count.applications, 0)
-        };
+        const totalJobs = Number(statsData?.totalJobs ?? 0);
+        const totalApplications = Number(statsData?.totalApplications ?? 0);
+        const activeJobs = Number(statsData?.activeJobs ?? 0);
+        const featuredJobs = Number(statsData?.featuredJobs ?? 0);
         
         const newStats = [
           { 
             title: 'Total Jobs', 
             value: totalJobs, 
-            change: '+2 this week', 
-            trend: 'up' as const, 
+            change: totalJobs > 0 ? 'From your company' : 'No jobs yet', 
+            trend: 'neutral' as const, 
             icon: <Briefcase className="w-6 h-6" /> 
           },
           { 
             title: 'Total Applications', 
             value: totalApplications, 
-            change: `+${Math.floor(totalApplications * 0.15)} this week`, 
-            trend: 'up' as const, 
+            change: totalApplications > 0 ? 'Across your jobs' : 'No applications yet', 
+            trend: 'neutral' as const, 
             icon: <Users className="w-6 h-6" /> 
           },
           { 
             title: 'Active Jobs', 
             value: activeJobs, 
             change: `${activeJobs} currently active`, 
-            trend: 'up' as const, 
+            trend: 'neutral' as const, 
             icon: <CheckCircle className="w-6 h-6" /> 
           },
           { 
             title: 'Featured Jobs', 
-            value: jobs.filter(job => job.isFeatured).length, 
+            value: featuredJobs, 
             change: 'Premium visibility', 
             trend: 'neutral' as const, 
             icon: <Star className="w-6 h-6" /> 
@@ -484,7 +484,7 @@ export default function EmployerJobsPage() {
     } finally {
       setStatsLoading(false);
     }
-  }, [apiClient, jobs, session]);
+  }, [apiClient, session?.user?.id]);
 
   // Fetch dynamic filter options
   const fetchDynamicOptions = useCallback(async () => {
@@ -586,18 +586,18 @@ export default function EmployerJobsPage() {
     } catch (err) {
       console.error('Failed to fetch job recommendations:', err);
     }
-  }, [jobs, session]);
+  }, [jobs, session?.user?.id]);
 
   useEffect(() => {
-    fetchJobsCallback();
-    fetchStats();
-    fetchDynamicOptions();
+    void fetchJobsCallback();
+    void fetchStats();
+    void fetchDynamicOptions();
   }, [currentPage, jobStatus, jobType, experienceLevel, debouncedSearch, fetchJobsCallback, fetchStats, fetchDynamicOptions]);
 
   // Handle search with dynamic updates
   const handleSearch = useCallback(() => {
     setCurrentPage(1);
-    fetchJobsCallback();
+    void fetchJobsCallback();
   }, [fetchJobsCallback]);
 
   // Process chart data from jobs
@@ -636,16 +636,8 @@ export default function EmployerJobsPage() {
     setExperienceChartData(expData);
   }, [jobs]);
 
-  // Auto-search when filters change (debounced) - this replaces the manual search trigger
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (debouncedSearch !== search || jobStatus !== 'all' || jobType !== 'all' || experienceLevel !== 'all') {
-        handleSearch();
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [debouncedSearch, jobStatus, jobType, experienceLevel, handleSearch, search]);
+  // Debounced search text already drives fetchJobsCallback via debouncedSearch deps.
+  // Do not call handleSearch here — that recreated fetch loops and kept loading=true.
 
   const handleDeleteJob = async (jobId: string) => {
     if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
