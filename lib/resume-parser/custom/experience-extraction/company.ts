@@ -67,7 +67,7 @@ const COMPACT_EMPLOYER_RE = /^[A-Z][A-Za-z]{1,24}(?:\s+[A-Z][A-Za-z]{1,24})?\s+\
 
 /** Government and institutional employer patterns. */
 const INSTITUTIONAL_EMPLOYER_RE =
-  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|railways?|(?:state|national|central|federal|reserve)\s+banks?)\b/i;
+  /\b(?:hospitals?|clinics?|schools?|colleges?|universities?|ministr(?:y|ies)|municipal|corporations?|authorit(?:y|ies)|commissions?|councils?|departments?|institutes?|academ(?:y|ies)|foundations?|trusts?|secretariats?|directorates?|bureaus?|agencies?|chambers?|healthcare|chartered|insurance|logistics|motors|retail|pharma|vidyalaya|vidyalay|railways?|(?:state|national|central|federal|reserve)\s+banks?|(?:indian\s+)?(?:army|navy|air\s*force)|(?:armed|defence|defense|paramilitary)\s+forces?)\b/i;
 
 export function looksLikeInstitutionalEmployer(text: string): boolean {
   const trimmed = text.trim();
@@ -129,7 +129,7 @@ export function looksLikeSentenceNotCompany(text: string): boolean {
   if (/^as\s+.+\s+(?:in|at|with|for)\s+.+/i.test(trimmed)) return false;
   // Duty openers are never employers — even when a soft suffix like "systems" appears.
   if (
-    /^(?:to|the|for|with|by|ensure|carry|organize|planning|taking|doing|coordinating|responsible|implement|prepare|monitor|maintain|identify|acquire|overview|authorize|authori[sz]ed|liason|liaise|training)\b/i.test(
+    /^(?:to|the|for|with|by|ensure|carry|organize|planning|taking|doing|coordinating|responsible|implement|prepare|monitor|maintain|identify|acquire|overview|authorize|authori[sz]ed|liaison|liason|liaise|training)\b/i.test(
       trimmed
     )
   ) {
@@ -201,6 +201,14 @@ export function scoreCompanyCandidate(text: string): number {
   if (/\b[A-Z][a-z]+\s+(?:Sons|Bros|Brothers|Holdings|Group|Industries|Enterprises|Motors|Retail)\b/.test(trimmed)) {
     score += 42;
   }
+  // "… Security Force", "… Guards", "… Services" style employer names without Ltd.
+  if (
+    /\b(?:security\s+force|security\s+services|guards?|facility\s+management)\b/i.test(trimmed) &&
+    /^[A-Z]/.test(trimmed) &&
+    trimmed.split(/\s+/).length <= 6
+  ) {
+    score += 36;
+  }
   if (/\b\w+\s+(?:Asia|Partners|Associates|Healthcare|Diagnostics|Pathlabs?|Pharma)\b/i.test(trimmed)) {
     score += 40;
   }
@@ -224,6 +232,27 @@ export function detectCompanyFromLine(text: string): CompanyDetection {
     const conf = scoreCompanyCandidate(pipeSplit.company);
     if (conf >= 40) {
       return { company: pipeSplit.company, confidence: conf };
+    }
+  }
+
+  // "Employer Name: descriptive tagline" — score the left segment alone so long
+  // taglines do not drown the employer via looksLikeSentenceNotCompany.
+  const colonIdx = trimmed.indexOf(':');
+  if (colonIdx > 2 && colonIdx < 72) {
+    const left = trimmed.slice(0, colonIdx).trim();
+    const right = trimmed.slice(colonIdx + 1).trim();
+    if (
+      left &&
+      right.length >= 3 &&
+      left.split(/\s+/).length <= 8 &&
+      !/^(?:role|designation|position|title|project|duration|period|tenure|location|ctc|salary)\b/i.test(
+        left
+      )
+    ) {
+      const conf = scoreCompanyCandidate(left);
+      if (conf >= 42) {
+        return { company: left, confidence: Math.min(100, conf + 8) };
+      }
     }
   }
 

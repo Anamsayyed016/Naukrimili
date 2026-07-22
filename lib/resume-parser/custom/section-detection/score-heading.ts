@@ -61,10 +61,38 @@ function isInRoleFieldLabel(text: string): boolean {
   return /^project\s*$/i.test(t) && !isAllCapsHeading(t);
 }
 
+/**
+ * Table column headers / serial labels must never open a section (they steal
+ * following bodies, including real Experience / Qualification blocks).
+ * Generic structural patterns only — no resume-specific content.
+ */
+function isTableColumnHeaderLine(text: string): boolean {
+  const t = text.trim().replace(/[:\-–—|]+$/g, '').trim();
+  if (!t || t.length > 96) return false;
+  if (
+    /^(?:s\.?\s*\/?\s*no\.?|sr\.?\s*\/?\s*no\.?|sl\.?\s*\/?\s*no\.?|serial\s*(?:no|number|#)?\.?|row\s*#?|item\s*#?|#)$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Glued multi-column header strips (e.g. "EducationBoard / UniversityYearDivision").
+  const colHits = (
+    t.match(
+      /\b(?:s\/?\s*no|education|board|university|year|division|course|specialization|specialisation|organization|organisation|environment|institution|duration|grade|percentage|type|from|to|period|employer|designation)\b/gi
+    ) || []
+  ).length;
+  if (colHits >= 2 && !/[.!?]$/.test(t) && t.split(/\s+/).length <= 14) {
+    return true;
+  }
+  return false;
+}
+
 /** OCR/wrap debris and unfinished sidebar labels are never section headings. */
 function isHeadingDebris(text: string): boolean {
   const t = text.trim();
   if (!t) return true;
+  if (isTableColumnHeaderLine(t)) return true;
   // Incomplete compound labels: "Team Building &", "Planning and"
   if (/[&/]\s*$/.test(t) || /\b(?:and|or|of|the|for|with|to)\s*$/i.test(t)) return true;
   // Lone sentence-wrap fragments: "works.", "suppliers.", "Processes."
@@ -200,9 +228,22 @@ function isSectionContentLineNotHeading(text: string): boolean {
 
   const typeScores = scoreHeadingKeywords(t);
   const bestKeyword = Math.max(0, ...Object.values(typeScores));
+
   const looksEmployer =
     looksLikeCompanyNameLine(t) ||
     /\b(?:pvt\.?\s*ltd\.?|private\s+limited|ltd\.?|limited|llc|inc\.?|corp\.?|gmbh|plc)\b/i.test(t);
+
+  // Strong phrase-level taxonomy (≥70) always wins over company heuristics
+  // ("PROFESSIONAL EXPERIENCE"). Moderate token hits (38–69) must not promote
+  // employer lines that merely contain a taxonomy word ("Ministry of labour employment").
+  if (bestKeyword >= 70) return false;
+  if (
+    bestKeyword >= MIN_KNOWN_TYPE_SCORE &&
+    !looksEmployer &&
+    !looksLikeJobTitleLine(t)
+  ) {
+    return false;
+  }
 
   // Employer / company lines that merely contain skill taxonomy tokens
   // ("… Technologies …") must never become section headings.
@@ -210,16 +251,12 @@ function isSectionContentLineNotHeading(text: string): boolean {
   // (e.g. looksLikeCompanyNameLine("Educational") === true).
   if (
     looksEmployer &&
-    !/^(?:skills?|experience|educations?|educational|academics?|summary|projects?|certifications?|certificates?|languages?|achievements?|qualifications?|professional\s+qualification)\b/i.test(
+    !/^(?:skills?|experience|educations?|educational|academics?|summary|projects?|certifications?|certificates?|languages?|achievements?|qualifications?|professional\s+(?:&|and)\s+technical\s+qualification|professional\s+qualification|professional\s+experience|core\s+specialt|key\s+areas?)\b/i.test(
       t
     )
   ) {
     return true;
   }
-
-  // Strong section taxonomy wins over job-title heuristics so headings like
-  // "Organizational Experience" are not discarded as titles.
-  if (bestKeyword >= MIN_KNOWN_TYPE_SCORE) return false;
 
   // Job titles are never section headings when they only weakly touch taxonomy tokens.
   if (looksLikeJobTitleLine(t)) return true;

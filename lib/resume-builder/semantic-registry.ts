@@ -546,11 +546,18 @@ export function classifySectionHeading(rawHeading: string): SemanticClassificati
   for (const section of SEMANTIC_SECTION_DEFINITIONS) {
     for (const phrase of section.phrases) {
       const p = normalizeSemanticHeading(phrase);
-      const exactOrContainsPhrase = normalized === p || normalized.includes(p);
+      const phraseWords = p.split(/\s+/).filter(Boolean).length;
+      // Single-word phrases ("employment", "experience") must be exact heading
+      // matches — never substring hits inside employer lines
+      // ("Ministry of labour employment").
+      const exactOrContainsPhrase =
+        normalized === p ||
+        (phraseWords >= 2 && (normalized.includes(p) || normalized.endsWith(` ${p}`)));
       // Avoid "tools" matching phrase "tools and technologies" (skills sub-labels).
       const phraseContainsHeading =
+        phraseWords >= 2 &&
         p.includes(normalized) &&
-        !(p.split(/\s+/).length >= 2 && normalized.split(/\s+/).length === 1 && normalized.length < p.length);
+        !(normalized.split(/\s+/).length === 1 && normalized.length < p.length);
       if (exactOrContainsPhrase || phraseContainsHeading) {
         const score = section.baseConfidence - (normalized.length > p.length + 8 ? 8 : 0);
         if (!best || score > best.confidence) {

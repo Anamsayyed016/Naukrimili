@@ -210,9 +210,28 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
     /(?:present|current|till\s*date|to\s*date|[-–—]|to\s+)/i.test(t);
   const hasCompanySuffix =
     /\b(?:ltd|limited|pvt|private\s+limited|llc|inc|corp|corporation|gmbh|plc)\b\.?/i.test(t);
+  // Parenthetical / pipe tenures common on ops / security / manufacturing CVs:
+  // "Liaison Officer (03 Jun 2019 to 29/05/2023) | CTC: 5.4 lakh"
+  const hasInlineTenure =
+    /\((?:[^)\n]{0,40}\b(?:19|20)\d{2}[^)\n]{0,40}\b(?:to|[-–—]|till|until)\b[^)\n]{0,40})\)/i.test(
+      t
+    ) ||
+    /\b(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:19|20)\d{2}|present|current|till\s*date)\b/i.test(t);
+  const hasCompSignal =
+    /\b(?:ctc|c\.t\.c|lakh|lac|p\.?a\.?|per\s+annum|salary|remuneration)\b/i.test(t);
+  const employmentHeading =
+    /\b(?:professional|work|employment)\s+experience\b|\bemployment\s+history\b/i.test(t);
   if (hasRole && (hasDates || hasCompanySuffix || hasResponsibility || hasTeamSize)) return true;
   if (hasTeamSize && hasResponsibility && (hasDates || hasCompanySuffix)) return true;
   if (hasCompanySuffix && hasDates && hasResponsibility) return true;
+  // Employer-suffix + date range is enough even without Role:/Responsibilities: labels.
+  if (hasCompanySuffix && hasDates && (hasInlineTenure || hasCompSignal || t.length >= 200)) {
+    return true;
+  }
+  if (employmentHeading && hasDates && (hasCompanySuffix || hasInlineTenure) && t.length >= 120) {
+    return true;
+  }
+  if (hasInlineTenure && hasCompSignal && hasDates && t.length >= 120) return true;
   return false;
 }
 
@@ -269,14 +288,14 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const inline = line.match(
-        /^(?:skills?|technical\s+skills|core\s+skills|it\s+skills|strengths?\s*(?:&|and)?\s*it\s+skills|competencies|expertise)\s*:?\s*(.+)$/i
+        /^(?:skills?|technical\s+skills|core\s+skills|it\s+skills|strengths?\s*(?:&|and)?\s*it\s+skills|competencies|expertise|specialt(?:y|ies)|core\s+specialt(?:y|ies)|key\s+areas?)\s*:?\s*(.+)$/i
       );
       if (inline?.[1]?.includes(',')) {
         out.skills = inline[1].trim();
         break;
       }
       if (
-        /^(?:strengths?\s*(?:&|and)?\s*(?:it\s+)?skills?|technical\s+skills|core\s+skills|key\s+skills|it\s+skills)\s*:?\s*$/i.test(
+        /^(?:strengths?\s*(?:&|and)?\s*(?:it\s+)?skills?|technical\s+skills|core\s+skills|key\s+skills|it\s+skills|core\s+specialt(?:y|ies)(?:\s*(?:&|and)\s*key\s+areas?)?|key\s+areas?)\s*:?\s*$/i.test(
           line
         )
       ) {

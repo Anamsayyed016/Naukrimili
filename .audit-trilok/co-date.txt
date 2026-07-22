@@ -1,0 +1,12 @@
+﻿{
+  leftScore: 24,
+  prose: false,
+  detect: { company: '', confidence: 0 },
+  date: {
+    startDate: '2019-06',
+    endDate: '2023-05',
+    current: false,
+    confidence: 88,
+    raw: '03 Jun 2019 to 29/05/2023'
+  }
+}

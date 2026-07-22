@@ -1,0 +1,373 @@
+﻿Warning: Invalid stream: "FormatError: Unknown compression method in flate stream: 121, 34"
+Warning: Indexing all PDF objects
+Warning: Invalid stream: "FormatError: Unknown compression method in flate stream: 121, 34"
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [ 'identity:summary' ],
+  recovered: [],
+  missing: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [ 'identity:summary' ],
+  recovered: [],
+  missing: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 380,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 0,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 380,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 0,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 380,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 0,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: false,
+  lastName: false,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 0,
+  experience: 0,
+  education: 0,
+  projects: 0,
+  certifications: 0,
+  languages: 0,
+  achievements: 0,
+  hobbies: 0
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [ 'skills:empty', 'education:empty', 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 0,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [ 'identity:summary' ],
+  recovered: [],
+  missing: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [ 'identity:fullName', 'identity:summary' ],
+  recovered: [ 'identity:firstName-from-fullName' ],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 380,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 0,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 380,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 0,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 380,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 0,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  }
+}
+[import-transformer] mapping validation {
+  issues: [ 'skills:empty', 'education:empty', 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 0,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: false,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 0,
+  experience: 0,
+  education: 0,
+  projects: 0,
+  certifications: 0,
+  languages: 0,
+  achievements: 0,
+  hobbies: 0
+}
+{
+  "pdf": "C:\\Users\\admin\\Downloads\\Trilokinath_Upadhyaya_Resume.pdf",
+  "extraction": {
+    "rawChars": 380,
+    "preparedChars": 380,
+    "pages": 0,
+    "recoveredFromStreams": true,
+    "documentType": "TYPE_A_ATS"
+  },
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 380,
+    "preamble": 380,
+    "summary": 0,
+    "experience": 0,
+    "education": 0,
+    "skills": 0,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 0,
+    "achievements": 0,
+    "hobbies": 0,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "structuredExperienceRecovery": 0,
+  "stages": {
+    "customParser": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 380,
+        "name": 0,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": [],
+      "certifications": [],
+      "languages": [],
+      "achievements": [],
+      "summary": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & Technical Qualification Professional Experience Liaison With & Hobbies Personal Profile Declaration ",
+      "personal": {
+        "email": "",
+        "phone": ""
+      }
+    },
+    "uploadNormalized": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 380,
+        "name": 0,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": []
+    },
+    "repaired": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 380,
+        "name": 0,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": [],
+      "achievements": [],
+      "hobbies": []
+    },
+    "coalesced": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 380,
+        "name": 0,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": [],
+      "hobbies": [],
+      "summary": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & "
+    },
+    "gallery": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 380,
+        "name": 0,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "projects": [],
+      "skills": [],
+      "hobbies": [],
+      "summary": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & "
+    },
+    "builder": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 380,
+        "name": 1,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": [],
+      "hobbies": [],
+      "summary": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & "
+    }
+  }
+}

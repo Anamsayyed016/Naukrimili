@@ -1,0 +1,17 @@
+﻿{"company":true,"title":false,"heading":true,"kw":{"experience":80}}
+line 23 "Ministry of labour employment" candidate {
+  lineIndex: 23,
+  rawHeading: 'Ministry of labour employment',
+  type: 'experience',
+  confidence: 45,
+  scores: {
+    keyword: 80,
+    capitalization: 0,
+    formatting: 8,
+    context: 22.761904761904763,
+    content: 0,
+    profile: 4,
+    total: 45
+  },
+  typeScores: { experience: 80 }
+}

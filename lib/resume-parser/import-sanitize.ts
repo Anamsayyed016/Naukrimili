@@ -115,9 +115,6 @@ export function isEmailDerivedName(name: string, email: string): boolean {
   if (!n || !e.includes('@')) return false;
 
   const wordCount = n.split(/\s+/).filter(Boolean).length;
-  // Multi-word names (e.g. "Maryam Khan") are never email slugs.
-  if (wordCount >= 2) return false;
-
   const local = e.split('@')[0].replace(/\d/g, '');
   if (!local) return false;
 
@@ -126,6 +123,24 @@ export function isEmailDerivedName(name: string, email: string): boolean {
   if (!nameNorm) return false;
 
   if (nameNorm === localNorm) return true;
+
+  // Dotted/underscored locals ("upadhyaya.tn") → "Upadhyaya Tn" are email-derived.
+  if (wordCount >= 2 && /[._-]/.test(local)) {
+    const parts = local
+      .split(/[._-]+/)
+      .map((p) => p.trim())
+      .filter((p) => p.length >= 1);
+    if (parts.length >= 2) {
+      const forward = parts.join(' ');
+      const reverse = [...parts].reverse().join(' ');
+      if (n === forward || n === reverse) return true;
+      const gluedParts = parts.join('');
+      if (nameNorm === gluedParts) return true;
+    }
+  }
+
+  // Multi-word document names that are not email-local rearrangements.
+  if (wordCount >= 2) return false;
 
   // Single-token blob local part with no separators (e.g. kmariyam@… → "Kmariyam").
   if (!/[._-]/.test(local) && wordCount === 1 && localNorm.startsWith(nameNorm) && nameNorm.length >= 4) {
@@ -808,6 +823,15 @@ export function enrichPartialNameFromEmail(headerName: string, email: string): s
   const header = sanitizePersonName(headerName);
   if (!header || !email) return header;
 
+  // Fully validated multi-token document names must not be rewritten from email locals.
+  if (
+    isValidatedContactName(header) &&
+    nameWordCount(header) >= 2 &&
+    !isEmailDerivedName(header, email)
+  ) {
+    return header;
+  }
+
   const localGlued = String(email.split('@')[0] || '')
     .replace(/\d/g, '')
     .toLowerCase()
@@ -894,6 +918,14 @@ export function enrichPartialNameFromEmail(headerName: string, email: string): s
 export function isInvalidImportSummary(text: string): boolean {
   const t = sanitizeMultilineFieldText(text, 4000);
   if (!t || t.length < 20) return true;
+  // First-person career objective / profile intros.
+  if (
+    /^i\s+(?:will|am|have|seek|want|wish|like|would|aim|aspire)\b/i.test(t) &&
+    t.length >= 40 &&
+    t.length <= 2000
+  ) {
+    return false;
+  }
   // Traditional career/professional objectives ("To secure a responsible position…")
   if (
     /^to\s+(?:secure|obtain|work|contribute|pursue|join|build|leverage|seek|find)\b/i.test(t) &&
@@ -1440,7 +1472,19 @@ export function isPlausiblePersonName(value: unknown): boolean {
   ) {
     return false;
   }
-  if (isClassifiedPersonName(s)) return true;
+  if (isClassifiedPersonName(s)) {
+    // Classifier sometimes accepts role/subtitle lines ("Radio Operator From Army").
+    if (looksLikeJobTitleLine(s)) return false;
+    if (/\bfrom\b/i.test(s) && wordsLengthAtLeast(s, 3)) return false;
+    if (
+      /\b(?:operator|engineer|havildar|executive|consultant|analyst|developer|architect|specialist|coordinator|supervisor|technician)\b/i.test(
+        s
+      )
+    ) {
+      return false;
+    }
+    return true;
+  }
 
   const words = s.split(/\s+/).filter(Boolean);
   if (
@@ -1456,7 +1500,10 @@ export function isPlausiblePersonName(value: unknown): boolean {
       if (!words.every((w) => /^[A-Z][a-zA-Z'-]+$/.test(w))) return false;
     }
     if (NON_NAME_VOCAB.test(s)) return false;
-    if (/\b(company|secretary|officer|compliance|governance|legal|head|director|manager)\b/i.test(s)) {
+    if (looksLikeJobTitleLine(s)) return false;
+    // Role subtitles: "X From Y", "Ex-Havildar …"
+    if (/\bfrom\b/i.test(s) || /^ex[- ]/i.test(s)) return false;
+    if (/\b(company|secretary|officer|operator|engineer|compliance|governance|legal|head|director|manager)\b/i.test(s)) {
       return false;
     }
     if (
@@ -1470,6 +1517,10 @@ export function isPlausiblePersonName(value: unknown): boolean {
   }
 
   return false;
+}
+
+function wordsLengthAtLeast(value: string, n: number): boolean {
+  return value.split(/\s+/).filter(Boolean).length >= n;
 }
 
 /** Contact name passed all classification gates — safe to keep without second-pass override. */
@@ -1763,8 +1814,9 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
         .filter((t) => t.length >= 3 && l.has(t)).length;
     };
     const docBeatsEmailExact = (doc: string, emailExact: string) =>
-      nameWordCount(doc) >= 3 &&
+      nameWordCount(doc) >= 2 &&
       isPlausiblePersonName(doc) &&
+      !isEmailDerivedName(doc, email) &&
       (isEmailDerivedName(emailExact, email) || isAcceptedEmailDerivedName(emailExact)) &&
       tokenOverlap(doc, emailExact) <= 1;
 
@@ -1804,6 +1856,9 @@ export function pickRicherFullName(primary: string, secondary: string, email = '
 
   const aDerived = isEmailDerivedName(a, email);
   const bDerived = isEmailDerivedName(b, email);
+  // Document-validated names always beat email-local spellings ("Upadhyaya Tn").
+  if (aValid && !aDerived && bDerived) return a;
+  if (bValid && !bDerived && aDerived) return b;
   if (aDerived && !bValid) return a;
   if (bDerived && !aValid) return b;
   if (aDerived && bValid && !bDerived) return b;
@@ -7091,6 +7146,16 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     return false;
   }
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
+  // Security / defence employers without Ltd — not geographic locations.
+  if (
+    /\b(?:security\s+force|security\s+services|facility\s+management|(?:indian\s+)?(?:army|navy|air\s*force)|(?:armed|defence|defense|paramilitary)\s+forces?|drdo|isro|bsf|crpf|cisf)\b/i.test(
+      company
+    ) &&
+    /^[A-Z]/.test(company.trim()) &&
+    company.trim().split(/\s+/).length <= 8
+  ) {
+    return true;
+  }
   if (looksLikeStandaloneLocationLine(company) || isLikelyLocationFragment(company)) return false;
   // Soft org-word hits only count near the end of a short Title-Case name
   // (avoids "establishing systems" / "quality control systems" duty prose).

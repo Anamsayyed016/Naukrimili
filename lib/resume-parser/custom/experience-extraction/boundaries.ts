@@ -17,8 +17,8 @@ import { isEmbeddedMajorSectionHeading } from './lines';
 import { looksLikeCompanyNameLine } from '@/lib/resume-parser/import-sanitize';
 import type { ExperienceLine, ExperienceRawBlock } from './types';
 
-const BOUNDARY_THRESHOLD = 48;
-const BOUNDARY_THRESHOLD_AFTER_BLANK = 38;
+const BOUNDARY_THRESHOLD = 46;
+const BOUNDARY_THRESHOLD_AFTER_BLANK = 36;
 
 const EXPERIENCE_SUBSECTION_RE =
   /^(?:key\s+result\s+areas?|responsibilit(?:y|ies)|achievements?|highlights?|key\s+contributions?|duties|roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|(?:[\w [&/.+-]{0,40})?roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|accountabilit(?:y|ies)|internal\s+audit|statutory\s+audit|tax\s*(?:&|and)?\s*compliance|tax\s+compliance(?:\s*&|\s+and)?\s*return\s+preparation|financial\s+projections?|business\s+advisory)(?:\s*:)?$/i;
@@ -200,6 +200,46 @@ export function partitionExperienceBlocks(
       state.hasDates
     ) {
       return true;
+    }
+
+    // Self-contained "Title (dates) | CTC" after an already-started role
+    // (prior company + title present). Must NOT fire on the first title line
+    // under a bare employer header — that would orphan the company line.
+    if (
+      isDesignationLine &&
+      isDateLine &&
+      !isCompanyLine &&
+      !isTenureLine &&
+      state.hasCompany &&
+      state.hasDesignation &&
+      lineIndex > blockStart
+    ) {
+      return true;
+    }
+
+    // Compressed "Company: tagline Title (dates)" lines after a completed role.
+    if (
+      isCompanyLine &&
+      !isTenureLine &&
+      state.hasDesignation &&
+      state.hasCompany &&
+      state.hasDates &&
+      lineIndex > blockStart
+    ) {
+      const text = line.text.trim();
+      const wordCount = text.split(/\s+/).filter(Boolean).length;
+      const institutional = looksLikeInstitutionalEmployer(text);
+      const colonCompany = detectCompanyFromLine(text).confidence >= 50 && /:/.test(text);
+      const strongEmployerHeader =
+        institutional ||
+        colonCompany ||
+        (looksLikeCompanyNameLine(text) &&
+          wordCount >= 2 &&
+          wordCount <= 14 &&
+          detectCompanyFromLine(text).confidence >= 50);
+      if (strongEmployerHeader && !looksLikeSentenceNotCompany(text.split(':')[0] || text)) {
+        return true;
+      }
     }
 
     // Mirror for company-only headers after a completed role (Company\nTitle | Dates).

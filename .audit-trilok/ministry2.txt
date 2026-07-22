@@ -1,0 +1,2 @@
+﻿{"company":true,"title":false,"heading":false,"kw":{"experience":48}}
+line 23 "Ministry of labour employment" candidate null

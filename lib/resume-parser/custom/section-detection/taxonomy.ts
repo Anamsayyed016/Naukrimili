@@ -43,9 +43,8 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'career history',
       'work history',
       'professional background',
-      'employment',
-      'internship',
-      'internships',
+      'employment record',
+      'internship experience',
       'relevant experience',
       'industry experience',
       'consulting experience',
@@ -128,6 +127,14 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'key strengths',
       'technical competencies',
       'core competencies',
+      'core specialties',
+      'core specialities',
+      'core specialties and key areas',
+      'core specialities and key areas',
+      'key areas',
+      'key area',
+      'areas of specialization',
+      'areas of specialisation',
       'professional skills',
       'technical expertise',
       'areas of expertise',
@@ -154,6 +161,10 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'stack',
       'synopsis',
       'strengths',
+      'specialties',
+      'specialities',
+      'specialty',
+      'speciality',
     ],
     typicalOrder: 0.28,
   },
@@ -189,6 +200,10 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'certifications and licenses',
       'professional certifications',
       'professional development',
+      'professional and technical qualification',
+      'professional technical qualification',
+      'technical qualification',
+      'technical qualifications',
       'licenses certifications',
       'certificates and training',
       'online paid courses',
@@ -294,9 +309,18 @@ export function splitCombinedHeadingParts(normalized: string): string[] {
 function scorePartAgainstTaxonomy(part: string, tax: SectionTaxonomyEntry): number {
   let partScore = 0;
   for (const phrase of tax.phrases) {
+    const phraseWords = phrase.split(/\s+/).filter(Boolean).length;
     if (part === phrase) partScore = Math.max(partScore, 88);
-    else if (part.startsWith(phrase) || part.endsWith(phrase)) partScore = Math.max(partScore, 78);
-    else if (part.includes(phrase)) partScore = Math.max(partScore, 58);
+    else if (
+      phraseWords >= 2 &&
+      (part.startsWith(phrase) || part.endsWith(phrase))
+    ) {
+      partScore = Math.max(partScore, 78);
+    } else if (phraseWords >= 2 && part.includes(phrase)) {
+      partScore = Math.max(partScore, 58);
+    }
+    // Single-word phrases must be exact matches only — "Ministry of labour employment"
+    // must not score like the section phrase "employment".
   }
   for (const token of tax.tokens) {
     const re = new RegExp(`\\b${escapeRegExp(token)}\\b`, 'i');

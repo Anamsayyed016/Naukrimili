@@ -341,8 +341,16 @@ export async function POST(request: NextRequest) {
       const hasAlmostNoWords = readableWords.length < 15;
       const layoutSignals = classifyResumeTextSignals(extractedText);
       const isPDFBinary = startsWithPDFHeader && hasPDFStructureOnly && hasVeryLowDensity && hasAlmostNoWords;
+      let thinExtract = false;
+      try {
+        const { isPdfTextTooThinForParsing } = await import('@/lib/pdf-parse-safe');
+        thinExtract = isPdfTextTooThinForParsing(extractedText);
+      } catch {
+        thinExtract = readableWords.length < 40 && extractedText.length < 900;
+      }
       const shouldAttemptOcr =
         isPDFBinary ||
+        thinExtract ||
         (layoutSignals.scannedLikely && (hasVeryLowDensity || readableWords.length < 40)) ||
         (startsWithPDFHeader &&
           hasPDFStructureOnly &&

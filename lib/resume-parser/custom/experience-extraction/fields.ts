@@ -324,12 +324,16 @@ function pickBestCompany(lines: string[], excludeDesignation = ''): FieldPick<st
   for (const line of expandHeaderSegments(lines)) {
     if (isTenureOrDateOnlyHeaderLine(line)) continue;
     if (lineLooksLikeTenureExperience(line) || isCondensedTenureExperienceLine(line)) continue;
-    if (parseDateRangeFromText(line)) continue;
+    // Dated title lines are not employers — but "Company: tagline (ISO 9001:2015)"
+    // must still yield the left-side employer (year tokens in certifications/taglines
+    // must not suppress company detection).
+    const companyDetEarly = detectCompanyFromLine(line);
+    if (parseDateRangeFromText(line) && companyDetEarly.confidence < 50) continue;
     if (isExperienceDateOrDurationToken(line)) continue;
-    if (isExperienceBlurbFragment(line)) continue;
+    if (isExperienceBlurbFragment(line) && companyDetEarly.confidence < 50) continue;
     if (/^responsibilit(?:y|ies)\s*[-–—:]/i.test(line.trim())) continue;
     if (/^(?:designation|role|position|title|post)\s*[:\-–—]/i.test(line.trim())) continue;
-    const det = detectCompanyFromLine(line);
+    const det = companyDetEarly.confidence >= 38 ? companyDetEarly : detectCompanyFromLine(line);
     if (!det.company) continue;
     if (isExperienceDateOrDurationToken(det.company)) continue;
     if (isExperienceBlurbFragment(det.company)) continue;
@@ -673,6 +677,17 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   }
 
   const locationPick = pickBestLocation(headerLines, finalCompany.value);
+  // Employer names misfiled as location (e.g. "Raj Security Force") — promote back.
+  if (
+    !finalCompany.value &&
+    locationPick.value &&
+    detectCompanyFromLine(locationPick.value).confidence >= 50
+  ) {
+    finalCompany = {
+      value: detectCompanyFromLine(locationPick.value).company || locationPick.value,
+      confidence: Math.max(detectCompanyFromLine(locationPick.value).confidence, 60),
+    };
+  }
   const datePick = pickBestDateRange(headerLines, block.bodyLines);
   const employmentPick = pickEmploymentType(headerLines);
 
@@ -718,7 +733,12 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   return {
     company: finalCompany.value,
     designation: finalDesignation.value,
-    location: locationPick.value,
+    location:
+      finalCompany.value &&
+      locationPick.value &&
+      locationPick.value.toLowerCase().trim() === finalCompany.value.toLowerCase().trim()
+        ? ''
+        : locationPick.value,
     employmentType: employmentPick.value,
     startDate,
     endDate,

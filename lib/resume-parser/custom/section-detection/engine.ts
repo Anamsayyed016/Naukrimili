@@ -180,6 +180,16 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
         continue;
       }
       if (type === 'summary' && isExperienceSummary) continue;
+      // "Career Objective" / "Career Summary" must not mirror into experience
+      // just because the experience taxonomy includes the token "career".
+      if (
+        type === 'experience' &&
+        (key === 'summary' ||
+          /\b(?:objective|summary|profile|about)\b/i.test(headingLower) ||
+          /\bcareer\s+(?:objective|summary|overview|profile)\b/i.test(headingLower))
+      ) {
+        continue;
+      }
       // Educational qualification blocks should not flood certifications.
       if (
         type === 'certifications' &&

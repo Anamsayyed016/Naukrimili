@@ -57,6 +57,19 @@ const DAY_MONTH_YEAR_RANGE_RE = new RegExp(
   'i'
 );
 
+/** Mixed: "03 Jun 2019 to 29/05/2023" or "03 Jun 2019 to 05/2023" */
+const DAY_MONTH_YEAR_TO_NUMERIC_RANGE_RE = new RegExp(
+  `\\b(\\d{1,2}\\s+(?:${MONTH_NAMES})\\.?\\s+(?:19|20)\\d{2})\\s*(?:[-–—−]|\\s+to\\s+)\\s*(\\d{1,2}[\\/.-]\\d{1,2}[\\/.-](?:19|20)\\d{2}|\\d{1,2}[\\/.-](?:19|20)\\d{2})\\b`,
+  'i'
+);
+
+/** Mixed reverse: "29/05/2019 to 03 Jun 2023" */
+const NUMERIC_TO_DAY_MONTH_YEAR_RANGE_RE = new RegExp(
+  `\\b(\\d{1,2}[\\/.-]\\d{1,2}[\\/.-](?:19|20)\\d{2}|\\d{1,2}[\\/.-](?:19|20)\\d{2})\\s*(?:[-–—−]|\\s+to\\s+)\\s*(\\d{1,2}\\s+(?:${MONTH_NAMES})\\.?\\s+(?:19|20)\\d{2}|present|current|till\\s*date|running|ongoing)\\b`,
+  'i'
+);
+
+/** Parenthetical / pipe CTC tenures already covered once ranges match. */
 const PRESENT_RE = /^(present|current|till\s*date|to\s*date|running|ongoing|now)$/i;
 
 const TENURE_LABEL_RE = /^tenure\s*[-–—:]?\s*/i;
@@ -118,6 +131,8 @@ export function parseDateRangeFromText(text: string): ParsedDateRange | null {
 
   for (const re of [
     DAY_MONTH_YEAR_RANGE_RE,
+    DAY_MONTH_YEAR_TO_NUMERIC_RANGE_RE,
+    NUMERIC_TO_DAY_MONTH_YEAR_RANGE_RE,
     MONTH_YEAR_RANGE_RE,
     ABBREV_MONTH_YEAR_RANGE_RE,
     NUMERIC_MONTH_RANGE_RE,

@@ -634,6 +634,26 @@ function shouldRejectProjectAsExperience(project: Record<string, unknown>): bool
   if (/^(?:role|team\s*size|key\s+responsibilit(?:y|ies)|processes?|suppliers?)\b/i.test(name)) {
     return true;
   }
+  // Table column headers / serial labels recovered as fake projects.
+  if (
+    /^(?:s\.?\s*\/?\s*no\.?|sr\.?\s*\/?\s*no\.?|sl\.?\s*\/?\s*no\.?|serial\s*(?:no|number)?\.?)$/i.test(
+      name
+    )
+  ) {
+    return true;
+  }
+  if (
+    (/\b(?:course|specialization|specialisation|organization|organisation|environment|board|university|year|division|type)\b/i.test(
+      name
+    ) &&
+      (name.match(
+        /\b(?:course|specialization|specialisation|organization|organisation|environment|board|university|year|division|type|education|s\/?\s*no)\b/gi
+      ) || []
+      ).length >= 2) ||
+    /course\s*\/\s*specialization/i.test(name)
+  ) {
+    return true;
+  }
   if (
     /^\s*(?:role|designation|position)\s*:/im.test(blob) &&
     /\bteam\s*size\s*:/i.test(blob)
@@ -875,11 +895,17 @@ function applySummaryHygieneToBuilderForm(formData: Record<string, any>): Record
       ? formData.Skills
       : [];
 
-  let trimmed = trimSummaryForStructuredSections(String(formData.summary || formData.bio || ''), {
+  const existing = String(formData.summary || formData.bio || formData.objective || '').trim();
+  let trimmed = trimSummaryForStructuredSections(existing, {
     experience,
     education,
     skills,
   });
+
+  if ((!trimmed || trimmed.length < 40) && existing.length >= 40) {
+    // Structured bleed trim must not erase a usable parser summary.
+    trimmed = existing.slice(0, 4000);
+  }
 
   if ((!trimmed || trimmed.length < 40) && String(formData.rawText || '').length >= 80) {
     const recovered = recoverSummaryFromRawText(String(formData.rawText));
@@ -2464,8 +2490,14 @@ function resolveClassifiedName(
       const richerContainsHeader =
         headerWords.length >= 2 &&
         headerWords.every((w) => richer.toLowerCase().includes(w));
+      const richerIsEmailOnly =
+        !!email &&
+        isEmailDerivedName(richer, email) &&
+        !isEmailDerivedName(currentCombined, email);
+      // Never replace a validated document name with an email-local spelling.
       if (
         richerValidated &&
+        !richerIsEmailOnly &&
         (!headerValidated || richerContainsHeader || richer.split(/\s+/).length > headerWords.length)
       ) {
         const split = splitFullNameWithRejected(richer);
@@ -3307,6 +3339,12 @@ function finalizeBuilderContactIdentity(
         richer &&
         richer !== display &&
         isValidatedContactName(richer, locationHint) &&
+        !(
+          !!email &&
+          isEmailDerivedName(richer, email) &&
+          !isEmailDerivedName(display, email) &&
+          isValidatedContactName(display, locationHint)
+        ) &&
         (!isValidatedContactName(display, locationHint) ||
           (richer.split(/\s+/).filter(Boolean).length >
             display.split(/\s+/).filter(Boolean).length &&

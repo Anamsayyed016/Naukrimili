@@ -1,0 +1,10 @@
+﻿{
+  "summaryLen": 405,
+  "invalid": true,
+  "sanitizedLen": 0,
+  "sanitizedPreview": "",
+  "enrich": "Upadhyaya Tn",
+  "pick": "Upadhyaya Tn",
+  "validDoc": true,
+  "emailDer": false
+}
