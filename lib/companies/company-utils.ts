@@ -97,3 +97,37 @@ export async function findExistingCompanyDuplicate(
 
   return null;
 }
+
+/**
+ * Delete a company and ONLY the jobs that belong to it (`job.companyId === companyId`).
+ * Related job applications / bookmarks / views cascade via existing Job FKs.
+ * Company-level optional FKs are cleared so company delete cannot leave orphans or fail.
+ */
+export async function deleteCompanyAndOwnedJobs(
+  prisma: PrismaClient,
+  companyId: string
+): Promise<{ deletedJobs: number }> {
+  return prisma.$transaction(async (tx) => {
+    const ownedJobs = await tx.job.deleteMany({
+      where: { companyId },
+    });
+
+    // Optional FKs that do not cascade from Company in the current schema
+    await tx.application.updateMany({
+      where: { companyId },
+      data: { companyId: null },
+    });
+
+    await tx.resumeView.updateMany({
+      where: { companyId },
+      data: { companyId: null },
+    });
+
+    await tx.company.delete({
+      where: { id: companyId },
+    });
+
+    return { deletedJobs: ownedJobs.count };
+  });
+}
+

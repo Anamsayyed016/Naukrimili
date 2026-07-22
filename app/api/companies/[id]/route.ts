@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { deleteCompanyAndOwnedJobs } from "@/lib/companies/company-utils";
+import { jobCacheService } from "@/lib/job-cache-service";
 
 export async function GET(
   request: NextRequest,
@@ -188,14 +190,19 @@ export async function DELETE(
       );
     }
 
-    // Delete company (this will cascade delete related records)
-    await prisma.company.delete({
-      where: { id }
-    });
+    // Delete company and ONLY jobs owned by this company (same companyId)
+    const { deletedJobs } = await deleteCompanyAndOwnedJobs(prisma, id);
+
+    try {
+      await jobCacheService.invalidateJobsListingCache();
+    } catch (cacheError) {
+      console.warn('⚠️ Failed to invalidate job listing cache after company delete:', cacheError);
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Company deleted successfully"
+      message: "Company deleted successfully",
+      deletedJobs,
     });
 
   } catch (_error) {

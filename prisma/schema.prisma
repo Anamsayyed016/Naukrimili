@@ -49,7 +49,7 @@ model Job {
   mission           String?
   vision            String?
   applications      Application[]
-  companyRelation   Company?      @relation(fields: [companyId], references: [id])
+  companyRelation   Company?      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   creator           User?         @relation(fields: [createdBy], references: [id])
   bookmarks         JobBookmark[]
   jobViews          JobView[]

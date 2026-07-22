@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
-import { findExistingCompanyDuplicate } from '@/lib/companies/company-utils';
+import { findExistingCompanyDuplicate, deleteCompanyAndOwnedJobs } from '@/lib/companies/company-utils';
 import { prisma } from '@/lib/prisma';
 import { createNotification } from '@/lib/notification-service';
 import { jobNotificationEmailService } from '@/lib/job-notification-emails';
+import { jobCacheService } from '@/lib/job-cache-service';
 
 export async function GET() {
   try {
@@ -448,17 +449,29 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Delete the company
-    console.log('🗑️ Deleting company from database...');
-    await prisma.company.delete({
-      where: { id: existingCompany.id }
-    });
+    // Delete company and ONLY jobs owned by this company (same companyId)
+    console.log('🗑️ Deleting company and owned jobs from database...');
+    const { deletedJobs } = await deleteCompanyAndOwnedJobs(
+      prisma,
+      existingCompany.id
+    );
 
-    console.log('✅ Company deleted successfully:', { id: existingCompany.id, name: existingCompany.name });
+    try {
+      await jobCacheService.invalidateJobsListingCache();
+    } catch (cacheError) {
+      console.warn('⚠️ Failed to invalidate job listing cache after company delete:', cacheError);
+    }
+
+    console.log('✅ Company deleted successfully:', {
+      id: existingCompany.id,
+      name: existingCompany.name,
+      deletedJobs,
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Company profile deleted successfully'
+      message: 'Company profile deleted successfully',
+      deletedJobs,
     });
 
   } catch (error) {
