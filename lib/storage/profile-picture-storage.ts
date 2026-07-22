@@ -9,11 +9,48 @@ import {
   uploadFileToGCS,
   deleteFileFromGCS,
 } from '@/lib/storage/google-cloud-storage';
+import {
+  toProfilePictureAssetUrl,
+  localProfilePictureRelativePath,
+} from '@/lib/user/profile-picture-url';
+
+export {
+  normalizeStoredProfilePictureUrl,
+  toProfilePictureAssetUrl,
+  PROFILE_PICTURE_ASSET_PREFIX,
+  PROFILE_PICTURE_LEGACY_PREFIX,
+} from '@/lib/user/profile-picture-url';
 
 const ENABLE_GCS = process.env.ENABLE_GCS_STORAGE === 'true';
 const LOCAL_UPLOADS_DIR = join(process.cwd(), 'uploads', 'profile-pictures');
 const PROFILE_PICTURES_FOLDER = 'profile-pictures';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const SAFE_USER_ID = /^[a-zA-Z0-9_-]+$/;
+const SAFE_FILENAME = /^[a-zA-Z0-9._-]+$/;
+
+export function resolveLocalProfilePictureFilePath(relativePath: string): string {
+  if (!relativePath || relativePath.includes('..')) {
+    throw new Error('Invalid profile picture path');
+  }
+  const segments = relativePath.split('/').filter(Boolean);
+  if (segments.length !== 2) {
+    throw new Error('Invalid profile picture path');
+  }
+  const [userId, fileName] = segments;
+  if (!SAFE_USER_ID.test(userId) || !SAFE_FILENAME.test(fileName)) {
+    throw new Error('Invalid profile picture path');
+  }
+  return join(LOCAL_UPLOADS_DIR, userId, fileName);
+}
+
+export function contentTypeForProfilePictureFilename(fileName: string): string {
+  const lower = fileName.toLowerCase();
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+  return 'application/octet-stream';
+}
 
 const ALLOWED_TYPES = new Set([
   'image/jpeg',
@@ -154,7 +191,7 @@ async function uploadToLocal(
   return {
     success: true,
     fileName: localFileName,
-    fileUrl: `/uploads/profile-pictures/${userId}/${localFileName}`,
+    fileUrl: toProfilePictureAssetUrl(userId, localFileName),
     fileSize,
     storage: 'local',
     gcsPath: `${userId}/${localFileName}`,
@@ -168,12 +205,12 @@ export async function deleteStoredProfilePicture(
 ): Promise<void> {
   if (!storedUrl?.trim()) return;
 
-  const url = storedUrl.trim();
+  const url = storedUrl.trim().split('?')[0];
 
-  if (url.startsWith('/uploads/profile-pictures/')) {
-    const relative = url.replace('/uploads/profile-pictures/', '');
-    const filepath = join(LOCAL_UPLOADS_DIR, relative);
+  const relative = localProfilePictureRelativePath(url);
+  if (relative) {
     try {
+      const filepath = resolveLocalProfilePictureFilePath(relative);
       await unlink(filepath);
     } catch {
       // File may already be gone

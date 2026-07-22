@@ -252,6 +252,14 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/profile-pictures/:userId/:filename',
+        destination: '/api/user/profile-photo/asset/:userId/:filename',
+      },
+    ];
+  },
   async headers() {
     return [
       {

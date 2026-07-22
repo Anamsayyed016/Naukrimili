@@ -3,11 +3,13 @@
  * OAuth avatars (User.image) are never overwritten; uploads use User.profilePicture.
  */
 
+import { normalizeStoredProfilePictureUrl } from '@/lib/user/profile-picture-url';
+
 export function resolveUserAvatarUrl(
   profilePicture?: string | null,
   oauthImage?: string | null
 ): string | null {
-  const picture = profilePicture?.trim();
+  const picture = normalizeStoredProfilePictureUrl(profilePicture);
   if (picture) return picture;
   const oauth = oauthImage?.trim();
   if (oauth) return oauth;
