@@ -6,7 +6,12 @@ import { Check, Loader2, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import { CouponPromoSuggestion } from '@/components/payments/CouponPromoSuggestion';
+import {
+  formatCouponRupee,
+  mapValidateCouponResponse,
+} from '@/lib/payments/coupon-quote-client';
 
 export interface CouponQuote {
   code: string;
@@ -33,7 +38,7 @@ interface CouponCheckoutBoxProps {
 }
 
 function formatRupee(amount: number) {
-  return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+  return formatCouponRupee(amount);
 }
 
 export function CouponCheckoutBox({
@@ -65,25 +70,23 @@ export function CouponCheckoutBox({
         credentials: 'include',
         body: JSON.stringify({ couponCode: trimmed, planKey }),
       });
-      const data = await res.json();
-      if (!res.ok || !data.valid) {
-        setError(data.error || 'Invalid coupon');
+      const data = (await res.json()) as Record<string, unknown>;
+      const mapped = mapValidateCouponResponse(data, planKey);
+      if (!res.ok || !mapped.ok) {
+        const message = mapped.ok ? 'Invalid coupon' : mapped.error;
+        setError(message);
+        toast.error(message);
         return;
       }
-      onApplied({
-        code: data.code,
-        name: data.name,
-        originalAmount: data.originalAmount,
-        discountAmount: data.discountAmount,
-        finalAmount: data.finalAmount,
-        originalPrice: data.originalPrice,
-        discountPrice: data.discountPrice,
-        finalPrice: data.finalPrice,
-        planKey: data.planKey,
+      onApplied(mapped.quote);
+      setCode(mapped.quote.code);
+      toast.success('Coupon applied', {
+        description: `You save ${formatRupee(mapped.quote.discountPrice)} — pay ${formatRupee(mapped.quote.finalPrice)}`,
       });
-      setCode(data.code);
     } catch {
-      setError('Failed to validate coupon. Please try again.');
+      const message = 'Failed to validate coupon. Please try again.';
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -109,7 +112,14 @@ export function CouponCheckoutBox({
     >
       {!appliedQuote ? (
         <div className="space-y-3">
-          {showPromoSuggestion && <CouponPromoSuggestion />}
+          {showPromoSuggestion && (
+            <CouponPromoSuggestion
+              onCodeCopied={(copiedCode) => {
+                setCode(copiedCode);
+                setError(null);
+              }}
+            />
+          )}
           <Label htmlFor={`coupon-${planKey}`} className="text-sm font-medium text-gray-700">
             Coupon Code
           </Label>

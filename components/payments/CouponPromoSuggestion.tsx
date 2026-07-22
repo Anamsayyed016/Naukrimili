@@ -11,11 +11,13 @@ const PROMO_CODE = 'FLAT25';
 interface CouponPromoSuggestionProps {
   className?: string;
   couponCode?: string;
+  onCodeCopied?: (code: string) => void;
 }
 
 export function CouponPromoSuggestion({
   className,
   couponCode = PROMO_CODE,
+  onCodeCopied,
 }: CouponPromoSuggestionProps) {
   const reduced = useReducedMotion();
   const [copied, setCopied] = useState(false);
@@ -23,13 +25,14 @@ export function CouponPromoSuggestion({
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(couponCode);
+      onCodeCopied?.(couponCode);
       setCopied(true);
       toast.success(`Coupon ${couponCode} copied!`);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error('Could not copy coupon. Please copy manually.');
     }
-  }, [couponCode]);
+  }, [couponCode, onCodeCopied]);
 
   return (
     <motion.div

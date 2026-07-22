@@ -11,7 +11,9 @@ import Script from 'next/script';
 import { toast } from 'sonner';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, isAdminPlanBypassResponse, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
+import { CouponPlanPriceDisplay } from '@/components/payments/CouponPlanPriceDisplay';
 import { PremiumDiscountPopup } from '@/components/payments/PremiumDiscountPopup';
+import { getPayablePriceRupees } from '@/lib/payments/coupon-quote-client';
 import {
   triggerGoAffProConversionAfterSubscription,
   triggerGoAffProConversionAfterVerify,
@@ -882,14 +884,10 @@ export default function PricingPage() {
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
                     <CardDescription>{plan.validity} Access</CardDescription>
                     <div className="mt-4">
-                      {couponQuotes[plan.key] ? (
-                        <div className="space-y-1">
-                          <span className="text-lg text-gray-400 line-through">₹{plan.price}</span>
-                          <span className="text-4xl font-bold text-indigo-600">₹{couponQuotes[plan.key]!.finalPrice}</span>
-                        </div>
-                      ) : (
-                        <span className="text-4xl font-bold">₹{plan.price}</span>
-                      )}
+                      <CouponPlanPriceDisplay
+                        listPriceRupees={plan.price}
+                        appliedQuote={couponQuotes[plan.key] ?? null}
+                      />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -909,7 +907,7 @@ export default function PricingPage() {
                       appliedQuote={couponQuotes[plan.key] ?? null}
                       showPromoSuggestion={plan.showCouponOffer}
                       onApplied={(quote) =>
-                        setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
+                        setCouponQuotes((prev) => ({ ...prev, [quote.planKey]: quote }))
                       }
                       onRemoved={() =>
                         setCouponQuotes((prev) => ({ ...prev, [plan.key]: null }))
@@ -928,7 +926,7 @@ export default function PricingPage() {
                     >
                       {loading === plan.key
                         ? 'Processing...'
-                        : `Buy Now - ₹${couponQuotes[plan.key]?.finalPrice ?? plan.price}`}
+                        : `Buy Now - ₹${getPayablePriceRupees(plan.price, couponQuotes[plan.key])}`}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -967,11 +965,11 @@ export default function PricingPage() {
                     </div>
                     <CardDescription>{plan.validity} Subscription</CardDescription>
                     <div className="mt-4">
-                      {couponQuotes[plan.key] ? (
-                        <div className="flex items-baseline gap-2 flex-wrap">
-                          <span className="text-2xl font-normal text-gray-400 line-through">₹{plan.price}</span>
-                          <span className="text-4xl font-bold text-indigo-600">₹{couponQuotes[plan.key]!.finalPrice}</span>
-                        </div>
+                      {couponQuotes[plan.key]?.discountPrice ? (
+                        <CouponPlanPriceDisplay
+                          listPriceRupees={plan.price}
+                          appliedQuote={couponQuotes[plan.key]}
+                        />
                       ) : plan.originalPrice ? (
                         <div className="flex items-baseline gap-2">
                           <span className="text-2xl font-normal text-gray-400 line-through">₹{plan.originalPrice}</span>
@@ -998,7 +996,7 @@ export default function PricingPage() {
                       listPriceRupees={plan.price}
                       appliedQuote={couponQuotes[plan.key] ?? null}
                       onApplied={(quote) =>
-                        setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
+                        setCouponQuotes((prev) => ({ ...prev, [quote.planKey]: quote }))
                       }
                       onRemoved={() =>
                         setCouponQuotes((prev) => ({ ...prev, [plan.key]: null }))
@@ -1017,7 +1015,7 @@ export default function PricingPage() {
                     >
                       {loading === plan.key
                         ? 'Processing...'
-                        : `Subscribe - ₹${couponQuotes[plan.key]?.finalPrice ?? plan.price}`}
+                        : `Subscribe - ₹${getPayablePriceRupees(plan.price, couponQuotes[plan.key])}`}
                     </Button>
                   </CardFooter>
                 </Card>
