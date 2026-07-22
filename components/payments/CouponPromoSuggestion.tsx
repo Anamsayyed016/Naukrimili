@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Check, Copy, Gift } from 'lucide-react';
+import { Check, ClipboardCopy, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -21,12 +21,14 @@ export function CouponPromoSuggestion({
 }: CouponPromoSuggestionProps) {
   const reduced = useReducedMotion();
   const [copied, setCopied] = useState(false);
+  const [rippleKey, setRippleKey] = useState(0);
 
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(couponCode);
       onCodeCopied?.(couponCode);
       setCopied(true);
+      setRippleKey((k) => k + 1);
       toast.success(`Coupon ${couponCode} copied!`);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -37,130 +39,136 @@ export function CouponPromoSuggestion({
   return (
     <motion.div
       className={cn('relative', className)}
-      initial={reduced ? false : { opacity: 0, y: 6 }}
+      initial={reduced ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={reduced ? undefined : { y: -3 }}
     >
-      {/* Soft ambient glow */}
+      {/* Floating glow */}
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(251,191,36,0.35),rgba(249,115,22,0.12)_55%,transparent_72%)] blur-md"
+        className="pointer-events-none absolute -inset-0.5 rounded-[18px] bg-[radial-gradient(circle_at_50%_20%,rgba(251,191,36,0.4),rgba(249,115,22,0.1)_60%,transparent_75%)] blur-lg"
         animate={
           reduced
             ? undefined
-            : {
-                opacity: [0.45, 0.75, 0.45],
-                scale: [1, 1.03, 1],
-              }
+            : { opacity: [0.35, 0.6, 0.35], scale: [1, 1.02, 1] }
         }
         transition={
-          reduced ? undefined : { duration: 3.2, repeat: Infinity, ease: 'easeInOut' }
+          reduced ? undefined : { duration: 4, repeat: Infinity, ease: 'easeInOut' }
         }
       />
 
       <div
         className={cn(
-          'relative overflow-hidden rounded-2xl border border-amber-200/80',
-          'bg-gradient-to-br from-amber-50/95 via-orange-50/92 to-amber-100/88',
-          'shadow-[0_12px_32px_-10px_rgba(180,83,9,0.35),0_2px_10px_rgba(251,191,36,0.2)]',
-          'backdrop-blur-md ring-1 ring-inset ring-white/60'
+          'relative overflow-hidden rounded-[18px] border border-amber-200/75',
+          'bg-gradient-to-br from-amber-50/95 via-yellow-50/90 to-orange-50/92',
+          'shadow-[0_8px_24px_-8px_rgba(180,83,9,0.28),0_2px_8px_rgba(251,191,36,0.18)]',
+          'backdrop-blur-md ring-1 ring-inset ring-white/70'
         )}
       >
         {!reduced && (
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/45 to-transparent"
-            animate={{ x: ['0%', '280%'] }}
+            className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 skew-x-[-16deg] bg-gradient-to-r from-transparent via-white/40 to-transparent"
+            animate={{ x: ['0%', '260%'] }}
             transition={{
-              duration: 2.6,
+              duration: 2.4,
               repeat: Infinity,
-              repeatDelay: 3.2,
+              repeatDelay: 4,
               ease: 'easeInOut',
             }}
           />
         )}
 
-        <div className="relative space-y-3 p-3.5 sm:p-4">
-          <div className="flex items-start gap-2.5">
-            <span
-              className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md"
-              aria-hidden
-            >
-              <Gift className="h-4 w-4" />
+        <div className="relative px-3 py-2.5 sm:px-3.5 sm:py-3 space-y-2">
+          {/* 1. Badge */}
+          <div className="flex items-center gap-1.5">
+            <Tag className="h-3 w-3 text-amber-700 shrink-0" aria-hidden />
+            <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-amber-800/90 sm:text-[10px]">
+              Limited Time Offer
             </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-800/85 sm:text-[11px]">
-                Limited Time Offer
-              </p>
-              <p className="mt-1 text-sm font-medium text-amber-950/90 sm:text-[15px]">
-                Use Discount Code
-              </p>
-            </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
+          {/* 2. Headline */}
+          <p className="text-base font-extrabold leading-tight text-amber-950 sm:text-[17px]">
+            <span aria-hidden className="mr-1">
+              🔥
+            </span>
+            Save 25% Instantly
+          </p>
+
+          {/* 3. Coupon code */}
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium text-amber-900/80">Use Coupon Code</p>
             <motion.button
               type="button"
               onClick={() => void handleCopy()}
-              whileHover={reduced ? undefined : { y: -2, scale: 1.02 }}
+              whileHover={reduced ? undefined : { scale: 1.02 }}
               whileTap={reduced ? undefined : { scale: 0.98 }}
+              animate={
+                reduced
+                  ? undefined
+                  : {
+                      boxShadow: [
+                        '0 4px 14px -2px rgba(234,88,12,0.45)',
+                        '0 6px 20px -2px rgba(234,88,12,0.55)',
+                        '0 4px 14px -2px rgba(234,88,12,0.45)',
+                      ],
+                    }
+              }
+              transition={
+                reduced ? undefined : { duration: 2.8, repeat: Infinity, ease: 'easeInOut' }
+              }
               className={cn(
-                'inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2',
+                'flex w-full items-center justify-center rounded-xl px-3 py-2',
                 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600',
-                'font-mono text-lg font-extrabold tracking-wider text-white',
-                'shadow-[0_6px_18px_-4px_rgba(234,88,12,0.55)]',
-                'transition-shadow hover:shadow-[0_10px_24px_-6px_rgba(234,88,12,0.6)]',
+                'font-mono text-lg font-black tracking-[0.2em] text-white',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2'
               )}
               aria-label={`Copy coupon code ${couponCode}`}
             >
               {couponCode}
             </motion.button>
-
-            <p className="text-center text-sm font-semibold text-amber-950/90 sm:text-left">
-              to get{' '}
-              <span className="bg-gradient-to-r from-amber-700 via-orange-600 to-amber-800 bg-clip-text font-extrabold text-transparent">
-                Flat 25% OFF
-              </span>{' '}
-              instantly.
-            </p>
           </div>
 
+          {/* 4. Savings line */}
+          <p className="text-[11px] font-semibold text-amber-900/85 leading-snug sm:text-xs">
+            Save ₹50 on the Pro Job Seeker Plan.
+          </p>
+
+          {/* 5. Copy CTA */}
           <motion.button
             type="button"
             onClick={() => void handleCopy()}
             whileHover={reduced ? undefined : { y: -1 }}
+            whileTap={reduced ? undefined : { scale: 0.98 }}
             className={cn(
-              'flex w-full min-h-11 items-center justify-center gap-2 rounded-xl border border-amber-300/70',
-              'bg-white/70 px-3 py-2 text-sm font-semibold text-amber-900',
-              'transition-colors hover:bg-white/90',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2'
+              'relative flex w-full min-h-9 items-center justify-center gap-1.5 overflow-hidden',
+              'rounded-xl border border-amber-300/60 bg-white/75 px-2.5 py-1.5',
+              'text-[11px] font-semibold text-amber-900 sm:text-xs',
+              'transition-colors hover:bg-white/95 hover:border-amber-400/70',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1'
             )}
             aria-label={`Copy coupon code ${couponCode} to clipboard`}
           >
-            <motion.span
-              animate={
-                copied
-                  ? { scale: [1, 1.2, 1], rotate: [0, 0, 0] }
-                  : reduced
-                    ? undefined
-                    : { y: [0, -2, 0] }
-              }
-              transition={
-                copied
-                  ? { duration: 0.35 }
-                  : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }
-              }
-              className="inline-flex"
-              aria-hidden
-            >
+            {!reduced && (
+              <motion.span
+                key={rippleKey}
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-amber-200/40 rounded-xl"
+                initial={{ scale: 0, opacity: 0.6 }}
+                animate={{ scale: 2.5, opacity: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              />
+            )}
+            <span className="relative inline-flex items-center gap-1.5">
               {copied ? (
-                <Check className="h-4 w-4 text-green-600" />
+                <Check className="h-3.5 w-3.5 text-green-600 shrink-0" aria-hidden />
               ) : (
-                <Copy className="h-4 w-4 text-amber-700" />
+                <ClipboardCopy className="h-3.5 w-3.5 text-amber-700 shrink-0" aria-hidden />
               )}
-            </motion.span>
-            <span>{copied ? 'Copied!' : 'Click to Copy Coupon'}</span>
+              <span>{copied ? 'Copied!' : 'Click to Copy Coupon'}</span>
+            </span>
           </motion.button>
         </div>
       </div>

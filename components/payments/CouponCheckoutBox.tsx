@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Loader2, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,6 +54,12 @@ export function CouponCheckoutBox({
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (showPromoSuggestion && !appliedQuote) {
+      setCode('FLAT25');
+    }
+  }, [showPromoSuggestion, appliedQuote]);
 
   const handleApply = useCallback(async () => {
     const trimmed = code.trim();
