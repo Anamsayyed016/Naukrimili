@@ -1,5 +1,7 @@
 "use client";
 import React, { ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import { BarChart3, Settings, Bell, User, Briefcase, Building, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,6 +69,8 @@ export default function DashboardLayout({
   userRole = "jobseeker",
   className = "",
 }: DashboardLayoutProps) {
+  const router = useRouter();
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 py-8 ${className}`}>
       <div className="container mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
@@ -117,17 +121,17 @@ export default function DashboardLayout({
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/dashboard/analytics')}>
                   <BarChart3 className="w-4 h-4 mr-2" /> Analytics
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/dashboard/notifications')}>
                   <Bell className="w-4 h-4 mr-2" /> Notifications
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/settings')}>
                   <Settings className="w-4 h-4 mr-2" /> Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
                   <LogOut className="w-4 h-4 mr-2" /> Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -1,8 +1,20 @@
+'use client';
+
+import { Suspense } from 'react';
+import SettingsHub from '@/components/settings/SettingsHub';
+import { Skeleton } from '@/components/ui/skeleton';
+
 export default function SettingsPage() {
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Settings</h1>
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-10 max-w-6xl space-y-4">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      }
+    >
+      <SettingsHub />
+    </Suspense>
   );
 }

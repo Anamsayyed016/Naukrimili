@@ -1,8 +1,6 @@
-export default function CompanyPage() {
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Company</h1>
-      <p className="text-gray-600">This page is under development.</p>
-    </div>
-  );
+import { redirect } from 'next/navigation';
+
+/** Role stub retained for backward-compatible URLs. */
+export default function CompanySettingsPage() {
+  redirect('/settings?section=account');
 }
