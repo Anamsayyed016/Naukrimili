@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -16,9 +15,12 @@ import PaymentStatusCard from '@/components/dashboard/PaymentStatusCard';
 import { useSettingsData } from '@/components/settings/SettingsDataProvider';
 import {
   PreferenceToggle,
+  SettingsField,
+  SettingsLoadingState,
   SettingsSectionCard,
+  settingsInputClassName,
 } from '@/components/settings/SettingsPrimitives';
-import { ExternalLink, Loader2 } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 export default function ResumeSection() {
   const { profile, preferences, loading, saving, updatePreferences } =
@@ -37,12 +39,7 @@ export default function ResumeSection() {
   }, [preferences.resume]);
 
   if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-600 py-10 justify-center">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        Loading resume settings…
-      </div>
-    );
+    return <SettingsLoadingState label="Loading resume settings…" />;
   }
 
   const resumes = profile?.resumes || [];
@@ -65,29 +62,28 @@ export default function ResumeSection() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SettingsSectionCard
         title="Resume management"
-        description="Links into the existing resume dashboard and Resume Builder — no duplicate editor."
+        description="Choose defaults and jump into the existing Resume Builder."
         action={
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="rounded-xl">
               <Link href="/dashboard/jobseeker/resumes">My resumes</Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="rounded-xl">
               <Link href="/resume-builder">
                 Edit in Resume Builder
-                <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
               </Link>
             </Button>
           </div>
         }
       >
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Default resume</Label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SettingsField label="Default resume">
             <Select value={defaultResumeId} onValueChange={setDefaultResumeId}>
-              <SelectTrigger>
+              <SelectTrigger className={settingsInputClassName}>
                 <SelectValue placeholder="Select resume" />
               </SelectTrigger>
               <SelectContent>
@@ -100,16 +96,15 @@ export default function ResumeSection() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Resume visibility</Label>
+          </SettingsField>
+          <SettingsField label="Resume visibility">
             <Select
               value={resumeVisibility}
               onValueChange={(value) =>
                 setResumeVisibility(value as typeof resumeVisibility)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={settingsInputClassName}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -118,36 +113,47 @@ export default function ResumeSection() {
                 <SelectItem value="private">Private</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </SettingsField>
         </div>
 
-        <PreferenceToggle
-          id="allowDownloads"
-          label="Allow resume downloads"
-          description="Controls your preference for recruiter downloads."
-          checked={allowDownloads}
-          onCheckedChange={setAllowDownloads}
-          disabled={saving}
-        />
+        <div className="overflow-hidden rounded-xl border border-slate-200">
+          <PreferenceToggle
+            id="allowDownloads"
+            label="Allow resume downloads"
+            description="Controls your preference for recruiter downloads."
+            checked={allowDownloads}
+            onCheckedChange={setAllowDownloads}
+            disabled={saving}
+          />
+        </div>
 
-        <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-3 text-sm text-gray-600 space-y-1">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm text-slate-600">
           <p>
-            Stored resumes: <strong>{resumes.length}</strong>
+            Stored resumes: <strong className="text-slate-900">{resumes.length}</strong>
           </p>
-          <p className="text-xs">
+          <p className="mt-1 text-[12px] text-slate-500">
             Download history, version history, and AI usage are tracked by the
             existing payment and resume systems below.
           </p>
         </div>
 
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving}>
+        <div className="flex justify-end border-t border-slate-100 pt-4">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-xl px-5"
+          >
             {saving ? 'Saving…' : 'Save resume settings'}
           </Button>
         </div>
       </SettingsSectionCard>
 
-      <PaymentStatusCard />
+      <SettingsSectionCard
+        title="Credits & usage"
+        description="Live entitlements from the existing payment status card."
+      >
+        <PaymentStatusCard />
+      </SettingsSectionCard>
     </div>
   );
 }

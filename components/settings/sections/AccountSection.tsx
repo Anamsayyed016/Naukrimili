@@ -6,13 +6,18 @@ import { signOut } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import LinkPhoneSection from '@/components/auth/LinkPhoneSection';
 import { useSettingsData } from '@/components/settings/SettingsDataProvider';
-import { SettingsSectionCard } from '@/components/settings/SettingsPrimitives';
+import {
+  SettingsField,
+  SettingsLoadingState,
+  SettingsSectionCard,
+  settingsInputClassName,
+} from '@/components/settings/SettingsPrimitives';
 import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function AccountSection() {
   const { profile, loading, saving, updateProfile, refresh } = useSettingsData();
@@ -35,12 +40,7 @@ export default function AccountSection() {
   }, [profile]);
 
   if (loading || !profile) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-600 py-10 justify-center">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        Loading account…
-      </div>
-    );
+    return <SettingsLoadingState label="Loading account…" />;
   }
 
   const initials =
@@ -105,75 +105,92 @@ export default function AccountSection() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SettingsSectionCard
         title="Profile photo"
-        description="Paste an image URL for now. Upload pipeline uses the existing profile picture field."
+        description="Your avatar appears across the portal. Paste an image URL for now."
       >
-        <div className="flex flex-col sm:flex-row gap-4 items-start">
-          <Avatar className="h-20 w-20 border border-gray-200">
+        <div className="flex flex-col items-start gap-5 sm:flex-row">
+          <Avatar className="h-24 w-24 border-2 border-white shadow-md ring-1 ring-slate-200">
             <AvatarImage src={profilePicture || undefined} alt="Profile" />
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="bg-slate-100 text-lg font-semibold text-slate-600">
+              {initials}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex-1 w-full space-y-2">
-            <Label htmlFor="profilePicture">Photo URL</Label>
+          <SettingsField
+            label="Photo URL"
+            htmlFor="profilePicture"
+            hint="Dedicated file upload will reuse the existing storage stack in a later release."
+            className="w-full flex-1"
+          >
             <Input
               id="profilePicture"
               value={profilePicture}
               onChange={(e) => setProfilePicture(e.target.value)}
               placeholder="https://…"
+              className={settingsInputClassName}
             />
-            <p className="text-xs text-gray-500">
-              Dedicated file upload will reuse the existing storage stack in a
-              later release — no parallel uploader.
-            </p>
-          </div>
+          </SettingsField>
         </div>
       </SettingsSectionCard>
 
       <SettingsSectionCard
         title="Personal information"
-        description="Stored on your existing user profile."
+        description="Basic identity details stored on your existing user profile."
       >
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First name</Label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SettingsField label="First name" htmlFor="firstName">
             <Input
               id="firstName"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last name</Label>
+          </SettingsField>
+          <SettingsField label="Last name" htmlFor="lastName">
             <Input
               id="lastName"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" value={profile.email} disabled />
-            <p className="text-xs text-gray-500">
-              Email changes require a verified flow and are not available here yet.
-            </p>
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="location">Location</Label>
+          </SettingsField>
+          <SettingsField
+            label="Email"
+            htmlFor="email"
+            hint="Email changes require a verified flow and are not available here yet."
+            className="sm:col-span-2"
+          >
+            <Input
+              id="email"
+              value={profile.email}
+              disabled
+              className={cn(settingsInputClassName, 'bg-slate-50 text-slate-500')}
+            />
+          </SettingsField>
+          <SettingsField
+            label="Location"
+            htmlFor="location"
+            className="sm:col-span-2"
+          >
             <Input
               id="location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="City, Country"
+              className={settingsInputClassName}
             />
-          </div>
+          </SettingsField>
         </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving}>
+        <div className="flex justify-end border-t border-slate-100 pt-4">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-xl px-5"
+          >
             {saving ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving…
               </>
             ) : (
@@ -185,7 +202,7 @@ export default function AccountSection() {
 
       <SettingsSectionCard
         title="Mobile number"
-        description="Uses the existing OTP phone linking flow."
+        description="Verified through the existing OTP phone linking flow."
       >
         <LinkPhoneSection
           currentPhone={profile.phone}
@@ -198,66 +215,78 @@ export default function AccountSection() {
 
       <SettingsSectionCard
         title="Change password"
-        description="Authenticated password change for accounts that already have a password."
+        description="Update your password securely. Forgot-password remains available."
       >
-        <div className="grid gap-3 max-w-md">
-          <div className="space-y-2">
-            <Label htmlFor="currentPassword">Current password</Label>
+        <div className="grid max-w-md gap-4">
+          <SettingsField label="Current password" htmlFor="currentPassword">
             <Input
               id="currentPassword"
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               autoComplete="current-password"
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">New password</Label>
+          </SettingsField>
+          <SettingsField label="New password" htmlFor="newPassword">
             <Input
               id="newPassword"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               autoComplete="new-password"
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm new password</Label>
+          </SettingsField>
+          <SettingsField label="Confirm new password" htmlFor="confirmPassword">
             <Input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="flex flex-wrap gap-2">
+          </SettingsField>
+          <div className="flex flex-wrap gap-2 pt-1">
             <Button
               onClick={handlePasswordChange}
               disabled={passwordSaving || !currentPassword || !newPassword}
+              className="rounded-xl"
             >
               {passwordSaving ? 'Updating…' : 'Update password'}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="rounded-xl">
               <Link href="/auth/forgot-password">Forgot password?</Link>
             </Button>
           </div>
         </div>
       </SettingsSectionCard>
 
-      <SettingsSectionCard title="Account status">
+      <SettingsSectionCard
+        title="Account status"
+        description="Current account state and session controls."
+      >
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={profile.isActive === false ? 'destructive' : 'default'}>
+          <Badge
+            variant={profile.isActive === false ? 'destructive' : 'default'}
+            className="rounded-full px-2.5"
+          >
             {profile.isActive === false ? 'Inactive' : 'Active'}
           </Badge>
           {profile.isVerified ? (
-            <Badge variant="secondary">Verified</Badge>
+            <Badge variant="secondary" className="rounded-full px-2.5">
+              Verified
+            </Badge>
           ) : (
-            <Badge variant="outline">Email verification pending</Badge>
+            <Badge variant="outline" className="rounded-full px-2.5">
+              Email verification pending
+            </Badge>
           )}
           <Button
             variant="ghost"
             size="sm"
+            className="ml-auto rounded-lg text-slate-600"
             onClick={() => signOut({ callbackUrl: '/' })}
           >
             Sign out

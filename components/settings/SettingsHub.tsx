@@ -45,10 +45,10 @@ const HelpSection = lazy(
 
 function SectionFallback() {
   return (
-    <div className="space-y-3">
-      <Skeleton className="h-8 w-1/3" />
-      <Skeleton className="h-32 w-full" />
-      <Skeleton className="h-32 w-full" />
+    <div className="space-y-4">
+      <Skeleton className="h-28 w-full rounded-2xl" />
+      <Skeleton className="h-48 w-full rounded-2xl" />
+      <Skeleton className="h-40 w-full rounded-2xl" />
     </div>
   );
 }
@@ -106,20 +106,26 @@ function SettingsHubInner() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
-      <div className="mb-4">
-        <BackButton fallbackUrl="/dashboard/jobseeker" label="Back" />
+    <div className="relative min-h-screen">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.08),_transparent_55%),linear-gradient(to_bottom,#f8fafc,#ffffff)]"
+      />
+      <div className="container mx-auto max-w-6xl px-4 py-6 md:py-10">
+        <div className="mb-5">
+          <BackButton fallbackUrl="/dashboard/jobseeker" label="Back" />
+        </div>
+        <SettingsShell
+          activeSection={activeSection}
+          onSectionChange={onSectionChange}
+          mobileOpen={mobileOpen}
+          onMobileOpenChange={setMobileOpen}
+        >
+          <Suspense fallback={<SectionFallback />}>
+            {renderSection(activeSection)}
+          </Suspense>
+        </SettingsShell>
       </div>
-      <SettingsShell
-        activeSection={activeSection}
-        onSectionChange={onSectionChange}
-        mobileOpen={mobileOpen}
-        onMobileOpenChange={setMobileOpen}
-      >
-        <Suspense fallback={<SectionFallback />}>
-          {renderSection(activeSection)}
-        </Suspense>
-      </SettingsShell>
     </div>
   );
 }

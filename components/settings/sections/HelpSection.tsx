@@ -31,15 +31,26 @@ const FAQ_ITEMS = [
 
 export default function HelpSection() {
   return (
-    <div className="space-y-4">
-      <SettingsSectionCard title="FAQ">
-        <Accordion type="single" collapsible className="w-full">
+    <div className="space-y-5">
+      <SettingsSectionCard
+        title="FAQ"
+        description="Quick answers to the most common questions."
+      >
+        <Accordion
+          type="single"
+          collapsible
+          className="overflow-hidden rounded-xl border border-slate-200"
+        >
           {FAQ_ITEMS.map((item, index) => (
-            <AccordionItem key={item.q} value={`item-${index}`}>
-              <AccordionTrigger className="text-left text-sm">
+            <AccordionItem
+              key={item.q}
+              value={`item-${index}`}
+              className="border-b border-slate-100 px-4 last:border-b-0"
+            >
+              <AccordionTrigger className="py-3.5 text-left text-sm font-medium text-slate-900 hover:no-underline">
                 {item.q}
               </AccordionTrigger>
-              <AccordionContent className="text-sm text-gray-600">
+              <AccordionContent className="pb-3.5 text-[13px] leading-relaxed text-slate-500">
                 {item.a}
               </AccordionContent>
             </AccordionItem>
@@ -49,37 +60,40 @@ export default function HelpSection() {
 
       <SettingsSectionCard
         title="Contact & support"
-        description="Reuses the existing contact form — no parallel ticket system."
+        description="Reach us through the existing contact form."
       >
-        <div className="flex flex-wrap gap-2">
-          <Button asChild>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button asChild className="rounded-xl">
             <Link href="/contact">Contact support</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="rounded-xl">
             <Link href="/contact?topic=bug">Report a bug</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="rounded-xl">
             <Link href="/contact?topic=feature">Feature request</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="rounded-xl">
             <Link href="/contact?topic=ticket">Raise a ticket</Link>
           </Button>
         </div>
       </SettingsSectionCard>
 
-      <SettingsSectionCard title="Policies & notes">
+      <SettingsSectionCard
+        title="Policies"
+        description="Legal documents for the platform."
+      >
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="rounded-xl">
             <Link href="/privacy">Privacy Policy</Link>
           </Button>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="rounded-xl">
             <Link href="/terms">Terms</Link>
           </Button>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="rounded-xl">
             <Link href="/cookies">Cookies</Link>
           </Button>
         </div>
-        <p className="text-xs text-gray-500 mt-3">
+        <p className="mt-3 text-[12px] leading-relaxed text-slate-500">
           Release notes are published with product updates. A dedicated release
           feed is not available in this build.
         </p>

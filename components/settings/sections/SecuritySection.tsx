@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import {
   ComingSoonCard,
+  SettingsField,
   SettingsSectionCard,
+  settingsInputClassName,
 } from '@/components/settings/SettingsPrimitives';
 
 export default function SecuritySection() {
@@ -56,44 +57,48 @@ export default function SecuritySection() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SettingsSectionCard
         title="Password"
-        description="Uses the authenticated change-password API. Forgot-password remains available."
+        description="Keep your account secure with a strong password."
       >
-        <div className="grid gap-3 max-w-md">
-          <div className="space-y-2">
-            <Label htmlFor="sec-current">Current password</Label>
+        <div className="grid max-w-md gap-4">
+          <SettingsField label="Current password" htmlFor="sec-current">
             <Input
               id="sec-current"
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sec-new">New password</Label>
+          </SettingsField>
+          <SettingsField label="New password" htmlFor="sec-new">
             <Input
               id="sec-new"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sec-confirm">Confirm new password</Label>
+          </SettingsField>
+          <SettingsField label="Confirm new password" htmlFor="sec-confirm">
             <Input
               id="sec-confirm"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={handlePasswordChange} disabled={saving}>
+          </SettingsField>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button
+              onClick={handlePasswordChange}
+              disabled={saving}
+              className="rounded-xl"
+            >
               {saving ? 'Updating…' : 'Change password'}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="rounded-xl">
               <Link href="/auth/forgot-password">Forgot password</Link>
             </Button>
           </div>
@@ -102,14 +107,16 @@ export default function SecuritySection() {
 
       <SettingsSectionCard
         title="Connected accounts"
-        description="Shows providers linked through existing NextAuth accounts. Management UI is limited to avoid fake controls."
+        description="Sign-in providers linked through existing NextAuth accounts."
       >
-        <div className="space-y-2 text-sm text-gray-700">
-          <p>
+        <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-4">
+          <p className="text-sm text-slate-700">
             Signed in as{' '}
-            <strong>{session?.user?.email || 'your account'}</strong>
+            <span className="font-semibold text-slate-900">
+              {session?.user?.email || 'your account'}
+            </span>
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
             Google / GitHub connections are managed by the existing auth
             providers. LinkedIn and Microsoft are not configured in production
             auth today.
@@ -117,8 +124,11 @@ export default function SecuritySection() {
         </div>
       </SettingsSectionCard>
 
-      <SettingsSectionCard title="Advanced security">
-        <div className="space-y-2">
+      <SettingsSectionCard
+        title="Advanced security"
+        description="Additional protections will appear here when available."
+      >
+        <div className="space-y-2.5">
           <ComingSoonCard
             title="Two-factor authentication"
             description="TOTP / authenticator 2FA is not implemented in production auth yet."
@@ -139,7 +149,7 @@ export default function SecuritySection() {
         <Button
           variant="outline"
           onClick={() => signOut({ callbackUrl: '/' })}
-          className="mt-2"
+          className="mt-3 rounded-xl"
         >
           Sign out this device
         </Button>

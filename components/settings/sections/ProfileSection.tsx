@@ -4,12 +4,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useSettingsData } from '@/components/settings/SettingsDataProvider';
-import { SettingsSectionCard } from '@/components/settings/SettingsPrimitives';
-import { Loader2 } from 'lucide-react';
+import {
+  SettingsField,
+  SettingsLoadingState,
+  SettingsSectionCard,
+  settingsInputClassName,
+  settingsTextareaClassName,
+} from '@/components/settings/SettingsPrimitives';
 
 export default function ProfileSection() {
   const { profile, loading, saving, updateProfile } = useSettingsData();
@@ -30,12 +34,7 @@ export default function ProfileSection() {
   }, [profile]);
 
   if (loading || !profile) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-600 py-10 justify-center">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        Loading profile…
-      </div>
-    );
+    return <SettingsLoadingState label="Loading profile…" />;
   }
 
   const handleSave = async () => {
@@ -66,67 +65,79 @@ export default function ProfileSection() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SettingsSectionCard
-        title="Professional profile"
-        description="Reuses the existing jobseeker profile API — no parallel profile system."
+        title="Career identity"
+        description="Headline and summary that represent you to recruiters."
         action={
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="rounded-xl">
             <Link href="/dashboard/jobseeker/profile">Open full editor</Link>
           </Button>
         }
       >
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="headline">Professional headline</Label>
+          <SettingsField label="Professional headline" htmlFor="headline">
             <Input
               id="headline"
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
               placeholder="e.g. Full Stack Developer"
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="bio">About me</Label>
+          </SettingsField>
+          <SettingsField label="About me" htmlFor="bio">
             <Textarea
               id="bio"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={4}
               placeholder="Short professional summary"
+              className={settingsTextareaClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="objective">Career objective</Label>
+          </SettingsField>
+          <SettingsField label="Career objective" htmlFor="objective">
             <Textarea
               id="objective"
               value={objective}
               onChange={(e) => setObjective(e.target.value)}
               rows={3}
               placeholder="What roles you are targeting"
+              className={settingsTextareaClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="experienceSummary">Experience summary</Label>
+          </SettingsField>
+        </div>
+      </SettingsSectionCard>
+
+      <SettingsSectionCard
+        title="Experience & skills"
+        description="A concise view of your background and strengths."
+      >
+        <div className="space-y-4">
+          <SettingsField label="Experience summary" htmlFor="experienceSummary">
             <Textarea
               id="experienceSummary"
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
               rows={3}
+              className={settingsTextareaClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="skills">Skills summary</Label>
+          </SettingsField>
+          <SettingsField label="Skills summary" htmlFor="skills">
             <Input
               id="skills"
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
               placeholder="Comma-separated skills"
+              className={settingsInputClassName}
             />
-          </div>
+          </SettingsField>
         </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving}>
+        <div className="flex justify-end border-t border-slate-100 pt-4">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-xl px-5"
+          >
             {saving ? 'Saving…' : 'Save profile'}
           </Button>
         </div>

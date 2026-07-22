@@ -7,15 +7,15 @@ import { useToast } from '@/hooks/use-toast';
 import { useSettingsData } from '@/components/settings/SettingsDataProvider';
 import {
   PreferenceToggle,
+  SettingsLoadingState,
   SettingsSectionCard,
 } from '@/components/settings/SettingsPrimitives';
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   type NotificationPreferences,
 } from '@/lib/settings/preferences';
-import { Loader2 } from 'lucide-react';
 
-const TOGGLE_META: Array<{
+const CHANNEL_TOGGLES: Array<{
   key: keyof NotificationPreferences;
   label: string;
   description: string;
@@ -30,6 +30,13 @@ const TOGGLE_META: Array<{
     label: 'Push notifications',
     description: 'Browser / device push alerts when available.',
   },
+];
+
+const ACTIVITY_TOGGLES: Array<{
+  key: keyof NotificationPreferences;
+  label: string;
+  description: string;
+}> = [
   {
     key: 'jobAlerts',
     label: 'Job alerts',
@@ -60,6 +67,13 @@ const TOGGLE_META: Array<{
     label: 'Saved searches',
     description: 'Alerts for saved job searches.',
   },
+];
+
+const SYSTEM_TOGGLES: Array<{
+  key: keyof NotificationPreferences;
+  label: string;
+  description: string;
+}> = [
   {
     key: 'securityAlerts',
     label: 'Security alerts',
@@ -82,6 +96,38 @@ const TOGGLE_META: Array<{
   },
 ];
 
+function ToggleGroup({
+  items,
+  local,
+  saving,
+  onChange,
+}: {
+  items: Array<{
+    key: keyof NotificationPreferences;
+    label: string;
+    description: string;
+  }>;
+  local: NotificationPreferences;
+  saving: boolean;
+  onChange: (key: keyof NotificationPreferences, checked: boolean) => void;
+}) {
+  return (
+    <div className="divide-y divide-slate-100 rounded-xl border border-slate-150 overflow-hidden bg-white">
+      {items.map((item) => (
+        <PreferenceToggle
+          key={item.key}
+          id={`notif-${item.key}`}
+          label={item.label}
+          description={item.description}
+          checked={local[item.key]}
+          disabled={saving}
+          onCheckedChange={(checked) => onChange(item.key, checked)}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function NotificationsSection() {
   const { preferences, loading, saving, updatePreferences } = useSettingsData();
   const { toast } = useToast();
@@ -94,12 +140,7 @@ export default function NotificationsSection() {
   }, [preferences.notifications]);
 
   if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-600 py-10 justify-center">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        Loading notification preferences…
-      </div>
-    );
+    return <SettingsLoadingState label="Loading notification preferences…" />;
   }
 
   const handleSave = async () => {
@@ -113,34 +154,57 @@ export default function NotificationsSection() {
     });
   };
 
+  const onChange = (key: keyof NotificationPreferences, checked: boolean) => {
+    setLocal((prev) => ({ ...prev, [key]: checked }));
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SettingsSectionCard
-        title="Notification preferences"
-        description="Persists preference toggles in Settings KV. Inbox delivery still uses the existing notification system."
+        title="Channels"
+        description="Choose how you want to receive alerts."
         action={
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="rounded-xl">
             <Link href="/dashboard/notifications">Open inbox</Link>
           </Button>
         }
       >
-        <div className="space-y-2">
-          {TOGGLE_META.map((item) => (
-            <PreferenceToggle
-              key={item.key}
-              id={`notif-${item.key}`}
-              label={item.label}
-              description={item.description}
-              checked={local[item.key]}
-              disabled={saving}
-              onCheckedChange={(checked) =>
-                setLocal((prev) => ({ ...prev, [item.key]: checked }))
-              }
-            />
-          ))}
-        </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving}>
+        <ToggleGroup
+          items={CHANNEL_TOGGLES}
+          local={local}
+          saving={saving}
+          onChange={onChange}
+        />
+      </SettingsSectionCard>
+
+      <SettingsSectionCard
+        title="Job activity"
+        description="Stay informed about applications, interviews, and recruiter outreach."
+      >
+        <ToggleGroup
+          items={ACTIVITY_TOGGLES}
+          local={local}
+          saving={saving}
+          onChange={onChange}
+        />
+      </SettingsSectionCard>
+
+      <SettingsSectionCard
+        title="System & marketing"
+        description="Security, billing, and optional product communications."
+      >
+        <ToggleGroup
+          items={SYSTEM_TOGGLES}
+          local={local}
+          saving={saving}
+          onChange={onChange}
+        />
+        <div className="flex justify-end border-t border-slate-100 pt-4">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-xl px-5"
+          >
             {saving ? 'Saving…' : 'Save preferences'}
           </Button>
         </div>

@@ -31,6 +31,12 @@ export interface SettingsNavItem {
   icon: LucideIcon;
 }
 
+export interface SettingsNavGroup {
+  id: string;
+  label: string;
+  items: SettingsNavItem[];
+}
+
 export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'account',
@@ -94,6 +100,48 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   },
 ];
 
-export function isSettingsSectionId(value: string | null | undefined): value is SettingsSectionId {
+/** Visual grouping only — section ids and routes unchanged. */
+export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
+  {
+    id: 'account-group',
+    label: 'Account',
+    items: SETTINGS_NAV.filter((item) =>
+      ['account', 'security', 'preferences'].includes(item.id)
+    ),
+  },
+  {
+    id: 'career-group',
+    label: 'Career',
+    items: SETTINGS_NAV.filter((item) =>
+      ['profile', 'job-preferences'].includes(item.id)
+    ),
+  },
+  {
+    id: 'resume-group',
+    label: 'Resume',
+    items: SETTINGS_NAV.filter((item) => item.id === 'resume'),
+  },
+  {
+    id: 'privacy-group',
+    label: 'Privacy',
+    items: SETTINGS_NAV.filter((item) =>
+      ['notifications', 'privacy'].includes(item.id)
+    ),
+  },
+  {
+    id: 'billing-group',
+    label: 'Billing',
+    items: SETTINGS_NAV.filter((item) => item.id === 'billing'),
+  },
+  {
+    id: 'support-group',
+    label: 'Support',
+    items: SETTINGS_NAV.filter((item) => item.id === 'help'),
+  },
+];
+
+export function isSettingsSectionId(
+  value: string | null | undefined
+): value is SettingsSectionId {
   return !!value && SETTINGS_NAV.some((item) => item.id === value);
 }

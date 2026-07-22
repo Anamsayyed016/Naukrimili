@@ -3,16 +3,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useSettingsData } from '@/components/settings/SettingsDataProvider';
 import {
   PreferenceToggle,
+  SettingsField,
+  SettingsLoadingState,
   SettingsSectionCard,
+  settingsInputClassName,
 } from '@/components/settings/SettingsPrimitives';
 import type { WorkArrangement } from '@/lib/settings/preferences';
-import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const EMPLOYMENT_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship'];
@@ -79,12 +80,7 @@ export default function JobPreferencesSection() {
   );
 
   if (loading || !profile) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-600 py-10 justify-center">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        Loading preferences…
-      </div>
-    );
+    return <SettingsLoadingState label="Loading preferences…" />;
   }
 
   const handleSave = async () => {
@@ -118,109 +114,141 @@ export default function JobPreferencesSection() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SettingsSectionCard
-        title="Job preferences"
-        description="Core fields use the existing User table. Hybrid/onsite, notice period, and open-to-work use Settings KV extras."
+        title="Target roles"
+        description="Tell us what you are looking for next."
       >
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="preferredRole">Preferred role</Label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SettingsField
+            label="Preferred role"
+            htmlFor="preferredRole"
+            className="sm:col-span-2"
+          >
             <Input
               id="preferredRole"
               value={preferredRole}
               onChange={(e) => setPreferredRole(e.target.value)}
               placeholder="e.g. Backend Engineer"
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="locationPreference">Preferred location</Label>
+          </SettingsField>
+          <SettingsField label="Preferred location" htmlFor="locationPreference">
             <Input
               id="locationPreference"
               value={locationPreference}
               onChange={(e) => setLocationPreference(e.target.value)}
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="salaryExpectation">Salary expectation (₹ / year)</Label>
+          </SettingsField>
+          <SettingsField
+            label="Salary expectation (₹ / year)"
+            htmlFor="salaryExpectation"
+          >
             <Input
               id="salaryExpectation"
               type="number"
               min={0}
               value={salaryExpectation}
               onChange={(e) => setSalaryExpectation(e.target.value)}
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="noticePeriod">Notice period</Label>
+          </SettingsField>
+          <SettingsField label="Notice period" htmlFor="noticePeriod">
             <Input
               id="noticePeriod"
               value={noticePeriod}
               onChange={(e) => setNoticePeriod(e.target.value)}
               placeholder="e.g. 30 days"
+              className={settingsInputClassName}
+            />
+          </SettingsField>
+        </div>
+      </SettingsSectionCard>
+
+      <SettingsSectionCard
+        title="Work style"
+        description="Employment type and where you prefer to work."
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-700">Employment type</p>
+            <div className="flex flex-wrap gap-2">
+              {EMPLOYMENT_TYPES.map((type) => {
+                const selected = jobTypes.includes(type);
+                return (
+                  <label
+                    key={type}
+                    className={cn(
+                      'inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition-colors',
+                      selected
+                        ? 'border-slate-900 bg-slate-900 text-white'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    )}
+                  >
+                    <Checkbox
+                      checked={selected}
+                      onCheckedChange={(checked) => {
+                        const enabled = checked === true;
+                        setJobTypes((prev) => {
+                          if (enabled) {
+                            return prev.includes(type) ? prev : [...prev, type];
+                          }
+                          return prev.filter((item) => item !== type);
+                        });
+                      }}
+                      className="sr-only"
+                    />
+                    {type}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-700">Work arrangement</p>
+            <div className="flex flex-wrap gap-2">
+              {arrangements.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() =>
+                    setWorkArrangement((prev) =>
+                      prev === item.id ? '' : item.id
+                    )
+                  }
+                  className={cn(
+                    'rounded-full border px-3.5 py-2 text-sm transition-all',
+                    workArrangement === item.id
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
+                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-xl border border-slate-200">
+            <PreferenceToggle
+              id="openToWork"
+              label="Open to work"
+              description="Signal that you are actively looking for opportunities."
+              checked={openToWork}
+              onCheckedChange={setOpenToWork}
+              disabled={saving}
             />
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Employment type</Label>
-          <div className="flex flex-wrap gap-3">
-            {EMPLOYMENT_TYPES.map((type) => (
-              <label key={type} className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  checked={jobTypes.includes(type)}
-                  onCheckedChange={(checked) => {
-                    const enabled = checked === true;
-                    setJobTypes((prev) => {
-                      if (enabled) {
-                        return prev.includes(type) ? prev : [...prev, type];
-                      }
-                      return prev.filter((item) => item !== type);
-                    });
-                  }}
-                />
-                {type}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Work arrangement</Label>
-          <div className="flex flex-wrap gap-2">
-            {arrangements.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() =>
-                  setWorkArrangement((prev) =>
-                    prev === item.id ? '' : item.id
-                  )
-                }
-                className={cn(
-                  'rounded-full border px-3 py-1.5 text-sm transition-colors',
-                  workArrangement === item.id
-                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                    : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <PreferenceToggle
-          id="openToWork"
-          label="Open to work"
-          description="Signal that you are actively looking for opportunities."
-          checked={openToWork}
-          onCheckedChange={setOpenToWork}
-          disabled={saving}
-        />
-
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving}>
+        <div className="flex justify-end border-t border-slate-100 pt-4">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-xl px-5"
+          >
             {saving ? 'Saving…' : 'Save preferences'}
           </Button>
         </div>

@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -15,13 +14,15 @@ import { useToast } from '@/hooks/use-toast';
 import { useSettingsData } from '@/components/settings/SettingsDataProvider';
 import {
   PreferenceToggle,
+  SettingsField,
+  SettingsLoadingState,
   SettingsSectionCard,
+  settingsInputClassName,
 } from '@/components/settings/SettingsPrimitives';
 import {
   DEFAULT_UI_PREFERENCES,
   type UiPreferences,
 } from '@/lib/settings/preferences';
-import { Loader2 } from 'lucide-react';
 
 export default function PreferencesSection() {
   const { preferences, loading, saving, updatePreferences } = useSettingsData();
@@ -36,12 +37,7 @@ export default function PreferencesSection() {
   }, [preferences.ui]);
 
   if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-600 py-10 justify-center">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        Loading preferences…
-      </div>
-    );
+    return <SettingsLoadingState label="Loading preferences…" />;
   }
 
   const handleSave = async () => {
@@ -56,14 +52,13 @@ export default function PreferencesSection() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SettingsSectionCard
         title="App preferences"
-        description="Theme and layout preferences are stored in Settings KV. App-wide dark mode provider is not fully wired — values are saved for future use."
+        description="Theme and locale preferences stored for your account."
       >
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Theme</Label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SettingsField label="Theme">
             <Select
               value={local.theme}
               onValueChange={(value) =>
@@ -73,7 +68,7 @@ export default function PreferencesSection() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={settingsInputClassName}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -82,16 +77,15 @@ export default function PreferencesSection() {
                 <SelectItem value="dark">Dark</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Language</Label>
+          </SettingsField>
+          <SettingsField label="Language">
             <Select
               value={local.language}
               onValueChange={(value) =>
                 setLocal((prev) => ({ ...prev, language: value }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={settingsInputClassName}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -99,26 +93,25 @@ export default function PreferencesSection() {
                 <SelectItem value="hi">Hindi</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="timezone">Timezone</Label>
+          </SettingsField>
+          <SettingsField label="Timezone" htmlFor="timezone">
             <Input
               id="timezone"
               value={local.timezone}
               onChange={(e) =>
                 setLocal((prev) => ({ ...prev, timezone: e.target.value }))
               }
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label>Currency</Label>
+          </SettingsField>
+          <SettingsField label="Currency">
             <Select
               value={local.currency}
               onValueChange={(value) =>
                 setLocal((prev) => ({ ...prev, currency: value }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={settingsInputClassName}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -126,16 +119,15 @@ export default function PreferencesSection() {
                 <SelectItem value="USD">USD</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Date format</Label>
+          </SettingsField>
+          <SettingsField label="Date format">
             <Select
               value={local.dateFormat}
               onValueChange={(value) =>
                 setLocal((prev) => ({ ...prev, dateFormat: value }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={settingsInputClassName}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -144,9 +136,8 @@ export default function PreferencesSection() {
                 <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Dashboard layout</Label>
+          </SettingsField>
+          <SettingsField label="Dashboard layout">
             <Select
               value={local.dashboardLayout}
               onValueChange={(value) =>
@@ -156,7 +147,7 @@ export default function PreferencesSection() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={settingsInputClassName}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -164,17 +155,16 @@ export default function PreferencesSection() {
                 <SelectItem value="compact">Compact</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </SettingsField>
         </div>
       </SettingsSectionCard>
 
       <SettingsSectionCard
         title="Resume editor defaults"
-        description="Saved preferences only — does not modify Resume Builder templates or payment entitlements."
+        description="Saved preferences only — does not modify Resume Builder templates or entitlements."
       >
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="defaultTemplate">Default resume template</Label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SettingsField label="Default resume template" htmlFor="defaultTemplate">
             <Input
               id="defaultTemplate"
               value={local.defaultResumeTemplate}
@@ -185,10 +175,10 @@ export default function PreferencesSection() {
                 }))
               }
               placeholder="Template id (optional)"
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="defaultColor">Default resume color</Label>
+          </SettingsField>
+          <SettingsField label="Default resume color" htmlFor="defaultColor">
             <Input
               id="defaultColor"
               value={local.defaultResumeColor}
@@ -199,10 +189,14 @@ export default function PreferencesSection() {
                 }))
               }
               placeholder="Color id (optional)"
+              className={settingsInputClassName}
             />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="defaultFont">Default font</Label>
+          </SettingsField>
+          <SettingsField
+            label="Default font"
+            htmlFor="defaultFont"
+            className="sm:col-span-2"
+          >
             <Input
               id="defaultFont"
               value={local.defaultFont}
@@ -210,41 +204,48 @@ export default function PreferencesSection() {
                 setLocal((prev) => ({ ...prev, defaultFont: e.target.value }))
               }
               placeholder="Font family (optional)"
+              className={settingsInputClassName}
             />
-          </div>
+          </SettingsField>
         </div>
-        <PreferenceToggle
-          id="autoSave"
-          label="Editor auto-save preference"
-          checked={local.editorPreferences.autoSave}
-          onCheckedChange={(checked) =>
-            setLocal((prev) => ({
-              ...prev,
-              editorPreferences: {
-                ...prev.editorPreferences,
-                autoSave: checked,
-              },
-            }))
-          }
-          disabled={saving}
-        />
-        <PreferenceToggle
-          id="compactToolbar"
-          label="Compact editor toolbar"
-          checked={local.editorPreferences.compactToolbar}
-          onCheckedChange={(checked) =>
-            setLocal((prev) => ({
-              ...prev,
-              editorPreferences: {
-                ...prev.editorPreferences,
-                compactToolbar: checked,
-              },
-            }))
-          }
-          disabled={saving}
-        />
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving}>
+        <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
+          <PreferenceToggle
+            id="autoSave"
+            label="Editor auto-save preference"
+            checked={local.editorPreferences.autoSave}
+            onCheckedChange={(checked) =>
+              setLocal((prev) => ({
+                ...prev,
+                editorPreferences: {
+                  ...prev.editorPreferences,
+                  autoSave: checked,
+                },
+              }))
+            }
+            disabled={saving}
+          />
+          <PreferenceToggle
+            id="compactToolbar"
+            label="Compact editor toolbar"
+            checked={local.editorPreferences.compactToolbar}
+            onCheckedChange={(checked) =>
+              setLocal((prev) => ({
+                ...prev,
+                editorPreferences: {
+                  ...prev.editorPreferences,
+                  compactToolbar: checked,
+                },
+              }))
+            }
+            disabled={saving}
+          />
+        </div>
+        <div className="flex justify-end border-t border-slate-100 pt-4">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-xl px-5"
+          >
             {saving ? 'Saving…' : 'Save preferences'}
           </Button>
         </div>
