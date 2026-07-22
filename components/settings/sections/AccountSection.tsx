@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { signOut, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import LinkPhoneSection from '@/components/auth/LinkPhoneSection';
+import AccountProfilePhotoUpload from '@/components/account/AccountProfilePhotoUpload';
 import { useSettingsData } from '@/components/settings/SettingsDataProvider';
 import {
   SettingsField,
@@ -21,11 +21,12 @@ import { cn } from '@/lib/utils';
 
 export default function AccountSection() {
   const { profile, loading, saving, updateProfile, refresh } = useSettingsData();
+  const { update: updateSession } = useSession();
   const { toast } = useToast();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [location, setLocation] = useState('');
-  const [profilePicture, setProfilePicture] = useState('');
+  const [photoVersion, setPhotoVersion] = useState<number | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,17 +37,11 @@ export default function AccountSection() {
     setFirstName(profile.firstName || '');
     setLastName(profile.lastName || '');
     setLocation(profile.location || '');
-    setProfilePicture(profile.profilePicture || '');
   }, [profile]);
 
   if (loading || !profile) {
     return <SettingsLoadingState label="Loading account…" />;
   }
-
-  const initials =
-    `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() ||
-    profile.email?.[0]?.toUpperCase() ||
-    'U';
 
   const handleSave = async () => {
     const ok = await updateProfile({
@@ -54,7 +49,6 @@ export default function AccountSection() {
       lastName,
       name: `${firstName} ${lastName}`.trim(),
       location,
-      profilePicture: profilePicture || undefined,
     });
     toast({
       title: ok ? 'Account updated' : 'Update failed',
@@ -108,30 +102,26 @@ export default function AccountSection() {
     <div className="space-y-5">
       <SettingsSectionCard
         title="Profile photo"
-        description="Your avatar appears across the portal. Paste an image URL for now."
+        description="Your account avatar appears across the portal — navbar, dashboard, and applications. This is separate from your resume photo."
       >
-        <div className="flex flex-col items-start gap-5 sm:flex-row">
-          <Avatar className="h-24 w-24 border-2 border-white shadow-md ring-1 ring-slate-200">
-            <AvatarImage src={profilePicture || undefined} alt="Profile" />
-            <AvatarFallback className="bg-slate-100 text-lg font-semibold text-slate-600">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <SettingsField
-            label="Photo URL"
-            htmlFor="profilePicture"
-            hint="Dedicated file upload will reuse the existing storage stack in a later release."
-            className="w-full flex-1"
-          >
-            <Input
-              id="profilePicture"
-              value={profilePicture}
-              onChange={(e) => setProfilePicture(e.target.value)}
-              placeholder="https://…"
-              className={settingsInputClassName}
-            />
-          </SettingsField>
-        </div>
+        <AccountProfilePhotoUpload
+          profilePicture={profile.profilePicture}
+          oauthImage={profile.image}
+          firstName={firstName}
+          lastName={lastName}
+          email={profile.email}
+          cacheVersion={photoVersion}
+          onPhotoSaved={async ({ profilePicture, version }) => {
+            setPhotoVersion(version);
+            await refresh();
+            await updateSession({ profilePicture });
+          }}
+          onPhotoRemoved={async ({ version }) => {
+            setPhotoVersion(version);
+            await refresh();
+            await updateSession({ profilePicture: null });
+          }}
+        />
       </SettingsSectionCard>
 
       <SettingsSectionCard

@@ -127,7 +127,7 @@ export function SettingsDataProvider({ children }: { children: ReactNode }) {
         skills: parseSkills(user.skills),
         experience: user.experience,
         education: user.education,
-        profilePicture: user.profilePicture || user.image,
+        profilePicture: user.profilePicture,
         image: user.image,
         locationPreference: user.locationPreference,
         salaryExpectation: user.salaryExpectation,

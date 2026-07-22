@@ -541,7 +541,7 @@ const authOptions = {
 
       return true
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       console.log('JWT callback - user:', user?.email, 'account provider:', account?.provider, 'has token.id:', !!token.id);
       
       // Initial sign in - user object is available (works for both credentials and OAuth)
@@ -552,8 +552,16 @@ const authOptions = {
         token.email = user.email;
         token.name = user.name;
         token.image = (user as any).image;
+        token.profilePicture = (user as any).profilePicture ?? null;
         console.log('✅ JWT callback - Initial sign in:', { id: token.id, role: token.role, email: token.email, provider: account?.provider || 'credentials' });
         return token;
+      }
+
+      // Client session.update() after account photo upload/remove
+      if (trigger === 'update' && session) {
+        if ('profilePicture' in session) {
+          token.profilePicture = (session as { profilePicture?: string | null }).profilePicture ?? null;
+        }
       }
 
       // Subsequent requests - fetch fresh user data from database
@@ -568,6 +576,7 @@ const authOptions = {
             token.email = dbUser.email;
             token.name = `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim() || dbUser.email;
             token.image = dbUser.image;
+            token.profilePicture = dbUser.profilePicture;
           } else {
             // User not found or inactive
             console.error('❌ JWT callback - User not found or inactive:', token.id);
@@ -595,6 +604,7 @@ const authOptions = {
         session.user.role = token.role as string;
         session.user.name = token.name as string;
         session.user.image = token.image as string | null;
+        session.user.profilePicture = (token.profilePicture as string | null) ?? null;
       }
 
       return session;

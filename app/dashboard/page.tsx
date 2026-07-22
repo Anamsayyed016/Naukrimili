@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ResumeUpload from "@/components/resume/ResumeUpload";
 import Link from "next/link";
+import UserAvatar from "@/components/account/UserAvatar";
 
 const tabs = [
   { label: "Jobseeker Dashboard", key: "jobseeker" },
@@ -52,10 +53,13 @@ export default function Page() {
       <Card className="mb-8 bg-gradient-to-r from-purple-50 to-cyan-50 border-0">
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <img 
-              src={session.user?.image || "/placeholder-user.jpg"} 
-              alt={session.user?.name || "User avatar"} 
-              className="w-16 h-16 rounded-full border-2 border-purple-200" 
+            <UserAvatar
+              profilePicture={(session.user as { profilePicture?: string | null })?.profilePicture}
+              image={session.user?.image}
+              name={session.user?.name}
+              email={session.user?.email}
+              size="lg"
+              className="border-2 border-purple-200"
             />
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-1">

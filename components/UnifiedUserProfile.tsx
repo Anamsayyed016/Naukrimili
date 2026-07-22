@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Z_INDEX } from '@/lib/utils';
 import { clearWorkspacePreferenceCache } from '@/lib/preferences/workspace-preference';
+import UserAvatar from '@/components/account/UserAvatar';
 
 interface UnifiedUserProfileProps {
   className?: string;
@@ -116,9 +117,10 @@ export default function UnifiedUserProfile({
     );
   }
 
-  const userInitials = (user.firstName || user.name) ? (user.firstName || user.name).charAt(0).toUpperCase() : 'U';
   const displayName = user.firstName || user.name || 'User';
   const userRole = user.role || 'User';
+  const profilePicture = user.profilePicture as string | null | undefined;
+  const oauthImage = user.image as string | null | undefined;
 
   if (variant === 'mobile') {
     return (
@@ -135,17 +137,21 @@ export default function UnifiedUserProfile({
           aria-label="User profile menu"
           aria-expanded={isDropdownOpen}
         >
-          <div className="relative">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -inset-0.5 rounded-full bg-gradient-to-r from-teal-400/70 via-violet-400/60 to-fuchsia-400/70 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100"
-            />
-            <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 via-indigo-600 to-violet-600 flex items-center justify-center flex-shrink-0 ring-2 ring-white/80 shadow-[0_2px_8px_-2px_rgba(20,184,166,0.4)]">
-              <span className="text-white font-semibold text-sm">
-                {userInitials}
-              </span>
+            <div className="relative">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-0.5 rounded-full bg-gradient-to-r from-teal-400/70 via-violet-400/60 to-fuchsia-400/70 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100"
+              />
+              <UserAvatar
+                profilePicture={profilePicture}
+                image={oauthImage}
+                name={displayName}
+                email={user.email}
+                firstName={user.firstName}
+                size="sm"
+                className="relative ring-2 ring-white/80 shadow-[0_2px_8px_-2px_rgba(20,184,166,0.4)]"
+              />
             </div>
-          </div>
         </button>
 
         {/* Mobile Backdrop */}
@@ -189,11 +195,15 @@ export default function UnifiedUserProfile({
               {/* User Info Header */}
               <div className="px-5 py-4 border-b border-gray-100/80">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-11 h-11 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <span className="text-white font-semibold text-sm">
-                      {userInitials}
-                    </span>
-                  </div>
+                  <UserAvatar
+                    profilePicture={profilePicture}
+                    image={oauthImage}
+                    name={displayName}
+                    email={user.email}
+                    firstName={user.firstName}
+                    size="md"
+                    className="shadow-sm"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-base font-semibold text-gray-900 truncate leading-tight">{displayName}</p>
                     <p className="text-xs text-gray-600 truncate mt-1 leading-relaxed">{user.email}</p>
@@ -316,11 +326,15 @@ export default function UnifiedUserProfile({
             aria-hidden
             className="pointer-events-none absolute -inset-0.5 rounded-full bg-gradient-to-r from-teal-400/70 via-violet-400/60 to-fuchsia-400/70 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
           />
-          <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-teal-500 via-indigo-600 to-violet-600 flex items-center justify-center flex-shrink-0 ring-2 ring-white/80 shadow-[0_2px_8px_-2px_rgba(20,184,166,0.4)]">
-            <span className="text-white font-semibold text-xs sm:text-sm">
-              {userInitials}
-            </span>
-          </div>
+          <UserAvatar
+            profilePicture={profilePicture}
+            image={oauthImage}
+            name={displayName}
+            email={user.email}
+            firstName={user.firstName}
+            size="sm"
+            className="relative w-8 h-8 sm:w-9 sm:h-9 ring-2 ring-white/80 shadow-[0_2px_8px_-2px_rgba(20,184,166,0.4)]"
+          />
         </div>
         <ChevronDown
           className={cn(
@@ -371,11 +385,15 @@ export default function UnifiedUserProfile({
             {/* User Info Header */}
             <div className="px-5 py-4 border-b border-gray-100/80" style={{ backgroundColor: 'white' }}>
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <span className="text-white font-semibold text-sm">
-                    {userInitials}
-                  </span>
-                </div>
+                <UserAvatar
+                  profilePicture={profilePicture}
+                  image={oauthImage}
+                  name={displayName}
+                  email={user.email}
+                  firstName={user.firstName}
+                  size="md"
+                  className="shadow-sm"
+                />
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-semibold text-gray-900 break-words leading-tight">{displayName}</p>
                   <p className="text-xs text-gray-600 mt-1 break-all leading-relaxed">{user.email}</p>

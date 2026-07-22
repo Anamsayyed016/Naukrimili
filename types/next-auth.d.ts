@@ -9,6 +9,8 @@ declare module 'next-auth' {
       role?: string
       firstName?: string
       lastName?: string
+      /** Account-uploaded avatar (User.profilePicture). OAuth image stays in `image`. */
+      profilePicture?: string | null
     }
   }
   interface User {
