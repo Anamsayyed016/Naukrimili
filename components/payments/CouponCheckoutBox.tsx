@@ -6,6 +6,7 @@ import { Check, Loader2, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { CouponPromoSuggestion } from '@/components/payments/CouponPromoSuggestion';
 
 export interface CouponQuote {
   code: string;
@@ -27,6 +28,8 @@ interface CouponCheckoutBoxProps {
   onRemoved: () => void;
   disabled?: boolean;
   className?: string;
+  /** Show FLAT25 promo suggestion card above the coupon input (pricing page only). */
+  showPromoSuggestion?: boolean;
 }
 
 function formatRupee(amount: number) {
@@ -41,6 +44,7 @@ export function CouponCheckoutBox({
   onRemoved,
   disabled = false,
   className = '',
+  showPromoSuggestion = false,
 }: CouponCheckoutBoxProps) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -105,6 +109,7 @@ export function CouponCheckoutBox({
     >
       {!appliedQuote ? (
         <div className="space-y-3">
+          {showPromoSuggestion && <CouponPromoSuggestion />}
           <Label htmlFor={`coupon-${planKey}`} className="text-sm font-medium text-gray-700">
             Coupon Code
           </Label>

@@ -907,6 +907,7 @@ export default function PricingPage() {
                       planKey={plan.key}
                       listPriceRupees={plan.price}
                       appliedQuote={couponQuotes[plan.key] ?? null}
+                      showPromoSuggestion
                       onApplied={(quote) =>
                         setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
                       }
@@ -996,6 +997,7 @@ export default function PricingPage() {
                       planKey={plan.key}
                       listPriceRupees={plan.price}
                       appliedQuote={couponQuotes[plan.key] ?? null}
+                      showPromoSuggestion
                       onApplied={(quote) =>
                         setCouponQuotes((prev) => ({ ...prev, [plan.key]: quote }))
                       }
