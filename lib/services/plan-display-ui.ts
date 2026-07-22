@@ -31,6 +31,7 @@ export type IndividualPlanUI = {
   };
   popular: boolean;
   bestValue: boolean;
+  showCouponOffer: boolean;
 };
 
 export type BusinessPlanUI = {
@@ -87,6 +88,7 @@ export function getIndividualPlansForUI(): IndividualPlanUI[] {
     },
     popular: plan.popular || false,
     bestValue: 'bestValue' in plan ? Boolean(plan.bestValue) : false,
+    showCouponOffer: 'showCouponOffer' in plan ? Boolean(plan.showCouponOffer) : false,
   }));
 }
 

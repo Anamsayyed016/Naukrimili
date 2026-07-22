@@ -57,6 +57,7 @@ export const INDIVIDUAL_PLANS = {
     },
     popular: false, // Best Value
     bestValue: true,
+    showCouponOffer: true,
   },
 } as const;
 
