@@ -13,6 +13,23 @@ export async function GET(request: NextRequest) {
     
     if ("error" in authResult) {
       console.log('❌ Auth failed:', authResult.error, 'Status:', authResult.status);
+      // No company → empty jobs list (not HTTP 404). Page can show onboarding CTA.
+      if (
+        authResult.status === 400 &&
+        typeof authResult.error === 'string' &&
+        authResult.error.toLowerCase().includes('company profile')
+      ) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            jobs: [],
+            pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+            stats: { totalJobs: 0, totalApplications: 0 },
+            requiresCompanyProfile: true,
+          },
+          message: authResult.error,
+        });
+      }
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 

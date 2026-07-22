@@ -216,11 +216,25 @@ export default function EmployerJobsPage() {
       
       if (response.success && response.data) {
         const data = response.data as any;
-        setJobs(data.jobs);
-        setPagination(data.pagination);
-        
-        // Cache for 2 minutes with tags
-        cache.setWithTags(cacheKey, data, ['employer-jobs'], 120000);
+        setJobs(data.jobs || []);
+        setPagination(
+          data.pagination || {
+            page: 1,
+            limit: 10,
+            total: 0,
+            totalPages: 0,
+          }
+        );
+
+        if (data.requiresCompanyProfile) {
+          setError(
+            'Please complete your company profile first. Click here to set up your company profile.'
+          );
+        } else {
+          // Cache for 2 minutes with tags
+          cache.setWithTags(cacheKey, data, ['employer-jobs'], 120000);
+          setError(null);
+        }
       } else {
         // If API fails, set empty state instead of throwing error
         setJobs([]);
@@ -232,10 +246,15 @@ export default function EmployerJobsPage() {
         });
         
         // Check if it's a company profile issue
-        if (response.error?.includes('Company not found')) {
+        const errMsg = response.error || response.message || '';
+        if (
+          typeof errMsg === 'string' &&
+          (errMsg.toLowerCase().includes('company profile') ||
+            errMsg.toLowerCase().includes('company not found'))
+        ) {
           setError('Please complete your company profile first. Click here to set up your company profile.');
         } else {
-          setError(response.error || 'No jobs found. Start by posting your first job!');
+          setError(errMsg || 'No jobs found. Start by posting your first job!');
         }
       }
     } catch (err) {
@@ -248,7 +267,11 @@ export default function EmployerJobsPage() {
         totalPages: 0
       });
       
-      if (err instanceof Error && err.message.includes('Company not found')) {
+      const message = err instanceof Error ? err.message : String(err || '');
+      if (
+        message.toLowerCase().includes('company profile') ||
+        message.toLowerCase().includes('company not found')
+      ) {
         setError('Please complete your company profile first. Click here to set up your company profile.');
       } else {
         setError('Unable to load jobs. Please try again later.');
@@ -256,7 +279,7 @@ export default function EmployerJobsPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, jobStatus, jobType, experienceLevel, debouncedSearch, apiClient, session]);
+  }, [currentPage, jobStatus, jobType, experienceLevel, debouncedSearch, apiClient, session?.user?.id]);
 
   // Initialize Socket.io connection for real-time updates
   useEffect(() => {

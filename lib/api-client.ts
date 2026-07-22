@@ -134,6 +134,13 @@ export class ApiClient {
           error: error.message,
         };
       }
+      // handleError() throws a plain ApiError object (not Error)
+      if (error && typeof error === 'object' && 'message' in error) {
+        return {
+          success: false,
+          error: String((error as ApiError).message || 'Request failed'),
+        };
+      }
       return {
         success: false,
         error: 'An unexpected error occurred',

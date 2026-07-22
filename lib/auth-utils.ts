@@ -223,8 +223,9 @@ export async function requireEmployerAuth(): Promise<{ user: CompanyUser } | { e
     }
     
     // User is authenticated as employer but has no company
-    console.log('⚠️ Employer has no company profile - returning 404');
-    return { error: "Company profile required. Please create your company profile first.", status: 404 };
+    // Use 400 (not 404) — 404 incorrectly looks like a missing API route in the browser.
+    console.log('⚠️ Employer has no company profile - returning 400');
+    return { error: "Company profile required. Please create your company profile first.", status: 400 };
   }
   
   console.log('✅ Employer authentication successful with company');
