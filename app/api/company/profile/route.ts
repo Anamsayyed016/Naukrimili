@@ -25,6 +25,8 @@ export async function GET(_request: NextRequest) {
         industry: true,
         size: true,
         founded: true,
+        email: true,
+        phone: true,
         isVerified: true,
         benefits: true,
         specialties: true,

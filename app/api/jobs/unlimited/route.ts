@@ -309,14 +309,14 @@ function formatListingJob(job: Record<string, unknown>, options?: ListingFormatO
   };
 }
 
-/** Ensure detail cache rows carry full descriptions (list previews are ~220 chars). */
+/** Ensure detail cache rows carry full descriptions + contact rawJson (list omits both). */
 async function hydrateListingJobsForDetailCache(
   jobs: Record<string, unknown>[]
 ): Promise<Record<string, unknown>[]> {
   const missingFull = jobs.filter(
     (job) =>
-      typeof job.descriptionFull !== 'string' &&
-      (job.source === 'manual' || job.source === 'employer')
+      (job.source === 'manual' || job.source === 'employer') &&
+      (typeof job.descriptionFull !== 'string' || job.rawJson == null)
   );
   if (!missingFull.length) return jobs;
 
@@ -328,18 +328,29 @@ async function hydrateListingJobsForDetailCache(
 
   const rows = await prisma.job.findMany({
     where: { id: { in: ids } },
-    select: { id: true, description: true },
+    select: { id: true, description: true, rawJson: true },
   });
-  const descriptionById = new Map(rows.map((row) => [row.id, row.description || '']));
+  const byId = new Map(
+    rows.map((row) => [row.id, { description: row.description || '', rawJson: row.rawJson }])
+  );
 
   return jobs.map((job) => {
-    if (typeof job.descriptionFull === 'string' && job.descriptionFull.trim()) {
+    const id = parseInt(String(job.id), 10);
+    const row = Number.isFinite(id) ? byId.get(id) : undefined;
+    if (!row) {
+      if (typeof job.descriptionFull === 'string' && job.descriptionFull.trim()) {
+        return job;
+      }
       return job;
     }
-    const id = parseInt(String(job.id), 10);
-    const full = descriptionById.get(id);
-    if (!full) return job;
-    return { ...job, descriptionFull: full };
+    return {
+      ...job,
+      descriptionFull:
+        typeof job.descriptionFull === 'string' && job.descriptionFull.trim()
+          ? job.descriptionFull
+          : row.description,
+      rawJson: job.rawJson ?? row.rawJson ?? null,
+    };
   });
 }
 
@@ -1052,12 +1063,13 @@ export async function GET(request: NextRequest) {
     // Never cache empty listings — avoids locking the UI on a bad/empty response
     if (formattedJobs.length > 0) {
       await jobCacheService.set(cacheKey, response, 'api_jobs_list');
-      // Detail cache must store full descriptions — never list previews (~220 chars).
-      await jobCacheService.cacheJobsForDetail(
+      // Detail cache must store full descriptions + contact rawJson — never list-only rows.
+      const detailRows = await hydrateListingJobsForDetailCache(
         jobs.map((job) =>
           formatListingJob(job as Record<string, unknown>, { listView: false })
         ) as Record<string, unknown>[]
       );
+      await jobCacheService.cacheJobsForDetail(detailRows);
     }
 
     console.log(`✅ Unlimited Jobs API: Successfully returned ${formattedJobs.length} jobs (${total} total)`);

@@ -26,6 +26,8 @@ export async function GET(
         industry: true,
         size: true,
         founded: true,
+        email: true,
+        phone: true,
         isVerified: true,
         socialLinks: true,
         benefits: true,

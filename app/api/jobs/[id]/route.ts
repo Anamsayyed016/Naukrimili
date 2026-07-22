@@ -54,6 +54,8 @@ function externalJobToDetailRow(external: Record<string, unknown>) {
     requirements: cleanJobDescription(String(external.requirements || '')),
     applyUrl: (external.applyUrl as string | null) ?? (external.source_url as string | null) ?? null,
     source_url: (external.source_url as string | null) ?? (external.applyUrl as string | null) ?? null,
+    // Preserve employer contact fields stored on rawJson (listing cache may omit them).
+    rawJson: external.rawJson ?? null,
     postedAt: external.postedAt ? new Date(String(external.postedAt)) : null,
     salary: (external.salary as string | null) ?? null,
     salaryMin: (external.salaryMin as number | null) ?? null,
@@ -123,6 +125,11 @@ export async function GET(
 
     let job;
 
+    const numericId = resolution.numericId ?? NaN;
+    const isNumericString = /^\d+$/.test(jobId);
+    const isLargeNumericId = resolution.isLargeNumericId;
+    const isSafeInteger = resolution.isSafeInteger;
+
     // Strategy 0: ext-{source}-{sourceId} — DB lookup FIRST for external listing URLs
     if (resolution.extComposite) {
       for (const variant of extCompositeLookupVariants(resolution.extComposite)) {
@@ -134,6 +141,19 @@ export async function GET(
           console.log('✅ Found job by source+sourceId:', variant.source, variant.sourceId, job.title);
           break;
         }
+      }
+    }
+
+    // Strategy 0b: Employer/manual jobs use safe autoincrement IDs — load from DB
+    // BEFORE listing detail cache. Cache rows omit rawJson (contactEmail/contactPhone),
+    // which would make job contact details disappear on the detail page.
+    if (!job && isSafeInteger && !isLargeNumericId) {
+      job = await prisma.job.findUnique({
+        where: { id: numericId },
+        include: jobDetailInclude,
+      });
+      if (job) {
+        console.log('✅ Found job by numeric ID (DB before cache):', job.title);
       }
     }
 
@@ -160,11 +180,6 @@ export async function GET(
         }
       }
     }
-
-    const numericId = resolution.numericId ?? NaN;
-    const isNumericString = /^\d+$/.test(jobId);
-    const isLargeNumericId = resolution.isLargeNumericId;
-    const isSafeInteger = resolution.isSafeInteger;
     
     // Strategy 1: For large numeric IDs (10+ digits), ALWAYS try sourceId first
     // These are external job IDs that exceed safe integer limits

@@ -15,7 +15,9 @@ import {
   ExternalLink,
   Briefcase,
   ArrowLeft,
-  CheckCircle
+  CheckCircle,
+  Mail,
+  Phone
 } from 'lucide-react';
 import Link from 'next/link';
 import { CompanyLogoLarge } from '@/components/companies/CompanyLogo';
@@ -30,6 +32,8 @@ interface Company {
   industry: string | null;
   size: string | null;
   founded: number | null;
+  email: string | null;
+  phone: string | null;
   isVerified: boolean;
   _count: {
     jobs: number;
@@ -266,6 +270,36 @@ export default function CompanyProfilePage() {
                 <div>
                   <div className="font-medium">Headquarters</div>
                   <div className="text-gray-600">{company.location}</div>
+                </div>
+              </div>
+            )}
+
+            {company.email && (
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-gray-400" />
+                <div>
+                  <div className="font-medium">Contact Email</div>
+                  <a
+                    href={`mailto:${company.email}`}
+                    className="text-blue-600 hover:underline break-all"
+                  >
+                    {company.email}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {company.phone && (
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <div>
+                  <div className="font-medium">Contact Phone</div>
+                  <a
+                    href={`tel:${company.phone.replace(/\s/g, '')}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {company.phone}
+                  </a>
                 </div>
               </div>
             )}
