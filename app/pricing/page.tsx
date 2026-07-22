@@ -11,6 +11,7 @@ import Script from 'next/script';
 import { toast } from 'sonner';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, isAdminPlanBypassResponse, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { CouponCheckoutBox, type CouponQuote } from '@/components/payments/CouponCheckoutBox';
+import { PremiumDiscountPopup } from '@/components/payments/PremiumDiscountPopup';
 import {
   triggerGoAffProConversionAfterSubscription,
   triggerGoAffProConversionAfterVerify,
@@ -861,20 +862,22 @@ export default function PricingPage() {
               {INDIVIDUAL_PLANS_UI.map((plan) => (
                 <Card
                   key={plan.key}
-                  className={`relative ${
+                  className={`relative overflow-visible ${
                     plan.popular || plan.bestValue
                       ? 'border-2 border-indigo-600 shadow-xl scale-105'
                       : 'border border-gray-200'
                   }`}
                 >
                   {(plan.popular || plan.bestValue) && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                       <Badge className="bg-indigo-600 text-white px-4 py-1">
                         <Star className="w-3 h-3 mr-1" />
                         {plan.popular ? 'Most Popular' : 'Best Value'}
                       </Badge>
                     </div>
                   )}
+                  {/* Visual-only promo — does not change price, coupons, or checkout */}
+                  {plan.key === 'pro_job_seeker' && <PremiumDiscountPopup />}
                   <CardHeader>
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
                     <CardDescription>{plan.validity} Access</CardDescription>
