@@ -67,6 +67,7 @@ import {
   clearDesignStudioHandoff,
   readDesignStudioHandoff,
   writeDesignStudioHandoff,
+  writeQuotaSafeTemplateDraft,
 } from '@/lib/resume-builder/design-studio-handoff';
 import type { Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
@@ -617,19 +618,21 @@ export default function ResumeEditorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId, router, toast, colorParam, shouldPrefill, sourceImport]);
 
-  // Auto-save to localStorage
+  // Auto-save: keep per-template draft + live Design Studio handoff in sync with
+  // the CURRENT in-memory form (quota-safe: photo in dedicated store).
   useEffect(() => {
     if (templateId && Object.keys(formData).length > 0) {
       const timeoutId = setTimeout(() => {
         syncPersistedProfileImageFromFormData(formData);
         const payload = mergePersistedProfileImageIntoFormData(formData);
+        writeQuotaSafeTemplateDraft(templateId, payload);
+        writeDesignStudioHandoff(templateId, payload);
         try {
-          localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
           saveResumeBuilderLastEditor(templateId, typeId || undefined);
         } catch {
-          /* quota — global profile-image key still holds the photo */
+          /* ignore */
         }
-      }, 1000); // Debounce 1 second
+      }, 1000);
 
       return () => clearTimeout(timeoutId);
     }
@@ -805,31 +808,20 @@ export default function ResumeEditorPage() {
     });
   }, []);
 
-  // Open Design Studio with a handoff of the CURRENT in-memory form (not import snapshot).
+  // Open Design Studio with the CURRENT in-memory form as the only source of truth.
+  // Handoff is written first (quota-safe). Never leave a stale prior handoff behind.
   const openDesignStudio = useCallback(() => {
     if (!templateId) return;
     if (typeof window !== 'undefined') {
-      try {
-        syncPersistedProfileImageFromFormData(formData);
-        const payload = {
-          ...mergePersistedProfileImageIntoFormData(formData),
-          _userEdited: true,
-          _userEditedAt: Date.now(),
-        };
-        localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
-        writeDesignStudioHandoff(templateId, payload);
-      } catch {
-        // Still write handoff — Design Studio can recover from session even if LS quota fails.
-        try {
-          writeDesignStudioHandoff(templateId, {
-            ...formData,
-            _userEdited: true,
-            _userEditedAt: Date.now(),
-          });
-        } catch {
-          /* ignore */
-        }
-      }
+      const payload = {
+        ...formData,
+        _userEdited: true,
+        _userEditedAt: Date.now(),
+      };
+      // 1) Photo store + live handoff MUST succeed for Design Studio correctness.
+      writeDesignStudioHandoff(templateId, payload);
+      // 2) Best-effort per-template draft (stripped) — never block on quota.
+      writeQuotaSafeTemplateDraft(templateId, payload);
     }
     const params = new URLSearchParams();
     params.set('template', templateId);

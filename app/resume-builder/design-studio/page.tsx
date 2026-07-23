@@ -52,12 +52,12 @@ import {
 import { cn } from '@/lib/utils';
 import {
   mergePersistedProfileImageIntoFormData,
-  syncPersistedProfileImageFromFormData,
 } from '@/lib/resume-builder/profile-image-persistence';
 import {
   clearDesignStudioHandoff,
   readDesignStudioHandoff,
   writeDesignStudioHandoff,
+  writeQuotaSafeTemplateDraft,
 } from '@/lib/resume-builder/design-studio-handoff';
 import { hasImportableContent } from '@/lib/resume-builder/import-transformer';
 
@@ -65,13 +65,19 @@ type SidebarTab = 'templates' | 'colors' | 'typography';
 
 const DESIGN_STUDIO_RETURN_KEY = 'resume-builder-design-studio-return';
 
-function readLocalFormData(templateId: string): Record<string, unknown> {
-  if (typeof window === 'undefined') return mergePersistedProfileImageIntoFormData({});
-  // Prefer the live editor handoff over a possibly stale per-template draft.
+/**
+ * Design Studio initial load — CURRENT live handoff only.
+ * Never prefer a stale per-template draft when a handoff exists or was expected.
+ * Per-template localStorage is a last-resort fallback (photo restored from store).
+ */
+function readDesignStudioFormData(templateId: string): Record<string, unknown> {
+  if (typeof window === 'undefined') return {};
+
   const handoff = readDesignStudioHandoff(templateId);
   if (handoff && hasImportableContent(handoff)) {
-    return mergePersistedProfileImageIntoFormData(handoff);
+    return handoff;
   }
+
   try {
     const raw = localStorage.getItem(`resume-${templateId}`);
     if (!raw) return mergePersistedProfileImageIntoFormData({});
@@ -88,18 +94,8 @@ function writeLocalFormData(
   data: Record<string, unknown>
 ): void {
   if (typeof window === 'undefined') return;
-  const payload = {
-    ...mergePersistedProfileImageIntoFormData(data),
-    _userEdited: true,
-    _userEditedAt: Date.now(),
-  };
-  syncPersistedProfileImageFromFormData(payload);
-  try {
-    localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
-  } catch {
-    // ignore quota errors — preview still works in memory
-  }
-  writeDesignStudioHandoff(templateId, payload);
+  writeQuotaSafeTemplateDraft(templateId, data);
+  writeDesignStudioHandoff(templateId, data);
 }
 
 export default function DesignStudioPage() {
@@ -137,13 +133,13 @@ export default function DesignStudioPage() {
     };
   }, []);
 
-  // Read form data + initial color from localStorage / template defaults.
+  // Load CURRENT builder state from the editor handoff (not an old draft).
   useEffect(() => {
     if (!originalTemplateId) {
       router.push('/resume-builder/templates');
       return;
     }
-    const stored = readLocalFormData(originalTemplateId);
+    const stored = readDesignStudioFormData(originalTemplateId);
     setFormData(stored);
   }, [originalTemplateId, router]);
 
@@ -235,17 +231,14 @@ export default function DesignStudioPage() {
       _userEditedAt: Date.now(),
     };
 
-    // Migrate CURRENT studio form (cloned from editor handoff) onto the destination
-    // template key. Never reload import session / gallery demo here.
-    const movingTemplate = selectedTemplate.id !== originalTemplateId;
+    // Migrate CURRENT studio form onto the destination template key only.
     writeLocalFormData(selectedTemplate.id, payload);
-    if (!movingTemplate) {
-      writeLocalFormData(originalTemplateId, payload);
-    }
 
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem(DESIGN_STUDIO_RETURN_KEY);
     }
+
+    const movingTemplate = selectedTemplate.id !== originalTemplateId;
 
     toast({
       title: movingTemplate ? 'Template applied' : 'Design updated',
