@@ -64,7 +64,9 @@
   letter-spacing: var(--coe-ws-body);
   color: var(--coe-text);
   background: var(--coe-white) !important;
-  overflow: hidden;
+  /* Clip decorative corner accents horizontally only — never clip section text vertically */
+  overflow-x: hidden;
+  overflow-y: visible;
   isolation: isolate;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
@@ -1033,21 +1035,45 @@
   color: var(--coe-muted);
 }
 
-/* ── Achievements ── */
-.coe-resume .coe-achievements {
+/* ── Achievements (content-sized; never clip long descriptions) ── */
+.coe-resume .coe-section--achievements,
+.coe-resume section:has(> .coe-achievements),
+.coe-resume section:has(> .achievements-list) {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  flex: 0 0 auto;
+  overflow: visible;
+  display: block;
+}
+
+.coe-resume .coe-achievements,
+.coe-resume .achievements-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
 }
 
-.coe-resume .coe-achievements .achievement-item {
+.coe-resume .coe-achievements .achievement-item,
+.coe-resume .achievements-list .achievement-item {
   position: relative;
   padding-left: 14px;
-  page-break-inside: avoid;
-  break-inside: avoid;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex: 0 0 auto;
+  /* Allow long items to flow — avoid reserves empty space before the next section */
+  page-break-inside: auto;
+  break-inside: auto;
 }
 
-.coe-resume .coe-achievements .achievement-item::before {
+.coe-resume .coe-achievements .achievement-item::before,
+.coe-resume .achievements-list .achievement-item::before {
   content: '';
   position: absolute;
   left: 0;
@@ -1058,26 +1084,55 @@
   background: var(--accent-color);
 }
 
-.coe-resume .coe-achievements .achievement-item h3 {
+.coe-resume .coe-achievements .achievement-item h3,
+.coe-resume .achievements-list .achievement-item h3 {
   font-size: 10px;
   font-weight: 600;
   color: var(--primary-color);
-  line-height: var(--coe-lh-tight);
+  line-height: var(--coe-lh-body);
+  white-space: normal;
+  overflow: visible;
+  max-height: none;
+  height: auto;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: normal;
 }
 
-.coe-resume .coe-achievements .achievement-item .description {
+.coe-resume .coe-achievements .achievement-item .description,
+.coe-resume .achievements-list .achievement-item .description,
+.coe-resume .coe-achievements .achievement-item p,
+.coe-resume .achievements-list .achievement-item p {
   font-size: 9.5px;
   color: var(--coe-muted);
   margin-top: 2px;
   line-height: var(--coe-lh-body);
+  white-space: normal;
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .coe-resume .coe-achievements .achievement-item .year,
-.coe-resume .coe-achievements .achievement-item .date {
+.coe-resume .coe-achievements .achievement-item .date,
+.coe-resume .achievements-list .achievement-item .year,
+.coe-resume .achievements-list .achievement-item .date {
   font-size: var(--coe-fs-meta);
   color: var(--coe-muted);
   display: block;
   margin-top: 2px;
+}
+
+/* Extended sections (e.g. Memberships) follow Achievements in natural document flow */
+.coe-resume .coe-main > .extended-section {
+  flex: 0 0 auto;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  position: relative;
+  margin-top: 0;
 }
 
 /* ── Responsive ── */
@@ -1149,12 +1204,22 @@
   .coe-resume .experience-item,
   .coe-resume .project-item,
   .coe-resume .education-item,
-  .coe-resume .achievement-item,
   .coe-resume .certification-item,
   .coe-resume .coe-section,
   .coe-resume .language-item {
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+
+  /* Long achievement copy must continue across pages — never clip or leave a blank gap */
+  .coe-resume .achievement-item,
+  .coe-resume .coe-section--achievements,
+  .coe-resume .coe-achievements {
+    page-break-inside: auto;
+    break-inside: auto;
+    overflow: visible;
+    max-height: none;
+    height: auto;
   }
 }
 
@@ -1301,9 +1366,27 @@
 }
 
 .resume-container.coe-resume .experience-item .description,
-.resume-container.coe-resume .project-item .description {
+.resume-container.coe-resume .project-item .description,
+.resume-container.coe-resume .achievement-item .description,
+.resume-container.coe-resume .achievement-item h3,
+.resume-container.coe-resume .coe-achievements .achievement-item,
+.resume-container.coe-resume .achievements-list .achievement-item {
   line-height: var(--coe-para-lh) !important;
   height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.resume-container.coe-resume .coe-section--achievements,
+.resume-container.coe-resume section:has(> .coe-achievements),
+.resume-container.coe-resume section:has(> .achievements-list),
+.resume-container.coe-resume .coe-achievements,
+.resume-container.coe-resume .achievements-list {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
 }
 
 .resume-container.coe-resume .experience-item .description li,
