@@ -7,6 +7,9 @@ import {
   lineImpliesEmployerPresence,
   looksLikeSentenceNotCompany,
   looksLikeInstitutionalEmployer,
+  isEmployerAffiliationTagline,
+  isIndustrySectorTagline,
+  looksLikeClientPracticeEmployer,
 } from './company';
 import { parseDateRangeFromText, isTenureOrDateOnlyHeaderLine } from './dates';
 import { detectDesignationFromLine } from './designation';
@@ -181,6 +184,14 @@ export function partitionExperienceBlocks(
       return false;
     }
 
+    // Parent-company / sector taglines belong to the open role header — never split.
+    if (
+      isEmployerAffiliationTagline(line.text) ||
+      isIndustrySectorTagline(line.text)
+    ) {
+      return false;
+    }
+
     // Each "N years experience as Title at Company" starts a new role
     // (including the first tenure line after a section label).
     if (isTenureLine && lineIndex > blockStart) {
@@ -233,6 +244,8 @@ export function partitionExperienceBlocks(
       const strongEmployerHeader =
         institutional ||
         colonCompany ||
+        looksLikeClientPracticeEmployer(text) ||
+        detectCompanyFromLine(text).confidence >= 70 ||
         (looksLikeCompanyNameLine(text) &&
           wordCount >= 2 &&
           wordCount <= 14 &&
@@ -258,6 +271,8 @@ export function partitionExperienceBlocks(
       const institutional = looksLikeInstitutionalEmployer(text);
       const looksLikeBodyProse =
         !institutional &&
+        !looksLikeClientPracticeEmployer(text) &&
+        detectCompanyFromLine(text).confidence < 70 &&
         (looksLikeSentenceNotCompany(text) ||
           /^(?:managed|led|oversaw|drove|executed|prepared|supported|coordinated|developed|implemented|worked|responsible|handled|maintained|processed|created|designed|built|delivered)\b/i.test(
             text
@@ -265,6 +280,8 @@ export function partitionExperienceBlocks(
           (wordCount >= 10 && !looksLikeCompanyNameLine(text)));
       const strongEmployerHeader =
         institutional ||
+        looksLikeClientPracticeEmployer(text) ||
+        detectCompanyFromLine(text).confidence >= 70 ||
         (looksLikeCompanyNameLine(text) &&
           wordCount >= 2 &&
           wordCount <= 14 &&

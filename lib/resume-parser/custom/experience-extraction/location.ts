@@ -21,10 +21,25 @@ const WORK_MODE_RE = /\b(remote|hybrid|onsite|on[- ]?site|wfh|work from home)\b/
 const CITY_STATE_COUNTRY_RE =
   /\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s*(?:,\s*[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*){0,2}\b/;
 
+/** Industry/org descriptors that look title-case but are not geographic places. */
+function looksLikeNonGeographicDescriptor(text: string): boolean {
+  const t = text.trim();
+  if (!t) return false;
+  if (
+    /(?:sector\s+company|conglomerate|industry\s+leader|group\s+company|subsidiary|sister\s+concern)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export function scoreLocationCandidate(text: string): number {
   const trimmed = text.trim();
   if (!trimmed) return 0;
   if (trimmed.length > 80) return 0;
+  if (looksLikeNonGeographicDescriptor(trimmed)) return 0;
 
   let score = 0;
   const classified = classifyResumeTextFragment(trimmed);

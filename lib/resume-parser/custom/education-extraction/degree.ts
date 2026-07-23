@@ -76,9 +76,7 @@ export function detectDegreeFromLine(text: string): DegreeDetection {
   if (!trimmed) return { degree: '', fieldOfStudy: '', confidence: 0 };
 
   // "B.E. (Electrical) From Some College" — keep degree only; institution extracted separately.
-  const fromSplit = trimmed.match(
-    /^(.+?)\s+from\s+(.+)$/i
-  );
+  const fromSplit = trimmed.match(/^(.+?)\s+from\s+(.+)$/i);
   let working = trimmed;
   let fieldOfStudy = '';
   if (fromSplit) {
@@ -87,7 +85,17 @@ export function detectDegreeFromLine(text: string): DegreeDetection {
 
   const fieldMatch = working.match(/\bin\s+([A-Za-z][A-Za-z ,&/-]+)$/i);
   fieldOfStudy = fieldMatch?.[1]?.trim() || '';
-  const degreeText = working.replace(/\s+in\s+[A-Za-z][A-Za-z ,&/-]+$/i, '').trim();
+  let degreeText = working.replace(/\s+in\s+[A-Za-z][A-Za-z ,&/-]+$/i, '').trim();
+
+  // "B. Com, DAVV, Indore" — keep only the degree token; institution/city follow commas.
+  const commaHead = degreeText.split(/\s*,\s*/)[0]?.trim() || degreeText;
+  if (
+    commaHead !== degreeText &&
+    scoreDegreeCandidate(commaHead) >= 40 &&
+    scoreDegreeCandidate(commaHead) >= scoreDegreeCandidate(degreeText) - 10
+  ) {
+    degreeText = commaHead;
+  }
 
   const conf = scoreDegreeCandidate(degreeText || working);
   if (conf >= 35) {

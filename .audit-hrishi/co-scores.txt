@@ -1,0 +1,7 @@
+﻿{"t":"Group Company of KJS Cement (I) Ltd.","detect":{"company":"Group Company of KJS Cement (I) Ltd.","confidence":100},"plausible":true,"looks":true,"institutional":true,"prose":false}
+{"t":"FMCG Sector Company","detect":{"company":"FMCG Sector Company","confidence":100},"plausible":true,"looks":true,"institutional":false,"prose":false}
+{"t":"Listed Infrastructure Conglomerate","detect":{"company":"","confidence":0},"plausible":false,"looks":false,"institutional":false,"prose":false}
+{"t":"Various Clients (Consultancy Practice) ΓÇô Bhopal, M.P.","detect":{"company":"","confidence":0},"plausible":false,"looks":false,"institutional":false,"prose":true}
+{"t":"Velnik India Pvt. Ltd. ΓÇô Indore, M.P.","detect":{"company":"Velnik India Pvt. Ltd. ΓÇô Indore, M.P.","confidence":100},"plausible":true,"looks":true,"institutional":true,"prose":false}
+{"t":"Dilip Buildcon Limited ΓÇô Bhopal, M.P.","detect":{"company":"Dilip Buildcon Limited ΓÇô Bhopal, M.P.","confidence":100},"plausible":true,"looks":true,"institutional":true,"prose":false}
+{"t":"Career Achievements","detect":{"company":"","confidence":0},"plausible":false,"looks":false,"institutional":false,"prose":false}

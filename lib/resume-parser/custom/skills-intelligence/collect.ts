@@ -74,10 +74,52 @@ const RESPONSIBILITY_LIKE_SKILL_RE =
   /\b(?:responsible for|managed|mentored|developed|implemented|designed|delivered|led migration|worked across)\b/i;
 
 function splitSkillTokens(line: string): string[] {
-  return line
-    .split(/[,;|·•\u2022\u2023\u25aa\/]+|\s{2,}/)
-    .map((s) => s.replace(/^[\s\-–—*•]+/, '').replace(/[\s.]+$/, '').trim())
-    .filter(Boolean);
+  // Do not split on commas inside parentheses — "Entity Formation (Pvt Ltd, LLP, OPC)"
+  // is one skill phrase, not four tokens.
+  const parts: string[] = [];
+  let buf = '';
+  let depth = 0;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '(' || ch === '[' || ch === '{') {
+      depth += 1;
+      buf += ch;
+      continue;
+    }
+    if (ch === ')' || ch === ']' || ch === '}') {
+      depth = Math.max(0, depth - 1);
+      buf += ch;
+      continue;
+    }
+    if (depth === 0 && /[,;|·•\u2022\u2023\u25aa]/.test(ch)) {
+      const token = buf.replace(/^[\s\-–—*•]+/, '').replace(/[\s.]+$/, '').trim();
+      if (token) parts.push(token);
+      buf = '';
+      continue;
+    }
+    if (depth === 0 && /\s{2,}/.test(line.slice(i, i + 2))) {
+      const token = buf.replace(/^[\s\-–—*•]+/, '').replace(/[\s.]+$/, '').trim();
+      if (token) parts.push(token);
+      buf = '';
+      while (i + 1 < line.length && /\s/.test(line[i + 1])) i += 1;
+      continue;
+    }
+    // Slash splits only outside parentheses and when both sides look like short tokens.
+    if (depth === 0 && ch === '/') {
+      const left = buf.trim();
+      const rightPeek = line.slice(i + 1).split(/[,;|]/)[0]?.trim() || '';
+      if (left.length <= 24 && rightPeek.length <= 24 && !/\s{2,}/.test(left)) {
+        const token = buf.replace(/^[\s\-–—*•]+/, '').replace(/[\s.]+$/, '').trim();
+        if (token) parts.push(token);
+        buf = '';
+        continue;
+      }
+    }
+    buf += ch;
+  }
+  const last = buf.replace(/^[\s\-–—*•]+/, '').replace(/[\s.]+$/, '').trim();
+  if (last) parts.push(last);
+  return parts.filter(Boolean);
 }
 
 function stripContactNoise(line: string): string {

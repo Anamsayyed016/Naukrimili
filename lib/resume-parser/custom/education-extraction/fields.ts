@@ -24,15 +24,23 @@ function expandHeaderSegments(lines: string[]): string[] {
   const segments: string[] = [];
   for (const line of lines) {
     // Preserve date ranges — en/em dash must not explode "June 2015 – July 2017".
-    if (parseEducationDates(line)) {
+    if (parseEducationDates(line) && !/\s*\|\s*/.test(line)) {
       segments.push(line);
       continue;
     }
-    // Pipe separators always expand.
+    // Pipe separators expand, but keep trailing "(2015-2017)" on the last part
+    // so year fragments never become a standalone "institution".
     if (/\s*\|\s*/.test(line)) {
-      for (const part of line.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean)) {
-        segments.push(part);
+      const dateSuffix = line.match(/\s*([\(\[]\s*(?:19|20)\d{2}[^\)\]]*[\)\]])\s*$/i);
+      const core = dateSuffix ? line.slice(0, dateSuffix.index).trim() : line;
+      const parts = core
+        .split(/\s*\|\s*/)
+        .map((p) => p.trim())
+        .filter(Boolean);
+      if (dateSuffix && parts.length > 0) {
+        parts[parts.length - 1] = `${parts[parts.length - 1]} ${dateSuffix[1]}`.trim();
       }
+      segments.push(...parts);
       continue;
     }
     // Comma: only expand "College, University" pairs when BOTH sides look like institutions.
@@ -60,6 +68,11 @@ function parseDegreeDashInstitutionLine(line: string): {
 } | null {
   const cleaned = line.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
   if (!cleaned) return null;
+  // Ignore hyphens that only appear inside trailing year parentheses.
+  const withoutTrailingYears = cleaned
+    .replace(/\s*[\(\[]\s*(?:19|20)\d{2}[^\)\]]*[\)\]]\s*$/i, '')
+    .trim();
+  if (!/[–—\-]/.test(withoutTrailingYears)) return null;
   const m = cleaned.match(
     /^(.+?)\s*[–—\-]\s*(.+?)(?:\s*[\(\[]\s*((?:19|20)\d{2}|present|current|ongoing)\s*[\)\]])?\s*$/i
   );
@@ -68,10 +81,22 @@ function parseDegreeDashInstitutionLine(line: string): {
   const institutionPart = m[2].trim().replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '').trim();
   const yearText = (m[3] || '').trim();
   if (!degreePart || !institutionPart) return null;
+  // Reject year fragments miscaptured from "Degree, School (2015-2017)".
+  if (/^(?:19|20)\d{2}\)?$/.test(institutionPart) || /^[\d\s\-–—().\/]+$/.test(institutionPart)) {
+    return null;
+  }
   if (detectDegreeFromLine(degreePart).confidence < 30 && !lineHasDegreeSignal(degreePart)) {
     return null;
   }
   return { degree: degreePart, institution: institutionPart, yearText };
+}
+
+function isYearFragmentInstitution(value: string): boolean {
+  const t = value.trim();
+  if (!t) return true;
+  if (/^[\d\s\-–—().\/]+$/.test(t)) return true;
+  if (/^(?:19|20)\d{2}\)?$/.test(t)) return true;
+  return false;
 }
 
 function pickBestInstitution(lines: string[]): FieldPick<string> {
@@ -86,21 +111,49 @@ function pickBestInstitution(lines: string[]): FieldPick<string> {
   if (degreeIdx >= 0) {
     // "Degree From Institution" on the same line.
     const fromInst = lines[degreeIdx].match(/\bfrom\s+(.+)$/i);
-    if (fromInst) {
+    if (fromInst && !isYearFragmentInstitution(fromInst[1])) {
       const det = detectInstitutionFromLine(fromInst[1].trim());
       if (det.confidence >= 35) {
         return { value: det.institution || fromInst[1].trim(), confidence: Math.max(det.confidence, 70) };
       }
       return { value: fromInst[1].trim(), confidence: 68 };
     }
+    // "B. Com, DAVV, Indore (2015-2017)" — institution after degree comma.
+    const sameLine = lines[degreeIdx]
+      .replace(/\s*[\(\[]\s*(?:19|20)\d{2}[^\)\]]*[\)\]]\s*$/i, '')
+      .trim();
+    const commaParts = sameLine.split(/\s*,\s*/).map((p) => p.trim()).filter(Boolean);
+    if (commaParts.length >= 2) {
+      for (let c = 1; c < commaParts.length; c++) {
+        const part = commaParts[c];
+        const candidate = commaParts.slice(c).join(', ');
+        if (isYearFragmentInstitution(part) || isYearFragmentInstitution(candidate)) continue;
+        const detPart = detectInstitutionFromLine(part);
+        const det = detectInstitutionFromLine(candidate);
+        const bestDet = detPart.confidence >= det.confidence ? detPart : det;
+        const head = part.trim();
+        const acronymInst = /^[A-Z]{3,8}$/.test(head);
+        if (
+          bestDet.confidence >= 35 ||
+          acronymInst ||
+          /\b(?:university|college|institute|board|academy|icsi|icai|icmai)\b/i.test(candidate)
+        ) {
+          return {
+            value: bestDet.institution || (acronymInst ? head : candidate),
+            confidence: Math.max(bestDet.confidence, 62),
+          };
+        }
+      }
+    }
     for (let i = degreeIdx + 1; i < Math.min(lines.length, degreeIdx + 3); i++) {
       const next = lines[i];
+      if (isYearFragmentInstitution(next)) continue;
       // Next line is another degree entry — not this entry's institution.
       if (lineHasDegreeSignal(next) || detectDegreeFromLine(next).confidence >= 38) {
         continue;
       }
       const det = detectInstitutionFromLine(next);
-      if (det.confidence >= 40) {
+      if (det.confidence >= 40 && !isYearFragmentInstitution(det.institution)) {
         return { value: det.institution, confidence: Math.min(100, det.confidence + 6) };
       }
       // "(M.P) affiliated to University …"
@@ -113,8 +166,9 @@ function pickBestInstitution(lines: string[]): FieldPick<string> {
 
   let best: FieldPick<string> = { value: '', confidence: 0 };
   for (const line of expandHeaderSegments(lines)) {
+    if (isYearFragmentInstitution(line)) continue;
     const det = detectInstitutionFromLine(line);
-    if (det.confidence > best.confidence) {
+    if (det.confidence > best.confidence && !isYearFragmentInstitution(det.institution)) {
       best = { value: det.institution, confidence: det.confidence };
     }
   }
@@ -128,7 +182,10 @@ function pickBestDegree(lines: string[]): {
 } {
   let best = { degree: '', fieldFromDegree: '', confidence: 0 };
   for (const line of expandHeaderSegments(lines)) {
-    if (parseEducationDates(line)) continue;
+    // Dated degree lines are valid — only skip pure date-only tokens.
+    if (parseEducationDates(line) && detectDegreeFromLine(line).confidence < 30 && !lineHasDegreeSignal(line)) {
+      continue;
+    }
     const inst = detectInstitutionFromLine(line);
     const det = detectDegreeFromLine(line);
     // Prefer true degree labels over institution lines that weakly score as education.
@@ -198,6 +255,8 @@ function pickBestPerformance(lines: string[]): ReturnType<typeof detectPerforman
 function pickBestLocation(lines: string[]): FieldPick<string> {
   let best: FieldPick<string> = { value: '', confidence: 0 };
   for (const line of expandHeaderSegments(lines)) {
+    // Full degree header lines are not geographic locations.
+    if (detectDegreeFromLine(line).confidence >= 38 || lineHasDegreeSignal(line)) continue;
     const det = detectLocationFromLine(line);
     if (det.confidence > best.confidence) {
       best = { value: det.location, confidence: det.confidence };
@@ -308,6 +367,12 @@ export function buildEducationFromBlock(block: EducationRawBlock): CustomExtract
   let institutionConf = institutionPick.confidence;
   let degree = degreePick.degree;
   let degreeConf = degreePick.confidence;
+
+  // Year-only / numeric fragments are never institutions.
+  if (institution && isYearFragmentInstitution(institution)) {
+    institution = '';
+    institutionConf = 0;
+  }
 
   const INSTITUTION_MARKERS_RE =
     /\b(university|college|institute|institution|school|academy|polytechnic|campus|vidyalaya|iit|nit|iiit|bits)\b/i;

@@ -25,6 +25,11 @@ export function stripTrailingEmploymentDates(text: string): string {
   const trimmed = text.trim();
   if (!trimmed) return '';
   const stripped = trimmed
+    // Parenthetical tenures: "(2023–Present)", "(Jan 2021 - Mar 2023)"
+    .replace(
+      /\s*[\(\[]\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s*[-–—to/]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date)\s*[\)\]]\s*$/i,
+      ''
+    )
     .replace(
       /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date|to\s*date)\s*$/i,
       ''

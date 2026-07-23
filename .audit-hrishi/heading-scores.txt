@@ -1,0 +1,10 @@
+﻿{"i":7,"t":"Profile","headingLine":true,"company":true,"candidate":{"type":"summary","conf":53},"kw":{"summary":88}}
+{"i":13,"t":"Education","headingLine":true,"company":true,"candidate":{"type":"education","conf":46},"kw":{"education":78}}
+{"i":15,"t":"Professional Experience","headingLine":true,"company":true,"candidate":{"type":"experience","conf":54},"kw":{"experience":88}}
+{"i":18,"t":"Listed Infrastructure Conglomerate","headingLine":false,"company":false,"candidate":null,"kw":{}}
+{"i":33,"t":"Group Company of KJS Cement (I) Ltd.","headingLine":false,"company":true,"candidate":null,"kw":{}}
+{"i":42,"t":"Velnik India Pvt. Ltd. ΓÇô Indore, M.P.","headingLine":false,"company":true,"candidate":null,"kw":{}}
+{"i":44,"t":"FMCG Sector Company","headingLine":false,"company":true,"candidate":null,"kw":{}}
+{"i":49,"t":"Various Clients (Consultancy Practice) ΓÇô Bhopal, M.P.","headingLine":true,"company":false,"candidate":null,"kw":{}}
+{"i":55,"t":"Key Skills","headingLine":true,"company":false,"candidate":{"type":"skills","conf":54},"kw":{"skills":88}}
+{"i":66,"t":"Career Achievements","headingLine":true,"company":false,"candidate":null,"kw":{"experience":48,"achievements":48}}

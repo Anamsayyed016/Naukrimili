@@ -75,6 +75,7 @@ import {
   stripRedundantExperienceDateBodyLines,
   looksLikeCompanyNameLine,
   looksLikeJobTitleLine,
+  looksLikeStandaloneLocationLine,
   countPlausibleExperienceCompanies,
   countPlausibleProjects,
   isPlausibleExperienceCompany,
@@ -116,6 +117,7 @@ import {
   isLikelyEducationLine,
   isExperienceResponsibility,
   nameOverlapsLocation,
+  isLikelyLocationFragment,
   shouldKeepAsGlobalAchievement,
   stashUnclassifiedFragment,
   type AdditionalResumeData,
@@ -1059,6 +1061,14 @@ function isMisplacedAchievementLine(line: string): boolean {
   if (/\b\+?\d[\d\s().-]{6,}\d\b/.test(t)) return true;
   if (isCorporateStructurePhrase(t)) return true;
   if (ACHIEVEMENT_SECTION_HEADER_RE.test(t)) return true;
+  // City/state-only fragments from education headers.
+  if (
+    t.length <= 48 &&
+    (looksLikeStandaloneLocationLine(t) || isLikelyLocationFragment(t)) &&
+    !/\b(award|achiev|recogniz|won|honor|honour|rank|percentile|scholarship|medal)\b/i.test(t)
+  ) {
+    return true;
+  }
   if (/^\d+[\.\):\-]\s+\S/.test(t) && t.length < 100) return true;
   if (ACHIEVEMENT_DEGREE_LINE_RE.test(t) && !/\b(achieved|award|won|recognized|completed project)\b/i.test(t)) {
     return true;

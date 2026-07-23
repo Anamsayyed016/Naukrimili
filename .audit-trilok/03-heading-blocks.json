@@ -26,8 +26,8 @@
     "detectionVersion": "1.0.0",
     "coverage": {
       "complete": true,
-      "assignedChars": 5713,
-      "totalChars": 5723,
+      "assignedChars": 3357,
+      "totalChars": 3361,
       "gaps": [],
       "overlaps": []
     }
@@ -36,81 +36,31 @@
     {
       "type": "summary",
       "conf": 51,
-      "heading": "CAREER OBJECTIVE",
-      "contentLen": 137,
-      "contentPreview": "I will like to work in a growth oriented organization in which I will get an opportunity to give desired results\nin my a"
-    },
-    {
-      "type": "summary",
-      "conf": 51,
-      "heading": "SUMMARY",
-      "contentLen": 168,
-      "contentPreview": "Regularly acquires in-depth knowledge of Operation, Facility Management, Tender filling, security\nlegislation and securi"
-    },
-    {
-      "type": "skills",
-      "conf": 54,
-      "heading": "CORE SPECIALTIES & KEY AREAS",
-      "contentLen": 475,
-      "contentPreview": "Specialties: Administration, operation, Transport management Tender, procurement Liaison Facility\nManagement, Mobilizati"
+      "heading": "Profile",
+      "contentLen": 483,
+      "contentPreview": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, "
     },
     {
       "type": "education",
-      "conf": 50,
-      "heading": "ACADEMIC QUALIFICATION",
-      "contentLen": 112,
-      "contentPreview": "S/ No EducationBoard / UniversityYearDivision 1 BBARKDF2017Ist\n2 12thU.P. Board1990IInd 3 10thU.P. Board1987IInd"
-    },
-    {
-      "type": "certifications",
-      "conf": 50,
-      "heading": "PROFESSIONAL & TECHNICAL QUALIFICATION",
-      "contentLen": 635,
-      "contentPreview": "S/ No\nCourse / SpecializationOrganization / EnvironmentType\n1\tSecurity officer/Asst security officer\nMinistry of labour "
+      "conf": 46,
+      "heading": "Education",
+      "contentLen": 58,
+      "contentPreview": "Qualified CS, ICSI|M.Com| B. Com, DAVV, Indore (2015-2017)"
     },
     {
       "type": "experience",
-      "conf": 55,
-      "heading": "PROFESSIONAL EXPERIENCE",
-      "contentLen": 2854,
-      "contentPreview": "NAHAR POLY FILMS LTD: Nahar groups of companies\nLiaison Officer (03 Jun 2019 to 29/05/2023) | CTC: 5.4 lakh\nControlling "
+      "conf": 53,
+      "heading": "Professional Experience",
+      "contentLen": 1872,
+      "contentPreview": "Dilip Buildcon Limited – Bhopal, M.P.\nManager – Company Secretary (2023–Present)\nListed Infrastructure Conglomerate\n• Ma"
     },
     {
-      "type": "achievements",
-      "conf": 43,
-      "heading": "Awards:",
-      "contentLen": 53,
-      "contentPreview": "Commendation for Meritorious performance, Cash Award."
-    },
-    {
-      "type": "hobbies",
-      "conf": 42,
-      "heading": "LIAISON WITH & HOBBIES",
-      "contentLen": 233,
-      "contentPreview": "Liaison with: Collector office, Nagar Nigam, PHQ, RTO, and all government officials.\nHobbies & Interest: Work hard to ac"
-    },
-    {
-      "type": "summary",
-      "conf": 48,
-      "heading": "PERSONAL PROFILE",
-      "contentLen": 193,
-      "contentPreview": "Father’s Name:SHRI BANKEY UPADHYAYA (Ex-Warrant Officer I.A.F.)\nMother's Name:Mrs. SARANDHI DEVI\nDate of Birth:13/06/197"
-    },
-    {
-      "type": "custom",
-      "conf": 36,
-      "heading": "BERKHERA PATHANI BHEL BHOPAL (MP) 462021",
-      "contentLen": 496,
-      "contentPreview": "DECLARATION\nI consider myself to be dynamic result oriented Ex. Serviceman of Indian Army capable of taking\nindependent "
+      "type": "skills",
+      "conf": 52,
+      "heading": "Key Skills",
+      "contentLen": 710,
+      "contentPreview": "• Entity Formation (Pvt Ltd, LLP, OPC, Section 8)\n• Corporate Compliance & Filings (ROC, SEBI, Annual Filings)\n• Board P"
     }
   ],
-  "customSections": [
-    {
-      "rawHeading": "BERKHERA PATHANI BHEL BHOPAL (MP) 462021",
-      "content": "DECLARATION\nI consider myself to be dynamic result oriented Ex. Serviceman of Indian Army capable of taking\nindependent decision, making with proven leadership and organizational abilities. I seek placement on\nequally, and challenging jobs at this relatively young age. I assure you that all statement, made above are\ntrue and correct to the best of my knowledge and shall be supported with original certificates where\napplicable. Date: _____/_____/_________\nPlace: Bhopal (TRILOKINATH UPADHYAYA)",
-      "confidence": 36,
-      "startIndex": 5186,
-      "endIndex": 5723
-    }
-  ]
+  "customSections": []
 }

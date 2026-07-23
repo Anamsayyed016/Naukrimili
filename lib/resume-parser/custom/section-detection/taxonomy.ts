@@ -226,6 +226,9 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
   achievements: {
     phrases: [
       'key achievements',
+      'career achievements',
+      'professional achievements',
+      'major achievements',
       'awards and honors',
       'honors and awards',
       'notable achievements',
@@ -233,6 +236,7 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'cost savings',
       'cost saving',
       'key accomplishments',
+      'career accomplishments',
     ],
     tokens: [
       'achievements',
@@ -382,6 +386,22 @@ export function scoreHeadingKeywords(
   ) {
     scores.achievements = Math.max(scores.achievements ?? 0, Math.max(scores.hobbies, 72));
     delete scores.hobbies;
+  }
+
+  // "Career Achievements" / "Key Achievements" must not tie-break into experience
+  // just because the experience taxonomy includes the token "career".
+  if (
+    scores.achievements &&
+    scores.experience &&
+    /\bachievements?\b|\baccomplishments?\b|\bawards?\b|\bhonou?rs?\b/i.test(normalized)
+  ) {
+    scores.achievements = Math.max(scores.achievements, 82);
+    // Prefer achievements whenever both fire on an accomplishments heading.
+    if ((scores.achievements ?? 0) >= (scores.experience ?? 0) - 5) {
+      delete scores.experience;
+    } else if ((scores.experience ?? 0) < 70) {
+      delete scores.experience;
+    }
   }
 
   // Bare "Training & Development" thematic blocks are not certifications unless

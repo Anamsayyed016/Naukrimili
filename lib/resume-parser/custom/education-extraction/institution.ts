@@ -31,9 +31,18 @@ export function abbreviateInstitutionName(name: string): string {
 
 export function scoreInstitutionCandidate(text: string): number {
   const trimmed = text.trim();
-  if (!trimmed || trimmed.length < 4 || trimmed.length > 160) return 0;
+  if (!trimmed || trimmed.length < 3 || trimmed.length > 160) return 0;
   if (lineHasDegreeSignal(trimmed) && !INSTITUTION_MARKERS_RE.test(trimmed)) return 0;
-  if (isPlausibleExperienceCompany(trimmed) && !INSTITUTION_MARKERS_RE.test(trimmed)) {
+  // Bare university/board acronyms are institutions, not employers — do not let
+  // company-name heuristics zero them out before the acronym boost below.
+  const compactAcronym =
+    /^[A-Z]{3,8}$/.test(trimmed) &&
+    !/^(?:AND|THE|FOR|LLC|LTD|INC|PTY|CEO|CTO|CFO|HR|IT|USA|UAE|CSR|IPO|ROC|SEBI)$/.test(trimmed);
+  if (
+    isPlausibleExperienceCompany(trimmed) &&
+    !INSTITUTION_MARKERS_RE.test(trimmed) &&
+    !compactAcronym
+  ) {
     return 0;
   }
 
@@ -44,6 +53,10 @@ export function scoreInstitutionCandidate(text: string): number {
   if (/^[A-Z][A-Za-z0-9&.,'()\- ]{6,}$/.test(trimmed) && /\s/.test(trimmed)) score += 12;
   if (/\([A-Z]{2,12}\)/.test(trimmed) && trimmed.length >= 15) score += 22;
   if (trimmed.length >= 12 && trimmed.length <= 100) score += 8;
+  // Compact university / board acronyms (DAVV, RGPV, VTU, CBSE) common on CVs.
+  if (compactAcronym) {
+    score += 50;
+  }
 
   return Math.min(100, Math.round(score));
 }
@@ -68,6 +81,19 @@ export function detectInstitutionFromLine(text: string): InstitutionDetection {
     .replace(/\t+/g, ' ')
     .replace(/[,;:\s]+$/g, '')
     .trim();
+
+  // "DAVV, Indore" / "RGPV, Bhopal" — score the acronym/name head before city.
+  const cityTail = withoutDates.match(
+    /^(.+?)\s*,\s*([A-Z][A-Za-z .]{2,40})$/
+  );
+  if (cityTail) {
+    const head = cityTail[1].trim();
+    const headConf = scoreInstitutionCandidate(head);
+    if (headConf >= 38) {
+      return { institution: abbreviateInstitutionName(head), confidence: headConf };
+    }
+  }
+
   const conf = scoreInstitutionCandidate(withoutDates);
   if (conf >= 38) {
     return { institution: abbreviateInstitutionName(withoutDates), confidence: conf };

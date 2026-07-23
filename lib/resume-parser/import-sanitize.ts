@@ -2394,8 +2394,33 @@ function expandSkillInputTokens(skills: unknown[]): string[] {
   const tokens: string[] = [];
   for (const raw of skills) {
     if (typeof raw === 'string') {
-      const parts = raw.split(/[,;|•\n]+/).map((p) => p.trim()).filter(Boolean);
-      tokens.push(...(parts.length > 0 ? parts : [raw.trim()]));
+      // Paren-aware split — keep "Entity Formation (Pvt Ltd, LLP, OPC)" intact.
+      const parts: string[] = [];
+      let buf = '';
+      let depth = 0;
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        if (ch === '(' || ch === '[' || ch === '{') {
+          depth += 1;
+          buf += ch;
+          continue;
+        }
+        if (ch === ')' || ch === ']' || ch === '}') {
+          depth = Math.max(0, depth - 1);
+          buf += ch;
+          continue;
+        }
+        if (depth === 0 && /[,;|•\n]/.test(ch)) {
+          const token = buf.trim();
+          if (token) parts.push(token);
+          buf = '';
+          continue;
+        }
+        buf += ch;
+      }
+      const last = buf.trim();
+      if (last) parts.push(last);
+      tokens.push(...(parts.length > 0 ? parts : [raw.trim()].filter(Boolean)));
     } else if (raw && typeof raw === 'object') {
       const rec = raw as Record<string, unknown>;
       const name = rec.name ?? rec.Name ?? rec.skill ?? rec.Skill ?? rec.label;
@@ -2509,6 +2534,14 @@ export function sanitizeAchievementEntry(value: unknown): string {
       return '';
     }
     if (isPersonalMetadataResumeLine(cleaned)) return '';
+    // Bare city/state/country lines are education spillover, not achievements.
+    if (
+      cleaned.length <= 48 &&
+      (looksLikeStandaloneLocationLine(cleaned) || isLikelyLocationFragment(cleaned)) &&
+      !/\b(award|achiev|recogniz|won|honor|honour|rank|percentile|scholarship|medal)\b/i.test(cleaned)
+    ) {
+      return '';
+    }
     return cleaned;
   }
   if (typeof value === 'object') {
@@ -7112,6 +7145,14 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   }
   const lower = company.toLowerCase().replace(/\s+/g, ' ').trim();
   const hasLegalSuffix = /\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp)\b/i.test(lower);
+  // Client-book / consultancy practice employers — accept before comma/location rejection.
+  if (
+    /^(?:various|multiple|several|select|independent)\s+clients?\b/i.test(company) ||
+    /\b(?:consultancy|consulting)\s+practice\b/i.test(company) ||
+    /^(?:freelance|independent)\s+(?:consultant|practice|work)\b/i.test(company)
+  ) {
+    return true;
+  }
   if (/,/.test(company) && !/\b(ltd|limited|pvt|inc|corp|llp|mills|industries|systems|company|group|motors|vehicles|ventures?|laborator(?:y|ies)|enterprises|holdings)\b/i.test(lower)) {
     return false;
   }
@@ -7146,6 +7187,24 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     return false;
   }
   if (isResumeSectionHeadingLine(company) || isLikelyEducationLine(company)) return false;
+  // Affiliation / sector taglines are never employers.
+  if (
+    /^(?:(?:a|an)\s+)?(?:wholly[- ]owned\s+)?(?:group\s+company|subsidiary|sister\s+concern|affiliate|division|unit|branch)\s+of\b/i.test(
+      company
+    ) ||
+    /\bsector\s+company\b|\b(?:listed\s+)?[A-Za-z][A-Za-z0-9/&.'\s-]{0,40}conglomerate\b/i.test(company)
+  ) {
+    return false;
+  }
+  // Client-book / consultancy practice employers without Ltd suffixes.
+  // (Primary accept is earlier — before comma rejection.)
+  if (
+    /^(?:various|multiple|several|select|independent)\s+clients?\b/i.test(company) ||
+    /\b(?:consultancy|consulting)\s+practice\b/i.test(company) ||
+    /^(?:freelance|independent)\s+(?:consultant|practice|work)\b/i.test(company)
+  ) {
+    return true;
+  }
   // Security / defence employers without Ltd — not geographic locations.
   if (
     /\b(?:security\s+force|security\s+services|facility\s+management|(?:indian\s+)?(?:army|navy|air\s*force)|(?:armed|defence|defense|paramilitary)\s+forces?|drdo|isro|bsf|crpf|cisf)\b/i.test(
@@ -7186,6 +7245,8 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     !/\b(ltd|llc|pvt|inc|corp|gmbh|llp|co|plc)\b/i.test(lower)
   ) {
     if (looksLikeJobTitleLine(company)) return false;
+    // Bare ALL-CAPS acronyms are usually universities/boards/agencies, not employers.
+    if (/^[A-Z]{3,8}$/.test(company.trim())) return false;
     if (isLikelyCompanyNameFragment(company)) return true;
     return false;
   }
@@ -7350,6 +7411,18 @@ export function reconcileEducationDegreeAndField(
   if (field && norm(degree).endsWith(norm(field)) && norm(field).length >= 3) field = '';
   if (field && norm(field).endsWith(norm(degree)) && norm(degree).length >= 3) field = '';
 
+  // Prefer the degree-bearing credential when a professional-qualifier fragment
+  // ("Qualified CS, ICSI") is glued as fieldOfStudy on a degree-only row.
+  if (
+    field &&
+    /\b(?:qualified|pursuing|member|associate)\b/i.test(field) &&
+    /\b(?:icsi|icai|icmai|cs|ca|cma)\b/i.test(field) &&
+    degree &&
+    /\b(?:b\.?\s*com|m\.?\s*com|b\.?\s*a|m\.?\s*a|mba|b\.?\s*tech|ll\.?\s*b)\b/i.test(degree)
+  ) {
+    field = '';
+  }
+
   return { degree, field };
 }
 
@@ -7373,8 +7446,14 @@ export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<str
   if (institution && isGarbageEducationDegree(institution)) return null;
   if (!institution && !degree) return null;
   if (degree && degree.split(/\s+/).length > 16) return null;
-  // Reject prose sentences, but keep abbreviated degrees like "B.E. (Electrical …)".
-  if (degree && /\.\s+[A-Z]/.test(degree) && !/\b(?:b\.?e\.?|m\.?e\.?|b\.?tech|m\.?tech|m\.?b\.?a|ph\.?d)\b/i.test(degree)) {
+  // Reject prose sentences, but keep abbreviated degrees like "B.E. (Electrical …)" / "B. Com".
+  if (
+    degree &&
+    /\.\s+[A-Z]/.test(degree) &&
+    !/\b(?:b\.?\s*(?:e|tech|com|a|sc|ba|ca)|m\.?\s*(?:e|tech|com|a|sc|ba|ca|b\.?a)|ph\.?\s*d|ll\.?\s*b|ll\.?\s*m)\b/i.test(
+      degree
+    )
+  ) {
     return null;
   }
   if (isGarbageResumeText(degree) && isGarbageResumeText(institution)) return null;

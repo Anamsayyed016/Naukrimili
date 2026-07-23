@@ -2,7 +2,7 @@
  * Per-block field assembly and confidence aggregation.
  */
 
-import { detectCompanyFromLine, looksLikeInstitutionalEmployer } from './company';
+import { detectCompanyFromLine, looksLikeInstitutionalEmployer, isIndustrySectorTagline, isEmployerAffiliationTagline } from './company';
 import { isTenureOrDateOnlyHeaderLine, parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine, scoreDesignationCandidate, stripTrailingEmploymentDates } from './designation';
 import { extractDescriptionFromBlock } from './description';
@@ -403,6 +403,7 @@ function pickBestLocation(lines: string[], excludeCompany = ''): FieldPick<strin
   for (const line of expandHeaderSegments(lines)) {
     if (parseDateRangeFromText(line)) continue;
     if (exclude && line.toLowerCase().trim() === exclude) continue;
+    if (isIndustrySectorTagline(line) || isEmployerAffiliationTagline(line)) continue;
     if (isPlausibleExperienceCompany(line)) continue;
     if (looksLikeInstitutionalEmployer(line)) continue;
     if (looksLikeCompanyNameLine(line) && !looksLikeStandaloneLocationLine(line)) continue;
@@ -410,6 +411,10 @@ function pickBestLocation(lines: string[], excludeCompany = ''): FieldPick<strin
     const companyDet = detectCompanyFromLine(line);
     const det = detectLocationFromLine(line);
     if (companyDet.confidence >= 45 && companyDet.confidence > det.confidence) continue;
+    // Sector / affiliation descriptors must never become locations.
+    if (det.location && (isIndustrySectorTagline(det.location) || isEmployerAffiliationTagline(det.location))) {
+      continue;
+    }
     if (det.confidence > best.confidence) {
       best = { value: det.location, confidence: det.confidence };
     }
@@ -674,6 +679,11 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     } else if (companyPick.value && !isExperienceDateOrDurationToken(companyPick.value)) {
       finalCompany = companyPick;
     }
+  }
+
+  // Sector / affiliation taglines are never locations or employers.
+  if (finalCompany.value && (isIndustrySectorTagline(finalCompany.value) || isEmployerAffiliationTagline(finalCompany.value))) {
+    finalCompany = { value: '', confidence: 0 };
   }
 
   const locationPick = pickBestLocation(headerLines, finalCompany.value);

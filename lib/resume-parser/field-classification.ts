@@ -510,7 +510,7 @@ const EXPERIENCE_RESPONSIBILITY_RE =
 
 /** Measurable impact markers — true achievements when present. */
 const MEASURABLE_ACHIEVEMENT_RE =
-  /\b(?:\d+\s*\.?%\.?|\d+\s*(?:percent|percentage)\b|(?:₹|rs\.?\s*|inr\s*|\$\s*|€\s*|£\s*)\s*\d[\d,.]*|\d[\d,.]*\s*(?:crore?s?|lakh?s?|million?s?|bn\b|k\+?)\b|team\s+of\s+\d+|\d+\+\s*(?:people|employees|clients|customers|users|projects|members)|\d{2,}\s*(?:people|employees|clients|customers|users|projects|members)|(?:increased|reduced|improved|decreased|lowered|raised|grew|boosted|saved|generated|achieved|delivered|exceeded|surpassed|cut)\s+(?:by\s+)?\d+\s*\.?%\.?|from\s+\d[\d,.]*\s*(?:%|to)\s+\d|within\s+\d+\s*(?:days?|weeks?|months?|years?)\b)/i;
+  /\b(?:\d+\s*\.?%\.?|\d+\s*(?:percent|percentage)\b|(?:₹|rs\.?\s*|inr\s*|\$\s*|€\s*|£\s*)\s*\d[\d,.]*|\d[\d,.]*\s*(?:crore?s?|lakh?s?|million?s?|bn\b|k\+?)\b|team\s+of\s+\d+|\d+\+\s*[A-Za-z][\w/-]*|\d+\+\s*(?:people|employees|clients|customers|users|projects|members)|\d{2,}\s*(?:people|employees|clients|customers|users|projects|members)|(?:increased|reduced|improved|decreased|lowered|raised|grew|boosted|saved|generated|achieved|delivered|exceeded|surpassed|cut|reducing)\s+(?:by\s+)?(?:\d+\s*\.?%\.?|dependency|cost|expense|time|cycle)|from\s+\d[\d,.]*\s*(?:%|to)\s+\d|within\s+\d+\s*(?:days?|weeks?|months?|years?)\b)/i;
 
 const EDUCATION_LINE_RE =
   /\b(?:university|college|school|institute|academy|b\.?\s*tech|m\.?\s*tech|bachelor|master|mba|ph\.?d|doctorate|diploma|graduation|post\s+graduation|b\.?\s*com|m\.?\s*com|b\.?\s*a\.?|m\.?\s*a\.?|ll\.?\s*b\.?|ll\.?\s*m\.?|b\.?\s*all\.?\s*b\.?|hsc|ssc|intermediate|matriculation|degree|articleship|high\s+secondary|higher\s+secondary|senior\s+secondary|high\s+school)\b/i;
@@ -565,7 +565,18 @@ export function shouldKeepAsGlobalAchievement(text: string): boolean {
   const s = normalizeFragment(text);
   if (!s) return false;
   if (isLikelyEducationLine(s) || isLikelyCertificationLine(s)) return false;
-  if (isExperienceResponsibility(s) && !isMeasurableAchievement(s)) return false;
+  if (isExperienceResponsibility(s) && !isMeasurableAchievement(s)) {
+    // Outcome-oriented career highlights may start with duty verbs ("Supported … improvement").
+    if (
+      s.length >= 40 &&
+      /\b(?:improv(?:ed|ement)|reducing|reduced|protected|portfolio|independently|negotiated|structured\s+disclosures?)\b/i.test(
+        s
+      )
+    ) {
+      return true;
+    }
+    return false;
+  }
   if (
     /\b(?:cost\s+sav(?:ing|ings)|saved\s+(?:company\s+)?(?:cost|expense|₹|rs\.?|inr)|zero\s+new\s+investments?|won\s+appeal|reduced?\s+(?:canteen|expenses?|costs?|travel))\b/i.test(
       s
@@ -573,7 +584,17 @@ export function shouldKeepAsGlobalAchievement(text: string): boolean {
   ) {
     return true;
   }
-  return isMeasurableAchievement(s);
+  if (isMeasurableAchievement(s)) return true;
+  // Outcome-style career highlights without a raw metric (common in achievement sections).
+  if (
+    s.length >= 40 &&
+    /\b(?:improv(?:ed|ement)|reducing|reduced|protected|portfolio|independently|negotiated|structured\s+disclosures?)\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export function stashUnclassifiedFragment(

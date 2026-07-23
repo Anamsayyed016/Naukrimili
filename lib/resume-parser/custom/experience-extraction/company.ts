@@ -20,6 +20,55 @@ export interface CompanyDetection {
   confidence: number;
 }
 
+/** Parent-company / affiliation taglines under an employer — not a new job. */
+export function isEmployerAffiliationTagline(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length > 100) return false;
+  if (
+    /^(?:(?:a|an)\s+)?(?:wholly[- ]owned\s+)?(?:group\s+company|subsidiary|sister\s+concern|affiliate|division|unit|branch)\s+of\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  if (/^part\s+of\s+(?:the\s+)?(?:group|company|organization)\b/i.test(t)) return true;
+  return false;
+}
+
+/** Sector / industry descriptors used as role taglines — not employers or locations. */
+export function isIndustrySectorTagline(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length > 80) return false;
+  // "FMCG Sector Company", "Listed … Conglomerate", "Industry Leader"
+  if (
+    /^(?:listed\s+)?[A-Za-z][A-Za-z0-9/&.'\s-]{0,48}(?:sector\s+company|conglomerate|industry\s+leader)\s*$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  if (/^[A-Z]{2,}(?:\s+[A-Z][a-z]+)?\s+sector\s+company\s*$/i.test(t)) return true;
+  return false;
+}
+
+/**
+ * Client-book / consultancy practice employers that lack Ltd/Inc suffixes.
+ * Generic — matches freelance and multi-client practices across domains.
+ */
+export function looksLikeClientPracticeEmployer(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length < 8 || t.length > 120) return false;
+  if (
+    /^(?:various|multiple|several|select|independent)\s+clients?\b/i.test(t) ||
+    /\b(?:consultancy|consulting)\s+practice\b/i.test(t) ||
+    /^(?:freelance|independent)\s+(?:consultant|practice|work)\b/i.test(t) ||
+    /^self[- ]employed\b/i.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
 /** Hard legal / institutional suffixes — safe mid-string signals of an employer. */
 const HARD_COMPANY_SUFFIX_RE =
   /\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|limited|llp|inc\.?|incorporated|corporation|corp\.?|gmbh|plc|university|government|startup|freelance|self[- ]?employed)\b/i;
@@ -125,6 +174,8 @@ export function lineImpliesEmployerPresence(text: string): boolean {
 export function looksLikeSentenceNotCompany(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed) return false;
+  // Client-book / practice employers are never prose sentences.
+  if (looksLikeClientPracticeEmployer(trimmed)) return false;
   // Employment headers like "As Counsel in ACME Ltd" are role lines, not prose.
   if (/^as\s+.+\s+(?:in|at|with|for)\s+.+/i.test(trimmed)) return false;
   // Duty openers are never employers — even when a soft suffix like "systems" appears.
@@ -181,12 +232,14 @@ export function scoreCompanyCandidate(text: string): number {
     return 0;
   }
   if (ROLE_OR_PROJECT_LABEL_RE.test(trimmed)) return 0;
-  if (looksLikeSentenceNotCompany(trimmed)) return 0;
+  if (isEmployerAffiliationTagline(trimmed) || isIndustrySectorTagline(trimmed)) return 0;
+  if (looksLikeSentenceNotCompany(trimmed) && !looksLikeClientPracticeEmployer(trimmed)) return 0;
   if (FALSE_COMPANY_RE.test(trimmed)) return 0;
   if (TECH_SKILL_AS_COMPANY_RE.test(trimmed.toLowerCase())) return 0;
   if (looksLikeJobTitleLine(trimmed) && !looksLikeCompanyNameLine(trimmed)) return 0;
 
   let score = 0;
+  if (looksLikeClientPracticeEmployer(trimmed)) score += 72;
   const classified = classifyResumeTextFragment(trimmed);
   if (classified.kind === 'COMPANY_NAME') score += classified.confidence * 0.85;
   if (isLikelyCompanyNameFragment(trimmed)) score += 28;
@@ -226,6 +279,19 @@ export function scoreCompanyCandidate(text: string): number {
 export function detectCompanyFromLine(text: string): CompanyDetection {
   const trimmed = text.trim();
   if (!trimmed) return { company: '', confidence: 0 };
+  if (isEmployerAffiliationTagline(trimmed) || isIndustrySectorTagline(trimmed)) {
+    return { company: '', confidence: 0 };
+  }
+
+  // Strip trailing " – City, State" location for scoring, keep employer core.
+  const locStripped = trimmed
+    .replace(/\s+[–—\-]\s+[A-Z][A-Za-z .]{2,40}(?:,\s*[A-Z].{0,20})?\s*$/u, '')
+    .trim();
+
+  if (looksLikeClientPracticeEmployer(trimmed) || looksLikeClientPracticeEmployer(locStripped)) {
+    const core = looksLikeClientPracticeEmployer(locStripped) ? locStripped : trimmed;
+    return { company: core, confidence: 78 };
+  }
 
   const pipeSplit = splitCompanyLocationPipe(trimmed);
   if (pipeSplit?.company) {
@@ -261,6 +327,15 @@ export function detectCompanyFromLine(text: string): CompanyDetection {
     const conf = scoreCompanyCandidate(atMatch[1]);
     if (conf >= 45) {
       return { company: atMatch[1].trim(), confidence: conf };
+    }
+  }
+
+  // Prefer location-stripped core when it is a stronger/cleaner employer name.
+  if (locStripped && locStripped !== trimmed && locStripped.length >= 3) {
+    const coreConf = scoreCompanyCandidate(locStripped);
+    const fullConf = scoreCompanyCandidate(trimmed);
+    if (coreConf >= 38 && coreConf >= fullConf - 8) {
+      return { company: locStripped, confidence: coreConf };
     }
   }
 

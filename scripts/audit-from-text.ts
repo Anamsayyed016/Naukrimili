@@ -60,7 +60,7 @@ async function main() {
     console.error('text not found', textPath);
     process.exit(1);
   }
-  const outDir = resolve('.audit-trilok');
+  const outDir = resolve(process.argv[3] || '.audit-pipeline');
   mkdirSync(outDir, { recursive: true });
 
   const raw = readFileSync(textPath, 'utf8');

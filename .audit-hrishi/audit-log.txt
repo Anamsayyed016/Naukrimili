@@ -1,0 +1,990 @@
+﻿[resume-extraction-validation] { warnings: 1, repairs: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[resume-extraction-validation] { warnings: 1, repairs: 0 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:summary',
+    'education:1',
+    'skills:15'
+  ],
+  recovered: [ 'education[0]:full-entry' ],
+  missing: [
+    'identity:github',
+    'identity:portfolio',
+    'experience[2]:designation',
+    'education:count-loss:0/1'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:summary',
+    'education:1',
+    'achievements:31',
+    'skills:15'
+  ],
+  recovered: [],
+  missing: [
+    'identity:github',
+    'identity:portfolio',
+    'experience[2]:designation'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 483,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 15,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 483,
+    experience: 5,
+    experienceCompanies: 5,
+    projects: 0,
+    skills: 15,
+    education: 1,
+    certifications: 0,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 483,
+    experience: 5,
+    experienceCompanies: 5,
+    projects: 0,
+    skills: 15,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  }
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [
+    'experience[1]:missing-description',
+    'education:empty',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 5,
+  rawCompanyCount: 5,
+  builtCompanyCount: 5
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: true,
+  portfolio: false,
+  summary: true,
+  skills: 15,
+  experience: 5,
+  education: 0,
+  projects: 0,
+  certifications: 0,
+  languages: 0,
+  achievements: 2,
+  hobbies: 0
+}
+[resume-extraction-validation] { warnings: 1, repairs: 0 }
+[resume-extraction-validation] { warnings: 1, repairs: 0 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:summary',
+    'education:1',
+    'skills:15'
+  ],
+  recovered: [ 'education[0]:full-entry' ],
+  missing: [
+    'identity:github',
+    'identity:portfolio',
+    'experience[2]:designation',
+    'education:count-loss:0/1'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:summary',
+    'education:1',
+    'achievements:31',
+    'skills:15'
+  ],
+  recovered: [],
+  missing: [
+    'identity:github',
+    'identity:portfolio',
+    'experience[2]:designation'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 483,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 15,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 483,
+    experience: 5,
+    experienceCompanies: 5,
+    projects: 0,
+    skills: 15,
+    education: 1,
+    certifications: 0,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 483,
+    experience: 5,
+    experienceCompanies: 5,
+    projects: 0,
+    skills: 15,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  }
+}
+[import-transformer] mapping validation {
+  issues: [
+    'experience[1]:missing-description',
+    'education:empty',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 5,
+  rawCompanyCount: 5,
+  builtCompanyCount: 5
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: true,
+  portfolio: false,
+  summary: true,
+  skills: 15,
+  experience: 5,
+  education: 0,
+  projects: 0,
+  certifications: 0,
+  languages: 0,
+  achievements: 2,
+  hobbies: 0
+}
+[resume-extraction-validation] { warnings: 1, repairs: 0 }
+{
+  "sourceTextChars": 3364,
+  "preparedChars": 3361,
+  "documentType": "TYPE_B_EXECUTIVE",
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 3361,
+    "preamble": 180,
+    "summary": 483,
+    "experience": 1872,
+    "education": 58,
+    "skills": 710,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 0,
+    "achievements": 0,
+    "hobbies": 0,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "structuredExp": 0,
+  "stages": {
+    "custom": {
+      "counts": {
+        "experience": 4,
+        "withCompany": 4,
+        "withTitle": 3,
+        "projects": 0,
+        "education": 1,
+        "certifications": 0,
+        "skills": 17,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 483,
+        "name": "Hrishi Raj Soni",
+        "email": "hrishisoni4@gmail.com",
+        "phone": "(756) 677-0072"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Manager ΓÇô Company Secretary (2023ΓÇôPresent)",
+          "company": "Dilip Buildcon Limited ΓÇô Bhopal, M.P.",
+          "dates": "2023",
+          "descLen": 114
+        },
+        {
+          "i": 1,
+          "title": "Assistant Manager ΓÇô Company Secretary (2021ΓÇô2023)",
+          "company": "Kamal Sponge Steel and Power Ltd ΓÇô Maihar, M.P.",
+          "dates": "2021 - 2023",
+          "descLen": 0
+        },
+        {
+          "i": 2,
+          "title": null,
+          "company": "Group Company of KJS Cement (I) Ltd.",
+          "dates": null,
+          "descLen": 22
+        },
+        {
+          "i": 3,
+          "title": "Company Secretary",
+          "company": "FMCG Sector Company",
+          "dates": null,
+          "descLen": 29
+        }
+      ],
+      "education": [
+        {
+          "i": 0,
+          "title": "Qualified CS, ICSI|M.Com| B. Com, DAVV, Indore (2015",
+          "company": "2017)",
+          "dates": "2015 - 2017",
+          "descLen": 0
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "LLP"
+        },
+        {
+          "i": 1,
+          "v": "SEBI"
+        },
+        {
+          "i": 2,
+          "v": "Drafted AND Negotiated 50+ Legal Agreements"
+        },
+        {
+          "i": 3,
+          "v": "Entity Formation (pvt LTD"
+        },
+        {
+          "i": 4,
+          "v": "OPC"
+        },
+        {
+          "i": 5,
+          "v": "Section 8)"
+        },
+        {
+          "i": 6,
+          "v": "Corporate Compliance & Filings (roc"
+        },
+        {
+          "i": 7,
+          "v": "Annual Filings)"
+        },
+        {
+          "i": 8,
+          "v": "Board Processes & Corporate Governance"
+        },
+        {
+          "i": 9,
+          "v": "Legal Documentation & Contract Management"
+        },
+        {
+          "i": 10,
+          "v": "DUE Diligence & Regulatory Filings"
+        },
+        {
+          "i": 11,
+          "v": "Document Management & Record Keeping"
+        },
+        {
+          "i": 12,
+          "v": "Client & Stakeholder Communication"
+        },
+        {
+          "i": 13,
+          "v": "Deadline Tracking & Workflow Management"
+        },
+        {
+          "i": 14,
+          "v": "Career Achievements"
+        },
+        {
+          "i": 15,
+          "v": "Reducing Dependency ON External Counsel"
+        },
+        {
+          "i": 16,
+          "v": "Supported Credit Rating Improvement Through Structured Disclosures AND Coordination"
+        }
+      ],
+      "certs": [],
+      "langs": [],
+      "achievements": [],
+      "hobbies": [],
+      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board and\nCommittee management, stock exchange coordination, due diligence, governance advisory, and\nregulat"
+    },
+    "upload": {
+      "counts": {
+        "experience": 4,
+        "withCompany": 4,
+        "withTitle": 3,
+        "projects": 0,
+        "education": 1,
+        "certifications": 0,
+        "skills": 15,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 483,
+        "name": "Hrishi Raj Soni",
+        "email": "hrishisoni4@gmail.com",
+        "phone": "(756) 677-0072"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Manager ΓÇô Company Secretary (2023ΓÇôPresent)",
+          "company": "Dilip Buildcon Limited ΓÇô Bhopal, M.P.",
+          "dates": "2023",
+          "descLen": 114
+        },
+        {
+          "i": 1,
+          "title": "Assistant Manager ΓÇô Company Secretary (2021ΓÇô2023)",
+          "company": "Kamal Sponge Steel and Power Ltd ΓÇô Maihar, M.P.",
+          "dates": "2021 - 2023",
+          "descLen": 0
+        },
+        {
+          "i": 2,
+          "title": null,
+          "company": "Group Company of KJS Cement (I) Ltd.",
+          "dates": null,
+          "descLen": 22
+        },
+        {
+          "i": 3,
+          "title": "Company Secretary",
+          "company": "FMCG Sector Company",
+          "dates": null,
+          "descLen": 29
+        }
+      ],
+      "education": [
+        {
+          "i": 0,
+          "title": "Qualified CS, ICSI|M.Com| B. Com, DAVV, Indore (2015",
+          "company": "2017)",
+          "dates": "2015 - 2017",
+          "descLen": 0
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "LLP"
+        },
+        {
+          "i": 1,
+          "v": "SEBI"
+        },
+        {
+          "i": 2,
+          "v": "Annual Filings)"
+        },
+        {
+          "i": 3,
+          "v": "Board Processes & Corporate Governance"
+        },
+        {
+          "i": 4,
+          "v": "Client & Stakeholder Communication"
+        },
+        {
+          "i": 5,
+          "v": "Corporate Compliance & Filings (roc"
+        },
+        {
+          "i": 6,
+          "v": "Deadline Tracking & Workflow Management"
+        },
+        {
+          "i": 7,
+          "v": "Document Management & Record Keeping"
+        },
+        {
+          "i": 8,
+          "v": "DUE Diligence & Regulatory Filings"
+        },
+        {
+          "i": 9,
+          "v": "Entity Formation (pvt LTD"
+        },
+        {
+          "i": 10,
+          "v": "Legal Documentation & Contract Management"
+        },
+        {
+          "i": 11,
+          "v": "OPC"
+        },
+        {
+          "i": 12,
+          "v": "Reducing Dependency ON External Counsel"
+        },
+        {
+          "i": 13,
+          "v": "Section 8)"
+        },
+        {
+          "i": 14,
+          "v": "Drafted AND Negotiated 50+ Legal Agreements"
+        }
+      ]
+    },
+    "repaired": {
+      "counts": {
+        "experience": 4,
+        "withCompany": 4,
+        "withTitle": 3,
+        "projects": 0,
+        "education": 1,
+        "certifications": 0,
+        "skills": 15,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 483,
+        "name": "Hrishi Raj Soni",
+        "email": "hrishisoni4@gmail.com",
+        "phone": "(756) 677-0072"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Manager ΓÇô Company Secretary (2023ΓÇôPresent)",
+          "company": "Dilip Buildcon Limited ΓÇô Bhopal, M.P.",
+          "dates": "2023",
+          "descLen": 114
+        },
+        {
+          "i": 1,
+          "title": "Assistant Manager ΓÇô Company Secretary (2021ΓÇô2023)",
+          "company": "Kamal Sponge Steel and Power Ltd ΓÇô Maihar, M.P.",
+          "dates": "2021 - 2023",
+          "descLen": 0
+        },
+        {
+          "i": 2,
+          "title": null,
+          "company": "Group Company of KJS Cement (I) Ltd.",
+          "dates": null,
+          "descLen": 22
+        },
+        {
+          "i": 3,
+          "title": "Company Secretary",
+          "company": "FMCG Sector Company",
+          "dates": null,
+          "descLen": 29
+        }
+      ],
+      "education": [
+        {
+          "i": 0,
+          "title": "Qualified CS, ICSI|M.Com| B. Com, DAVV, Indore (2015",
+          "company": "2017)",
+          "dates": "2015 - 2017",
+          "descLen": 0
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "LLP"
+        },
+        {
+          "i": 1,
+          "v": "SEBI"
+        },
+        {
+          "i": 2,
+          "v": "Annual Filings)"
+        },
+        {
+          "i": 3,
+          "v": "Board Processes & Corporate Governance"
+        },
+        {
+          "i": 4,
+          "v": "Client & Stakeholder Communication"
+        },
+        {
+          "i": 5,
+          "v": "Corporate Compliance & Filings (roc"
+        },
+        {
+          "i": 6,
+          "v": "Deadline Tracking & Workflow Management"
+        },
+        {
+          "i": 7,
+          "v": "Document Management & Record Keeping"
+        },
+        {
+          "i": 8,
+          "v": "DUE Diligence & Regulatory Filings"
+        },
+        {
+          "i": 9,
+          "v": "Entity Formation (pvt LTD"
+        },
+        {
+          "i": 10,
+          "v": "Legal Documentation & Contract Management"
+        },
+        {
+          "i": 11,
+          "v": "OPC"
+        },
+        {
+          "i": 12,
+          "v": "Reducing Dependency ON External Counsel"
+        },
+        {
+          "i": 13,
+          "v": "Section 8)"
+        },
+        {
+          "i": 14,
+          "v": "Drafted AND Negotiated 50+ Legal Agreements"
+        }
+      ],
+      "achievements": [],
+      "hobbies": [],
+      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+    },
+    "coalesced": {
+      "counts": {
+        "experience": 4,
+        "withCompany": 4,
+        "withTitle": 3,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 15,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 483,
+        "name": "Hrishi Raj Soni",
+        "email": "hrishisoni4@gmail.com",
+        "phone": "(756) 677-0072"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Manager ΓÇô Company Secretary (2023ΓÇôPresent)",
+          "company": "Dilip Buildcon Limited ΓÇô Bhopal, M.P.",
+          "dates": "2023-01",
+          "descLen": 716
+        },
+        {
+          "i": 1,
+          "title": "Assistant Manager ΓÇô Company Secretary (2021ΓÇô2023)",
+          "company": "Kamal Sponge Steel and Power Ltd ΓÇô Maihar, M.P.",
+          "dates": "2021-01 - 2023-01",
+          "descLen": 0
+        },
+        {
+          "i": 2,
+          "title": null,
+          "company": "Group Company of KJS Cement (I) Ltd.",
+          "dates": null,
+          "descLen": 431
+        },
+        {
+          "i": 3,
+          "title": "Company Secretary",
+          "company": "FMCG Sector Company",
+          "dates": null,
+          "descLen": 420
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "LLP"
+        },
+        {
+          "i": 1,
+          "v": "SEBI"
+        },
+        {
+          "i": 2,
+          "v": "Annual Filings)"
+        },
+        {
+          "i": 3,
+          "v": "Board Processes & Corporate Governance"
+        },
+        {
+          "i": 4,
+          "v": "Client & Stakeholder Communication"
+        },
+        {
+          "i": 5,
+          "v": "Corporate Compliance & Filings (roc"
+        },
+        {
+          "i": 6,
+          "v": "Deadline Tracking & Workflow Management"
+        },
+        {
+          "i": 7,
+          "v": "Document Management & Record Keeping"
+        },
+        {
+          "i": 8,
+          "v": "DUE Diligence & Regulatory Filings"
+        },
+        {
+          "i": 9,
+          "v": "Entity Formation (pvt LTD"
+        },
+        {
+          "i": 10,
+          "v": "Legal Documentation & Contract Management"
+        },
+        {
+          "i": 11,
+          "v": "OPC"
+        },
+        {
+          "i": 12,
+          "v": "Reducing Dependency ON External Counsel"
+        },
+        {
+          "i": 13,
+          "v": "Section 8)"
+        },
+        {
+          "i": 14,
+          "v": "Drafted AND Negotiated 50+ Legal Agreements"
+        }
+      ],
+      "hobbies": [],
+      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+    },
+    "gallery": {
+      "counts": {
+        "experience": 5,
+        "withCompany": 5,
+        "withTitle": 5,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 15,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 0,
+        "summaryChars": 483,
+        "name": "Hrishi Raj Soni",
+        "email": "hrishisoni4@gmail.com",
+        "phone": "(756) 677-0072"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Manager ΓÇô Company Secretary (2023ΓÇôPresent)",
+          "company": "Dilip Buildcon Limited ΓÇô Bhopal, M.P.",
+          "dates": "2023-01",
+          "descLen": 1433
+        },
+        {
+          "i": 1,
+          "title": "Assistant Manager ΓÇô Company Secretary (2021ΓÇô2023)",
+          "company": "Kamal Sponge Steel and Power Ltd ΓÇô Maihar, M.P.",
+          "dates": "2021-01 - 2023-01",
+          "descLen": 0
+        },
+        {
+          "i": 2,
+          "title": "Company Secretary",
+          "company": "Velnik India Pvt. Ltd.",
+          "dates": null,
+          "descLen": 861
+        },
+        {
+          "i": 3,
+          "title": "Company Secretary",
+          "company": "Group Company of KJS Cement (I) Ltd.",
+          "dates": "2020-01 - 2021-01",
+          "descLen": 838
+        },
+        {
+          "i": 4,
+          "title": "Company Secretary",
+          "company": "FMCG Sector Company",
+          "dates": null,
+          "descLen": 866
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "LLP"
+        },
+        {
+          "i": 1,
+          "v": "SEBI"
+        },
+        {
+          "i": 2,
+          "v": "Annual Filings)"
+        },
+        {
+          "i": 3,
+          "v": "Board Processes & Corporate Governance"
+        },
+        {
+          "i": 4,
+          "v": "Client & Stakeholder Communication"
+        },
+        {
+          "i": 5,
+          "v": "Corporate Compliance & Filings (roc"
+        },
+        {
+          "i": 6,
+          "v": "Deadline Tracking & Workflow Management"
+        },
+        {
+          "i": 7,
+          "v": "Document Management & Record Keeping"
+        },
+        {
+          "i": 8,
+          "v": "DUE Diligence & Regulatory Filings"
+        },
+        {
+          "i": 9,
+          "v": "Entity Formation (pvt LTD"
+        },
+        {
+          "i": 10,
+          "v": "Legal Documentation & Contract Management"
+        },
+        {
+          "i": 11,
+          "v": "OPC"
+        },
+        {
+          "i": 12,
+          "v": "Reducing Dependency ON External Counsel"
+        },
+        {
+          "i": 13,
+          "v": "Section 8)"
+        },
+        {
+          "i": 14,
+          "v": "Drafted AND Negotiated 50+ Legal Agreements"
+        }
+      ],
+      "hobbies": [],
+      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+    },
+    "builder": {
+      "counts": {
+        "experience": 5,
+        "withCompany": 5,
+        "withTitle": 5,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 15,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 0,
+        "summaryChars": 483,
+        "name": "Hrishi Raj Soni",
+        "email": "hrishisoni4@gmail.com",
+        "phone": "(756) 677-0072"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Manager ΓÇô Company Secretary (2023ΓÇôPresent)",
+          "company": "Dilip Buildcon Limited ΓÇô Bhopal, M.P.",
+          "dates": "2023-01",
+          "descLen": 1433
+        },
+        {
+          "i": 1,
+          "title": "Assistant Manager ΓÇô Company Secretary (2021ΓÇô2023)",
+          "company": "Kamal Sponge Steel and Power Ltd ΓÇô Maihar, M.P.",
+          "dates": "2021-01 - 2023-01",
+          "descLen": 0
+        },
+        {
+          "i": 2,
+          "title": "Company Secretary",
+          "company": "Velnik India Pvt. Ltd.",
+          "dates": null,
+          "descLen": 861
+        },
+        {
+          "i": 3,
+          "title": "Company Secretary",
+          "company": "Group Company of KJS Cement (I) Ltd.",
+          "dates": "2020-01 - 2021-01",
+          "descLen": 838
+        },
+        {
+          "i": 4,
+          "title": "Company Secretary",
+          "company": "FMCG Sector Company",
+          "dates": null,
+          "descLen": 866
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "LLP"
+        },
+        {
+          "i": 1,
+          "v": "SEBI"
+        },
+        {
+          "i": 2,
+          "v": "Annual Filings)"
+        },
+        {
+          "i": 3,
+          "v": "Board Processes & Corporate Governance"
+        },
+        {
+          "i": 4,
+          "v": "Client & Stakeholder Communication"
+        },
+        {
+          "i": 5,
+          "v": "Corporate Compliance & Filings (roc"
+        },
+        {
+          "i": 6,
+          "v": "Deadline Tracking & Workflow Management"
+        },
+        {
+          "i": 7,
+          "v": "Document Management & Record Keeping"
+        },
+        {
+          "i": 8,
+          "v": "DUE Diligence & Regulatory Filings"
+        },
+        {
+          "i": 9,
+          "v": "Entity Formation (pvt LTD"
+        },
+        {
+          "i": 10,
+          "v": "Legal Documentation & Contract Management"
+        },
+        {
+          "i": 11,
+          "v": "OPC"
+        },
+        {
+          "i": 12,
+          "v": "Reducing Dependency ON External Counsel"
+        },
+        {
+          "i": 13,
+          "v": "Section 8)"
+        },
+        {
+          "i": 14,
+          "v": "Drafted AND Negotiated 50+ Legal Agreements"
+        }
+      ],
+      "hobbies": [],
+      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+    }
+  }
+}

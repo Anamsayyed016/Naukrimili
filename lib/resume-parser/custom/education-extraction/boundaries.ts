@@ -12,6 +12,36 @@ import type { EducationLine, EducationRawBlock } from './types';
 const BOUNDARY_THRESHOLD = 44;
 const BOUNDARY_THRESHOLD_AFTER_BLANK = 36;
 
+/**
+ * Compact single-line multi-credential rows ("CS | M.Com | B.Com, Univ (years)")
+ * explode into one line per credential so each becomes its own education block.
+ */
+function expandCompactMultiCredentialSection(sectionText: string): string {
+  return String(sectionText || '')
+    .split(/\n/)
+    .map((raw) => {
+      const line = raw.trim();
+      if (!line || !/\s*\|\s*/.test(line)) return raw;
+      const dateSuffix = line.match(/\s*([\(\[]\s*(?:19|20)\d{2}[^\)\]]*[\)\]])\s*$/i);
+      const core = dateSuffix ? line.slice(0, dateSuffix.index).trim() : line;
+      const parts = core
+        .split(/\s*\|\s*/)
+        .map((p) => p.trim())
+        .filter(Boolean);
+      if (parts.length < 2) return raw;
+      const degreeBearing = parts.filter(
+        (p) => detectDegreeFromLine(p).confidence >= 30 || lineHasDegreeSignal(p)
+      );
+      if (degreeBearing.length < 2) return raw;
+      return parts
+        .map((p, i) =>
+          i === parts.length - 1 && dateSuffix ? `${p} ${dateSuffix[1]}`.trim() : p
+        )
+        .join('\n');
+    })
+    .join('\n');
+}
+
 function scoreBoundaryLine(line: EducationLine, prevBlank: boolean): number {
   if (line.isBlank) return 0;
 
@@ -55,7 +85,7 @@ export function scoreEducationBoundaries(lines: EducationLine[]): EducationLine[
 }
 
 export function partitionEducationBlocks(sectionText: string): EducationRawBlock[] {
-  const lines = buildTypedEducationLines(sectionText);
+  const lines = buildTypedEducationLines(expandCompactMultiCredentialSection(sectionText));
   const scored = scoreEducationBoundaries(lines);
   const blocks: EducationRawBlock[] = [];
   let currentStart = 0;
@@ -91,7 +121,25 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
     // boundary score is below the normal threshold (common for "MBA" / "BCA" lines).
     if (isStrongDegreeHeading && idx > currentStart) {
       const openSlice = scored.slice(currentStart, idx).filter((l) => !l.isBlank);
-      const openHasDegree = openSlice.some((l) => detectDegreeFromLine(l.text).confidence >= 70);
+      const openHasDegree = openSlice.some((l) => {
+        const t = l.text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+        return detectDegreeFromLine(t).confidence >= 38 || lineHasDegreeSignal(t);
+      });
+      if (openHasDegree) return true;
+    }
+
+    // Compact multi-credential rows: another degree after one already opened
+    // (including dated "B.Com, Univ (years)" lines) always starts a new entry.
+    if (
+      idx > currentStart &&
+      (deg.confidence >= 70 || lineHasDegreeSignal(text)) &&
+      !looksPrimarilyInstitution
+    ) {
+      const openSlice = scored.slice(currentStart, idx).filter((l) => !l.isBlank);
+      const openHasDegree = openSlice.some((l) => {
+        const t = l.text.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+        return detectDegreeFromLine(t).confidence >= 38 || lineHasDegreeSignal(t);
+      });
       if (openHasDegree) return true;
     }
 
@@ -175,7 +223,11 @@ function coalesceEducationBlocks(blocks: EducationRawBlock[]): EducationRawBlock
       .map((l) => l.trim())
       .filter(Boolean);
     const dateOnlyHeader =
-      headerLines.length === 1 && parseEducationDates(headerLines[0]) !== null;
+      headerLines.length === 1 &&
+      parseEducationDates(headerLines[0]) !== null &&
+      detectDegreeFromLine(headerLines[0]).confidence < 38 &&
+      !lineHasDegreeSignal(headerLines[0]) &&
+      detectInstitutionFromLine(headerLines[0]).confidence < 40;
     const prevNeedsDates =
       Boolean(prevBuilt.institution || prevBuilt.degree) &&
       !prevBuilt.startDate &&
