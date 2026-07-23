@@ -245,8 +245,10 @@ export function getGalleryCardAccent(templateId: string): GalleryCardAccent {
 }
 
 /**
- * Gallery preview profile resolution:
- * user upload → DEFAULT_DEMO_PROFILE_IMAGE → (empty; template initials placeholder)
+ * Gallery preview profile resolution — atomic to the selected gallery source.
+ * Demo cards → demo portrait only.
+ * Imported cards → photo on that object only; otherwise empty (template initials).
+ * Never falls back to demo portrait for imported resumes.
  */
 export function resolveGalleryProfileImage(
   formData: Record<string, unknown>,
@@ -256,11 +258,8 @@ export function resolveGalleryProfileImage(
   if (formData._galleryDemo === true) {
     return getGalleryDemoProfileImage(templateId);
   }
-  const userImage = resolveProfileImageForRender(formData);
-  if (userImage) {
-    return userImage;
-  }
-  return getGalleryDemoProfileImage(templateId);
+  // Imported / user gallery source: never inject demo portrait.
+  return resolveProfileImageForRender(formData) || '';
 }
 
 /** Compact showcase sections for gallery cards (never persisted to user data). */

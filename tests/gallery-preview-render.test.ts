@@ -1,8 +1,10 @@
 import {
   buildGalleryPreviewDocumentHtml,
   isGalleryCompactPreview,
+  resolveGalleryCardRenderPlan,
   resolveGalleryInjectOptions,
 } from '@/lib/resume-builder/gallery-preview-render';
+import { DEFAULT_DEMO_PROFILE_IMAGE } from '@/lib/resume-builder/demo-profile-image';
 
 describe('gallery preview render helpers', () => {
   it('uses compact inject options for empty gallery data', () => {
@@ -22,17 +24,48 @@ describe('gallery preview render helpers', () => {
     expect(isGalleryCompactPreview(demo)).toBe(true);
   });
 
-  it('uses live preview inject options for imported user data', () => {
-    const imported = { firstName: 'Qamar', lastName: 'Ali', _imported: true, experience: [{ title: 'CS' }] };
+  it('locks imported user gallery cards to source object (no live demoFallback)', () => {
+    const imported = {
+      firstName: 'Qamar',
+      lastName: 'Ali',
+      _imported: true,
+      experience: [{ title: 'CS' }],
+    };
     expect(resolveGalleryInjectOptions('soft-coral-executive', imported)).toEqual({
       templateId: 'soft-coral-executive',
+      galleryTemplateId: 'soft-coral-executive',
       mode: 'preview',
+      gallerySourceLock: true,
     });
     expect(isGalleryCompactPreview(imported)).toBe(false);
   });
 
+  it('resolveGalleryCardRenderPlan picks demo sample when user data is empty', () => {
+    const plan = resolveGalleryCardRenderPlan('soft-coral-executive', null);
+    expect(plan.previewData._galleryDemo).toBe(true);
+    expect(plan.previewData.profileImage).toBe(DEFAULT_DEMO_PROFILE_IMAGE);
+    expect(plan.injectOptions.galleryPreview).toBe(true);
+  });
+
+  it('resolveGalleryCardRenderPlan keeps imported object atomic', () => {
+    const imported = {
+      firstName: 'Sam',
+      lastName: 'Lee',
+      experience: [{ title: 'Dev' }],
+      profileImage: 'data:image/png;base64,abc',
+    };
+    const plan = resolveGalleryCardRenderPlan('soft-coral-executive', imported);
+    expect(plan.previewData).toBe(imported);
+    expect(plan.injectOptions.gallerySourceLock).toBe(true);
+    expect(plan.injectOptions.galleryPreview).toBeUndefined();
+  });
+
   it('builds full-flow document html without compact overflow clipping', () => {
-    const html = buildGalleryPreviewDocumentHtml('body{}', '<div class="resume-container">x</div>', false);
+    const html = buildGalleryPreviewDocumentHtml(
+      'body{}',
+      '<div class="resume-container">x</div>',
+      false
+    );
     expect(html).toContain('overflow-y: visible');
     expect(html).not.toContain('font-size: 10px');
   });

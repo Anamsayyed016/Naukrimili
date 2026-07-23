@@ -14,14 +14,13 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
 import {
-  buildGallerySampleFormData,
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
 import {
   buildGalleryPreviewDocumentHtml,
   isGalleryCompactPreview,
-  resolveGalleryInjectOptions,
+  resolveGalleryCardRenderPlan,
 } from '@/lib/resume-builder/gallery-preview-render';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
@@ -264,16 +263,13 @@ function EnhancedTemplateCard({
         const { template: templateMeta, html, css } = loaded;
         const colorVariant = templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) || templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
-        
-        const previewData = isGalleryEmptyFormData(formData)
-          ? buildGallerySampleFormData(template.id)
-          : formData;
 
-        const dataInjectedHtml = injectResumeData(
-          html,
-          previewData,
-          resolveGalleryInjectOptions(template.id, previewData)
+        const { previewData, injectOptions } = resolveGalleryCardRenderPlan(
+          template.id,
+          isGalleryEmptyFormData(formData) ? null : formData
         );
+
+        const dataInjectedHtml = injectResumeData(html, previewData, injectOptions);
 
         const fullHtml = buildGalleryPreviewDocumentHtml(
           coloredCss,
@@ -376,9 +372,10 @@ function EnhancedTemplateCard({
             templateName={template.name}
             iframeRef={iframeRef}
             formData={
-              isGalleryEmptyFormData(formData)
-                ? buildGallerySampleFormData(template.id)
-                : formData
+              resolveGalleryCardRenderPlan(
+                template.id,
+                isGalleryEmptyFormData(formData) ? null : formData
+              ).previewData
             }
             templateId={template.id}
           />

@@ -1,24 +1,61 @@
-import { isGalleryEmptyFormData } from '@/lib/resume-builder/gallery-demo';
+import {
+  buildGallerySampleFormData,
+  isGalleryEmptyFormData,
+} from '@/lib/resume-builder/gallery-demo';
 
-/** Gallery inject options: demo cards stay compact; user/import data matches Live Preview. */
+export type GalleryInjectOptions = {
+  galleryPreview?: boolean;
+  galleryTemplateId?: string;
+  /** Gallery cards only: lock photo to the selected form object (no localStorage / demoFallback). */
+  gallerySourceLock?: boolean;
+  templateId?: string;
+  mode?: 'preview';
+};
+
+/**
+ * Gallery inject options — always lock photo to the selected card source.
+ * Demo → gallery/demo mode (compact).
+ * Import → live layout mode + gallerySourceLock (no demoFallback / no photo-store merge).
+ */
 export function resolveGalleryInjectOptions(
   templateId: string,
   previewData: Record<string, unknown>
-): {
-  galleryPreview?: boolean;
-  galleryTemplateId?: string;
-  templateId?: string;
-  mode?: 'preview';
-} {
+): GalleryInjectOptions {
   if (isGalleryEmptyFormData(previewData) || previewData._galleryDemo === true) {
     return { galleryPreview: true, galleryTemplateId: templateId };
   }
-  return { templateId, mode: 'preview' };
+  return {
+    templateId,
+    galleryTemplateId: templateId,
+    mode: 'preview',
+    gallerySourceLock: true,
+  };
 }
 
 /** Demo/sample cards use compact typography; user resumes mirror Live Preview CSS. */
 export function isGalleryCompactPreview(previewData: Record<string, unknown>): boolean {
   return isGalleryEmptyFormData(previewData) || previewData._galleryDemo === true;
+}
+
+/**
+ * Atomic gallery card source: one object + matching inject options.
+ * Never returns a hybrid of demo text and a separately merged photo.
+ */
+export function resolveGalleryCardRenderPlan(
+  templateId: string,
+  userPreviewData: Record<string, unknown> | null | undefined
+): {
+  previewData: Record<string, unknown>;
+  injectOptions: GalleryInjectOptions;
+} {
+  const previewData =
+    userPreviewData && !isGalleryEmptyFormData(userPreviewData)
+      ? userPreviewData
+      : buildGallerySampleFormData(templateId);
+  return {
+    previewData,
+    injectOptions: resolveGalleryInjectOptions(templateId, previewData),
+  };
 }
 
 export function buildGalleryPreviewDocumentHtml(

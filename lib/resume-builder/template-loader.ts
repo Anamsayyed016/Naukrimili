@@ -427,6 +427,12 @@ export interface InjectResumeDataOptions {
   galleryPreview?: boolean;
   /** Picks template-specific demo portrait in gallery mode */
   galleryTemplateId?: string;
+  /**
+   * Gallery cards rendering imported user data: lock photo to the form object.
+   * Skips localStorage photo merge and demoFallback (initials if no photo).
+   * Does not switch layout into compact gallery budgets.
+   */
+  gallerySourceLock?: boolean;
   /** Active template id — informs layout capacity heuristics */
   templateId?: string;
   /** Preview vs PDF export — informs dynamic layout planning */
@@ -504,11 +510,13 @@ export function injectResumeData(
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
   const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
-  const profileImage = options?.galleryPreview
-    ? resolveGalleryProfileImage(data, getString, options.galleryTemplateId)
-    : resolveProfileImageForRender(data, getString, {
-        demoFallback: templateSupportsProfilePhoto(resolvedTemplateId),
-      });
+  // Gallery cards (demo or imported) resolve photo only from the selected source object.
+  const profileImage =
+    options?.galleryPreview || options?.gallerySourceLock
+      ? resolveGalleryProfileImage(data, getString, options.galleryTemplateId ?? resolvedTemplateId)
+      : resolveProfileImageForRender(data, getString, {
+          demoFallback: templateSupportsProfilePhoto(resolvedTemplateId),
+        });
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
