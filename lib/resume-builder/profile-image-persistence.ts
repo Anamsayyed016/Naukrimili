@@ -69,12 +69,12 @@ export function persistProfileImage(value: string): void {
   }
 }
 
-/** Sync global photo store from any form payload that carries a valid image. */
+/** Sync global photo store from any form payload that carries a valid user image. */
 export function syncPersistedProfileImageFromFormData(
   formData: Record<string, unknown>
 ): void {
   const current = resolveProfileImageForRender(formData);
-  if (isValidProfileImage(current)) {
+  if (isValidProfileImage(current) && !isDemoProfileImageUrl(current)) {
     persistProfileImage(current);
   }
 }
@@ -89,12 +89,11 @@ export function shouldMergePersistedProfileImageForRender(
   formData: Record<string, unknown>,
   options?: { galleryPreview?: boolean; gallerySourceLock?: boolean }
 ): boolean {
+  // Gallery cards stay atomic to their selected source object.
   if (options?.galleryPreview) return false;
   if (options?.gallerySourceLock) return false;
   if (formData._galleryDemo === true) return false;
-  // Never patch the global store onto a demo portrait (belt-and-suspenders).
-  const current = resolveProfileImageForRender(formData);
-  if (isDemoProfileImageUrl(current)) return false;
+  // Editor/PDF: demo portrait URLs are not real user photos — allow merge to restore.
   return true;
 }
 
@@ -117,13 +116,14 @@ export function mergePersistedProfileImageIntoFormData(
   formData: Record<string, unknown>
 ): Record<string, unknown> {
   const current = resolveProfileImageForRender(formData);
-  if (isValidProfileImage(current)) {
+  // Keep a real user photo; replace empty/demo placeholders from the global store.
+  if (isValidProfileImage(current) && !isDemoProfileImageUrl(current)) {
     syncPersistedProfileImageFromFormData(formData);
     return formData;
   }
 
   const persisted = readPersistedProfileImage();
-  if (!persisted) return formData;
+  if (!persisted || isDemoProfileImageUrl(persisted)) return formData;
 
   return {
     ...formData,

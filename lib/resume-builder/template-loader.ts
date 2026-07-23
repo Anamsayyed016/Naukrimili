@@ -49,7 +49,6 @@ import {
 } from '@/lib/resume-parser/import-sanitize';
 import { resolveGalleryProfileImage } from './gallery-demo';
 import { prepareFormDataForResumeRender } from './profile-image-persistence';
-import { templateSupportsProfilePhoto } from './template-photo-metadata';
 import { resolveTemplateId } from './template-aliases';
 import {
   getAtsContentBalanceStyleBlock,
@@ -510,13 +509,12 @@ export function injectResumeData(
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
   const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
-  // Gallery cards (demo or imported) resolve photo only from the selected source object.
+  // Gallery cards: demo portrait only when rendering demo sample data.
+  // Editor / PDF / Design Studio: never inject the gallery demo portrait.
   const profileImage =
     options?.galleryPreview || options?.gallerySourceLock
       ? resolveGalleryProfileImage(data, getString, options.galleryTemplateId ?? resolvedTemplateId)
-      : resolveProfileImageForRender(data, getString, {
-          demoFallback: templateSupportsProfilePhoto(resolvedTemplateId),
-        });
+      : resolveProfileImageForRender(data, getString);
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');

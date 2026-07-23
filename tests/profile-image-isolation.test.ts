@@ -10,7 +10,6 @@ import {
 import { injectResumeData } from '@/lib/resume-builder/template-loader';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const USER_PHOTO =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
@@ -29,9 +28,18 @@ function installBrowserStorageMock() {
       store.clear();
     },
   };
-  vi.stubGlobal('window', {} as Window);
-  vi.stubGlobal('localStorage', storage);
-  vi.stubGlobal('sessionStorage', storage);
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: storage,
+    configurable: true,
+  });
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    value: storage,
+    configurable: true,
+  });
+  Object.defineProperty(globalThis, 'window', {
+    value: { localStorage: storage, sessionStorage: storage },
+    configurable: true,
+  });
   return store;
 }
 
@@ -47,10 +55,6 @@ describe('profile image data isolation', () => {
 
   beforeEach(() => {
     store = installBrowserStorageMock();
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
   });
 
   it('does not merge persisted photo into gallery demo form data', () => {
@@ -130,12 +134,19 @@ describe('profile image data isolation', () => {
     expect(rendered).toContain('profile-image-wrapper--initials');
   });
 
-  it('never merges persisted photo onto a demo portrait even without gallery flags', () => {
+  it('editor replaces a demo portrait placeholder with the persisted user photo', () => {
     store.set(PROFILE_IMAGE_STORAGE_KEY, USER_PHOTO);
     const demoPortrait = { firstName: 'Alex', profileImage: DEFAULT_DEMO_PROFILE_IMAGE };
-    expect(shouldMergePersistedProfileImageForRender(demoPortrait)).toBe(false);
-    expect(prepareFormDataForResumeRender(demoPortrait).profileImage).toBe(
-      DEFAULT_DEMO_PROFILE_IMAGE
+    expect(shouldMergePersistedProfileImageForRender(demoPortrait)).toBe(true);
+    expect(prepareFormDataForResumeRender(demoPortrait).profileImage).toBe(USER_PHOTO);
+  });
+
+  it('editor inject never falls back to the gallery demo portrait', () => {
+    const rendered = injectResumeData(
+      softCoralHtml(),
+      { firstName: 'Alex', lastName: 'Reed' },
+      { templateId: 'soft-coral-executive', mode: 'preview' }
     );
+    expect(rendered).not.toContain(DEFAULT_DEMO_PROFILE_IMAGE);
   });
 });

@@ -235,20 +235,39 @@ export default function ResumeEditorPage() {
     return steps;
   }, [formData]);
 
-  // Hydrate from import session before paint — avoids empty form when URL params lag
+  // Hydrate from import session before paint — avoids empty form when URL params lag.
+  // Never stamp the import snapshot over a Design Studio / editor draft for this template
+  // (Change Template must keep current edits; only design changes).
   useLayoutEffect(() => {
     if (!templateId || userHasEditedRef.current) return;
+
+    const explicitGalleryImport = shouldPrefill || sourceImport;
+    const localDraft = readLocalDraft(templateId);
+    if (
+      !explicitGalleryImport &&
+      localDraft &&
+      hasImportableContent(localDraft)
+    ) {
+      setFormData(
+        ensureBuilderContactFields(mergePersistedProfileImageIntoFormData(localDraft))
+      );
+      formHydratedForTemplateRef.current = templateId;
+      logBuilderHydration('layout-local-draft', {
+        templateId,
+        checksum: builderFormChecksum(localDraft),
+      });
+      return;
+    }
+
     const resolved = resolveEditorFormFromImport();
     if (!resolved) return;
 
     const forceImport = shouldForceImportHydration({ shouldPrefill, sourceImport });
     if (!forceImport) return;
 
-    const explicitGalleryImport = shouldPrefill || sourceImport;
-
+    const normalized = normalizeImportedFormForEditor(resolved);
     setFormData((prev) => {
       if (prev._userEdited === true) return prev;
-      const normalized = normalizeImportedFormForEditor(resolved);
       if (explicitGalleryImport) return normalized;
       const prevName = [prev.firstName, prev.lastName]
         .map((v) => String(v ?? '').trim())
@@ -268,7 +287,7 @@ export default function ResumeEditorPage() {
       if (!hasImportableContent(prev)) return normalized;
       return ensureBuilderContactFields(prev);
     });
-    commitBuilderDraft(templateId, normalizeImportedFormForEditor(resolved));
+    commitBuilderDraft(templateId, normalized);
     const importMeta = readImportMeta();
     if (importMeta?.importId) {
       lastAppliedImportIdRef.current = importMeta.importId;
@@ -362,12 +381,14 @@ export default function ResumeEditorPage() {
         if (shouldLoadImport) {
           const localDraft = readLocalDraft(templateId);
           const draftHasContent = !!(localDraft && hasImportableContent(localDraft));
+          // Explicit gallery→editor import may refresh from session.
+          // Otherwise prefer the per-template draft (Change Template / live edits).
           const shouldApplyImport =
             explicitGalleryImport ||
             !localDraft ||
             !draftHasContent ||
-            !localDraft._userEdited ||
-            isImportFresherThanDraft(localDraft, importMeta);
+            (Boolean(localDraft._userEdited) === false &&
+              isImportFresherThanDraft(localDraft, importMeta));
 
           if (shouldApplyImport) {
             try {
@@ -498,17 +519,23 @@ export default function ResumeEditorPage() {
           }
         }
         
-        // Priority 2: Load saved draft — never override a fresh import flow
+        // Priority 2: Load saved draft — never override a fresh explicit import flow
         const skipStaleLocalDraft =
           !!pendingImport &&
           forceImportHydration &&
           isImportFresherThanDraft(readLocalDraft(templateId), importMeta);
 
-        if (!formLoaded && !paymentFlowData && !skipStaleLocalDraft && !sessionForm) {
+        // Prefer per-template draft whenever present (Change Template / live edits),
+        // even if an older import session still sits in sessionStorage.
+        if (!formLoaded && !paymentFlowData && !skipStaleLocalDraft) {
           const parsed = readLocalDraft(templateId);
-          if (parsed) {
+          if (parsed && hasImportableContent(parsed)) {
             try {
-              if (pendingImport && isImportFresherThanDraft(parsed, importMeta)) {
+              if (
+                explicitGalleryImport &&
+                pendingImport &&
+                isImportFresherThanDraft(parsed, importMeta)
+              ) {
                 logBuilderHydration('skipped-stale-draft', {
                   templateId,
                   draftChecksum: builderFormChecksum(parsed),

@@ -17,11 +17,7 @@ import {
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
-import {
-  buildGalleryPreviewDocumentHtml,
-  isGalleryCompactPreview,
-  resolveGalleryCardRenderPlan,
-} from '@/lib/resume-builder/gallery-preview-render';
+import { buildGalleryPreviewDocumentHtml } from '@/lib/resume-builder/gallery-preview-render';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 // Dynamic imports moved inside component to avoid TDZ issues
@@ -264,17 +260,19 @@ function EnhancedTemplateCard({
         const colorVariant = templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) || templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
 
-        const { previewData, injectOptions } = resolveGalleryCardRenderPlan(
-          template.id,
-          isGalleryEmptyFormData(formData) ? null : formData
-        );
-
-        const dataInjectedHtml = injectResumeData(html, previewData, injectOptions);
+        // Change Template cards: ALWAYS current editor formData — never gallery demo.
+        const previewData =
+          formData && !isGalleryEmptyFormData(formData) ? formData : {};
+        const dataInjectedHtml = injectResumeData(html, previewData, {
+          templateId: template.id,
+          mode: 'preview',
+          gallerySourceLock: true,
+        });
 
         const fullHtml = buildGalleryPreviewDocumentHtml(
           coloredCss,
           dataInjectedHtml,
-          isGalleryCompactPreview(previewData)
+          false
         );
 
         setPreviewHtml(fullHtml);
@@ -371,12 +369,7 @@ function EnhancedTemplateCard({
             error={error}
             templateName={template.name}
             iframeRef={iframeRef}
-            formData={
-              resolveGalleryCardRenderPlan(
-                template.id,
-                isGalleryEmptyFormData(formData) ? null : formData
-              ).previewData
-            }
+            formData={formData}
             templateId={template.id}
           />
         )}
