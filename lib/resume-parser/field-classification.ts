@@ -266,6 +266,10 @@ export function isLikelyJobTitleFragment(value: string): boolean {
   ) {
     return true;
   }
+  // Single-token occupations: Microbiologist, Electrician, Photographer, etc.
+  if (/^[A-Za-z][A-Za-z'-]{3,30}(?:ologist|ician|ographer|otherapist|urgeon|entist|chemist|physicist)$/i.test(s)) {
+    return true;
+  }
   if (/^(head|officer|secretary|member|director)$/i.test(s)) return true;
   return JOB_TITLE_MARKERS.test(s) && s.split(/\s+/).length <= 6;
 }
@@ -273,6 +277,7 @@ export function isLikelyJobTitleFragment(value: string): boolean {
 export function isLikelyCompanyNameFragment(value: string): boolean {
   const s = normalizeFragment(value);
   if (!s) return false;
+  if (isLikelyJobTitleFragment(s)) return false;
   if (COMPANY_NAME_MARKERS.test(s)) return true;
   if (
     /^[A-Z][A-Za-z0-9&.'-]{2,24}$/.test(s) &&
@@ -519,7 +524,7 @@ const CERTIFICATION_LINE_RE =
   /\b(?:certif(?:ied|ication|icate)|professional\s+qualification|IATA|UFTAA|PMP|AWS|Google|Microsoft|license|licence|accredit(?:ation|ed)|credential|chartered|CPA|CFA|CMA|CS\s+executive|CA\s+final|training\s+course|diploma\s+course)\b/i;
 
 const AWARD_ACHIEVEMENT_RE =
-  /\b(?:award(?:ed|s)?|recogniz(?:ed|ition)|honou?r(?:ed|s)?|ranked|top\s+\d+|employee\s+of\s+the\s+(?:month|year|quarter)|best\s+\w+\s+award|president'?s?\s+award|merit\s+award|distinction|gold\s+medal|silver\s+medal)\b/i;
+  /\b(?:award(?:ed|s)?|recogniz(?:ed|ition)|honou?r(?:ed|s)?|ranked|top\s+\d+|employee\s+of\s+the\s+(?:month|year|quarter)|best\s+\w+\s+award|president'?s?\s+award|merit\s+award|distinction|gold\s+medal|silver\s+medal|certified\s+as|named\s+as|selected\s+as|received\s+(?:the\s+)?(?:award|title|recognition|honou?r))\b/i;
 
 export function isLikelyEducationLine(text: string): boolean {
   const s = normalizeFragment(text);
@@ -539,6 +544,13 @@ export function isLikelyCertificationLine(text: string): boolean {
     return false;
   }
   if (/\b(?:university|college|bachelor|master|mba|b\.?\s*tech|m\.?\s*tech|school)\b/i.test(s)) {
+    return false;
+  }
+  // Award-shaped "Certified as …" / "Certified for …" are achievements, not course credentials.
+  if (
+    /\bcertif(?:ied|ication)\s+(?:as|for)\b/i.test(s) &&
+    !/\b(?:iso(?:\s*[/:-]?\s*iec)?\s*\d{4,5}|aws|azure|pmp|scrum|course|training\s+program)\b/i.test(s)
+  ) {
     return false;
   }
   return CERTIFICATION_LINE_RE.test(s);

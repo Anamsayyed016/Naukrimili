@@ -26,6 +26,12 @@ const DUTY_VERB_SKILL_RE =
 const SECTION_HEADING_RE =
   /^(?:skills?|technical\s+skills|core\s+skills|expertise|competencies|technologies|technology|tools|frameworks)$/i;
 
+const CONTACT_LABEL_SKILL_RE =
+  /^(?:mobile(?:\s*no\.?)?|phone(?:\s*no\.?)?|email(?:\s*id)?|e-?mail|dob|d\.?o\.?b\.?|date\s+of\s+birth|address|linkedin|github|portfolio|website|name|contact|and|including|including\s+iso)\b/i;
+
+const CONTACT_PAIR_SKILL_RE =
+  /\b(?:mobile|phone|email|e-?mail|dob|date\s+of\s+birth)\b.+\b(?:mobile|phone|email|e-?mail|dob|id)\b/i;
+
 const KNOWN_TECH_ACRONYMS_RE =
   /^(?:aws|gcp|azure|rest\s+api|api|ci\/cd|html|css|git|sql|nosql|saas|paas|iaas|oauth|jwt|grpc|tcp|udp|http|https|json|xml|yaml|sdk|ide|ui|ux|ml|ai|nlp|ocr|etl|erp|crm|seo|sem|ppc|hris)$/i;
 
@@ -47,12 +53,14 @@ export { KNOWN_TECH_ACRONYMS_RE };
 export function isValidSkillCandidate(raw: string): boolean {
   const trimmed = (raw || '').trim();
   if (!trimmed) return false;
+  if (CONTACT_LABEL_SKILL_RE.test(trimmed) || CONTACT_PAIR_SKILL_RE.test(trimmed)) return false;
   if (KNOWN_TECH_ACRONYMS_RE.test(trimmed)) return true;
   if (MULTI_WORD_SKILL_ALLOW_RE.test(trimmed.toLowerCase())) return true;
   if (SOFT_SKILL_SINGLE_RE.test(trimmed)) return true;
 
   const cleaned = sanitizeSkillEntry(raw);
   if (!cleaned) return false;
+  if (CONTACT_LABEL_SKILL_RE.test(cleaned) || CONTACT_PAIR_SKILL_RE.test(cleaned)) return false;
   if (DUTY_VERB_SKILL_RE.test(cleaned)) return false;
 
   if (MULTI_WORD_SKILL_ALLOW_RE.test(cleaned)) return true;

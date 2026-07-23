@@ -3,6 +3,7 @@
  */
 
 import { detectLocationFromLine } from '../experience-extraction/location';
+import { looksLikeStandaloneLocationLine } from '@/lib/resume-parser/import-sanitize';
 import { parseEducationDates } from './dates';
 import { extractDescriptionFromBlock } from './description';
 import { detectDegreeFromLine, lineHasDegreeSignal } from './degree';
@@ -65,8 +66,12 @@ function parseDegreeDashInstitutionLine(line: string): {
   degree: string;
   institution: string;
   yearText: string;
+  fieldOfStudy?: string;
 } | null {
-  const cleaned = line.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, '');
+  const cleaned = line
+    .trim()
+    .replace(/^[\s•●\-–—*·▪○]+\s*/, '')
+    .replace(/^[oO]\s+(?=\S)/, '');
   if (!cleaned) return null;
   // Ignore hyphens that only appear inside trailing year parentheses.
   const withoutTrailingYears = cleaned
@@ -78,7 +83,7 @@ function parseDegreeDashInstitutionLine(line: string): {
   );
   if (!m) return null;
   const degreePart = m[1].trim();
-  const institutionPart = m[2].trim().replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '').trim();
+  let institutionPart = m[2].trim().replace(/\s*[\(\[]\s*(?:19|20)\d{2}\s*[\)\]]\s*$/i, '').trim();
   const yearText = (m[3] || '').trim();
   if (!degreePart || !institutionPart) return null;
   // Reject year fragments miscaptured from "Degree, School (2015-2017)".
@@ -88,7 +93,22 @@ function parseDegreeDashInstitutionLine(line: string): {
   if (detectDegreeFromLine(degreePart).confidence < 30 && !lineHasDegreeSignal(degreePart)) {
     return null;
   }
-  return { degree: degreePart, institution: institutionPart, yearText };
+
+  // "Degree – Field Institution" (e.g. "M.Sc. – Biotechnology I.E.H.E.")
+  let fieldOfStudy = '';
+  const fieldThenAcronym = institutionPart.match(
+    /^([A-Z][A-Za-z/&\s-]{2,48}?)\s+((?:[A-Z]\.){2,}[A-Z]?\.?)$/
+  );
+  const fieldThenCollege = institutionPart.match(
+    /^([A-Z][A-Za-z/&\s-]{2,40}?)\s+(.+\b(?:college|university|institute|school|academy|vidyalaya|vidyalay)\b.*)$/i
+  );
+  const split = fieldThenAcronym || fieldThenCollege;
+  if (split) {
+    fieldOfStudy = split[1].trim();
+    institutionPart = split[2].trim();
+  }
+
+  return { degree: degreePart, institution: institutionPart, yearText, fieldOfStudy };
 }
 
 function isYearFragmentInstitution(value: string): boolean {
@@ -211,6 +231,17 @@ function pickBestDegree(lines: string[]): {
 function pickBestField(lines: string[]): FieldPick<string> {
   let best: FieldPick<string> = { value: '', confidence: 0 };
   for (const line of expandHeaderSegments(lines)) {
+    // City/state lines under a degree are locations, not fields of study.
+    if (
+      looksLikeStandaloneLocationLine(line) ||
+      (/^[A-Z][a-zA-Z .'-]{2,40}$/.test(line) &&
+        !/\b(?:science|engineering|technology|arts|commerce|management|studies|biology|chemistry|physics|mathematics|biotech|computer|information|medicine|law|account)\b/i.test(
+          line
+        ) &&
+        line.split(/\s+/).length <= 3)
+    ) {
+      continue;
+    }
     const det = detectFieldFromLine(line);
     if (det.confidence > best.confidence) {
       best = { value: det.fieldOfStudy, confidence: det.confidence };
@@ -299,7 +330,12 @@ function computeOverallConfidence(fc: EducationFieldConfidence): number {
 export function buildEducationFromBlock(block: EducationRawBlock): CustomExtractedEducation {
   const headerLines = block.headerText
     .split('\n')
-    .map((l) => l.trim().replace(/^[\s•●\-–—*·▪○]+\s*/, ''))
+    .map((l) =>
+      l
+        .trim()
+        .replace(/^[\s•●\-–—*·▪○]+\s*/, '')
+        .replace(/^[oO]\s+(?=\S)/, '')
+    )
     .filter(Boolean);
   const allLines = [...headerLines, ...block.bodyLines.map((l) => l.trim()).filter(Boolean)];
 
@@ -319,7 +355,7 @@ export function buildEducationFromBlock(block: EducationRawBlock): CustomExtract
     ) {
       degreePick = {
         degree: compactDegree,
-        fieldFromDegree: deg.fieldOfStudy || '',
+        fieldFromDegree: compact.fieldOfStudy || deg.fieldOfStudy || '',
         confidence: Math.max(deg.confidence, 72),
       };
     }
@@ -400,7 +436,15 @@ export function buildEducationFromBlock(block: EducationRawBlock): CustomExtract
     institutionConf = bestInst.confidence;
   }
 
-  const fieldOfStudy = fieldPick.value || degreePick.fieldFromDegree;
+  // Prefer field recovered from "Degree – Field Institution" over city mis-picks.
+  let fieldOfStudy = degreePick.fieldFromDegree || '';
+  if (
+    !fieldOfStudy &&
+    fieldPick.value &&
+    !looksLikeStandaloneLocationLine(fieldPick.value)
+  ) {
+    fieldOfStudy = fieldPick.value;
+  }
   const { description, achievements, coursework, confidence: descConf } =
     extractDescriptionFromBlock(block.bodyLines);
 

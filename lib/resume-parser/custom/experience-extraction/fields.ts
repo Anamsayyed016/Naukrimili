@@ -2,7 +2,7 @@
  * Per-block field assembly and confidence aggregation.
  */
 
-import { detectCompanyFromLine, looksLikeInstitutionalEmployer, isIndustrySectorTagline, isEmployerAffiliationTagline } from './company';
+import { detectCompanyFromLine, looksLikeInstitutionalEmployer, isIndustrySectorTagline, isEmployerAffiliationTagline, stripCompanyLineEmploymentMeta } from './company';
 import { isTenureOrDateOnlyHeaderLine, parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine, scoreDesignationCandidate, stripTrailingEmploymentDates } from './designation';
 import { extractDescriptionFromBlock } from './description';
@@ -564,8 +564,9 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
         detectCompanyFromLine(line).confidence >= 40)
     ) {
       const det = detectCompanyFromLine(line);
+      const cleaned = stripCompanyLineEmploymentMeta(det.company || line);
       company = {
-        value: det.company || line,
+        value: cleaned || det.company || line,
         confidence: Math.max(det.confidence, looksLikeInstitutionalEmployer(line) ? 70 : 58),
       };
     }
@@ -684,6 +685,49 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   // Sector / affiliation taglines are never locations or employers.
   if (finalCompany.value && (isIndustrySectorTagline(finalCompany.value) || isEmployerAffiliationTagline(finalCompany.value))) {
     finalCompany = { value: '', confidence: 0 };
+  }
+
+  // Clean ATS meta from whichever company source won.
+  if (finalCompany.value) {
+    const cleaned = stripCompanyLineEmploymentMeta(finalCompany.value);
+    if (cleaned && cleaned !== finalCompany.value) {
+      finalCompany = { value: cleaned, confidence: Math.max(finalCompany.confidence, 62) };
+    }
+  }
+
+  // Job-title string in company slot with empty designation — swap / recover employer from headers.
+  if (
+    finalCompany.value &&
+    (!finalDesignation.value || finalDesignation.confidence < 28) &&
+    ((looksLikeJobTitleLine(finalCompany.value) && !looksLikeCompanyNameLine(finalCompany.value)) ||
+      detectDesignationFromLine(finalCompany.value).confidence >= 40 ||
+      scoreDesignationCandidate(finalCompany.value) >= 40)
+  ) {
+    const misplacedTitle = finalCompany.value;
+    finalDesignation = {
+      value: cleanDesignationValue(misplacedTitle),
+      confidence: Math.max(finalDesignation.confidence, 70),
+    };
+    finalCompany = { value: '', confidence: 0 };
+    for (const line of headerLines) {
+      if (lineLooksLikeTenureExperience(line) || isCondensedTenureExperienceLine(line)) continue;
+      const cleanedLine = stripCompanyLineEmploymentMeta(line);
+      if (!cleanedLine || cleanedLine.toLowerCase() === misplacedTitle.toLowerCase()) continue;
+      if (looksLikeJobTitleLine(cleanedLine) && !looksLikeCompanyNameLine(cleanedLine)) continue;
+      const det = detectCompanyFromLine(cleanedLine);
+      if (
+        det.confidence >= 38 ||
+        looksLikeInstitutionalEmployer(cleanedLine) ||
+        isPlausibleExperienceCompany(cleanedLine) ||
+        looksLikeCompanyNameLine(cleanedLine)
+      ) {
+        finalCompany = {
+          value: stripCompanyLineEmploymentMeta(det.company || cleanedLine),
+          confidence: Math.max(det.confidence, 60),
+        };
+        break;
+      }
+    }
   }
 
   const locationPick = pickBestLocation(headerLines, finalCompany.value);

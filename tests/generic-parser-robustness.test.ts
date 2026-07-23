@@ -146,4 +146,115 @@ describe('generic resume parser robustness', () => {
     const langs = extractLanguagesFromSection('English (Fluent) • Hindi (Native)');
     expect(langs.map((l) => l.name.toLowerCase()).sort()).toEqual(['english', 'hindi']);
   });
+
+  it('strips Start Date / city-state meta from ATS employer header lines', () => {
+    const { stripCompanyLineEmploymentMeta } = require('@/lib/resume-parser/custom/experience-extraction/company');
+    const cleaned = stripCompanyLineEmploymentMeta(
+      'Acme Hygiene Films Private Limited. Vadodara, Gujarat. Start Date: December 2025 to Current'
+    );
+    expect(cleaned).toMatch(/^Acme Hygiene Films Private Limited$/i);
+    expect(cleaned).not.toMatch(/Start Date/i);
+    expect(cleaned).not.toMatch(/Vadodara/i);
+  });
+
+  it('parses title-over-company blocks with Start Date: labels', () => {
+    const section = [
+      'QUALITY ASSISTANT MANAGER',
+      'Acme Hygiene Films Private Limited. Vadodara, Gujarat. Start Date: December 2025 to Current',
+      'o Leading the Quality Assurance team to ensure compliance with company standards.',
+      'SENIOR QA EXECUTIVE',
+      'Beta Manufacturing India Private Limited. Ahmedabad, Gujarat. Start Date: May 2024 to November 2025',
+      'o Responsible for conducting quality checks on incoming raw materials.',
+      'MICROBIOLOGIST',
+      'Gamma Aqua Solutions Private Limited. Bhopal, Madhya Pradesh. Start Date: March 2018 to February 2019.',
+      'o Ensured product safety by conducting microbiological testing.',
+    ].join('\n');
+
+    const exps = extractExperiencesFromSection(section);
+    expect(exps.length).toBeGreaterThanOrEqual(3);
+    expect(exps[0].designation).toMatch(/QUALITY ASSISTANT MANAGER/i);
+    expect(exps[0].company).toMatch(/Acme Hygiene Films Private Limited/i);
+    expect(exps[0].company).not.toMatch(/Start Date/i);
+    expect(exps[0].company).not.toMatch(/Vadodara/i);
+    const micro = exps.find((e) => /MICROBIOLOGIST/i.test(e.designation || ''));
+    expect(micro).toBeTruthy();
+    expect(micro?.company).toMatch(/Gamma Aqua Solutions/i);
+    expect(micro?.company).not.toMatch(/MICROBIOLOGIST/i);
+  });
+
+  it('splits Degree – Field Institution education rows and strips hollow o bullets', () => {
+    const section = [
+      'o M.Sc. – Biotechnology I.E.H.E.',
+      'Bhopal',
+      '2015-2017',
+      'o B.Sc. – Biotechnology Govt. Home Science College',
+      'Hoshangabad',
+      '2012-2015',
+    ].join('\n');
+    const edus = extractEducationFromSection(section);
+    expect(edus.length).toBeGreaterThanOrEqual(2);
+    expect(edus[0].degree).toMatch(/M\.?\s*Sc/i);
+    expect(edus[0].degree).not.toMatch(/^o\s/i);
+    expect(edus[0].institution).toMatch(/I\.E\.H\.E/i);
+    expect(edus[0].institution).not.toMatch(/Biotechnology/i);
+    expect(edus[1].degree).toMatch(/B\.?\s*Sc/i);
+    expect(edus[1].institution).toMatch(/Home Science College/i);
+  });
+
+  it('keeps award lines that mention employers and stops achievements at skills headings', () => {
+    const { parseAchievementsFromSection } = require('@/lib/resume-parser/custom/achievements-extraction/parse');
+    const { shouldKeepAsGlobalAchievement } = require('@/lib/resume-parser/field-classification');
+    const { sanitizeAchievementEntry } = require('@/lib/resume-parser/import-sanitize');
+    const section = [
+      'o Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Acme Material Pvt. Ltd., Bhopal.',
+      'o Certified As ‘‘Quality Star” For the Year 2020-21 In Acme Material Pvt. Ltd., Bhopal.',
+      'INDUSTRIAL SKILLS',
+      'o Documentation, SOPs, Work instruction, & OPL.',
+      'o RCA, CAPA, 6W2H, 07-QC Tools, 8D.',
+    ].join('\n');
+    const parsed = parseAchievementsFromSection(section);
+    expect(parsed.length).toBe(2);
+    expect(parsed.some((a: { text: string }) => /Corona Warrior/i.test(a.text))).toBe(true);
+    expect(parsed.some((a: { text: string }) => /Quality Star/i.test(a.text))).toBe(true);
+    expect(parsed.every((a: { text: string }) => !/Documentation, SOPs/i.test(a.text))).toBe(true);
+    expect(
+      shouldKeepAsGlobalAchievement(
+        'Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Acme Material Pvt. Ltd., Bhopal.'
+      )
+    ).toBe(true);
+    expect(
+      shouldKeepAsGlobalAchievement(
+        'Certified As ‘‘Quality Star” For the Year 2020-21 In Acme Material Pvt. Ltd., Bhopal.'
+      )
+    ).toBe(true);
+    expect(
+      sanitizeAchievementEntry(
+        'Certified As ‘‘Quality Star” For the Year 2020-21 In Acme Material Pvt. Ltd., Bhopal.'
+      )
+    ).toMatch(/Quality Star/i);
+  });
+
+  it('rejects contact-label debris as skills and detects industrial skills headings', () => {
+    const { isValidSkillCandidate } = require('@/lib/resume-parser/custom/skills-intelligence/validate');
+    const { collectFromSkillsSection } = require('@/lib/resume-parser/custom/skills-intelligence/collect');
+    const { scoreHeadingKeywords } = require('@/lib/resume-parser/custom/section-detection/taxonomy');
+    expect(isValidSkillCandidate('Mobile NO: Email ID')).toBe(false);
+    expect(isValidSkillCandidate('Dob: 01')).toBe(false);
+    expect(isValidSkillCandidate('ISO 14001')).toBe(true);
+    const skills = collectFromSkillsSection(
+      [
+        'including ISO 9001, ISO 14001, ISO 45001, OEKO-TEX Standard 100',
+        'Mobile No: +91-8602148983 Email Id: person@example.com',
+        'DOB: 01/10/1995',
+        'JANE DOE',
+      ].join('\n')
+    );
+    const names = skills.map((s: { raw: string; normalized: string }) =>
+      String(s.normalized || s.raw || '').toLowerCase()
+    );
+    expect(names.some((n: string) => n.includes('iso 14001'))).toBe(true);
+    expect(names.some((n: string) => /mobile|email|dob|jane/.test(n))).toBe(false);
+    const industrial = scoreHeadingKeywords('industrial skills');
+    expect((industrial.skills ?? 0)).toBeGreaterThan(50);
+  });
 });

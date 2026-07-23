@@ -1961,7 +1961,9 @@ const RESUME_METADATA_LINE_RE: RegExp[] = [
   /\b(pin\s*code|postal\s+code|zip\s+code)\b/i,
   /^reading\b/i,
   /\blistening\s+(to\s+)?music\b/i,
-  /^certif/i,
+  // Section headings only — do NOT match award lines like "Certified As …".
+  /^certifications?\s*:?\s*$/i,
+  /^certificates?\s*:?\s*$/i,
   /^language(s)?\s*$/i,
   /^skills?\s*$/i,
   /^technical\s+skills?\s*$/i,
@@ -3401,14 +3403,51 @@ export function isCondensedTenureExperienceLine(value: unknown): boolean {
 }
 
 export function sanitizeExperienceCompanyValue(value: unknown): string {
-  const s = sanitizeFieldText(value, 160);
+  let s = sanitizeFieldText(value, 160);
   if (!s || isExperienceDateOrDurationToken(s)) return '';
   // Builder/canonical entry ids must never occupy the company slot.
   if (/^exp[-_]/i.test(s)) return '';
   if (isExperienceBlurbFragment(s)) return '';
   // Whole condensed tenure headers must never become the company field.
   if (isCondensedTenureExperienceLine(s)) return '';
-  return s;
+
+  // Strip ATS "Start Date:" / trailing city-state meta from employer strings.
+  s = s
+    .replace(
+      /\s*(?:[.,;|]\s*)?(?:start\s*date|end\s*date|duration|period|tenure|dates?)\s*[:\-–—]\s*.+$/i,
+      ''
+    )
+    .trim();
+  s = s
+    .replace(
+      /\s*[.,;|]\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s*(?:[-–—]|to|till|until|present|current).*$/i,
+      ''
+    )
+    .trim();
+  const afterSuffix = s.match(
+    /^(.+?\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|limited|llp|inc\.?|corp\.?|gmbh|plc))\s*[.,]\s+(.+)$/i
+  );
+  if (afterSuffix) {
+    const core = afterSuffix[1].trim();
+    const tail = afterSuffix[2].trim();
+    if (
+      tail.length >= 3 &&
+      tail.length <= 80 &&
+      !/\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|limited|llp|inc\.?)\b/i.test(tail) &&
+      (/^[A-Z][A-Za-z .'-]+(?:,\s*[A-Z][A-Za-z .'-]+)?\.?$/.test(tail) ||
+        looksLikeStandaloneLocationLine(tail) ||
+        isLikelyLocationFragment(tail))
+    ) {
+      s = core;
+    }
+  }
+  s = s.replace(/[.,;:\s]+$/g, '').trim();
+  if (!s || isExperienceDateOrDurationToken(s) || looksLikeJobTitleLine(s)) return '';
+  // Occupational single-token titles must never occupy the company slot.
+  if (/^[A-Za-z][A-Za-z'-]{3,30}(?:ologist|ician|ographer|otherapist|urgeon|entist|chemist|physicist)$/i.test(s)) {
+    return '';
+  }
+  return sanitizeFieldText(s, 160);
 }
 
 /** Prefer the longer whole value when one field is a partial prefix of the other. */
@@ -3607,7 +3646,7 @@ export function sanitizeExperienceDateValue(value: unknown): string {
 }
 
 const JOB_TITLE_HINT_RE =
-  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources|production|dispatch|warehouse|logistics)\b/i;
+  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources|production|dispatch|warehouse|logistics|microbiologist|biologist|chemist|pharmacist|electrician|technician|pathologist|radiologist|cardiologist|physiotherapist|dietitian|optometrist|veterinarian|librarian|statistician)\b|[A-Za-z][A-Za-z'-]{3,24}(?:ologist|ician|ographer|otherapist|urgeon|entist)\b/i;
 
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
@@ -3659,21 +3698,36 @@ export function looksLikeStandaloneLocationLine(text: string): boolean {
 const TECH_SKILL_AS_COMPANY_RE =
   /^(python3?|django|flask|fastapi|react(?:\.?js)?|node\.?js|javascript|typescript|java|kotlin|swift|ruby|php|laravel|express|next\.?js|vue\.?js|angular|sql|mysql|postgresql|mongodb|redis|docker|kubernetes|aws|azure|gcp|html5?|css3?|git|go|golang|rust|c\+\+|c#|\.net)$/i;
 
-/** Split "Acme Pvt Ltd, Indore, Madhya Pradesh" into employer + location. */
+/** Split "Acme Pvt Ltd, Indore, Madhya Pradesh" (or "Ltd. City, State") into employer + location. */
 export function splitCompanyTrailingLocation(text: string): { company: string; location: string } | null {
   const t = sanitizeFieldText(text, 160);
-  if (!t || !/,/.test(t)) return null;
-  if (!/\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp)\b/i.test(t)) {
+  if (!t) return null;
+  if (!/\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp|private\s+limited)\b/i.test(t)) {
     return null;
   }
-  const m = t.match(
-    /^(.+?\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp))\.?\s*,\s*(.+)$/i
+  // Comma form: "Acme Pvt Ltd, Indore, Madhya Pradesh"
+  const comma = t.match(
+    /^(.+?\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp|private\s+limited))\.?\s*,\s*(.+)$/i
   );
+  // Period form common on ATS exports: "Acme Private Limited. Vadodara, Gujarat"
+  const period = !comma
+    ? t.match(
+        /^(.+?\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp|private\s+limited))\s*\.\s+([A-Z].+)$/i
+      )
+    : null;
+  const m = comma || period;
   if (!m) return null;
   const company = m[1].trim();
-  const location = m[2].trim();
+  const location = m[2]
+    .trim()
+    .replace(
+      /\s*(?:[.,;|]\s*)?(?:start\s*date|end\s*date|duration|period|tenure|dates?)\s*[:\-–—]\s*.+$/i,
+      ''
+    )
+    .trim();
   if (company.length < 4 || location.length < 3) return null;
   if (looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) return null;
+  if (/\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?)\b/i.test(location)) return null;
   return { company, location };
 }
 

@@ -276,12 +276,63 @@ export function scoreCompanyCandidate(text: string): number {
   return Math.min(100, Math.round(score));
 }
 
+/**
+ * Strip employment header metadata that often trails employer names on ATS CVs:
+ * "Acme Pvt. Ltd. City, State. Start Date: Jan 2020 to Current"
+ * Generic — label-driven, not company/title specific.
+ */
+export function stripCompanyLineEmploymentMeta(text: string): string {
+  let t = String(text || '').trim();
+  if (!t) return '';
+
+  // Labeled date / tenure suffixes.
+  t = t
+    .replace(
+      /\s*(?:[.,;|]\s*)?(?:start\s*date|end\s*date|duration|period|tenure|dates?)\s*[:\-–—]\s*.+$/i,
+      ''
+    )
+    .trim();
+
+  // Trailing open date ranges after punctuation: ". Nov 2023 to May 2024."
+  t = t
+    .replace(
+      /\s*[.,;|]\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s*(?:[-–—]|to|till|until|present|current).*$/i,
+      ''
+    )
+    .trim();
+
+  // After a hard legal suffix, drop trailing ". City, State" / ", City, State".
+  const afterSuffix = t.match(
+    /^(.+?\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|limited|llp|inc\.?|incorporated|corporation|corp\.?|gmbh|plc))\s*[.,]\s+(.+)$/i
+  );
+  if (afterSuffix) {
+    const core = afterSuffix[1].trim();
+    const tail = afterSuffix[2].trim();
+    // Location-like tails: City, State / City only — not another org name.
+    if (
+      tail.length >= 3 &&
+      tail.length <= 80 &&
+      !HARD_COMPANY_SUFFIX_RE.test(tail) &&
+      (/^[A-Z][A-Za-z .'-]+(?:,\s*[A-Z][A-Za-z .'-]+)?\.?$/.test(tail) ||
+        /\b(?:andhra|arunachal|assam|bihar|chhattisgarh|goa|gujarat|haryana|himachal|jharkhand|karnataka|kerala|madhya\s+pradesh|maharashtra|manipur|meghalaya|mizoram|nagaland|odisha|punjab|rajasthan|sikkim|tamil\s+nadu|telangana|tripura|uttar\s+pradesh|uttarakhand|west\s+bengal|delhi|mumbai|bengaluru|bangalore|chennai|hyderabad|kolkata|pune|ahmedabad|vadodara|nashik|bhopal|indore)\b/i.test(
+          tail
+        ))
+    ) {
+      t = core;
+    }
+  }
+
+  return t.replace(/[.,;:\s]+$/g, '').trim();
+}
+
 export function detectCompanyFromLine(text: string): CompanyDetection {
-  const trimmed = text.trim();
-  if (!trimmed) return { company: '', confidence: 0 };
-  if (isEmployerAffiliationTagline(trimmed) || isIndustrySectorTagline(trimmed)) {
+  const trimmedRaw = text.trim();
+  if (!trimmedRaw) return { company: '', confidence: 0 };
+  if (isEmployerAffiliationTagline(trimmedRaw) || isIndustrySectorTagline(trimmedRaw)) {
     return { company: '', confidence: 0 };
   }
+
+  const trimmed = stripCompanyLineEmploymentMeta(trimmedRaw) || trimmedRaw;
 
   // Strip trailing " – City, State" location for scoring, keep employer core.
   const locStripped = trimmed

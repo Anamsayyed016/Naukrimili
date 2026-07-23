@@ -1065,15 +1065,21 @@ function isMisplacedAchievementLine(line: string): boolean {
   if (
     t.length <= 48 &&
     (looksLikeStandaloneLocationLine(t) || isLikelyLocationFragment(t)) &&
-    !/\b(award|achiev|recogniz|won|honor|honour|rank|percentile|scholarship|medal)\b/i.test(t)
+    !/\b(award|achiev|recogniz|won|honor|honour|rank|percentile|scholarship|medal|certified\s+as)\b/i.test(t)
   ) {
     return true;
   }
   if (/^\d+[\.\):\-]\s+\S/.test(t) && t.length < 100) return true;
-  if (ACHIEVEMENT_DEGREE_LINE_RE.test(t) && !/\b(achieved|award|won|recognized|completed project)\b/i.test(t)) {
+  if (ACHIEVEMENT_DEGREE_LINE_RE.test(t) && !/\b(achieved|award|won|recognized|completed project|certified\s+as)\b/i.test(t)) {
     return true;
   }
-  if (ACHIEVEMENT_FIRM_LINE_RE.test(t) && t.length < 160) return true;
+  // Employer mentions are common inside genuine awards ("… at Acme Pvt. Ltd.").
+  // Only treat firm lines as misplaced when they lack award/recognition signals.
+  const looksLikeAward =
+    /\b(?:award(?:ed|s)?|recogniz(?:ed|ition)|honou?r(?:ed|s)?|certified\s+as|named\s+as|selected\s+as|won|medal|distinction|employee\s+of)\b/i.test(
+      t
+    );
+  if (ACHIEVEMENT_FIRM_LINE_RE.test(t) && t.length < 160 && !looksLikeAward) return true;
   return false;
 }
 

@@ -1,111 +1,167 @@
 {
-  "fullName": "Hrishi Raj Soni",
-  "email": "hrishisoni4@gmail.com",
-  "phone": "(756) 677-0072",
-  "location": "Kolar Road, Bhopal (M.P.)",
-  "linkedin": "https://www.linkedin.com/in/hrishiraj-soni-548760a6",
+  "fullName": "SHEETAL SINGH",
+  "email": "shee.singh10@gmail.com",
+  "phone": "+91 86021 48983",
+  "location": "",
+  "linkedin": "",
   "portfolio": "",
-  "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board and\nCommittee management, stock exchange coordination, due diligence, governance advisory, and\nregulatory stakeholder management including support for IPO-related compliance activities.",
+  "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional expertise in microbiological testing within\ndistillery and brewery environments, ensuring product safety and compliance with industry standards.\nQualified Internal Auditor for QAKE, with hands-on experience in supplier evaluation for raw materials and packaging\nmaterials. Actively involved in preparing for and supporting audits aligned with international quality and regulatory standards,\nDedicated to maintaining the highest standards in product quality, process optimisation, and regulatory compliance, with a\nstrong focus on quality assurance and workplace safety across diverse manufacturing environments.",
   "skills": [
-    "Entity Formation (pvt Ltd, Llp, Opc, Section 8)",
-    "Corporate Compliance & Filings (roc, Sebi, Annual Filings)",
-    "Board Processes & Corporate Governance",
-    "Legal Documentation & Contract Management",
-    "DUE Diligence & Regulatory Filings",
-    "Document Management & Record Keeping",
-    "Client & Stakeholder Communication",
-    "Deadline Tracking & Workflow Management"
+    "ISO 9001",
+    "ISO 14001",
+    "ISO 45001",
+    "ISO 13485",
+    "ISO 22716",
+    "Oeko-tex Standard 100"
   ],
   "experience": [
     {
-      "company": "Dilip Buildcon Limited",
-      "position": "Manager – Company Secretary",
-      "startDate": "2023",
+      "company": "Safeco Hygiene Films Private Limited",
+      "position": "QUALITY ASSISTANT MANAGER",
+      "startDate": "2025-12",
       "current": true,
-      "description": "preparation/review of regulatory documentation, liaison with intermediaries, and monitoring\n\nlisting requirements.",
+      "description": "quality, and drive continuous process improvements for Brethable & Non Breathable Films.",
       "achievements": [
-        "Manage end-to-end compliance under SEBI LODR Regulations and Companies Act provisions.",
-        "Prepare Board and Committee agendas, notices, resolutions, and minutes.",
-        "Maintain statutory registers and corporate records.",
-        "Coordinate stock exchange filings and regulatory submissions.",
-        "Handle XBRL filing and statutory reporting requirements.",
-        "Liaise with auditors, legal teams, and regulatory stakeholders.",
-        "Support due diligence processes and lender documentation.",
-        "Track compliance calendars to ensure timely statutory compliance.",
-        "Supported IPO-related compliance activities including coordination of due diligence,"
+        "Leading the Quality Assurance team to ensure compliance with company standards, improve product"
       ]
     },
     {
-      "company": "Kamal Sponge Steel and Power Ltd",
-      "position": "Assistant Manager – Company Secretary",
-      "startDate": "2021",
-      "endDate": "2023",
+      "company": "Nanliu Manufacturing India Private Limited",
+      "position": "SENIOR QA EXECUTIVE",
+      "startDate": "2024-05",
+      "endDate": "2025-11",
       "current": false,
-      "description": "compliance management.",
+      "description": "packaging materials, while overseeing supplier qualification and Yearly Supplier Audits and compliance\n\ncustomer to the production, sales and planning teams.\n\ndepartments. Further communication of Corrective and preventive actions to customers along with Effectiveness.\n\nunachieved targets.\n\ncommunicate feedback to all relevant departments through meetings.",
       "achievements": [
-        "Managed ROC compliance and statutory filings.",
-        "Maintained corporate records and annual compliance activities.",
-        "Coordinated with banks and financial institutions.",
-        "Supported debt syndication activities and compliance documentation.",
-        "Contributed toward reduction in borrowing costs on ₹500 Cr facility through effective"
+        "Responsible for conducting quality checks on all incoming raw materials, including staple fibres and",
+        "Responsible for explaining and communicating technical standards for new or existing products handed over by the",
+        "Handling overall Complaints from Customers, and initiating Root cause analysis for complaints with relevant",
+        "Conducting Yearly SIP/Internal Audit based on QAKE and ISO, further forming audit observation reports.",
+        "Review and track quality objectives monthly at the site, display progress regularly, and initiate corrective actions for any",
+        "Statistical analysis of Quality Test Results for all products.",
+        "Monthly connect with Customer and discuss ongoing Rejections, Breakdowns and action taken for complaints.",
+        "Managing Document Control Centre (DCC) for the site, along with the Internal Health Check.",
+        "Conducting Monthly 6s Audit for the site and preparation of audit reports and action effectiveness tracking.",
+        "Random Inspection of the overall sites process from Input to output for their effectiveness.",
+        "Tracking Sites Housekeeping & Pest Control program through Bi-weekly meetings with the agency and owner.",
+        "Handling Lab Coop with P&G China site, and SOI Test sample collections and result tracking with Galab Lab.",
+        "Handling Calibration of site equipment & Validation of Lab Testing Equipment.",
+        "Independently manage customer visits on-site for Nonwovens and Wetwipes, document their observations, and",
+        "Conducted employee training sessions on quality and safety standards to maintain compliance and awareness."
       ]
     },
     {
-      "company": "Velnik India Pvt. Ltd.",
-      "position": "Company Secretary – Consultant",
-      "startDate": "2020",
-      "endDate": "2021",
+      "company": "Jindal Polyfilms Limited",
+      "position": "QA EXECUTIVE",
+      "startDate": "2023-11",
+      "endDate": "2024-05",
+      "current": false,
+      "description": "collaboration.",
+      "achievements": [
+        "Led new product development based on customer requirements and market trends.",
+        "Managed customer and consumer complaints, driving resolution through root cause analysis and cross-functional",
+        "Key auditee for P&G QAKE, OEKO-TEX, IMS GMP, ISO, and customer/third-party audits.",
+        "Ensured compliance with quality standards, regulatory requirements, and market expectations.",
+        "Spearheaded process improvements and corrective actions to enhance product quality and customer satisfaction."
+      ]
+    },
+    {
+      "company": "SOM Distelleries & Breweries Limited",
+      "position": "QC EXECUTIVE",
+      "startDate": "2023-01",
+      "endDate": "2023-11",
+      "current": false,
+      "description": "quality and safety standards.",
+      "achievements": [
+        "Conducted microbiological testing of beer, including raw materials, in-process samples, and finished products, to ensure",
+        "Monitored and analysed fermentation processes to identify and address microbiological deviations.",
+        "Implemented and maintained aseptic practices across production areas to prevent contamination.",
+        "Performed environmental monitoring of the plant, including water, air, and surfaces, to ensure compliance with GMP.",
+        "Conducted yeast viability and vitality tests to optimise fermentation efficiency and product quality.",
+        "Investigated microbial-related quality issues and collaborated with cross-functional teams for CAPA.",
+        "Prepared and maintained microbiological reports and documentation for audits and compliance with ISO and GMP"
+      ]
+    },
+    {
+      "company": "Yanjan New Material India Private Limited",
+      "position": "QA ANALYST",
+      "startDate": "2019-03",
+      "endDate": "2023-01",
       "current": false,
       "description": "",
       "achievements": [
-        "Drafted and reviewed agreements, NDAs, and commercial contracts.",
-        "Managed trademark filing and legal documentation.",
-        "Coordinated with external legal counsel."
+        "Complete Products Quality Lab Testing for Perforated Poly Films and generation of Reports.",
+        "E-COA formation and release at the P&G portal.",
+        "Sample Retention Room management and stored samples tracking, along with complete Lab Management."
       ]
     },
     {
-      "company": "Various Clients (Consultancy Practice)",
-      "position": "Company Secretary",
-      "startDate": "2018",
-      "endDate": "2020",
+      "company": "MV Aqua Solutions Private Limited",
+      "position": "MICROBIOLOGIST",
+      "startDate": "2018-03",
+      "endDate": "2019-02",
       "current": false,
       "description": "",
       "achievements": [
-        "Incorporated 25+ entities including Private Limited Companies, LLPs, and OPCs.",
-        "Managed complete lifecycle compliance and statutory filings.",
-        "Prepared due diligence and search reports."
+        "As a Microbiologist in a water packaging plant, I ensured product safety and quality by conducting microbiological testing.",
+        "Ensuring compliance with regulatory standards such as ISO and BIS."
       ]
     }
   ],
   "education": [
     {
-      "institution": "",
-      "degree": "M.Com",
-      "field": "Qualified CS, ICSI",
-      "startDate": "",
-      "endDate": ""
-    },
-    {
-      "institution": "DAVV",
-      "degree": "B. Com",
-      "field": "",
+      "institution": "I.E.H.E.",
+      "degree": "M.Sc.",
+      "field": "Biotechnology",
       "startDate": "2015",
       "endDate": "2017"
+    },
+    {
+      "institution": "Govt. Home Science College",
+      "degree": "B.Sc.",
+      "field": "Biotechnology",
+      "startDate": "2012",
+      "endDate": "2015"
     }
   ],
   "projects": [],
-  "certifications": [],
+  "certifications": [
+    {
+      "name": "o Participated in “ Suppliers Leadership Capability Boot Camp ”",
+      "issuer": "P&G. (Aug. 18",
+      "date": ""
+    },
+    {
+      "name": "o Participating in the First Time Manager Training program conducted",
+      "issuer": "Inspire Consultancy Service Pvt Ltd. (Nov.",
+      "date": "2024"
+    },
+    {
+      "name": "o Undergone 15 days of \"Training on Bioinformatics\" at Barkatullah University, Bhopal",
+      "issuer": "July'16",
+      "date": ""
+    },
+    {
+      "name": "Science College, Hoshangabad, MP for 5 days",
+      "issuer": "Dec'16",
+      "date": ""
+    },
+    {
+      "name": "o Attended Workshop on \"Instrumentation & techniques in Biotechnology by“I.E.H.E. Bhopal.",
+      "issuer": "Oct'15",
+      "date": ""
+    }
+  ],
   "languages": [],
   "hobbies": [],
   "achievements": [
-    "Independently managed compliance and filings for 25+ entities across structures",
-    "Drafted and negotiated 50+ legal agreements, reducing dependency on external counsel",
-    "Managed and protected trademark portfolio of 250+ marks",
-    "Supported credit rating improvement through structured disclosures and coordination."
+    "Certified As ‘‘Quality Star” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal.",
+    "Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal.",
+    "Certified As a ‘‘QAKE Internal Auditor’’ Trainer in Nanliu Manufacturing India Pvt. Ltd. (July 7 to July 9 2025)"
   ],
-  "confidence": 75,
-  "rawText": "Contact: 7566770072\nEmail: Hrishisoni4@gmail.com\nLinkedIn: https://www.linkedin.com/in/hrishiraj-soni-548760a6\n\nHrishi Raj Soni\nCompany Secretary\nAddress: Kolar Road, Bhopal (M.P.)\nProfile\nQualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board and\nCommittee management, stock exchange coordination, due diligence, governance advisory, and\nregulatory stakeholder management including support for IPO-related compliance activities.\nEducation\nQualified CS, ICSI|M.Com| B. Com, DAVV, Indore (2015-2017)\nProfessional Experience\nDilip Buildcon Limited – Bhopal, M.P.\nManager – Company Secretary (2023–Present)\nListed Infrastructure Conglomerate\n• Manage end-to-end compliance under SEBI LODR Regulations and Companies Act provisions.\n• Prepare Board and Committee agendas, notices, resolutions, and minutes.\n• Maintain statutory registers and corporate records.\n• Coordinate stock exchange filings and regulatory submissions.\n• Handle XBRL filing and statutory reporting requirements.\n• Liaise with auditors, legal teams, and regulatory stakeholders.\n• Support due diligence processes and lender documentation.\n• Track compliance calendars to ensure timely statutory compliance.\n• Supported IPO-related compliance activities including coordination of due diligence,\npreparation/review of regulatory documentation, liaison with intermediaries, and monitoring\nlisting requirements.\n\nKamal Sponge Steel and Power Ltd – Maihar, M.P.\nAssistant Manager – Company Secretary (2021–2023)\nGroup Company of KJS Cement (I) Ltd.\n• Managed ROC compliance and statutory filings.\n• Maintained corporate records and annual compliance activities.\n• Coordinated with banks and financial institutions.\n• Supported debt syndication activities and compliance documentation.\n\n• Contributed toward reduction in borrowing costs on ₹500 Cr facility through effective\ncompliance management.\n\nVelnik India Pvt. Ltd. – Indore, M.P.\nCompany Secretary – Consultant (2020–2021)\nFMCG Sector Company\n• Drafted and reviewed agreements, NDAs, and commercial contracts.\n• Managed trademark filing and legal documentation.\n• Coordinated with external legal counsel.\n\nVarious Clients (Consultancy Practice) – Bhopal, M.P.\nCompany Secretary (2018–2020)\n• Incorporated 25+ entities including Private Limited Companies, LLPs, and OPCs.\n• Managed complete lifecycle compliance and statutory filings.\n• Prepared due diligence and search reports.\n\nKey Skills\n• Entity Formation (Pvt Ltd, LLP, OPC, Section 8)\n• Corporate Compliance & Filings (ROC, SEBI, Annual Filings)\n• Board Processes & Corporate Governance\n• Legal Documentation & Contract Management\n• Due Diligence & Regulatory Filings\n• Document Management & Record Keeping\n• Client & Stakeholder Communication\n• Deadline Tracking & Workflow Management\n• IPO Compliance Support\n\nCareer Achievements\n• Independently managed compliance and filings for 25+ entities across structures\n• Drafted and negotiated 50+ legal agreements, reducing dependency on external counsel\n• Managed and protected trademark portfolio of 250+ marks\n• Supported credit rating improvement through structured disclosures and coordination.",
+  "confidence": 79,
+  "rawText": "SKILLS\nincluding ISO 9001, ISO 14001, ISO 45001, OEKO-TEX Standard 100, ISO 13485, and ISO 22716.\nMobile No: +91-8602148983 Email Id: Shee.singh10@gmail.com\nDOB: 01/10/1995\n\nSHEETAL SINGH\nPROFESSIONAL SUMMARY\nExperienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional expertise in microbiological testing within\ndistillery and brewery environments, ensuring product safety and compliance with industry standards.\nQualified Internal Auditor for QAKE, with hands-on experience in supplier evaluation for raw materials and packaging\nmaterials. Actively involved in preparing for and supporting audits aligned with international quality and regulatory standards,\nDedicated to maintaining the highest standards in product quality, process optimisation, and regulatory compliance, with a\nstrong focus on quality assurance and workplace safety across diverse manufacturing environments.\nWORK EXPERIENCE\nQUALITY ASSISTANT MANAGER\nSafeco Hygiene Films Private Limited. Vadodara, Gujarat. Start Date: December 2025 to Current\no Leading the Quality Assurance team to ensure compliance with company standards, improve product\nquality, and drive continuous process improvements for Brethable & Non Breathable Films.\nSENIOR QA EXECUTIVE\nNanliu Manufacturing India Private Limited. Ahmedabad, Gujarat. Start Date: May 2024 to November 2025\n\no Responsible for conducting quality checks on all incoming raw materials, including staple fibres and\npackaging materials, while overseeing supplier qualification and Yearly Supplier Audits and compliance\nprocesses.\no Responsible for explaining and communicating technical standards for new or existing products handed over by the\ncustomer to the production, sales and planning teams.\no Handling overall Complaints from Customers, and initiating Root cause analysis for complaints with relevant\ndepartments. Further communication of Corrective and preventive actions to customers along with Effectiveness.\no Conducting Yearly SIP/Internal Audit based on QAKE and ISO, further forming audit observation reports.\no Review and track quality objectives monthly at the site, display progress regularly, and initiate corrective actions for any\nunachieved targets.\no Statistical analysis of Quality Test Results for all products.\no Monthly connect with Customer and discuss ongoing Rejections, Breakdowns and action taken for complaints.\no Managing Document Control Centre (DCC) for the site, along with the Internal Health Check.\no Conducting Monthly 6s Audit for the site and preparation of audit reports and action effectiveness tracking.\no Random Inspection of the overall sites process from Input to output for their effectiveness.\no Tracking Sites Housekeeping & Pest Control program through Bi-weekly meetings with the agency and owner.\no Handling Lab Coop with P&G China site, and SOI Test sample collections and result tracking with Galab Lab.\no Handling Calibration of site equipment & Validation of Lab Testing Equipment.\no Independently manage customer visits on-site for Nonwovens and Wetwipes, document their observations, and\ncommunicate feedback to all relevant departments through meetings.\no Conducted employee training sessions on quality and safety standards to maintain compliance and awareness.\nQA EXECUTIVE\nJindal Polyfilms Limited. Nashik, Maharashtra. Start Date: Nov 2023 to May 2024.\n\no Led new product development based on customer requirements and market trends.\no Managed customer and consumer complaints, driving resolution through root cause analysis and cross-functional\ncollaboration.\no Key auditee for P&G QAKE, OEKO-TEX, IMS GMP, ISO, and customer/third-party audits.\no Ensured compliance with quality standards, regulatory requirements, and market expectations.\no Spearheaded process improvements and corrective actions to enhance product quality and customer satisfaction.\n\nQC EXECUTIVE\nSOM Distelleries & Breweries Limited. Bhopal, Madhya Pradesh. Start Date: Jan 2023 to Nov 2023.\n\no Conducted microbiological testing of beer, including raw materials, in-process samples, and finished products, to ensure\nquality and safety standards.\no Monitored and analysed fermentation processes to identify and address microbiological deviations.\no Implemented and maintained aseptic practices across production areas to prevent contamination.\no Performed environmental monitoring of the plant, including water, air, and surfaces, to ensure compliance with GMP.\no Conducted yeast viability and vitality tests to optimise fermentation efficiency and product quality.\no Investigated microbial-related quality issues and collaborated with cross-functional teams for CAPA.\no Prepared and maintained microbiological reports and documentation for audits and compliance with ISO and GMP\nstandards.\n\nQA ANALYST\nYanjan New Material India Private Limited. Bhopal, Madhya Pradesh. Start Date: March 2019 to Jan 2023.\n\no Complete Products Quality Lab Testing for Perforated Poly Films and generation of Reports.\no E-COA formation and release at the P&G portal.\no Sample Retention Room management and stored samples tracking, along with complete Lab Management.\n\nMICROBIOLOGIST\nMV Aqua Solutions Private Limited. Bhopal, Madhya Pradesh. Start Date: March 2018 to February 2019.\n\no As a Microbiologist in a water packaging plant, I ensured product safety and quality by conducting microbiological testing.\no Ensuring compliance with regulatory standards such as ISO and BIS.\nTRAINING & WORKSHOP\no Participated in “ Suppliers Leadership Capability Boot Camp ” by P&G. (Aug. 18\nth\nto 19\nth\n2025)\no Participating in the First Time Manager Training program conducted by Inspire Consultancy Service Pvt Ltd. (Nov. 2024\nto Jan. 2025)\no Undergone 6months of \"Dissertation Training\" at Hindustan Coca-Cola Beverage Pvt. Ltd., Bhopal.\no Undergone 15 days of \"Training on Bioinformatics\" at Barkatullah University, Bhopal (July'16)\no Training at Pinnacle Biomedical Research Institute (PBRI), Bhopal, on In-Vivo Experimentation and cytogenetics. (Jan\n27\nth\nto Feb. 02\nnd\n2016)\no Attended \"National Workshop & Training Programme “On \"Recent Molecular& Biological Techniques” in Govt. Home\nScience College, Hoshangabad, MP for 5 days (Dec'16)\no Attended Workshop on \"Instrumentation & techniques in Biotechnology by“I.E.H.E. Bhopal. (Oct'15)\nEDUCATION\no M.Sc. – Biotechnology I.E.H.E.\nBhopal\n2015-2017\no B.Sc. – Biotechnology Govt. Home Science College\nHoshangabad\n2012-2015\nACHIEVEMENTS\no Certified As ‘‘Quality Star” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal.\no Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal.\no Certified As a ‘‘QAKE Internal Auditor’’ Trainer in Nanliu Manufacturing India Pvt. Ltd. (July 7\nth\nto July 9\nth\n2025)\nINDUSTRIAL SKILLS\no Documentation, SOPs, Work instruction, & OPL.\no Audits ISO 9001:2015 ; 14001:2015; 45001:2018 and P&G QAKE.\no RCA, CAPA, 6W2H, 07-QC Tools, 8D.\no QACR-Quality Assurance Customer Relationship.\no FMEA, Pest control, Safety compliance.",
   "github": "",
-  "headline": "Company Secretary",
+  "headline": "",
   "designation": ""
 }

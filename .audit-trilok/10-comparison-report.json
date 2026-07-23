@@ -1,651 +1,760 @@
 {
-  "sourceTextChars": 3361,
-  "preparedChars": 3361,
-  "documentType": "TYPE_B_EXECUTIVE",
+  "pdf": "C:\\Users\\admin\\Downloads\\Sheetal Singh Resume 2026.pdf",
+  "extraction": {
+    "rawChars": 7293,
+    "preparedChars": 7110,
+    "pages": 2,
+    "recoveredFromStreams": false,
+    "documentType": "TYPE_A_ATS"
+  },
   "sectionLens": {
     "detectionVersion": 5,
-    "normalizedText": 3361,
-    "preamble": 180,
-    "summary": 483,
-    "experience": 1872,
-    "education": 58,
-    "skills": 375,
+    "normalizedText": 7110,
+    "preamble": 0,
+    "summary": 808,
+    "experience": 5348,
+    "education": 122,
+    "skills": 416,
     "projects": 0,
     "languages": 0,
-    "certifications": 0,
-    "achievements": 313,
+    "certifications": 834,
+    "achievements": 309,
     "hobbies": 0,
     "references": 0,
     "volunteer": 0,
     "publications": 0
   },
-  "structuredExp": 0,
+  "structuredExperienceRecovery": 0,
   "stages": {
-    "custom": {
+    "customParser": {
       "counts": {
-        "experience": 4,
-        "withCompany": 4,
-        "withTitle": 4,
+        "experience": 6,
+        "experienceWithCompany": 6,
+        "experienceWithTitle": 6,
         "projects": 0,
         "education": 2,
-        "certifications": 0,
-        "skills": 8,
+        "certifications": 5,
+        "skills": 6,
         "languages": 0,
-        "achievements": 4,
+        "achievements": 3,
         "hobbies": 0,
-        "summaryChars": 483,
-        "name": "Hrishi Raj Soni",
-        "email": "hrishisoni4@gmail.com",
-        "phone": "(756) 677-0072"
+        "summaryChars": 808,
+        "name": 1,
+        "email": 1,
+        "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Manager – Company Secretary",
-          "company": "Dilip Buildcon Limited",
-          "dates": "2023",
-          "descLen": 114
+          "title": "QUALITY ASSISTANT MANAGER",
+          "company": "Safeco Hygiene Films Private Limited",
+          "startDate": "2025-12",
+          "endDate": null,
+          "descLen": 88,
+          "bullets": 1
         },
         {
           "i": 1,
-          "title": "Assistant Manager – Company Secretary",
-          "company": "Kamal Sponge Steel and Power Ltd",
-          "dates": "2021 - 2023",
-          "descLen": 22
+          "title": "SENIOR QA EXECUTIVE",
+          "company": "Nanliu Manufacturing India Private Limited",
+          "startDate": "2024-05",
+          "endDate": "2025-11",
+          "descLen": 358,
+          "bullets": 15
         },
         {
           "i": 2,
-          "title": "Company Secretary – Consultant",
-          "company": "Velnik India Pvt. Ltd.",
-          "dates": "2020 - 2021",
-          "descLen": 0
+          "title": "QA EXECUTIVE",
+          "company": "Jindal Polyfilms Limited",
+          "startDate": "2023-11",
+          "endDate": "2024-05",
+          "descLen": 14,
+          "bullets": 5
         },
         {
           "i": 3,
-          "title": "Company Secretary",
-          "company": "Various Clients (Consultancy Practice)",
-          "dates": "2018 - 2020",
-          "descLen": 0
+          "title": "QC EXECUTIVE",
+          "company": "SOM Distelleries & Breweries Limited",
+          "startDate": "2023-01",
+          "endDate": "2023-11",
+          "descLen": 29,
+          "bullets": 7
+        },
+        {
+          "i": 4,
+          "title": "QA ANALYST",
+          "company": "Yanjan New Material India Private Limited",
+          "startDate": "2019-03",
+          "endDate": "2023-01",
+          "descLen": 0,
+          "bullets": 3
+        },
+        {
+          "i": 5,
+          "title": "MICROBIOLOGIST",
+          "company": "MV Aqua Solutions Private Limited",
+          "startDate": "2018-03",
+          "endDate": "2019-02",
+          "descLen": 0,
+          "bullets": 2
         }
       ],
       "education": [
         {
           "i": 0,
-          "title": "M.Com",
-          "company": null,
-          "dates": null,
-          "descLen": 0
+          "degree": "M.Sc.",
+          "institution": "I.E.H.E."
         },
         {
           "i": 1,
-          "title": "B. Com",
-          "company": "DAVV",
-          "dates": "2015 - 2017",
-          "descLen": 0
+          "degree": "B.Sc.",
+          "institution": "Govt. Home Science College"
         }
       ],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "v": "Entity Formation (pvt Ltd, Llp, Opc, Section 8)"
+          "value": "ISO 9001"
         },
         {
           "i": 1,
-          "v": "Corporate Compliance & Filings (roc, Sebi, Annual Filings)"
+          "value": "ISO 14001"
         },
         {
           "i": 2,
-          "v": "Board Processes & Corporate Governance"
+          "value": "ISO 45001"
         },
         {
           "i": 3,
-          "v": "Legal Documentation & Contract Management"
+          "value": "ISO 13485"
         },
         {
           "i": 4,
-          "v": "DUE Diligence & Regulatory Filings"
+          "value": "ISO 22716"
         },
         {
           "i": 5,
-          "v": "Document Management & Record Keeping"
-        },
-        {
-          "i": 6,
-          "v": "Client & Stakeholder Communication"
-        },
-        {
-          "i": 7,
-          "v": "Deadline Tracking & Workflow Management"
+          "value": "Oeko-tex Standard 100"
         }
       ],
-      "certs": [],
-      "langs": [],
+      "certifications": [
+        {
+          "i": 0,
+          "name": "o Participated in “ Suppliers Leadership Capability Boot Camp ”"
+        },
+        {
+          "i": 1,
+          "name": "o Participating in the First Time Manager Training program conducted"
+        },
+        {
+          "i": 2,
+          "name": "o Undergone 15 days of \"Training on Bioinformatics\" at Barkatullah University, Bhopal"
+        },
+        {
+          "i": 3,
+          "name": "Science College, Hoshangabad, MP for 5 days"
+        },
+        {
+          "i": 4,
+          "name": "o Attended Workshop on \"Instrumentation & techniques in Biotechnology by“I.E.H.E. Bhopal."
+        }
+      ],
+      "languages": [],
       "achievements": [
         {
           "i": 0,
-          "v": "Independently managed compliance and filings for 25+ entities across structures"
+          "value": "Certified As ‘‘Quality Star” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
         },
         {
           "i": 1,
-          "v": "Drafted and negotiated 50+ legal agreements, reducing dependency on external counsel"
+          "value": "Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
         },
         {
           "i": 2,
-          "v": "Managed and protected trademark portfolio of 250+ marks"
-        },
-        {
-          "i": 3,
-          "v": "Supported credit rating improvement through structured disclosures and coordination."
+          "value": "Certified As a ‘‘QAKE Internal Auditor’’ Trainer in Nanliu Manufacturing India Pvt. Ltd. (July 7 to July 9 2025)"
         }
       ],
-      "hobbies": [],
-      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board and\nCommittee management, stock exchange coordination, due diligence, governance advisory, and\nregulat"
+      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional expertise in microbiological testing within\ndistillery and brewery environments, ensuring product safet",
+      "personal": {
+        "name": "SHEETAL SINGH",
+        "email": "shee.singh10@gmail.com",
+        "phone": "+91 86021 48983"
+      }
     },
-    "upload": {
+    "uploadNormalized": {
       "counts": {
-        "experience": 4,
-        "withCompany": 4,
-        "withTitle": 4,
+        "experience": 6,
+        "experienceWithCompany": 6,
+        "experienceWithTitle": 6,
         "projects": 0,
         "education": 2,
-        "certifications": 0,
-        "skills": 8,
+        "certifications": 5,
+        "skills": 6,
         "languages": 0,
-        "achievements": 4,
+        "achievements": 3,
         "hobbies": 0,
-        "summaryChars": 483,
-        "name": "Hrishi Raj Soni",
-        "email": "hrishisoni4@gmail.com",
-        "phone": "(756) 677-0072"
+        "summaryChars": 808,
+        "name": 1,
+        "email": 1,
+        "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Manager – Company Secretary",
-          "company": "Dilip Buildcon Limited",
-          "dates": "2023",
-          "descLen": 114
+          "title": "QUALITY ASSISTANT MANAGER",
+          "company": "Safeco Hygiene Films Private Limited",
+          "startDate": "2025-12",
+          "endDate": null,
+          "descLen": 88,
+          "bullets": 1
         },
         {
           "i": 1,
-          "title": "Assistant Manager – Company Secretary",
-          "company": "Kamal Sponge Steel and Power Ltd",
-          "dates": "2021 - 2023",
-          "descLen": 22
+          "title": "SENIOR QA EXECUTIVE",
+          "company": "Nanliu Manufacturing India Private Limited",
+          "startDate": "2024-05",
+          "endDate": "2025-11",
+          "descLen": 358,
+          "bullets": 15
         },
         {
           "i": 2,
-          "title": "Company Secretary – Consultant",
-          "company": "Velnik India Pvt. Ltd.",
-          "dates": "2020 - 2021",
-          "descLen": 0
+          "title": "QA EXECUTIVE",
+          "company": "Jindal Polyfilms Limited",
+          "startDate": "2023-11",
+          "endDate": "2024-05",
+          "descLen": 14,
+          "bullets": 5
         },
         {
           "i": 3,
-          "title": "Company Secretary",
-          "company": "Various Clients (Consultancy Practice)",
-          "dates": "2018 - 2020",
-          "descLen": 0
+          "title": "QC EXECUTIVE",
+          "company": "SOM Distelleries & Breweries Limited",
+          "startDate": "2023-01",
+          "endDate": "2023-11",
+          "descLen": 29,
+          "bullets": 7
+        },
+        {
+          "i": 4,
+          "title": "QA ANALYST",
+          "company": "Yanjan New Material India Private Limited",
+          "startDate": "2019-03",
+          "endDate": "2023-01",
+          "descLen": 0,
+          "bullets": 3
+        },
+        {
+          "i": 5,
+          "title": "MICROBIOLOGIST",
+          "company": "MV Aqua Solutions Private Limited",
+          "startDate": "2018-03",
+          "endDate": "2019-02",
+          "descLen": 0,
+          "bullets": 2
         }
       ],
       "education": [
         {
           "i": 0,
-          "title": "M.Com",
-          "company": null,
-          "dates": null,
-          "descLen": 0
+          "degree": "M.Sc.",
+          "institution": "I.E.H.E."
         },
         {
           "i": 1,
-          "title": "B. Com",
-          "company": "DAVV",
-          "dates": "2015 - 2017",
-          "descLen": 0
+          "degree": "B.Sc.",
+          "institution": "Govt. Home Science College"
         }
       ],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "v": "Board Processes & Corporate Governance"
+          "value": "ISO 13485"
         },
         {
           "i": 1,
-          "v": "Client & Stakeholder Communication"
+          "value": "ISO 14001"
         },
         {
           "i": 2,
-          "v": "Corporate Compliance & Filings (roc, Sebi, Annual Filings)"
+          "value": "ISO 22716"
         },
         {
           "i": 3,
-          "v": "Deadline Tracking & Workflow Management"
+          "value": "ISO 45001"
         },
         {
           "i": 4,
-          "v": "Document Management & Record Keeping"
+          "value": "ISO 9001"
         },
         {
           "i": 5,
-          "v": "DUE Diligence & Regulatory Filings"
-        },
-        {
-          "i": 6,
-          "v": "Entity Formation (pvt Ltd, Llp, Opc, Section 8)"
-        },
-        {
-          "i": 7,
-          "v": "Legal Documentation & Contract Management"
+          "value": "Oeko-tex Standard 100"
         }
       ]
     },
     "repaired": {
       "counts": {
-        "experience": 4,
-        "withCompany": 4,
-        "withTitle": 4,
+        "experience": 6,
+        "experienceWithCompany": 6,
+        "experienceWithTitle": 6,
         "projects": 0,
         "education": 2,
-        "certifications": 0,
-        "skills": 8,
+        "certifications": 5,
+        "skills": 6,
         "languages": 0,
-        "achievements": 4,
+        "achievements": 3,
         "hobbies": 0,
-        "summaryChars": 483,
-        "name": "Hrishi Raj Soni",
-        "email": "hrishisoni4@gmail.com",
-        "phone": "(756) 677-0072"
+        "summaryChars": 808,
+        "name": 1,
+        "email": 1,
+        "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Manager – Company Secretary",
-          "company": "Dilip Buildcon Limited",
-          "dates": "2023",
-          "descLen": 114
+          "title": "QUALITY ASSISTANT MANAGER",
+          "company": "Safeco Hygiene Films Private Limited",
+          "startDate": "2025-12",
+          "endDate": null,
+          "descLen": 88,
+          "bullets": 1
         },
         {
           "i": 1,
-          "title": "Assistant Manager – Company Secretary",
-          "company": "Kamal Sponge Steel and Power Ltd",
-          "dates": "2021 - 2023",
-          "descLen": 22
+          "title": "SENIOR QA EXECUTIVE",
+          "company": "Nanliu Manufacturing India Private Limited",
+          "startDate": "2024-05",
+          "endDate": "2025-11",
+          "descLen": 358,
+          "bullets": 15
         },
         {
           "i": 2,
-          "title": "Company Secretary – Consultant",
-          "company": "Velnik India Pvt. Ltd.",
-          "dates": "2020 - 2021",
-          "descLen": 155
+          "title": "QA EXECUTIVE",
+          "company": "Jindal Polyfilms Limited",
+          "startDate": "2023-11",
+          "endDate": "2024-05",
+          "descLen": 14,
+          "bullets": 5
         },
         {
           "i": 3,
-          "title": "Company Secretary",
-          "company": "Various Clients (Consultancy Practice)",
-          "dates": "2018 - 2020",
-          "descLen": 182
+          "title": "QC EXECUTIVE",
+          "company": "SOM Distelleries & Breweries Limited",
+          "startDate": "2023-01",
+          "endDate": "2023-11",
+          "descLen": 29,
+          "bullets": 7
+        },
+        {
+          "i": 4,
+          "title": "QA ANALYST",
+          "company": "Yanjan New Material India Private Limited",
+          "startDate": "2019-03",
+          "endDate": "2023-01",
+          "descLen": 235,
+          "bullets": 3
+        },
+        {
+          "i": 5,
+          "title": "MICROBIOLOGIST",
+          "company": "MV Aqua Solutions Private Limited",
+          "startDate": "2018-03",
+          "endDate": "2019-02",
+          "descLen": 190,
+          "bullets": 2
         }
       ],
       "education": [
         {
           "i": 0,
-          "title": "M.Com",
-          "company": null,
-          "dates": null,
-          "descLen": 0
+          "degree": "M.Sc.",
+          "institution": "I.E.H.E."
         },
         {
           "i": 1,
-          "title": "B. Com",
-          "company": "DAVV",
-          "dates": "2015 - 2017",
-          "descLen": 0
+          "degree": "B.Sc.",
+          "institution": "Govt. Home Science College"
         }
       ],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "v": "Board Processes & Corporate Governance"
+          "value": "ISO 13485"
         },
         {
           "i": 1,
-          "v": "Client & Stakeholder Communication"
+          "value": "ISO 14001"
         },
         {
           "i": 2,
-          "v": "Corporate Compliance & Filings (roc, Sebi, Annual Filings)"
+          "value": "ISO 22716"
         },
         {
           "i": 3,
-          "v": "Deadline Tracking & Workflow Management"
+          "value": "ISO 45001"
         },
         {
           "i": 4,
-          "v": "Document Management & Record Keeping"
+          "value": "ISO 9001"
         },
         {
           "i": 5,
-          "v": "DUE Diligence & Regulatory Filings"
-        },
-        {
-          "i": 6,
-          "v": "Entity Formation (pvt Ltd, Llp, Opc, Section 8)"
-        },
-        {
-          "i": 7,
-          "v": "Legal Documentation & Contract Management"
+          "value": "Oeko-tex Standard 100"
         }
       ],
       "achievements": [
         {
           "i": 0,
-          "v": "Independently managed compliance and filings for 25+ entities across structures"
+          "value": "Certified As ‘‘Quality Star” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
         },
         {
           "i": 1,
-          "v": "Drafted and negotiated 50+ legal agreements, reducing dependency on external counsel"
+          "value": "Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
         },
         {
           "i": 2,
-          "v": "Managed and protected trademark portfolio of 250+ marks"
-        },
-        {
-          "i": 3,
-          "v": "Supported credit rating improvement through structured disclosures and coordination."
+          "value": "Certified As a ‘‘QAKE Internal Auditor’’ Trainer in Nanliu Manufacturing India Pvt. Ltd. (July 7 to July 9 2025)"
         }
       ],
-      "hobbies": [],
-      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+      "hobbies": []
     },
     "coalesced": {
       "counts": {
-        "experience": 4,
-        "withCompany": 4,
-        "withTitle": 4,
+        "experience": 6,
+        "experienceWithCompany": 6,
+        "experienceWithTitle": 6,
         "projects": 0,
         "education": 2,
-        "certifications": 0,
-        "skills": 8,
+        "certifications": 5,
+        "skills": 6,
         "languages": 0,
-        "achievements": 4,
+        "achievements": 3,
         "hobbies": 0,
-        "summaryChars": 483,
-        "name": "Hrishi Raj Soni",
-        "email": "hrishisoni4@gmail.com",
-        "phone": "(756) 677-0072"
+        "summaryChars": 808,
+        "name": 1,
+        "email": 1,
+        "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Manager – Company Secretary",
-          "company": "Dilip Buildcon Limited",
-          "dates": "2023",
-          "descLen": 114
+          "title": "QUALITY ASSISTANT MANAGER",
+          "company": "Safeco Hygiene Films Private Limited",
+          "startDate": "2025-12",
+          "endDate": null,
+          "descLen": 88,
+          "bullets": 1
         },
         {
           "i": 1,
-          "title": "Assistant Manager – Company Secretary",
-          "company": "Kamal Sponge Steel and Power Ltd",
-          "dates": "2021 - 2023",
-          "descLen": 22
+          "title": "SENIOR QA EXECUTIVE",
+          "company": "Nanliu Manufacturing India Private Limited",
+          "startDate": "2024-05",
+          "endDate": "2025-11",
+          "descLen": 358,
+          "bullets": 15
         },
         {
           "i": 2,
-          "title": "Company Secretary – Consultant",
-          "company": "Velnik India Pvt. Ltd.",
-          "dates": "2020 - 2021",
-          "descLen": 155
+          "title": "QA EXECUTIVE",
+          "company": "Jindal Polyfilms Limited",
+          "startDate": "2023-11",
+          "endDate": "2024-05",
+          "descLen": 14,
+          "bullets": 5
         },
         {
           "i": 3,
-          "title": "Company Secretary",
-          "company": "Various Clients (Consultancy Practice)",
-          "dates": "2018 - 2020",
-          "descLen": 182
+          "title": "QC EXECUTIVE",
+          "company": "SOM Distelleries & Breweries Limited",
+          "startDate": "2023-01",
+          "endDate": "2023-11",
+          "descLen": 29,
+          "bullets": 7
+        },
+        {
+          "i": 4,
+          "title": "QA ANALYST",
+          "company": "Yanjan New Material India Private Limited",
+          "startDate": "2019-03",
+          "endDate": "2023-01",
+          "descLen": 235,
+          "bullets": 3
+        },
+        {
+          "i": 5,
+          "title": "MICROBIOLOGIST",
+          "company": "MV Aqua Solutions Private Limited",
+          "startDate": "2018-03",
+          "endDate": "2019-02",
+          "descLen": 190,
+          "bullets": 2
         }
       ],
       "education": [
         {
           "i": 0,
-          "title": "M.Com",
-          "company": null,
-          "dates": null,
-          "descLen": 0
+          "degree": "M.Sc.",
+          "institution": "I.E.H.E."
         },
         {
           "i": 1,
-          "title": "B. Com",
-          "company": "DAVV",
-          "dates": "2015 - 2017",
-          "descLen": 0
+          "degree": "B.Sc.",
+          "institution": "Govt. Home Science College"
         }
       ],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "v": "Board Processes & Corporate Governance"
+          "value": "ISO 13485"
         },
         {
           "i": 1,
-          "v": "Client & Stakeholder Communication"
+          "value": "ISO 14001"
         },
         {
           "i": 2,
-          "v": "Corporate Compliance & Filings (roc, Sebi, Annual Filings)"
+          "value": "ISO 22716"
         },
         {
           "i": 3,
-          "v": "Deadline Tracking & Workflow Management"
+          "value": "ISO 45001"
         },
         {
           "i": 4,
-          "v": "Document Management & Record Keeping"
+          "value": "ISO 9001"
         },
         {
           "i": 5,
-          "v": "DUE Diligence & Regulatory Filings"
-        },
-        {
-          "i": 6,
-          "v": "Entity Formation (pvt Ltd, Llp, Opc, Section 8)"
-        },
-        {
-          "i": 7,
-          "v": "Legal Documentation & Contract Management"
+          "value": "Oeko-tex Standard 100"
         }
       ],
       "hobbies": [],
-      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional exp"
     },
     "gallery": {
       "counts": {
-        "experience": 4,
-        "withCompany": 4,
-        "withTitle": 4,
+        "experience": 6,
+        "experienceWithCompany": 6,
+        "experienceWithTitle": 6,
         "projects": 0,
         "education": 2,
-        "certifications": 0,
-        "skills": 8,
+        "certifications": 5,
+        "skills": 6,
         "languages": 0,
-        "achievements": 4,
+        "achievements": 3,
         "hobbies": 0,
-        "summaryChars": 483,
-        "name": "Hrishi Raj Soni",
-        "email": "hrishisoni4@gmail.com",
-        "phone": "(756) 677-0072"
+        "summaryChars": 808,
+        "name": 1,
+        "email": 1,
+        "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Manager – Company Secretary",
-          "company": "Dilip Buildcon Limited",
-          "dates": "2023",
-          "descLen": 114
+          "title": "QUALITY ASSISTANT MANAGER",
+          "company": "Safeco Hygiene Films Private Limited",
+          "startDate": "2025-12",
+          "endDate": null,
+          "descLen": 88,
+          "bullets": 1
         },
         {
           "i": 1,
-          "title": "Assistant Manager – Company Secretary",
-          "company": "Kamal Sponge Steel and Power Ltd",
-          "dates": "2021 - 2023",
-          "descLen": 22
+          "title": "SENIOR QA EXECUTIVE",
+          "company": "Nanliu Manufacturing India Private Limited",
+          "startDate": "2024-05",
+          "endDate": "2025-11",
+          "descLen": 358,
+          "bullets": 15
         },
         {
           "i": 2,
-          "title": "Company Secretary – Consultant",
-          "company": "Velnik India Pvt. Ltd.",
-          "dates": "2020 - 2021",
-          "descLen": 155
+          "title": "QA EXECUTIVE",
+          "company": "Jindal Polyfilms Limited",
+          "startDate": "2023-11",
+          "endDate": "2024-05",
+          "descLen": 14,
+          "bullets": 5
         },
         {
           "i": 3,
-          "title": "Company Secretary",
-          "company": "Various Clients (Consultancy Practice)",
-          "dates": "2018 - 2020",
-          "descLen": 182
+          "title": "QC EXECUTIVE",
+          "company": "SOM Distelleries & Breweries Limited",
+          "startDate": "2023-01",
+          "endDate": "2023-11",
+          "descLen": 29,
+          "bullets": 7
+        },
+        {
+          "i": 4,
+          "title": "QA ANALYST",
+          "company": "Yanjan New Material India Private Limited",
+          "startDate": "2019-03",
+          "endDate": "2023-01",
+          "descLen": 235,
+          "bullets": 3
+        },
+        {
+          "i": 5,
+          "title": "MICROBIOLOGIST",
+          "company": "MV Aqua Solutions Private Limited",
+          "startDate": "2018-03",
+          "endDate": "2019-02",
+          "descLen": 190,
+          "bullets": 2
         }
       ],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "v": "Board Processes & Corporate Governance"
+          "value": "ISO 13485"
         },
         {
           "i": 1,
-          "v": "Client & Stakeholder Communication"
+          "value": "ISO 14001"
         },
         {
           "i": 2,
-          "v": "Corporate Compliance & Filings (roc, Sebi, Annual Filings)"
+          "value": "ISO 22716"
         },
         {
           "i": 3,
-          "v": "Deadline Tracking & Workflow Management"
+          "value": "ISO 45001"
         },
         {
           "i": 4,
-          "v": "Document Management & Record Keeping"
+          "value": "ISO 9001"
         },
         {
           "i": 5,
-          "v": "DUE Diligence & Regulatory Filings"
-        },
-        {
-          "i": 6,
-          "v": "Entity Formation (pvt Ltd, Llp, Opc, Section 8)"
-        },
-        {
-          "i": 7,
-          "v": "Legal Documentation & Contract Management"
+          "value": "Oeko-tex Standard 100"
         }
       ],
       "hobbies": [],
-      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional exp"
     },
     "builder": {
       "counts": {
-        "experience": 4,
-        "withCompany": 4,
-        "withTitle": 4,
+        "experience": 6,
+        "experienceWithCompany": 6,
+        "experienceWithTitle": 6,
         "projects": 0,
         "education": 2,
-        "certifications": 0,
-        "skills": 8,
+        "certifications": 5,
+        "skills": 6,
         "languages": 0,
-        "achievements": 4,
+        "achievements": 3,
         "hobbies": 0,
-        "summaryChars": 483,
-        "name": "Hrishi Raj Soni",
-        "email": "hrishisoni4@gmail.com",
-        "phone": "(756) 677-0072"
+        "summaryChars": 808,
+        "name": 1,
+        "email": 1,
+        "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Manager – Company Secretary",
-          "company": "Dilip Buildcon Limited",
-          "dates": "2023-01",
-          "descLen": 716
+          "title": "QUALITY ASSISTANT MANAGER",
+          "company": "Safeco Hygiene Films Private Limited",
+          "startDate": "2025-12",
+          "endDate": null,
+          "descLen": 184,
+          "bullets": 2
         },
         {
           "i": 1,
-          "title": "Assistant Manager – Company Secretary",
-          "company": "Kamal Sponge Steel and Power Ltd",
-          "dates": "2021-01 - 2023-01",
-          "descLen": 336
+          "title": "SENIOR QA EXECUTIVE",
+          "company": "Nanliu Manufacturing India Private Limited",
+          "startDate": "2024-05",
+          "endDate": "2025-11",
+          "descLen": 1869,
+          "bullets": 20
         },
         {
           "i": 2,
-          "title": "Company Secretary – Consultant",
-          "company": "Velnik India Pvt. Ltd.",
-          "dates": "2020-01 - 2021-01",
-          "descLen": 155
+          "title": "QA EXECUTIVE",
+          "company": "Jindal Polyfilms Limited",
+          "startDate": "2023-11",
+          "endDate": "2024-05",
+          "descLen": 488,
+          "bullets": 6
         },
         {
           "i": 3,
-          "title": "Company Secretary",
-          "company": "Various Clients (Consultancy Practice)",
-          "dates": "2018-01 - 2020-01",
-          "descLen": 182
+          "title": "QC EXECUTIVE",
+          "company": "SOM Distelleries & Breweries Limited",
+          "startDate": "2023-01",
+          "endDate": "2023-11",
+          "descLen": 771,
+          "bullets": 8
+        },
+        {
+          "i": 4,
+          "title": "QA ANALYST",
+          "company": "Yanjan New Material India Private Limited",
+          "startDate": "2019-03",
+          "endDate": "2023-01",
+          "descLen": 235,
+          "bullets": 3
+        },
+        {
+          "i": 5,
+          "title": "MICROBIOLOGIST",
+          "company": "MV Aqua Solutions Private Limited",
+          "startDate": "2018-03",
+          "endDate": "2019-02",
+          "descLen": 190,
+          "bullets": 2
         }
       ],
       "education": [
         {
           "i": 0,
-          "title": "M.Com",
-          "company": null,
-          "dates": null,
-          "descLen": 0
+          "degree": "M.Sc.",
+          "institution": "I.E.H.E."
         },
         {
           "i": 1,
-          "title": "B. Com",
-          "company": "DAVV",
-          "dates": "2015-01 - 2017-01",
-          "descLen": 0
+          "degree": "B.Sc.",
+          "institution": "Govt. Home Science College"
         }
       ],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "v": "Board Processes & Corporate Governance"
+          "value": "ISO 13485"
         },
         {
           "i": 1,
-          "v": "Client & Stakeholder Communication"
+          "value": "ISO 14001"
         },
         {
           "i": 2,
-          "v": "Corporate Compliance & Filings (roc, Sebi, Annual Filings)"
+          "value": "ISO 22716"
         },
         {
           "i": 3,
-          "v": "Deadline Tracking & Workflow Management"
+          "value": "ISO 45001"
         },
         {
           "i": 4,
-          "v": "Document Management & Record Keeping"
+          "value": "ISO 9001"
         },
         {
           "i": 5,
-          "v": "DUE Diligence & Regulatory Filings"
-        },
-        {
-          "i": 6,
-          "v": "Entity Formation (pvt Ltd, Llp, Opc, Section 8)"
-        },
-        {
-          "i": 7,
-          "v": "Legal Documentation & Contract Management"
+          "value": "Oeko-tex Standard 100"
         }
       ],
       "hobbies": [],
-      "summary": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, SEBI Listing Regulations, secretarial functions, legal documentation, statutory\ncompliance, and regulatory filings across listed and unlisted organizations. Experienced in Board an"
+      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional exp"
     }
   }
 }

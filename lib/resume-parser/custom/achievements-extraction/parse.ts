@@ -12,6 +12,9 @@ import { looksLikeSentenceNotCompany } from '../experience-extraction/company';
 const SECTION_HEADING_RE =
   /^(?:achievements?|awards?|honors?|honours?|recognition|accomplishments?|highlights?|key\s+achievements?|professional\s+highlights?|distinctions?)(?:\s*[&:–-].*)?$/i;
 
+const NEXT_SECTION_HEADING_RE =
+  /^(?:(?:(?:industrial|functional|domain|technical|core|key|professional)\s+)?skills?|education|experience|employment|certifications?|projects?|languages?|hobbies?|interests?|training(?:\s*(?:&|and)\s*workshops?)?|workshops?|references?|publications?)\s*:?\s*$/i;
+
 const SKILL_LIST_RE = /(?:^|[,;|])\s*(?:python|java|react|javascript|sql|aws|docker|excel|html|css)\b/i;
 
 const EXPERIENCE_VERB_RE =
@@ -27,9 +30,16 @@ function scoreAchievementLine(text: string): number {
   if (text.length >= 20) score += 10;
   if (text.length >= 40) score += 5;
   if (/^\d+%|\$\d|₹\d|\b\d+\s*(?:%|k|lakh|million)\b/i.test(text)) score += 12;
-  if (/^(?:won|received|awarded|recognized|achieved|secured|ranked|published)\b/i.test(text)) score += 8;
+  if (
+    /^(?:won|received|awarded|recognized|achieved|secured|ranked|published|certified\s+as)\b/i.test(
+      text
+    )
+  ) {
+    score += 8;
+  }
   if (/\b(?:ieee|conference|journal|patent)\b/i.test(text)) score += 10;
   if (SECTION_HEADING_RE.test(text)) return 0;
+  if (NEXT_SECTION_HEADING_RE.test(text)) return 0;
   if (isResumeSectionHeadingLine(text)) return 0;
   if (isLikelyEducationLine(text) && !/\b(?:published|award|ieee|conference|employee of the year)\b/i.test(text)) {
     return 0;
@@ -46,15 +56,18 @@ function scoreAchievementLine(text: string): number {
 }
 
 export function parseAchievementLine(raw: string): ParsedAchievementLine | null {
-  let line = raw.trim().replace(/^[•\-\*\u2022\u2023·]\s+/, '');
+  let line = raw
+    .trim()
+    .replace(/^[•\-\*\u2022\u2023·]\s+/, '')
+    .replace(/^[oO]\s+(?=\S)/, '');
   if (!line || line.length < 6 || line.length > 500) return null;
 
   const inline = line.match(
-    /^(?:achievements?|awards?|honors?|recognition|accomplishments?|highlights?)\s*:?\s*(.+)$/i
+    /^(?:achievements?|awards?|honors?|honours?|recognition|accomplishments?|highlights?)\b\s*:?\s*(.+)$/i
   );
   if (inline?.[1]) line = inline[1].trim();
 
-  if (SECTION_HEADING_RE.test(line)) return null;
+  if (SECTION_HEADING_RE.test(line) || NEXT_SECTION_HEADING_RE.test(line)) return null;
 
   const confidence = scoreAchievementLine(line);
   if (confidence < 42) return null;
@@ -81,6 +94,10 @@ export function parseAchievementsFromSectionWithStats(
   for (const rawLine of sectionText.replace(/\r\n/g, '\n').split('\n')) {
     const trimmed = rawLine.trim();
     if (!trimmed) continue;
+    // Stop when a following section heading bleeds into achievements (e.g. skills).
+    if (NEXT_SECTION_HEADING_RE.test(trimmed) || isResumeSectionHeadingLine(trimmed)) {
+      break;
+    }
 
     const parsed = parseAchievementLine(trimmed);
     if (!parsed) {

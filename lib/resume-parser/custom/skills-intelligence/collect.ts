@@ -40,8 +40,21 @@ function pushCandidate(
   raw: string,
   source: SkillSource
 ): void {
-  const trimmed = raw.trim().replace(/[.:]+$/g, '').trim();
+  let trimmed = raw.trim().replace(/[.:]+$/g, '').trim();
   if (!trimmed || trimmed.length < 2) return;
+  // List openers from prose skill lines ("including ISO 9001, ISO 14001, …").
+  trimmed = trimmed.replace(/^(?:including|and|also|with|plus)\s+/i, '').trim();
+  if (!trimmed || trimmed.length < 2) return;
+  // Contact / identity debris must never enter skills — even via the
+  // skills_section competency short-circuit below.
+  if (
+    /^(?:mobile(?:\s*no\.?)?|phone(?:\s*no\.?)?|email(?:\s*id)?|e-?mail|dob|d\.?o\.?b\.?|date\s+of\s+birth|address|linkedin|github|portfolio|website|name|contact)\b/i.test(
+      trimmed
+    ) ||
+    /\b(?:mobile|phone|email|e-?mail|dob)\b.+\b(?:mobile|phone|email|e-?mail|dob|id)\b/i.test(trimmed)
+  ) {
+    return;
+  }
   if (MULTI_WORD_SKILL_ALLOW_RE.test(trimmed.toLowerCase())) {
     const normalized = normalizeSkillAlias(trimmed);
     if (normalized) out.push({ raw: trimmed, normalized, source });
@@ -60,6 +73,13 @@ function pushCandidate(
     /[A-Za-z]/.test(trimmed) &&
     !RESPONSIBILITY_LIKE_SKILL_RE.test(trimmed)
   ) {
+    // Still require validator for debris like "Including ISO 9001" conjunction crumbs.
+    if (!isValidSkillCandidate(trimmed) && !/^(?:iso|oeko|iec|gmp|sop|capa|fmea|qa|qc)\b/i.test(trimmed)) {
+      // Allow short ISO/standard tokens that validators may over-reject.
+      if (!/\biso(?:\s*[/:-]?\s*iec)?\s*\d{4,5}\b/i.test(trimmed) && trimmed.split(/\s+/).length > 1) {
+        return;
+      }
+    }
     const normalized = normalizeSkillAlias(trimmed) || trimmed;
     out.push({ raw: trimmed, normalized, source });
     return;
@@ -128,8 +148,35 @@ function stripContactNoise(line: string): string {
     .replace(URL_RE, ' ')
     .replace(PHONE_RE, ' ')
     .replace(/\blinkedin\b\.?\s*com\S*/gi, ' ')
+    .replace(
+      /\b(?:mobile|phone|email|e-?mail)\s*(?:no\.?|number|id)?\s*[:\-–—]?\s*/gi,
+      ' '
+    )
+    .replace(/\b(?:dob|d\.?o\.?b\.?|date\s+of\s+birth)\s*[:\-–—]?\s*\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function isContactOrIdentitySkillLine(line: string): boolean {
+  const t = line.trim();
+  if (!t) return true;
+  if (EMAIL_RE.test(t) || PHONE_RE.test(t)) return true;
+  if (
+    /^(?:mobile|phone|email|e-?mail|dob|d\.?o\.?b\.?|date\s+of\s+birth|address|linkedin|github)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Bare person-name lines that follow sidebar skill lists.
+  if (
+    /^[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3}$/.test(t) &&
+    !/,/.test(t) &&
+    !/\b(?:iso|aws|sql|python|java|excel|audit|qa|qc)\b/i.test(t)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function lineLooksSkillList(line: string): boolean {
@@ -189,7 +236,16 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
   for (const raw of lines) {
     if (!raw) continue;
 
-    const withoutBullet = raw.replace(/^[\s•●\-–—*·▪○]+\s*/, '').trim();
+    const withoutBullet = raw
+      .replace(/^[\s•●\-–—*·▪○]+\s*/, '')
+      .replace(/^[oO]\s+(?=\S)/, '')
+      .trim();
+
+    // Sidebar skill blocks often continue into contact / identity lines — stop there.
+    if (out.length > 0 && isContactOrIdentitySkillLine(withoutBullet)) {
+      break;
+    }
+
     const inline = withoutBullet.match(/^([A-Za-z][A-Za-z &/+\-]{1,40}?)\s*:\s*(.+)$/);
     if (inline) {
       const header = inline[1].toLowerCase().replace(/\s+/g, ' ').trim();
@@ -203,7 +259,10 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
 
     const normalized = withoutBullet.toLowerCase().replace(/[:\-]+$/, '').replace(/\s+/g, ' ').trim();
     if (SKILL_SUBHEADERS.has(normalized)) continue;
-    if (isPlausiblePersonName(withoutBullet)) continue;
+    if (isPlausiblePersonName(withoutBullet)) {
+      if (out.length > 0) break;
+      continue;
+    }
     // Job-title shaped lines are skipped unless they look like competency bullets
     // (short Strengths/IT Skills entries often resemble titles).
     const competencyBullet =
