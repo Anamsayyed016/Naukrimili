@@ -1125,6 +1125,39 @@
   margin-top: 2px;
 }
 
+/*
+ * Column-balance may relocate Achievements into the dark sidebar.
+ * Main-column styles use --primary-color (charcoal) for h3 — that becomes
+ * invisible on --coe-charcoal. Keep the orange bullet; force light text.
+ */
+.coe-resume .coe-sidebar .coe-section--achievements .coe-section-label,
+.coe-resume .coe-sidebar section[data-column-moved='achievements'] .coe-section-label {
+  color: var(--coe-white);
+}
+
+.coe-resume .coe-sidebar .coe-achievements .achievement-item h3,
+.coe-resume .coe-sidebar .achievements-list .achievement-item h3,
+.coe-resume .coe-sidebar .achievement-item h3,
+.coe-resume .coe-sidebar section[data-column-moved='achievements'] .achievement-item h3 {
+  color: var(--coe-sidebar-text) !important;
+}
+
+.coe-resume .coe-sidebar .coe-achievements .achievement-item .description,
+.coe-resume .coe-sidebar .achievements-list .achievement-item .description,
+.coe-resume .coe-sidebar .achievement-item .description,
+.coe-resume .coe-sidebar .achievement-item p,
+.coe-resume .coe-sidebar section[data-column-moved='achievements'] .achievement-item .description,
+.coe-resume .coe-sidebar section[data-column-moved='achievements'] .achievement-item p {
+  color: var(--coe-sidebar-muted) !important;
+}
+
+.coe-resume .coe-sidebar .coe-achievements .achievement-item .year,
+.coe-resume .coe-sidebar .coe-achievements .achievement-item .date,
+.coe-resume .coe-sidebar .achievements-list .achievement-item .year,
+.coe-resume .coe-sidebar .achievements-list .achievement-item .date {
+  color: var(--coe-sidebar-muted) !important;
+}
+
 /* Extended sections (e.g. Memberships) follow Achievements in natural document flow */
 .coe-resume .coe-main > .extended-section {
   flex: 0 0 auto;
