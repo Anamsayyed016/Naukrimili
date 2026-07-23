@@ -1,12 +1,21 @@
 import {
   buildGalleryPreviewDocumentHtml,
   isGalleryCompactPreview,
+  resolveDemoGalleryCardRenderPlan,
   resolveGalleryCardRenderPlan,
   resolveGalleryInjectOptions,
 } from '@/lib/resume-builder/gallery-preview-render';
 import { DEFAULT_DEMO_PROFILE_IMAGE } from '@/lib/resume-builder/demo-profile-image';
 
 describe('gallery preview render helpers', () => {
+  it('resolveDemoGalleryCardRenderPlan always returns demo sample (ignores import context)', () => {
+    const plan = resolveDemoGalleryCardRenderPlan('soft-coral-executive');
+    expect(plan.previewData._galleryDemo).toBe(true);
+    expect(plan.previewData.profileImage).toBe(DEFAULT_DEMO_PROFILE_IMAGE);
+    expect(plan.injectOptions.galleryPreview).toBe(true);
+    expect(plan.injectOptions.gallerySourceLock).toBeUndefined();
+  });
+
   it('uses compact inject options for empty gallery data', () => {
     expect(resolveGalleryInjectOptions('modern-classic', {})).toEqual({
       galleryPreview: true,

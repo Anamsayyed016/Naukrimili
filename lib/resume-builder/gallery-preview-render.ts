@@ -38,8 +38,23 @@ export function isGalleryCompactPreview(previewData: Record<string, unknown>): b
 }
 
 /**
- * Atomic gallery card source: one object + matching inject options.
- * Never returns a hybrid of demo text and a separately merged photo.
+ * Marketing Template Gallery cards — ALWAYS demo sample data.
+ * Never accepts imported/editor form data (that belongs in the Resume Builder only).
+ */
+export function resolveDemoGalleryCardRenderPlan(templateId: string): {
+  previewData: Record<string, unknown>;
+  injectOptions: GalleryInjectOptions;
+} {
+  const previewData = buildGallerySampleFormData(templateId);
+  return {
+    previewData,
+    injectOptions: resolveGalleryInjectOptions(templateId, previewData),
+  };
+}
+
+/**
+ * Change-template modal (inside editor): may preview the user's live form in another template.
+ * Pass null/empty to fall back to demo. Marketing gallery must use resolveDemoGalleryCardRenderPlan instead.
  */
 export function resolveGalleryCardRenderPlan(
   templateId: string,

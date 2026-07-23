@@ -5,23 +5,23 @@ import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builde
 import { cn } from '@/lib/utils';
 import { Check, Sparkles, Crown } from 'lucide-react';
 import Image from 'next/image';
-import {
-  getGalleryCardAccent,
-  isGalleryEmptyFormData,
-} from '@/lib/resume-builder/gallery-demo';
+import { getGalleryCardAccent } from '@/lib/resume-builder/gallery-demo';
 import {
   buildGalleryPreviewDocumentHtml,
   isGalleryCompactPreview,
-  resolveGalleryCardRenderPlan,
+  resolveDemoGalleryCardRenderPlan,
 } from '@/lib/resume-builder/gallery-preview-render';
-import { prepareGalleryPreviewFormData, builderFormChecksum } from '@/lib/resume-builder/builder-hydration';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
 
 interface TemplatePreviewGalleryProps {
   templates: Template[];
-  formData: Record<string, unknown>;
+  /**
+   * Ignored for card rendering — marketing gallery is always demo-only.
+   * Kept for call-site compatibility; import/editor data must never appear here.
+   */
+  formData?: Record<string, unknown>;
   selectedTemplateId: string | null;
   onTemplateSelect: (templateId: string) => void;
   templateLockStates?: Record<string, TemplateLockState>;
@@ -29,32 +29,20 @@ interface TemplatePreviewGalleryProps {
 }
 
 /**
- * Continuous template gallery — every template rendered in a single responsive
- * grid. Pagination was intentionally removed for a smoother browsing flow.
- *
- * Per-card preview iframes are still lazy: each card only kicks off its
- * `template-loader` import + iframe write once it enters the viewport (see
- * `EnhancedTemplateCard` below). This keeps initial paint cost in line with
- * the previous paginated version on lower-end devices.
+ * Marketing template gallery — every card renders ONLY buildGallerySampleFormData().
+ * Imported resume / drafts / localStorage photos are never injected here.
+ * Clicking a card still routes to the editor, which loads user/import data separately.
  */
 export default function TemplatePreviewGallery({
   templates,
-  formData,
+  formData: _formData,
   selectedTemplateId,
   onTemplateSelect,
   templateLockStates,
   onLockedTemplateSelect,
 }: TemplatePreviewGalleryProps) {
-  // Stable identity for the memoised template list so card identity is
-  // preserved across re-renders that don't actually change the array contents.
+  void _formData;
   const galleryTemplates = useMemo(() => templates, [templates]);
-
-  // Coalesce import payload once for the whole gallery (not per card — avoids N× crash/latency).
-  const previewDataChecksum = useMemo(() => builderFormChecksum(formData), [formData]);
-  const userPreviewData = useMemo(() => {
-    if (isGalleryEmptyFormData(formData)) return null;
-    return prepareGalleryPreviewFormData(formData);
-  }, [formData, previewDataChecksum]);
 
   if (galleryTemplates.length === 0) {
     return (
@@ -81,14 +69,11 @@ export default function TemplatePreviewGallery({
         </p>
       </div>
 
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 animate-in fade-in duration-300"
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 animate-in fade-in duration-300">
         {galleryTemplates.map((template) => (
           <EnhancedTemplateCard
             key={template.id}
             template={template}
-            userPreviewData={userPreviewData}
             isSelected={selectedTemplateId === template.id}
             lockState={templateLockStates?.[template.id] ?? 'open'}
             onSelect={() => onTemplateSelect(template.id)}
@@ -101,7 +86,6 @@ export default function TemplatePreviewGallery({
 
 interface EnhancedTemplateCardProps {
   template: Template;
-  userPreviewData: Record<string, unknown> | null;
   isSelected: boolean;
   lockState?: TemplateLockState;
   onSelect: () => void;
@@ -109,7 +93,6 @@ interface EnhancedTemplateCardProps {
 
 function EnhancedTemplateCard({
   template,
-  userPreviewData,
   isSelected,
   lockState = 'open',
   onSelect,
@@ -121,22 +104,16 @@ function EnhancedTemplateCard({
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [imageError, setImageError] = useState(false);
   const [useImagePreview, setUseImagePreview] = useState(true);
-  // Lazy-mount the heavy preview iframe only when the card enters the viewport.
-  // Once revealed, it stays revealed (latch) so scrolling away doesn't unmount
-  // and the user never re-pays the load cost.
   const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const demoPlan = useMemo(() => resolveDemoGalleryCardRenderPlan(template.id), [template.id]);
 
-  // Gallery always uses HTML preview so demo profile + all sections render (static SVG thumbs have no photo)
   useEffect(() => {
     setUseImagePreview(false);
     setImageError(false);
   }, [template.id]);
 
-  // IntersectionObserver: mark the card "in viewport" once it's near the
-  // visible area. We use a generous rootMargin so previews start loading
-  // slightly before the user scrolls to them, removing perceived latency.
   useEffect(() => {
     if (hasEnteredViewport) return;
     const node = cardRef.current;
@@ -149,25 +126,19 @@ function EnhancedTemplateCard({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setHasEnteredViewport(true);
-            observer.disconnect();
-            break;
-          }
+        if (entries.some((e) => e.isIntersecting)) {
+          setHasEnteredViewport(true);
+          observer.disconnect();
         }
       },
-      { rootMargin: '400px 0px', threshold: 0.01 }
+      { rootMargin: '200px 0px', threshold: 0.01 }
     );
-
     observer.observe(node);
     return () => observer.disconnect();
   }, [hasEnteredViewport]);
 
-  // Load live preview if image not available AND the card has entered viewport.
   useEffect(() => {
-    if (useImagePreview) return;
-    if (!hasEnteredViewport) return;
+    if (!hasEnteredViewport || useImagePreview) return;
 
     let mounted = true;
 
@@ -176,11 +147,12 @@ function EnhancedTemplateCard({
         setLoading(true);
         setError(null);
 
-        // Dynamically import template-loader functions to avoid module initialization issues
-        const { loadTemplate, applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
+        const { loadTemplate, applyColorVariant, injectResumeData } = await import(
+          '@/lib/resume-builder/template-loader'
+        );
 
         const loaded: LoadedTemplate | null = await loadTemplate(template.id);
-        
+
         if (!mounted) return;
 
         if (!loaded) {
@@ -188,20 +160,22 @@ function EnhancedTemplateCard({
         }
 
         const { template: templateMeta, html, css } = loaded;
-        const colorVariant = templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) || templateMeta.colors[0];
+        const colorVariant =
+          templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) ||
+          templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
 
-        const { previewData, injectOptions } = resolveGalleryCardRenderPlan(
-          template.id,
-          userPreviewData
+        // ALWAYS demo — never imported/editor/localStorage user data.
+        const dataInjectedHtml = injectResumeData(
+          html,
+          demoPlan.previewData,
+          demoPlan.injectOptions
         );
-
-        const dataInjectedHtml = injectResumeData(html, previewData, injectOptions);
 
         const fullHtml = buildGalleryPreviewDocumentHtml(
           coloredCss,
           dataInjectedHtml,
-          isGalleryCompactPreview(previewData)
+          isGalleryCompactPreview(demoPlan.previewData)
         );
 
         setPreviewHtml(fullHtml);
@@ -219,17 +193,17 @@ function EnhancedTemplateCard({
     return () => {
       mounted = false;
     };
-  }, [template.id, userPreviewData, useImagePreview, hasEnteredViewport]);
+  }, [template.id, useImagePreview, hasEnteredViewport, demoPlan]);
 
   const cardAccent = getGalleryCardAccent(template.id);
 
   const handleImageError = () => {
-    console.log(`[TemplatePreview] Image failed to load for ${template.id}, falling back to HTML/CSS preview`);
+    console.log(
+      `[TemplatePreview] Image failed to load for ${template.id}, falling back to HTML/CSS preview`
+    );
     setImageError(true);
     setUseImagePreview(false);
     setLoading(true);
-    // Trigger HTML/CSS loading by setting useImagePreview to false
-    // The useEffect will handle the loading
   };
 
   return (
@@ -255,7 +229,6 @@ function EnhancedTemplateCard({
           aria-hidden
         />
 
-        {/* Selected Indicator */}
         {isSelected && (
           <div className="absolute top-2 right-2 z-20">
             <div className="bg-blue-600 rounded-full p-1.5 shadow-lg">
@@ -264,7 +237,6 @@ function EnhancedTemplateCard({
           </div>
         )}
 
-        {/* Recommended Badge */}
         {template.recommended && !isSelected && lockState === 'open' && (
           <div className="absolute top-2 right-2 z-20">
             <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
@@ -290,46 +262,41 @@ function EnhancedTemplateCard({
           </div>
         )}
 
-        {/* Preview Container - Clean White Background */}
         <div className="relative w-full aspect-[8.5/11] overflow-hidden rounded-xl border border-gray-100 bg-white shadow-inner">
-        {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
-          <div className="absolute inset-0">
-            <Image
-              src={template.preview || template.thumbnail || ''}
-              alt={template.name}
-              fill
-              className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-              onError={handleImageError}
-              unoptimized
-              priority={false}
-              loading="lazy"
+          {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
+            <div className="absolute inset-0">
+              <Image
+                src={template.preview || template.thumbnail || ''}
+                alt={template.name}
+                fill
+                className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                onError={handleImageError}
+                unoptimized
+                priority={false}
+                loading="lazy"
+              />
+            </div>
+          ) : hasEnteredViewport ? (
+            <GalleryResumePreview
+              previewHtml={previewHtml}
+              loading={loading}
+              error={error}
+              templateName={template.name}
+              iframeRef={iframeRef}
+              formData={demoPlan.previewData}
+              templateId={template.id}
             />
-          </div>
-        ) : hasEnteredViewport ? (
-          <GalleryResumePreview
-            previewHtml={previewHtml}
-            loading={loading}
-            error={error}
-            templateName={template.name}
-            iframeRef={iframeRef}
-            formData={resolveGalleryCardRenderPlan(template.id, userPreviewData).previewData}
-            templateId={template.id}
-          />
-        ) : (
-          // Static placeholder for cards still outside the viewport — no
-          // animation, no iframe, no network. Swapped for the real preview
-          // by the IntersectionObserver effect above.
-          <div
-            className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-50"
-            aria-hidden
-          >
-            <Sparkles className="h-7 w-7 text-gray-300" />
-            <p className="text-xs text-gray-400">{template.name}</p>
-          </div>
-        )}
+          ) : (
+            <div
+              className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-50"
+              aria-hidden
+            >
+              <Sparkles className="h-7 w-7 text-gray-300" />
+              <p className="text-xs text-gray-400">{template.name}</p>
+            </div>
+          )}
         </div>
 
-        {/* Hover Overlay - Subtle */}
         <div
           className={cn(
             'absolute inset-0 bg-gradient-to-t via-transparent to-transparent',
@@ -339,44 +306,22 @@ function EnhancedTemplateCard({
             'flex items-end justify-center pb-8 z-10 rounded-2xl pointer-events-none'
           )}
         >
-          <div className={cn(
-            "text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 pointer-events-auto",
-            "group-hover:translate-y-0 translate-y-2",
-            isSelected ? "bg-blue-600/95" : "bg-blue-600/90"
-          )}>
-            {isSelected ? '✓ Selected' : 'Click to Edit'}
+          <div
+            className={cn(
+              'text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 pointer-events-auto',
+              'group-hover:translate-y-0 translate-y-2',
+              isSelected ? 'bg-blue-600/95' : 'bg-blue-600/90'
+            )}
+          >
+            {isSelected ? 'Selected' : 'Click to Edit'}
           </div>
         </div>
       </div>
 
-      {/* Template Name & Label - Below Card */}
-      <div className="mt-3 w-full px-1 text-center">
-        <h4 className={cn(
-          "text-lg font-semibold transition-colors duration-300",
-          isSelected ? "text-blue-600" : "text-gray-900"
-        )}>
-          {template.name}
-        </h4>
+      <div className="mt-3 px-1">
+        <h4 className="text-sm font-semibold text-gray-900 truncate">{template.name}</h4>
         {template.description && (
-          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{template.description}</p>
-        )}
-        {/* Categories - Subtle Tags */}
-        {template.categories && template.categories.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 justify-center mt-2">
-            {template.categories.slice(0, 2).map((category) => (
-              <span
-                key={category}
-                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
-              >
-                {category}
-              </span>
-            ))}
-            {template.layout && (
-              <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
-                {template.layout}
-              </span>
-            )}
-          </div>
+          <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{template.description}</p>
         )}
       </div>
     </div>

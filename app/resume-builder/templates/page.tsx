@@ -8,7 +8,7 @@ import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import type { Template } from '@/lib/resume-builder/types';
 import { writeImportSession, ensureBuilderContactFields, resolveEditorFormFromImport, prepareBuilderSessionPayload, readImportMeta } from '@/lib/resume-builder/builder-hydration';
-import { hasImportableContent, coalesceBuilderImportPayload, backfillImportedExperienceForDisplay } from '@/lib/resume-builder/import-transformer';
+import { hasImportableContent, coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';
@@ -19,8 +19,11 @@ interface Filters {
   color: string | null;
 }
 
-/** Load uploaded/imported resume data for gallery previews (same source as editor). */
-function loadGalleryPreviewFormData(): Record<string, unknown> {
+/**
+ * Session import payload for editor handoff only.
+ * Marketing gallery cards never consume this — they always render demo sample data.
+ */
+function loadImportSessionFormData(): Record<string, unknown> {
   if (typeof window === 'undefined') return {};
 
   const importRaw = sessionStorage.getItem('resume-import-data');
@@ -55,7 +58,6 @@ export default function TemplateSelectionPage() {
   const source = searchParams.get('source'); // Check if coming from import
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
-  const [previewFormData, setPreviewFormData] = useState<Record<string, unknown>>({});
 
   // Lazy load templates data to avoid module initialization issues
   useEffect(() => {
@@ -64,35 +66,6 @@ export default function TemplateSelectionPage() {
       setTemplatesLoaded(true);
     });
   }, []);
-
-  useEffect(() => {
-    try {
-      const resolved = resolveEditorFormFromImport();
-      if (resolved && hasImportableContent(resolved)) {
-        setPreviewFormData(resolved);
-        return;
-      }
-
-      const raw = loadGalleryPreviewFormData();
-      if (Object.keys(raw).length > 0) {
-        try {
-          const coalesced = backfillImportedExperienceForDisplay(
-            ensureBuilderContactFields(coalesceBuilderImportPayload(raw))
-          );
-          setPreviewFormData(hasImportableContent(coalesced) ? coalesced : raw);
-        } catch (err) {
-          console.error('[template-gallery] coalesce failed, using session payload', err);
-          setPreviewFormData(raw);
-        }
-      }
-    } catch (err) {
-      console.error('[template-gallery] import preview hydration failed', err);
-      const raw = loadGalleryPreviewFormData();
-      if (Object.keys(raw).length > 0) {
-        setPreviewFormData(raw);
-      }
-    }
-  }, [source]);
 
   // Template filters state
   const [filters, setFilters] = useState<Filters>({
@@ -125,8 +98,9 @@ export default function TemplateSelectionPage() {
   }, [filters, templates, templatesLoaded]);
 
   const handleTemplateSelect = (templateId: string) => {
+    // Gallery stays demo-only; on click we hand off imported/user data to the editor.
     if (source === 'import') {
-      const raw = loadGalleryPreviewFormData();
+      const raw = loadImportSessionFormData();
       if (Object.keys(raw).length > 0) {
         let payload: Record<string, unknown> | null = resolveEditorFormFromImport();
         if (!payload || !hasImportableContent(payload)) {
@@ -246,7 +220,6 @@ export default function TemplateSelectionPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sm:p-6 lg:p-8">
           <TemplatePreviewGallery
             templates={filteredTemplates}
-            formData={previewFormData}
             selectedTemplateId={null}
             onTemplateSelect={handleTemplateSelect}
           />
