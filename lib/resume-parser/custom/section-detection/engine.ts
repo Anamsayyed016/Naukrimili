@@ -180,6 +180,16 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
         continue;
       }
       if (type === 'summary' && isExperienceSummary) continue;
+      // Employment-shaped career/professional highlights must not mirror into achievements.
+      if (
+        type === 'achievements' &&
+        (key === 'experience' ||
+          /\bcareer\s+highlights?\b|\bprofessional\s+highlights?\b|\bwork\s+history\b|\bemployment\b/i.test(
+            headingLower
+          ))
+      ) {
+        continue;
+      }
       // "Career Objective" / "Career Summary" must not mirror into experience
       // just because the experience taxonomy includes the token "career".
       if (

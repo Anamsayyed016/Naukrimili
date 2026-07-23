@@ -20,8 +20,13 @@ export function healOcrDateArtifacts(text: string): string {
   return String(text || '')
     .replace(/[\u2018\u2019\u201A\u201B']/g, "'")
     .replace(/\b(\d{1,2})\s*(?:\r?\n|\s)*(?:st|nd|rd|th)\b/gi, '$1')
+    // "Oct'2017" / "Oct'2017" / "Sep2011" → "Oct 2017" / "Sep 2011"
     .replace(
-      new RegExp(`\\b((?:${MONTH_NAMES}))\\s*((?:19|20)\\d{2})\\b`, 'gi'),
+      new RegExp(`\\b((?:${MONTH_NAMES}))\\.?['']?\\s*((?:19|20)\\d{2})\\b`, 'gi'),
+      '$1 $2'
+    )
+    .replace(
+      new RegExp(`\\b((?:${MONTH_NAMES}))\\.?((?:19|20)\\d{2})\\b`, 'gi'),
       '$1 $2'
     )
     // Keep a range separator when normalizing "to till date" → present.

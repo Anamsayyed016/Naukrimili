@@ -16,6 +16,9 @@ import { recordIssue, recordRepair } from './types';
 const INSTITUTION_MARKERS_RE =
   /\b(university|college|institute|school|academy|polytechnic|vidyalaya|vidyapeeth)\b/i;
 
+const EDUCATION_TABLE_HEADER_RE =
+  /^(?:degree|board|university|college|school|institute|institution|year|academic(?:\s+year)?|percentage|percent(?:\s*-\s*age)?|percent(?:age)?(?:\s*\/\s*cgpa)?|cgpa|gpa|marks|score|result|division|grade|name\s+of\s+(?:school|college|institute|institution|university)|board\s*\/\s*university|degree\s+board(?:\s*\/\s*university)?)\s*$/i;
+
 function eduKey(edu: CustomExtractedEducation): string {
   return [
     edu.institution?.toLowerCase() || '',
@@ -31,15 +34,30 @@ function recoverInstitutionFromDegree(
   if (!sectionText || edu.institution || !edu.degree) return { institution: '', confidence: 0 };
 
   const lines = sectionText.split(/\n/).map((l) => l.trim()).filter(Boolean);
-  for (const line of lines) {
-    if (INSTITUTION_MARKERS_RE.test(line) && line.toLowerCase().includes(edu.degree.toLowerCase().slice(0, 8))) {
-      return { institution: line, confidence: 68 };
+  let best: { institution: string; confidence: number } = { institution: '', confidence: 0 };
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/([A-Za-z])-\s+([a-z])/g, '$1$2').replace(/\s+/g, ' ').trim();
+    if (EDUCATION_TABLE_HEADER_RE.test(line)) continue;
+    if (/^\d{1,2}(?:\.\d{1,2})?\s*(?:cgpa|gpa|sgpa|%)\s*$/i.test(line)) continue;
+    // Prefer full school/college names over degree+acronym mash lines.
+    if (
+      INSTITUTION_MARKERS_RE.test(line) &&
+      !/\b(?:b\.?\s*tech|m\.?\s*tech|b\.?\s*e\.?|mba|b\.?\s*sc|m\.?\s*sc)\b/i.test(line) &&
+      isLikelyEducationLine(line)
+    ) {
+      const conf = line.split(/\s+/).length >= 4 ? 78 : 62;
+      if (conf > best.confidence) best = { institution: line, confidence: conf };
+      continue;
     }
-    if (INSTITUTION_MARKERS_RE.test(line) && isLikelyEducationLine(line)) {
-      return { institution: line, confidence: 62 };
+    // Compact "B.Tech. CAMPUS, CITY 2004-2008" — recover campus acronym.
+    const campus = line.match(
+      /(?:b\.?\s*tech\.?|b\.?\s*e\.?|m\.?\s*tech\.?|mba)\s+([A-Z]{3,8})\s*,/i
+    );
+    if (campus?.[1] && best.confidence < 70) {
+      best = { institution: campus[1], confidence: 70 };
     }
   }
-  return { institution: '', confidence: 0 };
+  return best;
 }
 
 export function repairEducationEntry(
@@ -64,6 +82,36 @@ export function repairEducationEntry(
       });
       fixed.institution = recovered.institution;
     }
+  }
+
+  // Drop table-header debris that slipped into institution.
+  if (fixed.institution && EDUCATION_TABLE_HEADER_RE.test(fixed.institution.trim())) {
+    recordRepair(ctx, {
+      section: 'education',
+      field: 'institution',
+      index,
+      originalValue: fixed.institution,
+      recoveredValue: '',
+      evidenceSource: 'section_metadata',
+      confidence: 90,
+      reason: 'Cleared education table header misfiled as institution.',
+    });
+    fixed.institution = '';
+    if (fixed.degree) {
+      const recovered = recoverInstitutionFromDegree(fixed, ctx.sectionTexts.education || '');
+      if (recovered.institution) fixed.institution = recovered.institution;
+    }
+  }
+
+  // Promote institute-shaped field-of-study into institution when missing.
+  if (
+    !fixed.institution &&
+    fixed.fieldOfStudy &&
+    INSTITUTION_MARKERS_RE.test(fixed.fieldOfStudy) &&
+    !EDUCATION_TABLE_HEADER_RE.test(fixed.fieldOfStudy.trim())
+  ) {
+    fixed.institution = fixed.fieldOfStudy.replace(/\s*-\s+/g, ' ').replace(/\s+/g, ' ').trim();
+    fixed.fieldOfStudy = '';
   }
 
   if (!fixed.degree && fixed.institution && isLikelyEducationLine(fixed.institution)) {

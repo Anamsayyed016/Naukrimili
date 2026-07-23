@@ -96,11 +96,28 @@ export function detectTitleFromLine(text: string): TitleDetection {
   const raw = text.trim();
   if (!raw) return { title: '', confidence: 0 };
 
+  // Explicit "Title : …" / "Project Title: …" labels common on civil/infra CVs.
+  const labeled = raw.match(/^(?:project\s+)?title\s*[:\-–—]\s*(.+)$/i);
+  if (labeled?.[1]) {
+    const title = labeled[1].trim().replace(/\s+/g, ' ');
+    if (title.length >= 3) {
+      return { title, confidence: Math.max(scoreProjectTitleCandidate(title), 72) };
+    }
+  }
+
+  // "Project under Employer" is an affiliation header, not a title.
+  if (/^projects?\s+under\b/i.test(raw)) {
+    return { title: '', confidence: 0 };
+  }
+
   const dashSplit = raw.split(/\s+[-–—:]\s+/);
   if (dashSplit.length >= 2) {
     const head = dashSplit[0].replace(/^[•\-\*\u2022]\s+/, '').trim();
-    const conf = scoreProjectTitleCandidate(head);
-    if (conf >= 38) return { title: head, confidence: conf };
+    // Avoid treating the bare label "Title" as a project name.
+    if (!/^(?:project\s+)?title$/i.test(head)) {
+      const conf = scoreProjectTitleCandidate(head);
+      if (conf >= 38) return { title: head, confidence: conf };
+    }
   }
 
   const cleaned = raw.replace(/^[•\-\*\u2022]\s+/, '').trim();

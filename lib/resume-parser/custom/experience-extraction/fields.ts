@@ -2,7 +2,7 @@
  * Per-block field assembly and confidence aggregation.
  */
 
-import { detectCompanyFromLine, looksLikeInstitutionalEmployer, isIndustrySectorTagline, isEmployerAffiliationTagline, stripCompanyLineEmploymentMeta } from './company';
+import { detectCompanyFromLine, looksLikeInstitutionalEmployer, isIndustrySectorTagline, isEmployerAffiliationTagline, stripCompanyLineEmploymentMeta, looksLikeSentenceNotCompany } from './company';
 import { isTenureOrDateOnlyHeaderLine, parseDateRangeFromText } from './dates';
 import { detectDesignationFromLine, scoreDesignationCandidate, stripTrailingEmploymentDates } from './designation';
 import { extractDescriptionFromBlock } from './description';
@@ -34,7 +34,7 @@ interface FieldPick<T> {
   confidence: number;
 }
 
-/** Parse composite header lines: "Title at Company", "Title - Company", "As Title in Company", "Title Company | Loc | Dates". */
+/** Parse composite header lines: "Title at Company", "Title - Company", "As Title in Company", "Company Title", "Title Company | Loc | Dates". */
 function parseCompositeHeaderLine(line: string): {
   designation: FieldPick<string>;
   company: FieldPick<string>;
@@ -42,13 +42,57 @@ function parseCompositeHeaderLine(line: string): {
   const trimmed = line.trim();
   if (!trimmed) return null;
 
+  // Bare company-first (no pipes): "Acme Design and Engg Pvt Ltd Project Manager"
+  // Also: "Acme PVT LTD Clients ( Senior Manager) Since April 2022 to Dec 2024"
+  // Prefer Co. Ltd / Pvt Ltd before bare "Co." so "… & Co.Ltd. Title" stays intact.
+  const companyFirstBare = trimmed.match(
+    /^(.+?\b(?:private\s+limited|pvt\.?\s*ltd\.?|co\.?\s*ltd\.?|ltd\.?|limited|llc|inc\.?|corp\.?|corporation|gmbh|plc|co\.)\b\.?(?:\s*\([^)]+\))?)\s+(.+)$/i
+  );
+  if (companyFirstBare) {
+    const employer = companyFirstBare[1].trim();
+    let role = companyFirstBare[2]
+      .replace(
+        /\s*(?:since|from)?\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:19|20)\d{2}\b.*$/i,
+        ''
+      )
+      .replace(/\s+(?:since|from)\b.*$/i, '')
+      .replace(/^[\s–—\-|:]+/, '')
+      .replace(/\(([^)]*)\)/g, ' $1 ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    // Drop leading "Clients" / "Client" bookkeeping tokens before the role.
+    role = role.replace(/^(?:clients?|customer)\s*/i, '').trim();
+    const des = detectDesignationFromLine(role);
+    const comp = detectCompanyFromLine(employer);
+    if (
+      employer.length >= 3 &&
+      role.length >= 2 &&
+      (des.confidence >= 28 || scoreDesignationCandidate(role) >= 28) &&
+      (comp.confidence >= 30 ||
+        looksLikeInstitutionalEmployer(employer) ||
+        isPlausibleExperienceCompany(employer) ||
+        looksLikeCompanyNameLine(employer))
+    ) {
+      return {
+        designation: {
+          value: des.designation || role,
+          confidence: Math.max(des.confidence, 58),
+        },
+        company: {
+          value: comp.company || employer,
+          confidence: Math.max(comp.confidence, 62),
+        },
+      };
+    }
+  }
+
   // "Title Company | Location | Dates" or "Company Title | Dates"
   const pipeParts = trimmed.split(/\s*\|\s*/).map((p) => p.trim()).filter(Boolean);
   if (pipeParts.length >= 2) {
     const left = pipeParts[0];
     // Company-first: "Acme Pvt. Ltd. (Brand) Executive – Accounts & Finance | Dates"
     const companyFirst = left.match(
-      /^(.+?\b(?:pvt\.?\s*ltd\.?|private\s+limited|ltd\.?|limited|llc|inc\.?|corp\.?|corporation|llp|gmbh|plc|co\.?)\b\.?(?:\s*\([^)]+\))?)\s+(.+)$/i
+      /^(.+?\b(?:private\s+limited|pvt\.?\s*ltd\.?|co\.?\s*ltd\.?|ltd\.?|limited|llc|inc\.?|corp\.?|corporation|llp|gmbh|plc|co\.)\b\.?(?:\s*\([^)]+\))?)\s+(.+)$/i
     );
     if (companyFirst) {
       const employer = companyFirst[1].trim();
@@ -557,6 +601,8 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
       !lineLooksLikeTenureExperience(line) &&
       !isCondensedTenureExperienceLine(line) &&
       !/^responsibilit/i.test(line) &&
+      !isExperienceBlurbFragment(line) &&
+      !looksLikeSentenceNotCompany(line) &&
       !(looksLikeJobTitleLine(line) && detectDesignationFromLine(line).confidence >= 40) &&
       (looksLikeCompanyNameLine(line) ||
         looksLikeInstitutionalEmployer(line) ||
@@ -564,7 +610,11 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
         detectCompanyFromLine(line).confidence >= 40)
     ) {
       const det = detectCompanyFromLine(line);
+      if (det.confidence < 40 && !looksLikeCompanyNameLine(line) && !looksLikeInstitutionalEmployer(line)) {
+        continue;
+      }
       const cleaned = stripCompanyLineEmploymentMeta(det.company || line);
+      if (!cleaned || looksLikeSentenceNotCompany(cleaned)) continue;
       company = {
         value: cleaned || det.company || line,
         confidence: Math.max(det.confidence, looksLikeInstitutionalEmployer(line) ? 70 : 58),
@@ -598,7 +648,8 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   const designationPick = pickBestDesignation(headerLines, '');
   const companyPick = pickBestCompany(headerLines, designationPick.value);
 
-  // Prefer a complete title+employer composite over a date-token company miss.
+  // Prefer a complete title+employer composite over a date-token company miss
+  // or a body-line prose false positive labeled as company.
   const compositeComplete =
     Boolean(compositePick.designation.value) && Boolean(compositePick.company.value);
   let finalDesignation =
@@ -615,11 +666,15 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
   let finalCompany =
     tenureCompany.confidence >= 70
       ? tenureCompany
-      : labeled.company.confidence >= 55
-        ? labeled.company
-        : compositeComplete &&
-            compositePick.company.confidence + 8 >= companyPick.confidence
-          ? compositePick.company
+      : compositeComplete
+        ? // Composite headers own the employer unless an explicit/stronger company label wins.
+          labeled.company.confidence >= compositePick.company.confidence + 12 &&
+          looksLikeCompanyNameLine(labeled.company.value) &&
+          !looksLikeSentenceNotCompany(labeled.company.value)
+            ? labeled.company
+            : compositePick.company
+        : labeled.company.confidence >= 55
+          ? labeled.company
           : compositePick.company.confidence > companyPick.confidence
             ? compositePick.company
             : companyPick;

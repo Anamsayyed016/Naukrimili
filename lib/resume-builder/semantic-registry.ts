@@ -238,6 +238,8 @@ export const SEMANTIC_SECTION_DEFINITIONS: SemanticSectionDefinition[] = [
       'projects',
       'personal projects',
       'key projects',
+      'key projects handled',
+      'projects handled',
       'major projects',
       'professional projects',
       'academic projects',

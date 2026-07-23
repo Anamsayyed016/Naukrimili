@@ -221,11 +221,24 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
     /\b(?:ctc|c\.t\.c|lakh|lac|p\.?a\.?|per\s+annum|salary|remuneration)\b/i.test(t);
   const employmentHeading =
     /\b(?:professional|work|employment)\s+experience\b|\bemployment\s+history\b/i.test(t);
+  // "Since Mon YYYY to till date" tenure openers used on many civil/infra CVs.
+  const hasSinceTenure =
+    /\bsince\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\b/i.test(
+      t
+    );
   if (hasRole && (hasDates || hasCompanySuffix || hasResponsibility || hasTeamSize)) return true;
   if (hasTeamSize && hasResponsibility && (hasDates || hasCompanySuffix)) return true;
   if (hasCompanySuffix && hasDates && hasResponsibility) return true;
   // Employer-suffix + date range is enough even without Role:/Responsibilities: labels.
   if (hasCompanySuffix && hasDates && (hasInlineTenure || hasCompSignal || t.length >= 200)) {
+    return true;
+  }
+  if (
+    hasCompanySuffix &&
+    hasSinceTenure &&
+    t.length >= 160 &&
+    (t.match(/\b(?:ltd|limited|pvt|llc|inc|corp)\b/gi) || []).length >= 2
+  ) {
     return true;
   }
   if (employmentHeading && hasDates && (hasCompanySuffix || hasInlineTenure) && t.length >= 120) {
@@ -236,16 +249,50 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
 }
 
 /**
- * Reclassify project/certification sections whose bodies are clearly employment
- * history (Role:/Team Size:/Key Responsibility: patterns). Generic — no
- * resume-specific keywords.
+ * True when a section is a project portfolio (client projects under employers),
+ * not a work-history block — even if employer suffixes and dates appear.
+ */
+export function looksLikeProjectPortfolioText(text: string): boolean {
+  const t = String(text || '');
+  if (t.trim().length < 40) return false;
+  const underCount = (t.match(/\bprojects?\s+under\b/gi) || []).length;
+  const titleLabels = (t.match(/^\s*title\s*:/gim) || []).length;
+  const durationLabels = (t.match(/^\s*duration\s*:/gim) || []).length;
+  if (underCount >= 2) return true;
+  if (underCount >= 1 && titleLabels >= 1) return true;
+  if (titleLabels >= 2 && durationLabels >= 1) return true;
+  return false;
+}
+
+/**
+ * Reclassify sections whose bodies are clearly employment history.
+ * Protect genuine project-portfolio sections from false promotion into experience.
  */
 export function reclassifyEmploymentShapedSections(
   sections: DetectedSectionBlock[]
 ): DetectedSectionBlock[] {
   return sections.map((section) => {
-    if (section.type !== 'projects' && section.type !== 'certifications') return section;
+    if (
+      section.type !== 'projects' &&
+      section.type !== 'certifications' &&
+      section.type !== 'achievements'
+    ) {
+      return section;
+    }
+    // Key Projects / Project under X portfolios must stay projects.
+    if (section.type === 'projects' && looksLikeProjectPortfolioText(section.content)) {
+      return section;
+    }
+    // Career/Professional Highlights that are really work history → experience.
     if (!looksLikeEmploymentShapedText(section.content)) return section;
+    // Don't steal project portfolios that were mis-typed as achievements.
+    if (section.type === 'achievements' && looksLikeProjectPortfolioText(section.content)) {
+      return {
+        ...section,
+        type: 'projects' as NormalizedSectionType,
+        confidence: Math.max(section.confidence, 58),
+      };
+    }
     return {
       ...section,
       type: 'experience' as NormalizedSectionType,

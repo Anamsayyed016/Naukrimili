@@ -76,10 +76,23 @@ function isTableColumnHeaderLine(text: string): boolean {
   ) {
     return true;
   }
+  // Education / grade table stubs (often OCR-split across lines).
+  if (
+    /^(?:degree|board|university|college|school|institute|institution|year|academic(?:\s+year)?|percentage|percent(?:\s*-\s*age)?|percent(?:age)?(?:\s*\/\s*cgpa)?|cgpa|gpa|marks|score|result|division|grade|name\s+of\s+(?:school|college|institute|institution|university)|board\s*\/\s*university|degree\s+board(?:\s*\/\s*university)?)\s*$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Bare performance tokens: "7.0 CGPA", "78.2%", "8.5 GPA".
+  if (/^\d{1,2}(?:\.\d{1,2})?\s*(?:cgpa|gpa|sgpa|%|percent(?:age)?)\s*$/i.test(t)) {
+    return true;
+  }
+  if (/^\(?\s*%\s*\)?$/.test(t)) return true;
   // Glued multi-column header strips (e.g. "EducationBoard / UniversityYearDivision").
   const colHits = (
     t.match(
-      /\b(?:s\/?\s*no|education|board|university|year|division|course|specialization|specialisation|organization|organisation|environment|institution|duration|grade|percentage|type|from|to|period|employer|designation)\b/gi
+      /\b(?:s\/?\s*no|education|board|university|year|division|course|specialization|specialisation|organization|organisation|environment|institution|duration|grade|percentage|type|from|to|period|employer|designation|cgpa|gpa|school|college)\b/gi
     ) || []
   ).length;
   if (colHits >= 2 && !/[.!?]$/.test(t) && t.split(/\s+/).length <= 14) {
@@ -97,6 +110,8 @@ function isHeadingDebris(text: string): boolean {
   if (/[&/]\s*$/.test(t) || /\b(?:and|or|of|the|for|with|to)\s*$/i.test(t)) return true;
   // Lone sentence-wrap fragments: "works.", "suppliers.", "Processes."
   if (/^[A-Za-z][A-Za-z'’\-]{0,24}\.\s*$/.test(t)) return true;
+  // Multi-token prose sentences (even when they mention "projects") are never headings.
+  if (/[.!?]$/.test(t) && t.split(/\s+/).length >= 4) return true;
   // Mid-sentence continuation crumbs (not known section words).
   if (
     /^[a-z]/.test(t) &&

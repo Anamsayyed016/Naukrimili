@@ -2699,6 +2699,26 @@ export function isPlausibleProjectName(value: unknown): boolean {
   if (s.length > 90) return false;
 
   const words = s.split(/\s+/).filter(Boolean);
+  // Sentence fragments / trailing-period blurbs are never project titles.
+  if (
+    /[.!?]$/.test(s) &&
+    (words.length <= 4 ||
+      /^[a-z]/.test(s) ||
+      /\b(?:control|player|problem|environment|emphasis|skills)\b/i.test(s))
+  ) {
+    return false;
+  }
+  if (/^[a-z]/.test(s) && words.length <= 6) return false;
+  // Soft profile blurbs that slipped into a projects body.
+  if (
+    /\b(?:hands\s+on|team\s+player|working\s+environment|physical\s+problem|aesthetics\s+part|management\s+skills)\b/i.test(
+      s
+    )
+  ) {
+    return false;
+  }
+  // Meta sentences about the project are not titles.
+  if (/^(?:this\s+is|it\s+is|the\s+project\s+is)\b/i.test(s)) return false;
   if (words.length > 12) return false;
   if (PROJECT_VERB_PREFIX_RE.test(s)) return false;
   // Job titles misclassified as projects (e.g. "Full Stack Python Developer").
@@ -3442,9 +3462,25 @@ export function sanitizeExperienceCompanyValue(value: unknown): string {
     }
   }
   s = s.replace(/[.,;:\s]+$/g, '').trim();
-  if (!s || isExperienceDateOrDurationToken(s) || looksLikeJobTitleLine(s)) return '';
+  if (!s || isExperienceDateOrDurationToken(s)) return '';
+  // Trade names that include title tokens ("… Consultant … Ltd") are still employers
+  // when a hard legal suffix is present.
+  const hasLegalSuffix = /\b(?:private\s+limited|pvt\.?\s*ltd\.?|ltd\.?|limited|llp|inc\.?|corp\.?|gmbh|plc|co\.?\s*ltd\.?)\b/i.test(
+    s
+  );
+  if (looksLikeJobTitleLine(s) && !hasLegalSuffix) return '';
   // Occupational single-token titles must never occupy the company slot.
   if (/^[A-Za-z][A-Za-z'-]{3,30}(?:ologist|ician|ographer|otherapist|urgeon|entist|chemist|physicist)$/i.test(s)) {
+    return '';
+  }
+  // Street / postal addresses are never employers.
+  if (
+    /\b(?:society|nagar|colony|road|street|sector|phase|pocket|block|apartment|industrial\s+area)\b/i.test(
+      s
+    ) &&
+    /\d/.test(s) &&
+    !/\b(?:ltd|limited|pvt|llc|inc|corp)\b/i.test(s)
+  ) {
     return '';
   }
   return sanitizeFieldText(s, 160);
@@ -3656,8 +3692,18 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   if (looksLikeSentenceNotCompany(t)) return false;
   if (SPECIAL_EMPLOYER_RE.test(t)) return true;
   if (/^government\b/i.test(t) && !JOB_TITLE_HINT_RE.test(t)) return true;
+  // Legal / org suffixes win over embedded title tokens ("… Consultant … Ltd"),
+  // but only when the line is primarily an employer name — not a compressed
+  // "Employer Ltd Title" header that still carries a role after the suffix.
+  const hasLegalOrOrgHint = COMPANY_NAME_HINT_RE.test(t);
+  const trailingRoleAfterSuffix =
+    hasLegalOrOrgHint &&
+    /\b(?:private\s+limited|pvt\.?\s*ltd\.?|co\.?\s*ltd\.?|ltd\.?|limited|llc|inc\.?|corp\.?|gmbh|plc)\b\.?\s+\S+/i.test(
+      t
+    ) &&
+    JOB_TITLE_HINT_RE.test(t);
+  if (hasLegalOrOrgHint && !trailingRoleAfterSuffix) return true;
   if (JOB_TITLE_HINT_RE.test(t)) return false;
-  if (COMPANY_NAME_HINT_RE.test(t)) return true;
   if (INSTITUTIONAL_EMPLOYER_HINT_RE.test(t) && t.split(/\s+/).length <= 8) return true;
   const core = t.replace(/\s+(limited|ltd\.?|inc\.?|pvt\.?\s*ltd\.?)$/i, '').trim();
   if (WELL_KNOWN_EMPLOYER_RE.test(core)) return true;
@@ -7211,6 +7257,21 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     return false;
   }
   if (looksLikeSentenceNotCompany(company)) return false;
+  // Site / facility duty blurbs after punctuation normalize — never employers.
+  if (
+    !/\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp)\b/i.test(company) &&
+    (
+      /\b(?:industrial|residential|commercial|civil)\s+(?:plant|complex|building|project|shed|structure)s?\b/i.test(
+        company
+      ) ||
+      /\b(?:plant|complex|building|shed)\s+with\b/i.test(company) ||
+      /\b(?:water\s+supply|irrigation|sewerage|drainage)\s+(?:scheme\s+)?projects?\b/i.test(company) ||
+      /\b(?:scheme|assignment|engagement)\s+project\b/i.test(company) ||
+      /\bprojects?\s+in\b/i.test(company)
+    )
+  ) {
+    return false;
+  }
   // Duty-verb false positives must not reject legal employer names containing
   // "Engineering", "Industries", etc. (e.g. "CAPARO Engineering India Ltd., City").
   if (
@@ -7224,6 +7285,16 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   }
   if (/\d+\s*%/.test(company)) return false;
   if (INSTITUTIONAL_EMPLOYER_HINT_RE.test(lower)) return true;
+  // Hard legal suffixes win even when the trade name contains title tokens
+  // ("… Consultant Engineering Ltd", "… Engineer Services Pvt Ltd").
+  if (
+    hasLegalSuffix &&
+    /^[A-Z]/.test(company.trim()) &&
+    company.trim().split(/\s+/).length >= 2 &&
+    company.trim().split(/\s+/).length <= 14
+  ) {
+    return true;
+  }
   if (/\b[A-Z][a-z]+\s+(?:sons|bros|brothers|holdings|group|industries|enterprises|motors|retail)\b/i.test(company)) {
     return true;
   }

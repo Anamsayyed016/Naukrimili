@@ -257,4 +257,248 @@ describe('generic resume parser robustness', () => {
     const industrial = scoreHeadingKeywords('industrial skills');
     expect((industrial.skills ?? 0)).toBeGreaterThan(50);
   });
+
+  it('reclassifies employment-shaped career highlights and protects project portfolios', () => {
+    const {
+      reclassifyEmploymentShapedSections,
+      looksLikeEmploymentShapedText,
+      looksLikeProjectPortfolioText,
+    } = require('@/lib/resume-parser/custom/section-detection/partition');
+
+    const careerBody = [
+      'Acme Design and Engg Pvt Ltd Project Manager',
+      'Since April 2025 to till date',
+      'Execution, supervision and monitoring of entire project activities.',
+      'Beta Polyfilms PVT LTD Clients ( Senior Manager) Since April 2022 to Dec 2024',
+      'The project is an industrial plant with ETP and STP.',
+    ].join('\n');
+    expect(looksLikeEmploymentShapedText(careerBody)).toBe(true);
+
+    const projectBody = [
+      'Project under Acme Design and Engg Pvt Ltd',
+      'Title : DTY SHED EXPANSION, HIMMATNAGAR',
+      'Duration : Since April 2025 to till date',
+      'Industrial plant with road work. Project cost is 5 cr.',
+      'Project under Beta Polyfilms PVT LTD',
+      'Title : BOPP Film Projects',
+      'Duration : Since April 2022 to Dec 2024',
+      'Main plant foundation and cable trench.',
+    ].join('\n');
+    expect(looksLikeProjectPortfolioText(projectBody)).toBe(true);
+
+    const sections = reclassifyEmploymentShapedSections([
+      {
+        type: 'achievements',
+        rawHeading: 'CAREER HIGHLIGHTS',
+        content: careerBody,
+        confidence: 80,
+        startIndex: 0,
+        endIndex: 10,
+      },
+      {
+        type: 'projects',
+        rawHeading: 'KEY PROJECTS HANDLED',
+        content: projectBody,
+        confidence: 80,
+        startIndex: 11,
+        endIndex: 30,
+      },
+    ]);
+    expect(sections[0].type).toBe('experience');
+    expect(sections[1].type).toBe('projects');
+  });
+
+  it('splits bare company-first headers and rejects street addresses as employers', () => {
+    const { extractExperiencesFromSection } = require('@/lib/resume-parser/custom/experience-extraction');
+    const { looksLikeStreetAddressLine } = require('@/lib/resume-parser/custom/experience-extraction/company');
+    expect(
+      looksLikeStreetAddressLine('Navrangpura ,25 Raopura society, memnagar Ahemdabad.')
+    ).toBe(true);
+    expect(looksLikeStreetAddressLine('Acme Design and Engg Pvt Ltd')).toBe(false);
+
+    const section = [
+      'Acme Design and Engg Pvt Ltd Project Manager',
+      'Since April 2025 to till date',
+      'Navrangpura ,25 Raopura society, memnagar Ahemdabad.',
+      'Execution, supervision and monitoring of entire project activities.',
+      'Beta Polyfilms PVT LTD Clients ( Senior Manager) Since April 2022 to Dec 2024',
+      'Industrial plant with ETP and residential complex.',
+    ].join('\n');
+    const exps = extractExperiencesFromSection(section);
+    expect(exps.length).toBeGreaterThanOrEqual(2);
+    expect(exps[0].company).toMatch(/Acme Design and Engg Pvt Ltd/i);
+    expect(exps[0].designation).toMatch(/Project Manager/i);
+    expect(exps[0].company).not.toMatch(/Navrangpura|society/i);
+    expect(exps[1].company).toMatch(/Beta Polyfilms/i);
+    expect(exps[1].designation).toMatch(/Senior Manager/i);
+  });
+
+  it('parses Project under / Title: / Duration: portfolio blocks', () => {
+    const { extractProjectsFromSection } = require('@/lib/resume-parser/custom/project-extraction');
+    const section = [
+      'Project under Acme Design and Engg Pvt Ltd',
+      'Title : DTY SHED EXPANSION, HIMMATNAGAR',
+      'Duration : Since April 2025 to till date',
+      'Industrial plant with road work. Project cost is 5 cr.',
+      'Project under Beta Polyfilms PVT LTD',
+      'Title : BOPP Film Projects',
+      'Duration : Since April 2022 to Dec 2024',
+      'Main plant foundation and cable trench work.',
+    ].join('\n');
+    const projects = extractProjectsFromSection(section);
+    expect(projects.length).toBeGreaterThanOrEqual(2);
+    expect(projects[0].title).toMatch(/DTY SHED/i);
+    expect(projects[0].company).toMatch(/Acme Design/i);
+    expect(projects[1].title).toMatch(/BOPP/i);
+  });
+
+  it('rejects education table headers and parses Degree + campus acronym rows', () => {
+    const { extractEducationFromSection } = require('@/lib/resume-parser/custom/education-extraction');
+    const section = [
+      'Degree Board/University',
+      'Academic Year',
+      'B.Tech. CAMPUS, CITY 2004-2008',
+      '7.0 CGPA',
+      'National Institute Of Technology, City',
+      '12th',
+      'STATE BOARD, CITY 2002 78.2%',
+    ].join('\n');
+    const edus = extractEducationFromSection(section);
+    expect(edus.some((e: { degree: string }) => /B\.?\s*Tech/i.test(e.degree))).toBe(true);
+    expect(
+      edus.every((e: { institution: string }) => !/Degree Board\/University/i.test(e.institution || ''))
+    ).toBe(true);
+    expect(
+      edus.some(
+        (e: { institution: string }) =>
+          /CAMPUS/i.test(e.institution || '') || /National Institute/i.test(e.institution || '')
+      )
+    ).toBe(true);
+  });
+
+  it('parses Co.Ltd company-first headers and glued month-year tenures', () => {
+    const { extractExperiencesFromSection } = require('@/lib/resume-parser/custom/experience-extraction');
+    const section = [
+      'Delta Consultant engineering Ltd Consultant Project (Civil) since Oct’2017 to April 2022',
+      'Water supply scheme project in District Area',
+      'Site inspection for civil construction work.',
+      'Gamma Consultant Pvt Ltd Senior Engg (Civil) Since Sep2011 to OCT 2017',
+      'Execution and monitoring of entire project activities.',
+      'Omega dunkerley & Co.Ltd. Astt Engg (Civil) Since July 2008 to Sep 2011',
+      'B228, Pocket A, Okhla phase 1, industrial area, New Delhi.',
+      'Preparation of BOQ and verification of bills.',
+    ].join('\n');
+    const exps = extractExperiencesFromSection(section);
+    expect(exps.length).toBeGreaterThanOrEqual(3);
+    expect(exps[0].company).toMatch(/Delta Consultant engineering Ltd/i);
+    expect(exps[0].designation).toMatch(/Consultant Project|Civil/i);
+    expect(exps[1].company).toMatch(/Gamma Consultant Pvt Ltd/i);
+    expect(exps[1].designation).toMatch(/Senior Engg/i);
+    expect(exps[1].designation).not.toMatch(/Since Sep/i);
+    expect(exps[2].company).toMatch(/Omega dunkerley & Co\.?\s*Ltd/i);
+    expect(exps[2].designation).toMatch(/Astt Engg|Assistant|Engg/i);
+    expect(exps[2].company).not.toMatch(/Astt Engg/i);
+  });
+
+  it('keeps consultant-named legal employers through company sanitize', () => {
+    const {
+      sanitizeExperienceCompanyValue,
+      isPlausibleExperienceCompany,
+    } = require('@/lib/resume-parser/import-sanitize');
+    expect(sanitizeExperienceCompanyValue('Acme Consultant engineering Ltd')).toMatch(
+      /Acme Consultant engineering Ltd/i
+    );
+    expect(isPlausibleExperienceCompany('Acme Consultant engineering Ltd')).toBe(true);
+    expect(sanitizeExperienceCompanyValue('Beta Consultant Pvt Ltd')).toMatch(/Beta Consultant Pvt Ltd/i);
+    expect(isPlausibleExperienceCompany('Beta Consultant Pvt Ltd')).toBe(true);
+  });
+
+  it('does not recover education table headers as institutions', () => {
+    const { repairEducationEntry } = require('@/lib/resume-parser/custom/validation-repair/education');
+    const ctx = {
+      sectionTexts: {
+        education: [
+          'Degree Board/University',
+          'Academic Year',
+          'Name of School/College',
+          'B.Tech. CAMPUS, CITY 2004-2008',
+          '7.0 CGPA',
+          'National Institute Of Technology, City',
+        ].join('\n'),
+      },
+      issues: [],
+      repairs: [],
+    };
+    const repaired = repairEducationEntry(
+      {
+        institution: '',
+        degree: 'B.Tech',
+        fieldOfStudy: '',
+        specialization: '',
+        startDate: '2004',
+        endDate: '2008',
+        current: false,
+        cgpa: '',
+        gpa: '',
+        percentage: '',
+        grade: '',
+        location: '',
+        description: '',
+        achievements: [],
+        coursework: [],
+        confidence: 50,
+        fieldConfidence: {
+          institution: 0,
+          degree: 80,
+          fieldOfStudy: 0,
+          specialization: 0,
+          startDate: 70,
+          endDate: 70,
+          performance: 0,
+          location: 0,
+          description: 0,
+        },
+      },
+      0,
+      ctx
+    );
+    expect(repaired.institution).not.toMatch(/Degree Board\/University/i);
+    expect(repaired.institution).toMatch(/National Institute|CAMPUS/i);
+  });
+
+  it('rejects education table stubs and prose sentences as section headings', () => {
+    const { detectResumeSections } = require('@/lib/resume-parser/custom/section-detection');
+    const text = [
+      'Professional Profile:',
+      'A competent professional with experience in civil projects.',
+      'civil construction projects include steel plant, textile mill, Pharma plant,',
+      'Automobile, water supply projects, Infrastructure projects.',
+      'Educational Qualifications',
+      'Degree Board/University',
+      'Academic',
+      'Year',
+      'Name of School/College',
+      'B.Tech. CAMPUS, CITY 2004-2008',
+      '7.0 CGPA',
+      'Some National Institute Of Technology, City',
+      'CAREER HIGHLIGHTS',
+      'Acme Design and Engg Pvt Ltd Project Manager',
+      'Since April 2025 to till date',
+      'Execution and monitoring of project activities.',
+      'KEY PROJECTS HANDLED',
+      'Project under Acme Design and Engg Pvt Ltd',
+      'Title : Shed Expansion Project',
+      'Duration : Since April 2025 to till date',
+    ].join('\n');
+    const det = detectResumeSections(text);
+    const headings = (det.sections || []).map((s: { type: string; rawHeading: string }) =>
+      `${s.type}|${s.rawHeading}`
+    );
+    expect(headings.some((h: string) => /Automobile, water supply projects/i.test(h))).toBe(false);
+    expect(headings.some((h: string) => /\|Academic$/i.test(h) || /\|7\.0 CGPA/i.test(h))).toBe(false);
+    expect(headings.some((h: string) => /Name of School\/College/i.test(h))).toBe(false);
+    expect(det.experience?.length || 0).toBeGreaterThan(40);
+    expect(det.achievements || '').not.toContain('Acme Design and Engg Pvt Ltd');
+    expect(det.education || '').toMatch(/B\.Tech/i);
+  });
 });

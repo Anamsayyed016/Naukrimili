@@ -72,9 +72,16 @@ function pickBestLinks(lines: string[]): { github: string; liveUrl: string; conf
 function pickDuration(lines: string[]): FieldPick<string> {
   let best: FieldPick<string> = { value: '', confidence: 0 };
   for (const line of expandHeaderSegments(lines)) {
-    const parsed = parseDateRangeFromText(line);
+    const labeled = line.match(/^duration\s*[:\-–—]\s*(.+)$/i);
+    const raw = labeled?.[1]?.trim() || line;
+    const parsed = parseDateRangeFromText(raw);
     if (parsed && parsed.confidence > best.confidence) {
-      best = { value: parsed.raw, confidence: parsed.confidence };
+      best = {
+        value: parsed.raw,
+        confidence: Math.max(parsed.confidence, labeled ? 70 : parsed.confidence),
+      };
+    } else if (labeled?.[1] && labeled[1].trim().length >= 6 && labeled[1].trim().length > best.value.length) {
+      best = { value: labeled[1].trim(), confidence: 62 };
     }
   }
   return best;
@@ -83,11 +90,20 @@ function pickDuration(lines: string[]): FieldPick<string> {
 function pickCompany(lines: string[], excludeTitle: string): FieldPick<string> {
   let best: FieldPick<string> = { value: '', confidence: 0 };
   for (const line of lines) {
-    const clientMatch = line.match(/(?:client|company|organization|employer)\s*[:–-]\s*(.+)/i);
-    const candidate = clientMatch?.[1]?.trim() || '';
+    const underMatch = line.match(/^projects?\s+under\s+(.+)$/i);
+    const clientMatch = line.match(
+      /(?:client|company|organization|employer)\s*[:–-]\s*(.+)/i
+    );
+    const candidate = (underMatch?.[1] || clientMatch?.[1] || '').trim();
     if (!candidate || candidate === excludeTitle) continue;
-    if (isPlausibleExperienceCompany(candidate)) {
-      best = { value: candidate, confidence: 75 };
+    if (
+      isPlausibleExperienceCompany(candidate) ||
+      /\b(?:ltd|limited|pvt|llc|inc|corp)\b/i.test(candidate)
+    ) {
+      best = {
+        value: candidate,
+        confidence: underMatch ? 78 : 75,
+      };
     }
   }
   return best;
@@ -122,11 +138,14 @@ export function buildProjectFromBlock(block: ProjectRawBlock): CustomExtractedPr
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const titlePick = pickBestTitle(headerLines);
+  const titlePick = pickBestTitle([...headerLines, ...block.bodyLines.slice(0, 3)]);
   const rolePick = pickBestRole([...headerLines, ...block.bodyLines.slice(0, 2)]);
   const linksPick = pickBestLinks([...headerLines, ...block.bodyLines]);
-  const durationPick = pickDuration(headerLines);
-  const companyPick = pickCompany(headerLines, titlePick.value);
+  const durationPick = pickDuration([...headerLines, ...block.bodyLines.slice(0, 4)]);
+  const companyPick = pickCompany(
+    [...headerLines, ...block.bodyLines.slice(0, 4)],
+    titlePick.value
+  );
 
   const headerRemainder = headerLines.filter(
     (line) => line.trim().toLowerCase() !== titlePick.value.toLowerCase()

@@ -15,7 +15,7 @@ export interface DesignationDetection {
 }
 
 const TITLE_KEYWORDS_RE =
-  /\b(?:software|senior|junior|lead|principal|staff|full[- ]?stack|front[- ]?end|back[- ]?end|python|java|devops|data|machine learning|ml|cloud|mobile|web|product|project|engineering|developer|engineer|manager|consultant|intern|founder|ceo|cto|cfo|director|architect|analyst|specialist|associate|coordinator|administrator|executive|officer|head|vp|vice president|teacher|nurse|doctor|physician|accountant|lawyer|attorney|paralegal|secretary|marketer|designer|researcher|scientist|professor|lecturer|pharmacist|therapist|counselor|auditor|recruiter|hr|government|marketing|finance|sales|legal|medical|nursing|healthcare|microbiologist|biologist|chemist|electrician|pathologist)\b|[A-Za-z][A-Za-z'-]{3,24}(?:ologist|ician|ographer|otherapist|urgeon|entist)\b/i;
+  /\b(?:software|senior|junior|lead|principal|staff|full[- ]?stack|front[- ]?end|back[- ]?end|python|java|devops|data|machine learning|ml|cloud|mobile|web|product|project|engineering|engg\.?|developer|engineer|manager|consultant|intern|founder|ceo|cto|cfo|director|architect|analyst|specialist|associate|coordinator|administrator|executive|officer|head|vp|vice president|asst\.?|astt\.?|assistant|teacher|nurse|doctor|physician|accountant|lawyer|attorney|paralegal|secretary|marketer|designer|researcher|scientist|professor|lecturer|pharmacist|therapist|counselor|auditor|recruiter|hr|government|marketing|finance|sales|legal|medical|nursing|healthcare|microbiologist|biologist|chemist|electrician|pathologist)\b|[A-Za-z][A-Za-z'-]{3,24}(?:ologist|ician|ographer|otherapist|urgeon|entist)\b/i;
 
 const SENIORITY_RE =
   /\b(?:senior|sr\.?|junior|jr\.?|lead|principal|staff|associate|entry[- ]?level)\b/i;
@@ -27,15 +27,20 @@ export function stripTrailingEmploymentDates(text: string): string {
   const stripped = trimmed
     // Parenthetical tenures: "(2023–Present)", "(Jan 2021 - Mar 2023)"
     .replace(
-      /\s*[\(\[]\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s*[-–—to/]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date)\s*[\)\]]\s*$/i,
+      /\s*[\(\[]\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:19|20)\d{2}\s*[-–—to/]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date)\s*[\)\]]\s*$/i,
+      ''
+    )
+    // "Since Sep2011 to OCT 2017" / "since Oct'2017 to April 2022" (glued month+year OK)
+    .replace(
+      /\s+(?:since|from)\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:19|20)\d{2}\b.*$/i,
       ''
     )
     .replace(
-      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date|to\s*date)\s*$/i,
+      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date|to\s*date)\s*$/i,
       ''
     )
     .replace(
-      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2})\s*$/i,
+      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*(?:['’])?(?:19|20)\d{2})\s*$/i,
       ''
     )
     .trim();

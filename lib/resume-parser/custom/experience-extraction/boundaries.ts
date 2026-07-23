@@ -113,6 +113,21 @@ function scoreBoundaryLine(line: ExperienceLine, prevBlank: boolean): number {
   if (lineLooksLikeTenureExperience(text)) {
     score += 52;
   }
+  // Compressed "Employer Ltd Title since Mon YYYY" headers — whole-line company
+  // detection fails, but legal-suffix + role/date is a strong new-job boundary.
+  if (
+    /\b(?:private\s+limited|pvt\.?\s*ltd\.?|co\.?\s*ltd\.?|ltd\.?|limited|llc|inc\.?|corp\.?|gmbh|plc)\b/i.test(
+      text
+    ) &&
+    (dateRange ||
+      /\b(?:since|from)\b/i.test(text) ||
+      detectDesignationFromLine(text).confidence >= 28 ||
+      /\b(?:manager|director|engineer|engg\.?|consultant|executive|officer|assistant|asst\.?|astt\.?|lead|head)\b/i.test(
+        text
+      ))
+  ) {
+    score += 34;
+  }
 
   if (text.split(/\s+/).length > 18 && !dateRange && !lineLooksLikeTenureExperience(text)) score -= 25;
   if (looksLikeSentenceNotCompany(text)) score -= 40;

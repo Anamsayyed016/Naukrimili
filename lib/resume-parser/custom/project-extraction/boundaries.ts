@@ -34,6 +34,16 @@ function scoreBoundaryLine(
 
   let score = 0;
 
+  // "Project under Employer Name" starts a portfolio entry.
+  if (/^projects?\s+under\b/i.test(text)) {
+    score += 70;
+  }
+
+  // Explicit Title: label is a strong project boundary.
+  if (/^(?:project\s+)?title\s*[:\-–—]/i.test(text)) {
+    score += 68;
+  }
+
   const title = detectTitleFromLine(text);
   if (title.confidence >= 38) score += title.confidence * 0.45;
 

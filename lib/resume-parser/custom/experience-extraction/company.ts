@@ -214,11 +214,51 @@ export function looksLikeSentenceNotCompany(text: string): boolean {
     return true;
   }
   if (/\d+\s*%/.test(trimmed)) return true;
+  // Site / facility duty blurbs (often lose trailing "." after meta strip).
+  if (
+    !HARD_COMPANY_SUFFIX_RE.test(trimmed) &&
+    !looksLikeClientPracticeEmployer(trimmed) &&
+    (
+      /\b(?:industrial|residential|commercial|civil)\s+(?:plant|complex|building|project|shed|structure)s?\b/i.test(
+        trimmed
+      ) ||
+      /\b(?:plant|complex|building|shed)\s+with\b/i.test(trimmed) ||
+      /\b(?:water\s+supply|irrigation|sewerage|drainage)\s+(?:scheme\s+)?projects?\b/i.test(trimmed) ||
+      /\b(?:scheme|assignment|engagement)\s+project\b/i.test(trimmed) ||
+      /\bprojects?\s+in\b/i.test(trimmed) ||
+      (
+        /\b(?:etp|stp|wwtp|effluent|sewage\s+treatment|cable\s+trench(?:es)?|road\s+work|foundation\s+work)\b/i.test(
+          trimmed
+        ) &&
+        /\b(?:plant|project|complex|foundation|trench|work|residential|industrial)\b/i.test(trimmed)
+      )
+    )
+  ) {
+    return true;
+  }
   if (trimmed.length > 55) return true;
   if (trimmed.length > 30 && SENTENCE_VERB_RE.test(trimmed)) return true;
   if (/^[a-z]/.test(trimmed) && trimmed.length > 25) return true;
   if (/[.!?]$/.test(trimmed) && trimmed.length > 20) return true;
   if (trimmed.split(/\s+/).length > 8) return true;
+  return false;
+}
+
+/** Reject postal / street address lines that ATS dumps under employer headers. */
+export function looksLikeStreetAddressLine(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length < 8 || t.length > 160) return false;
+  if (HARD_COMPANY_SUFFIX_RE.test(t)) return false;
+  const hasLocality =
+    /\b(?:society|nagar|colony|road|street|sector|phase|pocket|block|apartment|apartments|flat|bungalow|layout|extension|cross|main|industrial\s+area|okhla)\b/i.test(
+      t
+    );
+  const hasPlotOrHouse =
+    /\b(?:h\.?\s*no\.?|house\s*no\.?|plot\s*no\.?|shop\s*no\.?|door\s*no\.?)\b/i.test(t) ||
+    /^\d{1,5}[A-Za-z]?\s*[,.]/.test(t) ||
+    /\b\d{1,5}\s*,\s*[A-Za-z]/.test(t);
+  if (hasLocality && (hasPlotOrHouse || /\d/.test(t))) return true;
+  if (hasLocality && t.split(/[,\s]+/).length >= 4) return true;
   return false;
 }
 
@@ -233,6 +273,7 @@ export function scoreCompanyCandidate(text: string): number {
   }
   if (ROLE_OR_PROJECT_LABEL_RE.test(trimmed)) return 0;
   if (isEmployerAffiliationTagline(trimmed) || isIndustrySectorTagline(trimmed)) return 0;
+  if (looksLikeStreetAddressLine(trimmed)) return 0;
   if (looksLikeSentenceNotCompany(trimmed) && !looksLikeClientPracticeEmployer(trimmed)) return 0;
   if (FALSE_COMPANY_RE.test(trimmed)) return 0;
   if (TECH_SKILL_AS_COMPANY_RE.test(trimmed.toLowerCase())) return 0;
@@ -331,8 +372,19 @@ export function detectCompanyFromLine(text: string): CompanyDetection {
   if (isEmployerAffiliationTagline(trimmedRaw) || isIndustrySectorTagline(trimmedRaw)) {
     return { company: '', confidence: 0 };
   }
+  if (looksLikeStreetAddressLine(trimmedRaw)) {
+    return { company: '', confidence: 0 };
+  }
+  // Reject before punctuation strip — trailing "." is a strong prose signal that
+  // stripCompanyLineEmploymentMeta would otherwise erase.
+  if (looksLikeSentenceNotCompany(trimmedRaw)) {
+    return { company: '', confidence: 0 };
+  }
 
   const trimmed = stripCompanyLineEmploymentMeta(trimmedRaw) || trimmedRaw;
+  if (looksLikeSentenceNotCompany(trimmed)) {
+    return { company: '', confidence: 0 };
+  }
 
   // Strip trailing " – City, State" location for scoring, keep employer core.
   const locStripped = trimmed

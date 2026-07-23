@@ -1,24 +1,24 @@
 {
-  "pdf": "C:\\Users\\admin\\Downloads\\Sheetal Singh Resume 2026.pdf",
+  "pdf": "F:\\myprojects\\jobportal\\.audit-trilok\\ankur-validation.pdf",
   "extraction": {
-    "rawChars": 7293,
-    "preparedChars": 7110,
-    "pages": 2,
+    "rawChars": 10919,
+    "preparedChars": 10440,
+    "pages": 4,
     "recoveredFromStreams": false,
-    "documentType": "TYPE_A_ATS"
+    "documentType": "TYPE_B_EXECUTIVE"
   },
   "sectionLens": {
     "detectionVersion": 5,
-    "normalizedText": 7110,
+    "normalizedText": 10381,
     "preamble": 0,
-    "summary": 808,
-    "experience": 5348,
-    "education": 122,
-    "skills": 416,
-    "projects": 0,
-    "languages": 0,
-    "certifications": 834,
-    "achievements": 309,
+    "summary": 1731,
+    "experience": 4250,
+    "education": 386,
+    "skills": 226,
+    "projects": 3499,
+    "languages": 45,
+    "certifications": 0,
+    "achievements": 0,
     "hobbies": 0,
     "references": 0,
     "volunteer": 0,
@@ -28,17 +28,17 @@
   "stages": {
     "customParser": {
       "counts": {
-        "experience": 6,
-        "experienceWithCompany": 6,
-        "experienceWithTitle": 6,
-        "projects": 0,
-        "education": 2,
-        "certifications": 5,
-        "skills": 6,
-        "languages": 0,
-        "achievements": 3,
+        "experience": 5,
+        "experienceWithCompany": 5,
+        "experienceWithTitle": 5,
+        "projects": 8,
+        "education": 1,
+        "certifications": 0,
+        "skills": 19,
+        "languages": 2,
+        "achievements": 0,
         "hobbies": 0,
-        "summaryChars": 808,
+        "summaryChars": 1731,
         "name": 1,
         "email": 1,
         "phone": 1
@@ -46,155 +46,201 @@
       "experience": [
         {
           "i": 0,
-          "title": "QUALITY ASSISTANT MANAGER",
-          "company": "Safeco Hygiene Films Private Limited",
-          "startDate": "2025-12",
+          "title": "Project Manager",
+          "company": "Sijcon Design and Engg Pvt Ltd",
+          "startDate": "2025-04",
           "endDate": null,
-          "descLen": 88,
-          "bullets": 1
+          "descLen": 1016,
+          "bullets": 0
         },
         {
           "i": 1,
-          "title": "SENIOR QA EXECUTIVE",
-          "company": "Nanliu Manufacturing India Private Limited",
-          "startDate": "2024-05",
-          "endDate": "2025-11",
-          "descLen": 358,
-          "bullets": 15
+          "title": "Senior Manager",
+          "company": "Jindal Polyfilms PVT LTD",
+          "startDate": "2022-04",
+          "endDate": "2024-12",
+          "descLen": 471,
+          "bullets": 0
         },
         {
           "i": 2,
-          "title": "QA EXECUTIVE",
-          "company": "Jindal Polyfilms Limited",
-          "startDate": "2023-11",
-          "endDate": "2024-05",
-          "descLen": 14,
-          "bullets": 5
+          "title": "Consultant Project Civil",
+          "company": "Tata Consultant engineering Ltd",
+          "startDate": "2017-10",
+          "endDate": "2022-04",
+          "descLen": 703,
+          "bullets": 1
         },
         {
           "i": 3,
-          "title": "QC EXECUTIVE",
-          "company": "SOM Distelleries & Breweries Limited",
-          "startDate": "2023-01",
-          "endDate": "2023-11",
-          "descLen": 29,
-          "bullets": 7
+          "title": "Senior Engg Civil",
+          "company": "Sijcon Consultant Pvt Ltd",
+          "startDate": "2011-09",
+          "endDate": "2017-10",
+          "descLen": 1016,
+          "bullets": 0
         },
         {
           "i": 4,
-          "title": "QA ANALYST",
-          "company": "Yanjan New Material India Private Limited",
-          "startDate": "2019-03",
-          "endDate": "2023-01",
-          "descLen": 0,
-          "bullets": 3
-        },
-        {
-          "i": 5,
-          "title": "MICROBIOLOGIST",
-          "company": "MV Aqua Solutions Private Limited",
-          "startDate": "2018-03",
-          "endDate": "2019-02",
-          "descLen": 0,
-          "bullets": 2
+          "title": "Astt Engg Civil",
+          "company": "Gannon dunkerley & Co.Ltd",
+          "startDate": "2011",
+          "endDate": null,
+          "descLen": 537,
+          "bullets": 0
         }
       ],
       "education": [
         {
           "i": 0,
-          "degree": "M.Sc.",
-          "institution": "I.E.H.E."
-        },
-        {
-          "i": 1,
-          "degree": "B.Sc.",
-          "institution": "Govt. Home Science College"
+          "degree": "B.Tech",
+          "institution": "Maulana Azad National institute Of Technology, Bhopal"
         }
       ],
-      "projects": [],
-      "skills": [
+      "projects": [
         {
           "i": 0,
-          "value": "ISO 9001"
+          "name": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat"
         },
         {
           "i": 1,
-          "value": "ISO 14001"
+          "name": "BOPP,BOPET,CAPACITOR (Film Projects)"
         },
         {
           "i": 2,
-          "value": "ISO 45001"
+          "name": "M/S Madhya Pradesh Urban development corporation (water supply Project)"
         },
         {
           "i": 3,
-          "value": "ISO 13485"
+          "name": "OHC Expanssion ,P&G Gujrat"
         },
         {
           "i": 4,
-          "value": "ISO 22716"
+          "name": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat"
         },
         {
           "i": 5,
-          "value": "Oeko-tex Standard 100"
+          "name": "Trident Group Budni Hoshangabad (Textiles & weaving unit)"
+        },
+        {
+          "i": 6,
+          "name": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat"
+        },
+        {
+          "i": 7,
+          "name": "MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration"
         }
       ],
-      "certifications": [
+      "skills": [
         {
           "i": 0,
-          "name": "o Participated in “ Suppliers Leadership Capability Boot Camp ”"
+          "value": "Scheduling"
         },
         {
           "i": 1,
-          "name": "o Participating in the First Time Manager Training program conducted"
+          "value": "Costing"
         },
         {
           "i": 2,
-          "name": "o Undergone 15 days of \"Training on Bioinformatics\" at Barkatullah University, Bhopal"
+          "value": "Road"
         },
         {
           "i": 3,
-          "name": "Science College, Hoshangabad, MP for 5 days"
+          "value": "Erema"
         },
         {
           "i": 4,
-          "name": "o Attended Workshop on \"Instrumentation & techniques in Biotechnology by“I.E.H.E. Bhopal."
+          "value": "Restrength"
+        },
+        {
+          "i": 5,
+          "value": "Substation"
+        },
+        {
+          "i": 6,
+          "value": "Trenches"
+        },
+        {
+          "i": 7,
+          "value": "Pedestal"
+        },
+        {
+          "i": 8,
+          "value": "G+2 Colony"
+        },
+        {
+          "i": 9,
+          "value": "220 HP"
+        },
+        {
+          "i": 10,
+          "value": "Bolt AND"
+        },
+        {
+          "i": 11,
+          "value": "66 KVA Switchyard"
+        },
+        {
+          "i": 12,
+          "value": "2 NOS Substa-"
+        },
+        {
+          "i": 13,
+          "value": "Intake Well 23 MLD"
+        },
+        {
+          "i": 14,
+          "value": "OHT 1000 KL -2nos"
+        },
+        {
+          "i": 15,
+          "value": "OHT 1500 KL -3nos"
+        },
+        {
+          "i": 16,
+          "value": "Project Cost -110 Crores"
+        },
+        {
+          "i": 17,
+          "value": "Pump Hose 2nos"
+        },
+        {
+          "i": 18,
+          "value": "WTP -20 MLD"
         }
       ],
-      "languages": [],
-      "achievements": [
+      "certifications": [],
+      "languages": [
         {
           "i": 0,
-          "value": "Certified As ‘‘Quality Star” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
+          "value": "Hindi"
         },
         {
           "i": 1,
-          "value": "Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
-        },
-        {
-          "i": 2,
-          "value": "Certified As a ‘‘QAKE Internal Auditor’’ Trainer in Nanliu Manufacturing India Pvt. Ltd. (July 7 to July 9 2025)"
+          "value": "English"
         }
       ],
-      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional expertise in microbiological testing within\ndistillery and brewery environments, ensuring product safet",
+      "achievements": [],
+      "summary": "A competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil con- struction projects include steel plant, textile mill, Pharma plant,\nAutomobile, water supply pro",
       "personal": {
-        "name": "SHEETAL SINGH",
-        "email": "shee.singh10@gmail.com",
-        "phone": "+91 86021 48983"
+        "name": "ANKUR JAIN",
+        "email": "jainankur1985@gmail.com",
+        "phone": "+91 98933 48672"
       }
     },
     "uploadNormalized": {
       "counts": {
-        "experience": 6,
-        "experienceWithCompany": 6,
-        "experienceWithTitle": 6,
-        "projects": 0,
-        "education": 2,
-        "certifications": 5,
-        "skills": 6,
-        "languages": 0,
-        "achievements": 3,
+        "experience": 5,
+        "experienceWithCompany": 5,
+        "experienceWithTitle": 5,
+        "projects": 8,
+        "education": 1,
+        "certifications": 0,
+        "skills": 19,
+        "languages": 2,
+        "achievements": 0,
         "hobbies": 0,
-        "summaryChars": 808,
+        "summaryChars": 1731,
         "name": 1,
         "email": 1,
         "phone": 1
@@ -202,112 +248,183 @@
       "experience": [
         {
           "i": 0,
-          "title": "QUALITY ASSISTANT MANAGER",
-          "company": "Safeco Hygiene Films Private Limited",
-          "startDate": "2025-12",
+          "title": "Project Manager",
+          "company": "Sijcon Design and Engg Pvt Ltd",
+          "startDate": "2025-04",
           "endDate": null,
-          "descLen": 88,
-          "bullets": 1
+          "descLen": 1016,
+          "bullets": 0
         },
         {
           "i": 1,
-          "title": "SENIOR QA EXECUTIVE",
-          "company": "Nanliu Manufacturing India Private Limited",
-          "startDate": "2024-05",
-          "endDate": "2025-11",
-          "descLen": 358,
-          "bullets": 15
+          "title": "Senior Manager",
+          "company": "Jindal Polyfilms PVT LTD",
+          "startDate": "2022-04",
+          "endDate": "2024-12",
+          "descLen": 471,
+          "bullets": 0
         },
         {
           "i": 2,
-          "title": "QA EXECUTIVE",
-          "company": "Jindal Polyfilms Limited",
-          "startDate": "2023-11",
-          "endDate": "2024-05",
-          "descLen": 14,
-          "bullets": 5
+          "title": "Consultant Project Civil",
+          "company": "Tata Consultant engineering Ltd",
+          "startDate": "2017-10",
+          "endDate": "2022-04",
+          "descLen": 703,
+          "bullets": 1
         },
         {
           "i": 3,
-          "title": "QC EXECUTIVE",
-          "company": "SOM Distelleries & Breweries Limited",
-          "startDate": "2023-01",
-          "endDate": "2023-11",
-          "descLen": 29,
-          "bullets": 7
+          "title": "Senior Engg Civil",
+          "company": "Sijcon Consultant Pvt Ltd",
+          "startDate": "2011-09",
+          "endDate": "2017-10",
+          "descLen": 1016,
+          "bullets": 0
         },
         {
           "i": 4,
-          "title": "QA ANALYST",
-          "company": "Yanjan New Material India Private Limited",
-          "startDate": "2019-03",
-          "endDate": "2023-01",
-          "descLen": 0,
-          "bullets": 3
-        },
-        {
-          "i": 5,
-          "title": "MICROBIOLOGIST",
-          "company": "MV Aqua Solutions Private Limited",
-          "startDate": "2018-03",
-          "endDate": "2019-02",
-          "descLen": 0,
-          "bullets": 2
+          "title": "Astt Engg Civil",
+          "company": "Gannon dunkerley & Co.Ltd",
+          "startDate": "2011",
+          "endDate": null,
+          "descLen": 537,
+          "bullets": 0
         }
       ],
       "education": [
         {
           "i": 0,
-          "degree": "M.Sc.",
-          "institution": "I.E.H.E."
-        },
-        {
-          "i": 1,
-          "degree": "B.Sc.",
-          "institution": "Govt. Home Science College"
+          "degree": "B.Tech",
+          "institution": "Maulana Azad National institute Of Technology, Bhopal"
         }
       ],
-      "projects": [],
-      "skills": [
+      "projects": [
         {
           "i": 0,
-          "value": "ISO 13485"
+          "name": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat"
         },
         {
           "i": 1,
-          "value": "ISO 14001"
+          "name": "BOPP,BOPET,CAPACITOR (Film Projects)"
         },
         {
           "i": 2,
-          "value": "ISO 22716"
+          "name": "M/S Madhya Pradesh Urban development corporation (water supply Project)"
         },
         {
           "i": 3,
-          "value": "ISO 45001"
+          "name": "OHC Expanssion ,P&G Gujrat"
         },
         {
           "i": 4,
-          "value": "ISO 9001"
+          "name": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat"
         },
         {
           "i": 5,
-          "value": "Oeko-tex Standard 100"
+          "name": "Trident Group Budni Hoshangabad (Textiles & weaving unit)"
+        },
+        {
+          "i": 6,
+          "name": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat"
+        },
+        {
+          "i": 7,
+          "name": "MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Costing"
+        },
+        {
+          "i": 1,
+          "value": "Erema"
+        },
+        {
+          "i": 2,
+          "value": "Pedestal"
+        },
+        {
+          "i": 3,
+          "value": "Restrength"
+        },
+        {
+          "i": 4,
+          "value": "Road"
+        },
+        {
+          "i": 5,
+          "value": "Scheduling"
+        },
+        {
+          "i": 6,
+          "value": "Substation"
+        },
+        {
+          "i": 7,
+          "value": "Trenches"
+        },
+        {
+          "i": 8,
+          "value": "220 HP"
+        },
+        {
+          "i": 9,
+          "value": "Bolt AND"
+        },
+        {
+          "i": 10,
+          "value": "G+2 Colony"
+        },
+        {
+          "i": 11,
+          "value": "2 NOS Substa-"
+        },
+        {
+          "i": 12,
+          "value": "66 KVA Switchyard"
+        },
+        {
+          "i": 13,
+          "value": "Intake Well 23 MLD"
+        },
+        {
+          "i": 14,
+          "value": "OHT 1000 KL -2nos"
+        },
+        {
+          "i": 15,
+          "value": "OHT 1500 KL -3nos"
+        },
+        {
+          "i": 16,
+          "value": "Project Cost -110 Crores"
+        },
+        {
+          "i": 17,
+          "value": "Pump Hose 2nos"
+        },
+        {
+          "i": 18,
+          "value": "WTP -20 MLD"
         }
       ]
     },
     "repaired": {
       "counts": {
-        "experience": 6,
-        "experienceWithCompany": 6,
-        "experienceWithTitle": 6,
-        "projects": 0,
-        "education": 2,
-        "certifications": 5,
-        "skills": 6,
-        "languages": 0,
-        "achievements": 3,
+        "experience": 5,
+        "experienceWithCompany": 5,
+        "experienceWithTitle": 5,
+        "projects": 8,
+        "education": 1,
+        "certifications": 0,
+        "skills": 19,
+        "languages": 2,
+        "achievements": 0,
         "hobbies": 0,
-        "summaryChars": 808,
+        "summaryChars": 1731,
         "name": 1,
         "email": 1,
         "phone": 1
@@ -315,127 +432,185 @@
       "experience": [
         {
           "i": 0,
-          "title": "QUALITY ASSISTANT MANAGER",
-          "company": "Safeco Hygiene Films Private Limited",
-          "startDate": "2025-12",
+          "title": "Project Manager",
+          "company": "Sijcon Design and Engg Pvt Ltd",
+          "startDate": "2025-04",
           "endDate": null,
-          "descLen": 88,
-          "bullets": 1
+          "descLen": 773,
+          "bullets": 0
         },
         {
           "i": 1,
-          "title": "SENIOR QA EXECUTIVE",
-          "company": "Nanliu Manufacturing India Private Limited",
-          "startDate": "2024-05",
-          "endDate": "2025-11",
-          "descLen": 358,
-          "bullets": 15
+          "title": "Senior Manager",
+          "company": "Jindal Polyfilms PVT LTD",
+          "startDate": "2022-04",
+          "endDate": "2024-12",
+          "descLen": 471,
+          "bullets": 0
         },
         {
           "i": 2,
-          "title": "QA EXECUTIVE",
-          "company": "Jindal Polyfilms Limited",
-          "startDate": "2023-11",
-          "endDate": "2024-05",
-          "descLen": 14,
-          "bullets": 5
+          "title": "Consultant Project Civil",
+          "company": "Tata Consultant engineering Ltd",
+          "startDate": "2017-10",
+          "endDate": "2022-04",
+          "descLen": 579,
+          "bullets": 1
         },
         {
           "i": 3,
-          "title": "QC EXECUTIVE",
-          "company": "SOM Distelleries & Breweries Limited",
-          "startDate": "2023-01",
-          "endDate": "2023-11",
-          "descLen": 29,
-          "bullets": 7
+          "title": "Senior Engg Civil",
+          "company": "Sijcon Consultant Pvt Ltd",
+          "startDate": "2011-09",
+          "endDate": "2017-10",
+          "descLen": 773,
+          "bullets": 0
         },
         {
           "i": 4,
-          "title": "QA ANALYST",
-          "company": "Yanjan New Material India Private Limited",
-          "startDate": "2019-03",
-          "endDate": "2023-01",
-          "descLen": 235,
-          "bullets": 3
-        },
-        {
-          "i": 5,
-          "title": "MICROBIOLOGIST",
-          "company": "MV Aqua Solutions Private Limited",
-          "startDate": "2018-03",
-          "endDate": "2019-02",
-          "descLen": 190,
-          "bullets": 2
+          "title": "Astt Engg Civil",
+          "company": "Gannon dunkerley & Co.Ltd",
+          "startDate": "2011",
+          "endDate": null,
+          "descLen": 418,
+          "bullets": 0
         }
       ],
       "education": [
         {
           "i": 0,
-          "degree": "M.Sc.",
-          "institution": "I.E.H.E."
-        },
-        {
-          "i": 1,
-          "degree": "B.Sc.",
-          "institution": "Govt. Home Science College"
+          "degree": "B.Tech",
+          "institution": "Maulana Azad National institute Of Technology, Bhopal"
         }
       ],
-      "projects": [],
-      "skills": [
+      "projects": [
         {
           "i": 0,
-          "value": "ISO 13485"
+          "name": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat"
         },
         {
           "i": 1,
-          "value": "ISO 14001"
+          "name": "BOPP,BOPET,CAPACITOR (Film Projects)"
         },
         {
           "i": 2,
-          "value": "ISO 22716"
+          "name": "M/S Madhya Pradesh Urban development corporation (water supply Project)"
         },
         {
           "i": 3,
-          "value": "ISO 45001"
+          "name": "OHC Expanssion ,P&G Gujrat"
         },
         {
           "i": 4,
-          "value": "ISO 9001"
+          "name": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat"
         },
         {
           "i": 5,
-          "value": "Oeko-tex Standard 100"
+          "name": "Trident Group Budni Hoshangabad (Textiles & weaving unit)"
+        },
+        {
+          "i": 6,
+          "name": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat"
+        },
+        {
+          "i": 7,
+          "name": "MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration"
         }
       ],
-      "achievements": [
+      "skills": [
         {
           "i": 0,
-          "value": "Certified As ‘‘Quality Star” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
+          "value": "Costing"
         },
         {
           "i": 1,
-          "value": "Awarded For ‘‘Corona Warrior” For the Year 2020-21 In Yanjan New Material Pvt. Ltd., Bhopal."
+          "value": "Erema"
         },
         {
           "i": 2,
-          "value": "Certified As a ‘‘QAKE Internal Auditor’’ Trainer in Nanliu Manufacturing India Pvt. Ltd. (July 7 to July 9 2025)"
+          "value": "Pedestal"
+        },
+        {
+          "i": 3,
+          "value": "Restrength"
+        },
+        {
+          "i": 4,
+          "value": "Road"
+        },
+        {
+          "i": 5,
+          "value": "Scheduling"
+        },
+        {
+          "i": 6,
+          "value": "Substation"
+        },
+        {
+          "i": 7,
+          "value": "Trenches"
+        },
+        {
+          "i": 8,
+          "value": "220 HP"
+        },
+        {
+          "i": 9,
+          "value": "Bolt AND"
+        },
+        {
+          "i": 10,
+          "value": "G+2 Colony"
+        },
+        {
+          "i": 11,
+          "value": "2 NOS Substa-"
+        },
+        {
+          "i": 12,
+          "value": "66 KVA Switchyard"
+        },
+        {
+          "i": 13,
+          "value": "Intake Well 23 MLD"
+        },
+        {
+          "i": 14,
+          "value": "OHT 1000 KL -2nos"
+        },
+        {
+          "i": 15,
+          "value": "OHT 1500 KL -3nos"
+        },
+        {
+          "i": 16,
+          "value": "Project Cost -110 Crores"
+        },
+        {
+          "i": 17,
+          "value": "Pump Hose 2nos"
+        },
+        {
+          "i": 18,
+          "value": "WTP -20 MLD"
         }
       ],
+      "achievements": [],
       "hobbies": []
     },
     "coalesced": {
       "counts": {
-        "experience": 6,
-        "experienceWithCompany": 6,
-        "experienceWithTitle": 6,
-        "projects": 0,
-        "education": 2,
-        "certifications": 5,
-        "skills": 6,
-        "languages": 0,
-        "achievements": 3,
+        "experience": 5,
+        "experienceWithCompany": 5,
+        "experienceWithTitle": 5,
+        "projects": 8,
+        "education": 1,
+        "certifications": 0,
+        "skills": 19,
+        "languages": 2,
+        "achievements": 0,
         "hobbies": 0,
-        "summaryChars": 808,
+        "summaryChars": 1731,
         "name": 1,
         "email": 1,
         "phone": 1
@@ -443,114 +618,185 @@
       "experience": [
         {
           "i": 0,
-          "title": "QUALITY ASSISTANT MANAGER",
-          "company": "Safeco Hygiene Films Private Limited",
-          "startDate": "2025-12",
+          "title": "Project Manager",
+          "company": "Sijcon Design and Engg Pvt Ltd",
+          "startDate": "2025-04",
           "endDate": null,
-          "descLen": 88,
-          "bullets": 1
+          "descLen": 773,
+          "bullets": 0
         },
         {
           "i": 1,
-          "title": "SENIOR QA EXECUTIVE",
-          "company": "Nanliu Manufacturing India Private Limited",
-          "startDate": "2024-05",
-          "endDate": "2025-11",
-          "descLen": 358,
-          "bullets": 15
+          "title": "Senior Manager",
+          "company": "Jindal Polyfilms PVT LTD",
+          "startDate": "2022-04",
+          "endDate": "2024-12",
+          "descLen": 471,
+          "bullets": 0
         },
         {
           "i": 2,
-          "title": "QA EXECUTIVE",
-          "company": "Jindal Polyfilms Limited",
-          "startDate": "2023-11",
-          "endDate": "2024-05",
-          "descLen": 14,
-          "bullets": 5
+          "title": "Consultant Project Civil",
+          "company": "Tata Consultant engineering Ltd",
+          "startDate": "2017-10",
+          "endDate": "2022-04",
+          "descLen": 579,
+          "bullets": 1
         },
         {
           "i": 3,
-          "title": "QC EXECUTIVE",
-          "company": "SOM Distelleries & Breweries Limited",
-          "startDate": "2023-01",
-          "endDate": "2023-11",
-          "descLen": 29,
-          "bullets": 7
+          "title": "Senior Engg Civil",
+          "company": "Sijcon Consultant Pvt Ltd",
+          "startDate": "2011-09",
+          "endDate": "2017-10",
+          "descLen": 773,
+          "bullets": 0
         },
         {
           "i": 4,
-          "title": "QA ANALYST",
-          "company": "Yanjan New Material India Private Limited",
-          "startDate": "2019-03",
-          "endDate": "2023-01",
-          "descLen": 235,
-          "bullets": 3
-        },
-        {
-          "i": 5,
-          "title": "MICROBIOLOGIST",
-          "company": "MV Aqua Solutions Private Limited",
-          "startDate": "2018-03",
-          "endDate": "2019-02",
-          "descLen": 190,
-          "bullets": 2
+          "title": "Astt Engg Civil",
+          "company": "Gannon dunkerley & Co.Ltd",
+          "startDate": "2011",
+          "endDate": null,
+          "descLen": 418,
+          "bullets": 0
         }
       ],
       "education": [
         {
           "i": 0,
-          "degree": "M.Sc.",
-          "institution": "I.E.H.E."
-        },
-        {
-          "i": 1,
-          "degree": "B.Sc.",
-          "institution": "Govt. Home Science College"
+          "degree": "B.Tech",
+          "institution": "Maulana Azad National institute Of Technology, Bhopal"
         }
       ],
-      "projects": [],
-      "skills": [
+      "projects": [
         {
           "i": 0,
-          "value": "ISO 13485"
+          "name": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat"
         },
         {
           "i": 1,
-          "value": "ISO 14001"
+          "name": "BOPP,BOPET,CAPACITOR (Film Projects)"
         },
         {
           "i": 2,
-          "value": "ISO 22716"
+          "name": "M/S Madhya Pradesh Urban development corporation (water supply Project)"
         },
         {
           "i": 3,
-          "value": "ISO 45001"
+          "name": "OHC Expanssion ,P&G Gujrat"
         },
         {
           "i": 4,
-          "value": "ISO 9001"
+          "name": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat"
         },
         {
           "i": 5,
-          "value": "Oeko-tex Standard 100"
+          "name": "Trident Group Budni Hoshangabad (Textiles & weaving unit)"
+        },
+        {
+          "i": 6,
+          "name": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat"
+        },
+        {
+          "i": 7,
+          "name": "MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Costing"
+        },
+        {
+          "i": 1,
+          "value": "Erema"
+        },
+        {
+          "i": 2,
+          "value": "Pedestal"
+        },
+        {
+          "i": 3,
+          "value": "Restrength"
+        },
+        {
+          "i": 4,
+          "value": "Road"
+        },
+        {
+          "i": 5,
+          "value": "Scheduling"
+        },
+        {
+          "i": 6,
+          "value": "Substation"
+        },
+        {
+          "i": 7,
+          "value": "Trenches"
+        },
+        {
+          "i": 8,
+          "value": "220 HP"
+        },
+        {
+          "i": 9,
+          "value": "Bolt AND"
+        },
+        {
+          "i": 10,
+          "value": "G+2 Colony"
+        },
+        {
+          "i": 11,
+          "value": "2 NOS Substa-"
+        },
+        {
+          "i": 12,
+          "value": "66 KVA Switchyard"
+        },
+        {
+          "i": 13,
+          "value": "Intake Well 23 MLD"
+        },
+        {
+          "i": 14,
+          "value": "OHT 1000 KL -2nos"
+        },
+        {
+          "i": 15,
+          "value": "OHT 1500 KL -3nos"
+        },
+        {
+          "i": 16,
+          "value": "Project Cost -110 Crores"
+        },
+        {
+          "i": 17,
+          "value": "Pump Hose 2nos"
+        },
+        {
+          "i": 18,
+          "value": "WTP -20 MLD"
         }
       ],
       "hobbies": [],
-      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional exp"
+      "summary": "A competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil c"
     },
     "gallery": {
       "counts": {
-        "experience": 6,
-        "experienceWithCompany": 6,
-        "experienceWithTitle": 6,
-        "projects": 0,
-        "education": 2,
-        "certifications": 5,
-        "skills": 6,
-        "languages": 0,
-        "achievements": 3,
+        "experience": 5,
+        "experienceWithCompany": 5,
+        "experienceWithTitle": 5,
+        "projects": 8,
+        "education": 1,
+        "certifications": 0,
+        "skills": 19,
+        "languages": 2,
+        "achievements": 0,
         "hobbies": 0,
-        "summaryChars": 808,
+        "summaryChars": 1731,
         "name": 1,
         "email": 1,
         "phone": 1
@@ -558,203 +804,363 @@
       "experience": [
         {
           "i": 0,
-          "title": "QUALITY ASSISTANT MANAGER",
-          "company": "Safeco Hygiene Films Private Limited",
-          "startDate": "2025-12",
+          "title": "Project Manager",
+          "company": "Sijcon Design and Engg Pvt Ltd",
+          "startDate": "2025-04",
           "endDate": null,
-          "descLen": 88,
-          "bullets": 1
+          "descLen": 773,
+          "bullets": 0
         },
         {
           "i": 1,
-          "title": "SENIOR QA EXECUTIVE",
-          "company": "Nanliu Manufacturing India Private Limited",
-          "startDate": "2024-05",
-          "endDate": "2025-11",
-          "descLen": 358,
-          "bullets": 15
+          "title": "Senior Manager",
+          "company": "Jindal Polyfilms PVT LTD",
+          "startDate": "2022-04",
+          "endDate": "2024-12",
+          "descLen": 471,
+          "bullets": 0
         },
         {
           "i": 2,
-          "title": "QA EXECUTIVE",
-          "company": "Jindal Polyfilms Limited",
-          "startDate": "2023-11",
-          "endDate": "2024-05",
-          "descLen": 14,
-          "bullets": 5
+          "title": "Consultant Project Civil",
+          "company": "Tata Consultant engineering Ltd",
+          "startDate": "2017-10",
+          "endDate": "2022-04",
+          "descLen": 579,
+          "bullets": 1
         },
         {
           "i": 3,
-          "title": "QC EXECUTIVE",
-          "company": "SOM Distelleries & Breweries Limited",
-          "startDate": "2023-01",
-          "endDate": "2023-11",
-          "descLen": 29,
+          "title": "Senior Engg Civil",
+          "company": "Sijcon Consultant Pvt Ltd",
+          "startDate": "2011-09",
+          "endDate": "2017-10",
+          "descLen": 773,
+          "bullets": 0
+        },
+        {
+          "i": 4,
+          "title": "Astt Engg Civil",
+          "company": "Gannon dunkerley & Co.Ltd",
+          "startDate": "2011",
+          "endDate": null,
+          "descLen": 418,
+          "bullets": 0
+        }
+      ],
+      "projects": [
+        {
+          "i": 0,
+          "name": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat"
+        },
+        {
+          "i": 1,
+          "name": "BOPP,BOPET,CAPACITOR (Film Projects)"
+        },
+        {
+          "i": 2,
+          "name": "M/S Madhya Pradesh Urban development corporation (water supply Project)"
+        },
+        {
+          "i": 3,
+          "name": "OHC Expanssion ,P&G Gujrat"
+        },
+        {
+          "i": 4,
+          "name": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat"
+        },
+        {
+          "i": 5,
+          "name": "Trident Group Budni Hoshangabad (Textiles & weaving unit)"
+        },
+        {
+          "i": 6,
+          "name": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat"
+        },
+        {
+          "i": 7,
+          "name": "MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Costing"
+        },
+        {
+          "i": 1,
+          "value": "Erema"
+        },
+        {
+          "i": 2,
+          "value": "Pedestal"
+        },
+        {
+          "i": 3,
+          "value": "Restrength"
+        },
+        {
+          "i": 4,
+          "value": "Road"
+        },
+        {
+          "i": 5,
+          "value": "Scheduling"
+        },
+        {
+          "i": 6,
+          "value": "Substation"
+        },
+        {
+          "i": 7,
+          "value": "Trenches"
+        },
+        {
+          "i": 8,
+          "value": "220 HP"
+        },
+        {
+          "i": 9,
+          "value": "Bolt AND"
+        },
+        {
+          "i": 10,
+          "value": "G+2 Colony"
+        },
+        {
+          "i": 11,
+          "value": "2 NOS Substa-"
+        },
+        {
+          "i": 12,
+          "value": "66 KVA Switchyard"
+        },
+        {
+          "i": 13,
+          "value": "Intake Well 23 MLD"
+        },
+        {
+          "i": 14,
+          "value": "OHT 1000 KL -2nos"
+        },
+        {
+          "i": 15,
+          "value": "OHT 1500 KL -3nos"
+        },
+        {
+          "i": 16,
+          "value": "Project Cost -110 Crores"
+        },
+        {
+          "i": 17,
+          "value": "Pump Hose 2nos"
+        },
+        {
+          "i": 18,
+          "value": "WTP -20 MLD"
+        }
+      ],
+      "hobbies": [],
+      "summary": "A competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil c"
+    },
+    "builder": {
+      "counts": {
+        "experience": 5,
+        "experienceWithCompany": 5,
+        "experienceWithTitle": 5,
+        "projects": 8,
+        "education": 2,
+        "certifications": 0,
+        "skills": 19,
+        "languages": 2,
+        "achievements": 0,
+        "hobbies": 0,
+        "summaryChars": 1731,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Project Manager",
+          "company": "Sijcon Design and Engg Pvt Ltd",
+          "startDate": "2025-04",
+          "endDate": null,
+          "descLen": 766,
+          "bullets": 7
+        },
+        {
+          "i": 1,
+          "title": "Senior Manager",
+          "company": "Jindal Polyfilms PVT LTD",
+          "startDate": "2022-04",
+          "endDate": "2024-12",
+          "descLen": 467,
+          "bullets": 4
+        },
+        {
+          "i": 2,
+          "title": "Consultant Project Civil",
+          "company": "Tata Consultant engineering Ltd",
+          "startDate": "2017-10",
+          "endDate": "2022-04",
+          "descLen": 684,
+          "bullets": 7
+        },
+        {
+          "i": 3,
+          "title": "Senior Engg Civil",
+          "company": "Sijcon Consultant Pvt Ltd",
+          "startDate": "2011-09",
+          "endDate": "2017-10",
+          "descLen": 766,
           "bullets": 7
         },
         {
           "i": 4,
-          "title": "QA ANALYST",
-          "company": "Yanjan New Material India Private Limited",
-          "startDate": "2019-03",
-          "endDate": "2023-01",
-          "descLen": 235,
-          "bullets": 3
-        },
-        {
-          "i": 5,
-          "title": "MICROBIOLOGIST",
-          "company": "MV Aqua Solutions Private Limited",
-          "startDate": "2018-03",
-          "endDate": "2019-02",
-          "descLen": 190,
-          "bullets": 2
-        }
-      ],
-      "projects": [],
-      "skills": [
-        {
-          "i": 0,
-          "value": "ISO 13485"
-        },
-        {
-          "i": 1,
-          "value": "ISO 14001"
-        },
-        {
-          "i": 2,
-          "value": "ISO 22716"
-        },
-        {
-          "i": 3,
-          "value": "ISO 45001"
-        },
-        {
-          "i": 4,
-          "value": "ISO 9001"
-        },
-        {
-          "i": 5,
-          "value": "Oeko-tex Standard 100"
-        }
-      ],
-      "hobbies": [],
-      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional exp"
-    },
-    "builder": {
-      "counts": {
-        "experience": 6,
-        "experienceWithCompany": 6,
-        "experienceWithTitle": 6,
-        "projects": 0,
-        "education": 2,
-        "certifications": 5,
-        "skills": 6,
-        "languages": 0,
-        "achievements": 3,
-        "hobbies": 0,
-        "summaryChars": 808,
-        "name": 1,
-        "email": 1,
-        "phone": 1
-      },
-      "experience": [
-        {
-          "i": 0,
-          "title": "QUALITY ASSISTANT MANAGER",
-          "company": "Safeco Hygiene Films Private Limited",
-          "startDate": "2025-12",
+          "title": "Astt Engg Civil",
+          "company": "Gannon dunkerley & Co.Ltd",
+          "startDate": "2011-01",
           "endDate": null,
-          "descLen": 184,
-          "bullets": 2
-        },
-        {
-          "i": 1,
-          "title": "SENIOR QA EXECUTIVE",
-          "company": "Nanliu Manufacturing India Private Limited",
-          "startDate": "2024-05",
-          "endDate": "2025-11",
-          "descLen": 1869,
-          "bullets": 20
-        },
-        {
-          "i": 2,
-          "title": "QA EXECUTIVE",
-          "company": "Jindal Polyfilms Limited",
-          "startDate": "2023-11",
-          "endDate": "2024-05",
-          "descLen": 488,
-          "bullets": 6
-        },
-        {
-          "i": 3,
-          "title": "QC EXECUTIVE",
-          "company": "SOM Distelleries & Breweries Limited",
-          "startDate": "2023-01",
-          "endDate": "2023-11",
-          "descLen": 771,
-          "bullets": 8
-        },
-        {
-          "i": 4,
-          "title": "QA ANALYST",
-          "company": "Yanjan New Material India Private Limited",
-          "startDate": "2019-03",
-          "endDate": "2023-01",
-          "descLen": 235,
-          "bullets": 3
-        },
-        {
-          "i": 5,
-          "title": "MICROBIOLOGIST",
-          "company": "MV Aqua Solutions Private Limited",
-          "startDate": "2018-03",
-          "endDate": "2019-02",
-          "descLen": 190,
-          "bullets": 2
+          "descLen": 413,
+          "bullets": 5
         }
       ],
       "education": [
         {
           "i": 0,
-          "degree": "M.Sc.",
-          "institution": "I.E.H.E."
+          "degree": "B.Tech",
+          "institution": "Maulana Azad National institute Of Technology, Bhopal"
         },
         {
           "i": 1,
-          "degree": "B.Sc.",
-          "institution": "Govt. Home Science College"
+          "degree": "B.Tech. MANIT, BHOPAL 2004-",
+          "institution": ""
         }
       ],
-      "projects": [],
-      "skills": [
+      "projects": [
         {
           "i": 0,
-          "value": "ISO 13485"
+          "name": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat",
+          "title": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat"
         },
         {
           "i": 1,
-          "value": "ISO 14001"
+          "name": "Title",
+          "title": "Title"
         },
         {
           "i": 2,
-          "value": "ISO 22716"
+          "name": "BOPP,BOPET,CAPACITOR (Film Projects)",
+          "title": "BOPP,BOPET,CAPACITOR (Film Projects)"
         },
         {
           "i": 3,
-          "value": "ISO 45001"
+          "name": "Project under Jindal polyfilms PVT LTD",
+          "title": "Project under Jindal polyfilms PVT LTD"
         },
         {
           "i": 4,
-          "value": "ISO 9001"
+          "name": "OHC Expanssion ,P&G Gujrat",
+          "title": "OHC Expanssion ,P&G Gujrat"
         },
         {
           "i": 5,
-          "value": "Oeko-tex Standard 100"
+          "name": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat",
+          "title": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat"
+        },
+        {
+          "i": 6,
+          "name": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat",
+          "title": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat"
+        },
+        {
+          "i": 7,
+          "name": "Project under Gannon Dunkerley Co & Ltd",
+          "title": "Project under Gannon Dunkerley Co & Ltd"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Costing"
+        },
+        {
+          "i": 1,
+          "value": "Erema"
+        },
+        {
+          "i": 2,
+          "value": "Pedestal"
+        },
+        {
+          "i": 3,
+          "value": "Restrength"
+        },
+        {
+          "i": 4,
+          "value": "Road"
+        },
+        {
+          "i": 5,
+          "value": "Scheduling"
+        },
+        {
+          "i": 6,
+          "value": "Substation"
+        },
+        {
+          "i": 7,
+          "value": "Trenches"
+        },
+        {
+          "i": 8,
+          "value": "220 HP"
+        },
+        {
+          "i": 9,
+          "value": "Bolt AND"
+        },
+        {
+          "i": 10,
+          "value": "G+2 Colony"
+        },
+        {
+          "i": 11,
+          "value": "2 NOS Substa-"
+        },
+        {
+          "i": 12,
+          "value": "66 KVA Switchyard"
+        },
+        {
+          "i": 13,
+          "value": "Intake Well 23 MLD"
+        },
+        {
+          "i": 14,
+          "value": "OHT 1000 KL -2nos"
+        },
+        {
+          "i": 15,
+          "value": "OHT 1500 KL -3nos"
+        },
+        {
+          "i": 16,
+          "value": "Project Cost -110 Crores"
+        },
+        {
+          "i": 17,
+          "value": "Pump Hose 2nos"
+        },
+        {
+          "i": 18,
+          "value": "WTP -20 MLD"
         }
       ],
       "hobbies": [],
-      "summary": "Experienced QA professional with a diverse background in Nonwoven technologies, including Spunbond and Carding Air-\nThrough Bonding (ATB), as well as perforated poly film manufacturing. Additional exp"
+      "summary": "A competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil c"
     }
   }
 }

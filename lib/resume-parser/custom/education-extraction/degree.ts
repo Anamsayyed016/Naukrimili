@@ -75,6 +75,18 @@ export function detectDegreeFromLine(text: string): DegreeDetection {
   const trimmed = text.trim();
   if (!trimmed) return { degree: '', fieldOfStudy: '', confidence: 0 };
 
+  // "B.Tech. MANIT, BHOPAL 2004-2008" — degree + campus acronym + city + years.
+  const campusDegree = trimmed.match(
+    /^(b\.?\s*tech\.?|b\.?\s*e\.?|m\.?\s*tech\.?|m\.?\s*e\.?|mba|mca|bca|b\.?\s*sc\.?|m\.?\s*sc\.?|b\.?\s*com\.?|m\.?\s*com\.?|b\.?\s*a\.?|m\.?\s*a\.?)\s+([A-Z]{3,8})(?:\s*,\s*([A-Za-z .]+?))?(?:\s+((?:19|20)\d{2})\s*[-–—]?\s*((?:19|20)\d{2})?)?\s*$/i
+  );
+  if (campusDegree) {
+    return {
+      degree: campusDegree[1].replace(/\s+/g, '').replace(/\.$/, '') || campusDegree[1].trim(),
+      fieldOfStudy: '',
+      confidence: 88,
+    };
+  }
+
   // "B.E. (Electrical) From Some College" — keep degree only; institution extracted separately.
   const fromSplit = trimmed.match(/^(.+?)\s+from\s+(.+)$/i);
   let working = trimmed;
