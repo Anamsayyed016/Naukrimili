@@ -9,18 +9,16 @@ import { getGalleryCardAccent } from '@/lib/resume-builder/gallery-demo';
 import {
   buildGalleryPreviewDocumentHtml,
   isGalleryCompactPreview,
-  resolveDemoGalleryCardRenderPlan,
+  resolveMarketingGalleryCardRenderPlan,
 } from '@/lib/resume-builder/gallery-preview-render';
+import { prepareGalleryPreviewFormData, builderFormChecksum } from '@/lib/resume-builder/builder-hydration';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 type TemplateLockState = 'open' | 'locked' | 'upgrade' | 'slot_used';
 
 interface TemplatePreviewGalleryProps {
   templates: Template[];
-  /**
-   * Ignored for card rendering — marketing gallery is always demo-only.
-   * Kept for call-site compatibility; import/editor data must never appear here.
-   */
+  /** Imported/user resume for card text. Profile image is always the demo portrait. */
   formData?: Record<string, unknown>;
   selectedTemplateId: string | null;
   onTemplateSelect: (templateId: string) => void;
@@ -29,20 +27,33 @@ interface TemplatePreviewGalleryProps {
 }
 
 /**
- * Marketing template gallery — every card renders ONLY buildGallerySampleFormData().
- * Imported resume / drafts / localStorage photos are never injected here.
- * Clicking a card still routes to the editor, which loads user/import data separately.
+ * Marketing template gallery.
+ * Card text = imported/user resume when present; otherwise demo sample.
+ * Card photo = ALWAYS the template demo portrait (never the user's upload).
  */
 export default function TemplatePreviewGallery({
   templates,
-  formData: _formData,
+  formData = {},
   selectedTemplateId,
   onTemplateSelect,
   templateLockStates,
   onLockedTemplateSelect,
 }: TemplatePreviewGalleryProps) {
-  void _formData;
+  void onLockedTemplateSelect;
   const galleryTemplates = useMemo(() => templates, [templates]);
+
+  const userPreviewData = useMemo(() => {
+    try {
+      return prepareGalleryPreviewFormData(formData);
+    } catch {
+      return {};
+    }
+  }, [formData]);
+
+  const previewChecksum = useMemo(
+    () => builderFormChecksum(userPreviewData),
+    [userPreviewData]
+  );
 
   if (galleryTemplates.length === 0) {
     return (
@@ -72,8 +83,9 @@ export default function TemplatePreviewGallery({
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 animate-in fade-in duration-300">
         {galleryTemplates.map((template) => (
           <EnhancedTemplateCard
-            key={template.id}
+            key={`${template.id}:${previewChecksum}`}
             template={template}
+            userPreviewData={userPreviewData}
             isSelected={selectedTemplateId === template.id}
             lockState={templateLockStates?.[template.id] ?? 'open'}
             onSelect={() => onTemplateSelect(template.id)}
@@ -86,6 +98,7 @@ export default function TemplatePreviewGallery({
 
 interface EnhancedTemplateCardProps {
   template: Template;
+  userPreviewData: Record<string, unknown>;
   isSelected: boolean;
   lockState?: TemplateLockState;
   onSelect: () => void;
@@ -93,6 +106,7 @@ interface EnhancedTemplateCardProps {
 
 function EnhancedTemplateCard({
   template,
+  userPreviewData,
   isSelected,
   lockState = 'open',
   onSelect,
@@ -107,7 +121,10 @@ function EnhancedTemplateCard({
   const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const demoPlan = useMemo(() => resolveDemoGalleryCardRenderPlan(template.id), [template.id]);
+  const cardPlan = useMemo(
+    () => resolveMarketingGalleryCardRenderPlan(template.id, userPreviewData),
+    [template.id, userPreviewData]
+  );
 
   useEffect(() => {
     setUseImagePreview(false);
@@ -165,17 +182,17 @@ function EnhancedTemplateCard({
           templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
 
-        // ALWAYS demo — never imported/editor/localStorage user data.
+        // User/import text when present; photo always demo via inject options.
         const dataInjectedHtml = injectResumeData(
           html,
-          demoPlan.previewData,
-          demoPlan.injectOptions
+          cardPlan.previewData,
+          cardPlan.injectOptions
         );
 
         const fullHtml = buildGalleryPreviewDocumentHtml(
           coloredCss,
           dataInjectedHtml,
-          isGalleryCompactPreview(demoPlan.previewData)
+          isGalleryCompactPreview(cardPlan.previewData)
         );
 
         setPreviewHtml(fullHtml);
@@ -193,7 +210,7 @@ function EnhancedTemplateCard({
     return () => {
       mounted = false;
     };
-  }, [template.id, useImagePreview, hasEnteredViewport, demoPlan]);
+  }, [template.id, useImagePreview, hasEnteredViewport, cardPlan]);
 
   const cardAccent = getGalleryCardAccent(template.id);
 
@@ -283,7 +300,7 @@ function EnhancedTemplateCard({
               error={error}
               templateName={template.name}
               iframeRef={iframeRef}
-              formData={demoPlan.previewData}
+              formData={cardPlan.previewData}
               templateId={template.id}
             />
           ) : (

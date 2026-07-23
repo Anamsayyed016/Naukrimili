@@ -88,6 +88,23 @@ describe('profile image data isolation', () => {
     expect(rendered).not.toContain(USER_PHOTO);
   });
 
+  it('marketing gallery with user content forces demo photo, keeps user name', () => {
+    store.set(PROFILE_IMAGE_STORAGE_KEY, USER_PHOTO);
+    const userResume = {
+      firstName: 'Anam',
+      lastName: 'Sayyed',
+      profileImage: USER_PHOTO,
+      experience: [{ title: 'Python Developer', company: 'Acme' }],
+    };
+    const injectOptions = resolveGalleryInjectOptions('soft-coral-executive', userResume);
+    const rendered = injectResumeData(softCoralHtml(), userResume, injectOptions);
+
+    expect(injectOptions.galleryForceDemoPhoto).toBe(true);
+    expect(rendered).toContain('Anam');
+    expect(rendered).toContain(DEFAULT_DEMO_PROFILE_IMAGE);
+    expect(rendered).not.toContain(USER_PHOTO);
+  });
+
   it('editor inject keeps user photo from form data and global store', () => {
     store.set(PROFILE_IMAGE_STORAGE_KEY, USER_PHOTO);
     const rendered = injectResumeData(
@@ -100,38 +117,13 @@ describe('profile image data isolation', () => {
     expect(rendered).not.toContain(DEFAULT_DEMO_PROFILE_IMAGE);
   });
 
-  it('gallery import with photo uses only the imported object photo', () => {
-    store.set(PROFILE_IMAGE_STORAGE_KEY, USER_PHOTO);
-    const userResume = {
-      firstName: 'Alex',
-      lastName: 'Reed',
-      profileImage: USER_PHOTO,
-      experience: [{ title: 'Engineer', company: 'Acme' }],
-    };
-    const injectOptions = resolveGalleryInjectOptions('soft-coral-executive', userResume);
-    const rendered = injectResumeData(softCoralHtml(), userResume, injectOptions);
-
-    expect(injectOptions.gallerySourceLock).toBe(true);
-    expect(injectOptions.galleryPreview).toBeUndefined();
-    expect(rendered).toContain(USER_PHOTO);
-    expect(rendered).not.toContain(DEFAULT_DEMO_PROFILE_IMAGE);
-  });
-
-  it('gallery import without photo shows initials — not demo portrait or localStorage photo', () => {
-    store.set(PROFILE_IMAGE_STORAGE_KEY, USER_PHOTO);
-    const userResume = {
-      firstName: 'Alex',
-      lastName: 'Reed',
-      experience: [{ title: 'Engineer', company: 'Acme' }],
-    };
-    const injectOptions = resolveGalleryInjectOptions('soft-coral-executive', userResume);
-    const rendered = injectResumeData(softCoralHtml(), userResume, injectOptions);
-
-    expect(injectOptions.gallerySourceLock).toBe(true);
-    expect(shouldMergePersistedProfileImageForRender(userResume, injectOptions)).toBe(false);
-    expect(rendered).not.toContain(DEFAULT_DEMO_PROFILE_IMAGE);
-    expect(rendered).not.toContain(USER_PHOTO);
-    expect(rendered).toContain('profile-image-wrapper--initials');
+  it('editor without photo uses demo portrait as initial placeholder', () => {
+    const rendered = injectResumeData(
+      softCoralHtml(),
+      { firstName: 'Alex', lastName: 'Reed' },
+      { templateId: 'soft-coral-executive', mode: 'preview' }
+    );
+    expect(rendered).toContain(DEFAULT_DEMO_PROFILE_IMAGE);
   });
 
   it('editor replaces a demo portrait placeholder with the persisted user photo', () => {
@@ -141,12 +133,20 @@ describe('profile image data isolation', () => {
     expect(prepareFormDataForResumeRender(demoPortrait).profileImage).toBe(USER_PHOTO);
   });
 
-  it('editor inject never falls back to the gallery demo portrait', () => {
-    const rendered = injectResumeData(
-      softCoralHtml(),
-      { firstName: 'Alex', lastName: 'Reed' },
-      { templateId: 'soft-coral-executive', mode: 'preview' }
-    );
+  it('change-template locked cards keep user photo (no forced demo)', () => {
+    store.set(PROFILE_IMAGE_STORAGE_KEY, 'data:image/png;base64,other');
+    const userResume = {
+      firstName: 'Alex',
+      lastName: 'Reed',
+      profileImage: USER_PHOTO,
+      experience: [{ title: 'Engineer', company: 'Acme' }],
+    };
+    const rendered = injectResumeData(softCoralHtml(), userResume, {
+      templateId: 'soft-coral-executive',
+      mode: 'preview',
+      gallerySourceLock: true,
+    });
+    expect(rendered).toContain(USER_PHOTO);
     expect(rendered).not.toContain(DEFAULT_DEMO_PROFILE_IMAGE);
   });
 });

@@ -245,20 +245,20 @@ export function getGalleryCardAccent(templateId: string): GalleryCardAccent {
 }
 
 /**
- * Gallery preview profile resolution — atomic to the selected gallery source.
- * Demo cards → demo portrait only.
- * Imported cards → photo on that object only; otherwise empty (template initials).
- * Never falls back to demo portrait for imported resumes.
+ * Gallery preview profile resolution.
+ * - Marketing gallery (`forceDemo`): always the template demo portrait.
+ * - Locked user source (Change Template cards): photo on the object only; else empty.
  */
 export function resolveGalleryProfileImage(
   formData: Record<string, unknown>,
   _getString: (keys: string[]) => string,
-  templateId?: string
+  templateId?: string,
+  options?: { forceDemo?: boolean }
 ): string {
-  if (formData._galleryDemo === true) {
+  if (options?.forceDemo || formData._galleryDemo === true) {
     return getGalleryDemoProfileImage(templateId);
   }
-  // Imported / user gallery source: never inject demo portrait.
+  // Change-template / locked user source: never inject demo portrait here.
   return resolveProfileImageForRender(formData) || '';
 }
 

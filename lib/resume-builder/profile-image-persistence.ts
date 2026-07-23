@@ -87,20 +87,29 @@ export function syncPersistedProfileImageFromFormData(
  */
 export function shouldMergePersistedProfileImageForRender(
   formData: Record<string, unknown>,
-  options?: { galleryPreview?: boolean; gallerySourceLock?: boolean }
+  options?: {
+    galleryPreview?: boolean;
+    gallerySourceLock?: boolean;
+    galleryForceDemoPhoto?: boolean;
+  }
 ): boolean {
-  // Gallery cards stay atomic to their selected source object.
+  // Gallery cards stay atomic — never pull the global user photo store.
   if (options?.galleryPreview) return false;
+  if (options?.galleryForceDemoPhoto) return false;
   if (options?.gallerySourceLock) return false;
   if (formData._galleryDemo === true) return false;
-  // Editor/PDF: demo portrait URLs are not real user photos — allow merge to restore.
+  // Editor/PDF: demo portrait URLs are placeholders — allow merge to restore user photo.
   return true;
 }
 
 /** Merge global user photo only for editor/export renders — not gallery cards. */
 export function prepareFormDataForResumeRender(
   formData: Record<string, unknown>,
-  options?: { galleryPreview?: boolean; gallerySourceLock?: boolean }
+  options?: {
+    galleryPreview?: boolean;
+    gallerySourceLock?: boolean;
+    galleryForceDemoPhoto?: boolean;
+  }
 ): Record<string, unknown> {
   if (!shouldMergePersistedProfileImageForRender(formData, options)) {
     return formData;

@@ -7,8 +7,18 @@ import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import type { Template } from '@/lib/resume-builder/types';
-import { writeImportSession, ensureBuilderContactFields, resolveEditorFormFromImport, prepareBuilderSessionPayload, readImportMeta } from '@/lib/resume-builder/builder-hydration';
-import { hasImportableContent, coalesceBuilderImportPayload } from '@/lib/resume-builder/import-transformer';
+import {
+  writeImportSession,
+  ensureBuilderContactFields,
+  resolveEditorFormFromImport,
+  prepareBuilderSessionPayload,
+  readImportMeta,
+} from '@/lib/resume-builder/builder-hydration';
+import {
+  hasImportableContent,
+  coalesceBuilderImportPayload,
+  backfillImportedExperienceForDisplay,
+} from '@/lib/resume-builder/import-transformer';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';
@@ -19,18 +29,14 @@ interface Filters {
   color: string | null;
 }
 
-/**
- * Session import payload for editor handoff only.
- * Marketing gallery cards never consume this — they always render demo sample data.
- */
-function loadImportSessionFormData(): Record<string, unknown> {
+/** Load imported resume for gallery card TEXT (photo is forced to demo at inject time). */
+function loadGalleryPreviewFormData(): Record<string, unknown> {
   if (typeof window === 'undefined') return {};
 
   const importRaw = sessionStorage.getItem('resume-import-data');
   if (importRaw) {
     try {
-      const parsed = JSON.parse(importRaw) as Record<string, unknown>;
-      return parsed;
+      return JSON.parse(importRaw) as Record<string, unknown>;
     } catch {
       // fall through
     }
@@ -55,11 +61,11 @@ export default function TemplateSelectionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const typeId = searchParams.get('type') || 'experienced';
-  const source = searchParams.get('source'); // Check if coming from import
+  const source = searchParams.get('source');
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [previewFormData, setPreviewFormData] = useState<Record<string, unknown>>({});
 
-  // Lazy load templates data to avoid module initialization issues
   useEffect(() => {
     import('@/lib/resume-builder/templates.json').then((templatesData) => {
       setTemplates((templatesData.default.templates || []) as Template[]);
@@ -67,7 +73,35 @@ export default function TemplateSelectionPage() {
     });
   }, []);
 
-  // Template filters state
+  useEffect(() => {
+    try {
+      const resolved = resolveEditorFormFromImport();
+      if (resolved && hasImportableContent(resolved)) {
+        setPreviewFormData(resolved);
+        return;
+      }
+
+      const raw = loadGalleryPreviewFormData();
+      if (Object.keys(raw).length > 0) {
+        try {
+          const coalesced = backfillImportedExperienceForDisplay(
+            ensureBuilderContactFields(coalesceBuilderImportPayload(raw))
+          );
+          setPreviewFormData(hasImportableContent(coalesced) ? coalesced : raw);
+        } catch (err) {
+          console.error('[template-gallery] coalesce failed, using session payload', err);
+          setPreviewFormData(raw);
+        }
+      }
+    } catch (err) {
+      console.error('[template-gallery] import preview hydration failed', err);
+      const raw = loadGalleryPreviewFormData();
+      if (Object.keys(raw).length > 0) {
+        setPreviewFormData(raw);
+      }
+    }
+  }, [source]);
+
   const [filters, setFilters] = useState<Filters>({
     category: 'All Templates',
     layout: 'All',
@@ -78,29 +112,25 @@ export default function TemplateSelectionPage() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Filter templates based on active filters
   const filteredTemplates = useMemo(() => {
     if (!templatesLoaded || !Array.isArray(templates) || templates.length === 0) {
       return [];
     }
-    
+
     return templates.filter((template) => {
       const categoryMatch =
         filters.category === 'All Templates' ||
         (Array.isArray(template.categories) && template.categories.includes(filters.category));
-      
-      const layoutMatch =
-        filters.layout === 'All' ||
-        template.layout === filters.layout;
-      
+
+      const layoutMatch = filters.layout === 'All' || template.layout === filters.layout;
+
       return categoryMatch && layoutMatch;
     });
   }, [filters, templates, templatesLoaded]);
 
   const handleTemplateSelect = (templateId: string) => {
-    // Gallery stays demo-only; on click we hand off imported/user data to the editor.
     if (source === 'import') {
-      const raw = loadImportSessionFormData();
+      const raw = loadGalleryPreviewFormData();
       if (Object.keys(raw).length > 0) {
         let payload: Record<string, unknown> | null = resolveEditorFormFromImport();
         if (!payload || !hasImportableContent(payload)) {
@@ -122,25 +152,20 @@ export default function TemplateSelectionPage() {
         }
       }
     }
-    const importParams =
-      source === 'import' ? '&prefill=true&source=import' : '';
+    const importParams = source === 'import' ? '&prefill=true&source=import' : '';
     router.push(
       `/resume-builder/editor?template=${templateId}${typeId ? `&type=${typeId}` : ''}${importParams}`
     );
   };
 
-  // Get filter options from templates.json
   const filterOptions = useMemo(() => {
     if (!templatesLoaded || !Array.isArray(templates) || templates.length === 0) {
-      return {
-        categories: [],
-        layouts: [],
-      };
+      return { categories: [], layouts: [] };
     }
-    
+
     const categories = new Set<string>();
     const layouts = new Set<string>();
-    
+
     templates.forEach((template) => {
       if (Array.isArray(template.categories)) {
         template.categories.forEach((cat) => categories.add(cat));
@@ -159,7 +184,6 @@ export default function TemplateSelectionPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        {/* Header */}
         <div className="mb-6 lg:mb-8">
           <Button
             variant="ghost"
@@ -170,16 +194,11 @@ export default function TemplateSelectionPage() {
             Back
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Choose Your Resume Template
-            </h1>
-            <p className="text-gray-600">
-              Select a template that best fits your style and career
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Choose Your Resume Template</h1>
+            <p className="text-gray-600">Select a template that best fits your style and career</p>
           </div>
         </div>
 
-        {/* Import Success Banner */}
         {source === 'import' && (
           <div className="mb-6 animate-in slide-in-from-top duration-500">
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4 shadow-md">
@@ -193,10 +212,12 @@ export default function TemplateSelectionPage() {
                     Resume Successfully Imported!
                   </h3>
                   <p className="text-sm text-green-800 mb-2">
-                    Your resume has been analyzed and all information extracted. Select a template below to create your professional resume.
+                    Your resume has been analyzed and all information extracted. Select a template
+                    below to create your professional resume.
                   </p>
                   <p className="text-xs text-green-700">
-                    All form fields will be pre-filled with your data. You'll just need to review and export!
+                    All form fields will be pre-filled with your data. You&apos;ll just need to review
+                    and export!
                   </p>
                 </div>
               </div>
@@ -204,7 +225,6 @@ export default function TemplateSelectionPage() {
           </div>
         )}
 
-        {/* Filters - Horizontal on Desktop, Dropdown on Mobile */}
         <div className="mb-6">
           <TemplateFilters
             filters={filters}
@@ -216,10 +236,10 @@ export default function TemplateSelectionPage() {
           />
         </div>
 
-        {/* Template Gallery */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sm:p-6 lg:p-8">
           <TemplatePreviewGallery
             templates={filteredTemplates}
+            formData={previewFormData}
             selectedTemplateId={null}
             onTemplateSelect={handleTemplateSelect}
           />

@@ -63,6 +63,11 @@ import {
   syncPersistedProfileImageFromFormData,
 } from '@/lib/resume-builder/profile-image-persistence';
 import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import {
+  clearDesignStudioHandoff,
+  readDesignStudioHandoff,
+  writeDesignStudioHandoff,
+} from '@/lib/resume-builder/design-studio-handoff';
 import type { Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
@@ -236,10 +241,23 @@ export default function ResumeEditorPage() {
   }, [formData]);
 
   // Hydrate from import session before paint — avoids empty form when URL params lag.
-  // Never stamp the import snapshot over a Design Studio / editor draft for this template
-  // (Change Template must keep current edits; only design changes).
+  // Priority: Design Studio handoff (current edits) → local draft → import session.
   useLayoutEffect(() => {
     if (!templateId || userHasEditedRef.current) return;
+
+    const handoff = readDesignStudioHandoff(templateId);
+    if (handoff && hasImportableContent(handoff)) {
+      setFormData(
+        ensureBuilderContactFields(mergePersistedProfileImageIntoFormData(handoff))
+      );
+      formHydratedForTemplateRef.current = templateId;
+      clearDesignStudioHandoff();
+      logBuilderHydration('layout-design-studio-handoff', {
+        templateId,
+        checksum: builderFormChecksum(handoff),
+      });
+      return;
+    }
 
     const explicitGalleryImport = shouldPrefill || sourceImport;
     const localDraft = readLocalDraft(templateId);
@@ -381,10 +399,11 @@ export default function ResumeEditorPage() {
         if (shouldLoadImport) {
           const localDraft = readLocalDraft(templateId);
           const draftHasContent = !!(localDraft && hasImportableContent(localDraft));
-          // Explicit gallery→editor import may refresh from session.
-          // Otherwise prefer the per-template draft (Change Template / live edits).
+          // Explicit gallery→editor import may refresh from session ONLY when there is
+          // no newer user-edited / Design Studio draft for this template.
           const shouldApplyImport =
-            explicitGalleryImport ||
+            (explicitGalleryImport &&
+              !(localDraft && localDraft._userEdited === true)) ||
             !localDraft ||
             !draftHasContent ||
             (Boolean(localDraft._userEdited) === false &&
@@ -786,20 +805,30 @@ export default function ResumeEditorPage() {
     });
   }, []);
 
-  // Open the dedicated Design Studio page (template gallery + colors +
-  // typography) instead of the cramped popup modal. Auto-save will flush
-  // the latest formData under `resume-${templateId}` so the studio sees the
-  // same data we have in memory here.
+  // Open Design Studio with a handoff of the CURRENT in-memory form (not import snapshot).
   const openDesignStudio = useCallback(() => {
     if (!templateId) return;
     if (typeof window !== 'undefined') {
-      // Best-effort flush in case the debounced save hasn't fired yet.
       try {
         syncPersistedProfileImageFromFormData(formData);
-        const payload = mergePersistedProfileImageIntoFormData(formData);
+        const payload = {
+          ...mergePersistedProfileImageIntoFormData(formData),
+          _userEdited: true,
+          _userEditedAt: Date.now(),
+        };
         localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
+        writeDesignStudioHandoff(templateId, payload);
       } catch {
-        // ignore quota errors
+        // Still write handoff — Design Studio can recover from session even if LS quota fails.
+        try {
+          writeDesignStudioHandoff(templateId, {
+            ...formData,
+            _userEdited: true,
+            _userEditedAt: Date.now(),
+          });
+        } catch {
+          /* ignore */
+        }
       }
     }
     const params = new URLSearchParams();

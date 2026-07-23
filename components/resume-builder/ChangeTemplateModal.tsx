@@ -15,9 +15,11 @@ import Image from 'next/image';
 import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
 import {
   getGalleryCardAccent,
-  isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
-import { buildGalleryPreviewDocumentHtml } from '@/lib/resume-builder/gallery-preview-render';
+import {
+  buildGalleryPreviewDocumentHtml,
+  resolveEditorTemplateCardRenderPlan,
+} from '@/lib/resume-builder/gallery-preview-render';
 import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 // Dynamic imports moved inside component to avoid TDZ issues
@@ -260,14 +262,12 @@ function EnhancedTemplateCard({
         const colorVariant = templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) || templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
 
-        // Change Template cards: ALWAYS current editor formData — never gallery demo.
-        const previewData =
-          formData && !isGalleryEmptyFormData(formData) ? formData : {};
-        const dataInjectedHtml = injectResumeData(html, previewData, {
-          templateId: template.id,
-          mode: 'preview',
-          gallerySourceLock: true,
-        });
+        // Change Template cards: ALWAYS current editor formData + user photo.
+        const { previewData, injectOptions } = resolveEditorTemplateCardRenderPlan(
+          template.id,
+          formData
+        );
+        const dataInjectedHtml = injectResumeData(html, previewData, injectOptions);
 
         const fullHtml = buildGalleryPreviewDocumentHtml(
           coloredCss,
@@ -369,7 +369,9 @@ function EnhancedTemplateCard({
             error={error}
             templateName={template.name}
             iframeRef={iframeRef}
-            formData={formData}
+            formData={
+              resolveEditorTemplateCardRenderPlan(template.id, formData).previewData
+            }
             templateId={template.id}
           />
         )}

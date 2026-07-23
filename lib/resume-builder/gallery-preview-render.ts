@@ -6,16 +6,21 @@ import {
 export type GalleryInjectOptions = {
   galleryPreview?: boolean;
   galleryTemplateId?: string;
-  /** Gallery cards only: lock photo to the selected form object (no localStorage / demoFallback). */
+  /**
+   * Marketing gallery with real user/import content: force demo portrait only.
+   * Does not switch layout into compact gallery budgets (unlike galleryPreview alone).
+   */
+  galleryForceDemoPhoto?: boolean;
+  /** Gallery cards only: lock photo to the selected form object (no localStorage merge). */
   gallerySourceLock?: boolean;
   templateId?: string;
   mode?: 'preview';
 };
 
 /**
- * Gallery inject options — always lock photo to the selected card source.
- * Demo → gallery/demo mode (compact).
- * Import → live layout mode + gallerySourceLock (no demoFallback / no photo-store merge).
+ * Inject options for a gallery card source object.
+ * Demo sample → compact galleryPreview.
+ * User/import content → live layout + force demo photo (never user upload / never full demo resume).
  */
 export function resolveGalleryInjectOptions(
   templateId: string,
@@ -29,6 +34,7 @@ export function resolveGalleryInjectOptions(
     galleryTemplateId: templateId,
     mode: 'preview',
     gallerySourceLock: true,
+    galleryForceDemoPhoto: true,
   };
 }
 
@@ -38,25 +44,11 @@ export function isGalleryCompactPreview(previewData: Record<string, unknown>): b
 }
 
 /**
- * Marketing Template Gallery cards — ALWAYS demo sample data.
- * Never accepts imported/editor form data (that belongs in the Resume Builder only).
+ * Marketing Template Gallery card plan.
+ * - With import/user data → user content + demo portrait only.
+ * - Without → full demo sample.
  */
-export function resolveDemoGalleryCardRenderPlan(templateId: string): {
-  previewData: Record<string, unknown>;
-  injectOptions: GalleryInjectOptions;
-} {
-  const previewData = buildGallerySampleFormData(templateId);
-  return {
-    previewData,
-    injectOptions: resolveGalleryInjectOptions(templateId, previewData),
-  };
-}
-
-/**
- * Change-template modal (inside editor): may preview the user's live form in another template.
- * Pass null/empty to fall back to demo. Marketing gallery must use resolveDemoGalleryCardRenderPlan instead.
- */
-export function resolveGalleryCardRenderPlan(
+export function resolveMarketingGalleryCardRenderPlan(
   templateId: string,
   userPreviewData: Record<string, unknown> | null | undefined
 ): {
@@ -71,6 +63,54 @@ export function resolveGalleryCardRenderPlan(
     previewData,
     injectOptions: resolveGalleryInjectOptions(templateId, previewData),
   };
+}
+
+/**
+ * @deprecated Use resolveMarketingGalleryCardRenderPlan for the public gallery.
+ * Kept for callers that intentionally want a full demo sample.
+ */
+export function resolveDemoGalleryCardRenderPlan(templateId: string): {
+  previewData: Record<string, unknown>;
+  injectOptions: GalleryInjectOptions;
+} {
+  return resolveMarketingGalleryCardRenderPlan(templateId, null);
+}
+
+/**
+ * Change-template / Design Studio cards: current editor form only (user photo included).
+ * Never falls back to gallery demo resume content.
+ */
+export function resolveEditorTemplateCardRenderPlan(
+  templateId: string,
+  editorFormData: Record<string, unknown> | null | undefined
+): {
+  previewData: Record<string, unknown>;
+  injectOptions: GalleryInjectOptions;
+} {
+  const previewData =
+    editorFormData && !isGalleryEmptyFormData(editorFormData) ? editorFormData : {};
+  return {
+    previewData,
+    injectOptions: {
+      templateId,
+      galleryTemplateId: templateId,
+      mode: 'preview',
+      gallerySourceLock: true,
+    },
+  };
+}
+
+/**
+ * @deprecated Prefer resolveMarketingGalleryCardRenderPlan or resolveEditorTemplateCardRenderPlan.
+ */
+export function resolveGalleryCardRenderPlan(
+  templateId: string,
+  userPreviewData: Record<string, unknown> | null | undefined
+): {
+  previewData: Record<string, unknown>;
+  injectOptions: GalleryInjectOptions;
+} {
+  return resolveMarketingGalleryCardRenderPlan(templateId, userPreviewData);
 }
 
 export function buildGalleryPreviewDocumentHtml(

@@ -54,6 +54,12 @@ import {
   mergePersistedProfileImageIntoFormData,
   syncPersistedProfileImageFromFormData,
 } from '@/lib/resume-builder/profile-image-persistence';
+import {
+  clearDesignStudioHandoff,
+  readDesignStudioHandoff,
+  writeDesignStudioHandoff,
+} from '@/lib/resume-builder/design-studio-handoff';
+import { hasImportableContent } from '@/lib/resume-builder/import-transformer';
 
 type SidebarTab = 'templates' | 'colors' | 'typography';
 
@@ -61,6 +67,11 @@ const DESIGN_STUDIO_RETURN_KEY = 'resume-builder-design-studio-return';
 
 function readLocalFormData(templateId: string): Record<string, unknown> {
   if (typeof window === 'undefined') return mergePersistedProfileImageIntoFormData({});
+  // Prefer the live editor handoff over a possibly stale per-template draft.
+  const handoff = readDesignStudioHandoff(templateId);
+  if (handoff && hasImportableContent(handoff)) {
+    return mergePersistedProfileImageIntoFormData(handoff);
+  }
   try {
     const raw = localStorage.getItem(`resume-${templateId}`);
     if (!raw) return mergePersistedProfileImageIntoFormData({});
@@ -77,13 +88,18 @@ function writeLocalFormData(
   data: Record<string, unknown>
 ): void {
   if (typeof window === 'undefined') return;
-  syncPersistedProfileImageFromFormData(data);
-  const payload = mergePersistedProfileImageIntoFormData(data);
+  const payload = {
+    ...mergePersistedProfileImageIntoFormData(data),
+    _userEdited: true,
+    _userEditedAt: Date.now(),
+  };
+  syncPersistedProfileImageFromFormData(payload);
   try {
     localStorage.setItem(`resume-${templateId}`, JSON.stringify(payload));
   } catch {
     // ignore quota errors — preview still works in memory
   }
+  writeDesignStudioHandoff(templateId, payload);
 }
 
 export default function DesignStudioPage() {
@@ -202,6 +218,7 @@ export default function DesignStudioPage() {
   const goBackToEditor = useCallback(() => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem(DESIGN_STUDIO_RETURN_KEY);
+      clearDesignStudioHandoff();
     }
     const url = `/resume-builder/editor?template=${originalTemplateId}${
       typeId ? `&type=${typeId}` : ''
@@ -212,15 +229,17 @@ export default function DesignStudioPage() {
   const handleApply = useCallback(() => {
     if (!selectedTemplate) return;
 
-    const payload = mergePersistedProfileImageIntoFormData(formData);
+    const payload = {
+      ...mergePersistedProfileImageIntoFormData(formData),
+      _userEdited: true,
+      _userEditedAt: Date.now(),
+    };
 
-    // If the template id changed, migrate the current formData onto the new
-    // template's localStorage key BEFORE navigating so the editor reload
-    // picks it up. This fixes the silent data loss in the old modal flow.
+    // Migrate CURRENT studio form (cloned from editor handoff) onto the destination
+    // template key. Never reload import session / gallery demo here.
     const movingTemplate = selectedTemplate.id !== originalTemplateId;
-    if (movingTemplate) {
-      writeLocalFormData(selectedTemplate.id, payload);
-    } else {
+    writeLocalFormData(selectedTemplate.id, payload);
+    if (!movingTemplate) {
       writeLocalFormData(originalTemplateId, payload);
     }
 

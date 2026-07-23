@@ -47,8 +47,9 @@ import {
   reconcileEducationDegreeAndField,
   sanitizeLanguageEntry,
 } from '@/lib/resume-parser/import-sanitize';
-import { resolveGalleryProfileImage } from './gallery-demo';
+import { resolveGalleryProfileImage, getGalleryDemoProfileImage } from './gallery-demo';
 import { prepareFormDataForResumeRender } from './profile-image-persistence';
+import { templateSupportsProfilePhoto } from './template-photo-metadata';
 import { resolveTemplateId } from './template-aliases';
 import {
   getAtsContentBalanceStyleBlock,
@@ -422,14 +423,18 @@ export async function loadTemplate(templateId: string): Promise<LoadedTemplate |
 export { applyColorVariant } from './color-theme';
 
 export interface InjectResumeDataOptions {
-  /** Template gallery / change-template modal only — uses demo profile when no user upload */
+  /** Full demo gallery sample — compact gallery layout + demo portrait */
   galleryPreview?: boolean;
   /** Picks template-specific demo portrait in gallery mode */
   galleryTemplateId?: string;
   /**
-   * Gallery cards rendering imported user data: lock photo to the form object.
-   * Skips localStorage photo merge and demoFallback (initials if no photo).
-   * Does not switch layout into compact gallery budgets.
+   * Marketing gallery with real user/import content: force demo portrait only.
+   * Skips localStorage photo merge. Keeps live (non-compact) layout budgets.
+   */
+  galleryForceDemoPhoto?: boolean;
+  /**
+   * Cards rendering current editor/user data: lock photo to the form object.
+   * Skips localStorage photo merge. No forced demo portrait unless galleryForceDemoPhoto.
    */
   gallerySourceLock?: boolean;
   /** Active template id — informs layout capacity heuristics */
@@ -509,12 +514,21 @@ export function injectResumeData(
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
   const resolvedTemplateId = options?.templateId ?? options?.galleryTemplateId;
-  // Gallery cards: demo portrait only when rendering demo sample data.
-  // Editor / PDF / Design Studio: never inject the gallery demo portrait.
+  // Marketing gallery: always demo portrait (even when resume text is the user's).
+  // Change Template / locked cards: photo from the form object only.
+  // Editor / PDF: user photo, with demo portrait only as initial placeholder.
   const profileImage =
-    options?.galleryPreview || options?.gallerySourceLock
-      ? resolveGalleryProfileImage(data, getString, options.galleryTemplateId ?? resolvedTemplateId)
-      : resolveProfileImageForRender(data, getString);
+    options?.galleryForceDemoPhoto || options?.galleryPreview
+      ? getGalleryDemoProfileImage(options.galleryTemplateId ?? resolvedTemplateId)
+      : options?.gallerySourceLock
+        ? resolveGalleryProfileImage(
+            data,
+            getString,
+            options.galleryTemplateId ?? resolvedTemplateId
+          )
+        : resolveProfileImageForRender(data, getString, {
+            demoFallback: templateSupportsProfilePhoto(resolvedTemplateId),
+          });
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
