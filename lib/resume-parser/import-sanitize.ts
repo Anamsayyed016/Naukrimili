@@ -926,6 +926,14 @@ export function isInvalidImportSummary(text: string): boolean {
   ) {
     return false;
   }
+  // "Looking for a challenging…" / "Seeking a rewarding career…" objectives.
+  if (
+    /^(?:looking\s+for|seeking(?:\s+a|\s+an)?|desire\s+to|wish\s+to)\b/i.test(t) &&
+    t.length >= 40 &&
+    t.length <= 900
+  ) {
+    return false;
+  }
   // Traditional career/professional objectives ("To secure a responsible position…")
   if (
     /^to\s+(?:secure|obtain|work|contribute|pursue|join|build|leverage|seek|find)\b/i.test(t) &&
@@ -3682,7 +3690,7 @@ export function sanitizeExperienceDateValue(value: unknown): string {
 }
 
 const JOB_TITLE_HINT_RE =
-  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources|production|dispatch|warehouse|logistics|microbiologist|biologist|chemist|pharmacist|electrician|technician|pathologist|radiologist|cardiologist|physiotherapist|dietitian|optometrist|veterinarian|librarian|statistician)\b|[A-Za-z][A-Za-z'-]{3,24}(?:ologist|ician|ographer|otherapist|urgeon|entist)\b/i;
+  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources|production|dispatch|warehouse|logistics|microbiologist|biologist|chemist|pharmacist|electrician|technician|pathologist|radiologist|cardiologist|physiotherapist|dietitian|optometrist|veterinarian|librarian|statistician)\b|[A-Za-z][A-Za-z'-]{3,24}(?:ologist|ician|ographer|otherapist|urgeon|entist)\b|\b(?:asst|sr|jr|mgr)\.?\s*(?:accounts?|officer|manager|executive|accountant|engineer|developer|admin)?\b|\b(?:asst|sr|jr)\.?\s*[A-Za-z][A-Za-z.]{2,24}\b/i;
 
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
@@ -3690,6 +3698,11 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   if (isExperienceFieldLabelLine(t)) return false;
   // Duty sentences mentioning SEBI/governance/etc. are not employer names.
   if (looksLikeSentenceNotCompany(t)) return false;
+  // Prefer employer core when a trailing city was OCR-glued after a dash.
+  const dashSplit = splitCompanyTrailingLocation(t);
+  if (dashSplit && dashSplit.company !== t) {
+    return looksLikeCompanyNameLine(dashSplit.company);
+  }
   if (SPECIAL_EMPLOYER_RE.test(t)) return true;
   if (/^government\b/i.test(t) && !JOB_TITLE_HINT_RE.test(t)) return true;
   // Legal / org suffixes win over embedded title tokens ("… Consultant … Ltd"),
@@ -3707,6 +3720,15 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   if (INSTITUTIONAL_EMPLOYER_HINT_RE.test(t) && t.split(/\s+/).length <= 8) return true;
   const core = t.replace(/\s+(limited|ltd\.?|inc\.?|pvt\.?\s*ltd\.?)$/i, '').trim();
   if (WELL_KNOWN_EMPLOYER_RE.test(core)) return true;
+  // Dotted acronym employers ("M.D.FAB", "A.B.C. Corp") without legal suffixes.
+  if (
+    /^(?:[A-Z](?:\.[A-Z]){1,6}\.?|[A-Z]{2,6}(?:\.[A-Z]{2,6})+)(?:\s+[A-Za-z][A-Za-z.&'-]*){0,3}$/.test(
+      t
+    ) &&
+    !JOB_TITLE_HINT_RE.test(t)
+  ) {
+    return true;
+  }
   const classified = classifyResumeTextFragment(t);
   if (classified.kind === 'COMPANY_NAME') return true;
   if (classified.kind === 'DESIGNATION' || classified.kind === 'LOCATION') return false;
@@ -3748,6 +3770,29 @@ const TECH_SKILL_AS_COMPANY_RE =
 export function splitCompanyTrailingLocation(text: string): { company: string; location: string } | null {
   const t = sanitizeFieldText(text, 160);
   if (!t) return null;
+
+  // "Acme – City" / "M.D.FAB– HOSUR" — dash-separated trailing place (no legal suffix required).
+  const dashLoc = t.match(/^(.+?)\s*[–—-]\s*([A-Za-z][A-Za-z.'\s-]{1,40})$/);
+  if (dashLoc) {
+    const left = dashLoc[1].trim().replace(/[–—-]+$/g, '').trim();
+    const right = dashLoc[2].trim();
+    if (
+      left.length >= 3 &&
+      right.length >= 3 &&
+      right.split(/\s+/).length <= 4 &&
+      !/\b(?:19|20)\d{2}\b/.test(right) &&
+      !JOB_TITLE_HINT_RE.test(right) &&
+      (looksLikeStandaloneLocationLine(right) ||
+        isLikelyLocationFragment(right) ||
+        (/^[A-Z][A-Za-z.'-]{2,24}$/.test(right) && right === right.toUpperCase()))
+    ) {
+      // Avoid splitting tenure-like "Role – Present" fragments.
+      if (!/^(?:present|current|till\s*date|to\s*date|ongoing)$/i.test(right)) {
+        return { company: left, location: right };
+      }
+    }
+  }
+
   if (!/\b(?:ltd\.?|limited|pvt\.?\s*ltd\.?|llc|inc\.?|corp\.?|gmbh|plc|llp|private\s+limited)\b/i.test(t)) {
     return null;
   }

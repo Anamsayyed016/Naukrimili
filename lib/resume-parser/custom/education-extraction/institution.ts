@@ -13,7 +13,7 @@ export interface InstitutionDetection {
 }
 
 const INSTITUTION_MARKERS_RE =
-  /\b(university|college|institute|institution|school|academy|polytechnic|campus|vishwavidyalaya|vidyalaya|h\.?\s*sec\.?|iit|nit|iiit|bits|rgpv|vtu|anna\s+university|open\s+university|board)\b/i;
+  /\b(university|college|collage|institute|institution|school|academy|polytechnic|campus|vishwavidyalaya|vidyalaya|h\.?\s*sec\.?|iit|nit|iiit|bits|rgpv|vtu|anna\s+university|open\s+university|board)\b/i;
 
 const GOVT_INSTITUTION_RE =
   /\b(government|public|state|central|national)\s+(?:university|college|institute|school)\b/i;

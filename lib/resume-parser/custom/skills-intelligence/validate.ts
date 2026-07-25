@@ -40,13 +40,13 @@ const PROFESSIONAL_SKILL_PHRASE_RE =
   /\b(?:management|planning|design|care|analysis|auditing|assessment|communication|leadership|marketing|sales|negotiation|compliance|budgeting|reporting|counseling|diagnosis|teaching|training|research|writing|coordination|presentation|curriculum|classroom|patient|pharmacology|surgery|lesson|financial|accounting|taxation|bookkeeping|recruitment|onboarding|payroll|litigation|contract|statutory|governance|procurement|operations|inventory|forecasting|analytics|branding|campaign|content|pipeline|relations)\b/i;
 
 const SOFT_SKILL_SINGLE_RE =
-  /^(?:excel|word|tally|sap|gst|emr|quickbooks|auditing|assessment|negotiation|teamwork|adaptability|collaboration|problem solving|critical thinking|time management|seo|crm|hris|payroll|governance|reporting|analytics)$/i;
+  /^(?:excel|word|tally|sap|gst|emr|quickbooks|auditing|assessment|negotiation|teamwork|adaptability|collaboration|problem solving|critical thinking|time management|seo|crm|hris|payroll|governance|reporting|analytics|ms\s*word|ms\s*excel|microsoft\s*word|microsoft\s*excel|\.net|dotnet|tally\s*erp\s*9?)$/i;
 
 export { SOFT_SKILL_SINGLE_RE };
 
 /** Common multi-word competencies listed in non-technical skills sections. */
 export const MULTI_WORD_SKILL_ALLOW_RE =
-  /^(?:public administration|policy analysis|statutory compliance|financial analysis|classroom management|patient care|lesson planning|curriculum design|content marketing|brand management|campaign planning|google analytics|pipeline management|client relations|employee relations|case management|due diligence|contract drafting|legal research|infection control|vital signs|iv therapy|ms office|surgery assistance|lead generation)$/i;
+  /^(?:public administration|policy analysis|statutory compliance|financial analysis|classroom management|patient care|lesson planning|curriculum design|content marketing|brand management|campaign planning|google analytics|pipeline management|client relations|employee relations|case management|due diligence|contract drafting|legal research|infection control|vital signs|iv therapy|ms office|ms word|ms excel|microsoft office|microsoft word|microsoft excel|surgery assistance|lead generation|tally erp9?)$/i;
 
 export { KNOWN_TECH_ACRONYMS_RE };
 

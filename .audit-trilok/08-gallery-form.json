@@ -1,269 +1,135 @@
 {
-  "name": "ANKUR JAIN",
-  "fullName": "ANKUR JAIN",
-  "firstName": "ANKUR",
-  "lastName": "JAIN",
-  "email": "jainankur1985@gmail.com",
-  "phone": "+91 98933 48672",
-  "address": "",
-  "location": "",
+  "name": "revealed.",
+  "fullName": "revealed.",
+  "firstName": "revealed.",
+  "lastName": "",
+  "email": "lakshmangowda1995@gmail.com",
+  "phone": "+91 81481 36180",
+  "address": "TAMILNADU. AGGREGATE OF-75%",
+  "location": "TAMILNADU. AGGREGATE OF-75%",
   "linkedin": "",
   "github": "",
-  "headline": "encompass- ing a wide range of skill set.",
+  "headline": "MGR Arts and Science Collage,",
   "designation": "",
   "portfolio": "",
   "skills": [
-    "Costing",
-    "Erema",
-    "Pedestal",
-    "Restrength",
-    "Road",
-    "Scheduling",
-    "Substation",
-    "Trenches",
-    "220 HP",
-    "Bolt AND",
-    "G+2 Colony",
-    "2 NOS Substa-",
-    "66 KVA Switchyard",
-    "Intake Well 23 MLD",
-    "OHT 1000 KL -2nos",
-    "OHT 1500 KL -3nos",
-    "Project Cost -110 Crores",
-    "Pump Hose 2nos",
-    "WTP -20 MLD"
+    "Tally ERP9",
+    "MS Excel",
+    "MS Word"
   ],
   "experience": [
     {
-      "company": "Sijcon Design and Engg Pvt Ltd",
-      "organization": "Sijcon Design and Engg Pvt Ltd",
-      "employer": "Sijcon Design and Engg Pvt Ltd",
-      "position": "Project Manager",
-      "title": "Project Manager",
-      "designation": "Project Manager",
-      "job_title": "Project Manager",
-      "startDate": "2025-04",
+      "company": "M.D.FAB",
+      "organization": "M.D.FAB",
+      "employer": "M.D.FAB",
+      "position": "Asst.Accounts",
+      "title": "Asst.Accounts",
+      "designation": "Asst.Accounts",
+      "job_title": "Asst.Accounts",
+      "startDate": "2015-11",
+      "endDate": "2020-08",
+      "start_date": "2015-11",
+      "end_date": "2020-08",
+      "description": "Payables Receivables Bank Reconciliation Statement\n\nPrepare to sales invoice in tally\n\nPrepare the online E-forms\n\nExpenses Bill booking Vendor debit note Customer credit note\n\nMonthly Stock Verification.",
+      "achievements": [],
+      "current": false,
+      "location": "HOSUR",
+      "Description": "Payables Receivables Bank Reconciliation Statement\n\nPrepare to sales invoice in tally\n\nPrepare the online E-forms\n\nExpenses Bill booking Vendor debit note Customer credit note\n\nMonthly Stock Verification.",
+      "Company": "M.D.FAB",
+      "Location": "HOSUR"
+    },
+    {
+      "company": "Venkateshwara Hacheries Pvt Ltd",
+      "organization": "Venkateshwara Hacheries Pvt Ltd",
+      "employer": "Venkateshwara Hacheries Pvt Ltd",
+      "position": "Sr.Officer Accounts",
+      "title": "Sr.Officer Accounts",
+      "designation": "Sr.Officer Accounts",
+      "job_title": "Sr.Officer Accounts",
+      "startDate": "2020-09",
       "endDate": "",
-      "start_date": "2025-04",
+      "start_date": "2020-09",
       "end_date": "",
-      "description": "Navrangpura ,25 Raopura society, memnagar Ahemdabad.\n\nstatement; preparation of Daily/weekly/ Monthly –material & resources planning and progress reports; Monitoring con-\n\nstruction Progress and resource availability; Calculation of quantities based on drawings; Material reconciliation and\n\nco-ordination with different contractors/consultant. handling all civil Mechanical, electrical, f ire protection Contractor.\n\nPreparation of tender document, checking, negotiation and awarding the contract, Checked the running of account bills\n\nduring construction as per tender quantity.Handled structural steel work, checking of bar bending schedules, form work\n\n& quality for concrete & material.Liaisoning with supplier, consultant & contractors.Mentored a team of 6 engineers.",
+      "description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\n\nBasic GST Returns Filling",
       "achievements": [],
       "current": true,
       "location": "",
-      "Description": "Navrangpura ,25 Raopura society, memnagar Ahemdabad.\n\nstatement; preparation of Daily/weekly/ Monthly –material & resources planning and progress reports; Monitoring con-\n\nstruction Progress and resource availability; Calculation of quantities based on drawings; Material reconciliation and\n\nco-ordination with different contractors/consultant. handling all civil Mechanical, electrical, f ire protection Contractor.\n\nPreparation of tender document, checking, negotiation and awarding the contract, Checked the running of account bills\n\nduring construction as per tender quantity.Handled structural steel work, checking of bar bending schedules, form work\n\n& quality for concrete & material.Liaisoning with supplier, consultant & contractors.Mentored a team of 6 engineers.",
-      "Company": "Sijcon Design and Engg Pvt Ltd",
-      "Location": ""
-    },
-    {
-      "company": "Jindal Polyfilms PVT LTD",
-      "organization": "Jindal Polyfilms PVT LTD",
-      "employer": "Jindal Polyfilms PVT LTD",
-      "position": "Senior Manager",
-      "title": "Senior Manager",
-      "designation": "Senior Manager",
-      "job_title": "Senior Manager",
-      "startDate": "2022-04",
-      "endDate": "2024-12",
-      "start_date": "2022-04",
-      "end_date": "2024-12",
-      "description": "The project is an industrial plant (,BOPP ) , ETP , STP and residential complex with all aspects of industry safety are\n\ntaken into the consideration.CP building , other building has a height of 15 meters RCC slab at 6 M & is covered by\n\nprecoated sheet with pre engineering’s building, storage silos, coal fired heater with 132 kva foundation. And resi-\n\ndential complex of G+3 with road drain, water supply and sanitary system, the project is an industrial and residen-",
-      "achievements": [],
-      "current": false,
-      "location": "",
-      "Description": "The project is an industrial plant (,BOPP ) , ETP , STP and residential complex with all aspects of industry safety are\n\ntaken into the consideration.CP building , other building has a height of 15 meters RCC slab at 6 M & is covered by\n\nprecoated sheet with pre engineering’s building, storage silos, coal fired heater with 132 kva foundation. And resi-\n\ndential complex of G+3 with road drain, water supply and sanitary system, the project is an industrial and residen-",
-      "Company": "Jindal Polyfilms PVT LTD",
-      "Location": ""
-    },
-    {
-      "company": "Tata Consultant engineering Ltd",
-      "organization": "Tata Consultant engineering Ltd",
-      "employer": "Tata Consultant engineering Ltd",
-      "position": "Consultant Project Civil",
-      "title": "Consultant Project Civil",
-      "designation": "Consultant Project Civil",
-      "job_title": "Consultant Project Civil",
-      "startDate": "2017-10",
-      "endDate": "2022-04",
-      "start_date": "2017-10",
-      "end_date": "2022-04",
-      "description": "Water supply scheme project Sarni District Betul (MP)\n\nSite inspection for civil construction work and ensure that the work is asPer the project specification. Execution, super-\n\ngress reports; Monitoring construction Progress and resource availability; Calculation of quantities based on drawings;\n\nMaterial reconciliation and co-ordination with different contractors/consultant.Coardination with public issues, Liaison-\n\ning NOC Process f rom Govt Deptlike forest ,road,railway etc,Coardination with client and contractor, checking all test-\n\ning at all level & other document,",
-      "achievements": [
-        "bills of contractors; Preparation of change orders and variation statement; preparation of Daily/weekly/ Monthly"
-      ],
-      "current": false,
-      "location": "",
-      "Description": "Water supply scheme project Sarni District Betul (MP)\n\nSite inspection for civil construction work and ensure that the work is asPer the project specification. Execution, super-\n\ngress reports; Monitoring construction Progress and resource availability; Calculation of quantities based on drawings;\n\nMaterial reconciliation and co-ordination with different contractors/consultant.Coardination with public issues, Liaison-\n\ning NOC Process f rom Govt Deptlike forest ,road,railway etc,Coardination with client and contractor, checking all test-\n\ning at all level & other document,",
-      "Company": "Tata Consultant engineering Ltd",
-      "Location": ""
-    },
-    {
-      "company": "Sijcon Consultant Pvt Ltd",
-      "organization": "Sijcon Consultant Pvt Ltd",
-      "employer": "Sijcon Consultant Pvt Ltd",
-      "position": "Senior Engg Civil",
-      "title": "Senior Engg Civil",
-      "designation": "Senior Engg Civil",
-      "job_title": "Senior Engg Civil",
-      "startDate": "2011-09",
-      "endDate": "2017-10",
-      "start_date": "2011-09",
-      "end_date": "2017-10",
-      "description": "Navrangpura ,25 Raopura society, memnagar Ahemdabad.\n\nstatement; preparation of Daily/weekly/ Monthly –material & resources planning and progress reports; Monitoring con-\n\nstruction Progress and resource availability; Calculation of quantities based on drawings; Material reconciliation and\n\nco-ordination with different contractors/consultant. handling all civil Mechanical, electrical, f ire protection Contractor.\n\nPreparation of tender document, checking, negotiation and awarding the contract, Checked the running of account bills\n\nduring construction as per tender quantity.Handled structural steel work, checking of bar bending schedules, form work\n\n& quality for concrete & material.Liaisoning with supplier, consultant & contractors.Mentored a team of 6 engineers.",
-      "achievements": [],
-      "current": false,
-      "location": "",
-      "Description": "Navrangpura ,25 Raopura society, memnagar Ahemdabad.\n\nstatement; preparation of Daily/weekly/ Monthly –material & resources planning and progress reports; Monitoring con-\n\nstruction Progress and resource availability; Calculation of quantities based on drawings; Material reconciliation and\n\nco-ordination with different contractors/consultant. handling all civil Mechanical, electrical, f ire protection Contractor.\n\nPreparation of tender document, checking, negotiation and awarding the contract, Checked the running of account bills\n\nduring construction as per tender quantity.Handled structural steel work, checking of bar bending schedules, form work\n\n& quality for concrete & material.Liaisoning with supplier, consultant & contractors.Mentored a team of 6 engineers.",
-      "Company": "Sijcon Consultant Pvt Ltd",
-      "Location": ""
-    },
-    {
-      "company": "Gannon dunkerley & Co.Ltd",
-      "organization": "Gannon dunkerley & Co.Ltd",
-      "employer": "Gannon dunkerley & Co.Ltd",
-      "position": "Astt Engg Civil",
-      "title": "Astt Engg Civil",
-      "designation": "Astt Engg Civil",
-      "job_title": "Astt Engg Civil",
-      "startDate": "2011",
-      "endDate": "",
-      "start_date": "2011",
-      "end_date": "",
-      "description": "B228, Pocket A, Okhla phase 1,okhla inbdustrial area, New Delhi.\n\nbills of all contractors; preparation of Daily/weekly/ Monthly -progress reports; Monitoring construction Progress and\n\nresource availability; Calculation of quantities based on drawings; Material reconciliation and co-ordination with differ-\n\nent contractors/consultant. Mentored a team of 2 engineers and 5 Supervisor.\n\nHandling civil sub-Contractor.",
-      "achievements": [],
-      "current": false,
-      "location": "",
-      "Description": "B228, Pocket A, Okhla phase 1,okhla inbdustrial area, New Delhi.\n\nbills of all contractors; preparation of Daily/weekly/ Monthly -progress reports; Monitoring construction Progress and\n\nresource availability; Calculation of quantities based on drawings; Material reconciliation and co-ordination with differ-\n\nent contractors/consultant. Mentored a team of 2 engineers and 5 Supervisor.\n\nHandling civil sub-Contractor.",
-      "Company": "Gannon dunkerley & Co.Ltd",
+      "Description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\n\nBasic GST Returns Filling",
+      "Company": "Venkateshwara Hacheries Pvt Ltd",
       "Location": ""
     }
   ],
   "education": [
     {
-      "institution": "Maulana Azad National institute Of Technology, Bhopal",
-      "school": "Maulana Azad National institute Of Technology, Bhopal",
-      "Institution": "Maulana Azad National institute Of Technology, Bhopal",
-      "degree": "B.Tech",
-      "Degree": "B.Tech",
+      "institution": "MGR Arts and Science Collage",
+      "school": "MGR Arts and Science Collage",
+      "Institution": "MGR Arts and Science Collage",
+      "degree": "Apr 2015 Bachelor of Commerce",
+      "Degree": "Apr 2015 Bachelor of Commerce",
+      "field": "MGR Arts and Science Collage,",
+      "Field": "MGR Arts and Science Collage,",
+      "year": "",
+      "startDate": "",
+      "endDate": "",
+      "gpa": "55%",
+      "cgpa": "55%",
+      "percentage": "55%",
+      "description": ""
+    },
+    {
+      "institution": "R.V. Boys Govt Higher Secondary School",
+      "school": "R.V. Boys Govt Higher Secondary School",
+      "Institution": "R.V. Boys Govt Higher Secondary School",
+      "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
+      "Degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
       "field": "",
       "Field": "",
-      "year": "2008",
-      "startDate": "2004",
-      "endDate": "2008",
-      "gpa": "",
-      "cgpa": "",
-      "percentage": "",
+      "year": "",
+      "startDate": "",
+      "endDate": "",
+      "gpa": "54%",
+      "cgpa": "54%",
+      "percentage": "54%",
       "description": ""
     }
   ],
-  "projects": [
-    {
-      "name": "DTY SHED EXPENSION ,HIMMATNAGR Gujrat",
-      "description": "Project under Sijcon Design and Engg Pvt Ltd\n\nTitle : DTY SHED EXPENSION ,HIMMATNAGR Gujrat\n\nThe project is an industrial plant with all aspect of industry safety being considered.\n\nThis is DTY M/c shed of 4000 sqm area and road work, Project cost is 5 cr.",
-      "technologies": [],
-      "startDate": "April 2025"
-    },
-    {
-      "name": "BOPP,BOPET,CAPACITOR (Film Projects)",
-      "description": "Project under Jindal polyfilms PVT LTD\n\nTitle : BOPP,BOPET,CAPACITOR (Film Projects)\n\nMain Plant,Foundation,Cable Trench,M/c Foundation Extruder, MDO,TDO,Mettarlargy,slitter water tank ,drainage,",
-      "technologies": [
-        "66 KVA switchyard",
-        "Boundary wall",
-        "Erema",
-        "ETc",
-        "G+2 Colony",
-        "Quality lab",
-        "Road",
-        "Septic Tank",
-        "Sylo Foundation",
-        "TFH building"
-      ],
-      "startDate": "April 2022",
-      "endDate": "Dec 2024"
-    },
-    {
-      "name": "M/S Madhya Pradesh Urban development corporation (water supply Project)",
-      "description": "Project under Tata consultancy and Engineering Ltd\n\nTitle : M/S Madhya Pradesh Urban development corporation (water supply Project)\n\ntion400 KW ,25 KM DI K9 (500 mm to 150 mm) & K7 pipe line , sluice,air& non return valve & 160 KM Distribution",
-      "technologies": [
-        "2 Nos Substa-",
-        "220 HP",
-        "HDPE Pipe line(75 mm to 350 mm)",
-        "intake well 23 MLD",
-        "OHT 1000 KL -2nos",
-        "OHT 1500 kl -3nos",
-        "Project Cost -110 crores.",
-        "Pump hose 2nos",
-        "RCC Road",
-        "WTP -20 MLD"
-      ],
-      "startDate": "Oct 2017",
-      "endDate": "April 2022"
-    },
-    {
-      "name": "OHC Expanssion ,P&G Gujrat",
-      "description": "Project under Sijcon consultant Pvt Ltd\n\nTitle : OHC Expanssion ,P&G Gujrat\n\nThe project is an industrial plant with all aspect of industry safety being considered.\n\nThis is Time Limit Project.",
-      "technologies": [
-        "3) Area",
-        "Boundary Wall",
-        "Drainage system. Project cost 5 Cr.",
-        "Road"
-      ],
-      "startDate": "Nov 2016",
-      "endDate": "Oct 2017"
-    },
-    {
-      "name": "Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat",
-      "description": "Title : Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat\n\nThe project is an industrial plant with all aspect of industry safety being considered. The buildings contain huge ma-",
-      "technologies": [],
-      "startDate": "Oct 2015",
-      "endDate": "Nov 2016"
-    },
-    {
-      "name": "Trident Group Budni Hoshangabad (Textiles & weaving unit)",
-      "description": "Title : Trident Group Budni Hoshangabad (Textiles & weaving unit)\n\nThe project is an industrial plant with all aspect of industry safety being considered. The buildings contain huge ma-",
-      "technologies": [],
-      "startDate": "July 2014",
-      "endDate": "Sep 2015"
-    },
-    {
-      "name": "Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat",
-      "description": "Title : Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat\n\nThis project is an industrial plant with all aspects of industry safety being considered. The design involved construction ofeach building having\n\nheight about 4 & 7 meters and covered with RCC slab. Column has brackets to support PEB structure. The building contained huge machine\n\nfoundation, LT panel rooms, air washers & air handling units & road etc. BlowRoom ,Card Room ,Prepatory, Ring Frame ,Packing , RA\n\nProject Cost is 60 Cr.",
-      "technologies": [
-        "cable Trenches",
-        "Restrength",
-        "Substation",
-        "Trenches"
-      ]
-    },
-    {
-      "name": "MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration",
-      "description": "Project under Gannon Dunkerley Co & Ltd\n\nTitle : MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration\n\nPocket Fixing, slab with 7M Height Chimney 12 M Foundation, Office building, Foundation for Structure column etc. This total Project Cost 300 Cr.",
-      "technologies": [
-        "Bolt and",
-        "nace",
-        "Pedestal"
-      ]
-    }
+  "projects": [],
+  "certifications": [
+    "Apr 2012 HIGHER SECONDARY CERTIFICATE"
   ],
-  "certifications": [],
   "languages": [
-    {
-      "name": "Hindi",
-      "proficiency": "Fluent"
-    },
     {
       "name": "English",
       "proficiency": "Fluent"
+    },
+    {
+      "name": "Telugu",
+      "proficiency": "Fluent"
+    },
+    {
+      "name": "Tamil",
+      "proficiency": "Fluent"
+    },
+    {
+      "name": "Kannada",
+      "proficiency": "Fluent"
     }
   ],
-  "summary": "A competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil con- struction projects include steel plant, textile mill, Pharma plant,\nAutomobile, water supply projects, Infrastructure projects.\n\nExpertise in coordinating with contractors, Clients and Project Managers for\nachieving the goals on given timelines.\n\nExperience in Annual maintenance work, Statistical analysis of concrete and Quality\ncontrol.\n\nExtensive hands on the Project Management skills -\n\nHandling project activities involving working out various requirements with\nrespect to utili- ties, aesthetics & monitoring overall project operations for\nensuring timely completion.\n\nLiaising with the consultant’s/project managers for resolving design-related issues\nand trou- bles on site. Designing building as per requirements keeping in mind the\nby-laws, feasibility with respect to various building services, cost factor with\nemphasis on aesthetics part.\n\nChecking specifications, bill of items in consultation with the contractors.\n\nAdministering the construction of projects as per plans/drawings, budgets &\ntime con- strains.\n\nSkillful at testing of material, checking of work, study of drawings, monitoring and\nanalyzing of physical problem\n\nTo conduct Periodical meeting with contractor and their staff to maintain the safe\nworking environment at site.\n\nStrong team orientation, leadership qualities, hardworking, Customer Oriented\nattitude and Effective communicator with good interpersonal skills being a smooth\nteam player.\n\nSkillful in addressing new business requirements and supporting day-to-day\nactivities re- lated",
-  "achievements": [],
+  "summary": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be",
+  "achievements": [
+    "A high energy and hardworking personality",
+    "Good learner and flexible in nature",
+    "Innovative & Smart Worker",
+    "Committed and possess work ethics",
+    "Sound knowledge in Tally& .net, Accounts."
+  ],
   "hobbies": [],
-  "confidence": 72,
+  "confidence": 71,
   "_aiProvider": "custom-parser",
   "customParserUsed": true,
   "selectedParser": "custom",
-  "rawText": "SKILLS\nProficient in Project Management, Site Management and good understanding and\nExpertise in Planning, Scheduling, Costing, and Project Controls & Execution of large\nMob: +91- 9893348672 Email: jainankur1985@gmail.com\n\nANKUR JAIN\nProfessional Profile:\nA competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil con- struction projects include steel plant, textile mill, Pharma plant,\nAutomobile, water supply projects, Infrastructure projects.\n\nExpertise in coordinating with contractors, Clients and Project Managers for\nachieving the goals on given timelines.\n\nExperience in Annual maintenance work, Statistical analysis of concrete and Quality\ncontrol.\n\nExtensive hands on the Project Management skills -\n\nHandling project activities involving working out various requirements with\nrespect to utili- ties, aesthetics & monitoring overall project operations for\nensuring timely completion.\n\nLiaising with the consultant’s/project managers for resolving design-related issues\nand trou- bles on site. Designing building as per requirements keeping in mind the\nby-laws, feasibility with respect to various building services, cost factor with\nemphasis on aesthetics part.\n\nChecking specifications, bill of items in consultation with the contractors.\n\nAdministering the construction of projects as per plans/drawings, budgets &\ntime con- strains.\n\nSkillful at testing of material, checking of work, study of drawings, monitoring and\nanalyzing of physical problem\n\nTo conduct Periodical meeting with contractor and their staff to maintain the safe\nworking environment at site.\n\nStrong team orientation, leadership qualities, hardworking, Customer Oriented\nattitude and Effective communicator with good interpersonal skills being a smooth\nteam player.\n\nSkillful in addressing new business requirements and supporting day-to-day\nactivities re- lated\nEducational Qualifications\nDegree Board/University\nAcademic\nYear\nPercent-\nage/CGPA\n(%)\nName of School/College\nB.Tech. MANIT, BHOPAL 2004-\n2008\n7.0 CGPA\nMaulana Azad National in- stitute Of Technology, Bhopal\n12\nth\n\nMP BOARD, BHOPAL 2002 78.2% MP Board\n10\nth\n\nMP BOARD, BHOAPL 2000 75 % MP Board\n\nTools AUTO CAD 2016, MSP 2025\nLanguages English, Hindi\nBusiness-Reporting\nTools\nMS Word, Excel and PowerPoint, MSP\n\n\n\n\n2\n\n\n\n\n\n\n\n\n\nCAREER HIGHLIGHTS\n\nSijcon Design and Engg Pvt Ltd Project Manager\nSince April 2025 to till date\nNavrangpura ,25 Raopura society, memnagar Ahemdabad.\n\nExecution, supervision and monitoring of entire project activities, Master Planning, Estimate and Tenders, Bid process\nmanagement, Certification and verification of all RA bills of all contractors; Preparation of change orders and variation\nstatement; preparation of Daily/weekly/ Monthly –material & resources planning and progress reports; Monitoring con-\nstruction Progress and resource availability; Calculation of quantities based on drawings; Material reconciliation and\nco-ordination with different contractors/consultant. handling all civil Mechanical, electrical, f ire protection Contractor.\nPreparation of tender document, checking, negotiation and awarding the contract, Checked the running of account bills\nduring construction as per tender quantity.Handled structural steel work, checking of bar bending schedules, form work\n& quality for concrete & material.Liaisoning with supplier, consultant & contractors.Mentored a team of 6 engineers.\n\n\n\n\nJindal Polyfilms PVT LTD Clients ( Senior Manager) Since April 2022 to Dec 2024\n\nThe project is an industrial plant (,BOPP ) , ETP , STP and residential complex with all aspects of industry safety are\ntaken into the consideration.CP building , other building has a height of 15 meters RCC slab at 6 M & is covered by\nprecoated sheet with pre engineering’s building, storage silos, coal fired heater with 132 kva foundation. And resi-\ndential complex of G+3 with road drain, water supply and sanitary system, the project is an industrial and residen-\ntial type,\n\n\nTata Consultant engineering Ltd Consultant Project (Civil) since Oct’2017 to April 2022\nWater supply scheme project Sarni District Betul (MP)\n\nSite inspection for civil construction work and ensure that the work is asPer the project specification. Execution, super-\nvision and monitoring of entire project activities, Master Planning, Estimate and Certification and verification of all RA\nbills of contractors; Preparation of change orders and variation statement; preparation of Daily/weekly/ Monthly – pro-\ngress reports; Monitoring construction Progress and resource availability; Calculation of quantities based on drawings;\nMaterial reconciliation and co-ordination with different contractors/consultant.Coardination with public issues, Liaison-\ning NOC Process f rom Govt Deptlike forest ,road,railway etc,Coardination with client and contractor, checking all test-\ning at all level & other document,\n\n\nSijcon Consultant Pvt Ltd Senior Engg (Civil) Since Sep2011 to OCT 2017\nNavrangpura ,25 Raopura society, memnagar Ahemdabad.\n\nExecution, supervision and monitoring of entire project activities, Master Planning, Estimate and Tenders, Bid process\nmanagement, Certification and verification of all RA bills of all contractors; Preparation of change orders and variation\nstatement; preparation of Daily/weekly/ Monthly –material & resources planning and progress reports; Monitoring con-\nstruction Progress and resource availability; Calculation of quantities based on drawings; Material reconciliation and\nco-ordination with different contractors/consultant. handling all civil Mechanical, electrical, f ire protection Contractor.\nPreparation of tender document, checking, negotiation and awarding the contract, Checked the running of account bills\nduring construction as per tender quantity.Handled structural steel work, checking of bar bending schedules, form work\n& quality for concrete & material.Liaisoning with supplier, consultant & contractors.Mentored a team of 6 engineers.\n\nGannon dunkerley & Co.Ltd. Astt Engg (Civil) Since July 2008 to\nSep 2011\nB228, Pocket A, Okhla phase 1,okhla inbdustrial area, New Delhi.\n\nExecution, supervision and monitoring of project activities, Master planning, preparation of BOQ, verification of all\nbills of all contractors; preparation of Daily/weekly/ Monthly -progress reports; Monitoring construction Progress and\nresource availability; Calculation of quantities based on drawings; Material reconciliation and co-ordination with differ-\nent contractors/consultant. Mentored a team of 2 engineers and 5 Supervisor.\nHandling civil sub-Contractor.\n\n3\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nKEY PROJECTS HANDLED\n\nProject under Sijcon Design and Engg Pvt Ltd\n\n\nTitle : DTY SHED EXPENSION ,HIMMATNAGR Gujrat\nDuration\n: Since April 2025 to till date\nThe project is an industrial plant with all aspect of industry safety being considered.\nThis is DTY M/c shed of 4000 sqm area and road work, Project cost is 5 cr.\n\n\nProject under Jindal polyfilms PVT LTD\nTitle : BOPP,BOPET,CAPACITOR (Film Projects)\nDuration : Since April 2022 to Dec 2024\nMain Plant,Foundation,Cable Trench,M/c Foundation Extruder, MDO,TDO,Mettarlargy,slitter water tank ,drainage,\nBoundary wall , 66 KVA switchyard ,Road ,Sylo Foundation ,TFH building, Quality lab, Erema ,Septic Tank\nG+2 Colony, ETc\nBudget,BOQ,Supervision,Quality test, Progress Report,contractor handling,consultant meet-\ning etc\nProject under Tata consultancy and Engineering Ltd\n\nTitle : M/S Madhya Pradesh Urban development corporation (water supply Project)\nDuration : Since Oct’2017 to April 2022\n\nOHT 1500 kl -3nos, OHT 1000 KL -2nos,WTP -20 MLD , intake well 23 MLD, Pump hose 2nos ,220 HP,2 Nos Substa-\ntion400 KW ,25 KM DI K9 (500 mm to 150 mm) & K7 pipe line , sluice,air& non return valve & 160 KM Distribution\nHDPE Pipe line(75 mm to 350 mm),RCC Road ,Project Cost -110 crores.\n\n\nProject under Sijcon consultant Pvt Ltd\n\n\nTitle : OHC Expanssion ,P&G Gujrat\nDuration : Since Nov’2016 to Oct 2017\nThe project is an industrial plant with all aspect of industry safety being considered.\nThis is Office building with all f inishing items (G+3) Area, Road, Boundary Wall, Drainage system. Project cost 5 Cr.\nThis is Time Limit Project.\n\n\n\nTitle : Suzuki Motors Gujrat (Automobile),Bahuchara ji ,Mehsana,Gujrat\nDuration : Since Oct’2015 to Nov’2016\n\nThe project is an industrial plant with all aspect of industry safety being considered. The buildings contain huge ma-\nchine foundation, LT panel rooms, RCC road, Substation, Assembly shop, Bumper shop, Paint Shop ,Weld Shop ,Pit,\ncolumn,Office building, Canteen, overhead tank , water pipe line etc.\n\nTitle : Trident Group Budni Hoshangabad (Textiles & weaving unit)\nDuration : Since July’2014 to Sep’2015\n\nThe project is an industrial plant with all aspect of industry safety being considered. The buildings contain huge ma-\nchine foundation, LT panel rooms, RCC road, Substation, Textile unit, Sub Station , Chimney foundation , Water tank\nFoundation, Blow Room Prepatory Area, Finishing Area, Road, Boundary Wall, Drainage system. Project cost 200 Cr.\nTitle : Arvind OG Mills,Arvind Mills, kharati,Dholka Gujrat\n\n4\n\nThis project is an industrial plant with all aspects of industry safety being considered. The design involved construction ofeach building having\nheight about 4 & 7 meters and covered with RCC slab. Column has brackets to support PEB structure. The building contained huge machine\nfoundation, LT panel rooms, air washers & air handling units & road etc. BlowRoom ,Card Room ,Prepatory, Ring Frame ,Packing , RA\nTrenches, cable Trenches, Substation, Restrength- ing old building, Sewage line, Pump House,Main gate,Godown, weighing M/c Foundation\nProject Cost is 60 Cr.\nProject under Gannon Dunkerley Co & Ltd\nTitle : MLSM (mild and light section mill) Jindal Plant, Raigarh(CG) Duration\n: July 2008\nto Sep’ 2011\n\nThis project is a steel industrial plant, and all aspect of industry safety is taken into the consideration. Execution of Fur- nace, Pedestal, Bolt and\nPocket Fixing, slab with 7M Height Chimney 12 M Foundation, Office building, Foundation for Structure column etc. This total Project Cost 300 Cr.\nPLACE/DATE:\nANKUR JAIN\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPermanent Addres\n\nDate Of Birth\n:\n\n:\n393,Mohangarh Distt\nTikamgarh(MP)\n10/08/1985\n\nSoftware\n\nLanguage Known:\n:\nMS Office,MS Project,Autocad\n\nHindi,English",
+  "rawText": "BALALAKSHMANAN.S\nOBJECTIVE PROFESSIONAL ACCOMPLISHMENTS\nACADEMIC CREDENTIALS RESUME\n\n\nLooking for a challenging and rewarding career in your\norganization which my skills,education andexperience can be\nrevealed.\n\n\nA high energy and hardworking personality\nGood learner and flexible in nature\nInnovative & Smart Worker\nCommitted and possess work ethics\nSound knowledge in Tally& .net, Accounts.\n\n\nApr 2015 Bachelor of Commerce\nMGR Arts and Science Collage,\nHosur. AGGREGATE OF -55%\n\nApr 2012 HIGHER SECONDARY CERTIFICATE\nJohan Britto Higher Secondary School, Denkanikottai.\nSTATE BOARD, TAMILNADU. AGGREGATE OF-75%\n\nApr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE\nR.V. Boys Govt Higher Secondary School, Hosur.\nSTATE BOARD, TAMILNADU. AGGREGATE OF -54%\n\nPERSONAL PROFILE\n\n\n\nContact Number +91 8148136180 E-mail ID lakshmangowda1995@gmail.com\n\nPermanent Address Vanaganapalli (vill) Agalakttai (po) Denkanikottai – (Tk)\nKrishangiri.(Dt) Tamilnadu Father Name Mr.Srinivasan\n\nDate of Birth 22-10-1995 Gender Male\n\nNationality Indian\n\nMarital Status Single\n\nLanguage Known English, Telugu, Tamil Kannada,\n\n\n\nOrganization M.D.FAB– HOSUR Designation Asst.Accounts\nDuration 01-11-2015 to 30-08-2020\nResponsibility\n\nPayables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.\n\n\n\n\n\n\n\n\n\n\n\nOrganization\nVenkateshwara Hacheries Pvt Ltd – Hosur\nDesignation Sr.Officer Accounts\nDuration 05-09-2020 to Still Date.\nResponsibility Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling\nBasics on TDS. Satutory Payments\n\n\n\n\n\n\n\n\nWORKEXPERIENCE\n\nCO-CURRICULAR & EXTRA CURRICULAR ACTIVITIES\nLANGUAGE PROFICIENCY\nDECLARATION\n\n\n\nOperating system: Ms –Package (MS word , MS Excel)\nPackages : Tally ERP9 and .Net\n\n\nTamil - Read, Speak, Write Telugu - Speak, English – Speak, Read, write and Kannada – Speak\n\n\n\nParticipated and won many prizes in Cricket,,\n\nI hereby declare that the above mentioned details are true to the best of my\nknowledge.\n\nPLACE: Hosur Yours Sincerely,\nDATE: (BALALAKSHMANAN.S)\nTECHNICAL SKILLS",
   "_imported": true,
-  "bio": "A competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil con- struction projects include steel plant, textile mill, Pharma plant,\nAutomobile, water supply projects, Infrastructure projects.\n\nExpertise in coordinating with contractors, Clients and Project Managers for\nachieving the goals on given timelines.\n\nExperience in Annual maintenance work, Statistical analysis of concrete and Quality\ncontrol.\n\nExtensive hands on the Project Management skills -\n\nHandling project activities involving working out various requirements with\nrespect to utili- ties, aesthetics & monitoring overall project operations for\nensuring timely completion.\n\nLiaising with the consultant’s/project managers for resolving design-related issues\nand trou- bles on site. Designing building as per requirements keeping in mind the\nby-laws, feasibility with respect to various building services, cost factor with\nemphasis on aesthetics part.\n\nChecking specifications, bill of items in consultation with the contractors.\n\nAdministering the construction of projects as per plans/drawings, budgets &\ntime con- strains.\n\nSkillful at testing of material, checking of work, study of drawings, monitoring and\nanalyzing of physical problem\n\nTo conduct Periodical meeting with contractor and their staff to maintain the safe\nworking environment at site.\n\nStrong team orientation, leadership qualities, hardworking, Customer Oriented\nattitude and Effective communicator with good interpersonal skills being a smooth\nteam player.\n\nSkillful in addressing new business requirements and supporting day-to-day\nactivities re- lated",
-  "objective": "A competent professional with 18 Years of experience in Industry, infrastructure\nencompass- ing a wide range of skill set.\ncoordination skills for all smooth functioning of overall operations.\ncivil con- struction projects include steel plant, textile mill, Pharma plant,\nAutomobile, water supply projects, Infrastructure projects.\n\nExpertise in coordinating with contractors, Clients and Project Managers for\nachieving the goals on given timelines.\n\nExperience in Annual maintenance work, Statistical analysis of concrete and Quality\ncontrol.\n\nExtensive hands on the Project Management skills -\n\nHandling project activities involving working out various requirements with\nrespect to utili- ties, aesthetics & monitoring overall project operations for\nensuring timely completion.\n\nLiaising with the consultant’s/project managers for resolving design-related issues\nand trou- bles on site. Designing building as per requirements keeping in mind the\nby-laws, feasibility with respect to various building services, cost factor with\nemphasis on aesthetics part.\n\nChecking specifications, bill of items in consultation with the contractors.\n\nAdministering the construction of projects as per plans/drawings, budgets &\ntime con- strains.\n\nSkillful at testing of material, checking of work, study of drawings, monitoring and\nanalyzing of physical problem\n\nTo conduct Periodical meeting with contractor and their staff to maintain the safe\nworking environment at site.\n\nStrong team orientation, leadership qualities, hardworking, Customer Oriented\nattitude and Effective communicator with good interpersonal skills being a smooth\nteam player.\n\nSkillful in addressing new business requirements and supporting day-to-day\nactivities re- lated"
+  "bio": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be",
+  "objective": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be"
 }

@@ -1,0 +1,5 @@
+﻿{
+  date: null,
+  company: { company: 'Raj Security Force', confidence: 68 },
+  blurb: false
+}

@@ -1,0 +1,212 @@
+=== HEADINGS ===
+{"type":"education","heading":"ACADEMIC CREDENTIALS RESUME","conf":47,"len":660,"preview":"Looking for a challenging and rewarding career in your\norganization which my skills,education andexp"}
+{"type":"summary","heading":"PERSONAL PROFILE","conf":53,"len":278,"preview":"Contact Number +91 8148136180 E-mail ID lakshmangowda1995@gmail.com\n\nPermanent Address Vanaganapalli"}
+{"type":"languages","heading":"Language Known English, Telugu, Tamil Kannada,","conf":46,"len":87,"preview":"Organization M.D.FAB– HOSUR Designation Asst.Accounts\nDuration 01-11-2015 to 30-08-2020"}
+{"type":"custom","heading":"Responsibility","conf":36,"len":200,"preview":"Payables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the onl"}
+{"type":"custom","heading":"Organization","conf":48,"len":347,"preview":"Venkateshwara Hacheries Pvt Ltd – Hosur\nDesignation Sr.Officer Accounts\nDuration 05-09-2020 to Still"}
+{"type":"languages","heading":"LANGUAGE PROFICIENCY","conf":52,"len":379,"preview":"DECLARATION\n\nOperating system: Ms –Package (MS word , MS Excel)\nPackages : Tally ERP9 and .Net\n\nTami"}
+{"type":"skills","heading":"TECHNICAL SKILLS","conf":49,"len":0,"preview":""}
+=== FIELD LENS ===
+summary len=278
+Contact Number +91 8148136180 E-mail ID lakshmangowda1995@gmail.com
+
+Permanent Address Vanaganapalli (vill) Agalakttai (po) Denkanikottai – (Tk)
+Krishangiri.(Dt) Tamilnadu Father Name Mr.Srinivasan
+
+Date of Birth 22-10-1995 Gender Male
+
+Nationality Indian
+
+Marital Status Single
+---
+experience len=360
+Organization
+Venkateshwara Hacheries Pvt Ltd – Hosur
+Designation Sr.Officer Accounts
+Duration 05-09-2020 to Still Date.
+Responsibility Payables Receivables Booking Process Bank Reconciliation Statement
+Vendor debit note Customer credit note
+Basic GST Returns Filling
+Basics on TDS. Satutory Payments
+
+WORKEXPERIENCE
+
+CO-CURRICULAR & EXTRA CURRICULAR ACTIVITIES
+---
+education len=660
+Looking for a challenging and rewarding career in your
+organization which my skills,education andexperience can be
+revealed.
+
+A high energy and hardworking personality
+Good learner and flexible in nature
+Innovative & Smart Worker
+Committed and possess work ethics
+Sound knowledge in Tally& .net, Accounts.
+
+Apr 2015 Bachelor of Commerce
+MGR Arts and Science Collage,
+Hosur. AGGREGATE OF -55%
+
+Apr 201
+---
+skills len=0
+
+---
+languages len=512
+English, Telugu, Tamil Kannada,
+Organization M.D.FAB– HOSUR Designation Asst.Accounts
+Duration 01-11-2015 to 30-08-2020
+
+PROFICIENCY
+DECLARATION
+
+Operating system: Ms –Package (MS word , MS Excel)
+Packages : Tally ERP9 and .Net
+
+Tamil - Read, Speak, Write Telugu - Speak, English – Speak, Read, write and Kannada – Speak
+
+Participated and won many prizes in Cricket,,
+
+I hereby declare that the above
+---
+certifications len=660
+Looking for a challenging and rewarding career in your
+organization which my skills,education andexperience can be
+revealed.
+
+A high energy and hardworking personality
+Good learner and flexible in nature
+Innovative & Smart Worker
+Committed and possess work ethics
+Sound knowledge in Tally& .net, Accounts.
+
+Apr 2015 Bachelor of Commerce
+MGR Arts and Science Collage,
+Hosur. AGGREGATE OF -55%
+
+Apr 201
+---
+achievements len=0
+
+---
+preamble len=55
+BALALAKSHMANAN.S
+OBJECTIVE PROFESSIONAL ACCOMPLISHMENTS
+---
+=== EXP PARSE ===
+[
+  {
+    "c": "Organization",
+    "d": "Designation Sr.Officer Accounts",
+    "s": null,
+    "e": null
+  }
+]
+=== LABELED SLICE PARSE ===
+[
+  {
+    "c": "Organization M.D.FAB– HOSUR Designation Asst.Accounts",
+    "d": "",
+    "s": "2015",
+    "e": null,
+    "desc": ""
+  },
+  {
+    "c": "Payables Receivables Bank Reconciliation Statement",
+    "d": "",
+    "s": null,
+    "e": null,
+    "desc": "Prepare to sales invoice in tally\n\nPrepare the online E-forms\n\nExpenses Bill boo"
+  }
+]
+=== EDU PARSE ===
+[
+  {
+    "institution": "",
+    "degree": "organization which my skills,education andexperience can be",
+    "fieldOfStudy": "Looking for a challenging and rewarding career in your",
+    "specialization": "Looking for a challenging and rewarding career in your",
+    "startDate": null,
+    "endDate": null,
+    "current": false,
+    "cgpa": "",
+    "gpa": "",
+    "percentage": "",
+    "grade": "",
+    "location": "",
+    "description": "Innovative & Smart Worker\n\nCommitted and possess work ethics\n\nSound knowledge in Tally& .net, Accounts.",
+    "achievements": [],
+    "coursework": [],
+    "confidence": 33,
+    "fieldConfidence": {
+      "institution": 0,
+      "degree": 90,
+      "fieldOfStudy": 45,
+      "specialization": 45,
+      "startDate": 0,
+      "endDate": 0,
+      "performance": 0,
+      "location": 0,
+      "description": 30
+    }
+  },
+  {
+    "institution": "",
+    "degree": "Apr 2015 Bachelor of Commerce",
+    "fieldOfStudy": "MGR Arts and Science Collage,",
+    "specialization": "MGR Arts and Science Collage,",
+    "startDate": null,
+    "endDate": null,
+    "current": false,
+    "cgpa": "",
+    "gpa": "",
+    "percentage": "55%",
+    "grade": "",
+    "location": "",
+    "description": "",
+    "achievements": [],
+    "coursework": [],
+    "confidence": 37,
+    "fieldConfidence": {
+      "institution": 0,
+      "degree": 88,
+      "fieldOfStudy": 45,
+      "specialization": 45,
+      "startDate": 0,
+      "endDate": 0,
+      "performance": 82,
+      "location": 0,
+      "description": 0
+    }
+  },
+  {
+    "institution": "STATE BOARD, TAMILNADU. AGGREGATE OF-75%",
+    "degree": "Apr 2012 HIGHER SECONDARY CERTIFICATE",
+    "fieldOfStudy": "",
+    "specialization": "",
+    "startDate": null,
+    "endDate": null,
+    "current": false,
+    "cgpa": "",
+    "gpa": "",
+    "percentage": "75%",
+    "grade": "",
+    "location": "STATE BOARD, TAMILNADU. AGGREGATE OF-75%",
+    "description": "STATE BOARD, TAMILNADU. AGGREGATE OF -54%",
+    "achievements": [],
+    "coursework": [],
+    "confidence": 51,
+    "fieldConfidence": {
+      "institution": 56,
+      "degree": 80,
+      "fieldOfStudy": 0,
+      "specialization": 0,
+      "startDate": 0,
+      "endDate": 0,
+      "performance": 82,
+      "location": 100,
+      "description": 29
+    }
+  }
+]

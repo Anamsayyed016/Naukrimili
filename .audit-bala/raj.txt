@@ -1,0 +1,17 @@
+﻿node.exe : F:\myprojects\jobportal\scripts\debug-raj-score.ts:3
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (F:\myprojects\j...-raj-score.ts:3:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  isLikelyCompanyNameFragment,
+  ^
+SyntaxError: The requested module '../lib/resume-parser/import-sanitize' does not provide an export named 
+'isLikelyCompanyNameFragment'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:327:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:431:5)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0

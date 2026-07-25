@@ -36,6 +36,7 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
     phrases: [
       'professional experience',
       'work experience',
+      'workexperience',
       'job experience',
       'practical experience',
       'employment history',
@@ -257,6 +258,7 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'cost saving',
       'key accomplishments',
       'career accomplishments',
+      'professional accomplishments',
     ],
     tokens: [
       'achievements',
@@ -432,6 +434,26 @@ export function scoreHeadingKeywords(
     !/\b(?:certif|licence|license|course|workshop|credential)\b/i.test(normalized)
   ) {
     delete scores.certifications;
+  }
+
+  // "Academic Credentials" is education — do not let the token "credentials"
+  // promote a certifications secondary mirror of the whole education body.
+  if (
+    scores.education &&
+    scores.certifications &&
+    /\bacademic\b|\beducational?\b|\bqualification/i.test(normalized) &&
+    /\bcredentials?\b/i.test(normalized)
+  ) {
+    scores.education = Math.max(scores.education, 84);
+    delete scores.certifications;
+  }
+
+  // "Personal Profile / Personal Details" is contact metadata, not a career summary.
+  if (
+    scores.summary &&
+    /\bpersonal\s+(?:profile|details|information|data|particulars)\b/i.test(normalized)
+  ) {
+    delete scores.summary;
   }
 
   // Singular "project" is an in-role field label on many CVs ("Project: Fiber Rollout").

@@ -107,8 +107,30 @@ export function normalizeDate(value: unknown): string {
   if (!raw) return '';
 
   const lower = raw.toLowerCase().replace(/\s+/g, ' ').trim();
-  if (['present', 'current', 'now', 'ongoing', 'running', 'till date', 'till-date'].includes(lower)) {
+  if (['present', 'current', 'now', 'ongoing', 'running', 'till date', 'till-date', 'still date', 'still-date'].includes(lower)) {
     return 'Present';
+  }
+
+  // Prefer full DMY / MDY before month-year so "01-11-2015" keeps month 11.
+  const dmy = raw.match(/\b(\d{1,2})[-/.](\d{1,2})[-/.]((?:19|20)\d{2})\b/);
+  if (dmy) {
+    const a = parseInt(dmy[1], 10);
+    const b = parseInt(dmy[2], 10);
+    const y = parseInt(dmy[3], 10);
+    if (!isPlausibleResumeYear(y, raw)) return '';
+    // Ambiguous numeric dates: treat as DMY when day > 12, else prefer DMY (common on Indian CVs).
+    let day = a;
+    let month = b;
+    if (a <= 12 && b > 12) {
+      month = a;
+      day = b;
+    } else if (a > 12 && b <= 12) {
+      day = a;
+      month = b;
+    }
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return `${dmy[3]}-${String(month).padStart(2, '0')}`;
+    }
   }
 
   const iso = raw.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);

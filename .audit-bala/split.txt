@@ -1,0 +1,15 @@
+﻿{
+  text: 'Branch Head / Training Head (01 July 2015 to 30 May 2019) | CTC: 4.6 pa',
+  isBlank: false,
+  isBullet: false,
+  state: { hasDesignation: true, hasCompany: true, hasDates: true },
+  isDesignationLine: true,
+  isCompanyLine: false,
+  isDateLine: true,
+  isTenureLine: false,
+  path1: true,
+  path2: true,
+  companyDetect: { company: '', confidence: 0 },
+  rajLeft: { company: '', confidence: 0 },
+  rajScoreNeed: '>=42 for colon path'
+}

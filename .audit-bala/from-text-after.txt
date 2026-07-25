@@ -1,0 +1,1215 @@
+﻿[resume-extraction-validation] { warnings: 2, repairs: 0 }
+[resume-extraction-validation] { warnings: 2, repairs: 0 }
+[import-transformer] mergedImport project keys { projects: 2, Projects: 0 }
+RAW PROJECTS [
+  {
+    "name": "S/ No",
+    "technologies": [],
+    "title": "S/ No",
+    "Technologies": []
+  },
+  {
+    "name": "Course / SpecializationOrganization / EnvironmentType",
+    "description": "1\tSecurity officer/Asst security officer",
+    "technologies": [],
+    "title": "Course / SpecializationOrganization / EnvironmentType",
+    "summary": "1\tSecurity officer/Asst security officer",
+    "Technologies": []
+  }
+]
+projects.length 2
+project[0] { name: 'S/ No', descriptionPreview: '', technologies: [] }
+project[1] {
+  name: 'Course / SpecializationOrganization / EnvironmentType',
+  descriptionPreview: '1\tSecurity officer/Asst security officer',
+  technologies: []
+}
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'projects:2',
+    'certifications:2',
+    'achievements:2',
+    'hobbies:10',
+    'skills:20'
+  ],
+  recovered: [
+    'identity:summary',
+    'projects[0]:full-entry',
+    'projects[1]:full-entry',
+    'certifications[1]:full-entry',
+    'achievements:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[1]:designation',
+    'projects:count-loss:0/2',
+    'certifications:count-loss:1/2',
+    'achievements:count-loss:2/3'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'projects:2',
+    'certifications:2',
+    'achievements:6',
+    'hobbies:10',
+    'skills:20'
+  ],
+  recovered: [],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[1]:designation'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 405,
+    experience: 2,
+    experienceCompanies: 2,
+    projects: 0,
+    skills: 20,
+    education: 0,
+    certifications: 1,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 405,
+    experience: 2,
+    experienceCompanies: 2,
+    projects: 2,
+    skills: 20,
+    education: 0,
+    certifications: 2,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 0,
+    experience: 2,
+    experienceCompanies: 2,
+    projects: 0,
+    skills: 20,
+    education: 0,
+    certifications: 2,
+    languages: 0
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: false,
+  skills: 20,
+  experience: 2,
+  education: 0,
+  projects: 0,
+  certifications: 2,
+  languages: 0,
+  achievements: 2,
+  hobbies: 9
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [
+    'summary:missing',
+    'experience[1]:missing-designation',
+    'education:empty',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 2,
+  rawCompanyCount: 2,
+  builtCompanyCount: 2
+}
+[resume-extraction-validation] { warnings: 2, repairs: 4 }
+[resume-extraction-validation] { warnings: 1, repairs: 2 }
+[import-transformer] mergedImport project keys { projects: 2, Projects: 0 }
+RAW PROJECTS [
+  {
+    "name": "S/ No",
+    "technologies": [],
+    "title": "S/ No",
+    "Technologies": []
+  },
+  {
+    "name": "Course / SpecializationOrganization / EnvironmentType",
+    "description": "1\tSecurity officer/Asst security officer",
+    "technologies": [],
+    "title": "Course / SpecializationOrganization / EnvironmentType",
+    "summary": "1\tSecurity officer/Asst security officer",
+    "Technologies": []
+  }
+]
+projects.length 2
+project[0] { name: 'S/ No', descriptionPreview: '', technologies: [] }
+project[1] {
+  name: 'Course / SpecializationOrganization / EnvironmentType',
+  descriptionPreview: '1\tSecurity officer/Asst security officer',
+  technologies: []
+}
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'projects:2',
+    'certifications:2',
+    'achievements:2',
+    'hobbies:10',
+    'skills:20'
+  ],
+  recovered: [
+    'identity:summary',
+    'projects[0]:full-entry',
+    'projects[1]:full-entry',
+    'achievements:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[1]:designation',
+    'projects:count-loss:0/2',
+    'achievements:count-loss:2/3'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 0,
+    experience: 2,
+    experienceCompanies: 2,
+    projects: 0,
+    skills: 20,
+    education: 0,
+    certifications: 2,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 112,
+    experience: 2,
+    experienceCompanies: 2,
+    projects: 2,
+    skills: 20,
+    education: 0,
+    certifications: 2,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 0,
+    experience: 2,
+    experienceCompanies: 2,
+    projects: 0,
+    skills: 20,
+    education: 0,
+    certifications: 2,
+    languages: 0
+  }
+}
+[import-transformer] mapping validation {
+  issues: [
+    'summary:missing',
+    'experience[1]:missing-designation',
+    'education:empty',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 2,
+  rawCompanyCount: 2,
+  builtCompanyCount: 2
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: false,
+  skills: 20,
+  experience: 2,
+  education: 0,
+  projects: 0,
+  certifications: 2,
+  languages: 0,
+  achievements: 2,
+  hobbies: 9
+}
+[resume-extraction-validation] { warnings: 1, repairs: 4 }
+{
+  "sourceTextChars": 5825,
+  "preparedChars": 5723,
+  "documentType": "TYPE_A_ATS",
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 5723,
+    "preamble": 127,
+    "summary": 502,
+    "experience": 3360,
+    "education": 214,
+    "skills": 475,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 100,
+    "achievements": 53,
+    "hobbies": 233,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "structuredExp": 0,
+  "stages": {
+    "custom": {
+      "counts": {
+        "experience": 2,
+        "withCompany": 2,
+        "withTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 1,
+        "skills": 21,
+        "languages": 0,
+        "achievements": 1,
+        "hobbies": 8,
+        "summaryChars": 405,
+        "name": "TRILOKINATH UPADHYAYA",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": null,
+          "company": "G.O.I.",
+          "dates": null,
+          "descLen": 1209
+        },
+        {
+          "i": 1,
+          "title": null,
+          "company": "Liaison with Government officials as requirement. Meeting with Clients as and when require.",
+          "dates": null,
+          "descLen": 947
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "Safety"
+        },
+        {
+          "i": 1,
+          "v": "Operation"
+        },
+        {
+          "i": 2,
+          "v": "Management"
+        },
+        {
+          "i": 3,
+          "v": "Tender"
+        },
+        {
+          "i": 4,
+          "v": "Liaison"
+        },
+        {
+          "i": 5,
+          "v": "SECURITY"
+        },
+        {
+          "i": 6,
+          "v": "Specialties: Administration"
+        },
+        {
+          "i": 7,
+          "v": "Leading THE Implementation OF Security"
+        },
+        {
+          "i": 8,
+          "v": "Safety Producers ETC"
+        },
+        {
+          "i": 9,
+          "v": "KEY Area: Administration"
+        },
+        {
+          "i": 10,
+          "v": "Mobilization"
+        },
+        {
+          "i": 11,
+          "v": "Transport Management Tender"
+        },
+        {
+          "i": 12,
+          "v": "Procurement Liaison Facility"
+        },
+        {
+          "i": 13,
+          "v": "Fire Fighting"
+        },
+        {
+          "i": 14,
+          "v": "Training AS PSARA 2005"
+        },
+        {
+          "i": 15,
+          "v": "Security Risk Assessment"
+        },
+        {
+          "i": 16,
+          "v": "Enforcing Security Policies"
+        },
+        {
+          "i": 17,
+          "v": "Defining AND Planning Safety Practices"
+        },
+        {
+          "i": 18,
+          "v": "Handling Confidential Information"
+        },
+        {
+          "i": 19,
+          "v": "Operation Facility Management"
+        }
+      ],
+      "certs": [
+        {
+          "i": 0,
+          "title": "Course / SpecializationOrganization / EnvironmentType",
+          "company": null,
+          "dates": null,
+          "descLen": 0
+        }
+      ],
+      "langs": [],
+      "achievements": [
+        {
+          "i": 0,
+          "v": "Commendation for Meritorious performance, Cash Award."
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "& Interest: Work hard to achieve our target"
+        },
+        {
+          "i": 6,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        }
+      ],
+      "summary": "I will like to work in a growth oriented organization in which I will get an opportunity to give desired results\nin my area of expertise.\n\nRegularly acquires in-depth knowledge of Operation, Facility Management, Tender filling, security\nlegislation and securing environment from related hazards and threats.\n\nFatherΓÇÖs Name:SHRI BANKEY UPADHYAYA (Ex-Warrant Officer I.A.F.)\nMother's Name:Mrs. SARANDHI"
+    },
+    "upload": {
+      "counts": {
+        "experience": 2,
+        "withCompany": 2,
+        "withTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 1,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 1,
+        "hobbies": 8,
+        "summaryChars": 405,
+        "name": "TRILOKINATH UPADHYAYA",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": null,
+          "company": "G.O.I.",
+          "dates": null,
+          "descLen": 1209
+        },
+        {
+          "i": 1,
+          "title": null,
+          "company": "Liaison with Government officials as requirement. Meeting with Clients as and when require.",
+          "dates": null,
+          "descLen": 947
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "Liaison"
+        },
+        {
+          "i": 1,
+          "v": "Management"
+        },
+        {
+          "i": 2,
+          "v": "Operation"
+        },
+        {
+          "i": 3,
+          "v": "Safety"
+        },
+        {
+          "i": 4,
+          "v": "Tender"
+        },
+        {
+          "i": 5,
+          "v": "Specialties: Administration"
+        },
+        {
+          "i": 6,
+          "v": "KEY Area: Administration"
+        },
+        {
+          "i": 7,
+          "v": "Leading THE Implementation OF Security"
+        },
+        {
+          "i": 8,
+          "v": "Defining AND Planning Safety Practices"
+        },
+        {
+          "i": 9,
+          "v": "Enforcing Security Policies"
+        },
+        {
+          "i": 10,
+          "v": "Fire Fighting"
+        },
+        {
+          "i": 11,
+          "v": "Handling Confidential Information"
+        },
+        {
+          "i": 12,
+          "v": "Operation Facility Management"
+        },
+        {
+          "i": 13,
+          "v": "Procurement Liaison Facility"
+        },
+        {
+          "i": 14,
+          "v": "Safety Producers ETC"
+        },
+        {
+          "i": 15,
+          "v": "SECURITY"
+        },
+        {
+          "i": 16,
+          "v": "Security Risk Assessment"
+        },
+        {
+          "i": 17,
+          "v": "Training AS PSARA 2005"
+        },
+        {
+          "i": 18,
+          "v": "Transport Management"
+        },
+        {
+          "i": 19,
+          "v": "Transport Management Tender"
+        }
+      ]
+    },
+    "repaired": {
+      "counts": {
+        "experience": 2,
+        "withCompany": 2,
+        "withTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 1,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 1,
+        "hobbies": 8,
+        "summaryChars": 405,
+        "name": "TRILOKINATH UPADHYAYA",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": null,
+          "company": "G.O.I.",
+          "dates": null,
+          "descLen": 457
+        },
+        {
+          "i": 1,
+          "title": null,
+          "company": "Liaison with Government officials as requirement. Meeting with Clients as and when require.",
+          "dates": null,
+          "descLen": 894
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "Liaison"
+        },
+        {
+          "i": 1,
+          "v": "Management"
+        },
+        {
+          "i": 2,
+          "v": "Operation"
+        },
+        {
+          "i": 3,
+          "v": "Safety"
+        },
+        {
+          "i": 4,
+          "v": "Tender"
+        },
+        {
+          "i": 5,
+          "v": "Specialties: Administration"
+        },
+        {
+          "i": 6,
+          "v": "KEY Area: Administration"
+        },
+        {
+          "i": 7,
+          "v": "Leading THE Implementation OF Security"
+        },
+        {
+          "i": 8,
+          "v": "Defining AND Planning Safety Practices"
+        },
+        {
+          "i": 9,
+          "v": "Enforcing Security Policies"
+        },
+        {
+          "i": 10,
+          "v": "Fire Fighting"
+        },
+        {
+          "i": 11,
+          "v": "Handling Confidential Information"
+        },
+        {
+          "i": 12,
+          "v": "Operation Facility Management"
+        },
+        {
+          "i": 13,
+          "v": "Procurement Liaison Facility"
+        },
+        {
+          "i": 14,
+          "v": "Safety Producers ETC"
+        },
+        {
+          "i": 15,
+          "v": "SECURITY"
+        },
+        {
+          "i": 16,
+          "v": "Security Risk Assessment"
+        },
+        {
+          "i": 17,
+          "v": "Training AS PSARA 2005"
+        },
+        {
+          "i": 18,
+          "v": "Transport Management"
+        },
+        {
+          "i": 19,
+          "v": "Transport Management Tender"
+        }
+      ],
+      "achievements": [
+        {
+          "i": 0,
+          "v": "Commendation for Meritorious performance, Cash Award."
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "& Interest: Work hard to achieve our target"
+        },
+        {
+          "i": 6,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        }
+      ],
+      "summary": "I will like to work in a growth oriented organization in which I will get an opportunity to give desired results\nin my area of expertise.\n\nRegularly acquires in-depth knowledge of Operation, Facility Management, Tender filling, security\nlegislation and securing environment from related hazards and t"
+    },
+    "coalesced": {
+      "counts": {
+        "experience": 2,
+        "withCompany": 2,
+        "withTitle": 1,
+        "projects": 0,
+        "education": 0,
+        "certifications": 2,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 9,
+        "summaryChars": 0,
+        "name": "Upadhyaya Tn",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison Officer (03 Jun 2019 to 29/05/",
+          "company": "G.O.I.",
+          "dates": null,
+          "descLen": 96
+        },
+        {
+          "i": 1,
+          "title": null,
+          "company": "Liaison with Government officials as requirement. Meeting with Clients as and when require.",
+          "dates": null,
+          "descLen": 1016
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "Liaison"
+        },
+        {
+          "i": 1,
+          "v": "Management"
+        },
+        {
+          "i": 2,
+          "v": "Operation"
+        },
+        {
+          "i": 3,
+          "v": "Safety"
+        },
+        {
+          "i": 4,
+          "v": "Tender"
+        },
+        {
+          "i": 5,
+          "v": "Specialties: Administration"
+        },
+        {
+          "i": 6,
+          "v": "KEY Area: Administration"
+        },
+        {
+          "i": 7,
+          "v": "Leading THE Implementation OF Security"
+        },
+        {
+          "i": 8,
+          "v": "Defining AND Planning Safety Practices"
+        },
+        {
+          "i": 9,
+          "v": "Enforcing Security Policies"
+        },
+        {
+          "i": 10,
+          "v": "Fire Fighting"
+        },
+        {
+          "i": 11,
+          "v": "Handling Confidential Information"
+        },
+        {
+          "i": 12,
+          "v": "Operation Facility Management"
+        },
+        {
+          "i": 13,
+          "v": "Procurement Liaison Facility"
+        },
+        {
+          "i": 14,
+          "v": "Safety Producers ETC"
+        },
+        {
+          "i": 15,
+          "v": "SECURITY"
+        },
+        {
+          "i": 16,
+          "v": "Security Risk Assessment"
+        },
+        {
+          "i": 17,
+          "v": "Training AS PSARA 2005"
+        },
+        {
+          "i": 18,
+          "v": "Transport Management"
+        },
+        {
+          "i": 19,
+          "v": "Transport Management Tender"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "& Interest: Work hard to achieve our target"
+        },
+        {
+          "i": 6,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        },
+        {
+          "i": 8,
+          "v": "Books"
+        }
+      ],
+      "summary": ""
+    },
+    "gallery": {
+      "counts": {
+        "experience": 2,
+        "withCompany": 2,
+        "withTitle": 1,
+        "projects": 0,
+        "education": 0,
+        "certifications": 2,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 9,
+        "summaryChars": 0,
+        "name": "Upadhyaya Tn",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison Officer (03 Jun 2019 to 29/05/",
+          "company": "G.O.I.",
+          "dates": null,
+          "descLen": 96
+        },
+        {
+          "i": 1,
+          "title": null,
+          "company": "Liaison with Government officials as requirement. Meeting with Clients as and when require.",
+          "dates": null,
+          "descLen": 1016
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "Liaison"
+        },
+        {
+          "i": 1,
+          "v": "Management"
+        },
+        {
+          "i": 2,
+          "v": "Operation"
+        },
+        {
+          "i": 3,
+          "v": "Safety"
+        },
+        {
+          "i": 4,
+          "v": "Tender"
+        },
+        {
+          "i": 5,
+          "v": "Specialties: Administration"
+        },
+        {
+          "i": 6,
+          "v": "KEY Area: Administration"
+        },
+        {
+          "i": 7,
+          "v": "Leading THE Implementation OF Security"
+        },
+        {
+          "i": 8,
+          "v": "Defining AND Planning Safety Practices"
+        },
+        {
+          "i": 9,
+          "v": "Enforcing Security Policies"
+        },
+        {
+          "i": 10,
+          "v": "Fire Fighting"
+        },
+        {
+          "i": 11,
+          "v": "Handling Confidential Information"
+        },
+        {
+          "i": 12,
+          "v": "Operation Facility Management"
+        },
+        {
+          "i": 13,
+          "v": "Procurement Liaison Facility"
+        },
+        {
+          "i": 14,
+          "v": "Safety Producers ETC"
+        },
+        {
+          "i": 15,
+          "v": "SECURITY"
+        },
+        {
+          "i": 16,
+          "v": "Security Risk Assessment"
+        },
+        {
+          "i": 17,
+          "v": "Training AS PSARA 2005"
+        },
+        {
+          "i": 18,
+          "v": "Transport Management"
+        },
+        {
+          "i": 19,
+          "v": "Transport Management Tender"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "& Interest: Work hard to achieve our target"
+        },
+        {
+          "i": 6,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        },
+        {
+          "i": 8,
+          "v": "Books"
+        }
+      ],
+      "summary": ""
+    },
+    "builder": {
+      "counts": {
+        "experience": 2,
+        "withCompany": 2,
+        "withTitle": 1,
+        "projects": 0,
+        "education": 0,
+        "certifications": 2,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 9,
+        "summaryChars": 0,
+        "name": "Upadhyaya Tn",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison Officer (03 Jun 2019 to 29/05/",
+          "company": "G.O.I.",
+          "dates": null,
+          "descLen": 96
+        },
+        {
+          "i": 1,
+          "title": null,
+          "company": "Liaison with Government officials as requirement. Meeting with Clients as and when require.",
+          "dates": null,
+          "descLen": 1016
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "Liaison"
+        },
+        {
+          "i": 1,
+          "v": "Management"
+        },
+        {
+          "i": 2,
+          "v": "Operation"
+        },
+        {
+          "i": 3,
+          "v": "Safety"
+        },
+        {
+          "i": 4,
+          "v": "Tender"
+        },
+        {
+          "i": 5,
+          "v": "Specialties: Administration"
+        },
+        {
+          "i": 6,
+          "v": "KEY Area: Administration"
+        },
+        {
+          "i": 7,
+          "v": "Leading THE Implementation OF Security"
+        },
+        {
+          "i": 8,
+          "v": "Defining AND Planning Safety Practices"
+        },
+        {
+          "i": 9,
+          "v": "Enforcing Security Policies"
+        },
+        {
+          "i": 10,
+          "v": "Fire Fighting"
+        },
+        {
+          "i": 11,
+          "v": "Handling Confidential Information"
+        },
+        {
+          "i": 12,
+          "v": "Operation Facility Management"
+        },
+        {
+          "i": 13,
+          "v": "Procurement Liaison Facility"
+        },
+        {
+          "i": 14,
+          "v": "Safety Producers ETC"
+        },
+        {
+          "i": 15,
+          "v": "SECURITY"
+        },
+        {
+          "i": 16,
+          "v": "Security Risk Assessment"
+        },
+        {
+          "i": 17,
+          "v": "Training AS PSARA 2005"
+        },
+        {
+          "i": 18,
+          "v": "Transport Management"
+        },
+        {
+          "i": 19,
+          "v": "Transport Management Tender"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "& Interest: Work hard to achieve our target"
+        },
+        {
+          "i": 6,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        },
+        {
+          "i": 8,
+          "v": "Books"
+        }
+      ],
+      "summary": ""
+    }
+  }
+}

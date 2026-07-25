@@ -165,11 +165,17 @@ function pickBestInstitution(lines: string[]): FieldPick<string> {
         }
       }
     }
-    for (let i = degreeIdx + 1; i < Math.min(lines.length, degreeIdx + 3); i++) {
+    for (let i = degreeIdx + 1; i < Math.min(lines.length, degreeIdx + 4); i++) {
       const next = lines[i];
       if (isYearFragmentInstitution(next)) continue;
       // Next line is another degree entry — not this entry's institution.
-      if (lineHasDegreeSignal(next) || detectDegreeFromLine(next).confidence >= 38) {
+      // School names that contain "Higher Secondary" must still count as institutions.
+      const nextIsSchool =
+        /\b(?:school|college|collage|university|institute|academy|vidyalaya)\b/i.test(next);
+      if (
+        !nextIsSchool &&
+        (lineHasDegreeSignal(next) || detectDegreeFromLine(next).confidence >= 38)
+      ) {
         continue;
       }
       const det = detectInstitutionFromLine(next);
@@ -188,8 +194,19 @@ function pickBestInstitution(lines: string[]): FieldPick<string> {
   for (const line of expandHeaderSegments(lines)) {
     if (isYearFragmentInstitution(line)) continue;
     const det = detectInstitutionFromLine(line);
-    if (det.confidence > best.confidence && !isYearFragmentInstitution(det.institution)) {
-      best = { value: det.institution, confidence: det.confidence };
+    if (isYearFragmentInstitution(det.institution)) continue;
+    // Prefer school/college names over bare examining-board lines when both score.
+    const isBoardOnly =
+      /\bboard\b/i.test(det.institution) &&
+      !/\b(?:school|college|collage|university|institute|academy)\b/i.test(det.institution);
+    const bestIsSchool =
+      /\b(?:school|college|collage|university|institute|academy)\b/i.test(best.value);
+    let score = det.confidence;
+    if (isBoardOnly) score -= 12;
+    if (/\b(?:school|college|collage)\b/i.test(det.institution)) score += 8;
+    if (score > best.confidence || (isBoardOnly && bestIsSchool)) {
+      if (isBoardOnly && bestIsSchool) continue;
+      best = { value: det.institution, confidence: Math.min(100, score) };
     }
   }
   return best;
@@ -209,11 +226,28 @@ function pickBestDegree(lines: string[]): {
     const inst = detectInstitutionFromLine(line);
     const det = detectDegreeFromLine(line);
     // Prefer true degree labels over institution lines that weakly score as education.
-    if (inst.confidence >= 42 && inst.confidence > det.confidence + 8) continue;
+    // Dated credential headers ("… Secondary School Leaving Certificate") contain
+    // the word "school" but are still the degree line.
+    const strongCredentialHeader =
+      det.confidence >= 70 &&
+      (/\b(?:leaving\s+certificate|certificate|diploma|bachelor|master|matriculation|intermediate)\b/i.test(
+        line
+      ) ||
+        /^(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\b/i.test(
+          line
+        ));
+    if (
+      !strongCredentialHeader &&
+      inst.confidence >= 42 &&
+      inst.confidence > det.confidence + 8
+    ) {
+      continue;
+    }
     if (
       /\b(university|college|institute|institution|school|academy)\b/i.test(line) &&
       det.confidence < 70 &&
-      !/^(?:ca|class|b\.?|m\.?|ph\.?d|ll\.?b)/i.test(line.trim())
+      !/^(?:ca|class|b\.?|m\.?|ph\.?d|ll\.?b)/i.test(line.trim()) &&
+      !strongCredentialHeader
     ) {
       continue;
     }

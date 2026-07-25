@@ -32,6 +32,7 @@ export function healOcrDateArtifacts(text: string): string {
     // Keep a range separator when normalizing "to till date" → present.
     .replace(/\bto\s*till\s*date\b/gi, 'to present')
     .replace(/\btill\s*date\b/gi, 'present')
+    .replace(/\bstill\s*date\b/gi, 'present')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -48,7 +49,11 @@ const ABBREV_MONTH_YEAR_RANGE_RE = new RegExp(
 );
 
 const NUMERIC_MONTH_RANGE_RE =
-  /\b(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})\s*(?:[-–—−]|to)\s*(?:(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})|present|current|till\s*date|running|ongoing)\b/i;
+  /\b(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})\s*(?:[-–—−]|to)\s*(?:(0?[1-9]|1[0-2])[\/\-]((?:19|20)\d{2})|present|current|till\s*date|still\s*date|running|ongoing)\b/i;
+
+/** Day-Month-Year numeric: "01-11-2015 to 30-08-2020", "05-09-2020 to Still Date" */
+const DMY_NUMERIC_RANGE_RE =
+  /\b(\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2})\s*(?:[-–—−]|to)\s*(\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}|present|current|till\s*date|still\s*date|to\s*date|running|ongoing)\b/i;
 
 const YEAR_RANGE_RE =
   /\b((?:19|20)\d{2})\s*(?:[-–—−]|\s+to\s+)\s*((?:19|20)\d{2}|present|current|till\s*date|running|ongoing)\b/i;
@@ -75,7 +80,7 @@ const NUMERIC_TO_DAY_MONTH_YEAR_RANGE_RE = new RegExp(
 );
 
 /** Parenthetical / pipe CTC tenures already covered once ranges match. */
-const PRESENT_RE = /^(present|current|till\s*date|to\s*date|running|ongoing|now)$/i;
+const PRESENT_RE = /^(present|current|till\s*date|to\s*date|still\s*date|running|ongoing|now)$/i;
 
 const TENURE_LABEL_RE = /^tenure\s*[-–—:]?\s*/i;
 
@@ -138,6 +143,7 @@ export function parseDateRangeFromText(text: string): ParsedDateRange | null {
     DAY_MONTH_YEAR_RANGE_RE,
     DAY_MONTH_YEAR_TO_NUMERIC_RANGE_RE,
     NUMERIC_TO_DAY_MONTH_YEAR_RANGE_RE,
+    DMY_NUMERIC_RANGE_RE,
     MONTH_YEAR_RANGE_RE,
     ABBREV_MONTH_YEAR_RANGE_RE,
     NUMERIC_MONTH_RANGE_RE,

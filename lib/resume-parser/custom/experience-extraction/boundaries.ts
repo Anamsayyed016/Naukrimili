@@ -34,20 +34,30 @@ function blockIdentityState(lines: ExperienceLine[], start: number, end: number)
   for (let i = start; i < end; i++) {
     const line = lines[i];
     if (line.isBlank || line.isBullet) continue;
-    const tenure = parseTenureExperienceLine(line.text);
+    const text = line.text.trim();
+    const tenure = parseTenureExperienceLine(text);
     if (tenure) {
       hasDesignation = true;
       hasCompany = true;
       if (tenure.years != null) hasDates = true;
     }
-    if (parseDateRangeFromText(line.text)) hasDates = true;
-    if (isTenureOrDateOnlyHeaderLine(line.text)) hasDates = true;
+    if (parseDateRangeFromText(text)) hasDates = true;
+    if (isTenureOrDateOnlyHeaderLine(text)) hasDates = true;
+    if (/^(?:duration|period|tenure)\s*[:\-–—]?\s*\S+/i.test(text)) hasDates = true;
     // Use employer-presence (not whole-line score alone): compressed
     // "Employer Title | Dates" lines often fail detectCompanyFromLine because
     // the full string looks like prose, which would leave hasCompany false and
     // block company-only splits for the next role.
-    if (lineImpliesEmployerPresence(line.text)) hasCompany = true;
-    if (detectDesignationFromLine(line.text).confidence >= 40) hasDesignation = true;
+    if (lineImpliesEmployerPresence(text)) hasCompany = true;
+    if (
+      /(?:^|\b)(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]?\s+\S+/i.test(text)
+    ) {
+      hasCompany = true;
+    }
+    if (detectDesignationFromLine(text).confidence >= 40) hasDesignation = true;
+    if (/(?:^|\b)(?:designation|role|position|title|post)\s*[:\-–—]?\s+\S+/i.test(text)) {
+      hasDesignation = true;
+    }
   }
 
   return { hasDesignation, hasCompany, hasDates };
@@ -63,6 +73,12 @@ function isExperienceSubsectionLabel(text: string): boolean {
     /^(?:project|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|tenure|duration|period)\s*(?:[:\-–—].*)?$/i.test(
       t
     )
+  ) {
+    return true;
+  }
+  // Bare "Organization" / "Responsibility" labels mid-role (no trailing value).
+  if (
+    /^(?:organi[sz]ation|employer|company|client|firm|responsibility|responsibilities)\s*$/i.test(t)
   ) {
     return true;
   }
@@ -128,6 +144,16 @@ function scoreBoundaryLine(line: ExperienceLine, prevBlank: boolean): number {
   ) {
     score += 34;
   }
+  // Labeled ATS headers (colons optional): Organization / Designation / Duration.
+  if (
+    /^(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]?\s+\S+/i.test(text) ||
+    /^(?:designation|role|position|title|post)\s*[:\-–—]?\s+\S+/i.test(text)
+  ) {
+    score += 36;
+  }
+  if (/^(?:duration|period|tenure)\s*[:\-–—]?\s*\S+/i.test(text) && dateRange) {
+    score += 22;
+  }
 
   if (text.split(/\s+/).length > 18 && !dateRange && !lineLooksLikeTenureExperience(text)) score -= 25;
   if (looksLikeSentenceNotCompany(text)) score -= 40;
@@ -184,6 +210,16 @@ export function partitionExperienceBlocks(
       ) {
         return true;
       }
+      // Bare "Organization" after a completed role opens the next employer block.
+      if (
+        /^(?:organi[sz]ation|employer|company|client|firm)\s*$/i.test(line.text.trim()) &&
+        state.hasCompany &&
+        state.hasDesignation &&
+        state.hasDates &&
+        lineIndex > blockStart
+      ) {
+        return true;
+      }
       return false;
     }
 
@@ -193,6 +229,10 @@ export function partitionExperienceBlocks(
     const isCompanyLine = detectCompanyFromLine(line.text).confidence >= 45;
     const isDesignationLine = detectDesignationFromLine(line.text).confidence >= 40;
     const isTenureLine = lineLooksLikeTenureExperience(line.text);
+    const isLabeledOrgLine =
+      /^(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]?\s+\S+/i.test(line.text.trim());
+    const isLabeledRoleLine =
+      /^(?:designation|role|position|title|post)\s*[:\-–—]?\s+\S+/i.test(line.text.trim());
 
     // Tenure/date-only headers never open a new role (they finish the current header).
     if (isTenureOrDateOnlyHeaderLine(line.text)) {
@@ -207,9 +247,19 @@ export function partitionExperienceBlocks(
       return false;
     }
 
-    // Each "N years experience as Title at Company" starts a new role
-    // (including the first tenure line after a section label).
+    // Tenure condensed headers always open a new role.
     if (isTenureLine && lineIndex > blockStart) {
+      return true;
+    }
+
+    // Labeled Organization / Designation openers after a completed role.
+    if (
+      (isLabeledOrgLine || isLabeledRoleLine) &&
+      state.hasCompany &&
+      state.hasDesignation &&
+      state.hasDates &&
+      lineIndex > blockStart
+    ) {
       return true;
     }
 

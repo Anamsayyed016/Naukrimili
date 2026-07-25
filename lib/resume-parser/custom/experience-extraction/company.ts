@@ -123,6 +123,14 @@ export function looksLikeInstitutionalEmployer(text: string): boolean {
   if (!trimmed || trimmed.length < 4) return false;
   // Duty sentences often mention "systems", "services", etc. — not employers.
   if (looksLikeSentenceNotCompany(trimmed)) return false;
+  // Accounting / ops duty lines that mention "Bank Reconciliation" are not banks.
+  if (
+    /\b(?:payables?|receivables?|reconciliation|gst\s+returns?|debit\s+note|credit\s+note|bill\s+booking|stock\s+verification|invoice)\b/i.test(
+      trimmed
+    )
+  ) {
+    return false;
+  }
   return (
     INSTITUTIONAL_EMPLOYER_RE.test(trimmed) ||
     SHORT_ORG_RE.test(trimmed) ||
@@ -274,6 +282,15 @@ export function scoreCompanyCandidate(text: string): number {
   if (ROLE_OR_PROJECT_LABEL_RE.test(trimmed)) return 0;
   if (isEmployerAffiliationTagline(trimmed) || isIndustrySectorTagline(trimmed)) return 0;
   if (looksLikeStreetAddressLine(trimmed)) return 0;
+  // Ledger / GST / reconciliation duty fragments are never employers.
+  if (
+    /\b(?:payables?|receivables?|bank\s+reconciliation|gst\s+returns?|debit\s+note|credit\s+note|bill\s+booking|stock\s+verification|sales\s+invoice)\b/i.test(
+      trimmed
+    ) &&
+    !HARD_COMPANY_SUFFIX_RE.test(trimmed)
+  ) {
+    return 0;
+  }
   if (looksLikeSentenceNotCompany(trimmed) && !looksLikeClientPracticeEmployer(trimmed)) return 0;
   if (FALSE_COMPANY_RE.test(trimmed)) return 0;
   if (TECH_SKILL_AS_COMPANY_RE.test(trimmed.toLowerCase())) return 0;

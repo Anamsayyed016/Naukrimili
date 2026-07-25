@@ -98,8 +98,11 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
     const inst = detectInstitutionFromLine(text);
     const looksPrimarilyInstitution =
       inst.confidence >= 40 &&
-      inst.confidence >= deg.confidence &&
-      /\b(university|college|institute|institution|school|academy|polytechnic)\b/i.test(text);
+      inst.confidence >= deg.confidence + 8 &&
+      /\b(university|college|institute|institution|school|academy|polytechnic)\b/i.test(text) &&
+      // Dated credential headers that merely contain "school" ("Secondary School
+      // Leaving Certificate") are degrees, not institutions.
+      !(deg.confidence >= 70 && /\b(?:19|20)\d{2}\b/.test(text));
     const isStrongDegreeHeading =
       deg.confidence >= 70 && !looksPrimarilyInstitution && !parseEducationDates(text);
     const isBulletDegreeEntry =
@@ -147,9 +150,12 @@ export function partitionEducationBlocks(sectionText: string): EducationRawBlock
     // after a college/degree entry start a new education block.
     if (
       idx > currentStart &&
-      /^(?:higher\s+secondary|high\s+secondary|senior\s+secondary|high\s+school|secondary\s+school|matriculation|intermediate|ssc|hsc|class\s+(?:x|xii|10|12))\b/i.test(
+      (/^(?:higher\s+secondary|high\s+secondary|senior\s+secondary|high\s+school|secondary\s+school|matriculation|intermediate|ssc|hsc|class\s+(?:x|xii|10|12))\b/i.test(
         text
-      )
+      ) ||
+        /^(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\s+.*\b(?:higher\s+secondary|secondary\s+school|ssc|hsc|matriculation|intermediate|leaving\s+certificate)\b/i.test(
+          text
+        ))
     ) {
       const openSlice = scored.slice(currentStart, idx).filter((l) => !l.isBlank);
       const openHasDegree = openSlice.some((l) => detectDegreeFromLine(l.text).confidence >= 38);
@@ -234,6 +240,21 @@ function coalesceEducationBlocks(blocks: EducationRawBlock[]): EducationRawBlock
       !prevBuilt.endDate;
 
     if (dateOnlyHeader && prevNeedsDates) {
+      out[out.length - 1] = mergeBlocks(prev, block);
+      continue;
+    }
+
+    // Degree-only header followed by an institution/board row (common ATS OCR split).
+    const blockBuilt = buildEducationFromBlock(block);
+    const prevDegreeOnly =
+      Boolean(prevBuilt.degree) &&
+      !prevBuilt.institution &&
+      blockHasDegreeSignal(prev);
+    const blockInstitutionOnly =
+      Boolean(blockBuilt.institution) &&
+      !blockHasDegreeSignal(block) &&
+      detectInstitutionFromLine(headerLines[0] || '').confidence >= 40;
+    if (prevDegreeOnly && blockInstitutionOnly) {
       out[out.length - 1] = mergeBlocks(prev, block);
       continue;
     }

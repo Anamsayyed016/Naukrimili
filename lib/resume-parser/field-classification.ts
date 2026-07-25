@@ -278,6 +278,16 @@ export function isLikelyCompanyNameFragment(value: string): boolean {
   const s = normalizeFragment(value);
   if (!s) return false;
   if (isLikelyJobTitleFragment(s)) return false;
+  // Abbreviated designations ("Asst.Accounts", "Sr.Officer") match the dotted
+  // token regex below but are roles, not employers.
+  if (
+    /^(?:asst|sr|jr|mgr|smt)\.?\s*[A-Za-z]/i.test(s) ||
+    /\b(?:asst|sr|jr|mgr)\.?\s*(?:accounts?|officer|manager|executive|accountant|engineer|developer)\b/i.test(
+      s
+    )
+  ) {
+    return false;
+  }
   if (COMPANY_NAME_MARKERS.test(s)) return true;
   if (
     /^[A-Z][A-Za-z0-9&.'-]{2,24}$/.test(s) &&
@@ -601,6 +611,20 @@ export function shouldKeepAsGlobalAchievement(text: string): boolean {
   if (
     s.length >= 40 &&
     /\b(?:improv(?:ed|ement)|reducing|reduced|protected|portfolio|independently|negotiated|structured\s+disclosures?)\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  // Soft competency / personal-strength bullets from Accomplishments sections.
+  if (
+    s.length >= 12 &&
+    s.length <= 110 &&
+    s.split(/\s+/).length <= 14 &&
+    !/\b(?:payables?|receivables?|reconciliat|gst|invoice|vendor|booking|responsible for|managed|prepared the)\b/i.test(
+      s
+    ) &&
+    /\b(?:personality|learner|flexible|innovative|committed|hardworking|hard\s+working|motivated|dedicated|punctual|team\s*player|work\s*ethics|sound\s+knowledge|quick\s+learner|self[- ](?:driven|motivated)|smart\s+worker|enthusiastic)\b/i.test(
       s
     )
   ) {

@@ -21,6 +21,7 @@ import {
   isExperienceBlurbFragment,
   isExperienceDateOrDurationToken,
   isCondensedTenureExperienceLine,
+  splitCompanyTrailingLocation,
 } from '@/lib/resume-parser/import-sanitize';
 import { splitOnFieldSeparatorDash } from '@/lib/resume-parser/field-separator-dash';
 import type {
@@ -562,22 +563,73 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
   let endConf = 0;
   let descriptionBoost = '';
 
-  const allLines = [...headerLines, ...bodyLines.slice(0, 6)];
-  for (const raw of allLines) {
-    const line = raw.trim();
-    if (!line) continue;
+  const BARE_FIELD_LABEL_RE =
+    /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities)\s*$/i;
 
-    const desLabel = line.match(/^(?:designation|role|position|title|post)\s*[:\-–—]\s*(.+)$/i);
-    if (desLabel) {
-      const title = cleanDesignationValue(desLabel[1]);
-      if (title.length >= 2) {
+  const allLines = [...headerLines, ...bodyLines.slice(0, 8)];
+  for (const raw of allLines) {
+    let line = raw.trim();
+    if (!line || BARE_FIELD_LABEL_RE.test(line)) continue;
+
+    // Same-line ATS mash: "Organization Acme Ltd Designation Accountant Duration 2015 to 2020"
+    const orgThenRole = line.match(
+      /^(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]?\s*(.+?)\s+(?:designation|role|position|title|post)\s*[:\-–—]?\s*(.+)$/i
+    );
+    if (orgThenRole) {
+      const employer = orgThenRole[1].replace(/\s+(?:duration|period|tenure)\s*[:\-–—]?.*$/i, '').trim();
+      let role = orgThenRole[2].replace(/\s+(?:duration|period|tenure)\s*[:\-–—]?.*$/i, '').trim();
+      role = cleanDesignationValue(role);
+      if (employer.length >= 2) {
+        company = { value: employer, confidence: Math.max(company.confidence, 82) };
+      }
+      if (role.length >= 2) {
+        designation = { value: role, confidence: Math.max(designation.confidence, 82) };
+      }
+      const durInline = line.match(
+        /(?:duration|period|tenure)\s*[:\-–—]?\s*(.+)$/i
+      );
+      if (durInline?.[1]) {
+        const range = parseDateRangeFromText(durInline[1]);
+        if (range && range.confidence >= startConf) {
+          startDate = range.startDate || startDate;
+          endDate = range.endDate;
+          current = range.current;
+          startConf = range.confidence;
+          endConf = range.endDate || range.current ? range.confidence : endConf;
+        }
+      }
+      continue;
+    }
+
+    const orgLabel = line.match(
+      /^(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]?\s*(.+)$/i
+    );
+    if (orgLabel?.[1]) {
+      const employer = orgLabel[1]
+        .replace(/\s+(?:designation|role|position|title|post|duration|period|tenure)\s*[:\-–—]?.*$/i, '')
+        .trim();
+      if (employer.length >= 2 && !BARE_FIELD_LABEL_RE.test(employer)) {
+        company = { value: employer, confidence: Math.max(company.confidence, 80) };
+      }
+      continue;
+    }
+
+    const desLabel = line.match(
+      /^(?:designation|role|position|title|post)\s*[:\-–—]?\s*(.+)$/i
+    );
+    if (desLabel?.[1]) {
+      const title = cleanDesignationValue(
+        desLabel[1].replace(/\s+(?:duration|period|tenure)\s*[:\-–—]?.*$/i, '').trim()
+      );
+      if (title.length >= 2 && !BARE_FIELD_LABEL_RE.test(title)) {
         designation = { value: title, confidence: Math.max(designation.confidence, 78) };
       }
       continue;
     }
 
-    if (isTenureOrDateOnlyHeaderLine(line) || /^tenure\b/i.test(line)) {
-      const range = parseDateRangeFromText(line);
+    const durLabel = line.match(/^(?:duration|period|tenure)\s*[:\-–—]?\s*(.+)$/i);
+    if (durLabel?.[1] || isTenureOrDateOnlyHeaderLine(line) || /^tenure\b/i.test(line)) {
+      const range = parseDateRangeFromText(durLabel?.[1] || line);
       if (range && range.confidence >= startConf) {
         startDate = range.startDate || startDate;
         endDate = range.endDate;
@@ -588,7 +640,7 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
       continue;
     }
 
-    const resp = line.match(/^responsibilit(?:y|ies)\s*[-–—:]\s*(.+)$/i);
+    const resp = line.match(/^responsibilit(?:y|ies)\s*[-–—:]?\s*(.+)$/i);
     if (resp) {
       descriptionBoost = resp[1].trim();
       continue;
@@ -614,7 +666,9 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
         continue;
       }
       const cleaned = stripCompanyLineEmploymentMeta(det.company || line);
-      if (!cleaned || looksLikeSentenceNotCompany(cleaned)) continue;
+      if (!cleaned || looksLikeSentenceNotCompany(cleaned) || BARE_FIELD_LABEL_RE.test(cleaned)) {
+        continue;
+      }
       company = {
         value: cleaned || det.company || line,
         confidence: Math.max(det.confidence, looksLikeInstitutionalEmployer(line) ? 70 : 58),
@@ -749,6 +803,46 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
       finalCompany = { value: cleaned, confidence: Math.max(finalCompany.confidence, 62) };
     }
   }
+  // "Employer – City" OCR glues: keep employer, stash city for location pick.
+  let trailingCompanyLocation = '';
+  if (finalCompany.value) {
+    const split = splitCompanyTrailingLocation(finalCompany.value);
+    if (split && split.company && split.company !== finalCompany.value) {
+      finalCompany = { value: split.company, confidence: Math.max(finalCompany.confidence, 70) };
+      trailingCompanyLocation = split.location;
+    }
+  }
+
+  // Bare field labels are never employers or titles.
+  if (
+    /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities)$/i.test(
+      finalCompany.value.trim()
+    )
+  ) {
+    finalCompany = { value: '', confidence: 0 };
+  }
+  if (
+    /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities)$/i.test(
+      finalDesignation.value.trim()
+    )
+  ) {
+    finalDesignation = { value: '', confidence: 0 };
+  }
+  // "Designation Sr.Officer Accounts" leftovers when label lacked a separator.
+  if (/^(?:designation|role|position|title|post)\s+/i.test(finalDesignation.value)) {
+    finalDesignation = {
+      value: cleanDesignationValue(
+        finalDesignation.value.replace(/^(?:designation|role|position|title|post)\s+/i, '')
+      ),
+      confidence: Math.max(finalDesignation.confidence, 70),
+    };
+  }
+  if (/^(?:organi[sz]ation|employer|company|client|firm)\s+/i.test(finalCompany.value)) {
+    finalCompany = {
+      value: finalCompany.value.replace(/^(?:organi[sz]ation|employer|company|client|firm)\s+/i, '').trim(),
+      confidence: Math.max(finalCompany.confidence, 70),
+    };
+  }
 
   // Job-title string in company slot with empty designation — swap / recover employer from headers.
   if (
@@ -785,7 +879,16 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     }
   }
 
-  const locationPick = pickBestLocation(headerLines, finalCompany.value);
+  let locationPick = pickBestLocation(headerLines, finalCompany.value);
+  if (
+    trailingCompanyLocation &&
+    (!locationPick.value || locationPick.confidence < 50)
+  ) {
+    locationPick = {
+      value: trailingCompanyLocation,
+      confidence: Math.max(locationPick.confidence, 68),
+    };
+  }
   // Employer names misfiled as location (e.g. "Raj Security Force") — promote back.
   if (
     !finalCompany.value &&

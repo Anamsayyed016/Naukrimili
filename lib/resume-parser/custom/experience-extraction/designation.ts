@@ -85,8 +85,9 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
   }
 
   // Explicit role labels: "Role: Credit Controller", "Designation: Site Engineer"
+  // Also accept space-separated ATS forms without a colon: "Designation Asst.Accounts".
   const roleLabel = working.match(
-    /^(?:role|designation|position|title|post)\s*[:\-–—]\s*(.+)$/i
+    /^(?:role|designation|position|title|post)\s*[:\-–—]?\s*(.+)$/i
   );
   if (roleLabel) {
     const titlePart = roleLabel[1].replace(/\s*[\(\[].*$/, '').trim();

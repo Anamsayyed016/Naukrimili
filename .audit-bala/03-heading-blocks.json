@@ -1,0 +1,66 @@
+{
+  "keys": [
+    "detectionVersion",
+    "normalizedText",
+    "documentProfile",
+    "documentAnalysis",
+    "parseStrategy",
+    "preamble",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "languages",
+    "certifications",
+    "achievements",
+    "hobbies",
+    "references",
+    "volunteer",
+    "publications",
+    "customSections",
+    "sections",
+    "coverage"
+  ],
+  "meta": {
+    "detectionVersion": "1.0.0",
+    "coverage": {
+      "complete": true,
+      "assignedChars": 3357,
+      "totalChars": 3361,
+      "gaps": [],
+      "overlaps": []
+    }
+  },
+  "blocks": [
+    {
+      "type": "summary",
+      "conf": 51,
+      "heading": "Profile",
+      "contentLen": 483,
+      "contentPreview": "Qualified Company Secretary (ICSI) with 5+ years of experience in corporate governance, Companies Act,\n2013 compliance, "
+    },
+    {
+      "type": "education",
+      "conf": 46,
+      "heading": "Education",
+      "contentLen": 58,
+      "contentPreview": "Qualified CS, ICSI|M.Com| B. Com, DAVV, Indore (2015-2017)"
+    },
+    {
+      "type": "experience",
+      "conf": 53,
+      "heading": "Professional Experience",
+      "contentLen": 1872,
+      "contentPreview": "Dilip Buildcon Limited – Bhopal, M.P.\nManager – Company Secretary (2023–Present)\nListed Infrastructure Conglomerate\n• Ma"
+    },
+    {
+      "type": "skills",
+      "conf": 52,
+      "heading": "Key Skills",
+      "contentLen": 710,
+      "contentPreview": "• Entity Formation (Pvt Ltd, LLP, OPC, Section 8)\n• Corporate Compliance & Filings (ROC, SEBI, Annual Filings)\n• Board P"
+    }
+  ],
+  "customSections": []
+}

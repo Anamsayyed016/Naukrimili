@@ -20,6 +20,9 @@ const SKILL_SUBHEADERS = new Set([
   'soft skills', 'technical skills', 'technical', 'expertise',
   'competencies', 'core competencies', 'technology stack', 'technologies',
   'testing', 'design', 'apis', 'protocols', 'skills',
+  'operating system', 'operating systems', 'os',
+  'packages', 'package', 'applications', 'application',
+  'software', 'softwares', 'ms office', 'office tools', 'office package',
 ]);
 
 const SOURCE_WEIGHT: Record<SkillSource, number> = {
@@ -123,6 +126,18 @@ function splitSkillTokens(line: string): string[] {
       buf = '';
       while (i + 1 < line.length && /\s/.test(line[i + 1])) i += 1;
       continue;
+    }
+    // Conjunction splits outside parentheses for short skill lists ("Tally and .Net").
+    if (depth === 0 && /\sand\s/i.test(line.slice(i, i + 5))) {
+      const left = buf.trim();
+      const rightPeek = line.slice(i + 5).split(/[,;|]/)[0]?.trim() || '';
+      if (left.length >= 2 && left.length <= 40 && rightPeek.length >= 2 && rightPeek.length <= 40) {
+        const token = buf.replace(/^[\s\-–—*•]+/, '').replace(/[\s.]+$/, '').trim();
+        if (token) parts.push(token);
+        buf = '';
+        i += 4; // consume "and" (loop adds 1)
+        continue;
+      }
     }
     // Slash splits only outside parentheses and when both sides look like short tokens.
     if (depth === 0 && ch === '/') {
@@ -249,8 +264,22 @@ export function collectFromSkillsSection(sectionText: string): SkillCandidate[] 
     const inline = withoutBullet.match(/^([A-Za-z][A-Za-z &/+\-]{1,40}?)\s*:\s*(.+)$/);
     if (inline) {
       const header = inline[1].toLowerCase().replace(/\s+/g, ' ').trim();
-      if (SKILL_SUBHEADERS.has(header) || /skill|expertise|competenc|technolog|operations|taxation|banking|software|tools|reporting|compliance/i.test(header)) {
-        for (const token of splitSkillTokens(inline[2])) {
+      if (
+        SKILL_SUBHEADERS.has(header) ||
+        /skill|expertise|competenc|technolog|operations|taxation|banking|software|tools|reporting|compliance|operating|package|application|\bos\b/i.test(
+          header
+        )
+      ) {
+        let value = inline[2].trim();
+        // Promote parenthetical office-suite lists: "Ms Package (MS word , MS Excel)".
+        const parenList = value.match(/\(([^)]+)\)/);
+        if (parenList?.[1] && /,/i.test(parenList[1])) {
+          for (const token of splitSkillTokens(parenList[1])) {
+            pushCandidate(out, token, 'skills_section');
+          }
+          value = value.replace(/\([^)]+\)/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+        for (const token of splitSkillTokens(value)) {
           pushCandidate(out, token, 'skills_section');
         }
         continue;

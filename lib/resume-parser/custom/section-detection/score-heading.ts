@@ -184,21 +184,104 @@ function isExperienceWorkstreamLabel(text: string): boolean {
 
 /** OCR-glued multi-section compounds must not steal the surrounding body. */
 function isGluedMultiSectionHeading(text: string): boolean {
-  const outsideParens = text.replace(/\([^)]*\)/g, ' ').trim();
-  if (/\s/.test(outsideParens)) return false;
-  const compact = outsideParens.replace(/[^A-Za-z]/g, '').toLowerCase();
-  if (compact.length < 18) return false;
+  return splitGluedMultiSectionPhrases(text).length >= 2;
+}
 
-  const families: string[][] = [
-    ['profile', 'summary', 'objective', 'about'],
-    ['experience', 'employment', 'organizational', 'organisational', 'career'],
-    ['education', 'academic', 'qualification'],
-    ['skill', 'expertise', 'competenc'],
-    ['project'],
-    ['certif', 'licence', 'license', 'training'],
+/**
+ * Split OCR-glued multi-section heading lines into their constituent phrases
+ * so each can become its own heading (e.g. "OBJECTIVE PROFESSIONAL ACCOMPLISHMENTS").
+ */
+export function splitGluedMultiSectionPhrases(text: string): string[] {
+  const outsideParens = text.replace(/\([^)]*\)/g, ' ').trim();
+  if (!outsideParens) return [];
+  const compact = outsideParens.replace(/[^A-Za-z]/g, '').toLowerCase();
+  if (compact.length < 18) return [];
+
+  const phraseMatchers: Array<{ label: string; re: RegExp }> = [
+    { label: 'OBJECTIVE', re: /\b(?:career\s+)?objective\b/i },
+    { label: 'PROFESSIONAL SUMMARY', re: /\b(?:professional|career)\s+summary\b/i },
+    { label: 'ABOUT ME', re: /\babout\s+me\b/i },
+    { label: 'WORK EXPERIENCE', re: /\b(?:work|professional|employment)\s+experience\b|\bemployment\s+history\b|\bworkexperience\b/i },
+    { label: 'ACADEMIC CREDENTIALS', re: /\bacademic\s+credentials?\b|\beducational?\s+qualifications?\b|\bacademic\s+qualifications?\b/i },
+    { label: 'TECHNICAL SKILLS', re: /\btechnical\s+skills?\b|\bcore\s+skills?\b/i },
+    { label: 'PROFESSIONAL ACCOMPLISHMENTS', re: /\bprofessional\s+accomplishments?\b|\bkey\s+achievements?\b|\bcareer\s+achievements?\b/i },
+    { label: 'LANGUAGE KNOWN', re: /\blanguage\s+(?:known|proficiency)\b|\blinguistic\s+skills?\b/i },
+    { label: 'PERSONAL PROFILE', re: /\bpersonal\s+(?:profile|details|information)\b/i },
   ];
-  const hitFamilies = families.filter((fam) => fam.some((k) => compact.includes(k)));
-  return hitFamilies.length >= 2;
+
+  // Compact (no-space) OCR glues: "WORKEXPERIENCESKILLS"
+  if (!/\s/.test(outsideParens)) {
+    const families: string[][] = [
+      ['profile', 'summary', 'objective', 'about'],
+      ['experience', 'employment', 'organizational', 'organisational', 'career', 'workexperience'],
+      ['education', 'academic', 'qualification', 'credentials'],
+      ['skill', 'expertise', 'competenc'],
+      ['project'],
+      ['certif', 'licence', 'license', 'training'],
+      ['achievement', 'accomplishment', 'award', 'honou'],
+      ['language', 'linguistic'],
+      ['personal'],
+    ];
+    const hitFamilies = families.filter((fam) => fam.some((k) => compact.includes(k)));
+    if (hitFamilies.length < 2) return [];
+    // Best-effort: emit canonical labels for the hit families we can map.
+    const out: string[] = [];
+    if (compact.includes('workexperience') || (compact.includes('experience') && !compact.includes('workexperience'))) {
+      out.push('WORK EXPERIENCE');
+    }
+    if (compact.includes('skill') || compact.includes('expertise') || compact.includes('competenc')) {
+      out.push('TECHNICAL SKILLS');
+    }
+    if (compact.includes('education') || compact.includes('academic') || compact.includes('qualification')) {
+      out.push('EDUCATION');
+    }
+    if (compact.includes('objective') || compact.includes('summary')) {
+      out.push('OBJECTIVE');
+    }
+    return out.length >= 2 ? out : [];
+  }
+
+  const spaced = outsideParens.toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!/\s/.test(spaced) || spaced.split(/\s+/).length < 3 || spaced.split(/\s+/).length > 10) {
+    return [];
+  }
+
+  const hits: string[] = [];
+  for (const { label, re } of phraseMatchers) {
+    if (re.test(spaced)) hits.push(label);
+  }
+  // Trailing resume/cv noise next to education is not its own section.
+  if (hits.length >= 1 && /\bresume\b|\bcv\b/i.test(spaced) && hits.some((h) => /academic|education/i.test(h))) {
+    // keep education phrase only; resume is discarded
+  }
+  return hits.length >= 2 ? hits : hits.length === 1 && /\bresume\b|\bcv\b/i.test(spaced) ? hits : [];
+}
+
+/**
+ * Expand glued multi-section heading lines into separate lines so each section
+ * can own its body. Safe no-op for normal single-section headings.
+ */
+export function expandGluedSectionHeadingText(text: string): string {
+  return String(text || '')
+    .split(/\n/)
+    .flatMap((line) => {
+      const parts = splitGluedMultiSectionPhrases(line);
+      if (parts.length < 2) return [line];
+      return parts;
+    })
+    .join('\n');
+}
+
+/**
+ * In-role CV field labels ("Organization", "Designation", "Duration") describe a
+ * job entry — they must never open a top-level section and steal the body.
+ */
+function isInRoleBareFieldLabel(text: string): boolean {
+  const t = text.trim().replace(/[:\-–—|]+$/g, '').trim();
+  if (!t || t.length > 48) return false;
+  return /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities|location|department)\s*$/i.test(
+    t
+  );
 }
 
 function isSectionContentLineNotHeading(text: string): boolean {
@@ -211,6 +294,7 @@ function isSectionContentLineNotHeading(text: string): boolean {
   if (/^(?:like|and|or|with|for|the|a|an)\s+/i.test(t) && t.length < 60) return true;
   if (isHeadingDebris(t)) return true;
   if (isInRoleFieldLabel(t)) return true;
+  if (isInRoleBareFieldLabel(t)) return true;
   if (isGluedMultiSectionHeading(t)) return true;
   if (
     /^(?:male|female|other|married|unmarried|single|indian|nationality|passport|gender|dob|date of birth)\b/i.test(

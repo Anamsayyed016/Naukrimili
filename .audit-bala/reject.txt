@@ -1,0 +1,8 @@
+﻿{"t":"PROFESSIONAL EXPERIENCE","heading":false,"caps":true,"company":true,"title":false,"kw":{"experience":88}}
+{"t":"PROFESSIONAL & TECHNICAL QUALIFICATION","heading":false,"caps":true,"company":true,"title":false,"kw":{"certifications":80,"education":48}}
+{"t":"CORE SPECIALTIES & KEY AREAS","heading":false,"caps":true,"company":true,"title":false,"kw":{}}
+{"t":"LIAISON WITH & HOBBIES","heading":false,"caps":true,"company":true,"title":false,"kw":{"hobbies":70}}
+{"t":"S/ No","heading":true,"caps":false,"company":false,"title":false,"kw":{}}
+{"t":"ACADEMIC QUALIFICATION","heading":true,"caps":true,"company":true,"title":false,"kw":{"education":88}}
+{"t":"CAREER OBJECTIVE","heading":true,"caps":true,"company":false,"title":false,"kw":{"summary":88,"experience":48}}
+{"t":"DECLARATION","heading":false,"caps":true,"company":true,"title":false,"kw":{}}

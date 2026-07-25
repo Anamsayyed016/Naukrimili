@@ -202,12 +202,22 @@ type SectionFieldMap = Record<Exclude<NormalizedSectionType, 'custom'>, string>;
 export function looksLikeEmploymentShapedText(text: string): boolean {
   const t = String(text || '');
   if (t.trim().length < 40) return false;
-  const hasRole = /^\s*(?:role|designation|position|title)\s*:/im.test(t);
-  const hasResponsibility = /\b(?:key\s+)?responsibilit(?:y|ies)\s*:/i.test(t);
+  const hasRole =
+    /^\s*(?:role|designation|position|title)\s*[:\-–—]?\s*\S+/im.test(t) ||
+    /\bdesignation\s+\S+/i.test(t);
+  const hasOrgLabel =
+    /^\s*(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]?\s*\S+/im.test(t) ||
+    /\borgani[sz]ation\s+\S+/i.test(t);
+  const hasDurationLabel =
+    /^\s*(?:duration|period|tenure)\s*[:\-–—]?\s*\S+/im.test(t) ||
+    /\bduration\s+\d/i.test(t);
+  const hasResponsibility =
+    /\b(?:key\s+)?responsibilit(?:y|ies)\s*[:\-–—]?/i.test(t);
   const hasTeamSize = /\bteam\s*size\s*:/i.test(t);
   const hasDates =
-    /\b(?:19|20)\d{2}\b/.test(t) &&
-    /(?:present|current|till\s*date|to\s*date|[-–—]|to\s+)/i.test(t);
+    (/\b(?:19|20)\d{2}\b/.test(t) ||
+      /\b\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}\b/.test(t)) &&
+    /(?:present|current|till\s*date|to\s*date|still\s*date|[-–—]|to\s+)/i.test(t);
   const hasCompanySuffix =
     /\b(?:ltd|limited|pvt|private\s+limited|llc|inc|corp|corporation|gmbh|plc)\b\.?/i.test(t);
   // Parenthetical / pipe tenures common on ops / security / manufacturing CVs:
@@ -216,16 +226,26 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
     /\((?:[^)\n]{0,40}\b(?:19|20)\d{2}[^)\n]{0,40}\b(?:to|[-–—]|till|until)\b[^)\n]{0,40})\)/i.test(
       t
     ) ||
-    /\b(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:19|20)\d{2}|present|current|till\s*date)\b/i.test(t);
+    /\b(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:19|20)\d{2}|present|current|till\s*date)\b/i.test(t) ||
+    /\b\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}\s*(?:to|[-–—])\s*(?:\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}|still\s*date|present|current)\b/i.test(
+      t
+    );
   const hasCompSignal =
     /\b(?:ctc|c\.t\.c|lakh|lac|p\.?a\.?|per\s+annum|salary|remuneration)\b/i.test(t);
   const employmentHeading =
-    /\b(?:professional|work|employment)\s+experience\b|\bemployment\s+history\b/i.test(t);
+    /\b(?:professional|work|employment)\s*experience\b|\bemployment\s+history\b|\bworkexperience\b/i.test(
+      t
+    );
   // "Since Mon YYYY to till date" tenure openers used on many civil/infra CVs.
   const hasSinceTenure =
     /\bsince\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\b/i.test(
       t
     );
+  // Labeled ATS blocks: Organization + Designation + Duration (colons optional).
+  if (hasOrgLabel && hasRole && (hasDates || hasDurationLabel || hasResponsibility)) return true;
+  if (hasOrgLabel && hasDurationLabel && (hasRole || hasResponsibility || hasCompanySuffix)) {
+    return true;
+  }
   if (hasRole && (hasDates || hasCompanySuffix || hasResponsibility || hasTeamSize)) return true;
   if (hasTeamSize && hasResponsibility && (hasDates || hasCompanySuffix)) return true;
   if (hasCompanySuffix && hasDates && hasResponsibility) return true;
@@ -267,6 +287,7 @@ export function looksLikeProjectPortfolioText(text: string): boolean {
 /**
  * Reclassify sections whose bodies are clearly employment history.
  * Protect genuine project-portfolio sections from false promotion into experience.
+ * Also recover employment blocks that OCR/column order parked under languages.
  */
 export function reclassifyEmploymentShapedSections(
   sections: DetectedSectionBlock[]
@@ -275,7 +296,8 @@ export function reclassifyEmploymentShapedSections(
     if (
       section.type !== 'projects' &&
       section.type !== 'certifications' &&
-      section.type !== 'achievements'
+      section.type !== 'achievements' &&
+      section.type !== 'languages'
     ) {
       return section;
     }
@@ -291,6 +313,14 @@ export function reclassifyEmploymentShapedSections(
         ...section,
         type: 'projects' as NormalizedSectionType,
         confidence: Math.max(section.confidence, 58),
+      };
+    }
+    // Languages heading that captured an Organization/Designation block (column bleed).
+    if (section.type === 'languages') {
+      return {
+        ...section,
+        type: 'experience' as NormalizedSectionType,
+        confidence: Math.max(section.confidence, 56),
       };
     }
     return {
@@ -341,6 +371,38 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
         out.skills = inline[1].trim();
         break;
       }
+      // Labeled tech stacks parked away from the skills heading (column OCR).
+      const labeledTech = line.match(
+        /^(?:operating\s+systems?|os|packages?|tools?|software|applications?)\s*[:\-–—]\s*(.+)$/i
+      );
+      if (labeledTech?.[1] && labeledTech[1].length >= 4) {
+        const chunk = [line];
+        for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
+          const nxt = lines[j];
+          if (
+            /^(?:operating\s+systems?|os|packages?|tools?|software|applications?)\s*[:\-–—]\s*/i.test(
+              nxt
+            ) ||
+            (nxt.length <= 80 && /[A-Za-z]/.test(nxt) && !/^(?:declaration|place|date|yours)\b/i.test(nxt))
+          ) {
+            if (
+              /^(?:operating\s+systems?|os|packages?|tools?|software|applications?)\s*[:\-–—]\s*/i.test(
+                nxt
+              )
+            ) {
+              chunk.push(nxt);
+            } else if (chunk.length === 1 && /tally|excel|word|net|erp|ms\b/i.test(nxt)) {
+              chunk.push(nxt);
+            } else {
+              break;
+            }
+          } else {
+            break;
+          }
+        }
+        out.skills = chunk.join('\n');
+        break;
+      }
       if (
         /^(?:strengths?\s*(?:&|and)?\s*(?:it\s+)?skills?|technical\s+skills|core\s+skills|key\s+skills|it\s+skills|core\s+specialt(?:y|ies)(?:\s*(?:&|and)\s*key\s+areas?)?|key\s+areas?)\s*:?\s*$/i.test(
           line
@@ -359,9 +421,140 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
     for (const line of lines) {
       const inline = line.match(/^(?:objective|profile|about)\s*:?\s*(.+)$/i);
       if (inline?.[1] && inline[1].length >= 20) {
-        out.summary = inline[1].trim();
+        const captured = inline[1].trim();
+        // Glued OCR headings ("OBJECTIVE PROFESSIONAL ACCOMPLISHMENTS") must not
+        // become the summary body — only narrative objective prose qualifies.
+        if (
+          /^(?:professional\s+accomplishments?|key\s+achievements?|career\s+achievements?|academic\s+credentials?|work\s+experience|technical\s+skills?|personal\s+(?:profile|details)|resume|cv)\b/i.test(
+            captured
+          ) ||
+          (captured.split(/\s+/).length <= 6 &&
+            !/[.!?,]/.test(captured) &&
+            /^(?:[A-Z][A-Za-z]+\s+){1,5}[A-Z][A-Za-z]+$/.test(captured))
+        ) {
+          continue;
+        }
+        out.summary = captured;
         break;
       }
+    }
+  }
+  // Prefer a dedicated objective sentence when present (even if a weak summary exists).
+  {
+    const headingLikeSummary =
+      !!out.summary &&
+      (/^(?:professional\s+accomplishments?|key\s+achievements?|academic\s+credentials?|objective|summary|profile)\s*$/i.test(
+        out.summary.trim()
+      ) ||
+        out.summary.trim().split(/\s+/).length <= 4);
+    const objective = lines.find(
+      (l) =>
+        /\blooking\s+for\b/i.test(l) &&
+        l.length >= 40 &&
+        !/^(?:organi[sz]ation|designation|duration)\b/i.test(l) &&
+        !/\b(?:organi[sz]ation|designation|duration)\s*[:\-–—]/i.test(l)
+    );
+    if (
+      objective &&
+      (!out.summary ||
+        out.summary.length < 40 ||
+        headingLikeSummary ||
+        /accomplishments?|credentials?/i.test(out.summary))
+    ) {
+      // Collect following wrapped objective lines until a blank / heading / bullet cluster.
+      const idx = lines.indexOf(objective);
+      const chunk = [objective];
+      for (let j = idx + 1; j < Math.min(lines.length, idx + 4); j++) {
+        const nxt = lines[j];
+        if (!nxt || nxt.length < 12) break;
+        // Stop at real section/field headings, not mid-sentence wraps that happen
+        // to start with words like "organization which…".
+        if (
+          /^(?:academic|education|experience|personal|language|technical|professional)\b/i.test(
+            nxt
+          ) &&
+          nxt.split(/\s+/).length <= 6
+        ) {
+          break;
+        }
+        if (/^(?:organi[sz]ation|designation|duration)\s*[:\-–—]?\s*$/i.test(nxt)) break;
+        if (/^(?:organi[sz]ation|designation|duration)\s*[:\-–—]\s*\S+/i.test(nxt)) break;
+        if (/^[A-Z][a-z]+(?:\s+[a-z]+){0,4}$/.test(nxt) && nxt.length < 50) break;
+        if (/\b(?:high energy|good learner|innovative|committed|sound knowledge)\b/i.test(nxt)) break;
+        chunk.push(nxt);
+      }
+      out.summary = chunk.join(' ').replace(/\s+/g, ' ').trim();
+    } else if (headingLikeSummary) {
+      out.summary = '';
+    }
+  }
+  // Contact-heavy "Personal Profile" bodies are not career summaries — recover an
+  // objective sentence from the document when present.
+  if (
+    out.summary &&
+    /\b(?:contact\s+number|e-?mail|date\s+of\s+birth|permanent\s+address|nationality|marital\s+status)\b/i.test(
+      out.summary
+    )
+  ) {
+    const objective = lines.find(
+      (l) =>
+        /\blooking\s+for\b/i.test(l) &&
+        l.length >= 40 &&
+        !/^(?:organi[sz]ation|designation|duration)\b/i.test(l) &&
+        !/\b(?:organi[sz]ation|designation|duration)\s*[:\-–—]/i.test(l)
+    );
+    if (objective) {
+      out.summary = objective;
+    } else {
+      out.summary = '';
+    }
+  }
+
+  // Labeled Organization / Designation / Duration blocks (colons optional).
+  const labeledOrgBlocks: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (
+      !/^(?:organi[sz]ation|employer|company)\s*[:\-–—]?\s*\S+/i.test(line) &&
+      !(
+        /^(?:organi[sz]ation|employer|company)\s*$/i.test(line) &&
+        lines[i + 1] &&
+        lines[i + 1].length >= 3
+      )
+    ) {
+      continue;
+    }
+    const block = [line];
+    for (let j = i + 1; j < Math.min(lines.length, i + 12); j++) {
+      const nxt = lines[j];
+      if (
+        /^(?:organi[sz]ation|employer|company)\s*[:\-–—]?\s*\S+/i.test(nxt) ||
+        (/^(?:organi[sz]ation|employer|company)\s*$/i.test(nxt) && j > i + 1)
+      ) {
+        break;
+      }
+      if (/^(?:declaration|place\s*:|date\s*:|yours\s+sincerely|technical\s+skills|language\s+proficiency)\b/i.test(nxt)) {
+        break;
+      }
+      block.push(nxt);
+      if (/^responsibilit/i.test(nxt) && block.length >= 4) {
+        // include a few duty lines then stop at next org
+        continue;
+      }
+    }
+    if (
+      block.some((l) => /(?:designation|duration|responsibilit)/i.test(l)) ||
+      block.length >= 3
+    ) {
+      labeledOrgBlocks.push(block.join('\n'));
+    }
+  }
+  if (labeledOrgBlocks.length > 0) {
+    const joined = labeledOrgBlocks.join('\n\n');
+    if (!out.experience || out.experience.length < joined.length * 0.6) {
+      out.experience = out.experience ? `${joined}\n\n${out.experience}`.trim() : joined;
+    } else if (!/organi[sz]ation|designation/i.test(out.experience)) {
+      out.experience = `${joined}\n\n${out.experience}`.trim();
     }
   }
 
@@ -371,7 +564,7 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
       /\b(?:b\.?(?:tech|e|a|sc|com)|m\.?(?:tech|ba|sc|com)|ph\.?d|mba|bachelor|master|degree|diploma|certificate|university|college|institute|school|academy|gpa|cgpa)\b/i;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (!/\b(19|20)\d{2}\b/.test(line) || !/present|current|[-–—to]/i.test(line)) continue;
+      if (!/\b(19|20)\d{2}\b/.test(line) || !/present|current|[-–—to]|still\s*date/i.test(line)) continue;
       const header = lines[i - 1] || '';
       if (!header || header.length > 100 || /@/.test(header)) continue;
       if (educationHeaderRe.test(header)) continue;
@@ -382,18 +575,103 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
     if (blocks.length > 0) out.experience = blocks.join('\n\n');
   }
 
+  // Recover education rows when the education body is missing or polluted with objective prose.
+  const eduRows: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (
+      !/\b(?:19|20)\d{2}\b/.test(line) &&
+      !/^(?:apr|may|jun|jul|aug|sep|oct|nov|dec|jan|feb|mar)\b/i.test(line)
+    ) {
+      continue;
+    }
+    if (
+      !/\b(?:bachelor|master|diploma|certificate|secondary|matriculation|intermediate|commerce|science|arts|b\.?\s*com|m\.?\s*com|b\.?\s*sc|high(?:er)?\s+secondary)\b/i.test(
+        line
+      )
+    ) {
+      continue;
+    }
+    const chunk = [line];
+    for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
+      const nxt = lines[j];
+      if (/^(?:organi[sz]ation|designation|duration|personal\s+profile|language|contact)\b/i.test(nxt)) break;
+      // Next credential header — stop so institutions stay with their own degree.
+      if (
+        /^(?:apr|may|jun|jul|aug|sep|oct|nov|dec|jan|feb|mar)\b.+\b(?:19|20)\d{2}\b/i.test(nxt) ||
+        (/\b(?:19|20)\d{2}\b/.test(nxt) &&
+          /\b(?:bachelor|master|diploma|certificate|secondary|matriculation|commerce|b\.?\s*com|m\.?\s*com)\b/i.test(
+            nxt
+          ))
+      ) {
+        break;
+      }
+      if (/\b(?:bachelor|master|secondary|certificate|aggregate|board|college|school)\b/i.test(nxt) || nxt.length <= 60) {
+        chunk.push(nxt);
+      } else {
+        break;
+      }
+    }
+    eduRows.push(chunk.join('\n'));
+  }
+  if (eduRows.length >= 1) {
+    const joinedEdu = eduRows.join('\n\n');
+    if (
+      !out.education ||
+      /\blooking\s+for\b|\bchallenging\s+and\s+rewarding\b/i.test(out.education) ||
+      out.education.length < joinedEdu.length
+    ) {
+      out.education = joinedEdu;
+    }
+  }
+
   if (!out.achievements) {
     for (let i = 0; i < lines.length; i++) {
-      if (
-        !/^(?:achievements?|awards?|honors?|recognition|accomplishments?|highlights?|key\s+achievements?|professional\s+highlights?|cost\s+sav(?:ing|ings)(?:\s+activit(?:y|ies))?)\s*:?\s*$/i.test(
-          lines[i]
-        )
-      ) {
-        continue;
-      }
-      const body = lines.slice(i + 1, i + 12).filter((l) => l.length >= 6);
-      if (body.length >= 1) {
-        out.achievements = body.join('\n');
+      const headingLine = lines[i];
+      const isAccomplishmentsHeading =
+        /^(?:achievements?|awards?|honors?|recognition|accomplishments?|highlights?|key\s+achievements?|professional\s+highlights?|professional\s+accomplishments?|cost\s+sav(?:ing|ings)(?:\s+activit(?:y|ies))?)\s*:?\s*$/i.test(
+          headingLine
+        ) ||
+        // Glued OCR: "OBJECTIVE PROFESSIONAL ACCOMPLISHMENTS"
+        /\bprofessional\s+accomplishments?\b|\bkey\s+achievements?\b/i.test(headingLine);
+      if (!isAccomplishmentsHeading) continue;
+      const body = lines
+        .slice(i + 1, i + 14)
+        .filter(
+          (l) =>
+            l.length >= 6 &&
+            l.length <= 120 &&
+            !/\b(?:looking\s+for|organi[sz]ation|designation|duration|bachelor|secondary|aggregate|operating\s+systems?|packages?\s*:)\b/i.test(
+              l
+            ) &&
+            !/^(?:academic|education|experience|technical|language|personal|apr|may|jun|jul|aug|sep|oct|nov|dec|jan|feb|mar)\b/i.test(
+              l
+            ) &&
+            !/\b(?:college|collage|school|university)\b/i.test(l)
+        );
+      // Prefer short soft-skill / accomplishment bullets over long prose.
+      const soft = body.filter(
+        (l) =>
+          l.split(/\s+/).length <= 14 &&
+          !/\b(?:apr|may|jun|jul|aug|sep|oct|nov|dec)\b.+\b(?:19|20)\d{2}\b/i.test(l)
+      );
+      const chosen = soft
+        .filter((l) => !/^\s*(?:packages?|operating\s+systems?|tools?|software)\s*:/i.test(l))
+        .slice(0, 8);
+      const chosenBody =
+        chosen.length >= 2
+          ? chosen
+          : body
+              .slice(0, 6)
+              .filter((l) => !/^\s*(?:packages?|operating\s+systems?|tools?|software)\s*:/i.test(l));
+      const cleaned = chosenBody.filter(
+        (l) =>
+          l.length >= 12 &&
+          !/^(?:revealed|organization which|andexperience)\b/i.test(l) &&
+          !/^[a-z]/.test(l)
+      );
+      if (cleaned.length >= 1) {
+        out.achievements = cleaned.join('\n');
         break;
       }
     }
@@ -404,7 +682,7 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
       const m = line.match(
         /^(?:languages?(?:\s+known)?|linguistic\s+skills?)\s*[:\-–—]?\s*(.+)$/i
       );
-      if (m?.[1] && /[,/]/.test(m[1])) {
+      if (m?.[1] && /[A-Za-z]/.test(m[1])) {
         out.languages = m[1].trim();
         break;
       }

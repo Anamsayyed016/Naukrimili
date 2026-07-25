@@ -240,10 +240,42 @@ export function parseLanguageLinesFromLine(line: string): ParsedLanguageLine[] {
     if (tokens.length >= 2 && tokens.every((t) => isHumanLanguageName(t.split(/\s+/)[0]))) {
       const parsed: ParsedLanguageLine[] = [];
       for (const token of tokens) {
+        // "Tamil Kannada" missing a comma — split adjacent known language names.
+        const words = token.split(/\s+/).filter(Boolean);
+        if (
+          words.length >= 2 &&
+          words.length <= 4 &&
+          words.every((w) => HUMAN_LANGUAGE_NAMES.has(w.toLowerCase()))
+        ) {
+          for (const w of words) {
+            parsed.push({
+              name: normalizeLanguageName(w),
+              proficiency: '',
+              confidence: 74,
+            });
+          }
+          continue;
+        }
         const lang = parseLanguageToken(token);
         if (lang) parsed.push(lang);
       }
       if (parsed.length > 0) return parsed;
+    }
+  }
+
+  // Bare space-separated known languages: "English Hindi Tamil" / "Tamil Kannada".
+  {
+    const words = trimmed.split(/[\s,/|·•]+/).filter(Boolean);
+    if (
+      words.length >= 2 &&
+      words.length <= 8 &&
+      words.every((w) => HUMAN_LANGUAGE_NAMES.has(w.toLowerCase()))
+    ) {
+      return words.map((w) => ({
+        name: normalizeLanguageName(w),
+        proficiency: '',
+        confidence: 76,
+      }));
     }
   }
 

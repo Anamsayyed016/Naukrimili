@@ -1,0 +1,23 @@
+﻿{
+  "company": "Raj Security Force",
+  "designation": "Branch Head / Training Head",
+  "location": "",
+  "employmentType": "",
+  "startDate": "2015-07",
+  "endDate": "2019-05",
+  "current": false,
+  "description": "Facility management, Mobilization, Controlling and maintaining to all staff.",
+  "bulletPoints": [],
+  "technologies": [],
+  "confidence": 60,
+  "fieldConfidence": {
+    "company": 68,
+    "designation": 100,
+    "location": 0,
+    "employmentType": 0,
+    "startDate": 88,
+    "endDate": 88,
+    "description": 31
+  }
+}
+direct { company: 'Raj Security Force', confidence: 60 }

@@ -1,0 +1,9 @@
+﻿{
+  degree: 'Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE',
+  fieldOfStudy: '',
+  confidence: 76
+}
+{
+  institution: 'Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE',
+  confidence: 87
+}

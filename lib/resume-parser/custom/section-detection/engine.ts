@@ -19,7 +19,7 @@ import {
   repairGapsIntoPreamble,
   toCustomSectionBlock,
 } from './partition';
-import { rescoreWithContent, scoreHeadingCandidate } from './score-heading';
+import { rescoreWithContent, scoreHeadingCandidate, expandGluedSectionHeadingText } from './score-heading';
 import { scoreHeadingKeywords } from './taxonomy';
 import {
   SECTION_DETECTION_VERSION,
@@ -92,7 +92,15 @@ function resolveHeadingCollisions(candidates: HeadingCandidate[]): HeadingCandid
   for (const c of sorted) {
     const last = filtered[filtered.length - 1];
     if (last && c.lineIndex - last.lineIndex <= 1 && c.confidence <= last.confidence + 5) {
-      continue;
+      // Keep consecutive strong headings of different types (OCR-expanded glued
+      // compounds like OBJECTIVE then PROFESSIONAL ACCOMPLISHMENTS).
+      const differentStrongTypes =
+        last.type !== c.type &&
+        last.type !== 'custom' &&
+        c.type !== 'custom' &&
+        (last.scores?.keyword ?? 0) >= 70 &&
+        (c.scores?.keyword ?? 0) >= 70;
+      if (!differentStrongTypes) continue;
     }
     filtered.push(c);
   }
@@ -160,6 +168,21 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
     }
     fields[key] = fields[key] ? `${fields[key]}\n\n${content}`.trim() : content;
 
+    // Language Known headings sometimes get reclassified to experience when the
+    // following body is an Organization/Designation block (column bleed). Still
+    // recover the inline language list from the heading itself.
+    if (key === 'experience') {
+      const inlineLang = section.rawHeading.match(
+        /^(?:languages?(?:\s+known)?|linguistic\s+skills?|spoken\s+languages?)\s*[:\-–—]?\s*(.+)$/i
+      );
+      if (inlineLang?.[1] && /[a-zA-Z]/.test(inlineLang[1])) {
+        const langInline = inlineLang[1].trim();
+        fields.languages = fields.languages
+          ? `${langInline}\n${fields.languages}`.trim()
+          : langInline;
+      }
+    }
+
     // Combined headings ("Certifications & Languages") — mirror body into every
     // strongly matched section type so secondary extractors still see the text.
     const typeScores = scoreHeadingKeywords(section.rawHeading);
@@ -200,11 +223,11 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
       ) {
         continue;
       }
-      // Educational qualification blocks should not flood certifications.
+      // Educational / academic credential blocks should not flood certifications.
       if (
         type === 'certifications' &&
         key === 'education' &&
-        /\beducational?\b|\bqualification/i.test(headingLower)
+        /\beducational?\b|\bqualification|\bacademic\b|\bcredentials?\b/i.test(headingLower)
       ) {
         continue;
       }
@@ -227,7 +250,9 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
  * Does not parse fields or touch ExtractedResumeData.
  */
 export function detectResumeSections(resumeText: string): DetectedResumeSections {
-  const { text, profile } = prepareResumeTextForParsing(resumeText ?? '');
+  const prepared = prepareResumeTextForParsing(resumeText ?? '');
+  const text = expandGluedSectionHeadingText(prepared.text);
+  const profile = prepared.profile;
   const documentAnalysis = analyzeResumeDocument(text);
   const parseStrategy = deriveAdaptiveParseStrategy(documentAnalysis);
   const lines = buildLineIndex(text);

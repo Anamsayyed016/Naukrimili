@@ -130,5 +130,69 @@ export function isValidExperience(exp: CustomExtractedExperience): boolean {
 }
 
 export function filterValidExperiences(experiences: CustomExtractedExperience[]): CustomExtractedExperience[] {
-  return experiences.filter(isValidExperience);
+  const valid = experiences.filter(isValidExperience);
+  return dedupeOverlappingExperiences(valid);
+}
+
+/**
+ * Collapse duplicate employer+role rows produced by OCR column bleed / labeled
+ * block recovery. Prefer the entry with calendar dates and the cleaner body.
+ */
+function dedupeOverlappingExperiences(
+  experiences: CustomExtractedExperience[]
+): CustomExtractedExperience[] {
+  if (experiences.length < 2) return experiences;
+
+  const norm = (s: string) =>
+    String(s || '')
+      .toLowerCase()
+      .replace(/\s*[–—-]\s*[a-z].*$/i, '')
+      .replace(/[^a-z0-9]+/g, '')
+      .trim();
+
+  const educationBleedScore = (exp: CustomExtractedExperience) => {
+    const body = `${exp.description || ''}\n${(exp.bulletPoints || []).join('\n')}`;
+    let score = 0;
+    if (/\b(?:bachelor|master|higher\s+secondary|secondary\s+school|aggregate\s+of|matriculation)\b/i.test(body)) {
+      score += 3;
+    }
+    if (/\b(?:payables?|receivables?|reconciliat|gst|invoice|tally|vendor|booking)\b/i.test(body)) {
+      score -= 2;
+    }
+    return score;
+  };
+
+  const quality = (exp: CustomExtractedExperience) => {
+    let q = 0;
+    if (exp.startDate || exp.endDate || exp.current) q += 40;
+    if (exp.company && isPlausibleExperienceCompany(exp.company)) q += 15;
+    const descLen = (exp.description || '').length + (exp.bulletPoints || []).join('').length;
+    q += Math.min(25, Math.round(descLen / 40));
+    q -= educationBleedScore(exp) * 12;
+    return q;
+  };
+
+  const groups = new Map<string, CustomExtractedExperience[]>();
+  for (const exp of experiences) {
+    const key = `${norm(exp.company)}|${norm(exp.designation)}`;
+    if (!key.replace(/\|/g, '')) {
+      // No identity — keep as its own singleton group.
+      groups.set(`__singleton_${groups.size}`, [exp]);
+      continue;
+    }
+    const list = groups.get(key) || [];
+    list.push(exp);
+    groups.set(key, list);
+  }
+
+  const out: CustomExtractedExperience[] = [];
+  for (const list of groups.values()) {
+    if (list.length === 1) {
+      out.push(list[0]);
+      continue;
+    }
+    list.sort((a, b) => quality(b) - quality(a));
+    out.push(list[0]);
+  }
+  return out;
 }

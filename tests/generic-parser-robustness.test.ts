@@ -501,4 +501,142 @@ describe('generic resume parser robustness', () => {
     expect(det.achievements || '').not.toContain('Acme Design and Engg Pvt Ltd');
     expect(det.education || '').toMatch(/B\.Tech/i);
   });
+
+  it('parses Organization/Designation/Duration labeled jobs without colons', () => {
+    const { extractExperiencesFromSection } = require('@/lib/resume-parser/custom/experience-extraction');
+    const { parseDateRangeFromText } = require('@/lib/resume-parser/custom/experience-extraction/dates');
+    expect(parseDateRangeFromText('01-11-2015 to 30-08-2020')?.startDate).toMatch(/^2015/);
+    expect(parseDateRangeFromText('05-09-2020 to Still Date.')?.current).toBe(true);
+
+    const section = [
+      'Organization Alpha Fabrics Unit Designation Asst.Accounts',
+      'Duration 01-11-2015 to 30-08-2020',
+      'Responsibility',
+      'Payables Receivables Bank Reconciliation Statement',
+      'Prepare sales invoice in tally',
+      'Organization',
+      'Beta Hatcheries Pvt Ltd – City',
+      'Designation Sr.Officer Accounts',
+      'Duration 05-09-2020 to Still Date.',
+      'Responsibility Payables Receivables Booking Process',
+      'Basic GST Returns Filling',
+    ].join('\n');
+    const exps = extractExperiencesFromSection(section);
+    expect(exps.length).toBeGreaterThanOrEqual(2);
+    expect(exps[0].company).toMatch(/Alpha Fabrics/i);
+    expect(exps[0].company).not.toMatch(/^Organization$/i);
+    expect(exps[0].designation).toMatch(/Asst\.?\s*Accounts|Accounts/i);
+    expect(exps[0].designation).not.toMatch(/^Designation/i);
+    expect(exps[0].startDate).toMatch(/^2015/);
+    expect(exps[1].company).toMatch(/Beta Hatcheries Pvt Ltd/i);
+    expect(exps[1].designation).toMatch(/Sr\.?\s*Officer|Accounts/i);
+    expect(exps[1].current || exps[1].endDate == null).toBeTruthy();
+  });
+
+  it('does not treat bare Organization/Responsibility as section headings', () => {
+    const { detectResumeSections } = require('@/lib/resume-parser/custom/section-detection');
+    const text = [
+      'Language Known English, Telugu, Tamil Kannada,',
+      'Organization Alpha Fabrics Unit Designation Asst.Accounts',
+      'Duration 01-11-2015 to 30-08-2020',
+      'Responsibility',
+      'Payables Receivables Bank Reconciliation Statement',
+      'Organization',
+      'Beta Hatcheries Pvt Ltd – City',
+      'Designation Sr.Officer Accounts',
+      'Duration 05-09-2020 to Still Date.',
+      'WORKEXPERIENCE',
+      'Operating system: Ms Package (MS word , MS Excel)',
+      'Packages : Tally ERP9 and .Net',
+      'TECHNICAL SKILLS',
+    ].join('\n');
+    const det = detectResumeSections(text);
+    const headings = (det.sections || []).map((s: { type: string; rawHeading: string }) =>
+      `${s.type}|${s.rawHeading}`
+    );
+    expect(headings.some((h: string) => /\|Organization$/i.test(h))).toBe(false);
+    expect(headings.some((h: string) => /\|Responsibility$/i.test(h))).toBe(false);
+    expect(det.experience || '').toMatch(/Alpha Fabrics|Beta Hatcheries/i);
+    expect(det.skills || '').toMatch(/Tally|Excel|Package/i);
+  });
+
+  it('splits adjacent human language names and rejects academic-credentials cert mirrors', () => {
+    const { parseLanguageLinesFromLine } = require('@/lib/resume-parser/custom/language-extraction/parse');
+    const { scoreHeadingKeywords } = require('@/lib/resume-parser/custom/section-detection/taxonomy');
+    const langs = parseLanguageLinesFromLine('English, Telugu, Tamil Kannada');
+    const names = langs.map((l: { name: string }) => l.name.toLowerCase());
+    expect(names).toEqual(expect.arrayContaining(['english', 'telugu', 'tamil', 'kannada']));
+    expect(names).not.toContain('tamil kannada');
+    const scores = scoreHeadingKeywords('ACADEMIC CREDENTIALS');
+    expect((scores.education ?? 0)).toBeGreaterThan(50);
+    expect(scores.certifications == null || scores.certifications < 42).toBe(true);
+  });
+
+  it('expands glued multi-section headings and recovers labeled tech skills', () => {
+    const { detectResumeSections } = require('@/lib/resume-parser/custom/section-detection');
+    const { collectFromSkillsSection } = require('@/lib/resume-parser/custom/skills-intelligence/collect');
+    const { splitGluedMultiSectionPhrases } = require('@/lib/resume-parser/custom/section-detection/score-heading');
+    expect(splitGluedMultiSectionPhrases('OBJECTIVE PROFESSIONAL ACCOMPLISHMENTS')).toEqual(
+      expect.arrayContaining(['OBJECTIVE', 'PROFESSIONAL ACCOMPLISHMENTS'])
+    );
+
+    const skills = collectFromSkillsSection(
+      [
+        'Operating system: Ms Package (MS word , MS Excel)',
+        'Packages : Tally ERP9 and .Net',
+      ].join('\n')
+    ).map((s: { normalized: string }) => s.normalized.toLowerCase());
+    expect(skills.some((s: string) => /excel|word|ms\s*word/i.test(s))).toBe(true);
+    expect(skills.some((s: string) => /tally/i.test(s))).toBe(true);
+    expect(skills.some((s: string) => /\.net|net/i.test(s))).toBe(true);
+
+    const text = [
+      'OBJECTIVE PROFESSIONAL ACCOMPLISHMENTS',
+      'ACADEMIC CREDENTIALS RESUME',
+      'Looking for a challenging and rewarding career in your organization which my skills can be revealed.',
+      'A high energy and hardworking personality',
+      'Good learner and flexible in nature',
+      'Apr 2015 Bachelor of Commerce',
+      'MGR Arts and Science Collage,',
+      'Hosur. AGGREGATE OF -55%',
+      'Apr 2012 HIGHER SECONDARY CERTIFICATE',
+      'Johan Britto Higher Secondary School, Denkanikottai.',
+      'Organization Alpha Fabrics Unit Designation Asst.Accounts',
+      'Duration 01-11-2015 to 30-08-2020',
+      'Operating system: Ms Package (MS word , MS Excel)',
+      'Packages : Tally ERP9 and .Net',
+      'TECHNICAL SKILLS',
+    ].join('\n');
+    const det = detectResumeSections(text);
+    expect(det.summary || '').toMatch(/looking for a challenging/i);
+    expect(det.summary || '').not.toMatch(/^professional accomplishments$/i);
+    expect(det.education || '').toMatch(/MGR Arts/i);
+    expect(det.education || '').toMatch(/Johan Britto/i);
+    expect(det.skills || '').toMatch(/Tally|Excel|Package/i);
+    expect(det.achievements || '').toMatch(/high energy|Good learner/i);
+  });
+
+  it('keeps abbreviated titles as roles and dashed city suffixes as locations', () => {
+    const {
+      looksLikeCompanyNameLine,
+      looksLikeJobTitleLine,
+      sanitizeExperienceEntry,
+      splitCompanyTrailingLocation,
+    } = require('@/lib/resume-parser/import-sanitize');
+    expect(looksLikeJobTitleLine('Asst.Accounts')).toBe(true);
+    expect(looksLikeCompanyNameLine('Asst.Accounts')).toBe(false);
+    expect(splitCompanyTrailingLocation('M.D.FAB– HOSUR')).toEqual(
+      expect.objectContaining({ company: expect.stringMatching(/M\.D\.FAB/i), location: expect.stringMatching(/HOSUR/i) })
+    );
+    expect(looksLikeCompanyNameLine('M.D.FAB– HOSUR')).toBe(true);
+    const sanitized = sanitizeExperienceEntry({
+      company: 'M.D.FAB– HOSUR',
+      position: 'Asst.Accounts',
+      startDate: '2015-11',
+      endDate: '2020-08',
+      description: 'Payables Receivables',
+    });
+    expect(sanitized?.company).toMatch(/M\.D\.FAB/i);
+    expect(sanitized?.position || sanitized?.title).toMatch(/Asst\.?\s*Accounts/i);
+  });
 });

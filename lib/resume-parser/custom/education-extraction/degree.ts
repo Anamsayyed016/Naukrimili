@@ -60,10 +60,33 @@ export function scoreDegreeCandidate(text: string): number {
   if (looksLikeJobTitleLine(trimmed) && !DEGREE_PATTERNS.some(({ re }) => re.test(trimmed))) {
     return 0;
   }
+  // Objective / summary prose must never score as a degree line.
+  if (
+    /\b(?:looking\s+for|challenging|rewarding\s+career|organization which|skills?\s*,\s*education|andexperience|my\s+skills)\b/i.test(
+      trimmed
+    ) ||
+    (trimmed.split(/\s+/).length >= 8 && !DEGREE_PATTERNS.some(({ re }) => re.test(trimmed)))
+  ) {
+    return 0;
+  }
 
   let score = 0;
   for (const { re, confidence } of DEGREE_PATTERNS) {
     if (re.test(trimmed)) score = Math.max(score, confidence);
+  }
+  // School / college names that merely contain "Higher Secondary" are institutions,
+  // not credentials — unless the line is itself a certificate/leaving label.
+  if (
+    score > 0 &&
+    /\b(?:school|college|collage|university|institute|academy|vidyalaya)\b/i.test(trimmed) &&
+    !/\b(?:leaving\s+certificate|certificate|diploma|bachelor|master|matriculation|intermediate)\b/i.test(
+      trimmed
+    ) &&
+    !/^(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\b/i.test(
+      trimmed
+    )
+  ) {
+    score = 0;
   }
   if (isLikelyEducationLine(trimmed) && score < 50) score = Math.max(score, 55);
   if (/\bin\s+[A-Za-z]/.test(trimmed)) score += 6;

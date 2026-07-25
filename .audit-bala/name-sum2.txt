@@ -1,0 +1,10 @@
+﻿{
+  "summaryLen": 405,
+  "invalid": false,
+  "sanitizedLen": 405,
+  "sanitizedPreview": "I will like to work in a growth oriented organization in which I will get an opportunity to give desired results\nin my a",
+  "enrich": "TRILOKINATH UPADHYAYA",
+  "pick": "Upadhyaya Tn",
+  "validDoc": true,
+  "emailDer": true
+}
