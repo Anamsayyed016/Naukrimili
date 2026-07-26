@@ -267,9 +267,14 @@ function normalizeFragment(value: unknown): string {
 function containsSectionHeaderWord(value: string): boolean {
   const words = value.toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return false;
+  // Single token "Skills" / "Experience" / "Education".
+  if (words.length === 1) return SECTION_HEADER_WORDS.has(words[0]);
+  // All tokens are header vocabulary ("Technical Skills", "Core Competencies").
   if (words.every((w) => SECTION_HEADER_WORDS.has(w))) return true;
   const hits = words.filter((w) => SECTION_HEADER_WORDS.has(w)).length;
-  return hits >= 1 && hits / words.length >= 0.5;
+  // Require ≥2 header-word hits so duty phrases like "Academic Leadership",
+  // "Communication Skills", "Student Development" are not SECTION_HEADER.
+  return hits >= 2 && hits / words.length >= 0.5;
 }
 
 export function isLikelyJobTitleFragment(value: string): boolean {

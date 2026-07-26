@@ -1,0 +1,35 @@
+﻿{
+  s: 'Company Secretary',
+  title: false,
+  company: true,
+  heading: false,
+  kind: 'DESIGNATION'
+}
+{
+  s: 'National Power Corporation Ltd',
+  title: false,
+  company: true,
+  heading: false,
+  kind: 'COMPANY_NAME'
+}
+{
+  s: 'Key Responsibilities',
+  title: false,
+  company: false,
+  heading: false,
+  kind: 'PERSON_NAME'
+}
+{
+  s: 'Key Result Areas',
+  title: false,
+  company: false,
+  heading: false,
+  kind: 'PERSON_NAME'
+}
+{
+  s: 'Filed annual returns and managed shareholder communication.',
+  title: false,
+  company: false,
+  heading: false,
+  kind: 'UNKNOWN'
+}

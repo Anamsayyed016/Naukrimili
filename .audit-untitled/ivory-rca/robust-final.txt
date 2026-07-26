@@ -1,0 +1,378 @@
+﻿node.exe : [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline 
+data, please update: `npm i baseline-browser-mapping@latest -D`
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows...ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  console.log
+    [import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+
+      at log (lib/resume-builder/import-transformer.ts:2008:19)
+
+  console.log
+    RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+  console.log
+    projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+  console.log
+    [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+  console.log
+    [builder-field-mapper] mapping report {
+      matched: [ 'identity:fullName', 'identity:email', 'skills:1' ],
+      recovered: [],
+      missing: [
+        'identity:phone',
+        'identity:location',
+        'identity:linkedin',
+        'identity:github',
+        'identity:portfolio',
+        'identity:summary'
+      ],
+      overwritten: [],
+      duplicates: []
+    }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+  console.log
+    [builder-field-mapper] mapping report {
+      matched: [ 'identity:fullName', 'identity:email', 'skills:1' ],
+      recovered: [],
+      missing: [
+        'identity:phone',
+        'identity:location',
+        'identity:linkedin',
+        'identity:github',
+        'identity:portfolio',
+        'identity:summary'
+      ],
+      overwritten: [],
+      duplicates: []
+    }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+  console.log
+    RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+  console.log
+    projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+  console.log
+    [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+  console.log
+    [import-pipeline-trace] {
+      raw: {
+        summaryChars: 0,
+        experience: 0,
+        experienceCompanies: 0,
+        projects: 0,
+        skills: 1,
+        education: 0,
+        certifications: 0,
+        languages: 0
+      },
+      merged: {
+        summaryChars: 0,
+        experience: 0,
+        experienceCompanies: 0,
+        projects: 0,
+        skills: 1,
+        education: 0,
+        certifications: 0,
+        languages: 0
+      },
+      builder: {
+        summaryChars: 0,
+        experience: 0,
+        experienceCompanies: 0,
+        projects: 0,
+        skills: 1,
+        education: 0,
+        certifications: 0,
+        languages: 0
+      }
+    }
+
+      at log (lib/resume-builder/import-transformer.ts:731:11)
+
+  console.warn
+    [import-transformer] mapping validation {
+      issues: [ 'summary:missing', 'education:empty', 'projects:empty' ],
+      recoveries: [],
+      experienceCount: 0,
+      rawCompanyCount: 0,
+      builtCompanyCount: 0
+    }
+
+      4251 |
+      4252 |   if (issues.length > 0) {
+    > 4253 |     console.warn('[import-transformer] mapping validation', {
+           |             ^
+      4254 |       issues,
+      4255 |       recoveries,
+      4256 |       experienceCount: experience.length,
+
+      at warn (lib/resume-builder/import-transformer.ts:4253:13)
+      at logImportMappingValidation (lib/resume-builder/import-transformer.ts:2158:3)
+      at Object.<anonymous> (tests/generic-parser-robustness.test.ts:95:49)
+
+  console.log
+    [import-transformer] mapped ΓåÆ {
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: false,
+      location: false,
+      linkedin: false,
+      portfolio: false,
+      summary: false,
+      skills: 1,
+      experience: 0,
+      education: 0,
+      projects: 0,
+      certifications: 0,
+      languages: 0,
+      achievements: 0,
+      hobbies: 0
+    }
+
+      at log (lib/resume-builder/import-transformer.ts:4282:11)
+
+  console.log
+    [resume-extraction-validation] { warnings: 1, repairs: 0 }
+
+      at log (lib/resume-parser/extraction-repair.ts:296:13)
+
+  console.log
+    [import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+
+      at log (lib/resume-builder/import-transformer.ts:2008:19)
+
+  console.log
+    RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+  console.log
+    projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+  console.log
+    [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+  console.log
+    [builder-field-mapper] mapping report {
+      matched: [
+        'identity:fullName',
+        'identity:email',
+        'education:1',
+        'languages:1',
+        'skills:3'
+      ],
+      recovered: [],
+      missing: [
+        'identity:phone',
+        'identity:location',
+        'identity:linkedin',
+        'identity:github',
+        'identity:portfolio',
+        'identity:summary',
+        'experience[0]:company'
+      ],
+      overwritten: [],
+      duplicates: []
+    }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+  console.log
+    [builder-field-mapper] mapping report {
+      matched: [
+        'identity:fullName',
+        'identity:email',
+        'education:1',
+        'languages:1',
+        'achievements:13',
+        'skills:3'
+      ],
+      recovered: [],
+      missing: [
+        'identity:phone',
+        'identity:location',
+        'identity:linkedin',
+        'identity:github',
+        'identity:portfolio',
+        'identity:summary',
+        'experience[0]:company'
+      ],
+      overwritten: [],
+      duplicates: []
+    }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+  console.log
+    RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+  console.log
+    projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+  console.log
+    [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+  console.log
+    [import-pipeline-trace] {
+      raw: {
+        summaryChars: 0,
+        experience: 1,
+        experienceCompanies: 0,
+        projects: 0,
+        skills: 3,
+        education: 0,
+        certifications: 0,
+        languages: 1
+      },
+      merged: {
+        summaryChars: 0,
+        experience: 1,
+        experienceCompanies: 0,
+        projects: 0,
+        skills: 3,
+        education: 1,
+        certifications: 0,
+        languages: 1
+      },
+      builder: {
+        summaryChars: 0,
+        experience: 1,
+        experienceCompanies: 0,
+        projects: 0,
+        skills: 3,
+        education: 0,
+        certifications: 0,
+        languages: 1
+      }
+    }
+
+      at log (lib/resume-builder/import-transformer.ts:731:11)
+
+  console.warn
+    [import-transformer] mapping validation {
+      issues: [
+        'summary:missing',
+        'experience[0]:missing-company',
+        'education:empty',
+        'projects:empty'
+      ],
+      recoveries: [],
+      experienceCount: 1,
+      rawCompanyCount: 0,
+      builtCompanyCount: 0
+    }
+
+      4251 |
+      4252 |   if (issues.length > 0) {
+    > 4253 |     console.warn('[import-transformer] mapping validation', {
+           |             ^
+      4254 |       issues,
+      4255 |       recoveries,
+      4256 |       experienceCount: experience.length,
+
+      at warn (lib/resume-builder/import-transformer.ts:4253:13)
+      at logImportMappingValidation (lib/resume-builder/import-transformer.ts:2158:3)
+      at Object.<anonymous> (tests/generic-parser-robustness.test.ts:855:49)
+
+  console.log
+    [import-transformer] mapped ΓåÆ {
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: false,
+      location: false,
+      linkedin: false,
+      portfolio: false,
+      summary: false,
+      skills: 3,
+      experience: 1,
+      education: 0,
+      projects: 0,
+      certifications: 0,
+      languages: 1,
+      achievements: 0,
+      hobbies: 0
+    }
+
+      at log (lib/resume-builder/import-transformer.ts:4282:11)
+
+  console.log
+    [resume-extraction-validation] { warnings: 1, repairs: 0 }
+
+      at log (lib/resume-parser/extraction-repair.ts:296:13)
+
+PASS unit tests/generic-parser-robustness.test.ts (11.482 s)
+  generic resume parser robustness
+    ΓêÜ rejects duty prose and ISO standards fragments as employers (35 ms)
+    ΓêÜ merges Roles & Responsibilities bodies onto sparse tenure headers (187 ms)
+    ΓêÜ prefers multi-token document names over vanity email-derived names (29 ms)
+    ΓêÜ keeps credentialed academic names over email-local vanity splits (279 ms)
+    ΓêÜ recovers credentialed ALL-CAPS headers and rejects award titles / email vanity (61 ms)
+    ΓêÜ detects High Secondary school rows and Speak/Read/Write language grids (102 ms)
+    ΓêÜ does not treat school-stage labels as project titles (4 ms)
+    ΓêÜ does not split experience on ISO standards colon versions (3 ms)
+    ΓêÜ recovers preferred location without declaration bleed (14 ms)
+    ΓêÜ does not treat duty prose mentioning systems as institutional employers (1 ms)
+    ΓêÜ parses stacked title/date/company roles when duty lines mention systems (272 ms)
+    ΓêÜ parses inline bullet-separated language proficiency lists (3 ms)
+    ΓêÜ strips Start Date / city-state meta from ATS employer header lines (1 ms)
+    ΓêÜ parses title-over-company blocks with Start Date: labels (77 ms)
+    ΓêÜ splits Degree ΓÇô Field Institution education rows and strips hollow o bullets (77 ms)
+    ΓêÜ keeps award lines that mention employers and stops achievements at skills headings (134 ms)
+    ΓêÜ rejects contact-label debris as skills and detects industrial skills headings (111 ms)
+    ΓêÜ reclassifies employment-shaped career highlights and protects project portfolios (44 ms)
+    ΓêÜ splits bare company-first headers and rejects street addresses as employers (36 ms)
+    ΓêÜ parses Project under / Title: / Duration: portfolio blocks (204 ms)
+    ΓêÜ rejects education table headers and parses Degree + campus acronym rows (99 ms)
+    ΓêÜ parses Co.Ltd company-first headers and glued month-year tenures (72 ms)
+    ΓêÜ keeps consultant-named legal employers through company sanitize (3 ms)
+    ΓêÜ does not recover education table headers as institutions (49 ms)
+    ΓêÜ rejects education table stubs and prose sentences as section headings (193 ms)
+    ΓêÜ parses Organization/Designation/Duration labeled jobs without colons (145 ms)
+    ΓêÜ does not treat bare Organization/Responsibility as section headings (65 ms)
+    ΓêÜ splits adjacent human language names and rejects academic-credentials cert mirrors (11 ms)
+    ΓêÜ expands glued multi-section headings and recovers labeled tech skills (70 ms)
+    ΓêÜ keeps abbreviated titles as roles and dashed city suffixes as locations (29 ms)
+    ΓêÜ detects international certifications, competency bullets, and language proficiency lines (176 ms)
+    ΓêÜ does not wipe duty bullets or attach mid-dot competencies into experience (398 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       32 passed, 32 total
+Snapshots:   0 total
+Time:        12.359 s
+Ran all test suites matching /tests\\generic-parser-robustness.test.ts/i.

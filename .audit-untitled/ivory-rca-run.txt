@@ -1,0 +1,747 @@
+﻿=== STAGE A: custom parser snapshot ===
+{
+  "fullName": {
+    "label": "fullName",
+    "typeof": "string",
+    "isArray": false,
+    "length": 13,
+    "sample": "Aamir Mehboob"
+  },
+  "skills": {
+    "label": "skills",
+    "typeof": "object",
+    "isArray": true,
+    "length": 12,
+    "sample": [
+      "HR",
+      "Leadership Development",
+      "Faculty Development",
+      "Personality Development",
+      "Communication Skills",
+      "Campus-to-corporate Training",
+      "Executive Coaching",
+      "Public Speaking"
+    ]
+  },
+  "experience": {
+    "label": "experience",
+    "typeof": "object",
+    "isArray": true,
+    "length": 1,
+    "sample": [
+      [
+        "company",
+        "position",
+        "location",
+        "startDate",
+        "current",
+        "description",
+        "achievements"
+      ]
+    ]
+  },
+  "achievements": {
+    "label": "achievements",
+    "typeof": "object",
+    "isArray": true,
+    "length": 12,
+    "sample": [
+      "ΓùÅ 34+ Years of Academic & Training Excellence",
+      "ΓùÅ 50,000+ Individuals Trained & Mentored",
+      "ΓùÅ 1,000+ Workshops, Seminars & Keynote Addresses",
+      "ΓùÅ 500+ National Events Hosted",
+      "ΓùÅ TEDx Speaker",
+      "ΓùÅ International Communication Trainer",
+      "ΓùÅ Leadership Development Expert",
+      "ΓùÅ Educational Advisor"
+    ]
+  },
+  "certifications": {
+    "label": "certifications",
+    "typeof": "object",
+    "isArray": true,
+    "length": 4,
+    "sample": [
+      [
+        "name",
+        "issuer",
+        "date"
+      ],
+      [
+        "name",
+        "issuer",
+        "date"
+      ],
+      [
+        "name",
+        "issuer",
+        "date"
+      ],
+      [
+        "name",
+        "issuer",
+        "date"
+      ]
+    ]
+  },
+  "languages": {
+    "label": "languages",
+    "typeof": "object",
+    "isArray": true,
+    "length": 3,
+    "sample": [
+      [
+        "name",
+        "proficiency"
+      ],
+      [
+        "name",
+        "proficiency"
+      ],
+      [
+        "name",
+        "proficiency"
+      ]
+    ]
+  },
+  "projects": {
+    "label": "projects",
+    "typeof": "object",
+    "isArray": true,
+    "length": 0,
+    "sample": []
+  },
+  "education": {
+    "label": "education",
+    "typeof": "object",
+    "isArray": true,
+    "length": 0,
+    "sample": []
+  },
+  "summary": {
+    "label": "summary",
+    "typeof": "string",
+    "isArray": false,
+    "length": 599,
+    "sample": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neduc"
+  }
+}
+
+=== STAGE B: live transformImportDataToBuilder ===
+[resume-extraction-validation] { warnings: 1, repairs: 11 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:7',
+    'skills:8'
+  ],
+  recovered: [
+    'languages[3]:full-entry',
+    'languages[4]:full-entry',
+    'languages[5]:full-entry',
+    'languages[6]:full-entry',
+    'languages[7]:full-entry',
+    'languages[8]:full-entry',
+    'languages[9]:full-entry',
+    'languages[10]:full-entry',
+    'languages[11]:full-entry',
+    'languages[12]:full-entry',
+    'languages[13]:full-entry',
+    'languages[14]:full-entry',
+    'languages[15]:full-entry',
+    'languages[16]:full-entry',
+    'languages[17]:full-entry',
+    'languages[18]:full-entry',
+    'languages[19]:full-entry',
+    'languages[20]:full-entry',
+    'languages[21]:full-entry',
+    'languages[22]:full-entry',
+    'languages[23]:full-entry',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'skills:appended',
+    'skills:appended',
+    'skills:appended',
+    'skills:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company',
+    'languages:count-loss:3/24',
+    'achievements:count-loss:7/22',
+    'hobbies:count-loss:0/5',
+    'skills:count-loss:8/12'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:22',
+    'hobbies:5',
+    'skills:12'
+  ],
+  recovered: [],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 4,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 5,
+    languages: 24
+  },
+  builder: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 8,
+    education: 0,
+    certifications: 5,
+    languages: 3
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 8,
+  experience: 1,
+  education: 0,
+  projects: 0,
+  certifications: 5,
+  languages: 3,
+  achievements: 7,
+  hobbies: 0
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [
+    'experience[0]:missing-company',
+    'skills:loss:8/12',
+    'education:empty',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 1,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[resume-extraction-validation] { warnings: 1, repairs: 31 }
+{
+  "fullName": {
+    "label": "fullName",
+    "typeof": "string",
+    "isArray": false,
+    "length": 13,
+    "sample": "Aamir Mehboob"
+  },
+  "firstName": {
+    "label": "firstName",
+    "typeof": "string",
+    "isArray": false,
+    "length": 5,
+    "sample": "Aamir"
+  },
+  "lastName": {
+    "label": "lastName",
+    "typeof": "string",
+    "isArray": false,
+    "length": 7,
+    "sample": "Mehboob"
+  },
+  "skills": {
+    "label": "skills",
+    "typeof": "object",
+    "isArray": true,
+    "length": 8,
+    "sample": [
+      "HR",
+      "Emotional Intelligence",
+      "Faculty Development",
+      "Organizational Behaviour",
+      "Team Building",
+      "Executive Coaching",
+      "Public Speaking",
+      "Strategic Leadership"
+    ]
+  },
+  "experience": {
+    "label": "experience",
+    "typeof": "object",
+    "isArray": true,
+    "length": 1,
+    "sample": [
+      [
+        "id",
+        "title",
+        "designation",
+        "company",
+        "location",
+        "startDate",
+        "endDate",
+        "description"
+      ]
+    ]
+  },
+  "achievements": {
+    "label": "achievements",
+    "typeof": "object",
+    "isArray": true,
+    "length": 7,
+    "sample": [
+      "ΓùÅ 34+ Years of Academic & Training Excellence",
+      "ΓùÅ 50,000+ Individuals Trained & Mentored",
+      "ΓùÅ 500+ National Events Hosted",
+      "National Excellence Award",
+      "Best Faculty Award",
+      "Leadership Excellence Award",
+      "ΓùÅ TEDx Speaker"
+    ]
+  },
+  "certifications": {
+    "label": "certifications",
+    "typeof": "object",
+    "isArray": true,
+    "length": 5,
+    "sample": [
+      [
+        "name",
+        "issuer",
+        "date",
+        "link",
+        "url",
+        "credentialId",
+        "expiryDate"
+      ],
+      [
+        "name",
+        "issuer",
+        "date",
+        "link",
+        "url",
+        "credentialId",
+        "expiryDate"
+      ],
+      [
+        "name",
+        "issuer",
+        "date",
+        "link",
+        "url",
+        "credentialId",
+        "expiryDate"
+      ],
+      [
+        "name",
+        "issuer",
+        "date",
+        "link",
+        "url",
+        "credentialId",
+        "expiryDate"
+      ],
+      [
+        "name",
+        "issuer",
+        "date",
+        "link",
+        "url",
+        "credentialId",
+        "expiryDate"
+      ]
+    ]
+  },
+  "languages": {
+    "label": "languages",
+    "typeof": "object",
+    "isArray": true,
+    "length": 3,
+    "sample": [
+      [
+        "name",
+        "language",
+        "proficiency"
+      ],
+      [
+        "name",
+        "language",
+        "proficiency"
+      ],
+      [
+        "name",
+        "language",
+        "proficiency"
+      ]
+    ]
+  },
+  "projects": {
+    "label": "projects",
+    "typeof": "object",
+    "isArray": true,
+    "length": 0,
+    "sample": []
+  },
+  "education": {
+    "label": "education",
+    "typeof": "object",
+    "isArray": true,
+    "length": 0,
+    "sample": []
+  },
+  "summary": {
+    "label": "summary",
+    "typeof": "string",
+    "isArray": false,
+    "length": 599,
+    "sample": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neduc"
+  },
+  "hobbies": {
+    "label": "hobbies",
+    "typeof": "object",
+    "isArray": true,
+    "length": 0,
+    "sample": []
+  }
+}
+
+=== STAGE B anomalies ===
+{
+  skillsIsJoinedString: false,
+  skillsItemsAreJoined: false,
+  skillSamples: [
+    'HR',
+    'Emotional Intelligence',
+    'Faculty Development',
+    'Organizational Behaviour',
+    'Team Building',
+    'Executive Coaching',
+    'Public Speaking',
+    'Strategic Leadership'
+  ],
+  achievementSamples: [
+    'ΓùÅ 34+ Years of Academic & Training Excellence',
+    'ΓùÅ 50,000+ Individuals Trained & Mentored',
+    'ΓùÅ 500+ National Events Hosted',
+    'National Excellence Award',
+    'Best Faculty Award',
+    'Leadership Excellence Award',
+    'ΓùÅ TEDx Speaker'
+  ],
+  experienceCount: 1,
+  exp0: {
+    keys: [
+      'id',             'title',
+      'designation',    'company',
+      'location',       'startDate',
+      'endDate',        'description',
+      'current',        'isCurrent',
+      'employmentType', 'achievements',
+      'bullets',        'bulletPoints',
+      'Position',       'Company',
+      'Location',       'Description',
+      'Duration'
+    ],
+    title: 'Senior Professor',
+    company: '',
+    achievements: [
+      'Corporate Trainer & Leadership Consultant',
+      'Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó',
+      'Emotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó',
+      'Organizational Behaviour ΓÇó Campus-to-Corporate Training ΓÇó Strategic Leadership ΓÇó HR',
+      'The Future of Education in the AI Era',
+      'Leadership Beyond Titles',
+      'Emotional Intelligence for Success',
+      'The Art of Powerful Communication',
+      'Public Speaking Mastery',
+      'Transformational Leadership',
+      'Personal Branding in the Digital Age',
+      'Excellence through Effective Communication',
+      'Building High-Performance Teams',
+      'Campus to Corporate Readiness',
+      'Confidence Building & Personality Development',
+      'Professional Ethics & Workplace Excellence',
+      'Understanding Generation Z & Generation Alpha',
+      'Time Management for Peak Performance',
+      'Stress Management & Emotional Wellness',
+      'Design Thinking & Innovation',
+      'Career Planning for Young Professionals',
+      'The Science of Motivation',
+      'Faculty Development Programmes (FDP)',
+      'Training of Trainers (ToT)',
+      'Leadership Development Programmes'
+    ],
+    description: 'Corporate Trainer & Leadership Consultant\n' +
+      'Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó\n' +
+      'Emotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó\n' +
+      'Organizational Behaviour ΓÇó Campus-to-Corporate Training ΓÇó Strategic Leadership ΓÇó H'
+  }
+}
+
+=== STAGE C: injectResumeData (Ivory) ===
+[renderLanguages] Input: {
+  languages: [
+    {
+      name: 'English',
+      language: 'English',
+      Language: 'English',
+      proficiency: 'Professional'
+    },
+    {
+      name: 'Hindi',
+      language: 'Hindi',
+      Language: 'Hindi',
+      proficiency: 'Native'
+    },
+    {
+      name: 'Urdu',
+      language: 'Urdu',
+      Language: 'Urdu',
+      proficiency: 'Professional'
+    }
+  ],
+  type: 'object',
+  isArray: true,
+  length: 3,
+  useProgressBars: false
+}
+[renderLanguages] Processing as object array
+[renderLanguages] Valid languages (object): 3 [
+  {
+    name: 'English',
+    language: 'English',
+    Language: 'English',
+    proficiency: 'Professional'
+  },
+  {
+    name: 'Hindi',
+    language: 'Hindi',
+    Language: 'Hindi',
+    proficiency: 'Native'
+  },
+  {
+    name: 'Urdu',
+    language: 'Urdu',
+    Language: 'Urdu',
+    proficiency: 'Professional'
+  }
+]
+[renderLanguages] Final result length (simple): 505 Preview: 
+          <div class="language-item">
+            <span class="language">English</span>
+            <span class="proficiency">Professional</span>
+          </div>
+        
+          <div class="langu
+{
+  "skillTagCount": 12,
+  "achievementItemCount": 5,
+  "experienceItemCount": 1,
+  "certificationItemCount": 5,
+  "projectItemCount": 0,
+  "doubleGlyphBullets": 0,
+  "skillTagsWithEmbeddedBullet": 0,
+  "inlineBulletJoinsInSkillsSection": 0
+}
+
+--- SKILLS HTML ---
+ <section class="ime-section ime-section--skills ime-side-section">
+          <h2 class="ime-side-title">Skills</h2>
+          <div class="ime-side-divider" aria-hidden="true"></div>
+          <div class="skills-list ime-skills">
+            <span class="skill-tag">HR</span> <span class="skill-tag">Emotional Intelligence</span> <span class="skill-tag">Faculty Development</span> <span class="skill-tag">Organizational Behaviour</span> <span class="skill-tag">Team Building</span> <span class="skill-tag">Executive Coaching</span> <span class="skill-tag">Public Speaking</span> <span class="skill-tag">Strategic Leadership</span> <span class="skill-tag">Campus-to-corporate Training</span> <span class="skill-tag">Communication Skills</span> <span class="skill-tag">Leadership Development</span> <span class="skill-tag">Personality Development</span>
+          </div>
+        </section>
+
+--- ACHIEVEMENTS HTML ---
+ <section class="ime-section ime-section--achievements">
+            <h2 class="ime-main-title">Achievements</h2>
+            <div class="ime-main-divider" aria-hidden="true"></div>
+            <div class="achievements-list ime-achievements">
+              
+        <div class="achievement-item">
+          <h3>34+ Years of Academic &amp; Training Excellence</h3>
+        </div>
+      
+        <div class="achievement-item">
+          <h3>50,000+ Individuals Trained &amp; Mentored</h3>
+        </div>
+      
+        <div class="achievement-item">
+          <h3>500+ National Events Hosted</h3>
+        </div>
+      
+        <div class="achievement-item">
+          <h3>National Excellence Award</h3>
+        </div>
+      
+        <div class="achievement-item">
+          <h3>Best Faculty Award</h
+
+--- EXPERIENCE HTML ---
+ <section class="ime-section ime-section--experience ime-journey-panel">
+          <h2 class="ime-main-title">Professional Journey</h2>
+          <div class="ime-main-divider" aria-hidden="true"></div>
+          <div class="experience-list ime-experience">
+            
+        <div class="experience-item">
+          <div class="experience-header">
+            <h3>Senior Professor</h3>
+            <span class="company">Senior Professor</span>
+            
+          </div>
+          <div class="description" data-desc-volume="long"><div class="experience-desc experience-desc--grouped"><div class="experience-bullet-group" data-group="1"><ul><li>Corporate Trainer &amp; Leadership Consultant</li><li>The Future of Education in the AI Era</li><li>Leadership Beyond Titles</li><li>Emotional Intelligence for Success</li></ul></div><div class="experience-bullet-group" data-group="2"><ul><li>The Art of Powerful Communication</li><li>Public Speaking Mastery</li><li>Transformational Leadership</li
+[renderLanguages] Input: {
+  languages: [
+    {
+      name: 'English',
+      language: 'English',
+      Language: 'English',
+      proficiency: 'Professional'
+    },
+    {
+      name: 'Hindi',
+      language: 'Hindi',
+      Language: 'Hindi',
+      proficiency: 'Native'
+    },
+    {
+      name: 'Urdu',
+      language: 'Urdu',
+      Language: 'Urdu',
+      proficiency: 'Professional'
+    }
+  ],
+  type: 'object',
+  isArray: true,
+  length: 3,
+  useProgressBars: false
+}
+[renderLanguages] Processing as object array
+[renderLanguages] Valid languages (object): 3 [
+  {
+    name: 'English',
+    language: 'English',
+    Language: 'English',
+    proficiency: 'Professional'
+  },
+  {
+    name: 'Hindi',
+    language: 'Hindi',
+    Language: 'Hindi',
+    proficiency: 'Native'
+  },
+  {
+    name: 'Urdu',
+    language: 'Urdu',
+    Language: 'Urdu',
+    proficiency: 'Professional'
+  }
+]
+[renderLanguages] Final result length (simple): 505 Preview: 
+          <div class="language-item">
+            <span class="language">English</span>
+            <span class="proficiency">Professional</span>
+          </div>
+        
+          <div class="langu
+
+=== STAGE C2: saved 09-builder.json ΓåÆ ivory ===
+{
+  skillTagCount: 12,
+  skillsFromSaved: {
+    label: 'skills',
+    typeof: 'object',
+    isArray: true,
+    length: 7,
+    keys: undefined,
+    sample: [
+      'HR',
+      'Executive Coaching',
+      'Emotional Intelligence',
+      'Organizational Behaviour',
+      'Public Speaking',
+      'Strategic Leadership',
+      'Team Building'
+    ]
+  },
+  skillsSection: '<section class="ime-section ime-section--skills ime-side-section">\r\n' +
+    '          <h2 class="ime-side-title">Skills</h2>\r\n' +
+    '          <div class="ime-side-divider" aria-hidden="true"></div>\r\n' +
+    '          <div class="skills-list ime-skills">\r\n' +
+    '            <span class="skill-tag">HR</span> <span class="skill-tag">Executive Coaching</span> <span class="skill-tag">Emotional Intelligence</span> <span class="skill-tag">Organizational Behaviour</span> <span class="skill-tag">Public Speaking</span> <span class="skill-tag">Strategic Leadership</span> <span class="skill-tag">Team Building</span> <span class="skil'
+}
+
+Wrote .audit-untitled/ivory-rca

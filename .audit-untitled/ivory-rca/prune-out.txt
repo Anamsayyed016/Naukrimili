@@ -1,0 +1,19 @@
+﻿body ach count 13
+{ a: 'Academic Leadership', isHeading: true }
+{ a: 'Curriculum Development', isHeading: true }
+{ a: 'Faculty Mentoring', isHeading: false }
+{ a: 'Research Supervision', isHeading: false }
+{ a: 'Student Development', isHeading: true }
+{ a: 'Institutional Growth', isHeading: false }
+{ a: 'Leadership Development', isHeading: true }
+{ a: 'Executive Coaching', isHeading: false }
+{ a: 'Communication Skills', isHeading: true }
+{ a: 'Team Building', isHeading: false }
+{ a: 'Performance Enhancement', isHeading: false }
+{ a: 'Organizational Learning', isHeading: false }
+{ a: 'Corporate Workshops', isHeading: true }
+pruned {
+  desc: 'Corporate Trainer & Leadership Consultant',
+  achCount: 0,
+  ach: []
+}

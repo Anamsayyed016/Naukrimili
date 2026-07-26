@@ -1,0 +1,179 @@
+[
+  {
+    "label": "01-parser",
+    "company": "● Curriculum Development",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 13,
+    "descPreview": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Academic Leadership",
+      "Curriculum Development",
+      "Faculty Mentoring",
+      "Research Supervision",
+      "Student Development",
+      "Institutional Growth",
+      "Leadership Development",
+      "Executive Coaching"
+    ]
+  },
+  {
+    "label": "02-finalizeCustomParser",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "",
+    "achCount": 0,
+    "descPreview": "Corporate Trainer & Leadership Consultant",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": []
+  },
+  {
+    "label": "03-finalizeBuilder",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "",
+    "achCount": 0,
+    "descPreview": "Corporate Trainer & Leadership Consultant",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": []
+  },
+  {
+    "label": "04-recoverExperienceBodies",
+    "company": "● Curriculum Development",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 13,
+    "descPreview": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Academic Leadership",
+      "Curriculum Development",
+      "Faculty Mentoring",
+      "Research Supervision",
+      "Student Development",
+      "Institutional Growth",
+      "Leadership Development",
+      "Executive Coaching"
+    ]
+  },
+  {
+    "label": "05-recoverBodiesAfterFinalize",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "",
+    "achCount": 24,
+    "descPreview": "Leadership Development • Executive Coaching • Public Speaking • Faculty Development •\nEmotional Intelligence • Personality Development • Communication Skills • Team Building •\nOrga",
+    "midBulletAch": [
+      "Leadership Development • Executive Coaching • Public Speaking • Faculty Development •",
+      "Emotional Intelligence • Personality Development • Communication Skills • Team Building •",
+      "Organizational Behaviour • Campus-to-Corporate Training • Strategic Leadership • HR"
+    ],
+    "keynoteAch": [
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Public Speaking Mastery"
+    ],
+    "sampleAch": [
+      "Leadership Development • Executive Coaching • Public Speaking • Faculty Development •",
+      "Emotional Intelligence • Personality Development • Communication Skills • Team Building •",
+      "Organizational Behaviour • Campus-to-Corporate Training • Strategic Leadership • HR",
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Emotional Intelligence for Success",
+      "The Art of Powerful Communication",
+      "Public Speaking Mastery"
+    ]
+  },
+  {
+    "label": "06-supplementaryExp",
+    "count": 0,
+    "sample": []
+  },
+  {
+    "label": "07-mergeSupplementary",
+    "company": "● Curriculum Development",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 13,
+    "descPreview": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Academic Leadership",
+      "Curriculum Development",
+      "Faculty Mentoring",
+      "Research Supervision",
+      "Student Development",
+      "Institutional Growth",
+      "Leadership Development",
+      "Executive Coaching"
+    ]
+  },
+  {
+    "label": "08-competencyBullets",
+    "count": 24,
+    "sample": [
+      "Leadership Development • Executive Coaching • Public Speaking • Faculty Development •",
+      "Emotional Intelligence • Personality Development • Communication Skills • Team Building •",
+      "Organizational Behaviour • Campus-to-Corporate Training • Strategic Leadership • HR",
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Emotional Intelligence for Success",
+      "The Art of Powerful Communication",
+      "Public Speaking Mastery",
+      "Transformational Leadership",
+      "Personal Branding in the Digital Age",
+      "Excellence through Effective Communication",
+      "Building High-Performance Teams",
+      "Campus to Corporate Readiness",
+      "Confidence Building & Personality Development",
+      "Professional Ethics & Workplace Excellence"
+    ]
+  },
+  {
+    "label": "09-fullTransform",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "",
+    "achCount": 33,
+    "descPreview": "Corporate Trainer & Leadership Consultant\nLeadership Development • Executive Coaching • Public Speaking • Faculty Development •\nEmotional Intelligence • Personality Development • C",
+    "midBulletAch": [
+      "Leadership Development • Executive Coaching • Public Speaking • Faculty Development •",
+      "Emotional Intelligence • Personality Development • Communication Skills • Team Building •",
+      "Organizational Behaviour • Campus-to-Corporate Training • Strategic Leadership • HR"
+    ],
+    "keynoteAch": [
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Public Speaking Mastery"
+    ],
+    "sampleAch": [
+      "Corporate Trainer & Leadership Consultant",
+      "Leadership Development • Executive Coaching • Public Speaking • Faculty Development •",
+      "Emotional Intelligence • Personality Development • Communication Skills • Team Building •",
+      "Organizational Behaviour • Campus-to-Corporate Training • Strategic Leadership • HR",
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Emotional Intelligence for Success",
+      "The Art of Powerful Communication"
+    ]
+  },
+  {
+    "label": "10-fullTransformNoRaw",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "",
+    "achCount": 1,
+    "descPreview": "Corporate Trainer & Leadership Consultant",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Corporate Trainer & Leadership Consultant"
+    ]
+  }
+]

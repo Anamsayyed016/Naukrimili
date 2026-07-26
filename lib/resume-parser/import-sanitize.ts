@@ -2189,6 +2189,37 @@ export function stripResumeBodyNoise(text: string): string {
   return kept.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
+/**
+ * True structural section boundaries only.
+ * Soft `isResumeSectionHeadingLine` matches (e.g. "Academic Leadership",
+ * "Communication Skills") are ordinary duty/skill phrases — never abort a
+ * bullet list on them.
+ */
+function isStructuralExperienceBodyBoundary(line: string): boolean {
+  const t = line.trim().replace(/[:|\-_=•]+$/g, '').trim();
+  if (!t || t.length > 72) return false;
+  if (looksLikeJobTitleLine(t)) return false;
+  if (isSpacedLetterFragment(t)) return true;
+  if (isSectionLabel(t)) return true;
+  // Responsibility / role sub-heads that introduce the next block.
+  if (
+    /^(?:key|major|primary|core)\s+responsibilit/i.test(t) ||
+    /^(?:duties|responsibilities|key\s+result\s+areas?|areas?\s+of\s+exposure)\b/i.test(t)
+  ) {
+    return true;
+  }
+  // Known multi-word section titles (phrases), not soft word-overlap.
+  // Use $ (not \b) so "academic" does not match inside "Academic Leadership".
+  if (
+    /^(?:professional\s+experience|work\s+experience|employment\s+history|education|academic(?:\s+(?:background|qualifications?))?|certifications?|projects?|publications?|awards?|languages?|hobbies|interests|references?|declaration|personal\s+details|core\s+competenc(?:y|ies)|technical\s+skills?|career\s+highlights?|signature\s+keynote(?:\s+topics?)?|training\s+programmes?|industries\s+served|professional\s+affiliations?|research\s+(?:interests|publications?)|executive\s+summary)$/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
 /** Strip section bleed and misplaced lines from experience description / bullets. */
 export function pruneExperienceBodyFields(
   description: string,
@@ -2198,7 +2229,8 @@ export function pruneExperienceBodyFields(
   for (const raw of achievements) {
     const line = stripResumeBodyNoise(String(raw || '').trim());
     if (!line) continue;
-    if (isResumeSectionHeadingLine(line)) break;
+    // Soft heading false-positives must NOT wipe the remaining array (break).
+    if (isStructuralExperienceBodyBoundary(line)) break;
     if (isLikelyEducationLine(line) || isLikelyCertificationLine(line)) continue;
     if (RESUME_METADATA_LINE_RE.some((re) => re.test(line))) continue;
     keptAchievements.push(line);
@@ -2211,7 +2243,7 @@ export function pruneExperienceBodyFields(
       if (descLines.length > 0) descLines.push('');
       continue;
     }
-    if (isResumeSectionHeadingLine(line)) break;
+    if (isStructuralExperienceBodyBoundary(line)) break;
     if (isLikelyEducationLine(line) || isLikelyCertificationLine(line)) continue;
     if (RESUME_METADATA_LINE_RE.some((re) => re.test(line))) continue;
     descLines.push(line);
@@ -4183,6 +4215,17 @@ export function reconcileExperienceHeaderFields(
     position = location;
     location = '';
   }
+  // Title duplicated into location ("Senior Professor" / "Senior Professor").
+  if (
+    location &&
+    position &&
+    location.toLowerCase().replace(/[^a-z0-9]+/g, '') ===
+      position.toLowerCase().replace(/[^a-z0-9]+/g, '')
+  ) {
+    location = '';
+  } else if (location && position && looksLikeJobTitleLine(location)) {
+    location = '';
+  }
 
   // Company slot holds a job title (e.g. "Food Processor") — never keep as company.
   if (company && looksLikeJobTitleLine(company) && !looksLikeCompanyNameLine(company)) {
@@ -5763,7 +5806,7 @@ function splitDualCompanyProseName(company: string): [string, string] | null {
 }
 
 const COMPETENCY_SYNOPSIS_HEADING_RE =
-  /^(?:synopsis\s+of\s+(?:work\s+)?(?:profile|experience)|(?:key\s+)?(?:areas?\s+of\s+)?(?:expertise|competenc(?:y|ies)|exposure)|key\s+result\s+areas?|core\s+competenc(?:y|ies)|professional\s+(?:expertise|exposure)|summary\s+of\s+(?:work\s+)?(?:profile|experience)|work\s+(?:profile\s+summary|exposure)|areas?\s+of\s+exposure|nature\s+of\s+(?:duties|work)|job\s+profile|roles?\s+and\s+responsibilit(?:y|ies)|key\s+responsibilit(?:y|ies))\b/i;
+  /^(?:synopsis\s+of\s+(?:work\s+)?(?:profile|experience)|(?:key\s+)?(?:areas?\s+of\s+)?(?:expertise|competenc(?:y|ies)|exposure)(?!\s+[A-Za-z])|key\s+result\s+areas?|core\s+competenc(?:y|ies)|professional\s+(?:expertise|exposure)|summary\s+of\s+(?:work\s+)?(?:profile|experience)|work\s+(?:profile\s+summary|exposure)|areas?\s+of\s+exposure|nature\s+of\s+(?:duties|work)|job\s+profile|roles?\s+and\s+responsibilit(?:y|ies)|key\s+responsibilit(?:y|ies))\b/i;
 
 const SUPPLEMENTARY_EXPERIENCE_HEADING_RE =
   /^(?:trainings?|teaching\s+experience|internships?|articleship|industrial\s+training|practical\s+training)\b/i;
@@ -5783,11 +5826,13 @@ export function recoverCompetencyBulletsFromRawText(rawText: string): string[] {
     }
     if (!inSection) continue;
     if (
-      /^(?:extracurricular|hobbies?|personal\s+(?:information|details)|declaration|references?|education|academic|qualification|technical\s+skills?|core\s+skills?|certifications?|languages?)\b/i.test(
+      /^(?:extracurricular|hobbies?|personal\s+(?:information|details)|declaration|references?|education|academic(?:\s+(?:background|qualifications?))?|qualification|technical\s+skills?|core\s+skills?|certifications?|languages?|signature\s+keynote(?:\s+topics?)?|keynote\s+topics?|training\s+programmes?|industries\s+served|professional\s+affiliations?|expertise\s+signature(?:\s+keynote(?:\s+topics?)?)?|speaking\s+(?:&|and)\s+training|page\s+\d+(?:\s*[—\-–-].*)?)$/i.test(
         headingCandidate
       )
     ) {
       // Soft stop: a later work-exposure block can restart collection.
+      // Also stop before keynote / training / industries blocks so those
+      // topics are never attached as experience duty bullets.
       inSection = false;
       continue;
     }
@@ -6085,11 +6130,14 @@ function attachGlobalCompetencyBulletsToExperience(
   bullets: string[]
 ): Record<string, unknown>[] {
   if (!bullets.length || !entries.length) return entries;
+  // Mid-dot competency rows ("A • B • C") are skill inventories, not duty bullets.
+  const dutyBullets = bullets.filter((b) => (String(b).match(/[•●]/g) || []).length < 2);
+  if (dutyBullets.length < 2) return entries;
   // Global competency / KEY RESULT narratives describe overall duty scope —
   // attach to current (or most recent) role, not an arbitrary empty tenure.
   const currentIdx = entries.findIndex((e) => e.current === true || e.isCurrent === true);
   const targetIdx = currentIdx >= 0 ? currentIdx : 0;
-  const united = bullets.join('\n');
+  const united = dutyBullets.join('\n');
 
   return entries.map((entry, index) => {
     if (index !== targetIdx) return entry;
@@ -6107,7 +6155,7 @@ function attachGlobalCompetencyBulletsToExperience(
     if (existingUnique.size >= 6) return entry;
     const merged = unionExperienceBodyFields(existing, {
       description: united,
-      achievements: bullets,
+      achievements: dutyBullets,
     });
     return {
       ...entry,

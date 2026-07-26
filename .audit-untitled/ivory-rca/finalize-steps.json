@@ -1,0 +1,46 @@
+﻿[
+  {
+    "label": "raw",
+    "company": "ΓùÅ Curriculum Development",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "ach": 13,
+    "desc": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "isCompetency": false
+  },
+  {
+    "label": "demote",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "ach": 13,
+    "desc": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "isCompetency": false
+  },
+  {
+    "label": "reconcile",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "ach": 0,
+    "desc": "Corporate Trainer & Leadership Consultant",
+    "isCompetency": false
+  },
+  {
+    "label": "demote+reconcile",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "ach": 0,
+    "desc": "Corporate Trainer & Leadership Consultant",
+    "isCompetency": false
+  },
+  {
+    "label": "finalize",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "ach": 0,
+    "desc": "Corporate Trainer & Leadership Consultant",
+    "isCompetency": false
+  }
+]

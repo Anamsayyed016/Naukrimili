@@ -1,0 +1,169 @@
+﻿[resume-extraction-validation] { warnings: 1, repairs: 10 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:7',
+    'skills:12'
+  ],
+  recovered: [
+    'languages[3]:full-entry',
+    'languages[4]:full-entry',
+    'languages[5]:full-entry',
+    'languages[6]:full-entry',
+    'languages[7]:full-entry',
+    'languages[8]:full-entry',
+    'languages[9]:full-entry',
+    'languages[10]:full-entry',
+    'languages[11]:full-entry',
+    'languages[12]:full-entry',
+    'languages[13]:full-entry',
+    'languages[14]:full-entry',
+    'languages[15]:full-entry',
+    'languages[16]:full-entry',
+    'languages[17]:full-entry',
+    'languages[18]:full-entry',
+    'languages[19]:full-entry',
+    'languages[20]:full-entry',
+    'languages[21]:full-entry',
+    'languages[22]:full-entry',
+    'languages[23]:full-entry',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company',
+    'languages:count-loss:3/24',
+    'achievements:count-loss:7/22',
+    'hobbies:count-loss:0/5'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:35',
+    'hobbies:5',
+    'skills:12'
+  ],
+  recovered: [],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 4,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 5,
+    languages: 24
+  },
+  builder: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 5,
+    languages: 3
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 12,
+  experience: 1,
+  education: 0,
+  projects: 0,
+  certifications: 5,
+  languages: 3,
+  achievements: 7,
+  hobbies: 0
+}
+[resume-extraction-validation] { warnings: 1, repairs: 30 }
+{
+  "ach": 14,
+  "mid": [],
+  "key": [],
+  "loc": "",
+  "sample": [
+    "Academic Leadership",
+    "Curriculum Development",
+    "Faculty Mentoring",
+    "Research Supervision",
+    "Student Development"
+  ],
+  "skills": [
+    "HR",
+    "Campus-to-corporate Training",
+    "Emotional Intelligence",
+    "Organizational Behaviour",
+    "Team Building"
+  ]
+}

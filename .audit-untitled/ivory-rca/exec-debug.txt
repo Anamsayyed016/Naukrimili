@@ -1,0 +1,17 @@
+﻿[
+  {
+    "co": "Sterling Industries Limited",
+    "title": "Company Secretary",
+    "ach": [
+      "Ensured compliance with Companies Act and SEBI regulations across subsidiaries.",
+      "Coordinated board meetings and maintained statutory registers.",
+      "Filed annual returns and managed shareholder communication.",
+      "Advised management on corporate governance matters."
+    ],
+    "desc": "Ensured compliance with Companies Act and SEBI regulations across subsidiaries.\nCoordinated board meetings and maintained statutory registers.\nFiled annual returns and managed shareholder communication.\nAdvised management on corporate governance matters."
+  },
+  {
+    "co": "National Power Corporation Ltd",
+    "title": "Company Secretary"
+  }
+]

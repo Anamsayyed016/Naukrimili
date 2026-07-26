@@ -1,0 +1,36 @@
+﻿node.exe : [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline 
+data, please update: `npm i baseline-browser-mapping@latest -D`
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows...ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+FAIL unit tests/experience-body-recovery.test.ts
+  experience body recovery
+    ├ù recovers bullets for title-company-date executive layout (54 ms)
+    ΓêÜ parses year-with-at-as structured experience lines (18 ms)
+    ΓêÜ recovers global Work Exposure duties onto the current role when job bodies are empty (6 ms)
+
+  ΓùÅ experience body recovery ΓÇ║ recovers bullets for title-company-date executive layout
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      49 |     const enriched = recoverExperienceBodiesFromRawText(EXECUTIVE_CS_RAW, entries);
+      50 |     expect(enriched[0].achievements?.length || 0).toBeGreaterThanOrEqual(2);
+    > 51 |     expect(enriched[1].achievements?.length || 0).toBeGreaterThanOrEqual(2);
+         |                                                   ^
+      52 |   });
+      53 |
+      54 |   it('parses year-with-at-as structured experience lines', () => {
+
+      at Object.toBeGreaterThanOrEqual (tests/experience-body-recovery.test.ts:51:51)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 2 passed, 3 total
+Snapshots:   0 total
+Time:        2.754 s, estimated 6 s
+Ran all test suites matching /tests\\experience-body-recovery.test.ts/i.

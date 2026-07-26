@@ -1,0 +1,445 @@
+﻿[resume-extraction-validation] { warnings: 1, repairs: 11 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:7',
+    'skills:8'
+  ],
+  recovered: [
+    'languages[3]:full-entry',
+    'languages[4]:full-entry',
+    'languages[5]:full-entry',
+    'languages[6]:full-entry',
+    'languages[7]:full-entry',
+    'languages[8]:full-entry',
+    'languages[9]:full-entry',
+    'languages[10]:full-entry',
+    'languages[11]:full-entry',
+    'languages[12]:full-entry',
+    'languages[13]:full-entry',
+    'languages[14]:full-entry',
+    'languages[15]:full-entry',
+    'languages[16]:full-entry',
+    'languages[17]:full-entry',
+    'languages[18]:full-entry',
+    'languages[19]:full-entry',
+    'languages[20]:full-entry',
+    'languages[21]:full-entry',
+    'languages[22]:full-entry',
+    'languages[23]:full-entry',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'skills:appended',
+    'skills:appended',
+    'skills:appended',
+    'skills:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company',
+    'languages:count-loss:3/24',
+    'achievements:count-loss:7/22',
+    'hobbies:count-loss:0/5',
+    'skills:count-loss:8/12'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:22',
+    'hobbies:5',
+    'skills:12'
+  ],
+  recovered: [],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 4,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 5,
+    languages: 24
+  },
+  builder: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 8,
+    education: 0,
+    certifications: 5,
+    languages: 3
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 8,
+  experience: 1,
+  education: 0,
+  projects: 0,
+  certifications: 5,
+  languages: 3,
+  achievements: 7,
+  hobbies: 0
+}
+[resume-extraction-validation] { warnings: 1, repairs: 31 }
+[resume-extraction-validation] { warnings: 1, repairs: 11 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:4',
+    'languages:3',
+    'achievements:7',
+    'skills:8'
+  ],
+  recovered: [
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company',
+    'achievements:count-loss:7/12'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:4',
+    'languages:3',
+    'achievements:12',
+    'skills:8'
+  ],
+  recovered: [],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 4,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 8,
+    education: 0,
+    certifications: 4,
+    languages: 3
+  },
+  builder: {
+    summaryChars: 599,
+    experience: 1,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 8,
+    education: 0,
+    certifications: 4,
+    languages: 3
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 8,
+  experience: 1,
+  education: 0,
+  projects: 0,
+  certifications: 4,
+  languages: 3,
+  achievements: 7,
+  hobbies: 0
+}
+[resume-extraction-validation] { warnings: 1, repairs: 10 }
+[
+  {
+    "label": "01-parser",
+    "company": "ΓùÅ Curriculum Development",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 13,
+    "descPreview": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Academic Leadership",
+      "Curriculum Development",
+      "Faculty Mentoring",
+      "Research Supervision",
+      "Student Development",
+      "Institutional Growth",
+      "Leadership Development",
+      "Executive Coaching"
+    ]
+  },
+  {
+    "label": "02-finalizeCustomParser",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 0,
+    "descPreview": "Corporate Trainer & Leadership Consultant",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": []
+  },
+  {
+    "label": "03-finalizeBuilder",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 0,
+    "descPreview": "Corporate Trainer & Leadership Consultant",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": []
+  },
+  {
+    "label": "04-recoverExperienceBodies",
+    "company": "ΓùÅ Curriculum Development",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 13,
+    "descPreview": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Academic Leadership",
+      "Curriculum Development",
+      "Faculty Mentoring",
+      "Research Supervision",
+      "Student Development",
+      "Institutional Growth",
+      "Leadership Development",
+      "Executive Coaching"
+    ]
+  },
+  {
+    "label": "05-recoverBodiesAfterFinalize",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 24,
+    "descPreview": "Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó\nEmotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó\nOrga",
+    "midBulletAch": [
+      "Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó",
+      "Emotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó",
+      "Organizational Behaviour ΓÇó Campus-to-Corporate Training ΓÇó Strategic Leadership ΓÇó HR"
+    ],
+    "keynoteAch": [
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Public Speaking Mastery",
+      "Training of Trainers (ToT)"
+    ],
+    "sampleAch": [
+      "Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó",
+      "Emotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó",
+      "Organizational Behaviour ΓÇó Campus-to-Corporate Training ΓÇó Strategic Leadership ΓÇó HR",
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Emotional Intelligence for Success",
+      "The Art of Powerful Communication",
+      "Public Speaking Mastery"
+    ]
+  },
+  {
+    "label": "06-supplementaryExp",
+    "count": 0,
+    "sample": []
+  },
+  {
+    "label": "07-mergeSupplementary",
+    "company": "ΓùÅ Curriculum Development",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 13,
+    "descPreview": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Academic Leadership",
+      "Curriculum Development",
+      "Faculty Mentoring",
+      "Research Supervision",
+      "Student Development",
+      "Institutional Growth",
+      "Leadership Development",
+      "Executive Coaching"
+    ]
+  },
+  {
+    "label": "08-competencyBullets",
+    "count": 24,
+    "sample": [
+      "Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó",
+      "Emotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó",
+      "Organizational Behaviour ΓÇó Campus-to-Corporate Training ΓÇó Strategic Leadership ΓÇó HR",
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Emotional Intelligence for Success",
+      "The Art of Powerful Communication",
+      "Public Speaking Mastery",
+      "Transformational Leadership",
+      "Personal Branding in the Digital Age",
+      "Excellence through Effective Communication",
+      "Building High-Performance Teams",
+      "Campus to Corporate Readiness",
+      "Confidence Building & Personality Development",
+      "Professional Ethics & Workplace Excellence"
+    ]
+  },
+  {
+    "label": "09-fullTransform",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 25,
+    "descPreview": "Corporate Trainer & Leadership Consultant\nLeadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó\nEmotional Intelligence ΓÇó Personality Development ΓÇó C",
+    "midBulletAch": [
+      "Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó",
+      "Emotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó",
+      "Organizational Behaviour ΓÇó Campus-to-Corporate Training ΓÇó Strategic Leadership ΓÇó HR"
+    ],
+    "keynoteAch": [
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Public Speaking Mastery",
+      "Training of Trainers (ToT)"
+    ],
+    "sampleAch": [
+      "Corporate Trainer & Leadership Consultant",
+      "Leadership Development ΓÇó Executive Coaching ΓÇó Public Speaking ΓÇó Faculty Development ΓÇó",
+      "Emotional Intelligence ΓÇó Personality Development ΓÇó Communication Skills ΓÇó Team Building ΓÇó",
+      "Organizational Behaviour ΓÇó Campus-to-Corporate Training ΓÇó Strategic Leadership ΓÇó HR",
+      "The Future of Education in the AI Era",
+      "Leadership Beyond Titles",
+      "Emotional Intelligence for Success",
+      "The Art of Powerful Communication"
+    ]
+  },
+  {
+    "label": "10-fullTransformNoRaw",
+    "company": "",
+    "title": "Senior Professor",
+    "location": "Senior Professor",
+    "achCount": 1,
+    "descPreview": "Corporate Trainer & Leadership Consultant",
+    "midBulletAch": [],
+    "keynoteAch": [],
+    "sampleAch": [
+      "Corporate Trainer & Leadership Consultant"
+    ]
+  }
+]

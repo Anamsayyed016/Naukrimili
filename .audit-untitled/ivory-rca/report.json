@@ -1,0 +1,315 @@
+{
+  "customReport": {
+    "fullName": {
+      "label": "fullName",
+      "typeof": "string",
+      "isArray": false,
+      "length": 13,
+      "sample": "Aamir Mehboob"
+    },
+    "skills": {
+      "label": "skills",
+      "typeof": "object",
+      "isArray": true,
+      "length": 12,
+      "sample": [
+        "HR",
+        "Leadership Development",
+        "Faculty Development",
+        "Personality Development",
+        "Communication Skills",
+        "Campus-to-corporate Training",
+        "Executive Coaching",
+        "Public Speaking"
+      ]
+    },
+    "experience": {
+      "label": "experience",
+      "typeof": "object",
+      "isArray": true,
+      "length": 1,
+      "sample": [
+        [
+          "company",
+          "position",
+          "location",
+          "startDate",
+          "current",
+          "description",
+          "achievements"
+        ]
+      ]
+    },
+    "achievements": {
+      "label": "achievements",
+      "typeof": "object",
+      "isArray": true,
+      "length": 12,
+      "sample": [
+        "● 34+ Years of Academic & Training Excellence",
+        "● 50,000+ Individuals Trained & Mentored",
+        "● 1,000+ Workshops, Seminars & Keynote Addresses",
+        "● 500+ National Events Hosted",
+        "● TEDx Speaker",
+        "● International Communication Trainer",
+        "● Leadership Development Expert",
+        "● Educational Advisor"
+      ]
+    },
+    "certifications": {
+      "label": "certifications",
+      "typeof": "object",
+      "isArray": true,
+      "length": 4,
+      "sample": [
+        [
+          "name",
+          "issuer",
+          "date"
+        ],
+        [
+          "name",
+          "issuer",
+          "date"
+        ],
+        [
+          "name",
+          "issuer",
+          "date"
+        ],
+        [
+          "name",
+          "issuer",
+          "date"
+        ]
+      ]
+    },
+    "languages": {
+      "label": "languages",
+      "typeof": "object",
+      "isArray": true,
+      "length": 3,
+      "sample": [
+        [
+          "name",
+          "proficiency"
+        ],
+        [
+          "name",
+          "proficiency"
+        ],
+        [
+          "name",
+          "proficiency"
+        ]
+      ]
+    },
+    "projects": {
+      "label": "projects",
+      "typeof": "object",
+      "isArray": true,
+      "length": 0,
+      "sample": []
+    },
+    "education": {
+      "label": "education",
+      "typeof": "object",
+      "isArray": true,
+      "length": 0,
+      "sample": []
+    },
+    "summary": {
+      "label": "summary",
+      "typeof": "string",
+      "isArray": false,
+      "length": 599,
+      "sample": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neduc"
+    }
+  },
+  "builderReport": {
+    "fullName": {
+      "label": "fullName",
+      "typeof": "string",
+      "isArray": false,
+      "length": 13,
+      "sample": "Aamir Mehboob"
+    },
+    "firstName": {
+      "label": "firstName",
+      "typeof": "string",
+      "isArray": false,
+      "length": 5,
+      "sample": "Aamir"
+    },
+    "lastName": {
+      "label": "lastName",
+      "typeof": "string",
+      "isArray": false,
+      "length": 7,
+      "sample": "Mehboob"
+    },
+    "skills": {
+      "label": "skills",
+      "typeof": "object",
+      "isArray": true,
+      "length": 8,
+      "sample": [
+        "HR",
+        "Emotional Intelligence",
+        "Faculty Development",
+        "Organizational Behaviour",
+        "Team Building",
+        "Executive Coaching",
+        "Public Speaking",
+        "Strategic Leadership"
+      ]
+    },
+    "experience": {
+      "label": "experience",
+      "typeof": "object",
+      "isArray": true,
+      "length": 1,
+      "sample": [
+        [
+          "id",
+          "title",
+          "designation",
+          "company",
+          "location",
+          "startDate",
+          "endDate",
+          "description"
+        ]
+      ]
+    },
+    "achievements": {
+      "label": "achievements",
+      "typeof": "object",
+      "isArray": true,
+      "length": 7,
+      "sample": [
+        "● 34+ Years of Academic & Training Excellence",
+        "● 50,000+ Individuals Trained & Mentored",
+        "● 500+ National Events Hosted",
+        "National Excellence Award",
+        "Best Faculty Award",
+        "Leadership Excellence Award",
+        "● TEDx Speaker"
+      ]
+    },
+    "certifications": {
+      "label": "certifications",
+      "typeof": "object",
+      "isArray": true,
+      "length": 5,
+      "sample": [
+        [
+          "name",
+          "issuer",
+          "date",
+          "link",
+          "url",
+          "credentialId",
+          "expiryDate"
+        ],
+        [
+          "name",
+          "issuer",
+          "date",
+          "link",
+          "url",
+          "credentialId",
+          "expiryDate"
+        ],
+        [
+          "name",
+          "issuer",
+          "date",
+          "link",
+          "url",
+          "credentialId",
+          "expiryDate"
+        ],
+        [
+          "name",
+          "issuer",
+          "date",
+          "link",
+          "url",
+          "credentialId",
+          "expiryDate"
+        ],
+        [
+          "name",
+          "issuer",
+          "date",
+          "link",
+          "url",
+          "credentialId",
+          "expiryDate"
+        ]
+      ]
+    },
+    "languages": {
+      "label": "languages",
+      "typeof": "object",
+      "isArray": true,
+      "length": 3,
+      "sample": [
+        [
+          "name",
+          "language",
+          "proficiency"
+        ],
+        [
+          "name",
+          "language",
+          "proficiency"
+        ],
+        [
+          "name",
+          "language",
+          "proficiency"
+        ]
+      ]
+    },
+    "projects": {
+      "label": "projects",
+      "typeof": "object",
+      "isArray": true,
+      "length": 0,
+      "sample": []
+    },
+    "education": {
+      "label": "education",
+      "typeof": "object",
+      "isArray": true,
+      "length": 0,
+      "sample": []
+    },
+    "summary": {
+      "label": "summary",
+      "typeof": "string",
+      "isArray": false,
+      "length": 599,
+      "sample": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neduc"
+    },
+    "hobbies": {
+      "label": "hobbies",
+      "typeof": "object",
+      "isArray": true,
+      "length": 0,
+      "sample": []
+    }
+  },
+  "htmlReport": {
+    "skillTagCount": 12,
+    "achievementItemCount": 5,
+    "experienceItemCount": 1,
+    "certificationItemCount": 5,
+    "projectItemCount": 0,
+    "doubleGlyphBullets": 0,
+    "skillTagsWithEmbeddedBullet": 0,
+    "inlineBulletJoinsInSkillsSection": 0
+  }
+}

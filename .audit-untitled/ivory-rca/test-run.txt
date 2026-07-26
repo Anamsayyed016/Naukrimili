@@ -1,0 +1,719 @@
+﻿node.exe : [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline 
+data, please update: `npm i baseline-browser-mapping@latest -D`
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows...ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please 
+update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please 
+update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please 
+update: `npm i baseline-browser-mapping@latest -D`
+FAIL unit tests/experience-body-recovery.test.ts (11.205 s)
+  ΓùÅ experience body recovery ΓÇ║ recovers bullets for title-company-date executive layout
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      49 |     const enriched = recoverExperienceBodiesFromRawText(EXECUTIVE_CS_RAW, entries);
+      50 |     expect(enriched[0].achievements?.length || 0).toBeGreaterThanOrEqual(2);
+    > 51 |     expect(enriched[1].achievements?.length || 0).toBeGreaterThanOrEqual(2);
+         |                                                   ^
+      52 |   });
+      53 |
+      54 |   it('parses year-with-at-as structured experience lines', () => {
+
+      at Object.toBeGreaterThanOrEqual (tests/experience-body-recovery.test.ts:51:51)
+
+PASS unit tests/executive-spaced-heading-recovery.test.ts (11.213 s)
+PASS unit tests/generic-parser-robustness.test.ts (13.558 s)
+  ΓùÅ Console
+
+    console.log
+      [import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+
+      at log (lib/resume-builder/import-transformer.ts:2008:19)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [builder-field-mapper] mapping report {
+        matched: [ 'identity:fullName', 'identity:email', 'skills:1' ],
+        recovered: [],
+        missing: [
+          'identity:phone',
+          'identity:location',
+          'identity:linkedin',
+          'identity:github',
+          'identity:portfolio',
+          'identity:summary'
+        ],
+        overwritten: [],
+        duplicates: []
+      }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+    console.log
+      [builder-field-mapper] mapping report {
+        matched: [ 'identity:fullName', 'identity:email', 'skills:1' ],
+        recovered: [],
+        missing: [
+          'identity:phone',
+          'identity:location',
+          'identity:linkedin',
+          'identity:github',
+          'identity:portfolio',
+          'identity:summary'
+        ],
+        overwritten: [],
+        duplicates: []
+      }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [import-pipeline-trace] {
+        raw: {
+          summaryChars: 0,
+          experience: 0,
+          experienceCompanies: 0,
+          projects: 0,
+          skills: 1,
+          education: 0,
+          certifications: 0,
+          languages: 0
+        },
+        merged: {
+          summaryChars: 0,
+          experience: 0,
+          experienceCompanies: 0,
+          projects: 0,
+          skills: 1,
+          education: 0,
+          certifications: 0,
+          languages: 0
+        },
+        builder: {
+          summaryChars: 0,
+          experience: 0,
+          experienceCompanies: 0,
+          projects: 0,
+          skills: 1,
+          education: 0,
+          certifications: 0,
+          languages: 0
+        }
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:731:11)
+
+    console.warn
+      [import-transformer] mapping validation {
+        issues: [ 'summary:missing', 'education:empty', 'projects:empty' ],
+        recoveries: [],
+        experienceCount: 0,
+        rawCompanyCount: 0,
+        builtCompanyCount: 0
+      }
+
+      4251 |
+      4252 |   if (issues.length > 0) {
+    > 4253 |     console.warn('[import-transformer] mapping validation', {
+           |             ^
+      4254 |       issues,
+      4255 |       recoveries,
+      4256 |       experienceCount: experience.length,
+
+      at warn (lib/resume-builder/import-transformer.ts:4253:13)
+      at logImportMappingValidation (lib/resume-builder/import-transformer.ts:2158:3)
+      at Object.<anonymous> (tests/generic-parser-robustness.test.ts:95:49)
+
+    console.log
+      [import-transformer] mapped ΓåÆ {
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: false,
+        location: false,
+        linkedin: false,
+        portfolio: false,
+        summary: false,
+        skills: 1,
+        experience: 0,
+        education: 0,
+        projects: 0,
+        certifications: 0,
+        languages: 0,
+        achievements: 0,
+        hobbies: 0
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:4282:11)
+
+    console.log
+      [resume-extraction-validation] { warnings: 1, repairs: 0 }
+
+      at log (lib/resume-parser/extraction-repair.ts:296:13)
+
+    console.log
+      [import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+
+      at log (lib/resume-builder/import-transformer.ts:2008:19)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [builder-field-mapper] mapping report {
+        matched: [
+          'identity:fullName',
+          'identity:email',
+          'education:1',
+          'languages:1',
+          'skills:3'
+        ],
+        recovered: [],
+        missing: [
+          'identity:phone',
+          'identity:location',
+          'identity:linkedin',
+          'identity:github',
+          'identity:portfolio',
+          'identity:summary',
+          'experience[0]:company'
+        ],
+        overwritten: [],
+        duplicates: []
+      }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+    console.log
+      [builder-field-mapper] mapping report {
+        matched: [
+          'identity:fullName',
+          'identity:email',
+          'education:1',
+          'languages:1',
+          'achievements:13',
+          'skills:3'
+        ],
+        recovered: [],
+        missing: [
+          'identity:phone',
+          'identity:location',
+          'identity:linkedin',
+          'identity:github',
+          'identity:portfolio',
+          'identity:summary',
+          'experience[0]:company'
+        ],
+        overwritten: [],
+        duplicates: []
+      }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [import-pipeline-trace] {
+        raw: {
+          summaryChars: 0,
+          experience: 1,
+          experienceCompanies: 0,
+          projects: 0,
+          skills: 3,
+          education: 0,
+          certifications: 0,
+          languages: 1
+        },
+        merged: {
+          summaryChars: 0,
+          experience: 1,
+          experienceCompanies: 0,
+          projects: 0,
+          skills: 3,
+          education: 1,
+          certifications: 0,
+          languages: 1
+        },
+        builder: {
+          summaryChars: 0,
+          experience: 1,
+          experienceCompanies: 0,
+          projects: 0,
+          skills: 3,
+          education: 0,
+          certifications: 0,
+          languages: 1
+        }
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:731:11)
+
+    console.warn
+      [import-transformer] mapping validation {
+        issues: [
+          'summary:missing',
+          'experience[0]:missing-company',
+          'education:empty',
+          'projects:empty'
+        ],
+        recoveries: [],
+        experienceCount: 1,
+        rawCompanyCount: 0,
+        builtCompanyCount: 0
+      }
+
+      4251 |
+      4252 |   if (issues.length > 0) {
+    > 4253 |     console.warn('[import-transformer] mapping validation', {
+           |             ^
+      4254 |       issues,
+      4255 |       recoveries,
+      4256 |       experienceCount: experience.length,
+
+      at warn (lib/resume-builder/import-transformer.ts:4253:13)
+      at logImportMappingValidation (lib/resume-builder/import-transformer.ts:2158:3)
+      at Object.<anonymous> (tests/generic-parser-robustness.test.ts:855:49)
+
+    console.log
+      [import-transformer] mapped ΓåÆ {
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: false,
+        location: false,
+        linkedin: false,
+        portfolio: false,
+        summary: false,
+        skills: 3,
+        experience: 1,
+        education: 0,
+        projects: 0,
+        certifications: 0,
+        languages: 1,
+        achievements: 0,
+        hobbies: 0
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:4282:11)
+
+    console.log
+      [resume-extraction-validation] { warnings: 1, repairs: 0 }
+
+      at log (lib/resume-parser/extraction-repair.ts:296:13)
+
+FAIL unit tests/naukri-qamar-import.test.ts (14.506 s)
+  ΓùÅ Console
+
+    console.log
+      [import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+
+      at log (lib/resume-builder/import-transformer.ts:2008:19)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [builder-field-mapper] mapping report {
+        matched: [
+          'identity:fullName',
+          'identity:email',
+          'identity:phone',
+          'education:1',
+          'languages:3',
+          'skills:2'
+        ],
+        recovered: [],
+        missing: [
+          'identity:location',
+          'identity:linkedin',
+          'identity:github',
+          'identity:portfolio',
+          'identity:summary'
+        ],
+        overwritten: [],
+        duplicates: []
+      }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [import-pipeline-trace] {
+        raw: {
+          summaryChars: 0,
+          experience: 1,
+          experienceCompanies: 1,
+          projects: 0,
+          skills: 2,
+          education: 1,
+          certifications: 0,
+          languages: 3
+        },
+        merged: {
+          summaryChars: 0,
+          experience: 4,
+          experienceCompanies: 4,
+          projects: 0,
+          skills: 2,
+          education: 1,
+          certifications: 0,
+          languages: 3
+        },
+        builder: {
+          summaryChars: 0,
+          experience: 4,
+          experienceCompanies: 4,
+          projects: 0,
+          skills: 5,
+          education: 1,
+          certifications: 0,
+          languages: 3
+        }
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:731:11)
+
+    console.warn
+      [import-transformer] mapping validation {
+        issues: [
+          'summary:missing',
+          'experience[0]:missing-description',
+          'experience[1]:missing-description',
+          'experience[2]:missing-description',
+          'experience[3]:missing-description',
+          'projects:empty'
+        ],
+        recoveries: [],
+        experienceCount: 4,
+        rawCompanyCount: 4,
+        builtCompanyCount: 4
+      }
+
+      4251 |
+      4252 |   if (issues.length > 0) {
+    > 4253 |     console.warn('[import-transformer] mapping validation', {
+           |             ^
+      4254 |       issues,
+      4255 |       recoveries,
+      4256 |       experienceCount: experience.length,
+
+      at warn (lib/resume-builder/import-transformer.ts:4253:13)
+      at logImportMappingValidation (lib/resume-builder/import-transformer.ts:2158:3)
+      at runImportPipeline (tests/naukri-qamar-import.test.ts:64:47)
+      at Object.runImportPipeline (tests/naukri-qamar-import.test.ts:198:17)
+
+    console.log
+      [import-transformer] mapped ΓåÆ {
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        location: false,
+        linkedin: false,
+        portfolio: false,
+        summary: false,
+        skills: 5,
+        experience: 4,
+        education: 1,
+        projects: 0,
+        certifications: 0,
+        languages: 3,
+        achievements: 0,
+        hobbies: 0
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:4282:11)
+
+    console.log
+      [import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+
+      at log (lib/resume-builder/import-transformer.ts:2008:19)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [builder-field-mapper] mapping report {
+        matched: [
+          'identity:fullName',
+          'identity:email',
+          'identity:phone',
+          'education:1',
+          'languages:3',
+          'skills:5'
+        ],
+        recovered: [],
+        missing: [
+          'identity:location',
+          'identity:linkedin',
+          'identity:github',
+          'identity:portfolio',
+          'identity:summary'
+        ],
+        overwritten: [],
+        duplicates: []
+      }
+
+      at log (lib/resume-parser/builder-field-mapper.ts:907:11)
+
+    console.log
+      RAW PROJECTS []
+
+      at log (lib/resume-parser/import-sanitize.ts:3264:11)
+
+    console.log
+      projects.length 0
+
+      at log (lib/resume-parser/import-sanitize.ts:3265:11)
+
+    console.log
+      [import-transformer] final projects.length 0
+
+      at log (lib/resume-builder/import-transformer.ts:3982:11)
+
+    console.log
+      [import-pipeline-trace] {
+        raw: {
+          summaryChars: 0,
+          experience: 4,
+          experienceCompanies: 4,
+          projects: 0,
+          skills: 5,
+          education: 1,
+          certifications: 0,
+          languages: 3
+        },
+        merged: {
+          summaryChars: 0,
+          experience: 4,
+          experienceCompanies: 4,
+          projects: 0,
+          skills: 5,
+          education: 1,
+          certifications: 0,
+          languages: 3
+        },
+        builder: {
+          summaryChars: 0,
+          experience: 4,
+          experienceCompanies: 4,
+          projects: 0,
+          skills: 5,
+          education: 1,
+          certifications: 0,
+          languages: 3
+        }
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:731:11)
+
+    console.warn
+      [import-transformer] mapping validation {
+        issues: [
+          'summary:missing',
+          'experience[0]:missing-description',
+          'experience[1]:missing-description',
+          'experience[2]:missing-description',
+          'experience[3]:missing-description',
+          'projects:empty'
+        ],
+        recoveries: [],
+        experienceCount: 4,
+        rawCompanyCount: 4,
+        builtCompanyCount: 4
+      }
+
+      4251 |
+      4252 |   if (issues.length > 0) {
+    > 4253 |     console.warn('[import-transformer] mapping validation', {
+           |             ^
+      4254 |       issues,
+      4255 |       recoveries,
+      4256 |       experienceCount: experience.length,
+
+      at warn (lib/resume-builder/import-transformer.ts:4253:13)
+      at logImportMappingValidation (lib/resume-builder/import-transformer.ts:2158:3)
+      at transformImportDataToBuilder (lib/resume-builder/import-transformer.ts:938:12)
+      at runImportPipeline (tests/naukri-qamar-import.test.ts:70:38)
+      at Object.runImportPipeline (tests/naukri-qamar-import.test.ts:198:17)
+
+    console.log
+      [import-transformer] mapped ΓåÆ {
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        location: false,
+        linkedin: false,
+        portfolio: false,
+        summary: false,
+        skills: 5,
+        experience: 4,
+        education: 1,
+        projects: 0,
+        certifications: 0,
+        languages: 3,
+        achievements: 0,
+        hobbies: 0
+      }
+
+      at log (lib/resume-builder/import-transformer.ts:4282:11)
+
+  ΓùÅ Naukri Qamar Ali import patterns ΓÇ║ expands vowel-dropped first name from email local part
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Qamar Ali"
+    Received: "Qmr Ali"
+
+      80 |   it('expands vowel-dropped first name from email local part', () => {
+      81 |     expect(expandVowelDroppedNameFromEmail('Qmr Ali', 'qamar.ali@gmail.com')).toBe('Qamar Ali');
+    > 82 |     expect(enrichPartialNameFromEmail('Qmr Ali', 'qamar.ali@gmail.com')).toBe('Qamar Ali');
+         |                                                                          ^
+      83 |   });
+      84 |
+      85 |   it('prefers fuller first name when consonant skeletons match (Qmr vs Qamar)', () => {
+
+      at Object.toBe (tests/naukri-qamar-import.test.ts:82:74)
+
+  ΓùÅ Naukri Qamar Ali import patterns ΓÇ║ recovers competency synopsis bullets and skills labels
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      152 | Extracurricular Activities:`;
+      153 |     const bullets = recoverCompetencyBulletsFromRawText(text);
+    > 154 |     expect(bullets.length).toBeGreaterThanOrEqual(2);
+          |                            ^
+      155 |     const skills = recoverSkillsFromCompetencySections(text);
+      156 |     expect(skills.some((s) => /corporate actions/i.test(s))).toBe(true);
+      157 |   });
+
+      at Object.toBeGreaterThanOrEqual (tests/naukri-qamar-import.test.ts:154:28)
+
+  ΓùÅ Naukri Qamar Ali import patterns ΓÇ║ imports multiple jobs, skills, and education from Naukri-style text
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /qamar/i
+    Received string:  "Hsc"
+
+      199 |     const exps = out.experience as Array<Record<string, unknown>>;
+      200 |     expect(exps.length).toBeGreaterThanOrEqual(3);
+    > 201 |     expect(String(out.firstName || out.fullName)).toMatch(/qamar/i);
+          |                                                   ^
+      202 |     const skills = out.skills as string[];
+      203 |     expect(skills.length).toBeGreaterThan(2);
+      204 |     expect(skills.join(' ').toLowerCase()).toMatch(/compliance|corporate/);
+
+      at Object.toMatch (tests/naukri-qamar-import.test.ts:201:51)
+
+Test Suites: 2 failed, 2 passed, 4 total
+Tests:       4 failed, 47 passed, 51 total
+Snapshots:   0 total
+Time:        16.897 s, estimated 50 s
+Ran all test suites matching /tests\\generic-parser-robustness.test.ts|tests\\experience-body-recovery.test.ts|tests\\n
+aukri-qamar-import.test.ts|tests\\executive-spaced-heading-recovery.test.ts/i.

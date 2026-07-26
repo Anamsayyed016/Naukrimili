@@ -12,6 +12,9 @@ import {
   recoverLocationFromImportText,
   splitExperienceEntriesWithEmbeddedJobs,
   splitFullNameWithRejected,
+  pruneExperienceBodyFields,
+  reconcileExperienceHeaderFields,
+  recoverCompetencyBulletsFromRawText,
 } from '@/lib/resume-parser/import-sanitize';
 import { collectNameCandidatesFromText } from '@/lib/resume-parser/text-recovery';
 import {
@@ -801,5 +804,94 @@ describe('generic resume parser robustness', () => {
       scoreNameCandidate('Aamir Mehboob', 78)
     );
     expect(normalizeNameLine('DR. SYED AAMIR MEHBOOB, PH.D.')).toMatch(/Syed Aamir Mehboob|SYED AAMIR MEHBOOB/i);
+  });
+
+  it('does not wipe duty bullets or attach mid-dot competencies into experience', () => {
+    expect(classifyResumeTextFragment('Academic Leadership').kind).not.toBe('SECTION_HEADER');
+    expect(classifyResumeTextFragment('Communication Skills').kind).not.toBe('SECTION_HEADER');
+
+    const pruned = pruneExperienceBodyFields('Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities', [
+      'Academic Leadership',
+      'Curriculum Development',
+      'Faculty Mentoring',
+      'Research Supervision',
+      'Student Development',
+      'Institutional Growth',
+      'Leadership Development',
+    ]);
+    expect(pruned.achievements.length).toBeGreaterThanOrEqual(6);
+    expect(pruned.achievements[0]).toMatch(/Academic Leadership/i);
+
+    const reconciled = reconcileExperienceHeaderFields({
+      company: '● Curriculum Development',
+      position: 'Senior Professor',
+      location: 'Senior Professor',
+      description: 'Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities',
+      achievements: [
+        'Academic Leadership',
+        'Curriculum Development',
+        'Faculty Mentoring',
+        'Research Supervision',
+        'Student Development',
+        'Institutional Growth',
+      ],
+    });
+    expect(String(reconciled.location || '')).not.toMatch(/Senior Professor/i);
+    expect((reconciled.achievements as string[]).length).toBeGreaterThanOrEqual(6);
+
+    const raw = [
+      'CORE COMPETENCIES',
+      'Leadership Development • Executive Coaching • Public Speaking • Faculty Development •',
+      'PAGE 2 — SPEAKING & TRAINING',
+      'EXPERTISE SIGNATURE KEYNOTE TOPICS',
+      '● The Future of Education in the AI Era',
+      '● Leadership Beyond Titles',
+      'TRAINING PROGRAMMES',
+      '● Training of Trainers (ToT)',
+    ].join('\n');
+    const competency = recoverCompetencyBulletsFromRawText(raw);
+    expect(competency.some((b) => /AI Era|Beyond Titles|Training of Trainers/i.test(b))).toBe(false);
+
+    const builder = transformImportDataToBuilder({
+      fullName: 'Dr. SYED AAMIR MEHBOOB, PH.D.',
+      email: 'lifecoachaamir@gmail.com',
+      skills: ['Leadership Development', 'Executive Coaching', 'Public Speaking'],
+      experience: [
+        {
+          company: '● Curriculum Development',
+          position: 'Senior Professor',
+          location: 'Senior Professor',
+          description: 'Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities',
+          achievements: [
+            'Academic Leadership',
+            'Curriculum Development',
+            'Faculty Mentoring',
+            'Research Supervision',
+            'Student Development',
+            'Institutional Growth',
+            'Leadership Development',
+            'Executive Coaching',
+            'Communication Skills',
+            'Team Building',
+            'Performance Enhancement',
+            'Organizational Learning',
+            'Corporate Workshops',
+          ],
+        },
+      ],
+      certifications: [],
+      languages: [{ name: 'English', proficiency: 'Professional' }],
+      rawText: raw,
+      customParserUsed: true,
+    }) as {
+      experience?: Array<{ achievements?: string[]; location?: string; description?: string }>;
+    };
+
+    const exp = builder.experience?.[0];
+    const ach = exp?.achievements || [];
+    expect(ach.length).toBeGreaterThanOrEqual(6);
+    expect(ach.some((a) => (String(a).match(/•/g) || []).length >= 2)).toBe(false);
+    expect(ach.some((a) => /AI Era|Beyond Titles/i.test(String(a)))).toBe(false);
+    expect(String(exp?.location || '')).not.toMatch(/Senior Professor/i);
   });
 });
