@@ -33,6 +33,7 @@ import {
   pickBestNameFromCandidates,
   isResumeSectionHeadingLine,
   sanitizeSkillEntry,
+  sanitizePersonName,
   looksLikeJobTitleLine,
   normalizeSkillsList,
   sanitizeExperienceDateValue,
@@ -1667,6 +1668,26 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
   const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   const email = emailMatch?.[0] || '';
 
+  const looksLikeCredentialedPersonHeader = (value: string): boolean => {
+    const s = String(value || '').trim();
+    if (!s || s.length > 80) return false;
+    if (
+      !/^(?:dr|mr|mrs|ms|prof|cs|ca|cma|cfa|cpa|fcs)\.?\s+/i.test(s) &&
+      !/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?)\.?\s*$/i.test(s)
+    ) {
+      return false;
+    }
+    const core = s
+      .replace(/^(?:dr|mr|mrs|ms|prof|cs|ca|cma|cfa|cpa|fcs)\.?\s+/i, '')
+      .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?|mba)\.?\s*$/i, '')
+      .replace(/,/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const words = core.split(/\s+/).filter(Boolean);
+    if (words.length < 2 || words.length > 6) return false;
+    return words.every((w) => /^[A-Za-z][A-Za-z'.-]*$/.test(w));
+  };
+
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
   const labeledNameRe =
@@ -1704,18 +1725,50 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
   if (email) {
     const emailIdx = lines.findIndex((l) => l.includes(email));
     if (emailIdx >= 0) {
-      for (let offset = 1; offset <= 5; offset++) {
+      for (let offset = 1; offset <= 8; offset++) {
         const above = lines[emailIdx - offset];
         if (!above || isAnyHeadingLine(above)) break;
-        if (isPlausiblePersonName(above) && !isFirmOrLocationNamePhrase(above)) {
-          candidates.push({ value: above, confidence: 88 - offset * 2, source: 'near_contact' });
+        const cleaned =
+          sanitizePersonName(above, 120) ||
+          above
+            .replace(
+              /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|x|github|portfolio)\s*[:\-–—|]?\s+/i,
+              ''
+            )
+            .trim();
+        if (
+          cleaned &&
+          (isPlausiblePersonName(cleaned) || looksLikeCredentialedPersonHeader(cleaned)) &&
+          !isFirmOrLocationNamePhrase(cleaned)
+        ) {
+          candidates.push({
+            value: cleaned,
+            confidence: 88 - offset * 2,
+            source: 'near_contact',
+          });
         }
       }
-      for (let offset = 1; offset <= 2; offset++) {
+      for (let offset = 1; offset <= 6; offset++) {
         const below = lines[emailIdx + offset];
-        if (!below || isAnyHeadingLine(below)) break;
-        if (isPlausiblePersonName(below) && !isFirmOrLocationNamePhrase(below)) {
-          candidates.push({ value: below, confidence: 82 - offset * 3, source: 'near_contact' });
+        if (!below || isAnyHeadingLine(below)) continue;
+        const cleaned =
+          sanitizePersonName(below, 120) ||
+          below
+            .replace(
+              /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|x|github|portfolio)\s*[:\-–—|]?\s+/i,
+              ''
+            )
+            .trim();
+        if (
+          cleaned &&
+          (isPlausiblePersonName(cleaned) || looksLikeCredentialedPersonHeader(cleaned)) &&
+          !isFirmOrLocationNamePhrase(cleaned)
+        ) {
+          candidates.push({
+            value: cleaned,
+            confidence: 86 - offset * 2,
+            source: 'near_contact',
+          });
         }
       }
     }
@@ -1724,7 +1777,16 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
   for (let i = 0; i < Math.min(lines.length, 12); i++) {
     const line = lines[i];
     if (!line || isAnyHeadingLine(line)) continue;
-    if (/^[A-Z][A-Z\s'-]{3,}$/.test(line) && line.split(/\s+/).length >= 2 && line.length < 50) {
+    // ALL-CAPS header names, including credential punctuation ("DR. …, PH.D.").
+    const capsCore = line
+      .replace(/^(?:DR|MR|MRS|MS|PROF)\.?\s+/i, '')
+      .replace(/,?\s*(?:PH\.?\s*D\.?|M\.?\s*D\.?|D\.?\s*PHIL\.?|MBA)\.?$/i, '')
+      .trim();
+    const capsName =
+      /^[A-Z][A-Z\s'.,-]{3,}$/.test(line) ||
+      (/^(?:DR|MR|MRS|MS|PROF)\.?\s+[A-Z]/.test(line) &&
+        /^[A-Z][A-Z\s'-]{3,}$/.test(capsCore));
+    if (capsName && line.split(/\s+/).length >= 2 && line.length < 80) {
       candidates.push({ value: line, confidence: 90 - i * 2, source: 'header_centered' });
     }
   }
@@ -1738,14 +1800,24 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
     candidates.push({ value: lines[0], confidence: 30, source: 'first_line' });
   }
 
+  // Honorific + name (+ optional academic credential). Supports ALL CAPS and Title Case.
   const credentialNameRe =
-    /^(?:CS|CA|CMA|CFA|CPA|FCS|Dr|Mr|Mrs|Ms)\.?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){1,3})$/;
-  for (const line of lines) {
+    /^(?:CS|CA|CMA|CFA|CPA|FCS|Dr|MR|MRS|MS|PROF)\.?\s+([A-Z][A-Za-z]*(?:\s+[A-Z][A-Za-z]*){1,4})(?:,?\s*(?:PH\.?\s*D\.?|M\.?\s*D\.?|D\.?\s*PHIL\.?|MBA))?\.?$/i;
+  for (const line of lines.slice(0, 40)) {
     const match = line.match(credentialNameRe);
     if (!match) continue;
-    const name = stripCredentialPrefix(match[0].trim()) || match[1].trim();
+    const raw = match[0].trim();
+    const name =
+      sanitizePersonName(raw, 120) ||
+      stripCredentialPrefix(raw) ||
+      match[1].trim();
     if (isPlausiblePersonName(name) && !isFirmOrLocationNamePhrase(name)) {
-      candidates.push({ value: name, confidence: 93, source: 'text_recovery' });
+      candidates.push({ value: name, confidence: 95, source: 'text_recovery' });
+    } else if (
+      looksLikeCredentialedPersonHeader(raw) &&
+      !isFirmOrLocationNamePhrase(raw)
+    ) {
+      candidates.push({ value: raw, confidence: 94, source: 'text_recovery' });
     }
   }
 

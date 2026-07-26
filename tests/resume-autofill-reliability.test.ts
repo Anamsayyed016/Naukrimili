@@ -65,7 +65,8 @@ describe('pickBestNameFromCandidates contact-first', () => {
       ],
       'anamkhan@gmail.com'
     );
-    expect(winner).toBe('Anamkhan');
+    const emailFallback = deriveDisplayNameFromEmail('anamkhan@gmail.com');
+    expect(winner).toBe(emailFallback);
     expect(winner).not.toMatch(/ail\.com|qualification/i);
   });
 

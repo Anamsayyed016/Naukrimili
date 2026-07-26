@@ -13,6 +13,7 @@ import {
   splitExperienceEntriesWithEmbeddedJobs,
   splitFullNameWithRejected,
 } from '@/lib/resume-parser/import-sanitize';
+import { collectNameCandidatesFromText } from '@/lib/resume-parser/text-recovery';
 import {
   classifyResumeTextFragment,
   isLikelyLocationFragment,
@@ -102,6 +103,28 @@ describe('generic resume parser robustness', () => {
     expect(String(builder.firstName)).not.toMatch(/lifeco/i);
     expect(String(builder.fullName || builder.name)).toMatch(/SYED AAMIR MEHBOOB/i);
     expect(String(builder.fullName || builder.name)).not.toMatch(/lifeco/i);
+  });
+
+  it('recovers credentialed ALL-CAPS headers and rejects award titles / email vanity', () => {
+    const email = 'lifecoachaamir@gmail.com';
+    const text = [
+      '+91 9826017854',
+      email,
+      'LinkedIn Dr. Aamir Mehboob',
+      '',
+      'DR. SYED AAMIR MEHBOOB, PH.D.',
+      'Senior Professor | International Trainer',
+      'Bhopal, India',
+      'CAREER HIGHLIGHTS',
+      'National Excellence Award',
+    ].join('\n');
+
+    const cands = collectNameCandidatesFromText(text);
+    expect(cands.some((c) => /SYED AAMIR MEHBOOB/i.test(c.value))).toBe(true);
+    expect(pickBestNameFromCandidates(cands, email)).toMatch(/SYED AAMIR MEHBOOB/i);
+    expect(pickBestNameFromCandidates(cands, email)).not.toMatch(/lifeco/i);
+    expect(isPlausiblePersonName('National Excellence Award')).toBe(false);
+    expect(deriveDisplayNameFromEmail(email)).toMatch(/Lifeco/i);
   });
 
   it('detects High Secondary school rows and Speak/Read/Write language grids', () => {

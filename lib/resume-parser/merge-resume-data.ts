@@ -124,7 +124,8 @@ function mergeFullName(
   if (emailDerived) {
     candidates.push({
       value: emailDerived,
-      confidence: 92,
+      // Last-resort only — never outrank document / parser names.
+      confidence: 38,
       source: 'email_derived',
     });
   }

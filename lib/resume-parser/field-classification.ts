@@ -431,6 +431,13 @@ function passesPersonNameShape(value: string): boolean {
   if (/[@+#]/.test(s) || /https?:|\bwww\./i.test(s)) return false;
   if (/\d/.test(s)) return false;
   if (NON_NAME_VOCAB.test(s)) return false;
+  if (
+    /\b(?:award|awards|excellence|recognition|certificate|certification|honou?r|medal|prize|achievement|highlights?|programmes?|programs?|workshop|seminar|conference|summit)\b/i.test(
+      s
+    )
+  ) {
+    return false;
+  }
 
   const words = s.split(/\s+/).filter(Boolean);
   if (!words.length || words.length > 5) return false;

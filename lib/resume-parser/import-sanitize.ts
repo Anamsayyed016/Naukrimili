@@ -1483,6 +1483,14 @@ export function isPlausiblePersonName(value: unknown): boolean {
   if (/\btedx?\b/i.test(s) || /^(?:keynote|guest|invited)\s+speaker$/i.test(s)) {
     return false;
   }
+  // Award / programme titles misread as Title Case person names.
+  if (
+    /\b(?:award|awards|excellence|recognition|certificate|certification|honou?r|medal|prize|achievement|highlights?|programmes?|programs?|workshop|seminar|conference|summit)\b/i.test(
+      s
+    )
+  ) {
+    return false;
+  }
   // Pipe-headline role fragments recovered as names ("Communication Expert",
   // "National Quiz Master", "Personality Development").
   if (
@@ -1820,10 +1828,15 @@ function scoreNameCandidate(candidate: NameCandidate, email: string): number {
   }
 
   if (candidate.source === 'near_contact' && emailDerived) {
-    confidence = Math.min(confidence, 70);
+    // Do not demote rich credentialed document headers found near contact.
+    if (docWords < 3 && !/(?:^dr\.?\s+|,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?)\.?$)/i.test(value)) {
+      confidence = Math.min(confidence, 70);
+    }
   }
   if (candidate.source === 'first_line' && emailDerived) {
-    confidence = Math.min(confidence, 65);
+    if (docWords < 3 && !/(?:^dr\.?\s+|,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?)\.?$)/i.test(value)) {
+      confidence = Math.min(confidence, 65);
+    }
   }
 
   return confidence;
@@ -1835,20 +1848,9 @@ function scoreNameCandidate(candidate: NameCandidate, email: string): number {
  */
 export function pickBestNameFromCandidates(candidates: NameCandidate[], email = ''): string {
   const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
-  const withEmailDerived =
-    emailDerived && !candidates.some((c) => c.source === 'email_derived')
-      ? [
-          ...candidates,
-          {
-            value: emailDerived,
-            // Seed below strong document names so vanity emails do not dominate.
-            confidence: nameWordCount(emailDerived) >= 3 ? 86 : 70,
-            source: 'email_derived' as const,
-          },
-        ]
-      : candidates;
 
-  const scored = withEmailDerived
+  const scoredDocs = candidates
+    .filter((c) => c.source !== 'email_derived')
     .map((c) => ({
       ...c,
       value: sanitizePersonName(c.value),
@@ -1856,37 +1858,36 @@ export function pickBestNameFromCandidates(candidates: NameCandidate[], email = 
     }))
     .filter((c) => c.value && c.confidence > 0);
 
-  if (!scored.length) return '';
-
-  // Prefer a multi-token document name over a shorter email-derived spelling
-  // when they do not share the same token set (e.g. "Mohammed Sarfaraz Allam"
-  // vs vanity "Allam Tesla").
-  const documentRich = scored
-    .filter((c) => c.source !== 'email_derived' && nameWordCount(c.value) >= 3)
-    .sort((a, b) => b.confidence - a.confidence || nameWordCount(b.value) - nameWordCount(a.value));
-  const emailCand = scored.find((c) => c.source === 'email_derived');
-  if (documentRich.length > 0 && emailCand) {
-    const doc = documentRich[0];
-    const docTokens = new Set(doc.value.toLowerCase().split(/\s+/).filter((t) => t.length >= 3));
-    const emailTokens = emailCand.value
-      .toLowerCase()
-      .split(/\s+/)
-      .filter((t) => t.length >= 3);
-    const shared = emailTokens.filter((t) => docTokens.has(t)).length;
-    if (shared < Math.min(2, emailTokens.length) || nameWordCount(doc.value) > nameWordCount(emailCand.value)) {
-      return doc.value;
+  if (scoredDocs.length > 0) {
+    // Prefer credentialed / multi-token formal headers over weaker social shortenings.
+    const credentialed = scoredDocs
+      .filter((c) => /(?:^dr\.?\s+|,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?)\.?$)/i.test(c.value))
+      .sort(
+        (a, b) =>
+          nameWordCount(b.value) - nameWordCount(a.value) || b.confidence - a.confidence
+      );
+    if (credentialed[0] && nameWordCount(credentialed[0].value) >= 3) {
+      return credentialed[0].value;
     }
+
+    scoredDocs.sort(
+      (a, b) => b.confidence - a.confidence || nameWordCount(b.value) - nameWordCount(a.value)
+    );
+    const topConfidence = scoredDocs[0].confidence;
+    const tier = scoredDocs.filter((c) => c.confidence >= topConfidence - 8);
+    let best = '';
+    for (const candidate of tier) {
+      best = pickRicherFullName(best, candidate.value, email);
+    }
+    return best;
   }
 
-  scored.sort((a, b) => b.confidence - a.confidence);
-  const topConfidence = scored[0].confidence;
-  const tier = scored.filter((c) => c.confidence >= topConfidence - 8);
-
-  let best = '';
-  for (const candidate of tier) {
-    best = pickRicherFullName(best, candidate.value, email);
-  }
-  return best;
+  // No usable document name — email local-part is last resort only.
+  const emailFromCandidates = candidates.find((c) => c.source === 'email_derived')?.value || '';
+  const emailFallback = sanitizePersonName(emailFromCandidates) || sanitizePersonName(emailDerived) || '';
+  if (emailFallback) return emailFallback;
+  if (emailDerived && isAcceptedEmailDerivedName(emailDerived)) return emailDerived;
+  return '';
 }
 
 function isEmailLocalSubstringName(name: string, email: string): boolean {

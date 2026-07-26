@@ -30,6 +30,10 @@ const TRAILING_SECTION_NOISE_RE =
 
 const HONORIFIC_PREFIX_RE = /^(?:dr|mr|mrs|ms|prof|sir)\.?\s+/i;
 
+/** Award / programme / role-title phrases that look Title Case but are not people. */
+const NON_PERSON_TITLE_PHRASE_RE =
+  /\b(?:award|awards|excellence|recognition|certificate|certification|honou?r|medal|prize|achievement|highlights?|programmes?|programs?|workshop|seminar|conference|summit|keynote|topics?|competenc(?:y|ies)|expertise|mission|summary|objective|motto|declaration)\b/i;
+
 /** Strip honorific prefixes and multi-column padding from a header line. */
 export function normalizeNameLine(line: string): string {
   let trimmed = line.trim();
@@ -100,6 +104,7 @@ export function looksLikePersonNameShape(text: string): boolean {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 3 || trimmed.length > 80) return false;
   if (/[@+0-9]|https?:\/\//i.test(trimmed)) return false;
+  if (NON_PERSON_TITLE_PHRASE_RE.test(trimmed)) return false;
   if (
     /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|github|portfolio)\b/i.test(
       trimmed
@@ -144,6 +149,7 @@ export function scoreNameCandidate(value: string, baseConfidence: number): numbe
   ) {
     return 0;
   }
+  if (NON_PERSON_TITLE_PHRASE_RE.test(trimmed)) return 0;
   const shapeOk = looksLikePersonNameShape(trimmed);
   const withCredentials = trimmed
     .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?|mba|ca|cs|acs|fcs)\.?$/i, '')
@@ -215,29 +221,67 @@ function collectZoneNameCandidates(zones: ScanZone[]): NameCandidate[] {
 
 export function detectFullName(zones: ScanZone[], primaryEmail = ''): NameDetection {
   const near = detectNameNearContactLines(zones);
-  if (near.confidence >= 55) return near;
-
   const firstLine = detectNameFromFirstLines(zones);
-  if (firstLine.confidence >= 58) return firstLine;
-
   const candidates = collectZoneNameCandidates(zones);
-  const best = pickBestNameFromCandidates(candidates, primaryEmail);
+
+  // Always include early detectors as ranked candidates — never early-return a
+  // Title Case award/role line before credentialed document headers are scored.
+  if (near.fullName && near.confidence > 0) {
+    candidates.push({
+      value: near.fullName,
+      confidence: near.confidence,
+      source: 'near_contact',
+    });
+  }
+  if (firstLine.fullName && firstLine.confidence > 0) {
+    candidates.push({
+      value: firstLine.fullName,
+      confidence: firstLine.confidence,
+      source: 'first_line',
+    });
+  }
+
+  // Prefer the intact full-document text. Concatenating footer/contact/page zones
+  // first buries the header name past the early-line scan windows and yields
+  // section mottos / award titles instead.
+  const fullZoneText =
+    zones.find((z) => z.label === 'full')?.text?.trim() ||
+    zones
+      .filter((z) => z.label === 'header' || z.label === 'preamble')
+      .map((z) => z.text)
+      .join('\n')
+      .trim();
+  if (fullZoneText.length >= 40) {
+    for (const c of collectNameCandidatesFromText(fullZoneText)) {
+      candidates.push({
+        ...c,
+        confidence: scoreNameCandidate(c.value, c.confidence),
+      });
+    }
+  }
+
+  const ranked = candidates.filter((c) => c.confidence > 0 && scoreNameCandidate(c.value, c.confidence) > 0);
+  const best = pickBestNameFromCandidates(ranked, primaryEmail);
   if (best) {
-    const matched = candidates.find((c) => c.value === best);
+    const matched = ranked.find(
+      (c) => c.value === best || sanitizeComparable(c.value) === sanitizeComparable(best)
+    );
     const confidence = matched?.confidence ?? scoreNameCandidate(best, 70);
     return { fullName: best, confidence };
   }
 
-  const nearFallback = detectNameNearContactLines(zones);
-  if (nearFallback.fullName) return nearFallback;
+  if (near.fullName && near.confidence >= 55) return near;
+  if (firstLine.fullName && firstLine.confidence >= 58) return firstLine;
 
   const headerText = zones
     .filter((z) =>
-      ['header', 'contact', 'preamble', 'footer', 'page'].includes(z.label)
+      ['header', 'contact', 'preamble', 'footer', 'page', 'full'].includes(z.label)
     )
     .map((z) => z.text)
     .join('\n');
-  const heuristic = headerText ? extractNameWithConfidence(headerText) : '';
+  const heuristic = headerText ? extractNameWithConfidence(
+    zones.find((z) => z.label === 'full')?.text || headerText
+  ) : '';
   if (heuristic) {
     return { fullName: heuristic, confidence: scoreNameCandidate(heuristic, 72) };
   }
@@ -245,10 +289,27 @@ export function detectFullName(zones: ScanZone[], primaryEmail = ''): NameDetect
   return { fullName: '', confidence: 0 };
 }
 
+function sanitizeComparable(value: string): string {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+}
+
 export function detectNameNearContactLines(zones: ScanZone[]): NameDetection {
-  const lines = getZoneLines(zones, ['header', 'contact', 'preamble', 'footer', 'page']);
+  // Include the start of the full document so header names above the fold are seen
+  // even when contact/footer zones are assembled from the resume tail.
+  const lines = [
+    ...getZoneLines(zones, ['header', 'contact', 'preamble', 'page']),
+    ...(zones.find((z) => z.label === 'full')?.text || '')
+      .replace(/\r\n/g, '\n')
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 20),
+    ...getZoneLines(zones, ['footer']),
+  ];
   let best: NameDetection = { fullName: '', confidence: 0 };
-  for (const rawLine of lines.slice(0, 14)) {
+  for (const rawLine of lines.slice(0, 40)) {
     const line = normalizeNameLine(rawLine);
     if (!line) continue;
     if (isResumeSectionHeadingLine(line)) continue;
