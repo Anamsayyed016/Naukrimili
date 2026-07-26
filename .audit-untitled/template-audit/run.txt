@@ -1,0 +1,60 @@
+﻿{
+  "templateId": "ice-teal-executive",
+  "balanced": false,
+  "moved": [
+    {
+      "kind": "extended",
+      "from": "main",
+      "to": "sidebar"
+    }
+  ],
+  "hasSideCard": true,
+  "membershipInAside": true,
+  "membershipOutsideCard": true,
+  "liWithBulletSample": [
+    "<li>ΓùÅ ",
+    "<li>ΓùÅ "
+  ],
+  "liWithBulletCount": 2,
+  "achievementWithBullet": 0
+}
+{
+  "templateId": "espresso-sage-executive",
+  "balanced": false,
+  "moved": [
+    {
+      "kind": "extended",
+      "from": "main",
+      "to": "sidebar"
+    }
+  ],
+  "hasSideCard": true,
+  "membershipInAside": true,
+  "membershipOutsideCard": true,
+  "liWithBulletSample": [
+    "<li>ΓùÅ ",
+    "<li>ΓùÅ "
+  ],
+  "liWithBulletCount": 2,
+  "achievementWithBullet": 0
+}
+{
+  "templateId": "ivory-monochrome-editorial",
+  "balanced": false,
+  "moved": [
+    {
+      "kind": "extended",
+      "from": "main",
+      "to": "sidebar"
+    }
+  ],
+  "hasSideCard": false,
+  "membershipInAside": true,
+  "membershipOutsideCard": false,
+  "liWithBulletSample": [
+    "<li>ΓùÅ ",
+    "<li>ΓùÅ "
+  ],
+  "liWithBulletCount": 2,
+  "achievementWithBullet": 0
+}

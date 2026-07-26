@@ -11,6 +11,7 @@ import {
   isRenderableResumeFieldKey,
   isRenderableResumeSection,
 } from '@/lib/resume-builder/renderable-resume-sections';
+import { stripLeadingListMarker } from '@/lib/resume-builder/content-composition';
 
 type NativeCategory =
   | 'summary'
@@ -72,10 +73,30 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/** Type A: one string with mid-dot separators — keep as inline paragraph, never UL. */
+function isInlineBulletSeparatedText(text: string): boolean {
+  const t = String(text || '').trim();
+  if (!t || /\n/.test(t)) return false;
+  return (t.match(/[•●]/g) || []).length >= 2;
+}
+
 function renderStringListItems(items: string[]): string {
-  if (items.length === 0) return '';
-  if (items.length === 1) return `<p>${escapeHtml(items[0])}</p>`;
-  return `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>`;
+  const cleaned = items
+    .map((item) => stripLeadingListMarker(String(item || '')))
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (cleaned.length === 0) return '';
+  // Single value: paragraph. Mid-dot Type A stays inline text (no UL).
+  if (cleaned.length === 1) {
+    return `<p>${escapeHtml(cleaned[0])}</p>`;
+  }
+  // If the "list" is really one inline Type A row mistaken as multiple parts,
+  // still prefer paragraph when every item still contains mid-dots.
+  if (cleaned.every((item) => isInlineBulletSeparatedText(item))) {
+    return `<p>${escapeHtml(cleaned.join(' '))}</p>`;
+  }
+  // Type B: real list data — one CSS bullet per <li>, never embed • in text.
+  return `<ul>${cleaned.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>`;
 }
 
 function renderRecordList(

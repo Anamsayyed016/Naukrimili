@@ -807,8 +807,10 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
         const explicitBullets = body.achievements
           .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
+        // Never split mid-line "A • B • C" into list items — that is inline Type A text.
+        // Only newline-delimited rows become candidate bullets.
         const descBullets = String(body.description || description)
-          .split(/\n|•|●|○|·|▪|‣|\u2023|\u25aa|\u25CF|\u25CB/)
+          .split(/\n+/)
           .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
         const mergedBody = dedupeExperienceBodyLines(body.description, [
@@ -1008,8 +1010,9 @@ function renderProjects(projects: Array<Record<string, string>>): string {
         const explicitBullets = body.achievements
           .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
+        // Never split mid-line "A • B • C" into list items — inline Type A text.
         const descBullets = String(body.description || '')
-          .split(/\n|•|●|○|·|▪|‣|\u2023|\u25aa|\u25CF|\u25CB/)
+          .split(/\n+/)
           .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
         const mergedBody = dedupeExperienceBodyLines(body.description, [

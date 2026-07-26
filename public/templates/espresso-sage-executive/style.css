@@ -102,14 +102,17 @@
 .ese-resume .ese-sidebar {
   min-width: 0;
   padding-right: 18px;
-  align-self: stretch;
+  align-self: start;
 }
 
 .ese-resume .ese-side-sheet {
   display: flex;
   flex-direction: column;
   gap: var(--ese-section-gap);
-  min-height: 100%;
+  /* Content-sized — min-height:100% stretched the sheet to the main column and
+     left a huge blank above Memberships when they were nested or appended. */
+  min-height: 0;
+  height: auto;
   background: var(--ese-beige);
   border-radius: 22px 8px 22px 8px;
   padding: 26px 20px 30px;
@@ -979,7 +982,14 @@
 }
 
 .resume-container.ese-resume .ese-sidebar {
-  align-self: stretch !important;
+  align-self: start !important;
+}
+
+.resume-container.ese-resume .ese-side-sheet {
+  min-height: 0 !important;
+  height: auto !important;
+  align-self: start !important;
+  justify-content: flex-start !important;
 }
 
 .resume-container.ese-resume {

@@ -209,10 +209,10 @@
   gap: 18px;
 }
 
-/* ── Floating ice sidebar card ── */
+/* Body stretches tracks for equal columns, but sidebar content stays top-aligned. */
 .ite-resume .ite-sidebar {
   min-width: 0;
-  align-self: stretch;
+  align-self: start;
   overflow: visible;
 }
 
@@ -224,7 +224,8 @@
   border: 1px solid var(--ite-border);
   border-radius: 18px;
   padding: 18px 16px 20px;
-  height: 100%;
+  height: auto;
+  min-height: 0;
   box-shadow: 0 4px 16px rgba(30, 41, 59, 0.04);
 }
 
@@ -908,11 +909,15 @@
 }
 
 .resume-container.ite-resume .ite-sidebar {
-  align-self: stretch !important;
+  align-self: start !important;
 }
 
+/* Content-sized card — never stretch to main-column height (creates blank gap
+   above relocated sections such as Memberships). */
 .resume-container.ite-resume .ite-side-card {
-  height: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
 }
 
 .resume-container.ite-resume {

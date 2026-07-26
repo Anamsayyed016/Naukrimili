@@ -271,6 +271,46 @@ function removeFirstOccurrence(haystack: string, needle: string): string {
   return haystack.slice(0, index) + haystack.slice(index + needle.length);
 }
 
+/**
+ * Nest relocated sections inside the visual sidebar sheet/card when present.
+ * Appending as a sibling of `ite-side-card` / `ese-side-sheet` leaves memberships
+ * outside a height:100% card and creates a huge blank gap above them.
+ */
+function appendSectionToSidebarInner(sidebarInner: string, sectionHtml: string): string {
+  const marked = sectionHtml.trim();
+  if (!marked) return sidebarInner;
+
+  const openRe =
+    /<div\b[^>]*\bclass="[^"]*\b(?:ite-side-card|ese-side-sheet)\b[^"]*"[^>]*>/i;
+  const openMatch = sidebarInner.match(openRe);
+  if (!openMatch || openMatch.index == null) {
+    return `${sidebarInner}\n${marked}\n`;
+  }
+
+  const afterOpen = openMatch.index + openMatch[0].length;
+  let depth = 1;
+  let i = afterOpen;
+  while (i < sidebarInner.length && depth > 0) {
+    const slice = sidebarInner.slice(i);
+    const openIdx = slice.search(/<div\b/i);
+    const closeIdx = slice.search(/<\/div>/i);
+    if (closeIdx < 0) break;
+    if (openIdx >= 0 && openIdx < closeIdx) {
+      depth += 1;
+      i += openIdx + 4;
+      continue;
+    }
+    if (depth === 1) {
+      const closeAt = i + closeIdx;
+      return `${sidebarInner.slice(0, closeAt)}\n${marked}\n${sidebarInner.slice(closeAt)}`;
+    }
+    depth -= 1;
+    i += closeIdx + 6;
+  }
+
+  return `${sidebarInner}\n${marked}\n`;
+}
+
 function sortFlexibleCandidates(
   sections: LocatedSection[],
   metadata: TemplateLayoutMetadata
@@ -365,7 +405,10 @@ function balancePass(
     if (!mainInner.includes(candidate.html)) continue;
 
     const simulatedMain = removeFirstOccurrence(mainInner, candidate.html);
-    const simulatedSidebar = `${sidebarInner}\n${markMovedSection(candidate.html, candidate.kind)}\n`;
+    const simulatedSidebar = appendSectionToSidebarInner(
+      sidebarInner,
+      markMovedSection(candidate.html, candidate.kind)
+    );
     const projectedMain = estimateColumnBlockHeight(simulatedMain);
     const projectedSidebar = estimateColumnBlockHeight(simulatedSidebar);
 
