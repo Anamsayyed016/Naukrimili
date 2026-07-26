@@ -10,9 +10,17 @@
   --editor-form-min: 420px;
   --editor-preview-min: 700px;
   --editor-toolbar-height: 4rem;
+  /* Matches body padding-top in app/globals.css (fixed MainNavigation). */
+  --editor-site-nav-offset: 6rem;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .resume-editor-shell {
+    --editor-site-nav-offset: 7rem;
+  }
 }
 
 @media (max-width: 1279px) {
@@ -181,6 +189,13 @@
 /* Desktop only (>= 1200px) — split layout, unchanged proportions      */
 /* ================================================================== */
 @media (min-width: 1200px) {
+  /* Fit under fixed site nav so the form nav footer stays in the viewport. */
+  .resume-editor-shell {
+    height: calc(100dvh - var(--editor-site-nav-offset));
+    max-height: calc(100dvh - var(--editor-site-nav-offset));
+    overflow: hidden;
+  }
+
   .resume-editor-workspace {
     grid-template-columns:
       minmax(var(--editor-form-min), var(--editor-form-ratio))
@@ -223,7 +238,7 @@
 /* ================================================================== */
 @media (max-width: 1199px) {
   .resume-editor-shell {
-    min-height: 100dvh;
+    min-height: calc(100dvh - var(--editor-site-nav-offset));
     height: auto;
     max-height: none;
     overflow-x: clip;
@@ -243,7 +258,8 @@
     display: flex;
     flex-direction: column;
     height: auto;
-    max-height: min(88dvh, calc(100dvh - var(--editor-toolbar-height)));
+    /* Keep Previous/Next inside the visible area under the fixed site nav. */
+    max-height: calc(100dvh - var(--editor-site-nav-offset) - 0.5rem);
     flex: 0 0 auto;
     overflow: hidden;
     border-right: none;

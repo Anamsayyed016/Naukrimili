@@ -931,7 +931,7 @@ export default function ResumeEditorPage() {
   };
 
   return (
-    <motion.div className="resume-editor-shell flex flex-col bg-slate-100 min-[1200px]:h-screen min-[1200px]:max-h-screen min-[1200px]:overflow-hidden max-[1199px]:min-h-dvh max-[1199px]:overflow-x-clip max-[1199px]:overflow-y-auto">
+    <motion.div className="resume-editor-shell flex flex-col bg-slate-100 max-[1199px]:overflow-x-clip max-[1199px]:overflow-y-auto">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
