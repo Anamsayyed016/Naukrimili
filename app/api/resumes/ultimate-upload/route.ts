@@ -1209,6 +1209,7 @@ export async function POST(request: NextRequest) {
             ? String(parsedData.fullName || parsedData.name || '').trim()
             : '';
           const emailDerived = deriveDisplayNameFromEmail(emailForMerge);
+          // Email-local names are last-resort only — never outrank document text.
           const mergedFullName = pickBestNameFromCandidates(
             [
               ...collectNameCandidatesFromText(text),
@@ -1222,7 +1223,7 @@ export async function POST(request: NextRequest) {
                 ? [
                     {
                       value: emailDerived,
-                      confidence: isPlausiblePersonName(emailDerived) ? 82 : 42,
+                      confidence: 38,
                       source: 'email_derived' as const,
                     },
                   ]
@@ -1821,7 +1822,8 @@ export async function POST(request: NextRequest) {
               ? [
                   {
                     value: emailDerivedName,
-                    confidence: isPlausiblePersonName(emailDerivedName) ? 82 : 42,
+                    // Last-resort only — vanity locals must not beat document names.
+                    confidence: 38,
                     source: 'email_derived' as const,
                   },
                 ]

@@ -6,12 +6,20 @@ import {
   isPlausiblePersonName,
   isPlausibleProjectName,
   pickRicherFullName,
+  pickBestNameFromCandidates,
+  deriveDisplayNameFromEmail,
   recoverLanguagesFromPersonalDetails,
   recoverLocationFromImportText,
   splitExperienceEntriesWithEmbeddedJobs,
+  splitFullNameWithRejected,
 } from '@/lib/resume-parser/import-sanitize';
+import {
+  classifyResumeTextFragment,
+  isLikelyLocationFragment,
+} from '@/lib/resume-parser/field-classification';
 import { looksLikeSentenceNotCompany, looksLikeInstitutionalEmployer } from '@/lib/resume-parser/custom/experience-extraction/company';
 import { sanitizeIdentityField } from '@/lib/resume-parser/custom/identity-extraction/validate';
+import { transformImportDataToBuilder } from '@/lib/resume-builder/import-transformer';
 
 describe('generic resume parser robustness', () => {
   it('rejects duty prose and ISO standards fragments as employers', () => {
@@ -57,6 +65,43 @@ describe('generic resume parser robustness', () => {
     expect(pickRicherFullName('Allam Tesla', 'MOHAMMED SARFARAZ ALLAM', email)).toMatch(
       /MOHAMMED SARFARAZ ALLAM/i
     );
+  });
+
+  it('keeps credentialed academic names over email-local vanity splits', () => {
+    const doc = 'Dr. SYED AAMIR MEHBOOB, PH.D.';
+    const email = 'lifecoachaamir@gmail.com';
+    expect(classifyResumeTextFragment(doc).kind).toBe('PERSON_NAME');
+    expect(isLikelyLocationFragment(doc)).toBe(false);
+    const split = splitFullNameWithRejected(doc);
+    expect(split.firstName).toMatch(/^SYED$/i);
+    expect(split.lastName).toMatch(/AAMIR/i);
+    expect(split.firstName).not.toMatch(/^dr\.?$/i);
+    expect(pickBestNameFromCandidates(
+      [
+        { value: doc, confidence: 70, source: 'text_recovery' },
+        {
+          value: deriveDisplayNameFromEmail(email),
+          confidence: 82,
+          source: 'email_derived',
+        },
+      ],
+      email
+    )).toMatch(/SYED AAMIR MEHBOOB/i);
+
+    const builder = transformImportDataToBuilder({
+      fullName: doc,
+      name: doc,
+      email,
+      customParserUsed: true,
+      rawText: `${doc}\nEmail: ${email}\nSenior Professor`,
+      skills: ['HR'],
+      experience: [],
+      education: [],
+    });
+    expect(String(builder.firstName)).toMatch(/^SYED$/i);
+    expect(String(builder.firstName)).not.toMatch(/lifeco/i);
+    expect(String(builder.fullName || builder.name)).toMatch(/SYED AAMIR MEHBOOB/i);
+    expect(String(builder.fullName || builder.name)).not.toMatch(/lifeco/i);
   });
 
   it('detects High Secondary school rows and Speak/Read/Write language grids', () => {

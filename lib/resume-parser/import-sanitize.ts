@@ -1683,6 +1683,30 @@ export function sanitizePersonName(value: unknown, maxLen = 120): string {
 }
 
 /**
+ * Sanitize a first/last *part* taken from an already-validated full name.
+ * Single given-name tokens ("SYED") must not be dropped by full-name company
+ * heuristics that treat any Title Case token as an employer.
+ */
+export function sanitizePersonNamePart(value: unknown, maxLen = 80): string {
+  const s = sanitizeFieldText(value, maxLen);
+  if (!s) return '';
+  if (/^(?:mr|mrs|ms|miss|dr|prof)\.?$/i.test(s)) return '';
+  if (isGarbageResumeText(s) || isEmailOrDomainFragment(s)) return '';
+  if (/\d/.test(s) || /@/.test(s)) return '';
+  if (
+    /\b(?:inc\.?|ltd\.?|llc|llp|pvt\.?|limited|corp(?:oration)?|gmbh|university|college|institute)\b/i.test(
+      s
+    )
+  ) {
+    return '';
+  }
+  const words = s.split(/\s+/).filter(Boolean);
+  if (!words.length || words.length > 5) return '';
+  if (!words.every((w) => /^[A-Za-z][A-Za-z'.-]*$/.test(w))) return '';
+  return formatDisplayName(s);
+}
+
+/**
  * Repair first/last splits where a trailing letter stuck to the first name
  * (e.g. MOHITC + HATURVEDI → Mohit + Chaturvedi).
  */
@@ -1779,11 +1803,12 @@ function scoreNameCandidate(candidate: NameCandidate, email: string): number {
   const emailDerived = email ? deriveDisplayNameFromEmail(email) : '';
 
   if (candidate.source === 'email_derived' && emailDerived) {
-    // Vanity / brand emails ("allam.tesla") are weak identity signals.
+    // Vanity / brand emails ("lifecoachaamir", "allam.tesla") are weak identity
+    // signals — keep them below any multi-token document candidate.
     const words = emailDerived.split(/\s+/).filter(Boolean).length;
-    confidence = Math.max(confidence, words >= 3 ? 88 : 72);
+    confidence = Math.min(Math.max(confidence, words >= 3 ? 52 : 40), 55);
   } else if (emailDerived && isEmailDerivedName(value, email)) {
-    confidence = Math.max(confidence, 72);
+    confidence = Math.min(Math.max(confidence, 48), 60);
   } else if (candidate.source === 'labeled_name') {
     confidence = Math.max(confidence, 94);
   }
@@ -2258,7 +2283,7 @@ export function sanitizeSkillEntry(skill: unknown): string {
   if (classified.kind === 'LOCATION' && !looksCompetencyPhrase) return '';
   if (classified.kind === 'COMPANY_NAME' && skillWords >= 2 && !looksCompetencyPhrase) return '';
   if (classified.kind === 'DESIGNATION' && skillWords >= 2 && !looksCompetencyPhrase) return '';
-  if (classified.kind === 'PERSON_NAME' && skillWords >= 2 && isClassifiedPersonName(s, 70)) {
+  if (classified.kind === 'PERSON_NAME' && skillWords >= 2 && isClassifiedPersonName(s, 70) && !looksCompetencyPhrase) {
     return '';
   }
   if (isLikelyCompanyNameFragment(s) && s.length > 18 && !looksCompetencyPhrase) return '';

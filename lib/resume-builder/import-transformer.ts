@@ -38,6 +38,7 @@ import {
   splitFullNameWithRejected,
   pickRicherFullName,
   sanitizePersonName,
+  sanitizePersonNamePart,
   deriveDisplayNameFromEmail,
   sanitizeFieldText,
   isEmailDerivedName,
@@ -2419,12 +2420,19 @@ function resolveClassifiedName(
 
   if (richerProfileFull) {
     const split = splitFullNameWithRejected(richerProfileFull);
-    let firstName = split.firstName || '';
-    let lastName = split.lastName || '';
-    if (!firstName && !lastName) {
-      const parts = richerProfileFull.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
-      firstName = parts[0] || '';
-      lastName = parts.slice(1).join(' ');
+    let firstName = sanitizePersonNamePart(split.firstName || '');
+    let lastName = sanitizePersonNamePart(split.lastName || '');
+    // Never treat a bare honorific as the given name; re-split after strip.
+    if (!firstName || /^(?:mr|mrs|ms|miss|dr|prof)\.?$/i.test(String(split.firstName || '').trim())) {
+      const bare = richerProfileFull
+        .replace(/^(?:mr|mrs|ms|miss|dr|prof)\.?\s+/i, '')
+        .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?)\.?$/i, '')
+        .replace(/,/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const parts = bare.split(/\s+/).filter(Boolean);
+      firstName = sanitizePersonNamePart(parts[0] || '');
+      lastName = sanitizePersonNamePart(parts.slice(1).join(' '));
     }
     return {
       firstName,
@@ -2511,13 +2519,20 @@ function resolveClassifiedName(
     !isFirmOrLocationNamePhrase(splitCombined, locationHint) &&
     !nameOverlapsLocation(splitCombined, locationHint)
   );
+  // Document fullName that failed first/last split still blocks email invention.
+  const hasTrustedDocumentFullName = !!(
+    rawFullName &&
+    nameWordCount(rawFullName) >= 2 &&
+    isValidatedContactName(rawFullName, locationHint) &&
+    !isEmailDerivedName(rawFullName, email)
+  );
 
   if (email) {
     const fromEmail = parseIntelligentNameFromEmail(email);
     const emailCombined = fromEmail
       ? [fromEmail.firstName, fromEmail.lastName].filter(Boolean).join(' ').trim()
       : deriveDisplayNameFromEmail(email);
-    const currentCombined = splitCombined;
+    const currentCombined = splitCombined || (hasTrustedDocumentFullName ? rawFullName : '');
     const richer = emailCombined
       ? pickRicherFullName(currentCombined, emailCombined, email)
       : currentCombined;
@@ -2536,6 +2551,7 @@ function resolveClassifiedName(
       if (
         richerValidated &&
         !richerIsEmailOnly &&
+        !hasTrustedDocumentFullName &&
         (!headerValidated || richerContainsHeader || richer.split(/\s+/).length > headerWords.length)
       ) {
         const split = splitFullNameWithRejected(richer);
@@ -2545,15 +2561,30 @@ function resolveClassifiedName(
           stashUnclassifiedFragment(additionalResumeData, rejected.value, rejected.kind);
         }
       }
-    } else if (!hasUsableName && fromEmail) {
+    } else if (!hasUsableName && !hasTrustedDocumentFullName && fromEmail) {
       firstName = fromEmail.firstName;
       lastName = fromEmail.lastName;
-    } else if (!hasUsableName && emailCombined) {
+    } else if (!hasUsableName && !hasTrustedDocumentFullName && emailCombined) {
       const split = splitFullNameWithRejected(emailCombined);
       firstName = split.firstName;
       lastName = split.lastName;
       for (const rejected of split.rejected) {
         stashUnclassifiedFragment(additionalResumeData, rejected.value, rejected.kind);
+      }
+    } else if (!hasUsableName && hasTrustedDocumentFullName) {
+      const split = splitFullNameWithRejected(rawFullName);
+      firstName = split.firstName;
+      lastName = split.lastName;
+      if (!firstName && !lastName) {
+        const bare = rawFullName
+          .replace(/^(?:mr|mrs|ms|miss|dr|prof)\.?\s+/i, '')
+          .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?)\.?$/i, '')
+          .replace(/,/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const parts = bare.split(/\s+/).filter(Boolean);
+        firstName = parts[0] || '';
+        lastName = parts.slice(1).join(' ');
       }
     }
   }
@@ -3363,16 +3394,26 @@ function finalizeBuilderContactIdentity(
     isValidatedContactName(importName, locationHint)
   ) {
     const split = splitFullNameWithRejected(importName);
-    let first = split.firstName || '';
-    let last = split.lastName || '';
-    // Credentialed academic names are sometimes misclassified as LOCATION by the
-    // fragment splitter — keep the full import name as the display identity.
-    if (!first && !last) {
-      const parts = importName.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
-      first = parts[0] || '';
-      last = parts.slice(1).join(' ');
+    let first = sanitizePersonNamePart(split.firstName || '');
+    let last = sanitizePersonNamePart(split.lastName || '');
+    // Credentialed academic names: strip honorifics/credentials for the form
+    // split so "Dr." never becomes firstName (and never falls back to email).
+    if (
+      !first ||
+      !last ||
+      /^(?:mr|mrs|ms|miss|dr|prof)\.?$/i.test(String(split.firstName || '').trim())
+    ) {
+      const bare = importName
+        .replace(/^(?:mr|mrs|ms|miss|dr|prof)\.?\s+/i, '')
+        .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?)\.?$/i, '')
+        .replace(/,/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const parts = bare.split(/\s+/).filter(Boolean);
+      first = sanitizePersonNamePart(parts[0] || first);
+      last = sanitizePersonNamePart(parts.slice(1).join(' ') || last);
     }
-    const display = [first, last].filter(Boolean).join(' ').trim() || importName;
+    const display = importName;
     out.firstName = first;
     out.lastName = last;
     out.fullName = display;

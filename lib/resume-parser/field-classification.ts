@@ -227,6 +227,22 @@ const NON_PERSON_NAME_WORDS = new Set([
   'portal',
   'chambers',
   'chamber',
+  'speaking',
+  'coaching',
+  'leadership',
+  'development',
+  'training',
+  'management',
+  'communication',
+  'mentoring',
+  'facilitation',
+  'negotiation',
+  'presentation',
+  'branding',
+  'strategy',
+  'analytics',
+  'counselling',
+  'counseling',
 ]);
 
 /** Common Indian city tokens often appended to firm lines (e.g. "Self Practise Bhopal"). */
@@ -302,6 +318,12 @@ export function isLikelyCompanyNameFragment(value: string): boolean {
 export function isLikelyLocationFragment(value: string): boolean {
   const s = normalizeFragment(value);
   if (!s || s.length > 72) return false;
+  // Honorific / academic-credential person names ("Dr. …, Ph.D.") must never
+  // match the City, State comma pattern via "Surname, PH".
+  if (/^(?:mr|mrs|ms|miss|dr|prof)\.?\s+/i.test(s)) return false;
+  if (/,\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?|mba|ll\.?\s*m|ll\.?\s*b)\.?$/i.test(s)) {
+    return false;
+  }
   if (JOB_TITLE_MARKERS.test(s)) return false;
   if (COMPANY_NAME_MARKERS.test(s)) return false;
   if (/\b(?:hospitals?|healthcare|chartered|assistance|generation|analytics|logistics|motors|retail|pharma|laborator(?:y|ies)|universit(?:y|ies)|colleges?|schools?|clinics?|banks?|insurance|vidyalaya|vidyalay|asia|partners|associates|diagnostics|pathlabs?)\b/i.test(s)) {
@@ -324,6 +346,14 @@ export function isLikelyLocationFragment(value: string): boolean {
     return false;
   }
   if (/\b([A-Z][A-Za-z]+(?:[\s'\-][A-Z][A-Za-z]+)*),\s*([A-Z]{2}|[A-Z][A-Za-z]+)\b/.test(s)) {
+    // Trailing 2–3 letter token after comma is often a credential stub ("PH"),
+    // not a US state — require a known place signal or a longer region token.
+    const commaTail = s.match(/,\s*([A-Za-z.]{1,12})\s*$/);
+    const tail = (commaTail?.[1] || '').replace(/\./g, '');
+    if (tail && tail.length <= 3 && !INDIAN_CITY_TOKENS.has(tail.toLowerCase())) {
+      // Allow real 2-letter region codes only when they look like US states (all caps letters).
+      if (!/^[A-Z]{2}$/.test(tail)) return false;
+    }
     return true;
   }
   if (/^(remote|hybrid|on-?site|work from home|wfh)$/i.test(s)) return true;
@@ -389,8 +419,13 @@ export function isEmailOrDomainFragment(value: string): boolean {
 
 function passesPersonNameShape(value: string): boolean {
   const s = value
-    .replace(/^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba)\.?\s+/i, '')
+    .replace(/^(?:mr|mrs|ms|miss|dr|prof|ca|cs|cma|cfa|cpa|mba)\.?\s*/i, '')
+    .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?|mba|ll\.?\s*m|ll\.?\s*b)\.?$/i, '')
+    .replace(/,/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
+  // Bare honorifics / credential stubs are not personal names.
+  if (!s || /^(?:mr|mrs|ms|miss|dr|prof|ph\.?d\.?|m\.?d\.?)$/i.test(s)) return false;
   if (s.length < 2 || s.length > 60) return false;
   if (isEmailOrDomainFragment(s)) return false;
   if (/[@+#]/.test(s) || /https?:|\bwww\./i.test(s)) return false;
@@ -412,6 +447,16 @@ function passesPersonNameShape(value: string): boolean {
   if (words.length >= 3 && words.every((w) => w === w.toLowerCase())) return false;
 
   return true;
+}
+
+/** Strip honorifics / trailing credentials for first/last splitting only. */
+function normalizePersonNameForSplit(value: string): string {
+  return String(value || '')
+    .replace(/^(?:mr|mrs|ms|miss|dr|prof)\.?\s+/i, '')
+    .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?|mba|ll\.?\s*m|ll\.?\s*b)\.?$/i, '')
+    .replace(/,/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export function classifyResumeTextFragment(value: unknown): ClassifiedText {
@@ -445,6 +490,12 @@ export function classifyResumeTextFragment(value: unknown): ClassifiedText {
     return { kind: 'COMPANY_NAME', confidence, value: valueNorm };
   }
 
+  // Credentialed / honorific person names before location heuristics — otherwise
+  // "Surname, Ph.D." is misread as City, State.
+  if (passesPersonNameShape(valueNorm)) {
+    return { kind: 'PERSON_NAME', confidence: 88, value: valueNorm };
+  }
+
   if (isLikelyLocationFragment(valueNorm)) {
     return { kind: 'LOCATION', confidence: 82, value: valueNorm };
   }
@@ -456,10 +507,6 @@ export function classifyResumeTextFragment(value: unknown): ClassifiedText {
   const words = lower.split(/\s+/).filter(Boolean);
   if (words.length === 1 && CREDENTIAL_ONLY_TOKENS.has(words[0])) {
     return { kind: 'CERTIFICATION', confidence: 0, value: valueNorm };
-  }
-
-  if (passesPersonNameShape(valueNorm)) {
-    return { kind: 'PERSON_NAME', confidence: 75, value: valueNorm };
   }
 
   return { kind: 'UNKNOWN', confidence: 0, value: valueNorm };
@@ -487,7 +534,8 @@ export function splitClassifiedFullName(fullName: string): {
     return { firstName: '', lastName: '', rejected };
   }
 
-  const raw = classified.value;
+  // Split on the bare person tokens — never leave "Dr." as firstName.
+  const raw = normalizePersonNameForSplit(classified.value) || classified.value;
   let parts = raw.split(/\s+/).filter(Boolean);
 
   if (parts.length === 1) {
@@ -497,26 +545,18 @@ export function splitClassifiedFullName(fullName: string): {
     }
   }
 
+  // Full-string already passed PERSON_NAME. Do not re-classify individual
+  // given-name tokens ("SYED") through company heuristics — they commonly
+  // match the single-token employer pattern.
   if (parts.length <= 1) {
-    const partClass = classifyNamePart(parts[0] || '');
-    if (partClass.kind !== 'PERSON_NAME') {
-      if (partClass.value) rejected.push(partClass);
-      return { firstName: '', lastName: '', rejected };
-    }
     return { firstName: parts[0] || '', lastName: '', rejected };
   }
 
-  const firstClass = classifyNamePart(parts[0]);
-  const lastParts = parts.slice(1);
-  const lastClass = classifyNamePart(lastParts.join(' '));
-
-  const firstName = firstClass.kind === 'PERSON_NAME' ? parts[0] : '';
-  const lastName = lastClass.kind === 'PERSON_NAME' ? lastParts.join(' ') : '';
-
-  if (!firstName && firstClass.value) rejected.push(firstClass);
-  if (!lastName && lastClass.value) rejected.push(lastClass);
-
-  return { firstName, lastName, rejected };
+  return {
+    firstName: parts[0],
+    lastName: parts.slice(1).join(' '),
+    rejected,
+  };
 }
 
 /** Action verbs that signal job responsibilities — not standalone global achievements. */
