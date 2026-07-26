@@ -1,144 +1,75 @@
 {
-  "firstName": "Mangowda",
-  "lastName": "Laksh",
-  "name": "Mangowda Laksh",
-  "fullName": "Mangowda Laksh",
-  "email": "lakshmangowda1995@gmail.com",
-  "phone": "+91 81481 36180",
-  "location": "TAMILNADU. AGGREGATE OF-75%",
+  "firstName": "Aamir",
+  "lastName": "Mehboob",
+  "name": "Aamir Mehboob",
+  "fullName": "Aamir Mehboob",
+  "email": "lifecoachaamir@gmail.com",
+  "phone": "+91 98260 17854",
+  "location": "",
   "linkedin": "",
   "portfolio": "",
   "github": "",
-  "summary": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be",
-  "bio": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be",
-  "objective": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be",
-  "jobTitle": "MGR Arts and Science Collage,",
-  "title": "MGR Arts and Science Collage,",
+  "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowering more than 50,000 learners, delivering 1,000+ workshops and\nkeynote sessions, and hosting 500+ national-level academic and professional events.\nPassionate about developing future-ready leaders, educators, professionals, and organizations\nthrough innovation, communication, and lifelong learning.",
+  "bio": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowering more than 50,000 learners, delivering 1,000+ workshops and\nkeynote sessions, and hosting 500+ national-level academic and professional events.\nPassionate about developing future-ready leaders, educators, professionals, and organizations\nthrough innovation, communication, and lifelong learning.",
+  "objective": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowering more than 50,000 learners, delivering 1,000+ workshops and\nkeynote sessions, and hosting 500+ national-level academic and professional events.\nPassionate about developing future-ready leaders, educators, professionals, and organizations\nthrough innovation, communication, and lifelong learning.",
+  "jobTitle": "Consultant",
+  "title": "Consultant",
   "skills": [
-    "Tally ERP9",
-    "MS Excel",
-    "MS Word"
+    "HR",
+    "Executive Coaching",
+    "Emotional Intelligence",
+    "Organizational Behaviour",
+    "Public Speaking",
+    "Strategic Leadership",
+    "Team Building"
   ],
-  "experience": [
-    {
-      "id": "exp-m.d.fab-asst.account-2015-11",
-      "title": "Asst.Accounts",
-      "designation": "Asst.Accounts",
-      "company": "M.D.FAB",
-      "location": "HOSUR",
-      "startDate": "2015-11",
-      "endDate": "2020-08",
-      "description": "Payables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.",
-      "current": false,
-      "isCurrent": false,
-      "employmentType": "",
-      "achievements": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "bullets": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "bulletPoints": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "Position": "Asst.Accounts",
-      "Company": "M.D.FAB",
-      "Location": "HOSUR",
-      "Description": "Payables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.",
-      "Duration": "2015-11 - 2020-08"
-    },
-    {
-      "id": "exp-venkateshwar-sr.officer-a-2020-09",
-      "title": "Sr.Officer Accounts",
-      "designation": "Sr.Officer Accounts",
-      "company": "Venkateshwara Hacheries Pvt Ltd",
-      "location": "",
-      "startDate": "2020-09",
-      "endDate": "",
-      "description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling",
-      "current": true,
-      "isCurrent": true,
-      "employmentType": "",
-      "achievements": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "bullets": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "bulletPoints": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "Position": "Sr.Officer Accounts",
-      "Company": "Venkateshwara Hacheries Pvt Ltd",
-      "Location": "",
-      "Description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling",
-      "Duration": "2020-09 - Present"
-    }
-  ],
+  "experience": [],
   "education": [
     {
-      "degree": "Apr 2015 Bachelor of Commerce",
-      "school": "MGR Arts and Science Collage",
-      "field": "MGR Arts and Science Collage,",
-      "year": "",
-      "cgpa": "55%",
-      "institution": "MGR Arts and Science Collage",
-      "Institution": "MGR Arts and Science Collage",
-      "Degree": "Apr 2015 Bachelor of Commerce",
-      "Field": "MGR Arts and Science Collage,",
-      "Year": "",
-      "gpa": "55%",
-      "GPA": "55%",
-      "startDate": "",
-      "endDate": "",
-      "description": "",
-      "location": ""
-    },
-    {
-      "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-      "school": "R.V. Boys Govt Higher Secondary School",
-      "field": "",
-      "year": "",
-      "cgpa": "54%",
-      "institution": "R.V. Boys Govt Higher Secondary School",
-      "Institution": "R.V. Boys Govt Higher Secondary School",
-      "Degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-      "Field": "",
-      "Year": "",
-      "gpa": "54%",
-      "GPA": "54%",
-      "startDate": "",
-      "endDate": "",
-      "description": "",
-      "location": ""
-    },
-    {
-      "degree": "Johan Britto Higher Secondary School, Denkanikottai.",
+      "degree": "School Leadership Programmes",
       "school": "",
       "field": "",
       "year": "",
       "cgpa": "",
       "institution": "",
       "Institution": "",
-      "Degree": "Johan Britto Higher Secondary School, Denkanikottai.",
+      "Degree": "School Leadership Programmes",
+      "Field": "",
+      "Year": "",
+      "gpa": "",
+      "GPA": "",
+      "startDate": "",
+      "endDate": "",
+      "description": "",
+      "location": ""
+    },
+    {
+      "degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+      "school": "",
+      "field": "",
+      "year": "",
+      "cgpa": "",
+      "institution": "",
+      "Institution": "",
+      "Degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+      "Field": "",
+      "Year": "",
+      "gpa": "",
+      "GPA": "",
+      "startDate": "",
+      "endDate": "",
+      "description": "",
+      "location": ""
+    },
+    {
+      "degree": "MBA Institutes",
+      "school": "",
+      "field": "",
+      "year": "",
+      "cgpa": "",
+      "institution": "",
+      "Institution": "",
+      "Degree": "MBA Institutes",
       "Field": "",
       "Year": "",
       "gpa": "",
@@ -149,259 +80,201 @@
       "location": ""
     }
   ],
-  "projects": [],
-  "certifications": [],
+  "projects": [
+    {
+      "name": "● TEDx Conferences",
+      "title": "● TEDx Conferences",
+      "description": "● International Conferences ● National Conferences ● Faculty Development Programmes ● Leadership Summits ● Corporate Leadership Meets",
+      "Description": "● International Conferences ● National Conferences ● Faculty Development Programmes ● Leadership Summits ● Corporate Leadership Meets",
+      "technologies": "",
+      "Technologies": "",
+      "url": "",
+      "link": "",
+      "startDate": "",
+      "endDate": ""
+    }
+  ],
+  "certifications": [
+    {
+      "name": "● CELTA",
+      "issuer": "Certificate in English Language Teaching to Adults",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● Business English Certificate",
+      "issuer": "BEC",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● Certified IELTS Trainer",
+      "issuer": "",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● Certified TOEFL Trainer",
+      "issuer": "",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● 50",
+      "issuer": "000+ Individuals Trained & Mentored",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    }
+  ],
   "languages": [
     {
       "name": "English",
       "language": "English",
-      "proficiency": "Fluent"
+      "proficiency": "Professional"
     },
     {
-      "name": "Telugu",
-      "language": "Telugu",
-      "proficiency": "Fluent"
+      "name": "Hindi",
+      "language": "Hindi",
+      "proficiency": "Native"
     },
     {
-      "name": "Tamil",
-      "language": "Tamil",
-      "proficiency": "Fluent"
-    },
-    {
-      "name": "Kannada",
-      "language": "Kannada",
-      "proficiency": "Fluent"
+      "name": "Urdu",
+      "language": "Urdu",
+      "proficiency": "Professional"
     }
   ],
   "achievements": [
-    "A high energy and hardworking personality",
-    "Good learner and flexible in nature",
-    "Innovative & Smart Worker",
-    "Committed and possess work ethics",
-    "Sound knowledge in Tally& .net, Accounts."
+    "● 34+ Years of Academic & Training Excellence",
+    "● 50,000+ Individuals Trained & Mentored",
+    "● 500+ National Events Hosted",
+    "National Excellence Award",
+    "Best Faculty Award",
+    "Leadership Excellence Award",
+    "● TEDx Conferences",
+    "● International Conferences",
+    "● National Conferences",
+    "● Faculty Development Programmes",
+    "● Leadership Summits",
+    "● Corporate Leadership Meets"
   ],
-  "hobbies": [],
+  "hobbies": [
+    "● Leadership",
+    "● Communication",
+    "● Emotional Intelligence",
+    "● Teaching Effectiveness",
+    "● Student Psychology"
+  ],
   "additionalResumeData": {
     "sectionHeaders": [],
     "unclassifiedFragments": [
       {
-        "value": "Revealed.",
+        "value": "LinkedIn Dr. Aamir Mehboob",
+        "kind": "UNKNOWN"
+      },
+      {
+        "value": "LinkedIn",
         "kind": "COMPANY_NAME"
       }
     ],
     "achievements": [],
     "awards": [],
-    "memberships": [],
-    "publications": [],
-    "patents": [],
-    "volunteerWork": [],
-    "extraSections": []
+    "memberships": [
+      "Memberships"
+    ],
+    "publications": [
+      "Publications"
+    ],
+    "patents": [
+      "Patents"
+    ],
+    "volunteerWork": [
+      "Volunteer Experience"
+    ],
+    "extraSections": [
+      {
+        "heading": "_importSource",
+        "body": "ai-extraction"
+      },
+      {
+        "heading": "Full Name",
+        "body": "Aamir Mehboob"
+      }
+    ]
   },
-  "rawText": "BALALAKSHMANAN.S\nOBJECTIVE PROFESSIONAL ACCOMPLISHMENTS\nACADEMIC CREDENTIALS RESUME\n\n\nLooking for a challenging and rewarding career in your\norganization which my skills,education andexperience can be\nrevealed.\n\n\nA high energy and hardworking personality\nGood learner and flexible in nature\nInnovative & Smart Worker\nCommitted and possess work ethics\nSound knowledge in Tally& .net, Accounts.\n\n\nApr 2015 Bachelor of Commerce\nMGR Arts and Science Collage,\nHosur. AGGREGATE OF -55%\n\nApr 2012 HIGHER SECONDARY CERTIFICATE\nJohan Britto Higher Secondary School, Denkanikottai.\nSTATE BOARD, TAMILNADU. AGGREGATE OF-75%\n\nApr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE\nR.V. Boys Govt Higher Secondary School, Hosur.\nSTATE BOARD, TAMILNADU. AGGREGATE OF -54%\n\nPERSONAL PROFILE\n\n\n\nContact Number +91 8148136180 E-mail ID lakshmangowda1995@gmail.com\n\nPermanent Address Vanaganapalli (vill) Agalakttai (po) Denkanikottai – (Tk)\nKrishangiri.(Dt) Tamilnadu Father Name Mr.Srinivasan\n\nDate of Birth 22-10-1995 Gender Male\n\nNationality Indian\n\nMarital Status Single\n\nLanguage Known English, Telugu, Tamil Kannada,\n\n\n\nOrganization M.D.FAB– HOSUR Designation Asst.Accounts\nDuration 01-11-2015 to 30-08-2020\nResponsibility\n\nPayables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.\n\n\n\n\n\n\n\n\n\n\n\nOrganization\nVenkateshwara Hacheries Pvt Ltd – Hosur\nDesignation Sr.Officer Accounts\nDuration 05-09-2020 to Still Date.\nResponsibility Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling\nBasics on TDS. Satutory Payments\n\n\n\n\n\n\n\n\nWORKEXPERIENCE\n\nCO-CURRICULAR & EXTRA CURRICULAR ACTIVITIES\nLANGUAGE PROFICIENCY\nDECLARATION\n\n\n\nOperating system: Ms –Package (MS word , MS Excel)\nPackages : Tally ERP9 and .Net\n\n\nTamil - Read, Speak, Write Telugu - Speak, English – Speak, Read, write and Kannada – Speak\n\n\n\nParticipated and won many prizes in Cricket,,\n\nI hereby declare that the above mentioned details are true to the best of my\nknowledge.\n\nPLACE: Hosur Yours Sincerely,\nDATE: (BALALAKSHMANAN.S)\nTECHNICAL SKILLS",
+  "rawText": "+91 9826017854\n✉ lifecoachaamir@gmail.com\nLinkedIn Dr. Aamir Mehboob\nYouTube Dr. Aamir Mehboob\nInstagram @coachaamirmehboob\n\nDR. SYED AAMIR MEHBOOB, PH.D.\nSenior Professor | TEDx Speaker | International Trainer | Keynote Speaker | Leadership\nConsultant | Corporate Trainer | Communication Expert | Personality Development\nMentor | Faculty Development Specialist | Master of Ceremonies | National Quiz Master\nBhopal, India\n| Face Book Aamir Mehboob\nEXECUTIVE SUMMARY\nAn accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowering more than 50,000 learners, delivering 1,000+ workshops and\nkeynote sessions, and hosting 500+ national-level academic and professional events.\nPassionate about developing future-ready leaders, educators, professionals, and organizations\nthrough innovation, communication, and lifelong learning.\n\nPROFESSIONAL MISSION\nTo empower individuals and organizations through transformative education, visionary\nleadership, impactful communication, and ethical values while creating meaningful change\nacross academic, corporate, and global platforms.\n\nCAREER HIGHLIGHTS\n\n● 34+ Years of Academic & Training Excellence\n● 50,000+ Individuals Trained & Mentored\n● 1,000+ Workshops, Seminars & Keynote Addresses\n● 500+ National Events Hosted\n● TEDx Speaker\n● International Communication Trainer\n● Leadership Development Expert\n● Faculty Development Specialist\n● Corporate Learning Consultant\n● Educational Advisor\n\nCORE COMPETENCIES\nLeadership Development • Executive Coaching • Public Speaking • Faculty Development •\nEmotional Intelligence • Personality Development • Communication Skills • Team Building •\nOrganizational Behaviour • Campus-to-Corporate Training • Strategic Leadership • HR\nDevelopment • Soft Skills Training\n\nPAGE 2 — SPEAKING & TRAINING\nEXPERTISE SIGNATURE KEYNOTE TOPICS\n● The Future of Education in the AI Era\n● Leadership Beyond Titles\n● Emotional Intelligence for Success\n● The Art of Powerful Communication\n● Public Speaking Mastery\n● Transformational Leadership\n● Personal Branding in the Digital Age\n● Excellence through Effective Communication\n● Building High-Performance Teams\n● Campus to Corporate Readiness\n● Confidence Building & Personality Development\n● Professional Ethics & Workplace Excellence\n● Understanding Generation Z & Generation Alpha\n\n● Time Management for Peak Performance\n● Stress Management & Emotional Wellness\n● Design Thinking & Innovation\n● Career Planning for Young Professionals\n● The Science of Motivation\n\nTRAINING PROGRAMMES\n● Faculty Development Programmes (FDP)\n● Training of Trainers (ToT)\n● Leadership Development Programmes\n● Management Development Programmes\n● Orientation & Induction Programmes\n● Executive Coaching Sessions\n● Corporate Learning Interventions\n● Communication Labs\n● Personality Development Camps\n● Employability Skills Training\n● Career Guidance Workshops\n● School Leadership Programmes\n\nINDUSTRIES SERVED\n● Universities & Higher Education\n● Schools (CBSE, ICSE & State Boards)\n● Banking & Financial Services\n● Insurance\n● Manufacturing\n● Healthcare\n● Hospitality\n● Retail\n● Government Departments\n● Public Sector Undertakings\n● NGOs\n● Start-ups\n● Corporate Organizations\n\n\nINTERNATIONAL CERTIFICATIONS\n● CELTA (Certificate in English Language Teaching to Adults)\n● Business English Certificate (BEC)\n● Certified IELTS Trainer\n● Certified TOEFL Trainer\n● National Education Policy (NEP) Facilitator\n\nPROFESSIONAL AFFILIATIONS\n● Professional Trainer\n● Leadership Coach\n● Faculty Development Resource Person\n● Educational Consultant\n● Career Counsellor\n● Soft Skills Expert\n(Include memberships such as AIMA, ISTD, NHRD, Toastmasters, etc., if applicable.)\n\nPAGE 3 — EXPERIENCE, RESEARCH &\nCONTRIBUTIONS PROFESSIONAL EXPERIENCE\nSenior Professor\nInstitution Name\nDuration\nKey Responsibilities\n● Academic Leadership\n● Curriculum Development\n● Faculty Mentoring\n● Research Supervision\n● Student Development\n\n● Institutional Growth\n\nCorporate Trainer & Leadership Consultant\nMajor Responsibilities\n● Leadership Development\n● Executive Coaching\n● Communication Skills\n● Team Building\n● Performance Enhancement\n● Organizational Learning\n● Corporate Workshops\n\nRESEARCH & PUBLICATIONS\nDoctoral Research\nImpact of Teachers’ Verbal and Non-Verbal Communication Skills on Students’\nPerformance\n\nResearch Interests\n● Leadership\n● Communication\n● Emotional Intelligence\n● Teaching Effectiveness\n● Student Psychology\n● Higher Education\n● Organizational Behaviour\n● Human Resource Development\n● Educational Innovation\n● National Education Policy\n\nPublications\n\n● Research Papers\n● International Journals\n● Conference Proceedings\n● ISBN Book Chapters\n● Scopus Indexed Publications\n\nMAJOR TRAINING PROGRAMMES DELIVERED FOR\n● Universities\n● Engineering Colleges\n● MBA Institutes\n● Medical Colleges\n● Nursing Colleges\n● Schools\n● Banks\n● Government Departments\n● Police Academies\n● Corporate Organizations\n● NGOs\n\nPAGE 4 — ACHIEVEMENTS & PERSONAL\nBRAND MAJOR EVENTS HOSTED\n● TEDx Conferences\n● International Conferences\n● National Conferences\n● Faculty Development Programmes\n● Leadership Summits\n● Corporate Leadership Meets\n● Educational Summits\n● National Quiz Championships\n● Convocations\n● Cultural Festivals\n● Award Ceremonies\n\n\nAWARDS & RECOGNITIONS\nNational Excellence Award\nBest Faculty Award\nOutstanding Trainer Recognition\nLeadership Excellence Award\n(Add actual awards and recognitions.)\n\nTRAINING DASHBOARD\nAchievement Statistics\nExperience 34+\nYears\nWorkshops Delivered 1,000+\nParticipants Trained 50,000+\nEvents Hosted 500+\nInstitutions Served 100+\nLeadership Sessions 500+\n\nLANGUAGES\n● English – Professional Proficiency\n● Hindi – Native Proficiency\n● Urdu – Professional Proficiency\n\nDIGITAL PRESENCE\n\nLinkedIn (QR Code)\nYouTube (QR Code)\nInstagram (QR Code)\nFacebook (QR Code)\n\nPERSONAL ATTRIBUTES\n● Visionary Leader\n● Inspirational Speaker\n● Excellent Communicator\n● Strategic Thinker\n● Team Builder\n● Positive Influencer\n● Mentor & Coach\n● Creative Problem Solver\n● Ethical Professional\n● Innovative Educator\n● Lifelong Learner\n\nTRAINING PHILOSOPHY\n\"Transforming Knowledge into Wisdom, Communication into Influence, and\nPotential into Performance.\"\n\nPROFESSIONAL MOTTO\n\"Empowering Minds. Inspiring Leaders. Transforming Lives.\"",
   "_imported": true,
-  "_importedAt": 1784987000842,
+  "_importedAt": 1785075355460,
   "_importSource": "ai-extraction",
   "_resumeId": null,
-  "_confidence": 71,
+  "_confidence": 85,
   "_atsScore": 90,
   "_builderCoalesced": true,
   "customParserUsed": true,
   "selectedParser": "custom",
   "_aiProvider": "custom-parser",
-  "Work Experience": [
-    {
-      "id": "exp-m.d.fab-asst.account-2015-11",
-      "title": "Asst.Accounts",
-      "designation": "Asst.Accounts",
-      "company": "M.D.FAB",
-      "location": "HOSUR",
-      "startDate": "2015-11",
-      "endDate": "2020-08",
-      "description": "Payables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.",
-      "current": false,
-      "isCurrent": false,
-      "employmentType": "",
-      "achievements": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "bullets": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "bulletPoints": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "Position": "Asst.Accounts",
-      "Company": "M.D.FAB",
-      "Location": "HOSUR",
-      "Description": "Payables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.",
-      "Duration": "2015-11 - 2020-08"
-    },
-    {
-      "id": "exp-venkateshwar-sr.officer-a-2020-09",
-      "title": "Sr.Officer Accounts",
-      "designation": "Sr.Officer Accounts",
-      "company": "Venkateshwara Hacheries Pvt Ltd",
-      "location": "",
-      "startDate": "2020-09",
-      "endDate": "",
-      "description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling",
-      "current": true,
-      "isCurrent": true,
-      "employmentType": "",
-      "achievements": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "bullets": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "bulletPoints": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "Position": "Sr.Officer Accounts",
-      "Company": "Venkateshwara Hacheries Pvt Ltd",
-      "Location": "",
-      "Description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling",
-      "Duration": "2020-09 - Present"
-    }
-  ],
-  "Experience": [
-    {
-      "id": "exp-m.d.fab-asst.account-2015-11",
-      "title": "Asst.Accounts",
-      "designation": "Asst.Accounts",
-      "company": "M.D.FAB",
-      "location": "HOSUR",
-      "startDate": "2015-11",
-      "endDate": "2020-08",
-      "description": "Payables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.",
-      "current": false,
-      "isCurrent": false,
-      "employmentType": "",
-      "achievements": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "bullets": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "bulletPoints": [
-        "Payables Receivables Bank Reconciliation Statement",
-        "Prepare to sales invoice in tally",
-        "Prepare the online E-forms",
-        "Expenses Bill booking Vendor debit note Customer credit note",
-        "Monthly Stock Verification."
-      ],
-      "Position": "Asst.Accounts",
-      "Company": "M.D.FAB",
-      "Location": "HOSUR",
-      "Description": "Payables Receivables Bank Reconciliation Statement\nPrepare to sales invoice in tally\nPrepare the online E-forms\nExpenses Bill booking Vendor debit note Customer credit note\nMonthly Stock Verification.",
-      "Duration": "2015-11 - 2020-08"
-    },
-    {
-      "id": "exp-venkateshwar-sr.officer-a-2020-09",
-      "title": "Sr.Officer Accounts",
-      "designation": "Sr.Officer Accounts",
-      "company": "Venkateshwara Hacheries Pvt Ltd",
-      "location": "",
-      "startDate": "2020-09",
-      "endDate": "",
-      "description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling",
-      "current": true,
-      "isCurrent": true,
-      "employmentType": "",
-      "achievements": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "bullets": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "bulletPoints": [
-        "Payables Receivables Booking Process Bank Reconciliation Statement",
-        "Vendor debit note Customer credit note",
-        "Basic GST Returns Filling"
-      ],
-      "Position": "Sr.Officer Accounts",
-      "Company": "Venkateshwara Hacheries Pvt Ltd",
-      "Location": "",
-      "Description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\nBasic GST Returns Filling",
-      "Duration": "2020-09 - Present"
-    }
-  ],
+  "Work Experience": [],
+  "Experience": [],
   "Education": [
     {
-      "degree": "Apr 2015 Bachelor of Commerce",
-      "school": "MGR Arts and Science Collage",
-      "field": "MGR Arts and Science Collage,",
-      "year": "",
-      "cgpa": "55%",
-      "institution": "MGR Arts and Science Collage",
-      "Institution": "MGR Arts and Science Collage",
-      "Degree": "Apr 2015 Bachelor of Commerce",
-      "Field": "MGR Arts and Science Collage,",
-      "Year": "",
-      "gpa": "55%",
-      "GPA": "55%",
-      "startDate": "",
-      "endDate": "",
-      "description": "",
-      "location": ""
-    },
-    {
-      "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-      "school": "R.V. Boys Govt Higher Secondary School",
-      "field": "",
-      "year": "",
-      "cgpa": "54%",
-      "institution": "R.V. Boys Govt Higher Secondary School",
-      "Institution": "R.V. Boys Govt Higher Secondary School",
-      "Degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-      "Field": "",
-      "Year": "",
-      "gpa": "54%",
-      "GPA": "54%",
-      "startDate": "",
-      "endDate": "",
-      "description": "",
-      "location": ""
-    },
-    {
-      "degree": "Johan Britto Higher Secondary School, Denkanikottai.",
+      "degree": "School Leadership Programmes",
       "school": "",
       "field": "",
       "year": "",
       "cgpa": "",
       "institution": "",
       "Institution": "",
-      "Degree": "Johan Britto Higher Secondary School, Denkanikottai.",
+      "Degree": "School Leadership Programmes",
+      "Field": "",
+      "Year": "",
+      "gpa": "",
+      "GPA": "",
+      "startDate": "",
+      "endDate": "",
+      "description": "",
+      "location": ""
+    },
+    {
+      "degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+      "school": "",
+      "field": "",
+      "year": "",
+      "cgpa": "",
+      "institution": "",
+      "Institution": "",
+      "Degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+      "Field": "",
+      "Year": "",
+      "gpa": "",
+      "GPA": "",
+      "startDate": "",
+      "endDate": "",
+      "description": "",
+      "location": ""
+    },
+    {
+      "degree": "MBA Institutes",
+      "school": "",
+      "field": "",
+      "year": "",
+      "cgpa": "",
+      "institution": "",
+      "Institution": "",
+      "Degree": "MBA Institutes",
       "Field": "",
       "Year": "",
       "gpa": "",
@@ -413,42 +286,113 @@
     }
   ],
   "Skills": [
-    "Tally ERP9",
-    "MS Excel",
-    "MS Word"
+    "HR",
+    "Executive Coaching",
+    "Emotional Intelligence",
+    "Organizational Behaviour",
+    "Public Speaking",
+    "Strategic Leadership",
+    "Team Building"
   ],
-  "Projects": [],
-  "Certifications": [],
+  "Projects": [
+    {
+      "name": "● TEDx Conferences",
+      "title": "● TEDx Conferences",
+      "description": "● International Conferences ● National Conferences ● Faculty Development Programmes ● Leadership Summits ● Corporate Leadership Meets",
+      "Description": "● International Conferences ● National Conferences ● Faculty Development Programmes ● Leadership Summits ● Corporate Leadership Meets",
+      "technologies": "",
+      "Technologies": "",
+      "url": "",
+      "link": "",
+      "startDate": "",
+      "endDate": ""
+    }
+  ],
+  "Certifications": [
+    {
+      "name": "● CELTA",
+      "issuer": "Certificate in English Language Teaching to Adults",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● Business English Certificate",
+      "issuer": "BEC",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● Certified IELTS Trainer",
+      "issuer": "",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● Certified TOEFL Trainer",
+      "issuer": "",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    },
+    {
+      "name": "● 50",
+      "issuer": "000+ Individuals Trained & Mentored",
+      "date": "",
+      "link": "",
+      "url": "",
+      "credentialId": "",
+      "expiryDate": ""
+    }
+  ],
   "Achievements": [
-    "A high energy and hardworking personality",
-    "Good learner and flexible in nature",
-    "Innovative & Smart Worker",
-    "Committed and possess work ethics",
-    "Sound knowledge in Tally& .net, Accounts."
+    "● 34+ Years of Academic & Training Excellence",
+    "● 50,000+ Individuals Trained & Mentored",
+    "● 500+ National Events Hosted",
+    "National Excellence Award",
+    "Best Faculty Award",
+    "Leadership Excellence Award",
+    "● TEDx Conferences",
+    "● International Conferences",
+    "● National Conferences",
+    "● Faculty Development Programmes",
+    "● Leadership Summits",
+    "● Corporate Leadership Meets"
   ],
   "Languages": [
     {
       "name": "English",
       "language": "English",
-      "proficiency": "Fluent"
+      "proficiency": "Professional"
     },
     {
-      "name": "Telugu",
-      "language": "Telugu",
-      "proficiency": "Fluent"
+      "name": "Hindi",
+      "language": "Hindi",
+      "proficiency": "Native"
     },
     {
-      "name": "Tamil",
-      "language": "Tamil",
-      "proficiency": "Fluent"
-    },
-    {
-      "name": "Kannada",
-      "language": "Kannada",
-      "proficiency": "Fluent"
+      "name": "Urdu",
+      "language": "Urdu",
+      "proficiency": "Professional"
     }
   ],
-  "Hobbies": [],
+  "Hobbies": [
+    "● Leadership",
+    "● Communication",
+    "● Emotional Intelligence",
+    "● Teaching Effectiveness",
+    "● Student Psychology"
+  ],
   "extendedSections": {
     "professionalQualifications": [],
     "professionalHighlights": [],
@@ -469,11 +413,253 @@
     "references": [],
     "declaration": "",
     "personalDetails": {},
-    "extraSections": [],
+    "extraSections": [
+      {
+        "heading": "_importSource",
+        "body": "ai-extraction"
+      },
+      {
+        "heading": "Full Name",
+        "body": "Aamir Mehboob"
+      }
+    ],
     "unsupportedSections": []
   },
-  "extraSections": [],
+  "awards": [],
+  "publications": [
+    "Publications"
+  ],
+  "patents": [
+    "Patents"
+  ],
+  "volunteer": [
+    "Volunteer Experience"
+  ],
+  "memberships": [
+    "Memberships"
+  ],
+  "training": [
+    "Training & Workshops"
+  ],
+  "internships": [],
+  "research": [
+    "Research"
+  ],
+  "references": [
+    "References"
+  ],
+  "declaration": "",
+  "professionalQualifications": [],
+  "professionalHighlights": [],
+  "coreCompetencies": [],
+  "softSkills": [],
+  "technicalSkills": [
+    "HR",
+    "Executive Coaching",
+    "Emotional Intelligence",
+    "Organizational Behaviour",
+    "Public Speaking",
+    "Strategic Leadership",
+    "Team Building",
+    "Campus-to-corporate Training",
+    "Communication Skills",
+    "Faculty Development",
+    "Leadership Development",
+    "Personality Development"
+  ],
+  "strengths": [
+    "Strengths"
+  ],
+  "industryExpertise": [],
+  "seminars": [
+    "Seminars & Conferences"
+  ],
   "unsupportedSections": [],
-  "Full Name": "Mangowda Laksh",
-  "_pipelineConfidence": 84
+  "_semanticRoute": {
+    "heading": "Technical Skills",
+    "definitionId": "technical-skills",
+    "confidence": 78
+  },
+  "mappingLedger": {
+    "mapped": 159,
+    "recovered": 159,
+    "dynamic": 12,
+    "unsupported": 0,
+    "discarded": 0,
+    "nodeIds": [
+      "person_name-1",
+      "person_name-2",
+      "person_name-3",
+      "person_name-4",
+      "email-5",
+      "phone-6",
+      "location-7",
+      "job_title-8",
+      "job_title-9",
+      "summary-10",
+      "summary-11",
+      "summary-12",
+      "technical_skill-13",
+      "technical_skill-14",
+      "technical_skill-15",
+      "technical_skill-16",
+      "technical_skill-17",
+      "technical_skill-18",
+      "technical_skill-19",
+      "technical_skill-20",
+      "technical_skill-21",
+      "technical_skill-22",
+      "technical_skill-23",
+      "technical_skill-24",
+      "education-25",
+      "education-26",
+      "education-27",
+      "education-28",
+      "education-29",
+      "education-30",
+      "education-31",
+      "education-32",
+      "education-33",
+      "project-34",
+      "person_name-35",
+      "project-36",
+      "project-37",
+      "project-38",
+      "certification-39",
+      "person_name-40",
+      "certification-41",
+      "certification-42",
+      "person_name-43",
+      "certification-44",
+      "certification-45",
+      "person_name-46",
+      "certification-47",
+      "person_name-48",
+      "certification-49",
+      "person_name-50",
+      "certification-51",
+      "language-52",
+      "person_name-53",
+      "language-54",
+      "language-55",
+      "language-56",
+      "person_name-57",
+      "language-58",
+      "language-59",
+      "language-60",
+      "person_name-61",
+      "language-62",
+      "language-63",
+      "language-64",
+      "person_name-65",
+      "language-66",
+      "language-67",
+      "person_name-68",
+      "language-69",
+      "language-70",
+      "person_name-71",
+      "language-72",
+      "language-73",
+      "person_name-74",
+      "language-75",
+      "person_name-76",
+      "language-77",
+      "language-78",
+      "person_name-79",
+      "language-80",
+      "language-81",
+      "person_name-82",
+      "language-83",
+      "language-84",
+      "person_name-85",
+      "language-86",
+      "language-87",
+      "person_name-88",
+      "language-89",
+      "person_name-90",
+      "language-91",
+      "person_name-92",
+      "language-93",
+      "person_name-94",
+      "language-95",
+      "person_name-96",
+      "language-97",
+      "person_name-98",
+      "language-99",
+      "person_name-100",
+      "language-101",
+      "person_name-102",
+      "language-103",
+      "person_name-104",
+      "language-105",
+      "person_name-106",
+      "language-107",
+      "person_name-108",
+      "language-109",
+      "person_name-110",
+      "language-111",
+      "person_name-112",
+      "achievement-113",
+      "achievement-114",
+      "achievement-115",
+      "achievement-116",
+      "achievement-117",
+      "achievement-118",
+      "achievement-119",
+      "achievement-120",
+      "achievement-121",
+      "achievement-122",
+      "achievement-123",
+      "achievement-124",
+      "achievement-125",
+      "achievement-126",
+      "achievement-127",
+      "achievement-128",
+      "hobby-129",
+      "hobby-130",
+      "hobby-131",
+      "hobby-132",
+      "hobby-133",
+      "technical_skill-134",
+      "technical_skill-135",
+      "technical_skill-136",
+      "technical_skill-137",
+      "technical_skill-138",
+      "technical_skill-139",
+      "technical_skill-140",
+      "technical_skill-141",
+      "technical_skill-142",
+      "technical_skill-143",
+      "technical_skill-144",
+      "technical_skill-145",
+      "semantic-146",
+      "unknown-147",
+      "semantic-148",
+      "semantic-149",
+      "semantic-150",
+      "semantic-151",
+      "semantic-152",
+      "semantic-153",
+      "semantic-154",
+      "semantic-155",
+      "semantic-156",
+      "semantic-157",
+      "semantic-158",
+      "unknown-159"
+    ]
+  },
+  "extraSections": [
+    {
+      "heading": "_importSource",
+      "body": "ai-extraction"
+    },
+    {
+      "heading": "Full Name",
+      "body": "Aamir Mehboob"
+    }
+  ],
+  "Full Name": "Aamir Mehboob",
+  "Location": "",
+  "address": "",
+  "_pipelineConfidence": 72
 }

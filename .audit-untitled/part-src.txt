@@ -1,0 +1,15 @@
+﻿has self-contained path true
+functions [ 'partitionExperienceBlocks', 'scoreExperienceBoundaries' ]
+0 35 NAHAR POLY FILMS LTD: Nahar groups of companies
+1 28 Liaison Officer (03 Jun 2019 to 29/05/2023) | CTC: 5.4 lakh
+6 0 Raj Security Force: A Security and allied service Provider c
+7 28 Branch Head / Training Head (01 July 2015 to 30 May 2019) | 
+16 45 Lupin Ltd Mandideep: A Multinational pharmaceutical company 
+23 35 Transport management (Planning and detailing as requirement)
+28 47 Indian Army
+29 13 Havildar Radio Operator (18 Years)
+39 40 DRDO Chandipur (Orissa)
+blocks [
+  [ 0, 22, 'NAHAR POLY FILMS LTD: Nahar groups of companies' ],
+  [ 23, 43, 'Transport management (Planning and detailing as re' ]
+]

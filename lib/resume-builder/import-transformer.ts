@@ -1872,14 +1872,27 @@ export function transformImportDataToBuilder(
     effectiveRawText.length >= 80
       ? sanitizePersonName(extractNameWithConfidence(effectiveRawText), 120)
       : '';
-  const headerNameForResolve = sanitizePersonName(
-    pickRicherFullName(textParsed?.fullName || '', recoveredHeaderName, email),
+  // Remove temporary name-resolve debug logs.
+  const importContactName = sanitizePersonName(
+    mergedImport.fullName || mergedImport.name || '',
     120
   );
+  const importNameIsTrusted =
+    Boolean(importContactName) &&
+    importContactName.split(/\s+/).filter(Boolean).length >= 2 &&
+    isValidatedContactName(importContactName, locationHint);
+  // When the custom parser already resolved a trusted document name, do not let
+  // OCR headline fragments ("TEDx Speaker", "National Quiz Master") compete.
+  const headerNameForResolve = importNameIsTrusted
+    ? ''
+    : sanitizePersonName(
+        pickRicherFullName(textParsed?.fullName || '', recoveredHeaderName, email),
+        120
+      );
   const { firstName, lastName, displayName, additionalResumeData } = resolveClassifiedName(
     mergedImport,
     email,
-    headerNameForResolve || recoveredHeaderName || textParsed?.fullName || '',
+    headerNameForResolve || (importNameIsTrusted ? '' : recoveredHeaderName || textParsed?.fullName || ''),
     locationHint
   );
   let resolvedFirstName = firstName;
@@ -2358,13 +2371,15 @@ function resolveClassifiedName(
   }
   const profileCombined = [profileFirst, profileLast].filter(Boolean).join(' ').trim();
   const richerProfileFull =
-    profileFullNameEnriched &&
-    (nameWordCount(profileFullNameEnriched) > nameWordCount(profileCombined) ||
-      (!!profileCombined &&
-        profileFullNameEnriched.toLowerCase().includes(profileCombined.toLowerCase()) &&
-        profileFullNameEnriched.toLowerCase() !== profileCombined.toLowerCase()))
+    profileFullNameEnriched && isValidatedContactName(profileFullNameEnriched, locationHint)
       ? profileFullNameEnriched
-      : '';
+      : profileFullNameEnriched &&
+          (nameWordCount(profileFullNameEnriched) > nameWordCount(profileCombined) ||
+            (!!profileCombined &&
+              profileFullNameEnriched.toLowerCase().includes(profileCombined.toLowerCase()) &&
+              profileFullNameEnriched.toLowerCase() !== profileCombined.toLowerCase()))
+        ? profileFullNameEnriched
+        : '';
 
   const textHeaderName = sanitizePersonName(headerNameFromText, 120);
 
@@ -2404,9 +2419,16 @@ function resolveClassifiedName(
 
   if (richerProfileFull) {
     const split = splitFullNameWithRejected(richerProfileFull);
+    let firstName = split.firstName || '';
+    let lastName = split.lastName || '';
+    if (!firstName && !lastName) {
+      const parts = richerProfileFull.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+      firstName = parts[0] || '';
+      lastName = parts.slice(1).join(' ');
+    }
     return {
-      firstName: split.firstName || '',
-      lastName: split.lastName || '',
+      firstName,
+      lastName,
       displayName: richerProfileFull,
       additionalResumeData,
     };
@@ -3325,6 +3347,40 @@ function finalizeBuilderContactIdentity(
   rawText = ''
 ): Record<string, unknown> {
   const out = { ...builder };
+  const importName = sanitizePersonName(
+    mergedImport.fullName ||
+      mergedImport.name ||
+      (mergedImport.personalInformation as Record<string, unknown> | undefined)?.fullName ||
+      out.fullName ||
+      out.name ||
+      '',
+    120
+  );
+  // Prefer a validated multi-token import/parser name over OCR headline fragments.
+  if (
+    importName &&
+    importName.split(/\s+/).filter(Boolean).length >= 2 &&
+    isValidatedContactName(importName, locationHint)
+  ) {
+    const split = splitFullNameWithRejected(importName);
+    let first = split.firstName || '';
+    let last = split.lastName || '';
+    // Credentialed academic names are sometimes misclassified as LOCATION by the
+    // fragment splitter — keep the full import name as the display identity.
+    if (!first && !last) {
+      const parts = importName.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+      first = parts[0] || '';
+      last = parts.slice(1).join(' ');
+    }
+    const display = [first, last].filter(Boolean).join(' ').trim() || importName;
+    out.firstName = first;
+    out.lastName = last;
+    out.fullName = display;
+    out.name = display;
+    out['Full Name'] = display;
+    return out;
+  }
+
   const current =
     [out.firstName, out.lastName]
       .map((v) => String(v || '').trim())
@@ -3338,7 +3394,13 @@ function finalizeBuilderContactIdentity(
     let display = [first, last].filter(Boolean).join(' ').trim() || current;
     if (rawText.length >= 80) {
       const recovered = sanitizePersonName(extractNameWithConfidence(rawText), 120);
-      if (recovered) {
+      // Never let role/headline fragments from text recovery overwrite a validated
+      // document name (e.g. "Communication Expert" / "TEDx Speaker").
+      if (
+        recovered &&
+        isValidatedContactName(recovered, locationHint) &&
+        !looksLikeJobTitleLine(recovered)
+      ) {
         display = pickRicherFullName(display, recovered, email) || display;
       }
     }
@@ -3399,16 +3461,31 @@ function finalizeBuilderContactIdentity(
   }
 
   const personal = (mergedImport.personalInformation || {}) as Record<string, unknown>;
+  const fallbackImportName = importName || sanitizePersonName(
+    mergedImport.fullName || mergedImport.name || personal.fullName || '',
+    120
+  );
+  const recoveredHeader = sanitizePersonName(extractNameWithConfidence(rawText), 120);
   const headerName =
-    sanitizePersonName(extractNameWithConfidence(rawText), 120) ||
+    fallbackImportName ||
+    (recoveredHeader &&
+    isValidatedContactName(recoveredHeader, locationHint) &&
+    !looksLikeJobTitleLine(recoveredHeader)
+      ? recoveredHeader
+      : '') ||
     sanitizePersonName(textParsedNameFromImport(mergedImport), 120);
   const strippedProfile = {
     ...mergedImport,
-    firstName: '',
-    lastName: '',
-    fullName: '',
-    name: '',
-    personalInformation: { ...personal, firstName: '', lastName: '', fullName: '' },
+    firstName: fallbackImportName ? String(mergedImport.firstName || personal.firstName || '') : '',
+    lastName: fallbackImportName ? String(mergedImport.lastName || personal.lastName || '') : '',
+    fullName: fallbackImportName || '',
+    name: fallbackImportName || '',
+    personalInformation: {
+      ...personal,
+      firstName: fallbackImportName ? String(personal.firstName || '') : '',
+      lastName: fallbackImportName ? String(personal.lastName || '') : '',
+      fullName: fallbackImportName || '',
+    },
   };
 
   const resolved = resolveClassifiedName(strippedProfile, email, headerName, locationHint);
@@ -3499,6 +3576,8 @@ function cleanHobbies(hobbies: unknown): string[] {
   if (!Array.isArray(hobbies)) return [];
   const seen = new Set<string>();
   const out: string[] = [];
+  const COMPETENCY_HOBBY_RE =
+    /^(?:[\s•●\-–—*]+)?(?:leadership|communication|emotional\s+intelligence|teaching\s+effectiveness|student\s+psychology|curriculum\s+development|faculty\s+development|public\s+speaking|team\s+building|organizational\s+behaviour|organisational\s+behaviour|soft\s+skills?)\s*$/i;
   for (const h of hobbies) {
     let value = '';
     if (typeof h === 'string') value = sanitizeFieldText(h, 80);
@@ -3507,6 +3586,7 @@ function cleanHobbies(hobbies: unknown): string[] {
       value = sanitizeFieldText(String(rec.name ?? rec.title ?? ''), 80);
     }
     if (!value) continue;
+    if (COMPETENCY_HOBBY_RE.test(value)) continue;
     const key = value.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);

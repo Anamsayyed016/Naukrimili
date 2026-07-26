@@ -1,0 +1,613 @@
+{
+  "pdf": "F:\\myprojects\\jobportal\\.audit-untitled\\untitled-validation.pdf",
+  "extraction": {
+    "rawChars": 6729,
+    "preparedChars": 6465,
+    "pages": 8,
+    "recoveredFromStreams": false,
+    "documentType": "TYPE_B_EXECUTIVE"
+  },
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 6463,
+    "preamble": 447,
+    "summary": 599,
+    "experience": 424,
+    "education": 0,
+    "skills": 993,
+    "projects": 0,
+    "languages": 119,
+    "certifications": 195,
+    "achievements": 443,
+    "hobbies": 0,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 1022
+  },
+  "structuredExperienceRecovery": 0,
+  "stages": {
+    "customParser": {
+      "counts": {
+        "experience": 1,
+        "experienceWithCompany": 1,
+        "experienceWithTitle": 1,
+        "projects": 0,
+        "education": 0,
+        "certifications": 4,
+        "skills": 12,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 0,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Senior Professor",
+          "company": "● Curriculum Development",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 65,
+          "bullets": 13
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Leadership Development"
+        },
+        {
+          "i": 2,
+          "value": "Faculty Development"
+        },
+        {
+          "i": 3,
+          "value": "Personality Development"
+        },
+        {
+          "i": 4,
+          "value": "Communication Skills"
+        },
+        {
+          "i": 5,
+          "value": "Campus-to-corporate Training"
+        },
+        {
+          "i": 6,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 7,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 8,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 9,
+          "value": "Team Building"
+        },
+        {
+          "i": 10,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 11,
+          "value": "Strategic Leadership"
+        }
+      ],
+      "certifications": [
+        {
+          "i": 0,
+          "name": "● CELTA"
+        },
+        {
+          "i": 1,
+          "name": "● Business English Certificate"
+        },
+        {
+          "i": 2,
+          "name": "● Certified IELTS Trainer"
+        },
+        {
+          "i": 3,
+          "name": "● Certified TOEFL Trainer"
+        }
+      ],
+      "languages": [
+        {
+          "i": 0,
+          "name": "English"
+        },
+        {
+          "i": 1,
+          "name": "Hindi"
+        },
+        {
+          "i": 2,
+          "name": "Urdu"
+        }
+      ],
+      "achievements": [
+        {
+          "i": 0,
+          "value": "● 34+ Years of Academic & Training Excellence"
+        },
+        {
+          "i": 1,
+          "value": "● 50,000+ Individuals Trained & Mentored"
+        },
+        {
+          "i": 2,
+          "value": "● 1,000+ Workshops, Seminars & Keynote Addresses"
+        },
+        {
+          "i": 3,
+          "value": "● 500+ National Events Hosted"
+        },
+        {
+          "i": 4,
+          "value": "● TEDx Speaker"
+        },
+        {
+          "i": 5,
+          "value": "● International Communication Trainer"
+        },
+        {
+          "i": 6,
+          "value": "● Leadership Development Expert"
+        },
+        {
+          "i": 7,
+          "value": "● Educational Advisor"
+        },
+        {
+          "i": 8,
+          "value": "National Excellence Award"
+        },
+        {
+          "i": 9,
+          "value": "Best Faculty Award"
+        },
+        {
+          "i": 10,
+          "value": "Outstanding Trainer Recognition"
+        },
+        {
+          "i": 11,
+          "value": "Leadership Excellence Award"
+        }
+      ],
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowe",
+      "personal": {
+        "name": "Aamir Mehboob",
+        "email": "lifecoachaamir@gmail.com",
+        "phone": "+91 98260 17854"
+      }
+    },
+    "uploadNormalized": {
+      "counts": {
+        "experience": 1,
+        "experienceWithCompany": 1,
+        "experienceWithTitle": 1,
+        "projects": 0,
+        "education": 0,
+        "certifications": 4,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 0,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Senior Professor",
+          "company": "● Curriculum Development",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 65,
+          "bullets": 13
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 2,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
+        }
+      ]
+    },
+    "repaired": {
+      "counts": {
+        "experience": 1,
+        "experienceWithCompany": 1,
+        "experienceWithTitle": 1,
+        "projects": 0,
+        "education": 0,
+        "certifications": 4,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 7,
+        "hobbies": 0,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Senior Professor",
+          "company": "● Curriculum Development",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 41,
+          "bullets": 5
+        }
+      ],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 2,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
+        }
+      ],
+      "achievements": [
+        {
+          "i": 0,
+          "value": "● 34+ Years of Academic & Training Excellence"
+        },
+        {
+          "i": 1,
+          "value": "● 50,000+ Individuals Trained & Mentored"
+        },
+        {
+          "i": 2,
+          "value": "● 1,000+ Workshops, Seminars & Keynote Addresses"
+        },
+        {
+          "i": 3,
+          "value": "● 500+ National Events Hosted"
+        },
+        {
+          "i": 4,
+          "value": "National Excellence Award"
+        },
+        {
+          "i": 5,
+          "value": "Best Faculty Award"
+        },
+        {
+          "i": 6,
+          "value": "Leadership Excellence Award"
+        }
+      ],
+      "hobbies": []
+    },
+    "coalesced": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 1,
+        "education": 2,
+        "certifications": 5,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 5,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+          "institution": ""
+        },
+        {
+          "i": 1,
+          "degree": "MBA Institutes",
+          "institution": ""
+        }
+      ],
+      "projects": [
+        {
+          "i": 0,
+          "name": "● TEDx Conferences",
+          "title": "● TEDx Conferences"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 2,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "● Leadership"
+        },
+        {
+          "i": 1,
+          "value": "● Communication"
+        },
+        {
+          "i": 2,
+          "value": "● Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "● Teaching Effectiveness"
+        },
+        {
+          "i": 4,
+          "value": "● Student Psychology"
+        }
+      ],
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty devel"
+    },
+    "gallery": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 1,
+        "education": 2,
+        "certifications": 5,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 5,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [],
+      "projects": [
+        {
+          "i": 0,
+          "name": "● TEDx Conferences",
+          "title": "● TEDx Conferences"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 2,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "● Leadership"
+        },
+        {
+          "i": 1,
+          "value": "● Communication"
+        },
+        {
+          "i": 2,
+          "value": "● Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "● Teaching Effectiveness"
+        },
+        {
+          "i": 4,
+          "value": "● Student Psychology"
+        }
+      ],
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty devel"
+    },
+    "builder": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 1,
+        "education": 2,
+        "certifications": 5,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 5,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+          "institution": ""
+        },
+        {
+          "i": 1,
+          "degree": "MBA Institutes",
+          "institution": ""
+        }
+      ],
+      "projects": [
+        {
+          "i": 0,
+          "name": "● TEDx Conferences",
+          "title": "● TEDx Conferences"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 2,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "● Leadership"
+        },
+        {
+          "i": 1,
+          "value": "● Communication"
+        },
+        {
+          "i": 2,
+          "value": "● Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "● Teaching Effectiveness"
+        },
+        {
+          "i": 4,
+          "value": "● Student Psychology"
+        }
+      ],
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty devel"
+    }
+  }
+}

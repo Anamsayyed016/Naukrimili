@@ -2,7 +2,7 @@
  * Map validated canonical nodes onto Builder form fields.
  */
 
-import { sanitizeFieldText, sanitizeExperienceCompanyValue, preferWholeExperienceField, sanitizePersonName, isValidatedContactName } from '@/lib/resume-parser/import-sanitize';
+import { sanitizeFieldText, sanitizeExperienceCompanyValue, preferWholeExperienceField, sanitizePersonName, isValidatedContactName, isPlausiblePersonName } from '@/lib/resume-parser/import-sanitize';
 import { syncExperienceEntryAliases } from '@/lib/resume-builder/experience-entry-sync';
 import { bestNodeValue, findNodes } from './ingest';
 import type { CanonicalFieldNode, CanonicalNodeType } from './types';
@@ -163,7 +163,9 @@ export function mapCanonicalNodesToBuilder(
       if (
         value &&
         (!fullName || value.toLowerCase() !== fullName.toLowerCase()) &&
-        !isValidatedContactName(value, locationHint)
+        !isValidatedContactName(value, locationHint) &&
+        !isPlausiblePersonName(value) &&
+        !/(?:ph\.?\s*d\.?|m\.?\s*d\.?)\.?$/i.test(value)
       ) {
         if (setIfEmpty(builder, key, value)) matched.push(`identity:${key}`);
       }

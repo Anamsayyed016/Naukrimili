@@ -1,0 +1,24 @@
+﻿{"i":3,"t":"CAREER OBJECTIVE","candidate":{"type":"summary","conf":53,"scores":{"keyword":88,"capitalization":28,"formatting":8,"context":24.34285714285714,"content":0,"profile":4,"total":53}},"kwTop":[["summary",88],["experience",48]]}
+{"i":6,"t":"SUMMARY","candidate":{"type":"summary","conf":53,"scores":{"keyword":88,"capitalization":28,"formatting":8,"context":25.485714285714288,"content":0,"profile":4,"total":53}},"kwTop":[["summary",88]]}
+{"i":9,"t":"CORE SPECIALTIES & KEY AREAS","candidate":null,"kwTop":[]}
+{"i":10,"t":"Specialties: Administration, operation, Transport management Tender, procurement","candidate":null,"kwTop":[]}
+{"i":14,"t":"Key Area: Administration, Operation Facility Management, Tender, Liaison, Transp","candidate":null,"kwTop":[]}
+{"i":16,"t":"ACADEMIC QUALIFICATION","candidate":{"type":"education","conf":52,"scores":{"keyword":88,"capitalization":28,"formatting":8,"context":12.095238095238095,"content":0,"profile":4,"total":52}},"kwTop":[["education",88]]}
+{"i":17,"t":"S/ No EducationBoard / UniversityYearDivision 1 BBARKDF2017Ist","candidate":{"type":"education","conf":38,"scores":{"keyword":70,"capitalization":0,"formatting":0,"context":12.476190476190474,"content":0,"profile":4,"total":38}},"kwTop":[["education",70]]}
+{"i":19,"t":"PROFESSIONAL & TECHNICAL QUALIFICATION","candidate":null,"kwTop":[["certifications",80],["education",48]]}
+{"i":20,"t":"S/ No","candidate":null,"kwTop":[]}
+{"i":25,"t":"Professional","candidate":null,"kwTop":[]}
+{"i":26,"t":"2\tFire Fighting, First Aid, Hygiene and sanitationArmyProfessional","candidate":null,"kwTop":[]}
+{"i":27,"t":"3 GraduationArmyProfessional","candidate":null,"kwTop":[]}
+{"i":31,"t":"S/ No","candidate":{"type":"custom","conf":26,"scores":{"keyword":0,"capitalization":0,"formatting":26,"context":0,"content":0,"profile":4,"total":26}},"kwTop":[]}
+{"i":42,"t":"PROFESSIONAL EXPERIENCE","candidate":null,"kwTop":[["experience",88]]}
+{"i":44,"t":"Liaison Officer (03 Jun 2019 to 29/05/2023) | CTC: 5.4 lakh","candidate":null,"kwTop":[]}
+{"i":56,"t":"Liaison with Government officials as requirement. Meeting with Clients as and wh","candidate":null,"kwTop":[]}
+{"i":59,"t":"Lupin Ltd Mandideep: A Multinational pharmaceutical company Executive Liaison (S","candidate":null,"kwTop":[]}
+{"i":66,"t":"Transport management (Planning and detailing as requirement). Liaison with Gover","candidate":null,"kwTop":[]}
+{"i":87,"t":"Awards:","candidate":{"type":"achievements","conf":45,"scores":{"keyword":78,"capitalization":0,"formatting":14,"context":18.057142857142853,"content":0,"profile":4,"total":45}},"kwTop":[["achievements",78]]}
+{"i":89,"t":"LIAISON WITH & HOBBIES","candidate":null,"kwTop":[["hobbies",70]]}
+{"i":90,"t":"Liaison with: Collector office, Nagar Nigam, PHQ, RTO, and all government offici","candidate":null,"kwTop":[]}
+{"i":91,"t":"Hobbies & Interest: Work hard to achieve our target, Learn for knowledge, Listen","candidate":null,"kwTop":[["hobbies",74],["experience",48]]}
+{"i":93,"t":"PERSONAL PROFILE","candidate":{"type":"summary","conf":49,"scores":{"keyword":85,"capitalization":28,"formatting":8,"context":4,"content":0,"profile":4,"total":49}},"kwTop":[["summary",85]]}
+{"i":99,"t":"DECLARATION","candidate":null,"kwTop":[]}

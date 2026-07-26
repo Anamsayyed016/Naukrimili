@@ -1,0 +1,705 @@
+﻿[resume-extraction-validation] { warnings: 0, repairs: 4 }
+[import-transformer] mergedImport project keys { projects: 2, Projects: 0 }
+RAW PROJECTS [
+  {
+    "name": "S/ No",
+    "technologies": [],
+    "title": "S/ No",
+    "Technologies": []
+  },
+  {
+    "name": "Course / SpecializationOrganization / EnvironmentType",
+    "description": "1\tSecurity officer/Asst security officer",
+    "technologies": [],
+    "title": "Course / SpecializationOrganization / EnvironmentType",
+    "summary": "1\tSecurity officer/Asst security officer",
+    "Technologies": []
+  }
+]
+projects.length 2
+project[0] { name: 'S/ No', descriptionPreview: '', technologies: [] }
+project[1] {
+  name: 'Course / SpecializationOrganization / EnvironmentType',
+  descriptionPreview: '1\tSecurity officer/Asst security officer',
+  technologies: []
+}
+[import-transformer] final projects.length 2
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'projects:2',
+    'certifications:1',
+    'achievements:2',
+    'hobbies:9',
+    'skills:2'
+  ],
+  recovered: [ 'identity:summary', 'achievements:appended' ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'achievements:count-loss:2/3'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'projects:2',
+    'certifications:1',
+    'achievements:4',
+    'hobbies:9',
+    'skills:2'
+  ],
+  recovered: [],
+  missing: [ 'identity:linkedin', 'identity:github', 'identity:portfolio' ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS [
+  {
+    "name": "S/ No",
+    "title": "S/ No",
+    "description": "",
+    "Description": "",
+    "technologies": "",
+    "Technologies": "",
+    "url": "",
+    "link": "",
+    "startDate": "",
+    "endDate": ""
+  },
+  {
+    "name": "Course / SpecializationOrganization / EnvironmentType",
+    "title": "Course / SpecializationOrganization / EnvironmentType",
+    "description": "1 Security officer/Asst security officer",
+    "Description": "1 Security officer/Asst security officer",
+    "technologies": "",
+    "Technologies": "",
+    "url": "",
+    "link": "",
+    "startDate": "",
+    "endDate": ""
+  }
+]
+projects.length 2
+project[0] { name: 'S/ No', descriptionPreview: '', technologies: '' }
+project[1] {
+  name: 'Course / SpecializationOrganization / EnvironmentType',
+  descriptionPreview: '1 Security officer/Asst security officer',
+  technologies: ''
+}
+[import-transformer] final projects.length 2
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 910,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 2,
+    education: 0,
+    certifications: 0,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 910,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 2,
+    skills: 2,
+    education: 0,
+    certifications: 1,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 0,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 2,
+    skills: 0,
+    education: 0,
+    certifications: 1,
+    languages: 0
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: false,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: false,
+  skills: 0,
+  experience: 0,
+  education: 0,
+  projects: 2,
+  certifications: 1,
+  languages: 0,
+  achievements: 2,
+  hobbies: 8
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [ 'summary:missing', 'skills:empty', 'education:empty' ],
+  recoveries: [],
+  experienceCount: 0,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[resume-extraction-validation] { warnings: 0, repairs: 2 }
+[resume-extraction-validation] { warnings: 0, repairs: 1 }
+[import-transformer] mergedImport project keys { projects: 2, Projects: 2 }
+RAW PROJECTS [
+  {
+    "name": "S/ No",
+    "title": "S/ No",
+    "description": "",
+    "Description": "",
+    "technologies": "",
+    "Technologies": "",
+    "url": "",
+    "link": "",
+    "startDate": "",
+    "endDate": "",
+    "summary": ""
+  },
+  {
+    "name": "Course / SpecializationOrganization / EnvironmentType",
+    "title": "Course / SpecializationOrganization / EnvironmentType",
+    "description": "1\tSecurity officer/Asst security officer",
+    "Description": "1 Security officer/Asst security officer",
+    "technologies": "",
+    "Technologies": "",
+    "url": "",
+    "link": "",
+    "startDate": "",
+    "endDate": "",
+    "summary": "1\tSecurity officer/Asst security officer"
+  }
+]
+projects.length 2
+project[0] { name: 'S/ No', descriptionPreview: '', technologies: '' }
+project[1] {
+  name: 'Course / SpecializationOrganization / EnvironmentType',
+  descriptionPreview: '1\tSecurity officer/Asst security officer',
+  technologies: ''
+}
+[import-transformer] final projects.length 2
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'projects:2',
+    'certifications:1',
+    'achievements:2',
+    'hobbies:9',
+    'skills:2'
+  ],
+  recovered: [
+    'identity:summary',
+    'identity:firstName-from-fullName',
+    'achievements:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'achievements:count-loss:2/3'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'projects:2',
+    'certifications:1',
+    'achievements:4',
+    'hobbies:9',
+    'skills:2'
+  ],
+  recovered: [],
+  missing: [ 'identity:linkedin', 'identity:github', 'identity:portfolio' ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS [
+  {
+    "name": "S/ No",
+    "title": "S/ No",
+    "description": "",
+    "Description": "",
+    "technologies": "",
+    "Technologies": "",
+    "url": "",
+    "link": "",
+    "startDate": "",
+    "endDate": ""
+  },
+  {
+    "name": "Course / SpecializationOrganization / EnvironmentType",
+    "title": "Course / SpecializationOrganization / EnvironmentType",
+    "description": "1 Security officer/Asst security officer",
+    "Description": "1 Security officer/Asst security officer",
+    "technologies": "",
+    "Technologies": "",
+    "url": "",
+    "link": "",
+    "startDate": "",
+    "endDate": ""
+  }
+]
+projects.length 2
+project[0] { name: 'S/ No', descriptionPreview: '', technologies: '' }
+project[1] {
+  name: 'Course / SpecializationOrganization / EnvironmentType',
+  descriptionPreview: '1 Security officer/Asst security officer',
+  technologies: ''
+}
+[import-transformer] final projects.length 2
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 0,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 2,
+    skills: 0,
+    education: 0,
+    certifications: 1,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 112,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 2,
+    skills: 2,
+    education: 0,
+    certifications: 1,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 0,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 2,
+    skills: 0,
+    education: 0,
+    certifications: 1,
+    languages: 0
+  }
+}
+[import-transformer] mapping validation {
+  issues: [ 'summary:missing', 'skills:empty', 'education:empty' ],
+  recoveries: [],
+  experienceCount: 0,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: false,
+  lastName: true,
+  email: true,
+  phone: true,
+  location: true,
+  linkedin: false,
+  portfolio: false,
+  summary: false,
+  skills: 0,
+  experience: 0,
+  education: 0,
+  projects: 2,
+  certifications: 1,
+  languages: 0,
+  achievements: 2,
+  hobbies: 8
+}
+[resume-extraction-validation] { warnings: 0, repairs: 2 }
+{
+  "sourceTextChars": 5825,
+  "preparedChars": 5723,
+  "documentType": "TYPE_A_ATS",
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 5723,
+    "preamble": 127,
+    "summary": 1007,
+    "experience": 137,
+    "education": 504,
+    "skills": 0,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 0,
+    "achievements": 310,
+    "hobbies": 0,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "structuredExp": 0,
+  "stages": {
+    "custom": {
+      "counts": {
+        "experience": 0,
+        "withCompany": 0,
+        "withTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 2,
+        "languages": 0,
+        "achievements": 5,
+        "hobbies": 0,
+        "summaryChars": 910,
+        "name": "TRILOKINATH UPADHYAYA",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "MOB"
+        },
+        {
+          "i": 1,
+          "v": "E-mail"
+        }
+      ],
+      "certs": [],
+      "langs": [],
+      "achievements": [
+        {
+          "i": 0,
+          "v": "Commendation for Meritorious performance, Cash Award."
+        },
+        {
+          "i": 1,
+          "v": "LIAISON WITH & HOBBIES"
+        },
+        {
+          "i": 2,
+          "v": "Liaison with: Collector office, Nagar Nigam, PHQ, RTO, and all government officials."
+        },
+        {
+          "i": 3,
+          "v": "Hobbies & Interest: Work hard to achieve our target, Learn for knowledge, Listening Music and Reading"
+        },
+        {
+          "i": 4,
+          "v": "Books, Watching TV news and reading newspaper."
+        }
+      ],
+      "hobbies": [],
+      "summary": "I will like to work in a growth oriented organization in which I will get an opportunity to give desired results\nin my area of expertise.\n\nRegularly acquires in-depth knowledge of Operation, Facility Management, Tender filling, security\nlegislation and securing environment from related hazards and threats.\nCORE SPECIALTIES & KEY AREAS\nSpecialties: Administration, operation, Transport management Te"
+    },
+    "upload": {
+      "counts": {
+        "experience": 0,
+        "withCompany": 0,
+        "withTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 2,
+        "languages": 0,
+        "achievements": 5,
+        "hobbies": 0,
+        "summaryChars": 910,
+        "name": "TRILOKINATH UPADHYAYA",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "MOB"
+        },
+        {
+          "i": 1,
+          "v": "E-mail"
+        }
+      ]
+    },
+    "repaired": {
+      "counts": {
+        "experience": 0,
+        "withCompany": 0,
+        "withTitle": 0,
+        "projects": 0,
+        "education": 0,
+        "certifications": 0,
+        "skills": 2,
+        "languages": 0,
+        "achievements": 1,
+        "hobbies": 0,
+        "summaryChars": 910,
+        "name": "TRILOKINATH UPADHYAYA",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "v": "MOB"
+        },
+        {
+          "i": 1,
+          "v": "E-mail"
+        }
+      ],
+      "achievements": [
+        {
+          "i": 0,
+          "v": "Commendation for Meritorious performance, Cash Award."
+        }
+      ],
+      "hobbies": [],
+      "summary": "I will like to work in a growth oriented organization in which I will get an opportunity to give desired results\nin my area of expertise.\n\nRegularly acquires in-depth knowledge of Operation, Facility Management, Tender filling, security\nlegislation and securing environment from related hazards and t"
+    },
+    "coalesced": {
+      "counts": {
+        "experience": 0,
+        "withCompany": 0,
+        "withTitle": 0,
+        "projects": 2,
+        "education": 0,
+        "certifications": 1,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 8,
+        "summaryChars": 0,
+        "name": "Radio Operator From Army",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [],
+      "education": [],
+      "projects": [
+        {
+          "i": 0,
+          "title": "S/ No",
+          "company": null,
+          "dates": null,
+          "descLen": 0
+        },
+        {
+          "i": 1,
+          "title": "Course / SpecializationOrganization / EnvironmentType",
+          "company": null,
+          "dates": null,
+          "descLen": 40
+        }
+      ],
+      "skills": [],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 6,
+          "v": "Books"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        }
+      ],
+      "summary": ""
+    },
+    "gallery": {
+      "counts": {
+        "experience": 0,
+        "withCompany": 0,
+        "withTitle": 0,
+        "projects": 2,
+        "education": 0,
+        "certifications": 1,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 8,
+        "summaryChars": 0,
+        "name": "Radio Operator From Army",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [],
+      "projects": [
+        {
+          "i": 0,
+          "title": "S/ No",
+          "company": null,
+          "dates": null,
+          "descLen": 0
+        },
+        {
+          "i": 1,
+          "title": "Course / SpecializationOrganization / EnvironmentType",
+          "company": null,
+          "dates": null,
+          "descLen": 40
+        }
+      ],
+      "skills": [],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 6,
+          "v": "Books"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        }
+      ],
+      "summary": ""
+    },
+    "builder": {
+      "counts": {
+        "experience": 0,
+        "withCompany": 0,
+        "withTitle": 0,
+        "projects": 2,
+        "education": 0,
+        "certifications": 1,
+        "skills": 0,
+        "languages": 0,
+        "achievements": 2,
+        "hobbies": 8,
+        "summaryChars": 0,
+        "name": "Radio Operator From Army",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825"
+      },
+      "experience": [],
+      "education": [],
+      "projects": [
+        {
+          "i": 0,
+          "title": "S/ No",
+          "company": null,
+          "dates": null,
+          "descLen": 0
+        },
+        {
+          "i": 1,
+          "title": "Course / SpecializationOrganization / EnvironmentType",
+          "company": null,
+          "dates": null,
+          "descLen": 40
+        }
+      ],
+      "skills": [],
+      "hobbies": [
+        {
+          "i": 0,
+          "v": "Liaison with: Collector office"
+        },
+        {
+          "i": 1,
+          "v": "Nagar Nigam"
+        },
+        {
+          "i": 2,
+          "v": "PHQ"
+        },
+        {
+          "i": 3,
+          "v": "RTO"
+        },
+        {
+          "i": 4,
+          "v": "and all government officials."
+        },
+        {
+          "i": 5,
+          "v": "Learn for knowledge"
+        },
+        {
+          "i": 6,
+          "v": "Books"
+        },
+        {
+          "i": 7,
+          "v": "Watching TV news and reading newspaper."
+        }
+      ],
+      "summary": ""
+    }
+  }
+}

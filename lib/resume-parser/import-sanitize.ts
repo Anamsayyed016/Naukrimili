@@ -504,6 +504,15 @@ export function isGarbageEducationDegree(degree: string): boolean {
   ) {
     return true;
   }
+  // Training-delivery / audience headings are not academic credentials.
+  if (
+    /^(?:major\s+)?training\s+programmes?\s+(?:delivered|conducted|offered)\b/i.test(t) ||
+    /\bprogrammes?\s+delivered\s+for\b/i.test(t) ||
+    /^(?:mba|engineering|medical|management)\s+institutes?$/i.test(t) ||
+    /^(?:school|faculty|corporate)\s+leadership\s+programmes?$/i.test(t)
+  ) {
+    return true;
+  }
   if (/\b(made corporate|announcements at|listing regulations|bse|nse)\b/i.test(t)) return true;
   if (/\b(raising equity|drafting\/vetting|management,)\b/i.test(t)) return true;
   if (
@@ -1465,6 +1474,34 @@ export function isPlausiblePersonName(value: unknown): boolean {
   let s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
   s = s.replace(TRAILING_PERSONAL_DETAIL_LABEL_RE, '').replace(/\s+/g, ' ').trim();
   if (!s || isGarbageResumeText(s)) return false;
+  if (
+    /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|github|portfolio)\b/i.test(s)
+  ) {
+    return false;
+  }
+  // Event / role headlines must never be personal names ("TEDx Speaker").
+  if (/\btedx?\b/i.test(s) || /^(?:keynote|guest|invited)\s+speaker$/i.test(s)) {
+    return false;
+  }
+  // Pipe-headline role fragments recovered as names ("Communication Expert",
+  // "National Quiz Master", "Personality Development").
+  if (
+    s.split(/\s+/).length <= 4 &&
+    /\b(?:expert|speaker|specialist|consultant|mentor|trainer|coach|facilitator|development|quiz\s+master|master\s+of\s+ceremonies|ceremonies)\b/i.test(
+      s
+    ) &&
+    !/^(?:dr|mr|mrs|ms|prof)\.?$/i.test(s.split(/\s+/)[0] || '')
+  ) {
+    return false;
+  }
+  if (
+    /^(?:national|international|senior|junior|chief|lead)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?$/i.test(
+      s
+    ) &&
+    /\b(?:master|expert|speaker|specialist|officer|manager|consultant|trainer)\b/i.test(s)
+  ) {
+    return false;
+  }
   if (/^(?:marital\s+status|date\s+of\s+birth|d\.?o\.?b\.?|nationality|gender|religion|blood\s+group)$/i.test(s)) {
     return false;
   }
@@ -1495,17 +1532,29 @@ export function isPlausiblePersonName(value: unknown): boolean {
   }
 
   const words = s.split(/\s+/).filter(Boolean);
-  if (
-    words.length >= 2 &&
-    words.length <= 5 &&
-    words.every((w) => /^[A-Za-z][A-Za-z]{1,}$/.test(w))
-  ) {
+  const tokenOk = (w: string) => {
+    const bare = w.replace(/,/g, '');
+    return (
+      /^(?:dr|mr|mrs|ms|prof)\.?$/i.test(bare) ||
+      /^(?:ph\.?d\.?|m\.?d\.?|mba|ll\.?m|ll\.?b|d\.?phil\.?)$/i.test(bare) ||
+      /^[A-Za-z][A-Za-z'.-]{0,}$/.test(bare)
+    );
+  };
+  if (words.length >= 2 && words.length <= 6 && words.every(tokenOk)) {
     // Title Case or ALL CAPS document headers are both common on CVs.
-    const titleCaseOk = words.every((w) => /^[A-Za-z][a-z]{1,}$/.test(w));
-    const allCapsOk = words.every((w) => /^[A-Z]{2,}$/.test(w));
+    const nameWords = words.filter((w) => {
+      const bare = w.replace(/,/g, '');
+      return (
+        !/^(?:dr|mr|mrs|ms|prof)\.?$/i.test(bare) &&
+        !/^(?:ph\.?d\.?|m\.?d\.?|mba|ll\.?m|ll\.?b|d\.?phil\.?)$/i.test(bare)
+      );
+    });
+    if (nameWords.length < 2) return false;
+    const titleCaseOk = nameWords.every((w) => /^[A-Za-z][a-z]{1,}$/.test(w.replace(/,/g, '')));
+    const allCapsOk = nameWords.every((w) => /^[A-Z]{2,}$/.test(w.replace(/,/g, '')));
     if (!titleCaseOk && !allCapsOk) {
       // Mixed tokens like "McDonald" / "O'Neil" still allowed via classifier above.
-      if (!words.every((w) => /^[A-Z][a-zA-Z'-]+$/.test(w))) return false;
+      if (!nameWords.every((w) => /^[A-Z][a-zA-Z'-]+$/.test(w.replace(/,/g, '')))) return false;
     }
     if (NON_NAME_VOCAB.test(s)) return false;
     if (looksLikeJobTitleLine(s)) return false;
@@ -1535,11 +1584,25 @@ function wordsLengthAtLeast(value: string, n: number): boolean {
 export function isValidatedContactName(name: string, locationHint = ''): boolean {
   const n = String(name || '').trim();
   if (!n) return false;
+  // Location fields sometimes absorb truncated name/credential bleed
+  // ("SYED AAMIR MEHBOOB, PH"). Ignore such hints for name validation.
+  let hint = String(locationHint || '').trim();
+  if (hint) {
+    const nameKey = n.toLowerCase().replace(/[^a-z]/g, '');
+    const hintKey = hint.toLowerCase().replace(/[^a-z]/g, '');
+    const hintLooksLikeNameBleed =
+      /(?:ph\.?\s*d\.?|m\.?\s*d\.?|,?\s*ph\.?$)/i.test(hint) ||
+      isPlausiblePersonName(hint) ||
+      (nameKey.length >= 6 &&
+        hintKey.length >= 4 &&
+        (nameKey.includes(hintKey) || hintKey.includes(nameKey.slice(0, Math.min(12, nameKey.length)))));
+    if (hintLooksLikeNameBleed) hint = '';
+  }
   if (isAcceptedEmailDerivedName(n)) {
-    return !isFirmOrLocationNamePhrase(n, locationHint);
+    return !isFirmOrLocationNamePhrase(n, hint);
   }
   if (!isPlausiblePersonName(n)) return false;
-  if (isFirmOrLocationNamePhrase(n, locationHint)) return false;
+  if (isFirmOrLocationNamePhrase(n, hint)) return false;
   return true;
 }
 
@@ -1547,6 +1610,13 @@ export function isValidatedContactName(name: string, locationHint = ''): boolean
 export function sanitizePersonName(value: unknown, maxLen = 120): string {
   let s = sanitizeFieldText(value, maxLen);
   if (!s) return '';
+  // Social platform labels glued onto names ("LinkedIn Dr. Aamir Mehboob").
+  s = s
+    .replace(
+      /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|x|github|portfolio)\s*[:\-–—|]?\s+/i,
+      ''
+    )
+    .trim();
   // Drop trailing kinship / relative labels glued onto the name from form fields.
   s = s
     .replace(
@@ -1556,8 +1626,23 @@ export function sanitizePersonName(value: unknown, maxLen = 120): string {
     .replace(TRAILING_PERSONAL_DETAIL_LABEL_RE, '')
     .replace(/\s+/g, ' ')
     .trim();
-  // Strip professional credentials that must not appear in the displayed name.
-  s = stripCredentialPrefix(s);
+  // Keep academic honorifics when a doctorate / credential trails the name.
+  const keepHonorific =
+    /,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?)\.?\s*$/i.test(s);
+  if (!keepHonorific) {
+    s = stripCredentialPrefix(s);
+  } else {
+    s = s.replace(/^(dr|mr|mrs|ms|prof)\.?\s+/i, (_, h: string) => {
+      const map: Record<string, string> = {
+        dr: 'Dr.',
+        mr: 'Mr.',
+        mrs: 'Mrs.',
+        ms: 'Ms.',
+        prof: 'Prof.',
+      };
+      return `${map[String(h).toLowerCase()] || 'Dr.'} `;
+    });
+  }
   s = s
     .replace(/\b(?:fcs|acs|ca|cs|cma|cfa|cpa|mba|llm|llb)\.?\b/gi, ' ')
     .replace(/\s+/g, ' ')
@@ -2145,28 +2230,38 @@ export function sanitizeSkillEntry(skill: unknown): string {
     return canonicalizeSkillName(s) || s;
   }
 
-  if (isResumeSectionHeadingLine(s)) return '';
+  const skillWordsEarly = s.split(/\s+/).filter(Boolean).length;
+  const looksCompetencyPhrase =
+    skillWordsEarly >= 1 &&
+    skillWordsEarly <= 5 &&
+    s.length <= 60 &&
+    !/[.!?]$/.test(s) &&
+    /\b(?:leadership|coaching|speaking|communication|intelligence|development|training|management|building|planning|analysis|analytics|mentoring|facilitation|negotiation|presentation|branding|strategy|strategic|emotional|personality|behaviour|behavior|team|soft\s+skills?|public\s+speaking|faculty|executive|organizational|organisational|campus|corporate|employability|counselling|counseling)\b/i.test(
+      s
+    );
+
+  if (isResumeSectionHeadingLine(s) && !looksCompetencyPhrase) return '';
   if (RESUME_METADATA_LINE_RE.some((re) => re.test(s))) return '';
   if (/@/.test(s) || /\b\d{7,}\b/.test(s)) return '';
   if (isEmailOrDomainFragment(s) || /https?:|www\./i.test(s)) return '';
   if (/\b(?:linkedin|github|gitlab|bitbucket)\.com\b/i.test(s)) return '';
   if (/\.[a-z]{2,}\/[^\s]*$/i.test(s) && !/\s/.test(s)) return '';
   if (isLikelyCertificationLine(s)) return '';
-  if (isLikelyEducationLine(s) && s.length < 120) return '';
-  const skillWords = s.split(/\s+/).filter(Boolean).length;
+  if (isLikelyEducationLine(s) && s.length < 120 && !looksCompetencyPhrase) return '';
+  const skillWords = skillWordsEarly;
   if (isCorporateStructurePhrase(s)) return '';
   if (looksLikeSentenceNotCompany(s) && skillWords >= 3) return '';
 
   const classified = classifyResumeTextFragment(s);
-  if (classified.kind === 'SECTION_HEADER') return '';
+  if (classified.kind === 'SECTION_HEADER' && !looksCompetencyPhrase) return '';
   if (classified.kind === 'EDUCATION' || classified.kind === 'CERTIFICATION') return '';
-  if (classified.kind === 'LOCATION') return '';
-  if (classified.kind === 'COMPANY_NAME' && skillWords >= 2) return '';
-  if (classified.kind === 'DESIGNATION' && skillWords >= 2) return '';
+  if (classified.kind === 'LOCATION' && !looksCompetencyPhrase) return '';
+  if (classified.kind === 'COMPANY_NAME' && skillWords >= 2 && !looksCompetencyPhrase) return '';
+  if (classified.kind === 'DESIGNATION' && skillWords >= 2 && !looksCompetencyPhrase) return '';
   if (classified.kind === 'PERSON_NAME' && skillWords >= 2 && isClassifiedPersonName(s, 70)) {
     return '';
   }
-  if (isLikelyCompanyNameFragment(s) && s.length > 18) return '';
+  if (isLikelyCompanyNameFragment(s) && s.length > 18 && !looksCompetencyPhrase) return '';
 
   // Reject pure-numeric, percentage-only, or noise tokens
   if (/^\d+\.?\d*\s*%?$/.test(s)) return '';
@@ -2662,7 +2757,7 @@ export function isMisclassifiedExperienceProject(name: string, description = '')
 
 /** True when a string looks like a project title, not a description sentence. */
 export function isPlausibleProjectName(value: unknown): boolean {
-  const s = sanitizeFieldText(value, 120).replace(/^[\s~•\-–—*·▪]+/, '').trim();
+  const s = sanitizeFieldText(value, 120).replace(/^[\s~•●\-–—*·▪‣○◦]+/u, '').trim();
   if (!s || s.length < 2) return false;
   if (isPersonalMetadataResumeLine(s)) return false;
   if (isPlaceholderProjectTitle(s)) return false;
@@ -2680,6 +2775,15 @@ export function isPlausibleProjectName(value: unknown): boolean {
   // Education stage / board / school rows mislabeled as projects.
   if (
     /\b(?:high\s+school|higher\s+secondary|high\s+secondary|senior\s+secondary|secondary\s+school|matriculation|intermediate|ssc|hsc|cbse|icse|madhya\s+pradesh\s+board|state\s+board)\b/i.test(
+      s
+    ) &&
+    !PROJECT_TITLE_SUFFIX_RE.test(s)
+  ) {
+    return false;
+  }
+  // Conference / summit / event lists are speaking engagements, not software projects.
+  if (
+    /\b(?:conferences?|summits?|seminars?|symposiums?|colloquia|meets?|keynote\s+addresses?|faculty\s+development\s+programmes?)\b/i.test(
       s
     ) &&
     !PROJECT_TITLE_SUFFIX_RE.test(s)
@@ -3690,12 +3794,39 @@ export function sanitizeExperienceDateValue(value: unknown): string {
 }
 
 const JOB_TITLE_HINT_RE =
-  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources|production|dispatch|warehouse|logistics|microbiologist|biologist|chemist|pharmacist|electrician|technician|pathologist|radiologist|cardiologist|physiotherapist|dietitian|optometrist|veterinarian|librarian|statistician)\b|[A-Za-z][A-Za-z'-]{3,24}(?:ologist|ician|ographer|otherapist|urgeon|entist)\b|\b(?:asst|sr|jr|mgr)\.?\s*(?:accounts?|officer|manager|executive|accountant|engineer|developer|admin)?\b|\b(?:asst|sr|jr)\.?\s*[A-Za-z][A-Za-z.]{2,24}\b/i;
+  /\b(?:engineer|developer|executive|manager|analyst|consultant|lead|architect|officer|designer|associate|director|specialist|coordinator|processor|technician|supervisor|administrator|intern|trainee|representative|accountant|handler|operator|assistant|head|chief|vp|president|founder|generalist|secretary|recruiter|human\s+resources|production|dispatch|warehouse|logistics|professor|lecturer|trainer|teacher|coach|faculty|microbiologist|biologist|chemist|pharmacist|electrician|technician|pathologist|radiologist|cardiologist|physiotherapist|dietitian|optometrist|veterinarian|librarian|statistician)\b|[A-Za-z][A-Za-z'-]{3,24}(?:ologist|ician|ographer|otherapist|urgeon|entist)\b|\b(?:asst|sr|jr|mgr)\.?\s*(?:accounts?|officer|manager|executive|accountant|engineer|developer|admin)?\b|\b(?:asst|sr|jr)\.?\s*[A-Za-z][A-Za-z.]{2,24}\b/i;
 
 export function looksLikeCompanyNameLine(text: string): boolean {
   const t = sanitizeFieldText(text, 160);
   if (!t) return false;
   if (isExperienceFieldLabelLine(t)) return false;
+  // Bullet / duty lines are never employers.
+  if (/^[\s]*[-–—•·▪‣●○◦*]/.test(String(text || '').trim())) return false;
+  // Resume section headings must never score as employers
+  // ("International Certifications", "Core Competencies").
+  // Do not call isResumeSectionHeadingLine here — it can recurse via job-title checks.
+  if (
+    /\b(?:certifications?|certificates?|skills?|competenc(?:y|ies)|languages?|achievements?|awards?|recognitions?|education|experience|publications?|affiliations?|references?|summary|objective|profile)\b/i.test(
+      t
+    ) &&
+    t.split(/\s+/).length <= 6 &&
+    !/\b(?:ltd|limited|pvt|llc|inc|corp|gmbh|plc)\b/i.test(t)
+  ) {
+    return false;
+  }
+  // Soft-skill / responsibility noun phrases (Title Case, no org suffix) are not employers.
+  // e.g. "Curriculum Development", "Academic Leadership", "Executive Coaching".
+  if (
+    t.split(/\s+/).length <= 4 &&
+    !COMPANY_NAME_HINT_RE.test(t) &&
+    !INSTITUTIONAL_EMPLOYER_HINT_RE.test(t) &&
+    /^(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3}|[A-Z]{2,}(?:\s+[A-Z]{2,}){0,3})$/.test(t) &&
+    /\b(?:development|mentoring|coaching|leadership|communication|facilitation|speaking|building|planning|analysis|excellence|intelligence|competenc(?:y|ies)|soft\s+skills?|team\s+building|public\s+speaking|faculty\s+mentoring|curriculum(?:\s+development)?|academic\s+leadership)\b/i.test(
+      t
+    )
+  ) {
+    return false;
+  }
   // Duty sentences mentioning SEBI/governance/etc. are not employer names.
   if (looksLikeSentenceNotCompany(t)) return false;
   // Prefer employer core when a trailing city was OCR-glued after a dash.
@@ -7146,7 +7277,9 @@ export function isValidExperienceEntry(exp: {
   const position = sanitizeFieldText(exp.position, 120);
   const startDate = sanitizeFieldText(exp.startDate, 40);
   const endDate = sanitizeFieldText(exp.endDate, 40);
+  const description = sanitizeFieldText(exp.description, 8000);
   const hasDates = !!(startDate || endDate);
+  const hasBody = Boolean(description && description.replace(/\s+/g, ' ').trim().length >= 12);
 
   if (isExperienceBlurbFragment(company) || isExperienceBlurbFragment(position)) return false;
 
@@ -7155,7 +7288,13 @@ export function isValidExperienceEntry(exp: {
 
   if (!company && !position) return false;
 
-  if (position && isLikelyJobTitleFragment(position) && !company) return hasDates;
+  // Title-first roles (academic / freelance / confidential employers) are valid
+  // when they carry a duty body, even without calendar dates.
+  if (position && !company) {
+    if (hasBody) return true;
+    if (isLikelyJobTitleFragment(position) || looksLikeJobTitleLine(position)) return hasDates;
+    return false;
+  }
   if (company && !position) {
     if (
       looksLikeCompanyNameLine(company) ||
@@ -7278,6 +7417,22 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
   if (isExperienceDomainHeading(company)) return false;
   if (/^name$/i.test(company.trim())) return false;
   if (RECORD_LABEL_AS_COMPANY_RE.test(company.trim()) || isExperienceFieldLabelLine(company)) return false;
+  // Template placeholders and metric career-highlight bullets.
+  if (
+    /^(?:institution\s+name|company\s+name|employer\s+name|organization\s+name|organisation\s+name|your\s+company|company\s+here|duration|period|tenure)$/i.test(
+      company.trim()
+    )
+  ) {
+    return false;
+  }
+  if (
+    /^[\s•●\-–—*]*\d{1,3}\+?\s*(?:years?|yrs?|individuals?|people|workshops?|events?|sessions?|participants?)\b/i.test(
+      company
+    ) ||
+    /\b\d{1,3}\+?\s*(?:years?|yrs?)\s+of\b/i.test(company)
+  ) {
+    return false;
+  }
   if (
     /\b(?:rank\s+in\s+(?:college|class|university|school|semester)|(?:sgpa|cgpa)\b|semester\s+\d+|marks?\s+obtained|percentage\s*(?:obtained|scored)?)\b/i.test(
       company

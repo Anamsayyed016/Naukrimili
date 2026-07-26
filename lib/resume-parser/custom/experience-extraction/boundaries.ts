@@ -24,7 +24,7 @@ const BOUNDARY_THRESHOLD = 46;
 const BOUNDARY_THRESHOLD_AFTER_BLANK = 36;
 
 const EXPERIENCE_SUBSECTION_RE =
-  /^(?:key\s+result\s+areas?|responsibilit(?:y|ies)|achievements?|highlights?|key\s+contributions?|duties|roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|(?:[\w [&/.+-]{0,40})?roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|accountabilit(?:y|ies)|internal\s+audit|statutory\s+audit|tax\s*(?:&|and)?\s*compliance|tax\s+compliance(?:\s*&|\s+and)?\s*return\s+preparation|financial\s+projections?|business\s+advisory)(?:\s*:)?$/i;
+  /^(?:key\s+result\s+areas?|(?:key|major|core|primary|main)?\s*responsibilit(?:y|ies)|achievements?|highlights?|key\s+contributions?|duties|roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|(?:[\w [&/.+-]{0,40})?roles?\s*(?:&|and)?\s*responsibilit(?:y|ies)|accountabilit(?:y|ies)|internal\s+audit|statutory\s+audit|tax\s*(?:&|and)?\s*compliance|tax\s+compliance(?:\s*&|\s+and)?\s*return\s+preparation|financial\s+projections?|business\s+advisory)(?:\s*:)?$/i;
 
 function blockIdentityState(lines: ExperienceLine[], start: number, end: number) {
   let hasDesignation = false;
@@ -276,6 +276,23 @@ export function partitionExperienceBlocks(
       state.hasDates
     ) {
       return true;
+    }
+
+    // Title-first academic / freelance templates: after the prior role already has a
+    // designation and duty body (bullets or responsibility labels), the next strong
+    // title starts a new entry even when employer/dates are placeholders or omitted.
+    if (
+      isDesignationLine &&
+      !isCompanyLine &&
+      !isTenureLine &&
+      !isDateLine &&
+      state.hasDesignation &&
+      lineIndex > blockStart
+    ) {
+      const priorHasBody = scored
+        .slice(blockStart, lineIndex)
+        .some((l) => l.isBullet || isExperienceSubsectionLabel(l.text));
+      if (priorHasBody) return true;
     }
 
     // Self-contained "Title (dates) | CTC" after an already-started role

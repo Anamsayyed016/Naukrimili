@@ -45,7 +45,14 @@ export function sanitizeIdentityField(
     ) {
       return '';
     }
-    if (isLikelyEducationLine(normalized)) return '';
+    // Degree tokens inside credentialed person names ("…, Ph.D.") must not wipe identity.
+    if (
+      isLikelyEducationLine(normalized) &&
+      !looksLikePersonNameShape(normalized) &&
+      !isPlausiblePersonName(normalized)
+    ) {
+      return '';
+    }
     return normalized;
   }
 

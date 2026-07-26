@@ -1,503 +1,661 @@
 {
-  "pdf": "F:\\myprojects\\jobportal\\.audit-bala\\bala-validation.pdf",
+  "pdf": "F:\\myprojects\\jobportal\\.audit-untitled\\untitled-validation.pdf",
   "extraction": {
-    "rawChars": 2353,
-    "preparedChars": 2206,
-    "pages": 3,
+    "rawChars": 6729,
+    "preparedChars": 6465,
+    "pages": 8,
     "recoveredFromStreams": false,
     "documentType": "TYPE_B_EXECUTIVE"
   },
   "sectionLens": {
     "detectionVersion": 5,
-    "normalizedText": 2177,
-    "preamble": 16,
-    "summary": 114,
-    "experience": 1742,
-    "education": 353,
-    "skills": 81,
+    "normalizedText": 6463,
+    "preamble": 447,
+    "summary": 599,
+    "experience": 424,
+    "education": 0,
+    "skills": 993,
     "projects": 0,
-    "languages": 1031,
-    "certifications": 0,
-    "achievements": 179,
+    "languages": 119,
+    "certifications": 195,
+    "achievements": 443,
     "hobbies": 0,
     "references": 0,
     "volunteer": 0,
-    "publications": 0
+    "publications": 1022
   },
   "structuredExperienceRecovery": 0,
   "stages": {
     "customParser": {
       "counts": {
         "experience": 2,
-        "experienceWithCompany": 2,
+        "experienceWithCompany": 0,
         "experienceWithTitle": 2,
         "projects": 0,
-        "education": 3,
-        "certifications": 0,
-        "skills": 4,
-        "languages": 4,
-        "achievements": 5,
+        "education": 0,
+        "certifications": 4,
+        "skills": 12,
+        "languages": 3,
+        "achievements": 12,
         "hobbies": 0,
-        "summaryChars": 114,
-        "name": 1,
+        "summaryChars": 599,
+        "name": 0,
         "email": 1,
         "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Asst.Accounts",
-          "company": "M.D.FAB",
-          "startDate": "2015-11",
-          "endDate": "2020-08",
-          "descLen": 204,
-          "bullets": 0
-        },
-        {
-          "i": 1,
-          "title": "Sr.Officer Accounts",
-          "company": "Venkateshwara Hacheries Pvt Ltd",
-          "startDate": "2020-09",
+          "title": "Senior Professor",
+          "company": null,
+          "startDate": null,
           "endDate": null,
-          "descLen": 132,
-          "bullets": 0
-        }
-      ],
-      "education": [
-        {
-          "i": 0,
-          "degree": "Apr 2015 Bachelor of Commerce",
-          "institution": "MGR Arts and Science Collage"
+          "descLen": 0,
+          "bullets": 6
         },
         {
           "i": 1,
-          "degree": "Apr 2012 HIGHER SECONDARY CERTIFICATE",
-          "institution": "Johan Britto Higher Secondary School"
-        },
-        {
-          "i": 2,
-          "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-          "institution": "R.V. Boys Govt Higher Secondary School"
+          "title": "Corporate Trainer & Leadership Consultant",
+          "company": null,
+          "startDate": null,
+          "endDate": null,
+          "descLen": 0,
+          "bullets": 7
         }
       ],
+      "education": [],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "value": "Tally ERP9"
+          "value": "HR"
         },
         {
           "i": 1,
-          "value": "MS Word"
+          "value": "Leadership Development"
         },
         {
           "i": 2,
-          "value": "MS Excel"
+          "value": "Faculty Development"
         },
         {
           "i": 3,
-          "value": ".NET"
+          "value": "Personality Development"
+        },
+        {
+          "i": 4,
+          "value": "Communication Skills"
+        },
+        {
+          "i": 5,
+          "value": "Campus-to-corporate Training"
+        },
+        {
+          "i": 6,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 7,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 8,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 9,
+          "value": "Team Building"
+        },
+        {
+          "i": 10,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 11,
+          "value": "Strategic Leadership"
         }
       ],
-      "certifications": [],
+      "certifications": [
+        {
+          "i": 0,
+          "name": "● CELTA"
+        },
+        {
+          "i": 1,
+          "name": "● Business English Certificate"
+        },
+        {
+          "i": 2,
+          "name": "● Certified IELTS Trainer"
+        },
+        {
+          "i": 3,
+          "name": "● Certified TOEFL Trainer"
+        }
+      ],
       "languages": [
         {
           "i": 0,
-          "value": "English"
+          "name": "English"
         },
         {
           "i": 1,
-          "value": "Telugu"
+          "name": "Hindi"
         },
         {
           "i": 2,
-          "value": "Tamil"
-        },
-        {
-          "i": 3,
-          "value": "Kannada"
+          "name": "Urdu"
         }
       ],
       "achievements": [
         {
           "i": 0,
-          "value": "A high energy and hardworking personality"
+          "value": "● 34+ Years of Academic & Training Excellence"
         },
         {
           "i": 1,
-          "value": "Good learner and flexible in nature"
+          "value": "● 50,000+ Individuals Trained & Mentored"
         },
         {
           "i": 2,
-          "value": "Innovative & Smart Worker"
+          "value": "● 1,000+ Workshops, Seminars & Keynote Addresses"
         },
         {
           "i": 3,
-          "value": "Committed and possess work ethics"
+          "value": "● 500+ National Events Hosted"
         },
         {
           "i": 4,
-          "value": "Sound knowledge in Tally& .net, Accounts."
+          "value": "● TEDx Speaker"
+        },
+        {
+          "i": 5,
+          "value": "● International Communication Trainer"
+        },
+        {
+          "i": 6,
+          "value": "● Leadership Development Expert"
+        },
+        {
+          "i": 7,
+          "value": "● Educational Advisor"
+        },
+        {
+          "i": 8,
+          "value": "National Excellence Award"
+        },
+        {
+          "i": 9,
+          "value": "Best Faculty Award"
+        },
+        {
+          "i": 10,
+          "value": "Outstanding Trainer Recognition"
+        },
+        {
+          "i": 11,
+          "value": "Leadership Excellence Award"
         }
       ],
-      "summary": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be",
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowe",
       "personal": {
-        "name": "revealed.",
-        "email": "lakshmangowda1995@gmail.com",
-        "phone": "+91 81481 36180"
+        "email": "lifecoachaamir@gmail.com",
+        "phone": "+91 98260 17854"
       }
     },
     "uploadNormalized": {
       "counts": {
         "experience": 2,
-        "experienceWithCompany": 2,
+        "experienceWithCompany": 0,
         "experienceWithTitle": 2,
         "projects": 0,
-        "education": 3,
-        "certifications": 0,
-        "skills": 3,
-        "languages": 4,
-        "achievements": 5,
+        "education": 0,
+        "certifications": 4,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
         "hobbies": 0,
-        "summaryChars": 114,
-        "name": 1,
+        "summaryChars": 599,
+        "name": 0,
         "email": 1,
         "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Asst.Accounts",
-          "company": "M.D.FAB",
-          "startDate": "2015-11",
-          "endDate": "2020-08",
-          "descLen": 204,
-          "bullets": 0
-        },
-        {
-          "i": 1,
-          "title": "Sr.Officer Accounts",
-          "company": "Venkateshwara Hacheries Pvt Ltd",
-          "startDate": "2020-09",
+          "title": "Senior Professor",
+          "company": null,
+          "startDate": null,
           "endDate": null,
-          "descLen": 132,
-          "bullets": 0
-        }
-      ],
-      "education": [
-        {
-          "i": 0,
-          "degree": "Apr 2015 Bachelor of Commerce",
-          "institution": "MGR Arts and Science Collage"
+          "descLen": 0,
+          "bullets": 6
         },
         {
           "i": 1,
-          "degree": "Apr 2012 HIGHER SECONDARY CERTIFICATE",
-          "institution": "Johan Britto Higher Secondary School"
-        },
-        {
-          "i": 2,
-          "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-          "institution": "R.V. Boys Govt Higher Secondary School"
+          "title": "Corporate Trainer & Leadership Consultant",
+          "company": null,
+          "startDate": null,
+          "endDate": null,
+          "descLen": 0,
+          "bullets": 7
         }
       ],
+      "education": [],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "value": "Tally ERP9"
+          "value": "HR"
         },
         {
           "i": 1,
-          "value": "MS Excel"
+          "value": "Executive Coaching"
         },
         {
           "i": 2,
-          "value": "MS Word"
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
         }
       ]
     },
     "repaired": {
       "counts": {
         "experience": 2,
-        "experienceWithCompany": 2,
+        "experienceWithCompany": 0,
         "experienceWithTitle": 2,
         "projects": 0,
-        "education": 2,
-        "certifications": 1,
-        "skills": 3,
-        "languages": 4,
-        "achievements": 5,
+        "education": 0,
+        "certifications": 4,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 10,
         "hobbies": 0,
-        "summaryChars": 114,
-        "name": 1,
+        "summaryChars": 599,
+        "name": 0,
         "email": 1,
         "phone": 1
       },
       "experience": [
         {
           "i": 0,
-          "title": "Asst.Accounts",
-          "company": "M.D.FAB",
-          "startDate": "2015-11",
-          "endDate": "2020-08",
-          "descLen": 204,
-          "bullets": 0
-        },
-        {
-          "i": 1,
-          "title": "Sr.Officer Accounts",
-          "company": "Venkateshwara Hacheries Pvt Ltd",
-          "startDate": "2020-09",
+          "title": "Senior Professor",
+          "company": null,
+          "startDate": null,
           "endDate": null,
-          "descLen": 132,
-          "bullets": 0
-        }
-      ],
-      "education": [
-        {
-          "i": 0,
-          "degree": "Apr 2015 Bachelor of Commerce",
-          "institution": "MGR Arts and Science Collage"
+          "descLen": 14,
+          "bullets": 1
         },
         {
           "i": 1,
-          "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-          "institution": "R.V. Boys Govt Higher Secondary School"
+          "title": "Corporate Trainer & Leadership Consultant",
+          "company": null,
+          "startDate": null,
+          "endDate": null,
+          "descLen": 37,
+          "bullets": 1
         }
       ],
+      "education": [],
       "projects": [],
       "skills": [
         {
           "i": 0,
-          "value": "Tally ERP9"
+          "value": "HR"
         },
         {
           "i": 1,
-          "value": "MS Excel"
+          "value": "Executive Coaching"
         },
         {
           "i": 2,
-          "value": "MS Word"
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
         }
       ],
       "achievements": [
         {
           "i": 0,
-          "value": "A high energy and hardworking personality"
+          "value": "● 34+ Years of Academic & Training Excellence"
         },
         {
           "i": 1,
-          "value": "Good learner and flexible in nature"
+          "value": "● 50,000+ Individuals Trained & Mentored"
         },
         {
           "i": 2,
-          "value": "Innovative & Smart Worker"
+          "value": "● 1,000+ Workshops, Seminars & Keynote Addresses"
         },
         {
           "i": 3,
-          "value": "Committed and possess work ethics"
+          "value": "● 500+ National Events Hosted"
         },
         {
           "i": 4,
-          "value": "Sound knowledge in Tally& .net, Accounts."
+          "value": "National Excellence Award"
+        },
+        {
+          "i": 5,
+          "value": "Best Faculty Award"
+        },
+        {
+          "i": 6,
+          "value": "Leadership Excellence Award"
+        },
+        {
+          "i": 7,
+          "value": "● Leadership Development Expert"
+        },
+        {
+          "i": 8,
+          "value": "● Educational Advisor"
+        },
+        {
+          "i": 9,
+          "value": "Outstanding Trainer Recognition"
         }
       ],
       "hobbies": []
     },
     "coalesced": {
       "counts": {
-        "experience": 2,
-        "experienceWithCompany": 2,
-        "experienceWithTitle": 2,
-        "projects": 0,
-        "education": 2,
-        "certifications": 1,
-        "skills": 3,
-        "languages": 4,
-        "achievements": 5,
-        "hobbies": 0,
-        "summaryChars": 114,
-        "name": 1,
-        "email": 1,
-        "phone": 1
-      },
-      "experience": [
-        {
-          "i": 0,
-          "title": "Asst.Accounts",
-          "company": "M.D.FAB",
-          "startDate": "2015-11",
-          "endDate": "2020-08",
-          "descLen": 204,
-          "bullets": 0
-        },
-        {
-          "i": 1,
-          "title": "Sr.Officer Accounts",
-          "company": "Venkateshwara Hacheries Pvt Ltd",
-          "startDate": "2020-09",
-          "endDate": null,
-          "descLen": 132,
-          "bullets": 0
-        }
-      ],
-      "education": [
-        {
-          "i": 0,
-          "degree": "Apr 2015 Bachelor of Commerce",
-          "institution": "MGR Arts and Science Collage"
-        },
-        {
-          "i": 1,
-          "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-          "institution": "R.V. Boys Govt Higher Secondary School"
-        }
-      ],
-      "projects": [],
-      "skills": [
-        {
-          "i": 0,
-          "value": "Tally ERP9"
-        },
-        {
-          "i": 1,
-          "value": "MS Excel"
-        },
-        {
-          "i": 2,
-          "value": "MS Word"
-        }
-      ],
-      "hobbies": [],
-      "summary": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be"
-    },
-    "gallery": {
-      "counts": {
-        "experience": 2,
-        "experienceWithCompany": 2,
-        "experienceWithTitle": 2,
-        "projects": 0,
-        "education": 2,
-        "certifications": 1,
-        "skills": 3,
-        "languages": 4,
-        "achievements": 5,
-        "hobbies": 0,
-        "summaryChars": 114,
-        "name": 1,
-        "email": 1,
-        "phone": 1
-      },
-      "experience": [
-        {
-          "i": 0,
-          "title": "Asst.Accounts",
-          "company": "M.D.FAB",
-          "startDate": "2015-11",
-          "endDate": "2020-08",
-          "descLen": 204,
-          "bullets": 0
-        },
-        {
-          "i": 1,
-          "title": "Sr.Officer Accounts",
-          "company": "Venkateshwara Hacheries Pvt Ltd",
-          "startDate": "2020-09",
-          "endDate": null,
-          "descLen": 132,
-          "bullets": 0
-        }
-      ],
-      "projects": [],
-      "skills": [
-        {
-          "i": 0,
-          "value": "Tally ERP9"
-        },
-        {
-          "i": 1,
-          "value": "MS Excel"
-        },
-        {
-          "i": 2,
-          "value": "MS Word"
-        }
-      ],
-      "hobbies": [],
-      "summary": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be"
-    },
-    "builder": {
-      "counts": {
-        "experience": 2,
-        "experienceWithCompany": 2,
-        "experienceWithTitle": 2,
-        "projects": 0,
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 1,
         "education": 3,
-        "certifications": 0,
-        "skills": 3,
-        "languages": 4,
-        "achievements": 5,
-        "hobbies": 0,
-        "summaryChars": 114,
+        "certifications": 5,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 5,
+        "summaryChars": 599,
         "name": 1,
         "email": 1,
         "phone": 1
       },
-      "experience": [
-        {
-          "i": 0,
-          "title": "Asst.Accounts",
-          "company": "M.D.FAB",
-          "startDate": "2015-11",
-          "endDate": "2020-08",
-          "descLen": 200,
-          "bullets": 5
-        },
-        {
-          "i": 1,
-          "title": "Sr.Officer Accounts",
-          "company": "Venkateshwara Hacheries Pvt Ltd",
-          "startDate": "2020-09",
-          "endDate": null,
-          "descLen": 131,
-          "bullets": 3
-        }
-      ],
+      "experience": [],
       "education": [
         {
           "i": 0,
-          "degree": "Apr 2015 Bachelor of Commerce",
-          "institution": "MGR Arts and Science Collage"
+          "degree": "School Leadership Programmes",
+          "institution": ""
         },
         {
           "i": 1,
-          "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-          "institution": "R.V. Boys Govt Higher Secondary School"
+          "degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+          "institution": ""
         },
         {
           "i": 2,
-          "degree": "Johan Britto Higher Secondary School, Denkanikottai.",
+          "degree": "MBA Institutes",
           "institution": ""
         }
       ],
-      "projects": [],
+      "projects": [
+        {
+          "i": 0,
+          "name": "● TEDx Conferences",
+          "title": "● TEDx Conferences"
+        }
+      ],
       "skills": [
         {
           "i": 0,
-          "value": "Tally ERP9"
+          "value": "HR"
         },
         {
           "i": 1,
-          "value": "MS Excel"
+          "value": "Executive Coaching"
         },
         {
           "i": 2,
-          "value": "MS Word"
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
         }
       ],
-      "hobbies": [],
-      "summary": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be"
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "● Leadership"
+        },
+        {
+          "i": 1,
+          "value": "● Communication"
+        },
+        {
+          "i": 2,
+          "value": "● Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "● Teaching Effectiveness"
+        },
+        {
+          "i": 4,
+          "value": "● Student Psychology"
+        }
+      ],
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty devel"
+    },
+    "gallery": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 1,
+        "education": 3,
+        "certifications": 5,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 5,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [],
+      "projects": [
+        {
+          "i": 0,
+          "name": "● TEDx Conferences",
+          "title": "● TEDx Conferences"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 2,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "● Leadership"
+        },
+        {
+          "i": 1,
+          "value": "● Communication"
+        },
+        {
+          "i": 2,
+          "value": "● Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "● Teaching Effectiveness"
+        },
+        {
+          "i": 4,
+          "value": "● Student Psychology"
+        }
+      ],
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty devel"
+    },
+    "builder": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 1,
+        "education": 3,
+        "certifications": 5,
+        "skills": 7,
+        "languages": 3,
+        "achievements": 12,
+        "hobbies": 5,
+        "summaryChars": 599,
+        "name": 1,
+        "email": 1,
+        "phone": 1
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "School Leadership Programmes",
+          "institution": ""
+        },
+        {
+          "i": 1,
+          "degree": "MAJOR TRAINING PROGRAMMES DELIVERED FOR",
+          "institution": ""
+        },
+        {
+          "i": 2,
+          "degree": "MBA Institutes",
+          "institution": ""
+        }
+      ],
+      "projects": [
+        {
+          "i": 0,
+          "name": "● TEDx Conferences",
+          "title": "● TEDx Conferences"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "HR"
+        },
+        {
+          "i": 1,
+          "value": "Executive Coaching"
+        },
+        {
+          "i": 2,
+          "value": "Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "Organizational Behaviour"
+        },
+        {
+          "i": 4,
+          "value": "Public Speaking"
+        },
+        {
+          "i": 5,
+          "value": "Strategic Leadership"
+        },
+        {
+          "i": 6,
+          "value": "Team Building"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "● Leadership"
+        },
+        {
+          "i": 1,
+          "value": "● Communication"
+        },
+        {
+          "i": 2,
+          "value": "● Emotional Intelligence"
+        },
+        {
+          "i": 3,
+          "value": "● Teaching Effectiveness"
+        },
+        {
+          "i": 4,
+          "value": "● Student Psychology"
+        }
+      ],
+      "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty devel"
     }
   }
 }

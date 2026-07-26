@@ -1,0 +1,184 @@
+{
+  "validation": {
+    "resume": {
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "portfolio": "",
+      "summary": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & Technical Qualification Professional Experience Liaison With & Hobbies Personal Profile Declaration Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity",
+      "skills": [],
+      "experience": [],
+      "education": [],
+      "projects": [],
+      "certifications": [],
+      "languages": [],
+      "hobbies": [],
+      "achievements": [],
+      "confidence": 27,
+      "rawText": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & Technical Qualification Professional Experience Liaison With & Hobbies Personal Profile Declaration Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity",
+      "github": "",
+      "headline": "",
+      "designation": ""
+    },
+    "validated": {
+      "identity": {
+        "fullName": "",
+        "professionalHeadline": "",
+        "email": "",
+        "phone": "",
+        "alternatePhone": "",
+        "linkedin": "",
+        "github": "",
+        "portfolio": "",
+        "website": "",
+        "address": "",
+        "city": "",
+        "state": "",
+        "country": "",
+        "postalCode": "",
+        "nationality": "",
+        "dateOfBirth": "",
+        "currentCompany": "",
+        "currentDesignation": "",
+        "professionalTitle": "",
+        "confidence": 0,
+        "fieldConfidence": {
+          "fullName": 0,
+          "professionalHeadline": 0,
+          "email": 0,
+          "phone": 0,
+          "alternatePhone": 0,
+          "linkedin": 0,
+          "github": 0,
+          "portfolio": 0,
+          "website": 0,
+          "address": 0,
+          "city": 0,
+          "state": 0,
+          "country": 0,
+          "postalCode": 0,
+          "nationality": 0,
+          "dateOfBirth": 0,
+          "currentCompany": 0,
+          "currentDesignation": 0,
+          "professionalTitle": 0
+        }
+      },
+      "summary": {
+        "summary": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & Technical Qualification Professional Experience Liaison With & Hobbies Personal Profile Declaration Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity",
+        "sourceLabel": "recovered-profile",
+        "isBulletSummary": false,
+        "paragraphCount": 1,
+        "confidence": 68,
+        "fieldConfidence": {
+          "sectionDetection": 40,
+          "contentExtraction": 70,
+          "boundaryAccuracy": 55
+        }
+      },
+      "experiences": [],
+      "projects": [],
+      "educations": [],
+      "skills": [],
+      "languages": [],
+      "certifications": [],
+      "achievements": [],
+      "hobbies": []
+    },
+    "validationReport": {
+      "errors": [],
+      "warnings": [],
+      "manualReview": [],
+      "sectionConfidence": {
+        "identity": 0,
+        "summary": 68,
+        "experience": 0,
+        "projects": 0,
+        "education": 0,
+        "skills": 0,
+        "languages": 0,
+        "certifications": 0
+      }
+    },
+    "repairReport": {
+      "repairs": [],
+      "repairCount": 0
+    },
+    "resumeQualityScore": 9,
+    "parserConfidenceScore": 27
+  },
+  "canonical": {
+    "version": "1.0.0",
+    "identity": {
+      "id": "identity_ba414299",
+      "data": {
+        "fullName": "",
+        "email": "",
+        "phone": ""
+      }
+    },
+    "summary": {
+      "id": "summary_3dcf37a2",
+      "data": {
+        "summary": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & Technical Qualification Professional Experience Liaison With & Hobbies Personal Profile Declaration Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity"
+      }
+    },
+    "experience": [],
+    "projects": [],
+    "education": [],
+    "skills": [],
+    "languages": [],
+    "certifications": [],
+    "metadata": {
+      "validation": {
+        "errors": [],
+        "warnings": [],
+        "manualReview": [],
+        "sectionConfidence": {
+          "identity": 0,
+          "summary": 68,
+          "experience": 0,
+          "projects": 0,
+          "education": 0,
+          "skills": 0,
+          "languages": 0,
+          "certifications": 0
+        }
+      },
+      "repairs": {
+        "repairCount": 0,
+        "repairs": []
+      },
+      "quality": {
+        "resumeQualityScore": 9,
+        "parserConfidenceScore": 27,
+        "repairCount": 0,
+        "warningCount": 0,
+        "manualReviewCount": 0,
+        "errorCount": 0,
+        "sectionConfidence": {
+          "identity": 0,
+          "summary": 68,
+          "experience": 0,
+          "projects": 0,
+          "education": 0,
+          "skills": 0,
+          "languages": 0,
+          "certifications": 0
+        }
+      },
+      "parser": {
+        "parserVersion": "1.0.0",
+        "rawTextLength": 380,
+        "rawText": "WeasyPrint 62.3 Resume - Trilokinath Upadhyayaen TRILOKINATH UPADHYAYA Ex-Havildar Radio Operator from Army Career Objective Summary Core Specialties & Key Areas Academic Qualification Professional & Technical Qualification Professional Experience Liaison With & Hobbies Personal Profile Declaration Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity Nimbus Sans Adobe Identity"
+      },
+      "rejected": []
+    }
+  },
+  "parseTimeMs": 58.62779999999975,
+  "heapDeltaBytes": -6904672,
+  "cpuUserMicros": 93000,
+  "cpuSystemMicros": 0
+}

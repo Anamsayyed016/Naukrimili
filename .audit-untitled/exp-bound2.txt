@@ -1,0 +1,10 @@
+﻿exp chars 2854 lines 44 blocks 2
+--- block 0 - 22 preview NAHAR POLY FILMS LTD: Nahar groups of companies | Liaison Officer (03 Jun 2019 to 29/05/2023) | CTC: 5.4 lakh | Controlling Induction and exit of all workerΓÇÖs and staff, Security staff management.
+--- block 23 - 43 preview Transport management (Planning and detailing as requirement). Liaison with Government official as | and when required. | General administration, housekeeping, horticulture, Plumber, Electrician etc. Security Training as per
+{"i":0,"t":"NAHAR POLY FILMS LTD: Nahar groups of companies","score":35,"company":100,"title":0,"dates":false}
+{"i":6,"t":"Raj Security Force: A Security and allied service Provider company (ISO 9001:2015)","score":0,"company":0,"title":0,"dates":false}
+{"i":7,"t":"Branch Head / Training Head (01 July 2015 to 30 May 2019) | CTC: 4.6 pa","score":28,"company":0,"title":57,"dates":true}
+{"i":16,"t":"Lupin Ltd Mandideep: A Multinational pharmaceutical company Executive Liaison (SHIFT IN-CH","score":45,"company":100,"title":0,"dates":true}
+{"i":28,"t":"Indian Army","score":47,"company":92,"title":0,"dates":false}
+{"i":29,"t":"Havildar Radio Operator (18 Years)","score":13,"company":0,"title":41,"dates":false}
+{"i":39,"t":"DRDO Chandipur (Orissa)","score":40,"company":74,"title":0,"dates":false}

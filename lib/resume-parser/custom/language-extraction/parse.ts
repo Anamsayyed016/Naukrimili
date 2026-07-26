@@ -26,10 +26,10 @@ const HUMAN_LANGUAGE_NAMES = new Set([
 ]);
 
 const PROFICIENCY_PATTERNS: Array<{ re: RegExp; label: string; weight: number }> = [
-  { re: /\b(?:native|mother\s*tongue|mothertongue|first\s*language)\b/i, label: 'Native', weight: 95 },
+  { re: /\b(?:native(?:\s+proficiency)?|mother\s*tongue|mothertongue|first\s*language)\b/i, label: 'Native', weight: 95 },
   { re: /\b(?:fluent|fluency|full\s*professional)\b/i, label: 'Fluent', weight: 90 },
   { re: /\b(?:excellent)\b/i, label: 'Fluent', weight: 85 },
-  { re: /\b(?:professional(?:\s+working)?|proficient|advanced|expert)\b/i, label: 'Professional', weight: 85 },
+  { re: /\b(?:professional(?:\s+(?:working|proficiency))?|proficient|advanced|expert)\b/i, label: 'Professional', weight: 85 },
   { re: /\b(?:very\s+good|good)\b/i, label: 'Professional', weight: 70 },
   { re: /\b(?:intermediate|conversational|working|fair|average|moderate)\b/i, label: 'Intermediate', weight: 75 },
   { re: /\b(?:basic|elementary|beginner|limited)\b/i, label: 'Basic', weight: 65 },
@@ -64,8 +64,8 @@ const PROGRAMMING_LANGUAGE_RE =
 function normalizeLanguageName(raw: string): string {
   return raw
     .trim()
-    .replace(/^[\s\-–—•*]+/, '')
-    .replace(/[\s\-–—•*]+$/, '')
+    .replace(/^[\s\-–—•*●▪◦○]+/, '')
+    .replace(/[\s\-–—•*●▪◦○]+$/, '')
     .replace(/\s+/g, ' ')
     .split(' ')
     .map((w) => (w.length <= 3 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
@@ -111,7 +111,10 @@ function extractProficiency(text: string): { proficiency: string; remainder: str
 }
 
 function parseLanguageToken(token: string): ParsedLanguageLine | null {
-  const cleaned = token.replace(/^[\s\-–—•*]+/, '').replace(/[()[\]]/g, ' ').trim();
+  const cleaned = token
+    .replace(/^[\s\-–—•*●▪◦○]+/, '')
+    .replace(/[()[\]]/g, ' ')
+    .trim();
   if (!cleaned || cleaned.length < 2) return null;
 
   const separators = [
@@ -219,8 +222,8 @@ export function parseLanguageLinesFromLine(line: string): ParsedLanguageLine[] {
     }
   }
 
-  if (/^[-•*·]\s*/.test(trimmed)) {
-    const lang = parseLanguageToken(trimmed.replace(/^[-•*·]\s*/, ''));
+  if (/^[-•*·●▪◦○]\s*/.test(trimmed)) {
+    const lang = parseLanguageToken(trimmed.replace(/^[-•*·●▪◦○]\s*/, ''));
     return lang ? [lang] : [];
   }
 

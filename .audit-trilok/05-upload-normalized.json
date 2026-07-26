@@ -1,138 +1,136 @@
 {
-  "name": "revealed.",
-  "fullName": "revealed.",
-  "firstName": "revealed.",
+  "name": "",
+  "fullName": "",
+  "firstName": "",
   "lastName": "",
-  "email": "lakshmangowda1995@gmail.com",
-  "phone": "+91 81481 36180",
-  "address": "TAMILNADU. AGGREGATE OF-75%",
-  "location": "TAMILNADU. AGGREGATE OF-75%",
+  "email": "lifecoachaamir@gmail.com",
+  "phone": "+91 98260 17854",
+  "address": "",
+  "location": "",
   "linkedin": "",
   "github": "",
-  "headline": "MGR Arts and Science Collage,",
+  "headline": "Consultant | Corporate Trainer | Communication Expert | Personality Development",
   "designation": "",
   "portfolio": "",
   "skills": [
-    "Tally ERP9",
-    "MS Excel",
-    "MS Word"
+    "HR",
+    "Executive Coaching",
+    "Emotional Intelligence",
+    "Organizational Behaviour",
+    "Public Speaking",
+    "Strategic Leadership",
+    "Team Building"
   ],
   "experience": [
     {
-      "company": "M.D.FAB",
-      "organization": "M.D.FAB",
-      "employer": "M.D.FAB",
-      "position": "Asst.Accounts",
-      "title": "Asst.Accounts",
-      "designation": "Asst.Accounts",
-      "job_title": "Asst.Accounts",
-      "startDate": "2015-11",
-      "endDate": "2020-08",
-      "start_date": "2015-11",
-      "end_date": "2020-08",
-      "description": "Payables Receivables Bank Reconciliation Statement\n\nPrepare to sales invoice in tally\n\nPrepare the online E-forms\n\nExpenses Bill booking Vendor debit note Customer credit note\n\nMonthly Stock Verification.",
-      "achievements": [],
-      "current": false,
-      "location": "HOSUR"
+      "company": "",
+      "organization": "",
+      "employer": "",
+      "position": "Senior Professor",
+      "title": "Senior Professor",
+      "designation": "Senior Professor",
+      "job_title": "Senior Professor",
+      "startDate": "",
+      "endDate": "",
+      "start_date": "",
+      "end_date": "",
+      "description": "",
+      "achievements": [
+        "Academic Leadership",
+        "Curriculum Development",
+        "Faculty Mentoring",
+        "Research Supervision",
+        "Student Development",
+        "Institutional Growth"
+      ],
+      "current": true,
+      "location": ""
     },
     {
-      "company": "Venkateshwara Hacheries Pvt Ltd",
-      "organization": "Venkateshwara Hacheries Pvt Ltd",
-      "employer": "Venkateshwara Hacheries Pvt Ltd",
-      "position": "Sr.Officer Accounts",
-      "title": "Sr.Officer Accounts",
-      "designation": "Sr.Officer Accounts",
-      "job_title": "Sr.Officer Accounts",
-      "startDate": "2020-09",
+      "company": "",
+      "organization": "",
+      "employer": "",
+      "position": "Corporate Trainer & Leadership Consultant",
+      "title": "Corporate Trainer & Leadership Consultant",
+      "designation": "Corporate Trainer & Leadership Consultant",
+      "job_title": "Corporate Trainer & Leadership Consultant",
+      "startDate": "",
       "endDate": "",
-      "start_date": "2020-09",
+      "start_date": "",
       "end_date": "",
-      "description": "Payables Receivables Booking Process Bank Reconciliation Statement\nVendor debit note Customer credit note\n\nBasic GST Returns Filling",
-      "achievements": [],
-      "current": true,
+      "description": "",
+      "achievements": [
+        "Leadership Development",
+        "Executive Coaching",
+        "Communication Skills",
+        "Team Building",
+        "Performance Enhancement",
+        "Organizational Learning",
+        "Corporate Workshops"
+      ],
+      "current": false,
       "location": ""
     }
   ],
-  "education": [
+  "education": [],
+  "projects": [],
+  "certifications": [
     {
-      "institution": "MGR Arts and Science Collage",
-      "school": "MGR Arts and Science Collage",
-      "Institution": "MGR Arts and Science Collage",
-      "degree": "Apr 2015 Bachelor of Commerce",
-      "Degree": "Apr 2015 Bachelor of Commerce",
-      "field": "MGR Arts and Science Collage,",
-      "Field": "MGR Arts and Science Collage,",
-      "year": "",
-      "startDate": "",
-      "endDate": "",
-      "gpa": "55%",
-      "cgpa": "55%",
-      "percentage": "55%",
-      "description": ""
+      "name": "● CELTA",
+      "issuer": "Certificate in English Language Teaching to Adults",
+      "date": "",
+      "url": ""
     },
     {
-      "institution": "Johan Britto Higher Secondary School",
-      "school": "Johan Britto Higher Secondary School",
-      "Institution": "Johan Britto Higher Secondary School",
-      "degree": "Apr 2012 HIGHER SECONDARY CERTIFICATE",
-      "Degree": "Apr 2012 HIGHER SECONDARY CERTIFICATE",
-      "field": "",
-      "Field": "",
-      "year": "",
-      "startDate": "",
-      "endDate": "",
-      "gpa": "75%",
-      "cgpa": "75%",
-      "percentage": "75%",
-      "description": ""
+      "name": "● Business English Certificate",
+      "issuer": "BEC",
+      "date": "",
+      "url": ""
     },
     {
-      "institution": "R.V. Boys Govt Higher Secondary School",
-      "school": "R.V. Boys Govt Higher Secondary School",
-      "Institution": "R.V. Boys Govt Higher Secondary School",
-      "degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-      "Degree": "Apr 2010 SECONDARY SCHOOL LEAVING CERTIFICATE",
-      "field": "",
-      "Field": "",
-      "year": "",
-      "startDate": "",
-      "endDate": "",
-      "gpa": "54%",
-      "cgpa": "54%",
-      "percentage": "54%",
-      "description": ""
+      "name": "● Certified IELTS Trainer",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "● Certified TOEFL Trainer",
+      "issuer": "",
+      "date": "",
+      "url": ""
     }
   ],
-  "projects": [],
-  "certifications": [],
   "languages": [
     {
       "name": "English",
-      "proficiency": "Fluent"
+      "proficiency": "Professional"
     },
     {
-      "name": "Telugu",
-      "proficiency": "Fluent"
+      "name": "Hindi",
+      "proficiency": "Native"
     },
     {
-      "name": "Tamil",
-      "proficiency": "Fluent"
-    },
-    {
-      "name": "Kannada",
-      "proficiency": "Fluent"
+      "name": "Urdu",
+      "proficiency": "Professional"
     }
   ],
-  "summary": "Looking for a challenging and rewarding career in your organization which my skills,education andexperience can be",
+  "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowering more than 50,000 learners, delivering 1,000+ workshops and\nkeynote sessions, and hosting 500+ national-level academic and professional events.\nPassionate about developing future-ready leaders, educators, professionals, and organizations\nthrough innovation, communication, and lifelong learning.",
   "achievements": [
-    "A high energy and hardworking personality",
-    "Good learner and flexible in nature",
-    "Innovative & Smart Worker",
-    "Committed and possess work ethics",
-    "Sound knowledge in Tally& .net, Accounts."
+    "● 34+ Years of Academic & Training Excellence",
+    "● 50,000+ Individuals Trained & Mentored",
+    "● 1,000+ Workshops, Seminars & Keynote Addresses",
+    "● 500+ National Events Hosted",
+    "● TEDx Speaker",
+    "● International Communication Trainer",
+    "● Leadership Development Expert",
+    "● Educational Advisor",
+    "National Excellence Award",
+    "Best Faculty Award",
+    "Outstanding Trainer Recognition",
+    "Leadership Excellence Award"
   ],
   "hobbies": [],
-  "confidence": 71,
+  "confidence": 61,
   "_aiProvider": "custom-parser",
   "customParserUsed": true,
   "selectedParser": "custom"

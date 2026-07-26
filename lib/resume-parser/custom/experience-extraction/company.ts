@@ -282,6 +282,33 @@ export function scoreCompanyCandidate(text: string): number {
   if (ROLE_OR_PROJECT_LABEL_RE.test(trimmed)) return 0;
   if (isEmployerAffiliationTagline(trimmed) || isIndustrySectorTagline(trimmed)) return 0;
   if (looksLikeStreetAddressLine(trimmed)) return 0;
+  // Template placeholders and metric career-highlight bullets are never employers.
+  if (
+    /^(?:institution\s+name|company\s+name|employer\s+name|organization\s+name|organisation\s+name|your\s+company|company\s+here|duration|period|tenure|location|city,\s*country)$/i.test(
+      trimmed
+    )
+  ) {
+    return 0;
+  }
+  if (
+    /^[\s•●\-–—*]*\d{1,3}\+?\s*(?:years?|yrs?|individuals?|people|workshops?|events?|sessions?|participants?)\b/i.test(
+      trimmed
+    ) ||
+    /\b\d{1,3}\+?\s*(?:years?|yrs?)\s+of\b/i.test(trimmed)
+  ) {
+    return 0;
+  }
+  // Soft-skill / competency bullets and responsibility fragments are never employers.
+  if (
+    /^[\s•●\-–—*]+/.test(trimmed) ||
+    /\b(?:leadership|coaching|curriculum|mentoring|communication|team\s+building|faculty|academic\s+leadership|student\s+development|institutional\s+growth|performance\s+enhancement|organizational\s+learning)\b/i.test(
+      trimmed
+    ) &&
+      !HARD_COMPANY_SUFFIX_RE.test(trimmed) &&
+      trimmed.split(/\s+/).length <= 6
+  ) {
+    return 0;
+  }
   // Ledger / GST / reconciliation duty fragments are never employers.
   if (
     /\b(?:payables?|receivables?|bank\s+reconciliation|gst\s+returns?|debit\s+note|credit\s+note|bill\s+booking|stock\s+verification|sales\s+invoice)\b/i.test(

@@ -6,6 +6,7 @@ import { isPlausibleExperienceCompany } from '@/lib/resume-parser/import-sanitiz
 
 import { partitionExperienceBlocks } from './boundaries';
 import { looksLikeSentenceNotCompany } from './company';
+import { detectDesignationFromLine } from './designation';
 import { buildExperienceFromBlock } from './fields';
 import { buildExperienceLines, truncateExperienceSectionAtEmbeddedHeadings } from './lines';
 import { parseTenureExperienceLine } from './tenure';
@@ -62,7 +63,18 @@ function isOrphanDutyBody(exp: CustomExtractedExperience): boolean {
   const designation = exp.designation?.trim() || '';
   if (!designation) return true;
   if (looksLikeRolesResponsibilityLabel(designation)) return true;
-  // Role-title-only blocks with no employer / dates are duty sections, not jobs.
+
+  // Strong undated title + bullet body is a valid role (academic templates,
+  // confidential employers, freelance). Imperative R&R prose blocks without
+  // bullets remain orphans so they can attach to sparse tenure headers.
+  if (
+    detectDesignationFromLine(designation).confidence >= 40 &&
+    (exp.bulletPoints?.length ?? 0) > 0 &&
+    !looksLikeRolesResponsibilityLabel(designation)
+  ) {
+    return false;
+  }
+
   if (!exp.startDate && !exp.endDate && !(exp as { years?: number }).years) {
     return true;
   }

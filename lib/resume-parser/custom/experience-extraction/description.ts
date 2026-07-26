@@ -7,10 +7,10 @@ import { splitBullets } from '@/lib/resume-parser/normalize-extracted';
 import { isBulletLine, stripBulletPrefix } from './lines';
 
 const EXPERIENCE_DETAIL_HEADING_RE =
-  /^key\s+(?:result\s+areas?|responsibilit|accountabilit|duties|contributions?|highlights?)/i;
+  /^(?:key|major|core|primary|main)?\s*(?:result\s+areas?|responsibilit(?:y|ies)|accountabilit(?:y|ies)|duties|contributions?|highlights?)\s*:?\s*$/i;
 
 const EXPERIENCE_METADATA_LINE_RE =
-  /^(?:designation|role|position|title|post|tenure|responsibilit(?:y|ies))\b/i;
+  /^(?:designation|role|position|title|post|tenure|(?:key|major|core|primary|main)?\s*responsibilit(?:y|ies))\b/i;
 
 const TENURE_VALUE_LINE_RE =
   /^(?:tenure|duration)\s*[-–—:]\s*.+/i;

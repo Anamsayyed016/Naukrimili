@@ -639,4 +639,99 @@ describe('generic resume parser robustness', () => {
     expect(sanitized?.company).toMatch(/M\.D\.FAB/i);
     expect(sanitized?.position || sanitized?.title).toMatch(/Asst\.?\s*Accounts/i);
   });
+
+  it('detects international certifications, competency bullets, and language proficiency lines', () => {
+    const { looksLikeHeadingLine } = require('@/lib/resume-parser/custom/section-detection/score-heading');
+    const { scoreHeadingKeywords } = require('@/lib/resume-parser/custom/section-detection/taxonomy');
+    const { detectResumeSections } = require('@/lib/resume-parser/custom/section-detection');
+    const { collectFromSkillsSection } = require('@/lib/resume-parser/custom/skills-intelligence/collect');
+    const { extractLanguagesFromSection } = require('@/lib/resume-parser/custom/language-extraction');
+    const { looksLikeCompanyNameLine, isPlausibleExperienceCompany, sanitizeSkillEntry } =
+      require('@/lib/resume-parser/import-sanitize');
+
+    expect(looksLikeCompanyNameLine('INTERNATIONAL CERTIFICATIONS')).toBe(false);
+    expect(looksLikeHeadingLine('INTERNATIONAL CERTIFICATIONS')).toBe(true);
+    expect((scoreHeadingKeywords('INTERNATIONAL CERTIFICATIONS').certifications ?? 0)).toBeGreaterThan(40);
+    expect(looksLikeHeadingLine('Key Responsibilities')).toBe(false);
+    expect(isPlausibleExperienceCompany('Institution Name')).toBe(false);
+    expect(isPlausibleExperienceCompany('34+ Years of Academic & Training Excellence')).toBe(false);
+    expect(sanitizeSkillEntry('Leadership Development')).toMatch(/Leadership Development/i);
+    expect(sanitizeSkillEntry('Public Speaking')).toMatch(/Public Speaking/i);
+
+    const skills = collectFromSkillsSection(
+      'Leadership Development • Executive Coaching • Public Speaking • Faculty Development'
+    ).map((s: { normalized: string }) => s.normalized.toLowerCase());
+    expect(skills.some((s: string) => /leadership/i.test(s))).toBe(true);
+    expect(skills.some((s: string) => /public speaking|speaking/i.test(s))).toBe(true);
+
+    const langs = extractLanguagesFromSection(
+      '● English – Professional Proficiency\n● Hindi – Native Proficiency\n● Urdu – Professional Proficiency'
+    );
+    expect(langs.map((l: { name: string }) => l.name.toLowerCase())).toEqual(
+      expect.arrayContaining(['english', 'hindi', 'urdu'])
+    );
+
+    const text = [
+      'DR. SYED AAMIR MEHBOOB, PH.D.',
+      'LinkedIn Dr. Aamir Mehboob',
+      'EXECUTIVE SUMMARY',
+      'An accomplished academician with over 34 years of experience.',
+      'CAREER HIGHLIGHTS',
+      '● 34+ Years of Academic & Training Excellence',
+      '● TEDx Speaker',
+      'CORE COMPETENCIES',
+      'Leadership Development • Executive Coaching • Public Speaking',
+      'INTERNATIONAL CERTIFICATIONS',
+      '● CELTA (Certificate in English Language Teaching to Adults)',
+      '● Certified IELTS Trainer',
+      'PROFESSIONAL EXPERIENCE',
+      'Senior Professor',
+      'Institution Name',
+      'Duration',
+      '● Academic Leadership',
+      'Corporate Trainer & Leadership Consultant',
+      '● Leadership Development',
+      'LANGUAGES',
+      '● English – Professional Proficiency',
+      '● Hindi – Native Proficiency',
+    ].join('\n');
+    const det = detectResumeSections(text);
+    expect(det.certifications || '').toMatch(/CELTA|IELTS/i);
+    expect(det.skills || '').toMatch(/Leadership|Coaching|Speaking/i);
+    expect(det.languages || '').toMatch(/English|Hindi/i);
+    expect(det.experience || '').not.toMatch(/34\+\s*Years of Academic/i);
+    expect((det.achievements || '') + (det.experience || '')).toMatch(/TEDx|34\+/i);
+
+    const { extractExperiencesFromSection } = require('@/lib/resume-parser/custom/experience-extraction');
+    const { scoreNameCandidate, normalizeNameLine } = require('@/lib/resume-parser/custom/identity-extraction/name');
+    const exps = extractExperiencesFromSection(
+      [
+        'Senior Professor',
+        'Institution Name',
+        'Duration',
+        'Key Responsibilities',
+        '● Academic Leadership',
+        '● Curriculum Development',
+        'Corporate Trainer & Leadership Consultant',
+        'Major Responsibilities',
+        '● Leadership Development',
+        '● Executive Coaching',
+      ].join('\n')
+    );
+    expect(exps.length).toBeGreaterThanOrEqual(2);
+    expect(exps.map((e: { designation: string }) => e.designation)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/Senior Professor/i),
+        expect.stringMatching(/Corporate Trainer/i),
+      ])
+    );
+    expect(exps.every((e: { company: string }) => !/curriculum|institution\s+name/i.test(e.company || ''))).toBe(
+      true
+    );
+    expect(looksLikeCompanyNameLine('Curriculum Development')).toBe(false);
+    expect(scoreNameCandidate('DR. SYED AAMIR MEHBOOB, PH.D.', 70)).toBeGreaterThan(
+      scoreNameCandidate('Aamir Mehboob', 78)
+    );
+    expect(normalizeNameLine('DR. SYED AAMIR MEHBOOB, PH.D.')).toMatch(/Syed Aamir Mehboob|SYED AAMIR MEHBOOB/i);
+  });
 });

@@ -1,0 +1,119 @@
+{
+  "name": "Aamir Mehboob",
+  "fullName": "Aamir Mehboob",
+  "firstName": "Aamir",
+  "lastName": "Mehboob",
+  "email": "lifecoachaamir@gmail.com",
+  "phone": "+91 98260 17854",
+  "address": "DR. SYED AAMIR MEHBOOB, PH.D.",
+  "location": "DR. SYED AAMIR MEHBOOB, PH.D.",
+  "linkedin": "",
+  "github": "",
+  "headline": "Consultant | Corporate Trainer | Communication Expert | Personality Development",
+  "designation": "",
+  "portfolio": "",
+  "skills": [
+    "HR",
+    "Executive Coaching",
+    "Emotional Intelligence",
+    "Organizational Behaviour",
+    "Public Speaking",
+    "Strategic Leadership",
+    "Team Building"
+  ],
+  "experience": [
+    {
+      "company": "● Curriculum Development",
+      "organization": "● Curriculum Development",
+      "employer": "● Curriculum Development",
+      "position": "Senior Professor",
+      "title": "Senior Professor",
+      "designation": "Senior Professor",
+      "job_title": "Senior Professor",
+      "startDate": "",
+      "endDate": "",
+      "start_date": "",
+      "end_date": "",
+      "description": "Corporate Trainer & Leadership Consultant\n\nMajor Responsibilities",
+      "achievements": [
+        "Academic Leadership",
+        "Curriculum Development",
+        "Faculty Mentoring",
+        "Research Supervision",
+        "Student Development",
+        "Institutional Growth",
+        "Leadership Development",
+        "Executive Coaching",
+        "Communication Skills",
+        "Team Building",
+        "Performance Enhancement",
+        "Organizational Learning",
+        "Corporate Workshops"
+      ],
+      "current": true,
+      "location": "Senior Professor"
+    }
+  ],
+  "education": [],
+  "projects": [],
+  "certifications": [
+    {
+      "name": "● CELTA",
+      "issuer": "Certificate in English Language Teaching to Adults",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "● Business English Certificate",
+      "issuer": "BEC",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "● Certified IELTS Trainer",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "● Certified TOEFL Trainer",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    }
+  ],
+  "languages": [
+    {
+      "name": "English",
+      "proficiency": "Professional"
+    },
+    {
+      "name": "Hindi",
+      "proficiency": "Native"
+    },
+    {
+      "name": "Urdu",
+      "proficiency": "Professional"
+    }
+  ],
+  "summary": "An accomplished academician, international trainer, keynote speaker, leadership consultant,\nand transformational coach with over 34 years of distinguished experience in higher\neducation, faculty development, executive coaching, leadership training, and communication\nexcellence.\nRecognized for empowering more than 50,000 learners, delivering 1,000+ workshops and\nkeynote sessions, and hosting 500+ national-level academic and professional events.\nPassionate about developing future-ready leaders, educators, professionals, and organizations\nthrough innovation, communication, and lifelong learning.",
+  "achievements": [
+    "● 34+ Years of Academic & Training Excellence",
+    "● 50,000+ Individuals Trained & Mentored",
+    "● 1,000+ Workshops, Seminars & Keynote Addresses",
+    "● 500+ National Events Hosted",
+    "● TEDx Speaker",
+    "● International Communication Trainer",
+    "● Leadership Development Expert",
+    "● Educational Advisor",
+    "National Excellence Award",
+    "Best Faculty Award",
+    "Outstanding Trainer Recognition",
+    "Leadership Excellence Award"
+  ],
+  "hobbies": [],
+  "confidence": 64,
+  "_aiProvider": "custom-parser",
+  "customParserUsed": true,
+  "selectedParser": "custom"
+}

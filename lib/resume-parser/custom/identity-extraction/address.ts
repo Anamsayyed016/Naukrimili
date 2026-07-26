@@ -32,9 +32,17 @@ function scoreLocationLine(text: string): number {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length > 120) return 0;
   if (isPlausiblePersonName(trimmed)) return 0;
+  // Credentialed / honorific name fragments misclassified as places.
+  if (
+    /^(?:dr|mr|mrs|ms|prof)\.?\s+/i.test(trimmed) ||
+    /,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?)\.?$/i.test(trimmed)
+  ) {
+    return 0;
+  }
 
   const classified = classifyResumeTextFragment(trimmed);
   if (classified.kind === 'PERSON_NAME') return 0;
+  if (classified.kind === 'DESIGNATION') return 0;
   if (classified.kind === 'COMPANY_NAME' && classified.confidence >= 75) return 0;
 
   let score = 0;

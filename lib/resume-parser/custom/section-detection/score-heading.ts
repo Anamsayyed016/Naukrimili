@@ -279,7 +279,7 @@ export function expandGluedSectionHeadingText(text: string): string {
 function isInRoleBareFieldLabel(text: string): boolean {
   const t = text.trim().replace(/[:\-–—|]+$/g, '').trim();
   if (!t || t.length > 48) return false;
-  return /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities|location|department)\s*$/i.test(
+  return /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities|(?:key|major|primary|core)\s+responsibilit(?:y|ies)|location|department|institution\s+name|company\s+name)\s*$/i.test(
     t
   );
 }
@@ -350,7 +350,7 @@ function isSectionContentLineNotHeading(text: string): boolean {
   // (e.g. looksLikeCompanyNameLine("Educational") === true).
   if (
     looksEmployer &&
-    !/^(?:skills?|experience|educations?|educational|academics?|summary|projects?|certifications?|certificates?|languages?|achievements?|qualifications?|professional\s+(?:&|and)\s+technical\s+qualification|professional\s+qualification|professional\s+experience|core\s+specialt|key\s+areas?)\b/i.test(
+    !/\b(?:skills?|experience|educations?|educational|academics?|summary|projects?|certifications?|certificates?|languages?|achievements?|affiliations?|qualifications?|competenc(?:y|ies)|professional\s+(?:&|and)\s+technical\s+qualification|professional\s+qualification|professional\s+experience|core\s+specialt|key\s+areas?)\b/i.test(
       t
     )
   ) {
@@ -363,6 +363,15 @@ function isSectionContentLineNotHeading(text: string): boolean {
   if (looksLikeCompanyNameLine(t)) return true;
   if (CITY_STATE_LINE_RE.test(t)) return true;
   if (SKILL_COMMA_LIST_LINE_RE.test(t)) return true;
+  // Middle-dot / bullet competency lists are skills body, never headings
+  // ("Leadership Development • Executive Coaching • …").
+  if (
+    /[•·\u2022\u2023\u25aa]/.test(t) &&
+    (t.match(/[•·\u2022\u2023\u25aa]/g) || []).length >= 1 &&
+    t.split(/[•·\u2022\u2023\u25aa]/).filter((p) => p.trim().length >= 2).length >= 2
+  ) {
+    return true;
+  }
   const classified = classifyResumeTextFragment(t);
   if (classified.kind === 'LOCATION' && classified.confidence >= 50) return true;
   if (classified.kind === 'PERSON_NAME' && classified.confidence >= 60) return true;

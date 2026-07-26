@@ -1,0 +1,183 @@
+﻿input fullName Dr. SYED AAMIR MEHBOOB, PH.D.
+trusted? true
+[resume-extraction-validation] { warnings: 2, repairs: 7 }
+[debug-name-resolve] before resolve {
+  mergedFull: 'Dr. SYED AAMIR MEHBOOB, PH.D.',
+  mergedName: 'Dr. SYED AAMIR MEHBOOB, PH.D.',
+  importContactName: 'Dr. SYED AAMIR MEHBOOB, PH.D.',
+  email: 'lifecoachaamir@gmail.com',
+  locationHint: 'SYED AAMIR MEHBOOB, PH'
+}
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:5',
+    'skills:8'
+  ],
+  recovered: [
+    'identity:fullName',
+    'identity:firstName-from-fullName',
+    'languages[3]:full-entry',
+    'languages[4]:full-entry',
+    'languages[5]:full-entry',
+    'languages[6]:full-entry',
+    'languages[7]:full-entry',
+    'languages[8]:full-entry',
+    'languages[9]:full-entry',
+    'languages[10]:full-entry',
+    'languages[11]:full-entry',
+    'languages[12]:full-entry',
+    'languages[13]:full-entry',
+    'languages[14]:full-entry',
+    'languages[15]:full-entry',
+    'languages[16]:full-entry',
+    'languages[17]:full-entry',
+    'languages[18]:full-entry',
+    'languages[19]:full-entry',
+    'languages[20]:full-entry',
+    'languages[21]:full-entry',
+    'languages[22]:full-entry',
+    'languages[23]:full-entry',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'hobbies:appended',
+    'skills:appended',
+    'skills:appended',
+    'skills:appended',
+    'skills:appended'
+  ],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company',
+    'experience[1]:company',
+    'languages:count-loss:3/24',
+    'achievements:count-loss:5/17',
+    'hobbies:count-loss:0/5',
+    'skills:count-loss:8/12'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:summary',
+    'certifications:5',
+    'languages:24',
+    'achievements:19',
+    'hobbies:5',
+    'skills:12'
+  ],
+  recovered: [],
+  missing: [
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:company',
+    'experience[1]:company'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 599,
+    experience: 2,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 4,
+    languages: 3
+  },
+  merged: {
+    summaryChars: 599,
+    experience: 2,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 12,
+    education: 0,
+    certifications: 5,
+    languages: 24
+  },
+  builder: {
+    summaryChars: 599,
+    experience: 2,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 8,
+    education: 0,
+    certifications: 5,
+    languages: 3
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: false,
+  lastName: false,
+  email: true,
+  phone: true,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 8,
+  experience: 2,
+  education: 0,
+  projects: 0,
+  certifications: 5,
+  languages: 3,
+  achievements: 6,
+  hobbies: 0
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [
+    'experience[0]:missing-company',
+    'experience[1]:missing-company',
+    'skills:loss:8/12',
+    'education:empty',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 2,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[resume-extraction-validation] { warnings: 2, repairs: 23 }
+builder keys name { fullName: '', name: '', firstName: '', lastName: '', FullName: '' }

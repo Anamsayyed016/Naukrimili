@@ -8,8 +8,10 @@ import {
 } from '@/lib/resume-parser/field-classification';
 import {
   looksLikeStandaloneLocationLine,
+  looksLikeJobTitleLine,
   splitCompanyLocationPipe,
 } from '@/lib/resume-parser/import-sanitize';
+import { detectDesignationFromLine } from './designation';
 
 export interface LocationDetection {
   location: string;
@@ -40,10 +42,22 @@ export function scoreLocationCandidate(text: string): number {
   if (!trimmed) return 0;
   if (trimmed.length > 80) return 0;
   if (looksLikeNonGeographicDescriptor(trimmed)) return 0;
+  // Job titles and template placeholders are never locations.
+  if (looksLikeJobTitleLine(trimmed) || detectDesignationFromLine(trimmed).confidence >= 40) {
+    return 0;
+  }
+  if (
+    /^(?:institution\s+name|company\s+name|employer\s+name|organization\s+name|organisation\s+name|duration|period|tenure|location|city,\s*country)$/i.test(
+      trimmed
+    )
+  ) {
+    return 0;
+  }
 
   let score = 0;
   const classified = classifyResumeTextFragment(trimmed);
   if (classified.kind === 'LOCATION') score += classified.confidence * 0.85;
+  if (classified.kind === 'DESIGNATION') return 0;
   if (isLikelyLocationFragment(trimmed)) score += 30;
   if (looksLikeStandaloneLocationLine(trimmed)) score += 28;
   if (WORK_MODE_RE.test(trimmed)) score += 35;

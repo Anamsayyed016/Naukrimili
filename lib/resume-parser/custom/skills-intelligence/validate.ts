@@ -46,7 +46,7 @@ export { SOFT_SKILL_SINGLE_RE };
 
 /** Common multi-word competencies listed in non-technical skills sections. */
 export const MULTI_WORD_SKILL_ALLOW_RE =
-  /^(?:public administration|policy analysis|statutory compliance|financial analysis|classroom management|patient care|lesson planning|curriculum design|content marketing|brand management|campaign planning|google analytics|pipeline management|client relations|employee relations|case management|due diligence|contract drafting|legal research|infection control|vital signs|iv therapy|ms office|ms word|ms excel|microsoft office|microsoft word|microsoft excel|surgery assistance|lead generation|tally erp9?)$/i;
+  /^(?:public administration|policy analysis|statutory compliance|financial analysis|classroom management|patient care|lesson planning|curriculum design|content marketing|brand management|campaign planning|google analytics|pipeline management|client relations|employee relations|case management|due diligence|contract drafting|legal research|infection control|vital signs|iv therapy|ms office|ms word|ms excel|microsoft office|microsoft word|microsoft excel|surgery assistance|lead generation|tally erp9?|leadership development|executive coaching|public speaking|faculty development|emotional intelligence|personality development|communication skills|team building|organizational behaviour|organisational behaviour|strategic leadership|soft skills(?:\s+training)?|campus[- ]to[- ]corporate(?:\s+training)?|time management|stress management|design thinking|career planning|personal branding|transformational leadership)$/i;
 
 export { KNOWN_TECH_ACRONYMS_RE };
 

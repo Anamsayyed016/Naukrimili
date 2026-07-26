@@ -1024,6 +1024,8 @@ const HOBBIES_METADATA_PATTERNS: RegExp[] = [
   /language\s*known/i,
   /^hobbies?\s*$/i,
   /^interests?\s*$/i,
+  // Research / competency phrases recovered as hobbies from academic CVs.
+  /^(?:[\s•●\-–—*]+)?(?:leadership|communication|emotional\s+intelligence|teaching\s+effectiveness|student\s+psychology|curriculum\s+development|faculty\s+development|public\s+speaking|team\s+building|organizational\s+behaviour|organisational\s+behaviour)\s*$/i,
 ];
 
 function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {

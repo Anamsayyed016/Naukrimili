@@ -210,6 +210,7 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'licenses and certifications',
       'certifications and licenses',
       'professional certifications',
+      'international certifications',
       'professional development',
       'professional and technical qualification',
       'professional technical qualification',
@@ -250,8 +251,14 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'career achievements',
       'professional achievements',
       'major achievements',
+      'career highlights',
+      'professional highlights',
+      'key highlights',
+      'notable highlights',
       'awards and honors',
       'honors and awards',
+      'awards and recognitions',
+      'awards & recognitions',
       'notable achievements',
       'cost saving activities',
       'cost savings',
@@ -268,7 +275,9 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'honors',
       'honours',
       'recognition',
+      'recognitions',
       'accomplishments',
+      'highlights',
       'savings',
     ],
     typicalOrder: 0.58,
@@ -410,12 +419,14 @@ export function scoreHeadingKeywords(
     delete scores.hobbies;
   }
 
-  // "Career Achievements" / "Key Achievements" must not tie-break into experience
-  // just because the experience taxonomy includes the token "career".
+  // "Career Achievements" / "Key Achievements" / "Career Highlights" must not
+  // tie-break into experience just because the experience taxonomy includes "career".
   if (
     scores.achievements &&
     scores.experience &&
-    /\bachievements?\b|\baccomplishments?\b|\bawards?\b|\bhonou?rs?\b/i.test(normalized)
+    /\bachievements?\b|\baccomplishments?\b|\bawards?\b|\bhonou?rs?\b|\bhighlights?\b|\brecognitions?\b/i.test(
+      normalized
+    )
   ) {
     scores.achievements = Math.max(scores.achievements, 82);
     // Prefer achievements whenever both fire on an accomplishments heading.

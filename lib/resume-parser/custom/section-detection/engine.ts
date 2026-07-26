@@ -204,10 +204,20 @@ function mergeSectionsIntoFields(sections: DetectedSectionBlock[]) {
       }
       if (type === 'summary' && isExperienceSummary) continue;
       // Employment-shaped career/professional highlights must not mirror into achievements.
+      // Metric highlight bullets must not mirror into experience either.
       if (
         type === 'achievements' &&
         (key === 'experience' ||
           /\bcareer\s+highlights?\b|\bprofessional\s+highlights?\b|\bwork\s+history\b|\bemployment\b/i.test(
+            headingLower
+          ))
+      ) {
+        continue;
+      }
+      if (
+        type === 'experience' &&
+        (key === 'achievements' ||
+          /\bcareer\s+highlights?\b|\bprofessional\s+highlights?\b|\bkey\s+highlights?\b|\bawards?\b|\brecognitions?\b/i.test(
             headingLower
           ))
       ) {

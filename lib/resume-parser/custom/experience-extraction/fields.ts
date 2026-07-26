@@ -452,12 +452,24 @@ function pickBestLocation(lines: string[], excludeCompany = ''): FieldPick<strin
     if (isPlausibleExperienceCompany(line)) continue;
     if (looksLikeInstitutionalEmployer(line)) continue;
     if (looksLikeCompanyNameLine(line) && !looksLikeStandaloneLocationLine(line)) continue;
+    // Job titles and bare field labels are never locations.
+    if (looksLikeJobTitleLine(line) || detectDesignationFromLine(line).confidence >= 40) continue;
+    if (
+      /^(?:institution\s+name|company\s+name|employer\s+name|organization\s+name|organisation\s+name|duration|period|tenure|location|city,\s*country)$/i.test(
+        line.trim()
+      )
+    ) {
+      continue;
+    }
 
     const companyDet = detectCompanyFromLine(line);
     const det = detectLocationFromLine(line);
     if (companyDet.confidence >= 45 && companyDet.confidence > det.confidence) continue;
     // Sector / affiliation descriptors must never become locations.
     if (det.location && (isIndustrySectorTagline(det.location) || isEmployerAffiliationTagline(det.location))) {
+      continue;
+    }
+    if (det.location && (looksLikeJobTitleLine(det.location) || detectDesignationFromLine(det.location).confidence >= 40)) {
       continue;
     }
     if (det.confidence > best.confidence) {
@@ -570,6 +582,9 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
   for (const raw of allLines) {
     let line = raw.trim();
     if (!line || BARE_FIELD_LABEL_RE.test(line)) continue;
+    // Bullets / competency duty lines never contribute employer identity.
+    if (/^[\s]*[-–—•·▪‣●○◦*]/.test(line)) continue;
+    const fromHeader = headerLines.some((h) => h.trim() === line);
 
     // Same-line ATS mash: "Organization Acme Ltd Designation Accountant Duration 2015 to 2020"
     const orgThenRole = line.match(
@@ -648,6 +663,7 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
 
     if (
       !company.value &&
+      fromHeader &&
       !isExperienceDateOrDurationToken(line) &&
       !isTenureOrDateOnlyHeaderLine(line) &&
       !lineLooksLikeTenureExperience(line) &&
@@ -667,6 +683,14 @@ function extractLabeledExperienceFields(headerLines: string[], bodyLines: string
       }
       const cleaned = stripCompanyLineEmploymentMeta(det.company || line);
       if (!cleaned || looksLikeSentenceNotCompany(cleaned) || BARE_FIELD_LABEL_RE.test(cleaned)) {
+        continue;
+      }
+      // Never accept soft-skill / template-placeholder fragments as employers.
+      if (
+        !isPlausibleExperienceCompany(cleaned) &&
+        det.confidence < 50 &&
+        !looksLikeInstitutionalEmployer(cleaned)
+      ) {
         continue;
       }
       company = {
@@ -789,6 +813,18 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     } else if (companyPick.value && !isExperienceDateOrDurationToken(companyPick.value)) {
       finalCompany = companyPick;
     }
+  }
+
+  // Soft-skill / placeholder / duty fragments must not occupy the employer slot.
+  // Keep high-confidence labeled Organization: values even without legal suffixes.
+  if (
+    finalCompany.value &&
+    finalCompany.confidence < 70 &&
+    !isPlausibleExperienceCompany(finalCompany.value) &&
+    detectCompanyFromLine(finalCompany.value).confidence < 50 &&
+    !looksLikeInstitutionalEmployer(finalCompany.value)
+  ) {
+    finalCompany = { value: '', confidence: 0 };
   }
 
   // Sector / affiliation taglines are never locations or employers.
