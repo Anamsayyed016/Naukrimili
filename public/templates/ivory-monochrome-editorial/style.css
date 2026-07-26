@@ -22,12 +22,15 @@
   --ime-main: 58fr;
   --ime-col-gap: clamp(28px, 3.2cqw, 40px);
   --ime-photo-h: clamp(260px, 36cqw, 320px);
-  --ime-section-gap: 24px;
-  --ime-block-gap: 16px;
+  --ime-section-gap: 22px;
+  --ime-block-gap: 14px;
   --ime-heading-gap: 10px;
   --ime-content-gap: 12px;
-  --ime-lh-body: 1.62;
-  --ime-lh-tight: 1.32;
+  --ime-list-gap: 7px;
+  --ime-list-indent: 14px;
+  --ime-lh-body: 1.58;
+  --ime-lh-tight: 1.38;
+  --ime-lh-list: 1.48;
   --ime-fs-name-first: clamp(28px, 3.8cqw, 36px);
   --ime-fs-name-last: clamp(36px, 5cqw, 48px);
   --ime-fs-job: 10.5px;
@@ -542,26 +545,31 @@
   font-size: var(--ime-fs-body);
   color: var(--ime-text);
   line-height: var(--ime-lh-body);
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .ime-resume .ime-experience .description ul {
   list-style: none;
   padding-left: 0;
-  margin: 4px 0 0;
+  margin: 6px 0 0;
 }
 
 .ime-resume .ime-experience .description li {
   position: relative;
-  padding-left: 14px;
-  margin-bottom: 5px;
+  padding-left: var(--ime-list-indent);
+  margin-bottom: var(--ime-list-gap);
+  line-height: var(--ime-lh-list);
+}
+
+.ime-resume .ime-experience .description li:last-child {
+  margin-bottom: 0;
 }
 
 .ime-resume .ime-experience .description li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.58em;
+  top: 0.55em;
   width: 4px;
   height: 4px;
   border-radius: 50%;
@@ -646,20 +654,25 @@
 .ime-resume .ime-projects .project-item > ul {
   list-style: none;
   padding-left: 0;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
 .ime-resume .ime-projects .project-item > ul li {
   position: relative;
-  padding-left: 14px;
-  margin-bottom: 4px;
+  padding-left: var(--ime-list-indent);
+  margin-bottom: var(--ime-list-gap);
+  line-height: var(--ime-lh-list);
+}
+
+.ime-resume .ime-projects .project-item > ul li:last-child {
+  margin-bottom: 0;
 }
 
 .ime-resume .ime-projects .project-item > ul li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.58em;
+  top: 0.55em;
   width: 4px;
   height: 4px;
   border-radius: 50%;
@@ -688,17 +701,17 @@
 .ime-resume .ime-skills {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--ime-list-gap);
 }
 
 .ime-resume .ime-skills > .skill-tag {
   position: relative;
   display: block;
-  padding-left: 14px;
+  padding-left: var(--ime-list-indent);
   font-size: var(--ime-fs-body);
   font-weight: 500;
   color: var(--ime-text);
-  line-height: 1.45;
+  line-height: var(--ime-lh-list);
   background: none;
   border: none;
 }
@@ -707,7 +720,7 @@
   content: '';
   position: absolute;
   left: 0;
-  top: 0.58em;
+  top: 0.55em;
   width: 4px;
   height: 4px;
   border-radius: 50%;
@@ -718,21 +731,22 @@
 .ime-resume .ime-certifications {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--ime-list-gap);
 }
 
 .ime-resume .ime-certifications .certification-item {
   position: relative;
-  padding-left: 14px;
+  padding-left: var(--ime-list-indent);
   page-break-inside: avoid;
   break-inside: avoid;
+  line-height: var(--ime-lh-list);
 }
 
 .ime-resume .ime-certifications .certification-item::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.58em;
+  top: 0.55em;
   width: 4px;
   height: 4px;
   border-radius: 50%;
@@ -776,19 +790,19 @@
 .ime-resume .ime-achievements {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--ime-list-gap);
 }
 
 .ime-resume .ime-achievements .achievement-item {
   position: relative;
-  padding-left: 14px;
+  padding-left: var(--ime-list-indent);
 }
 
 .ime-resume .ime-achievements .achievement-item::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.58em;
+  top: 0.55em;
   width: 4px;
   height: 4px;
   border-radius: 50%;
@@ -799,7 +813,7 @@
   font-size: var(--ime-fs-body);
   font-weight: 500;
   color: var(--ime-text);
-  line-height: 1.45;
+  line-height: var(--ime-lh-list);
 }
 
 /* Interests */

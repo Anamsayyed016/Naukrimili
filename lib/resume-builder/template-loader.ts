@@ -60,7 +60,7 @@ import { injectParagraphFormattingIntoHtml } from './paragraph-formatting-engine
 import { injectSidebarBalanceIntoHtml } from './column-balance-engine';
 import { pruneAndMergeDynamicSections } from './dynamic-section-visibility';
 import { DYNAMIC_SECTION_REGISTRY } from './dynamic-section-registry';
-import { composeBulletList, buildExperienceDescriptionMarkup, resolveExperienceDescriptionVolume } from './content-composition';
+import { composeBulletList, buildExperienceDescriptionMarkup, resolveExperienceDescriptionVolume, stripLeadingListMarker } from './content-composition';
 
 /**
  * Load template metadata from JSON
@@ -793,9 +793,7 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       const precomposedBullets = Array.isArray(exp.achievements)
         ? (exp.achievements as unknown[])
             .map((item) =>
-              typeof item === 'string'
-                ? item.replace(/^[\s\-–—*•·]+/, '').trim()
-                : ''
+              typeof item === 'string' ? stripLeadingListMarker(item) : ''
             )
             .filter((line) => line.length >= 3)
         : [];
@@ -807,11 +805,11 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       } else {
         const body = collectExperienceBodyFields(exp);
         const explicitBullets = body.achievements
-          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
         const descBullets = String(body.description || description)
-          .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
-          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .split(/\n|•|●|○|·|▪|‣|\u2023|\u25aa|\u25CF|\u25CB/)
+          .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
         const mergedBody = dedupeExperienceBodyLines(body.description, [
           ...explicitBullets,
@@ -926,10 +924,14 @@ function renderSkills(skills: string[], useProgressBars: boolean = false): strin
 
   const displaySkills = skills
     .map((skill) => {
-      if (typeof skill === 'string') return skill.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      if (typeof skill === 'string') {
+        return stripLeadingListMarker(skill.replace(/\s+\d{1,3}%?\s*$/i, ''));
+      }
       if (skill && typeof skill === 'object') {
         const record = skill as Record<string, unknown>;
-        return String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? '').trim();
+        return stripLeadingListMarker(
+          String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? '')
+        );
       }
       return '';
     })
@@ -947,7 +949,7 @@ function renderSkills(skills: string[], useProgressBars: boolean = false): strin
 
   return displaySkills
     .map((skill) => {
-      const skillName = skill.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      const skillName = stripLeadingListMarker(skill.replace(/\s+\d{1,3}%?\s*$/i, ''));
       if (!skillName) return '';
 
       return `
@@ -992,9 +994,7 @@ function renderProjects(projects: Array<Record<string, string>>): string {
       const precomposedBullets = Array.isArray(rec.achievements)
         ? (rec.achievements as unknown[])
             .map((item) =>
-              typeof item === 'string'
-                ? item.replace(/^[\s\-–—*•·]+/, '').trim()
-                : ''
+              typeof item === 'string' ? stripLeadingListMarker(item) : ''
             )
             .filter((line) => line.length >= 3)
         : [];
@@ -1006,11 +1006,11 @@ function renderProjects(projects: Array<Record<string, string>>): string {
       } else {
         const body = collectExperienceBodyFields(rec);
         const explicitBullets = body.achievements
-          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
         const descBullets = String(body.description || '')
-          .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
-          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .split(/\n|•|●|○|·|▪|‣|\u2023|\u25aa|\u25CF|\u25CB/)
+          .map((s) => stripLeadingListMarker(s))
           .filter((s) => s.length >= 3);
         const mergedBody = dedupeExperienceBodyLines(body.description, [
           ...explicitBullets,
@@ -1083,7 +1083,9 @@ function renderCertifications(certifications: Array<Record<string, string>>): st
   return validCerts
     .map((cert) => {
       const rec = cert as Record<string, unknown>;
-      const name = readCanonicalString(rec, 'name', ['Name', 'title', 'Title']);
+      const name = stripLeadingListMarker(
+        readCanonicalString(rec, 'name', ['Name', 'title', 'Title'])
+      );
       const issuer = readCanonicalString(rec, 'issuer', ['Issuer']);
       const date = readCanonicalString(rec, 'date', ['Date']);
       const link = readCanonicalString(rec, 'link', ['Link', 'url']);
@@ -1112,7 +1114,8 @@ function renderAchievements(achievements: Array<string | Record<string, string>>
   // Handle string array format (from AchievementsStep)
   if (typeof achievements[0] === 'string') {
     const validAchievements = (achievements as string[])
-      .filter((achievement) => achievement && achievement.trim().length > 0)
+      .map((achievement) => stripLeadingListMarker(achievement))
+      .filter((achievement) => achievement.length > 0)
       .slice(0, 5);
     
     if (validAchievements.length === 0) {
@@ -1131,8 +1134,8 @@ function renderAchievements(achievements: Array<string | Record<string, string>>
   // Handle object array format (legacy format)
   const validAchievements = (achievements as Array<Record<string, string>>)
     .filter((achievement) => {
-      const title = achievement.Title || achievement.title || '';
-      return title.trim().length > 0;
+      const title = stripLeadingListMarker(achievement.Title || achievement.title || '');
+      return title.length > 0;
     })
     .slice(0, 5);
 
@@ -1142,8 +1145,10 @@ function renderAchievements(achievements: Array<string | Record<string, string>>
 
   return validAchievements
     .map((achievement) => {
-      const title = achievement.Title || achievement.title || '';
-      const description = achievement.Description || achievement.description || '';
+      const title = stripLeadingListMarker(achievement.Title || achievement.title || '');
+      const description = stripLeadingListMarker(
+        achievement.Description || achievement.description || ''
+      );
       const date = achievement.Date || achievement.date || '';
 
       return `
@@ -1311,12 +1316,12 @@ function renderLanguages(languages: Array<string | Record<string, unknown>>, use
  * Supports string array format (from HobbiesStep)
  */
 function hobbyLabel(item: string | Record<string, unknown>): string {
-  if (typeof item === 'string') return item.trim();
+  if (typeof item === 'string') return stripLeadingListMarker(item);
   if (item && typeof item === 'object') {
     const rec = item as Record<string, unknown>;
     for (const key of ['Hobby', 'hobby', 'name', 'title', 'Title']) {
       const value = rec[key];
-      if (typeof value === 'string' && value.trim()) return value.trim();
+      if (typeof value === 'string' && value.trim()) return stripLeadingListMarker(value);
     }
   }
   return '';

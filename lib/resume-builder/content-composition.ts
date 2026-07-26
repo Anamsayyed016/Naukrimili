@@ -79,8 +79,15 @@ function normalizeWhitespace(text: string): string {
 
 function stripBulletPrefix(line: string): string {
   return String(line || '')
-    .replace(/^[\s\u2022\u25aa\u2023*\-–—•·▪‣]+/, '')
+    // Common unicode / ascii list markers (• ● ○ ▪ ◦ - * etc.)
+    .replace(/^[\s\u2022\u25CF\u25CB\u25E6\u25AA\u25A0\u2043\u2219\u2023\u25A1*\-–—•·▪‣○●◦■□]+\s*/, '')
+    .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+/** Public alias for template renderers — strip leading list markers once. */
+export function stripLeadingListMarker(line: string): string {
+  return stripBulletPrefix(line);
 }
 
 function leadingVerbGroup(line: string): string {
