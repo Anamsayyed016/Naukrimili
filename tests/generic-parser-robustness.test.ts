@@ -5,6 +5,8 @@ import {
   isPlausibleExperienceCompany,
   isPlausiblePersonName,
   isPlausibleProjectName,
+  isValidatedContactName,
+  sanitizePersonName,
   pickRicherFullName,
   pickBestNameFromCandidates,
   deriveDisplayNameFromEmail,
@@ -16,6 +18,7 @@ import {
   reconcileExperienceHeaderFields,
   recoverCompetencyBulletsFromRawText,
 } from '@/lib/resume-parser/import-sanitize';
+import { cleanString } from '@/lib/resume-parser/normalize-extracted';
 import { collectNameCandidatesFromText } from '@/lib/resume-parser/text-recovery';
 import {
   classifyResumeTextFragment,
@@ -32,6 +35,23 @@ describe('generic resume parser robustness', () => {
     expect(isPlausiblePersonName('Executive Snapshot')).toBe(false);
     expect(classifyResumeTextFragment('PROFESSIONAL SNAPSHOT').kind).toBe('SECTION_HEADER');
     expect(isPlausiblePersonName('Syed Aamir Mehboob')).toBe(true);
+  });
+
+  it('never coerces boolean false into a display name (gallery FALSE bug)', () => {
+    expect(cleanString(false)).toBe('');
+    expect(cleanString(true)).toBe('');
+    expect(cleanString('false')).toBe('');
+    expect(cleanString('true')).toBe('');
+    expect(sanitizePersonName(false)).toBe('');
+    expect(sanitizePersonName('false')).toBe('');
+    expect(isPlausiblePersonName('false')).toBe(false);
+    expect(isValidatedContactName('false')).toBe(false);
+    expect(isPlausiblePersonName('Key Business')).toBe(false);
+    expect(isPlausiblePersonName('Subcon resour')).toBe(false);
+    expect(isPlausiblePersonName('Key Business Skills')).toBe(false);
+    expect(isPlausiblePersonName('Six Sigma Certified.')).toBe(false);
+    expect(isPlausiblePersonName('Resource Fulfilment')).toBe(false);
+    expect(isPlausiblePersonName('Priya Sharma')).toBe(true);
   });
 
   it('merges Roles & Responsibilities bodies onto sparse tenure headers', () => {

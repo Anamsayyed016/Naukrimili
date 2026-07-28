@@ -1,0 +1,149 @@
+{
+  "label": "jyotsana",
+  "sourceFileName": "Resume_Jyotsana_Jha_2026.docx",
+  "rawChars": 8080,
+  "preparedChars": 7840,
+  "rawHasEmail": false,
+  "rawHasPhone": true,
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 7838,
+    "preamble": 0,
+    "summary": 0,
+    "experience": 4054,
+    "education": 44,
+    "skills": 0,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 0,
+    "achievements": 505,
+    "hobbies": 72,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "coercionProbe": {
+    "cleanFalse": "",
+    "cleanTrue": "",
+    "cleanFalseStr": "",
+    "cleanNullStr": "",
+    "sanitizeBoolFalse": "",
+    "personFalseStr": "",
+    "plausibleFalse": false,
+    "validatedFalse": false,
+    "normalizeBooleanFields": {
+      "fullName": "",
+      "email": "",
+      "phone": ""
+    }
+  },
+  "stages": {
+    "parser": {
+      "firstName": null,
+      "lastName": null,
+      "name": null,
+      "fullName": "Resource Fulfilment",
+      "email": "",
+      "phone": "",
+      "location": "7QC tool & Modern Japanese techniques like Kaizen",
+      "linkedin": "",
+      "types": {
+        "firstName": "undefined",
+        "name": "undefined",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "upload": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "7QC tool & Modern Japanese techniques like Kaizen",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "repaired": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "7QC tool & Modern Japanese techniques like Kaizen",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "coalesced": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "gallery": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "builder": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    }
+  },
+  "builderCounts": {
+    "experience": 4,
+    "education": 4,
+    "skills": 1
+  }
+}

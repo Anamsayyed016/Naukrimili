@@ -142,6 +142,7 @@ export function looksLikePersonNameShape(text: string): boolean {
 
 export function scoreNameCandidate(value: string, baseConfidence: number): number {
   const trimmed = value.trim();
+  if (!trimmed || /^(?:true|false|null|undefined|nan)$/i.test(trimmed)) return 0;
   if (
     /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|github|portfolio)\b/i.test(
       trimmed
@@ -150,6 +151,12 @@ export function scoreNameCandidate(value: string, baseConfidence: number): numbe
     return 0;
   }
   if (NON_PERSON_TITLE_PHRASE_RE.test(trimmed)) return 0;
+  if (
+    /^(?:key|core|soft|technical)\s+(?:business\s+)?skills?\b/i.test(trimmed) ||
+    /^(?:key\s+business|business\s+skills?|core\s+competenc(?:y|ies))\b/i.test(trimmed)
+  ) {
+    return 0;
+  }
   const shapeOk = looksLikePersonNameShape(trimmed);
   const withCredentials = trimmed
     .replace(/,?\s*(?:ph\.?\s*d\.?|m\.?\s*d\.?|d\.?\s*phil\.?|mba|ca|cs|acs|fcs)\.?$/i, '')

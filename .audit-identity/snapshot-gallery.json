@@ -1,0 +1,174 @@
+{
+  "name": "",
+  "fullName": "",
+  "firstName": "",
+  "lastName": "",
+  "email": "",
+  "phone": "",
+  "address": "",
+  "location": "",
+  "linkedin": "",
+  "github": "",
+  "headline": "",
+  "designation": "",
+  "portfolio": "",
+  "skills": [
+    "Allocation",
+    "Planning",
+    "Tracking",
+    "Utilization)"
+  ],
+  "experience": [
+    {
+      "company": "Rosenberger Electronics India PVT Ltd",
+      "organization": "Rosenberger Electronics India PVT Ltd",
+      "employer": "Rosenberger Electronics India PVT Ltd",
+      "position": "Asst. Manager Quality",
+      "title": "Asst. Manager Quality",
+      "designation": "Asst. Manager Quality",
+      "job_title": "Asst. Manager Quality",
+      "startDate": "2017-09",
+      "endDate": "2019-10",
+      "start_date": "2017-09",
+      "end_date": "2019-10",
+      "description": "Quality management for the entire plant handling cable assembly for customers including TATA\n\nMotors, FCA, John Deere, JCB, VW, and Ford.\n\nPreparation and sharing of various MIS for monitoring business performance, company health, and\n\nproduct performance.\n\nManaging vendor performance by monitoring turnaround time (TAT), failure rate, and vendor\n\nCoordinating with suppliers for resolving quality issues via corrective and preventive action.\n\nMonitoring internal defects using CAPA, Why-Why analysis, and Pareto analysis.\n\nNew Product approval and implementation with all required documents (PPAP and NPI).",
+      "achievements": [
+        "Won the 1st prize Quality Circle in ACIMA Competition.",
+        "Key performer in PIKA-PIKA audit in Motherson Sumi System Ltd.",
+        "Trained in MSA (Measurement System Analysis) & FMEA (Failure Mode Effect Analysis).",
+        "Knowledge of 7QC tools & modern Japanese techniques like Kaizen, JIT, POKA-YOKE."
+      ],
+      "current": false,
+      "location": "",
+      "Description": "Quality management for the entire plant handling cable assembly for customers including TATA\n\nMotors, FCA, John Deere, JCB, VW, and Ford.\n\nPreparation and sharing of various MIS for monitoring business performance, company health, and\n\nproduct performance.\n\nManaging vendor performance by monitoring turnaround time (TAT), failure rate, and vendor\n\nCoordinating with suppliers for resolving quality issues via corrective and preventive action.\n\nMonitoring internal defects using CAPA, Why-Why analysis, and Pareto analysis.\n\nNew Product approval and implementation with all required documents (PPAP and NPI).",
+      "Company": "Rosenberger Electronics India PVT Ltd",
+      "Location": ""
+    },
+    {
+      "company": "M/s Yazaki India Pvt Ltd",
+      "organization": "M/s Yazaki India Pvt Ltd",
+      "employer": "M/s Yazaki India Pvt Ltd",
+      "position": "Asst. Manager",
+      "title": "Asst. Manager",
+      "designation": "Asst. Manager",
+      "job_title": "Asst. Manager",
+      "startDate": "2015-11",
+      "endDate": "2017-08",
+      "start_date": "2015-11",
+      "end_date": "2017-08",
+      "description": "Maintaining manufacturing line quality.\n\nProduct design implementation & verification of product as per design drawing.\n\nCustomer complaint handling & internal line PPM.\n\nVerifying customer input for design to close the gap between design drawing and actual harness.",
+      "achievements": [],
+      "current": false,
+      "location": "",
+      "Description": "Maintaining manufacturing line quality.\n\nProduct design implementation & verification of product as per design drawing.\n\nCustomer complaint handling & internal line PPM.\n\nVerifying customer input for design to close the gap between design drawing and actual harness.",
+      "Company": "M/s Yazaki India Pvt Ltd",
+      "Location": ""
+    },
+    {
+      "company": "M/s Motherson Sumi System Ltd",
+      "organization": "M/s Motherson Sumi System Ltd",
+      "employer": "M/s Motherson Sumi System Ltd",
+      "position": "Sr. Engineer",
+      "title": "Sr. Engineer",
+      "designation": "Sr. Engineer",
+      "job_title": "Sr. Engineer",
+      "startDate": "2010-09",
+      "endDate": "2015-10",
+      "start_date": "2010-09",
+      "end_date": "2015-10",
+      "description": "Schedule Adherence: Daily monitoring of production targets with specified quality.\n\nProductivity Management: Identification of wastes, work distribution, and line balancing to reduce\n\nbottlenecks. Training:\n\nProviding training to new associates and identifying training intervention needs.",
+      "achievements": [],
+      "current": false,
+      "location": "",
+      "Description": "Schedule Adherence: Daily monitoring of production targets with specified quality.\n\nProductivity Management: Identification of wastes, work distribution, and line balancing to reduce\n\nbottlenecks. Training:\n\nProviding training to new associates and identifying training intervention needs.",
+      "Company": "M/s Motherson Sumi System Ltd",
+      "Location": ""
+    }
+  ],
+  "education": [
+    {
+      "institution": "15B",
+      "school": "15B",
+      "Institution": "15B",
+      "degree": "Master of Business AdministrationSMU",
+      "Degree": "Master of Business AdministrationSMU",
+      "field": "",
+      "Field": "",
+      "year": "",
+      "startDate": "",
+      "endDate": "",
+      "gpa": "",
+      "cgpa": "",
+      "percentage": "",
+      "description": ""
+    },
+    {
+      "institution": "BPUT",
+      "school": "BPUT",
+      "Institution": "BPUT",
+      "degree": "B.Tech",
+      "Degree": "B.Tech",
+      "field": "",
+      "Field": "",
+      "year": "",
+      "startDate": "",
+      "endDate": "",
+      "gpa": "",
+      "cgpa": "",
+      "percentage": "",
+      "description": ""
+    }
+  ],
+  "projects": [],
+  "certifications": [
+    {
+      "name": "Six Sigma Certified",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Achieved “Q1” certification Best Supplier Award",
+      "issuer": "customer ‘FORD MOTOR’ within 2 years",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Certified internal Auditee for ISO 9001 and IATF 16949",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Certified internal Auditee for EMS OHSAS",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Trained in MSA (Measurement System Analysis) & FMEA",
+      "issuer": "Failure Mode Effect Analysis",
+      "date": "",
+      "url": ""
+    },
+    "Six Sigma Certified.",
+    "Achieved “Q1” certification Best Supplier Award from customer ‘FORD MOTOR’ within 2 years.",
+    "Certified internal Auditee for ISO 9001 and IATF 16949.",
+    "Certified internal Auditee for EMS OHSAS."
+  ],
+  "languages": [],
+  "summary": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and expertise in organizations that offer growth opportunities. A thorough professional, having a rich overall",
+  "achievements": [],
+  "hobbies": [
+    "ed in reading business books and novels.",
+    "Cooking and Gardening."
+  ],
+  "confidence": 63,
+  "_aiProvider": "custom-parser",
+  "customParserUsed": true,
+  "selectedParser": "custom",
+  "rawText": "PROFESSIONAL SNAPSHOT\nResource Management & Quality Assurance Professional\nMotivated, skilled, and highly professional individual with 3+ years of experience in the RMG function.\nCurrently exploring opportunities in a resource management role to utilize my skills and expertise in\norganizations that offer growth opportunities. A thorough professional, having a rich overall\nexperience of 12 years across industries handling various roles and responsibilities. Currently working\nin Quality Kiosk as a Resource Management Senior Executive.\nCore Competencies\nForecasting & planning for future demands\nTracking and closing open requirements\nMIS publication & analysis (Availability,\nUtilization)\nPlanning and Allocation, Assessing Availability\nBench resource reporting & Ramp down\ntracking\nSubcon resource management at BU level\nStrong analytical & relationship building skills\nStrategy Planning & Resource Fulfilment\nEscalation & Team Management\nVendor Management – Onboarding & Policy\nadherence\nDefining Process and Procedure for ITIL\nstandards\nTimely updation of data management systems\n(QUEST)\nSix Sigma Certified & ITIL Trained\nDemand Validation & Account Management\nProfessional Experience\nOverall Experience: 3 years in RMG + 9 years in Manufacturing\nSenior Executive - Resource Management GroupAug ’22 – Feb ’26\nQuality Kiosk\nTracking bench status and implementing Bench management strategies to optimize resource\nallocation.\nMonitoring resource utilization and identifying opportunities for improvement by mapping resource\nskill inventory and planning training based on skill gaps. Facilitating job rotation and IJP fulfillment.\nTracking & reporting bench aging & open demand aging; prioritizing resources with high bench\naging.\nCoordinating with department leads to ensure adequate resource availability for projects and tasks.\nWorking on demand planning and maintaining demand trackers to ensure proper resource pipeline\nmaintenance.\nConducting regular demand sanity along with talent acquisition and delivery teams to track\nresource usage and onboarding.\nManaging allocation in Quest (tool for manpower tracking) and ensuring proper cost of bench is\nprojected.\nResponsible for various MIS like demand tracker, resource allocation sheet, ramp down data, exit\ndata, practice review data & forecasting data.\n\nAsst. Manager QualitySep ’17 – Oct ’19\nRosenberger Electronics India PVT Ltd.\nQuality management for the entire plant handling cable assembly for customers including TATA\nMotors, FCA, John Deere, JCB, VW, and Ford.\nPreparation and sharing of various MIS for monitoring business performance, company health, and\nproduct performance.\nManaging vendor performance by monitoring turnaround time (TAT), failure rate, and vendor\nscorecards.\nCoordinating with suppliers for resolving quality issues via corrective and preventive action.\nMonitoring internal defects using CAPA, Why-Why analysis, and Pareto analysis.\nNew Product approval and implementation with all required documents (PPAP and NPI).\nAsst. Manager - Quality AssuranceNov ’15 – Aug ’17\nM/s Yazaki India Pvt Ltd\nMaintaining manufacturing line quality.\nProduct design implementation & verification of product as per design drawing.\nCustomer complaint handling & internal line PPM.\nVerifying customer input for design to close the gap between design drawing and actual harness.\nSr. Engineer - Production in ChargeSep ’10 – Oct ’15\nM/s Motherson Sumi System Ltd.\nSchedule Adherence: Daily monitoring of production targets with specified quality.\nProductivity Management: Identification of wastes, work distribution, and line balancing to reduce\nbottlenecks. Training:\nProviding training to new associates and identifying training intervention needs.\nAcademics\nDegreeInstitute / University / BoardYear%/CGPA\nMaster of Business AdministrationSMU, Distance2013-15B\nB.Tech, Electronics Engg.GIET, BPUT, Orissa2005-097.8\nClass XIICo-operative College (Jharkhand Board)2003-0560%\nClass XJharkhand Board2000-0360%\n\nProfessional Achievements & Certifications\nSix Sigma Certified.\nAchieved “Q1” certification Best Supplier Award from customer ‘FORD MOTOR’ within 2 years.\nWon the 1st prize Quality Circle in ACIMA Competition.\nKey performer in PIKA-PIKA audit in Motherson Sumi System Ltd.\nCertified internal Auditee for ISO 9001 and IATF 16949.\nCertified internal Auditee for EMS OHSAS.\nTrained in MSA (Measurement System Analysis) & FMEA (Failure Mode Effect Analysis).\nKnowledge of 7QC tools & modern Japanese techniques like Kaizen, JIT, POKA-YOKE.\nExtracurricular Activities & Interests\nInterested in reading business books and novels.\nCooking and Gardening.",
+  "_imported": true,
+  "bio": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and expertise in organizations that offer growth opportunities. A thorough professional, having a rich overall",
+  "objective": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and expertise in organizations that offer growth opportunities. A thorough professional, having a rich overall"
+}

@@ -189,6 +189,15 @@ export function isAcceptedEmailDerivedName(combined: string): boolean {
   if (/\b(company|secretary|professional|compliance|governance|manufacturing)\b/i.test(combined)) {
     return false;
   }
+  // Must not bypass person-name gates for competency / skill phrases.
+  if (
+    /\b(?:resource|resources|management|business|skills?|skillset|quality|assurance|strategy|planning|allocation|fulfil+il+ment|certified|certification|competenc(?:y|ies)|utilization|forecasting|tracking|vendor|bench|demand|subcon|snapshot|profile|summary|executive|officer)\b/i.test(
+      combined
+    )
+  ) {
+    return false;
+  }
+  if (words.some((w) => looksLikeTruncatedResumeToken(w))) return false;
   return words.every((w) => /^[A-Za-z][A-Za-z'-]{1,}$/.test(w));
 }
 
@@ -399,7 +408,133 @@ const NAME_STOPWORDS = new Set([
 
 /** Resume / business vocabulary — never valid in a personal name. */
 const NON_NAME_VOCAB =
-  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh|achievement|achievements|accomplishment|board|director|chairman|chairperson|secretary|president|executive|officer|marital|status|nationality|religion|gender|husband|wife|passport|married|unmarried|divorced|widowed)\b/i;
+  /\b(?:turnover|revenue|crores?|lakhs?|millions?|billions?|managed|managing|responsible|experience|years?|team|project|projects|company|companies|clients?|achieved|delivered|implemented|designed|developed|annual|growth|profit|sales|operations|department|division|crore|lakh|achievement|achievements|accomplishment|board|director|chairman|chairperson|secretary|president|executive|officer|marital|status|nationality|religion|gender|husband|wife|passport|married|unmarried|divorced|widowed|business|skills?|skillset|resource|resources|management|quality|assurance|strategy|planning|allocation|competenc(?:y|ies)|professional|snapshot|profile|summary|utilization|forecasting|tracking|vendor|bench|demand|subcon|kaizen|techniques?|fulfil+il+ment|escalation|inventory|onboarding)\b/i;
+
+/**
+ * Tokens that are resume/business nouns — a "name" composed only of these is never a person.
+ * Generic across competency / skill-header false positives ("Key Business", "Core Skills").
+ */
+const NON_PERSON_NAME_TOKEN_SET = new Set([
+  'key',
+  'core',
+  'soft',
+  'technical',
+  'business',
+  'skill',
+  'skills',
+  'skillset',
+  'resource',
+  'resources',
+  'management',
+  'quality',
+  'assurance',
+  'strategy',
+  'planning',
+  'allocation',
+  'competency',
+  'competencies',
+  'professional',
+  'snapshot',
+  'profile',
+  'summary',
+  'experience',
+  'utilization',
+  'forecasting',
+  'tracking',
+  'vendor',
+  'bench',
+  'demand',
+  'subcon',
+  'kaizen',
+  'technique',
+  'techniques',
+  'fulfilifunctional',
+  'stakeholder',
+  'stakeholders',
+  'mis',
+  'itil',
+  'sigma',
+  'six',
+  'certified',
+  'certification',
+  'certificate',
+  'trained',
+  'training',
+  'fulfilment',
+  'fulfillment',
+  'escalation',
+  'documentation',
+  'artefacts',
+  'artifacts',
+  'inventory',
+  'onboarding',
+  'adherence',
+  'projection',
+]);
+
+/** Common resume stems — a shorter token that is a prefix is usually OCR wrap truncation. */
+const RESUME_WORD_STEMS_FOR_TRUNCATION = [
+  'resource',
+  'resources',
+  'management',
+  'business',
+  'professional',
+  'experience',
+  'quality',
+  'assurance',
+  'planning',
+  'allocation',
+  'utilization',
+  'requirement',
+  'requirements',
+  'competency',
+  'competencies',
+  'strategy',
+  'executive',
+  'department',
+  'tracking',
+  'forecasting',
+  'availability',
+  'stakeholder',
+  'stakeholders',
+];
+
+const NAME_PARTICLES = new Set([
+  'van',
+  'von',
+  'de',
+  'da',
+  'del',
+  'della',
+  'der',
+  'den',
+  'di',
+  'du',
+  'la',
+  'le',
+  'bin',
+  'ibn',
+  'al',
+  'el',
+  'af',
+  'av',
+]);
+
+function looksLikeTruncatedResumeToken(token: string): boolean {
+  const t = token.toLowerCase().replace(/[^a-z]/g, '');
+  if (t.length < 4 || t.length > 12) return false;
+  return RESUME_WORD_STEMS_FOR_TRUNCATION.some(
+    (stem) => stem.startsWith(t) && stem.length >= t.length + 2
+  );
+}
+
+function isBusinessOnlyNamePhrase(words: string[]): boolean {
+  if (words.length < 2) return false;
+  return words.every((w) => {
+    const bare = w.toLowerCase().replace(/[^a-z]/g, '');
+    return bare.length > 0 && NON_PERSON_NAME_TOKEN_SET.has(bare);
+  });
+}
 
 /** Personal-detail form labels glued onto contact names (label line, not the value). */
 const TRAILING_PERSONAL_DETAIL_LABEL_RE =
@@ -1265,8 +1400,18 @@ export function isImplausibleResumeLocation(value: unknown): boolean {
   const t = sanitizeFieldText(value, 120);
   if (!t) return true;
   if (isSpacedLetterFragment(t)) return true;
+  if (/^(?:true|false|null|undefined|nan)$/i.test(t)) return true;
   if (
     /\b(?:meetings?|committees?|compliances?|governance|regulations?|policies|procedures|resolutions?|diligence|prospectus|shareholders?)\b/i.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Tool / technique / competency blurbs misread as geography.
+  if (
+    /\b(?:tool|tools|techniques?|kaizen|six\s*sigma|itil|methodology|framework|quest)\b/i.test(t) &&
+    !/\b(?:street|road|nagar|colony|sector|block|district|india|usa|uk|state|province|city|pincode|pin\s*code|\d{5,6})\b/i.test(
       t
     )
   ) {
@@ -1471,9 +1616,12 @@ export function sanitizeImportJobTitle(text: string): string {
 }
 
 export function isPlausiblePersonName(value: unknown): boolean {
+  if (typeof value === 'boolean' || typeof value === 'number') return false;
   let s = stripCredentialPrefix(String(value || '').replace(/\s+/g, ' ').trim());
   s = s.replace(TRAILING_PERSONAL_DETAIL_LABEL_RE, '').replace(/\s+/g, ' ').trim();
   if (!s || isGarbageResumeText(s)) return false;
+  // Boolean / nullish literals that leaked through String(false) → "false".
+  if (/^(?:true|false|null|undefined|nan)$/i.test(s)) return false;
   if (
     /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|github|portfolio)\b/i.test(s)
   ) {
@@ -1491,6 +1639,32 @@ export function isPlausiblePersonName(value: unknown): boolean {
     /^(?:curriculum\s+vitae|resume|biodata|bio[\s-]?data)$/i.test(s)
   ) {
     return false;
+  }
+  // Skill / competency headers misread as names ("Key Business Skills").
+  if (
+    /^(?:key|core|soft|technical)\s+(?:business\s+)?skills?\b/i.test(s) ||
+    /^(?:key\s+business|business\s+skills?|core\s+competenc(?:y|ies))\b/i.test(s)
+  ) {
+    return false;
+  }
+  // Certification / training slogans are never personal names.
+  if (
+    /\b(?:certified|certification|certificate|trained|training)\b/i.test(s) ||
+    /\bsix\s*sigma\b/i.test(s) ||
+    /\bitil\b/i.test(s)
+  ) {
+    return false;
+  }
+  {
+    const earlyWords = s.split(/\s+/).filter(Boolean);
+    if (isBusinessOnlyNamePhrase(earlyWords)) return false;
+    if (earlyWords.some((w) => looksLikeTruncatedResumeToken(w))) return false;
+    // Inconsistent casing ("Subcon resour") is almost always OCR wrap, not a person.
+    const hasCapitalized = earlyWords.some((w) => /^[A-Z]/.test(w));
+    const hasLowerNonParticle = earlyWords.some(
+      (w) => /^[a-z]/.test(w) && !NAME_PARTICLES.has(w.toLowerCase().replace(/[^a-z]/g, ''))
+    );
+    if (hasCapitalized && hasLowerNonParticle) return false;
   }
   // Duty / competency lines are never personal names.
   if (
@@ -1547,6 +1721,8 @@ export function isPlausiblePersonName(value: unknown): boolean {
     // Classifier sometimes accepts role/subtitle lines ("Radio Operator From Army").
     if (looksLikeJobTitleLine(s)) return false;
     if (/\bfrom\b/i.test(s) && wordsLengthAtLeast(s, 3)) return false;
+    if (NON_NAME_VOCAB.test(s)) return false;
+    if (isBusinessOnlyNamePhrase(s.split(/\s+/).filter(Boolean))) return false;
     if (
       /\b(?:operator|engineer|havildar|executive|consultant|analyst|developer|architect|specialist|coordinator|supervisor|technician)\b/i.test(
         s
@@ -1634,8 +1810,10 @@ export function isValidatedContactName(name: string, locationHint = ''): boolean
 
 /** Sanitize and keep only plausible personal names. */
 export function sanitizePersonName(value: unknown, maxLen = 120): string {
+  if (typeof value === 'boolean' || typeof value === 'number') return '';
   let s = sanitizeFieldText(value, maxLen);
   if (!s) return '';
+  if (/^(?:true|false|null|undefined|nan)$/i.test(s)) return '';
   // Social platform labels glued onto names ("LinkedIn Dr. Aamir Mehboob").
   s = s
     .replace(

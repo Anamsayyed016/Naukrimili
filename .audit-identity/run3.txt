@@ -1,0 +1,584 @@
+﻿Warning: Invalid stream: "FormatError: Unknown compression method in flate stream: 0, 101"
+Warning: Indexing all PDF objects
+Warning: Invalid stream: "FormatError: Unknown compression method in flate stream: 0, 101"
+[resume-extraction-validation] { warnings: 0, repairs: 12 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:summary',
+    'education:2',
+    'certifications:9',
+    'hobbies:2',
+    'skills:4'
+  ],
+  recovered: [],
+  missing: [
+    'identity:fullName',
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 4,
+    education: 2,
+    certifications: 9,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 4,
+    education: 2,
+    certifications: 9,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 4,
+    education: 6,
+    certifications: 9,
+    languages: 0
+  }
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [ 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 3,
+  rawCompanyCount: 3,
+  builtCompanyCount: 3
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: false,
+  lastName: false,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 4,
+  experience: 3,
+  education: 6,
+  projects: 0,
+  certifications: 9,
+  languages: 0,
+  achievements: 0,
+  hobbies: 2
+}
+{
+  "label": "snapshot",
+  "sourceFileName": "Professional_Snapshot.pdf",
+  "rawChars": 4782,
+  "preparedChars": 4622,
+  "rawHasEmail": false,
+  "rawHasPhone": true,
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 4622,
+    "preamble": 0,
+    "summary": 0,
+    "experience": 3070,
+    "education": 246,
+    "skills": 529,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 492,
+    "achievements": 492,
+    "hobbies": 71,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "coercionProbe": {
+    "cleanFalse": "",
+    "cleanTrue": "",
+    "cleanFalseStr": "",
+    "cleanNullStr": "",
+    "sanitizeBoolFalse": "",
+    "personFalseStr": "",
+    "plausibleFalse": false,
+    "validatedFalse": false,
+    "normalizeBooleanFields": {
+      "fullName": "",
+      "email": "",
+      "phone": ""
+    }
+  },
+  "stages": {
+    "parser": {
+      "firstName": null,
+      "lastName": null,
+      "name": null,
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "undefined",
+        "name": "undefined",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "upload": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "repaired": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "coalesced": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "gallery": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "builder": {
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "fullName": "",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    }
+  },
+  "builderCounts": {
+    "experience": 3,
+    "education": 6,
+    "skills": 4
+  }
+}
+[resume-extraction-validation] { warnings: 0, repairs: 14 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:location',
+    'identity:summary',
+    'education:4',
+    'certifications:1',
+    'hobbies:3'
+  ],
+  recovered: [
+    'experience[0]:designation',
+    'experience[1]:designation',
+    'education[1]:fields',
+    'education[3]:full-entry',
+    'achievements:appended'
+  ],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'education:count-loss:3/4',
+    'achievements:count-loss:0/1'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 0,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 0,
+    education: 1,
+    certifications: 4,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 0,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 0,
+    education: 4,
+    certifications: 1,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 1891,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 1,
+    education: 4,
+    certifications: 1,
+    languages: 0
+  }
+}
+[import-transformer] mapping validation {
+  issues: [
+    'experience[0]:missing-designation',
+    'experience[1]:missing-designation',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 4,
+  rawCompanyCount: 4,
+  builtCompanyCount: 4
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 1,
+  experience: 4,
+  education: 4,
+  projects: 0,
+  certifications: 1,
+  languages: 0,
+  achievements: 0,
+  hobbies: 3
+}
+[resume-extraction-validation] { warnings: 0, repairs: 2 }
+[resume-extraction-validation] { warnings: 2, repairs: 0 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:summary',
+    'education:4',
+    'certifications:1',
+    'hobbies:3',
+    'skills:1'
+  ],
+  recovered: [],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'experience[0]:designation',
+    'experience[1]:designation'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 1891,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 1,
+    education: 4,
+    certifications: 1,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 1891,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 1,
+    education: 4,
+    certifications: 1,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 1891,
+    experience: 4,
+    experienceCompanies: 4,
+    projects: 0,
+    skills: 1,
+    education: 4,
+    certifications: 1,
+    languages: 0
+  }
+}
+[import-transformer] mapping validation {
+  issues: [
+    'experience[0]:missing-designation',
+    'experience[1]:missing-designation',
+    'projects:empty'
+  ],
+  recoveries: [],
+  experienceCount: 4,
+  rawCompanyCount: 4,
+  builtCompanyCount: 4
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 1,
+  experience: 4,
+  education: 4,
+  projects: 0,
+  certifications: 1,
+  languages: 0,
+  achievements: 0,
+  hobbies: 3
+}
+[resume-extraction-validation] { warnings: 2, repairs: 0 }
+{
+  "label": "jyotsana",
+  "sourceFileName": "Resume_Jyotsana_Jha_2026.docx",
+  "rawChars": 8080,
+  "preparedChars": 7840,
+  "rawHasEmail": false,
+  "rawHasPhone": true,
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 7838,
+    "preamble": 0,
+    "summary": 0,
+    "experience": 4054,
+    "education": 44,
+    "skills": 0,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 0,
+    "achievements": 505,
+    "hobbies": 72,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "coercionProbe": {
+    "cleanFalse": "",
+    "cleanTrue": "",
+    "cleanFalseStr": "",
+    "cleanNullStr": "",
+    "sanitizeBoolFalse": "",
+    "personFalseStr": "",
+    "plausibleFalse": false,
+    "validatedFalse": false,
+    "normalizeBooleanFields": {
+      "fullName": "",
+      "email": "",
+      "phone": ""
+    }
+  },
+  "stages": {
+    "parser": {
+      "firstName": null,
+      "lastName": null,
+      "name": null,
+      "fullName": "Resource Fulfilment",
+      "email": "",
+      "phone": "",
+      "location": "7QC tool & Modern Japanese techniques like Kaizen",
+      "linkedin": "",
+      "types": {
+        "firstName": "undefined",
+        "name": "undefined",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "upload": {
+      "firstName": "Resource",
+      "lastName": "Fulfilment",
+      "name": "Resource Fulfilment",
+      "fullName": "Resource Fulfilment",
+      "email": "",
+      "phone": "",
+      "location": "7QC tool & Modern Japanese techniques like Kaizen",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "repaired": {
+      "firstName": "Resource",
+      "lastName": "Fulfilment",
+      "name": "Resource Fulfilment",
+      "fullName": "Resource Fulfilment",
+      "email": "",
+      "phone": "",
+      "location": "7QC tool & Modern Japanese techniques like Kaizen",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "coalesced": {
+      "firstName": "Resource",
+      "lastName": "Fulfilment",
+      "name": "Resource Fulfilment",
+      "fullName": "Resource Fulfilment",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "gallery": {
+      "firstName": "Resource",
+      "lastName": "Fulfilment",
+      "name": "Resource Fulfilment",
+      "fullName": "Resource Fulfilment",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    "builder": {
+      "firstName": "Resource",
+      "lastName": "Fulfilment",
+      "name": "Resource Fulfilment",
+      "fullName": "Resource Fulfilment",
+      "email": "",
+      "phone": "",
+      "location": "",
+      "linkedin": "",
+      "types": {
+        "firstName": "string",
+        "name": "string",
+        "fullName": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    }
+  },
+  "builderCounts": {
+    "experience": 4,
+    "education": 4,
+    "skills": 1
+  }
+}

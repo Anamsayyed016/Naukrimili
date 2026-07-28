@@ -34,6 +34,9 @@ export function isConfidentValue(value: unknown): value is string {
   if (typeof value !== 'string') return false;
   const trimmed = value.trim();
   if (trimmed.length < 2) return false;
+  // Affinda / OpenAI / JSON often emit boolean false for missing scalars;
+  // String(false) === "false" must never become a display name/email/phone.
+  if (/^(?:true|false|null|undefined|nan)$/i.test(trimmed)) return false;
   return !PLACEHOLDER_PATTERNS.some((p) => p.test(trimmed));
 }
 
@@ -62,8 +65,29 @@ function stripUnicodeArtifacts(input: string): string {
 
 export function cleanString(value: unknown): string {
   if (value == null) return '';
-  const s = stripUnicodeArtifacts(String(value)).replace(/\s+/g, ' ').trim();
-  return isConfidentValue(s) ? s : '';
+  // Affinda / OpenAI emit boolean false for missing fields — never String(false) → "false".
+  if (typeof value === 'boolean') return '';
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return '';
+    const asNum = String(Math.trunc(value));
+    return isConfidentValue(asNum) ? asNum : '';
+  }
+  if (typeof value === 'string') {
+    const s = stripUnicodeArtifacts(value).replace(/\s+/g, ' ').trim();
+    return isConfidentValue(s) ? s : '';
+  }
+  // Wrapped scalars from some parsers: { value } / { text } / { parsed }
+  if (typeof value === 'object') {
+    const rec = value as Record<string, unknown>;
+    const nested =
+      (typeof rec.value === 'string' && rec.value) ||
+      (typeof rec.text === 'string' && rec.text) ||
+      (typeof rec.parsed === 'string' && rec.parsed) ||
+      (typeof rec.raw === 'string' && rec.raw) ||
+      '';
+    if (nested) return cleanString(nested);
+  }
+  return '';
 }
 
 /**
@@ -73,7 +97,9 @@ export function cleanString(value: unknown): string {
  */
 export function cleanMultiline(value: unknown): string {
   if (value == null) return '';
-  const s = stripUnicodeArtifacts(String(value))
+  if (typeof value === 'boolean') return '';
+  if (typeof value !== 'string') return '';
+  const s = stripUnicodeArtifacts(value)
     .replace(/\r\n/g, '\n')
     // collapse runs of spaces/tabs WITHIN a line — preserve \n
     .replace(/[ \t]+/g, ' ')

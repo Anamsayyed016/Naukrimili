@@ -272,17 +272,26 @@ export function ensureBuilderContactFields(
   data: Record<string, unknown>
 ): Record<string, unknown> {
   const out = { ...data };
-  const first = String(out.firstName ?? '').trim();
-  const last = String(out.lastName ?? '').trim();
+  const asContactText = (value: unknown): string => {
+    if (value == null || typeof value === 'boolean' || typeof value === 'number') return '';
+    if (typeof value !== 'string') return '';
+    const t = value.trim();
+    if (!t || /^(?:true|false|null|undefined|nan)$/i.test(t)) return '';
+    return t;
+  };
+  const first = asContactText(out.firstName);
+  const last = asContactText(out.lastName);
   const combined = [first, last].filter(Boolean).join(' ').trim();
-  const locationHint = String(out.location || out.address || '');
+  const locationHint = asContactText(out.location) || asContactText(out.address);
 
   if (combined && isValidatedContactName(combined, locationHint)) {
+    out.firstName = first;
+    out.lastName = last;
     return out;
   }
 
   // Partial or stale first/last parts — rebuild from fullName when available.
-  const fullEarly = String(out.fullName || out.name || '').trim();
+  const fullEarly = asContactText(out.fullName) || asContactText(out.name);
   if (fullEarly && (!first || !last)) {
     const safeFullEarly = sanitizePersonName(fullEarly, 120);
     if (safeFullEarly) {
@@ -301,8 +310,19 @@ export function ensureBuilderContactFields(
     }
   }
 
-  const full = String(out.fullName || out.name || '').trim();
-  if (!full) return out;
+  const full = asContactText(out.fullName) || asContactText(out.name);
+  if (!full) {
+    // Clear boolean / literal "false" that leaked into identity fields.
+    for (const key of ['firstName', 'lastName', 'fullName', 'name', 'Full Name'] as const) {
+      const v = out[key];
+      if (typeof v === 'boolean' || typeof v === 'number') {
+        out[key] = '';
+      } else if (typeof v === 'string' && /^(?:true|false|null|undefined|nan)$/i.test(v.trim())) {
+        out[key] = '';
+      }
+    }
+    return out;
+  }
 
   const safeFull = sanitizePersonName(full, 120);
   if (!safeFull) {
@@ -332,14 +352,25 @@ export function syncBuilderContactAliases(
   data: Record<string, unknown>
 ): Record<string, unknown> {
   const out = ensureBuilderContactFields({ ...data });
-  const first = String(out.firstName ?? '').trim();
-  const last = String(out.lastName ?? '').trim();
+  const asText = (value: unknown): string => {
+    if (value == null || typeof value === 'boolean' || typeof value === 'number') return '';
+    if (typeof value !== 'string') return '';
+    const t = value.trim();
+    if (!t || /^(?:true|false|null|undefined|nan)$/i.test(t)) return '';
+    return t;
+  };
+  const first = asText(out.firstName);
+  const last = asText(out.lastName);
   const combined = [first, last].filter(Boolean).join(' ').trim();
-  const full = String(out.fullName || out.name || combined || '').trim();
+  const full = asText(out.fullName) || asText(out.name) || combined;
   if (full) {
     out.fullName = full;
     out.name = full;
     out['Full Name'] = full;
+  } else {
+    out.fullName = '';
+    out.name = '';
+    out['Full Name'] = '';
   }
   return out;
 }
