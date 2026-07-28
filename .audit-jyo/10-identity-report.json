@@ -1,0 +1,51 @@
+{
+  "extract": {
+    "source": "mammoth+ooxml",
+    "header": "Jyotsana Jha\nFemale\nAge 40 years",
+    "footer": "Classification: Internal - Non - Shareable\n\nEmail Id: 08jyotsana@gmail.com \nMobile +91 8320087124"
+  },
+  "stages": {
+    "parser": {
+      "fullName": "Jyotsana Jha",
+      "firstName": null,
+      "lastName": null,
+      "email": "08jyotsana@gmail.com",
+      "phone": "+91 83200 87124"
+    },
+    "upload": {
+      "fullName": "Jyotsana Jha",
+      "firstName": "Jyotsana",
+      "lastName": "Jha",
+      "email": "08jyotsana@gmail.com",
+      "phone": "+91 83200 87124"
+    },
+    "repaired": {
+      "fullName": "Jyotsana Jha",
+      "firstName": "Jyotsana",
+      "lastName": "Jha",
+      "email": "08jyotsana@gmail.com",
+      "phone": "+91 83200 87124"
+    },
+    "coalesced": {
+      "fullName": "Jyotsana Jha",
+      "firstName": "Jyotsana",
+      "lastName": "Jha",
+      "email": "08jyotsana@gmail.com",
+      "phone": "+91 83200 87124"
+    },
+    "gallery": {
+      "fullName": "Jyotsana Jha",
+      "firstName": "Jyotsana",
+      "lastName": "Jha",
+      "email": "08jyotsana@gmail.com",
+      "phone": "+91 83200 87124"
+    },
+    "builder": {
+      "fullName": "Jyotsana Jha",
+      "firstName": "Jyotsana",
+      "lastName": "Jha",
+      "email": "08jyotsana@gmail.com",
+      "phone": "+91 83200 87124"
+    }
+  }
+}

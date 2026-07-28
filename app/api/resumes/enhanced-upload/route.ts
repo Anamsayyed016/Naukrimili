@@ -287,6 +287,18 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
         file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       console.log('📄 Processing Word document...');
       try {
+        const isDocx =
+          file.type ===
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+          /\.docx$/i.test(file.name || '');
+        if (isDocx) {
+          const { extractTextFromDocxBuffer } = await import('@/lib/docx-text-extraction');
+          const extracted = await extractTextFromDocxBuffer(Buffer.from(bytes));
+          const text = extracted.text;
+          console.log('✅ Word (.docx) text extracted, length:', text.length, 'source:', extracted.source);
+          console.log('📄 Word preview:', text.substring(0, 200) + '...');
+          return text || `Resume: ${file.name}`;
+        }
         const mammoth = await import('mammoth');
         const result = await mammoth.extractRawText({ buffer: Buffer.from(bytes) });
         const text = result.value;
