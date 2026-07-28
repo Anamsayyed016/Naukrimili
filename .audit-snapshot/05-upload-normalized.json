@@ -1,0 +1,106 @@
+{
+  "name": "PROFESSIONAL SNAPSHOT",
+  "fullName": "PROFESSIONAL SNAPSHOT",
+  "firstName": "PROFESSIONAL",
+  "lastName": "SNAPSHOT",
+  "email": "",
+  "phone": "",
+  "address": "",
+  "location": "",
+  "linkedin": "",
+  "github": "",
+  "headline": "",
+  "designation": "",
+  "portfolio": "",
+  "skills": [
+    "Utilization)"
+  ],
+  "experience": [],
+  "education": [
+    {
+      "institution": "15B",
+      "school": "15B",
+      "Institution": "15B",
+      "degree": "Master of Business AdministrationSMU",
+      "Degree": "Master of Business AdministrationSMU",
+      "field": "",
+      "Field": "",
+      "year": "",
+      "startDate": "",
+      "endDate": "",
+      "gpa": "",
+      "cgpa": "",
+      "percentage": "",
+      "description": ""
+    },
+    {
+      "institution": "BPUT",
+      "school": "BPUT",
+      "Institution": "BPUT",
+      "degree": "B.Tech",
+      "Degree": "B.Tech",
+      "field": "",
+      "Field": "",
+      "year": "",
+      "startDate": "",
+      "endDate": "",
+      "gpa": "",
+      "cgpa": "",
+      "percentage": "",
+      "description": ""
+    }
+  ],
+  "projects": [],
+  "certifications": [
+    {
+      "name": "Six Sigma Certified",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Achieved “Q1” certification Best Supplier Award",
+      "issuer": "customer ‘FORD MOTOR’ within 2 years",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Certified internal Auditee for ISO 9001 and IATF 16949",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Certified internal Auditee for EMS OHSAS",
+      "issuer": "",
+      "date": "",
+      "url": ""
+    },
+    {
+      "name": "Trained in MSA (Measurement System Analysis) & FMEA",
+      "issuer": "Failure Mode Effect Analysis",
+      "date": "",
+      "url": ""
+    }
+  ],
+  "languages": [],
+  "summary": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and expertise in organizations that offer growth opportunities. A thorough professional, having a rich overall",
+  "achievements": [
+    "Six Sigma Certified.",
+    "Achieved “Q1” certification Best Supplier Award from customer ‘FORD MOTOR’ within 2 years.",
+    "Won the 1st prize Quality Circle in ACIMA Competition.",
+    "Key performer in PIKA-PIKA audit in Motherson Sumi System Ltd.",
+    "Certified internal Auditee for ISO 9001 and IATF 16949.",
+    "Certified internal Auditee for EMS OHSAS.",
+    "Trained in MSA (Measurement System Analysis) & FMEA (Failure Mode Effect Analysis).",
+    "Knowledge of 7QC tools & modern Japanese techniques like Kaizen, JIT, POKA-YOKE."
+  ],
+  "hobbies": [
+    "ed in reading business books and novels.",
+    "Cooking and Gardening."
+  ],
+  "confidence": 55,
+  "_aiProvider": "custom-parser",
+  "customParserUsed": true,
+  "selectedParser": "custom"
+}

@@ -1,0 +1,202 @@
+﻿[resume-extraction-validation] { warnings: 0, repairs: 12 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:summary',
+    'education:2',
+    'certifications:9',
+    'hobbies:2',
+    'skills:4'
+  ],
+  recovered: [],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 4,
+    education: 2,
+    certifications: 9,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 4,
+    education: 2,
+    certifications: 9,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 4,
+    education: 6,
+    certifications: 9,
+    languages: 0
+  }
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [ 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 3,
+  rawCompanyCount: 3,
+  builtCompanyCount: 3
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 4,
+  experience: 3,
+  education: 6,
+  projects: 0,
+  certifications: 9,
+  languages: 0,
+  achievements: 0,
+  hobbies: 2
+}
+{
+  "identity": {
+    "snapshotNamePlausible": false,
+    "snapshotKind": "SECTION_HEADER"
+  },
+  "directExtractCount": 5,
+  "directExtract": [
+    {
+      "company": "Resource Management & Quality Assurance Professional",
+      "title": "",
+      "start": null,
+      "end": null
+    },
+    {
+      "company": "Resource Management Group",
+      "title": "Senior Executive",
+      "start": "2022-08",
+      "end": "2026-02"
+    },
+    {
+      "company": "Rosenberger Electronics India PVT Ltd",
+      "title": "Asst. Manager Quality",
+      "start": "2017-09",
+      "end": "2019-10"
+    },
+    {
+      "company": "M/s Yazaki India Pvt Ltd",
+      "title": "Asst. Manager",
+      "start": "2015-11",
+      "end": "2017-08"
+    },
+    {
+      "company": "M/s Motherson Sumi System Ltd",
+      "title": "Sr. Engineer",
+      "start": "2010-09",
+      "end": "2015-10"
+    }
+  ],
+  "parser": {
+    "name": "Subcon resour",
+    "exp": [
+      {
+        "company": "Rosenberger Electronics India PVT Ltd",
+        "title": "Asst. Manager Quality",
+        "start": "2017-09",
+        "end": "2019-10"
+      },
+      {
+        "company": "M/s Yazaki India Pvt Ltd",
+        "title": "Asst. Manager",
+        "start": "2015-11",
+        "end": "2017-08"
+      },
+      {
+        "company": "M/s Motherson Sumi System Ltd",
+        "title": "Sr. Engineer",
+        "start": "2010-09",
+        "end": "2015-10"
+      }
+    ],
+    "skills": [
+      "Tracking",
+      "Planning",
+      "Allocation",
+      "Utilization)"
+    ],
+    "education": [
+      {
+        "institution": "15B",
+        "degree": "Master of Business AdministrationSMU",
+        "field": "",
+        "startDate": "",
+        "endDate": ""
+      },
+      {
+        "institution": "BPUT",
+        "degree": "B.Tech",
+        "field": "",
+        "startDate": "",
+        "endDate": ""
+      }
+    ]
+  },
+  "builder": {
+    "name": "Subcon Resour",
+    "expCount": 3,
+    "exp": [
+      {
+        "company": "Rosenberger Electronics India PVT Ltd",
+        "title": "Asst. Manager Quality",
+        "start": "2017-09",
+        "end": "2019-10"
+      },
+      {
+        "company": "M/s Yazaki India Pvt Ltd",
+        "title": "Asst. Manager",
+        "start": "2015-11",
+        "end": "2017-08"
+      },
+      {
+        "company": "M/s Motherson Sumi System Ltd",
+        "title": "Sr. Engineer",
+        "start": "2010-09",
+        "end": "2015-10"
+      }
+    ],
+    "skillsCount": 4,
+    "educationCount": 6
+  }
+}

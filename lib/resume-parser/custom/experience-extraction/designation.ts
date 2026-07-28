@@ -8,6 +8,7 @@ import {
 } from '@/lib/resume-parser/field-classification';
 import { splitOnFieldSeparatorDash } from '@/lib/resume-parser/field-separator-dash';
 import { looksLikeJobTitleLine } from '@/lib/resume-parser/import-sanitize';
+import { healOcrDateArtifacts } from './dates';
 
 export interface DesignationDetection {
   designation: string;
@@ -22,27 +23,36 @@ const SENIORITY_RE =
 
 /** Remove trailing "Mon YYYY – Mon YYYY / Present" employment ranges from a title line. */
 export function stripTrailingEmploymentDates(text: string): string {
-  const trimmed = text.trim();
+  const trimmed = healOcrDateArtifacts(text.trim());
   if (!trimmed) return '';
+  const month = '(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?';
+  const yearFull = '(?:19|20)\\d{2}';
+  const yearAbbrev = "['']?\\d{2}";
+  const year = `(?:${yearFull}|${yearAbbrev})`;
+  const present = '(?:present|current|ongoing|till\\s*date|to\\s*date)';
   const stripped = trimmed
-    // Parenthetical tenures: "(2023–Present)", "(Jan 2021 - Mar 2023)"
+    // Parenthetical tenures: "(2023–Present)", "(Jan 2021 - Mar 2023)", "(Aug '22 – Feb '26)"
     .replace(
-      /\s*[\(\[]\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:19|20)\d{2}\s*[-–—to/]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date)\s*[\)\]]\s*$/i,
+      new RegExp(
+        `\\s*[\\(\\[]\\s*(?:${month}\\s*)?${year}\\s*[-–—to/]+\\s*(?:${month}\\s*)?(?:${year}|${present})\\s*[\\)\\]]\\s*$`,
+        'i'
+      ),
       ''
     )
-    // "Since Sep2011 to OCT 2017" / "since Oct'2017 to April 2022" (glued month+year OK)
+    // "Since Sep2011 to OCT 2017" / "since Oct'2017 to April 2022"
     .replace(
-      /\s+(?:since|from)\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:19|20)\d{2}\b.*$/i,
+      new RegExp(`\\s+(?:since|from)\\s+(?:${month}\\s*)?${year}\\b.*$`, 'i'),
       ''
     )
+    // Trailing ranges with full or abbreviated years.
     .replace(
-      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*)?(?:['’])?(?:(?:19|20)\d{2}|present|current|ongoing|till\s*date|to\s*date)\s*$/i,
+      new RegExp(
+        `\\s+(?:${month}\\s*)?${year}\\s*[-–—to]+\\s*(?:${month}\\s*)?(?:${year}|${present})\\s*$`,
+        'i'
+      ),
       ''
     )
-    .replace(
-      /\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*(?:['’])?(?:19|20)\d{2})\s*$/i,
-      ''
-    )
+    .replace(new RegExp(`\\s+(?:${month}\\s*${year})\\s*$`, 'i'), '')
     .trim();
   return stripped.length >= 3 ? stripped : trimmed;
 }

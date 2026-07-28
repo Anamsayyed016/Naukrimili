@@ -29,6 +29,16 @@ export function healOcrDateArtifacts(text: string): string {
       new RegExp(`\\b((?:${MONTH_NAMES}))\\.?((?:19|20)\\d{2})\\b`, 'gi'),
       '$1 $2'
     )
+    // Glued title+tenure: "GroupAug '22", "QualitySep '17", "ChargeSep'10"
+    // PDF extractors often omit the space before the month token — without a
+    // word boundary, month-year range regexes never fire and whole tenures vanish.
+    .replace(
+      new RegExp(
+        `([A-Za-z])((?:${MONTH_NAMES})\\.?\\s*['']?(?:\\d{2}|(?:19|20)\\d{2})\\b)`,
+        'gi'
+      ),
+      '$1 $2'
+    )
     // Keep a range separator when normalizing "to till date" → present.
     .replace(/\bto\s*till\s*date\b/gi, 'to present')
     .replace(/\btill\s*date\b/gi, 'present')

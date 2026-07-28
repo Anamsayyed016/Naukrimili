@@ -1,0 +1,888 @@
+﻿Warning: Invalid stream: "FormatError: Unknown compression method in flate stream: 0, 101"
+Warning: Indexing all PDF objects
+Warning: Invalid stream: "FormatError: Unknown compression method in flate stream: 0, 101"
+[resume-extraction-validation] { warnings: 0, repairs: 8 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:location',
+    'identity:summary',
+    'education:4',
+    'certifications:5',
+    'achievements:5',
+    'hobbies:3',
+    'skills:1'
+  ],
+  recovered: [
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended'
+  ],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'achievements:count-loss:5/16'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:location',
+    'identity:summary',
+    'education:4',
+    'certifications:5',
+    'achievements:16',
+    'hobbies:3',
+    'skills:1'
+  ],
+  recovered: [],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 299,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 1,
+    education: 2,
+    certifications: 9,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 299,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 1,
+    education: 4,
+    certifications: 5,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 299,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 20,
+    education: 6,
+    certifications: 5,
+    languages: 0
+  }
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [ 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 0,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 20,
+  experience: 0,
+  education: 6,
+  projects: 0,
+  certifications: 5,
+  languages: 0,
+  achievements: 5,
+  hobbies: 3
+}
+[resume-extraction-validation] { warnings: 0, repairs: 16 }
+[resume-extraction-validation] { warnings: 0, repairs: 5 }
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:location',
+    'identity:summary',
+    'education:6',
+    'certifications:5',
+    'achievements:5',
+    'hobbies:3',
+    'skills:20'
+  ],
+  recovered: [
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended',
+    'achievements:appended'
+  ],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio',
+    'achievements:count-loss:5/16'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:location',
+    'identity:summary',
+    'education:6',
+    'certifications:5',
+    'achievements:16',
+    'hobbies:3',
+    'skills:21'
+  ],
+  recovered: [],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 299,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 20,
+    education: 6,
+    certifications: 5,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 299,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 20,
+    education: 6,
+    certifications: 5,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 299,
+    experience: 0,
+    experienceCompanies: 0,
+    projects: 0,
+    skills: 20,
+    education: 6,
+    certifications: 5,
+    languages: 0
+  }
+}
+[import-transformer] mapping validation {
+  issues: [ 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 0,
+  rawCompanyCount: 0,
+  builtCompanyCount: 0
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 20,
+  experience: 0,
+  education: 6,
+  projects: 0,
+  certifications: 5,
+  languages: 0,
+  achievements: 5,
+  hobbies: 3
+}
+[resume-extraction-validation] { warnings: 0, repairs: 16 }
+{
+  "pdf": "f:\\myprojects\\jobportal\\.audit-snapshot\\Professional_Snapshot.pdf",
+  "extraction": {
+    "rawChars": 4782,
+    "preparedChars": 4622,
+    "pages": 3,
+    "recoveredFromStreams": false,
+    "documentType": "TYPE_A_ATS"
+  },
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 4622,
+    "preamble": 538,
+    "summary": 0,
+    "experience": 3070,
+    "education": 246,
+    "skills": 529,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 492,
+    "achievements": 492,
+    "hobbies": 71,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "structuredExperienceRecovery": 0,
+  "stages": {
+    "customParser": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 2,
+        "certifications": 5,
+        "skills": 1,
+        "languages": 0,
+        "achievements": 8,
+        "hobbies": 2,
+        "summaryChars": 299,
+        "name": 1,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "Master of Business AdministrationSMU",
+          "institution": "15B"
+        },
+        {
+          "i": 1,
+          "degree": "B.Tech",
+          "institution": "BPUT"
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Utilization)"
+        }
+      ],
+      "certifications": [
+        {
+          "i": 0,
+          "name": "Six Sigma Certified"
+        },
+        {
+          "i": 1,
+          "name": "Achieved ΓÇ£Q1ΓÇ¥ certification Best Supplier Award"
+        },
+        {
+          "i": 2,
+          "name": "Certified internal Auditee for ISO 9001 and IATF 16949"
+        },
+        {
+          "i": 3,
+          "name": "Certified internal Auditee for EMS OHSAS"
+        },
+        {
+          "i": 4,
+          "name": "Trained in MSA (Measurement System Analysis) & FMEA"
+        }
+      ],
+      "languages": [],
+      "achievements": [
+        {
+          "i": 0,
+          "value": "Six Sigma Certified."
+        },
+        {
+          "i": 1,
+          "value": "Achieved ΓÇ£Q1ΓÇ¥ certification Best Supplier Award from customer ΓÇÿFORD MOTORΓÇÖ within 2 years."
+        },
+        {
+          "i": 2,
+          "value": "Won the 1st prize Quality Circle in ACIMA Competition."
+        },
+        {
+          "i": 3,
+          "value": "Key performer in PIKA-PIKA audit in Motherson Sumi System Ltd."
+        },
+        {
+          "i": 4,
+          "value": "Certified internal Auditee for ISO 9001 and IATF 16949."
+        },
+        {
+          "i": 5,
+          "value": "Certified internal Auditee for EMS OHSAS."
+        },
+        {
+          "i": 6,
+          "value": "Trained in MSA (Measurement System Analysis) & FMEA (Failure Mode Effect Analysis)."
+        },
+        {
+          "i": 7,
+          "value": "Knowledge of 7QC tools & modern Japanese techniques like Kaizen, JIT, POKA-YOKE."
+        }
+      ],
+      "summary": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and expertise in organizations that offer growth opportunities. A thorough professional, having a rich overall",
+      "personal": {
+        "name": "PROFESSIONAL SNAPSHOT",
+        "email": "",
+        "phone": ""
+      }
+    },
+    "uploadNormalized": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 2,
+        "certifications": 5,
+        "skills": 1,
+        "languages": 0,
+        "achievements": 8,
+        "hobbies": 2,
+        "summaryChars": 299,
+        "name": 1,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "Master of Business AdministrationSMU",
+          "institution": "15B"
+        },
+        {
+          "i": 1,
+          "degree": "B.Tech",
+          "institution": "BPUT"
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Utilization)"
+        }
+      ]
+    },
+    "repaired": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 2,
+        "certifications": 9,
+        "skills": 1,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 2,
+        "summaryChars": 299,
+        "name": 1,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "Master of Business AdministrationSMU",
+          "institution": "15B"
+        },
+        {
+          "i": 1,
+          "degree": "B.Tech",
+          "institution": "BPUT"
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Utilization)"
+        }
+      ],
+      "achievements": [],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "ed in reading business books and novels."
+        },
+        {
+          "i": 1,
+          "value": "Cooking and Gardening."
+        }
+      ]
+    },
+    "coalesced": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 6,
+        "certifications": 5,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 5,
+        "hobbies": 3,
+        "summaryChars": 299,
+        "name": 1,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "Master of Business AdministrationSMU",
+          "institution": "15B"
+        },
+        {
+          "i": 1,
+          "degree": "B.Tech",
+          "institution": "BPUT"
+        },
+        {
+          "i": 2,
+          "degree": "Master of Business AdministrationSMU, Distance2013-15B",
+          "institution": "DegreeInstitute / University / BoardYear%/CGPA"
+        },
+        {
+          "i": 3,
+          "degree": "B.Tech, Electronics Engg.GIET, BPUT, Orissa2005-097.8",
+          "institution": "Class XJharkhand Board"
+        },
+        {
+          "i": 4,
+          "degree": "maintenance.",
+          "institution": ""
+        },
+        {
+          "i": 5,
+          "degree": "Maintaining manufacturing line quality.",
+          "institution": ""
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Resource AL"
+        },
+        {
+          "i": 1,
+          "value": "Assessing Availability"
+        },
+        {
+          "i": 2,
+          "value": "Asst. Manager Qualitysep ΓÇÖ17"
+        },
+        {
+          "i": 3,
+          "value": "Bench Resource Reporting & Ramp Down"
+        },
+        {
+          "i": 4,
+          "value": "Conducting Regular Demand Sanity Along With Talent Acquisiti"
+        },
+        {
+          "i": 5,
+          "value": "Coordinating With Department Leads TO Ensure Adequate Resour"
+        },
+        {
+          "i": 6,
+          "value": "DATA"
+        },
+        {
+          "i": 7,
+          "value": "Forecasting & Planning FOR Future Demands"
+        },
+        {
+          "i": 8,
+          "value": "Managing Allocation IN Quest (tool FOR Manpower Tracking) AN"
+        },
+        {
+          "i": 9,
+          "value": "MIS Publication & Analysis (availability,"
+        },
+        {
+          "i": 10,
+          "value": "Monitoring Resource Utilization AND Identifying Opportunitie"
+        },
+        {
+          "i": 11,
+          "value": "Overall Experience"
+        },
+        {
+          "i": 12,
+          "value": "Planning AND Allocation"
+        },
+        {
+          "i": 13,
+          "value": "Practice Review Data & Forecasting Data."
+        },
+        {
+          "i": 14,
+          "value": "PRIORI"
+        },
+        {
+          "i": 15,
+          "value": "Resource Usage AND Onboarding."
+        },
+        {
+          "i": 16,
+          "value": "Responsible FOR Various MIS Like Demand Tracker"
+        },
+        {
+          "i": 17,
+          "value": "SIX Sigma Certified & ITIL Trained"
+        },
+        {
+          "i": 18,
+          "value": "Skill Inventory AND Planning Training Based ON Skill Gaps. F"
+        },
+        {
+          "i": 19,
+          "value": "Strong Analytical & Relationship Building Skills"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "ed in reading business books and novels."
+        },
+        {
+          "i": 1,
+          "value": "Cooking and Gardening."
+        },
+        {
+          "i": 2,
+          "value": "Interested in reading business books and novels."
+        }
+      ],
+      "summary": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and experti"
+    },
+    "gallery": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 6,
+        "certifications": 5,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 5,
+        "hobbies": 3,
+        "summaryChars": 299,
+        "name": 1,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Resource AL"
+        },
+        {
+          "i": 1,
+          "value": "Assessing Availability"
+        },
+        {
+          "i": 2,
+          "value": "Asst. Manager Qualitysep ΓÇÖ17"
+        },
+        {
+          "i": 3,
+          "value": "Bench Resource Reporting & Ramp Down"
+        },
+        {
+          "i": 4,
+          "value": "Conducting Regular Demand Sanity Along With Talent Acquisiti"
+        },
+        {
+          "i": 5,
+          "value": "Coordinating With Department Leads TO Ensure Adequate Resour"
+        },
+        {
+          "i": 6,
+          "value": "DATA"
+        },
+        {
+          "i": 7,
+          "value": "Forecasting & Planning FOR Future Demands"
+        },
+        {
+          "i": 8,
+          "value": "Managing Allocation IN Quest (tool FOR Manpower Tracking) AN"
+        },
+        {
+          "i": 9,
+          "value": "MIS Publication & Analysis (availability,"
+        },
+        {
+          "i": 10,
+          "value": "Monitoring Resource Utilization AND Identifying Opportunitie"
+        },
+        {
+          "i": 11,
+          "value": "Overall Experience"
+        },
+        {
+          "i": 12,
+          "value": "Planning AND Allocation"
+        },
+        {
+          "i": 13,
+          "value": "Practice Review Data & Forecasting Data."
+        },
+        {
+          "i": 14,
+          "value": "PRIORI"
+        },
+        {
+          "i": 15,
+          "value": "Resource Usage AND Onboarding."
+        },
+        {
+          "i": 16,
+          "value": "Responsible FOR Various MIS Like Demand Tracker"
+        },
+        {
+          "i": 17,
+          "value": "SIX Sigma Certified & ITIL Trained"
+        },
+        {
+          "i": 18,
+          "value": "Skill Inventory AND Planning Training Based ON Skill Gaps. F"
+        },
+        {
+          "i": 19,
+          "value": "Strong Analytical & Relationship Building Skills"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "ed in reading business books and novels."
+        },
+        {
+          "i": 1,
+          "value": "Cooking and Gardening."
+        },
+        {
+          "i": 2,
+          "value": "Interested in reading business books and novels."
+        }
+      ],
+      "summary": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and experti"
+    },
+    "builder": {
+      "counts": {
+        "experience": 0,
+        "experienceWithCompany": 0,
+        "experienceWithTitle": 0,
+        "projects": 0,
+        "education": 6,
+        "certifications": 5,
+        "skills": 20,
+        "languages": 0,
+        "achievements": 5,
+        "hobbies": 3,
+        "summaryChars": 299,
+        "name": 1,
+        "email": 0,
+        "phone": 0
+      },
+      "experience": [],
+      "education": [
+        {
+          "i": 0,
+          "degree": "Master of Business AdministrationSMU",
+          "institution": "15B"
+        },
+        {
+          "i": 1,
+          "degree": "B.Tech",
+          "institution": "BPUT"
+        },
+        {
+          "i": 2,
+          "degree": "Master of Business AdministrationSMU, Distance2013-15B",
+          "institution": "DegreeInstitute / University / BoardYear%/CGPA"
+        },
+        {
+          "i": 3,
+          "degree": "B.Tech, Electronics Engg.GIET, BPUT, Orissa2005-097.8",
+          "institution": "Class XJharkhand Board"
+        },
+        {
+          "i": 4,
+          "degree": "maintenance.",
+          "institution": ""
+        },
+        {
+          "i": 5,
+          "degree": "Maintaining manufacturing line quality.",
+          "institution": ""
+        }
+      ],
+      "projects": [],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Resource AL"
+        },
+        {
+          "i": 1,
+          "value": "Assessing Availability"
+        },
+        {
+          "i": 2,
+          "value": "Asst. Manager Qualitysep ΓÇÖ17"
+        },
+        {
+          "i": 3,
+          "value": "Bench Resource Reporting & Ramp Down"
+        },
+        {
+          "i": 4,
+          "value": "Conducting Regular Demand Sanity Along With Talent Acquisiti"
+        },
+        {
+          "i": 5,
+          "value": "Coordinating With Department Leads TO Ensure Adequate Resour"
+        },
+        {
+          "i": 6,
+          "value": "DATA"
+        },
+        {
+          "i": 7,
+          "value": "Forecasting & Planning FOR Future Demands"
+        },
+        {
+          "i": 8,
+          "value": "Managing Allocation IN Quest (tool FOR Manpower Tracking) AN"
+        },
+        {
+          "i": 9,
+          "value": "MIS Publication & Analysis (availability,"
+        },
+        {
+          "i": 10,
+          "value": "Monitoring Resource Utilization AND Identifying Opportunitie"
+        },
+        {
+          "i": 11,
+          "value": "Overall Experience"
+        },
+        {
+          "i": 12,
+          "value": "Planning AND Allocation"
+        },
+        {
+          "i": 13,
+          "value": "Practice Review Data & Forecasting Data."
+        },
+        {
+          "i": 14,
+          "value": "PRIORI"
+        },
+        {
+          "i": 15,
+          "value": "Resource Usage AND Onboarding."
+        },
+        {
+          "i": 16,
+          "value": "Responsible FOR Various MIS Like Demand Tracker"
+        },
+        {
+          "i": 17,
+          "value": "SIX Sigma Certified & ITIL Trained"
+        },
+        {
+          "i": 18,
+          "value": "Skill Inventory AND Planning Training Based ON Skill Gaps. F"
+        },
+        {
+          "i": 19,
+          "value": "Strong Analytical & Relationship Building Skills"
+        }
+      ],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "ed in reading business books and novels."
+        },
+        {
+          "i": 1,
+          "value": "Cooking and Gardening."
+        },
+        {
+          "i": 2,
+          "value": "Interested in reading business books and novels."
+        }
+      ],
+      "summary": "Motivated, skilled, and highly professional individual with 3+ years of experience in the RMG function. Currently exploring opportunities in a resource management role to utilize my skills and experti"
+    }
+  }
+}

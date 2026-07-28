@@ -172,6 +172,9 @@ const SECTION_HEADER_PHRASES: RegExp[] = [
   /^academic\s+qualifications?$/i,
   /^educational\s+qualifications?$/i,
   /^certifications?\s+(?:&|and)\s+/i,
+  /^(?:professional|career|executive|profile)\s+snapshot$/i,
+  /^career\s+(?:summary|profile|overview|highlights?)$/i,
+  /^profile\s+summary$/i,
   /^languages?\s+(?:&|and)\s+/i,
 ];
 

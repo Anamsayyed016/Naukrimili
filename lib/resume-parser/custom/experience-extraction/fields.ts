@@ -815,6 +815,39 @@ export function buildExperienceFromBlock(block: ExperienceRawBlock): CustomExtra
     }
   }
 
+  // Title+tenure mash leftovers: "Resource Group Aug '22 – Feb '26" → strip dates,
+  // then if a date range still remains (or prose/customer list), clear and re-pick.
+  if (finalCompany.value) {
+    const withoutDates = stripTrailingEmploymentDates(finalCompany.value);
+    if (withoutDates && withoutDates !== finalCompany.value) {
+      finalCompany = { value: withoutDates, confidence: finalCompany.confidence };
+    }
+    if (
+      parseDateRangeFromText(finalCompany.value) ||
+      looksLikeSentenceNotCompany(finalCompany.value)
+    ) {
+      finalCompany = { value: '', confidence: 0 };
+      let bestAlt: FieldPick<string> = { value: '', confidence: 0 };
+      for (const line of headerLines) {
+        if (parseDateRangeFromText(line)) continue;
+        const des = detectDesignationFromLine(line);
+        const det = detectCompanyFromLine(line);
+        // Prefer a dedicated employer line over a title residual.
+        if (des.confidence >= 55 && det.confidence < 62) continue;
+        if (
+          det.confidence >= 45 &&
+          !looksLikeSentenceNotCompany(det.company) &&
+          !isExperienceDateOrDurationToken(det.company) &&
+          // Prefer later header lines on ties (common ATS order: title then employer).
+          det.confidence >= bestAlt.confidence
+        ) {
+          bestAlt = { value: det.company, confidence: det.confidence };
+        }
+      }
+      if (bestAlt.value) finalCompany = bestAlt;
+    }
+  }
+
   // Soft-skill / placeholder / duty fragments must not occupy the employer slot.
   // Keep high-confidence labeled Organization: values even without legal suffixes.
   if (

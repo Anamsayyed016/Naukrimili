@@ -1,0 +1,331 @@
+{
+  "sampleResults": [
+    {
+      "s": "Aug '22 – Feb '26",
+      "healed": "Aug '22 – Feb '26",
+      "parsed": {
+        "startDate": "2022-08",
+        "endDate": "2026-02",
+        "current": false,
+        "confidence": 84,
+        "raw": "Aug '22 – Feb '26"
+      },
+      "hasSignal": true,
+      "hasSignalHealed": true
+    },
+    {
+      "s": "Aug ’22 – Feb ’26",
+      "healed": "Aug '22 – Feb '26",
+      "parsed": {
+        "startDate": "2022-08",
+        "endDate": "2026-02",
+        "current": false,
+        "confidence": 84,
+        "raw": "Aug '22 – Feb '26"
+      },
+      "hasSignal": true,
+      "hasSignalHealed": true
+    },
+    {
+      "s": "Senior Executive - Resource Management GroupAug ’22 – Feb ’26",
+      "healed": "Senior Executive - Resource Management Group Aug '22 – Feb '26",
+      "parsed": {
+        "startDate": "2022-08",
+        "endDate": "2026-02",
+        "current": false,
+        "confidence": 84,
+        "raw": "Aug '22 – Feb '26"
+      },
+      "hasSignal": true,
+      "hasSignalHealed": true
+    },
+    {
+      "s": "Asst. Manager QualitySep ’17 – Oct ’19",
+      "healed": "Asst. Manager Quality Sep '17 – Oct '19",
+      "parsed": {
+        "startDate": "2017-09",
+        "endDate": "2019-10",
+        "current": false,
+        "confidence": 84,
+        "raw": "Sep '17 – Oct '19"
+      },
+      "hasSignal": true,
+      "hasSignalHealed": true
+    },
+    {
+      "s": "Quality Kiosk",
+      "healed": "Quality Kiosk",
+      "parsed": null,
+      "hasSignal": false,
+      "hasSignalHealed": false
+    }
+  ],
+  "lineCount": 89,
+  "dateLikeLines": [
+    {
+      "text": "Senior Executive - Resource Management GroupAug ’22 – Feb ’26",
+      "scores": null,
+      "kind": null
+    },
+    {
+      "text": "Asst. Manager QualitySep ’17 – Oct ’19",
+      "scores": null,
+      "kind": null
+    },
+    {
+      "text": "Asst. Manager - Quality AssuranceNov ’15 – Aug ’17",
+      "scores": null,
+      "kind": null
+    },
+    {
+      "text": "Sr. Engineer - Production in ChargeSep ’10 – Oct ’15",
+      "scores": null,
+      "kind": null
+    },
+    {
+      "text": "Interested in reading business books and novels.",
+      "scores": null,
+      "kind": null
+    }
+  ],
+  "blockCount": 6,
+  "builtSample": [
+    {
+      "company": "s that offer growth opportunities. A thorough professional, having a rich overall",
+      "designation": "",
+      "startDate": null,
+      "endDate": null,
+      "validHints": {
+        "desc": "Motivated, skilled, and highly professional individual with 3+ years of experien",
+        "bullets": 2
+      }
+    },
+    {
+      "company": "Resource Management GroupAug ’22 – Feb ’26",
+      "designation": "Senior Executive",
+      "startDate": "2022-08",
+      "endDate": "2026-02",
+      "validHints": {
+        "desc": "Tracking bench status and implementing Bench management strategies to optimize r",
+        "bullets": 0
+      }
+    },
+    {
+      "company": "Rosenberger Electronics India PVT Ltd",
+      "designation": "Asst. Manager QualitySep ’17",
+      "startDate": "2017-09",
+      "endDate": "2019-10",
+      "validHints": {
+        "desc": "Quality management for the entire plant handling cable assembly for customers in",
+        "bullets": 0
+      }
+    },
+    {
+      "company": "Motors, FCA, John Deere, JCB, VW, and Ford",
+      "designation": "",
+      "startDate": null,
+      "endDate": null,
+      "validHints": {
+        "desc": "Preparation and sharing of various MIS for monitoring business performance, comp",
+        "bullets": 3
+      }
+    },
+    {
+      "company": "M/s Yazaki India Pvt Ltd",
+      "designation": "",
+      "startDate": null,
+      "endDate": null,
+      "validHints": {
+        "desc": "Maintaining manufacturing line quality.\n\nProduct design implementation & verific",
+        "bullets": 3
+      }
+    },
+    {
+      "company": "M/s Motherson Sumi System Ltd",
+      "designation": "",
+      "startDate": null,
+      "endDate": null,
+      "validHints": {
+        "desc": "Schedule Adherence: Daily monitoring of production targets with specified qualit",
+        "bullets": 0
+      }
+    }
+  ],
+  "validCount": 5,
+  "rejectedVsBuilt": 1,
+  "meta": {
+    "experiences": [
+      {
+        "company": "Resource Management GroupAug ’22 – Feb ’26",
+        "designation": "Senior Executive",
+        "location": "Quality Kiosk",
+        "employmentType": "",
+        "startDate": "2022-08",
+        "endDate": "2026-02",
+        "current": false,
+        "description": "Tracking bench status and implementing Bench management strategies to optimize resource\n\nMonitoring resource utilization and identifying opportunities for improvement by mapping resource\n\nskill inventory and planning training based on skill gaps. Facilitating job rotation and IJP fulfillment.\n\nTracking & reporting bench aging & open demand aging; prioritizing resources with high bench\n\nCoordinating with department leads to ensure adequate resource availability for projects and tasks.\n\nWorking on demand planning and maintaining demand trackers to ensure proper resource pipeline\n\nmaintenance.\n\nConducting regular demand sanity along with talent acquisition and delivery teams to track\n\nresource usage and onboarding.\n\nManaging allocation in Quest (tool for manpower tracking) and ensuring proper cost of bench is\n\nResponsible for various MIS like demand tracker, resource allocation sheet, ramp down data, exit\n\ndata, practice review data & forecasting data.",
+        "bulletPoints": [],
+        "technologies": [],
+        "confidence": 70,
+        "fieldConfidence": {
+          "company": 58,
+          "designation": 100,
+          "location": 73,
+          "employmentType": 0,
+          "startDate": 84,
+          "endDate": 84,
+          "description": 54
+        }
+      },
+      {
+        "company": "Rosenberger Electronics India PVT Ltd",
+        "designation": "Asst. Manager QualitySep ’17",
+        "location": "",
+        "employmentType": "",
+        "startDate": "2017-09",
+        "endDate": "2019-10",
+        "current": false,
+        "description": "Quality management for the entire plant handling cable assembly for customers including TATA",
+        "bulletPoints": [],
+        "technologies": [],
+        "confidence": 65,
+        "fieldConfidence": {
+          "company": 100,
+          "designation": 100,
+          "location": 0,
+          "employmentType": 0,
+          "startDate": 84,
+          "endDate": 84,
+          "description": 32
+        }
+      },
+      {
+        "company": "Motors, FCA, John Deere, JCB, VW, and Ford",
+        "designation": "",
+        "location": "",
+        "employmentType": "",
+        "startDate": null,
+        "endDate": null,
+        "current": false,
+        "description": "Preparation and sharing of various MIS for monitoring business performance, company health, and\n\nproduct performance.\n\nManaging vendor performance by monitoring turnaround time (TAT), failure rate, and vendor\n\nCoordinating with suppliers for resolving quality issues via corrective and preventive action.\n\nMonitoring internal defects using CAPA, Why-Why analysis, and Pareto analysis.\n\nNew Product approval and implementation with all required documents (PPAP and NPI).",
+        "bulletPoints": [
+          "Asst. Manager",
+          "Quality AssuranceNov ’15",
+          "Aug ’17"
+        ],
+        "technologies": [],
+        "confidence": 46,
+        "fieldConfidence": {
+          "company": 100,
+          "designation": 0,
+          "location": 0,
+          "employmentType": 0,
+          "startDate": 0,
+          "endDate": 0,
+          "description": 100
+        }
+      },
+      {
+        "company": "M/s Yazaki India Pvt Ltd",
+        "designation": "",
+        "location": "",
+        "employmentType": "",
+        "startDate": null,
+        "endDate": null,
+        "current": false,
+        "description": "Maintaining manufacturing line quality.\n\nProduct design implementation & verification of product as per design drawing.\n\nCustomer complaint handling & internal line PPM.\n\nVerifying customer input for design to close the gap between design drawing and actual harness.",
+        "bulletPoints": [
+          "Sr. Engineer",
+          "Production in ChargeSep ’10",
+          "Oct ’15"
+        ],
+        "technologies": [],
+        "confidence": 46,
+        "fieldConfidence": {
+          "company": 100,
+          "designation": 0,
+          "location": 0,
+          "employmentType": 0,
+          "startDate": 0,
+          "endDate": 0,
+          "description": 100
+        }
+      },
+      {
+        "company": "M/s Motherson Sumi System Ltd",
+        "designation": "",
+        "location": "",
+        "employmentType": "",
+        "startDate": null,
+        "endDate": null,
+        "current": false,
+        "description": "Schedule Adherence: Daily monitoring of production targets with specified quality.\n\nProductivity Management: Identification of wastes, work distribution, and line balancing to reduce\n\nbottlenecks. Training:\n\nProviding training to new associates and identifying training intervention needs.\n\nDegreeInstitute / University / BoardYear%/CGPA\n\nMaster of Business AdministrationSMU, Distance2013-15B\n\nB.Tech, Electronics Engg.GIET, BPUT, Orissa2005-097.8\n\nClass XIICo-operative College (Jharkhand Board)2003-0560%\n\nClass XJharkhand Board2000-0360%\n\nProfessional Achievements & Certifications\n\nSix Sigma Certified.\n\nAchieved “Q1” certification Best Supplier Award from customer ‘FORD MOTOR’ within 2 years.\n\nWon the 1st prize Quality Circle in ACIMA Competition.\n\nKey performer in PIKA-PIKA audit in Motherson Sumi System Ltd.\n\nCertified internal Auditee for ISO 9001 and IATF 16949.\n\nCertified internal Auditee for EMS OHSAS.\n\nTrained in MSA (Measurement System Analysis) & FMEA (Failure Mode Effect Analysis).\n\nKnowledge of 7QC tools & modern Japanese techniques like Kaizen, JIT, POKA-YOKE.\n\nExtracurricular Activities & Interests\n\nInterested in reading business books and novels.\n\nCooking and Gardening.",
+        "bulletPoints": [],
+        "technologies": [],
+        "confidence": 35,
+        "fieldConfidence": {
+          "company": 100,
+          "designation": 0,
+          "location": 0,
+          "employmentType": 0,
+          "startDate": 0,
+          "endDate": 0,
+          "description": 60
+        }
+      }
+    ],
+    "canonical": [
+      {
+        "company": "Resource Management GroupAug ’22 – Feb ’26",
+        "position": "Senior Executive",
+        "location": "Quality Kiosk",
+        "startDate": "2022-08",
+        "endDate": "2026-02",
+        "current": false,
+        "description": "Tracking bench status and implementing Bench management strategies to optimize resource\n\nMonitoring resource utilization and identifying opportunities for improvement by mapping resource\n\nskill inventory and planning training based on skill gaps. Facilitating job rotation and IJP fulfillment.\n\nTracking & reporting bench aging & open demand aging; prioritizing resources with high bench\n\nCoordinating with department leads to ensure adequate resource availability for projects and tasks.\n\nWorking on demand planning and maintaining demand trackers to ensure proper resource pipeline\n\nmaintenance.\n\nConducting regular demand sanity along with talent acquisition and delivery teams to track\n\nresource usage and onboarding.\n\nManaging allocation in Quest (tool for manpower tracking) and ensuring proper cost of bench is\n\nResponsible for various MIS like demand tracker, resource allocation sheet, ramp down data, exit\n\ndata, practice review data & forecasting data.",
+        "achievements": []
+      },
+      {
+        "company": "Rosenberger Electronics India PVT Ltd",
+        "position": "Asst. Manager QualitySep ’17",
+        "startDate": "2017-09",
+        "endDate": "2019-10",
+        "current": false,
+        "description": "Quality management for the entire plant handling cable assembly for customers including TATA",
+        "achievements": []
+      },
+      {
+        "company": "Motors, FCA, John Deere, JCB, VW, and Ford",
+        "position": "",
+        "startDate": "",
+        "current": false,
+        "description": "Preparation and sharing of various MIS for monitoring business performance, company health, and\n\nproduct performance.\n\nManaging vendor performance by monitoring turnaround time (TAT), failure rate, and vendor\n\nCoordinating with suppliers for resolving quality issues via corrective and preventive action.\n\nMonitoring internal defects using CAPA, Why-Why analysis, and Pareto analysis.\n\nNew Product approval and implementation with all required documents (PPAP and NPI).",
+        "achievements": [
+          "Asst. Manager",
+          "Quality AssuranceNov ’15"
+        ]
+      },
+      {
+        "company": "M/s Yazaki India Pvt Ltd",
+        "position": "",
+        "startDate": "",
+        "current": false,
+        "description": "Maintaining manufacturing line quality.\n\nProduct design implementation & verification of product as per design drawing.\n\nCustomer complaint handling & internal line PPM.\n\nVerifying customer input for design to close the gap between design drawing and actual harness.",
+        "achievements": [
+          "Sr. Engineer",
+          "Production in ChargeSep ’10"
+        ]
+      },
+      {
+        "company": "M/s Motherson Sumi System Ltd",
+        "position": "",
+        "startDate": "",
+        "current": false,
+        "description": "Schedule Adherence: Daily monitoring of production targets with specified quality.\n\nProductivity Management: Identification of wastes, work distribution, and line balancing to reduce\n\nbottlenecks. Training:\n\nProviding training to new associates and identifying training intervention needs.\n\nDegreeInstitute / University / BoardYear%/CGPA\n\nMaster of Business AdministrationSMU, Distance2013-15B\n\nB.Tech, Electronics Engg.GIET, BPUT, Orissa2005-097.8\n\nClass XIICo-operative College (Jharkhand Board)2003-0560%\n\nClass XJharkhand Board2000-0360%\n\nProfessional Achievements & Certifications\n\nSix Sigma Certified.\n\nAchieved “Q1” certification Best Supplier Award from customer ‘FORD MOTOR’ within 2 years.\n\nWon the 1st prize Quality Circle in ACIMA Competition.\n\nKey performer in PIKA-PIKA audit in Motherson Sumi System Ltd.\n\nCertified internal Auditee for ISO 9001 and IATF 16949.\n\nCertified internal Auditee for EMS OHSAS.\n\nTrained in MSA (Measurement System Analysis) & FMEA (Failure Mode Effect Analysis).\n\nKnowledge of 7QC tools & modern Japanese techniques like Kaizen, JIT, POKA-YOKE.\n\nExtracurricular Activities & Interests\n\nInterested in reading business books and novels.\n\nCooking and Gardening.",
+        "achievements": []
+      }
+    ],
+    "rejectedCount": 1,
+    "blockCount": 6
+  }
+}

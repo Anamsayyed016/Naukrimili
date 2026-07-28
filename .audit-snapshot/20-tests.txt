@@ -1,0 +1,19 @@
+﻿node.exe : [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline 
+data, please update: `npm i baseline-browser-mapping@latest -D`
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows...ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please 
+update: `npm i baseline-browser-mapping@latest -D`
+PASS unit tests/custom-experience-extraction.test.ts
+PASS unit tests/generic-parser-robustness.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       37 skipped, 5 passed, 42 total
+Snapshots:   0 total
+Time:        3.394 s
+Ran all test suites matching /tests\\custom-experience-extraction.test.ts|tests\\generic-parser-robustness.test.ts/i 
+with tests matching "glued|date formats|snapshot titles".

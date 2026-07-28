@@ -5,6 +5,7 @@
 import type { ExperienceLine } from './types';
 import { looksLikeJobTitleLine } from '@/lib/resume-parser/import-sanitize';
 import { detectDesignationFromLine } from './designation';
+import { healOcrDateArtifacts } from './dates';
 
 const BULLET_RE = /^[\s]*(?:[-–—•·▪‣●○◦]|(?:[oO])(?=\s+\S)|\d+[\.\)])\s+/;
 
@@ -90,12 +91,18 @@ export function splitExperienceSectionLines(sectionText: string): string[] {
 
 export function buildExperienceLines(sectionText: string): ExperienceLine[] {
   const raw = splitExperienceSectionLines(sectionText);
-  return raw.map((text, index) => ({
-    index,
-    text,
-    isBlank: text.trim().length === 0,
-    isBullet: isBulletLine(text),
-    boundaryScore: 0,
-    role: 'description' as const,
-  }));
+  return raw.map((text, index) => {
+    // Heal glued title+month tokens on the stored line so designation/company
+    // parsers see the same text date detection uses.
+    const healed = healOcrDateArtifacts(text);
+    const lineText = healed || text;
+    return {
+      index,
+      text: lineText,
+      isBlank: lineText.trim().length === 0,
+      isBullet: isBulletLine(lineText),
+      boundaryScore: 0,
+      role: 'description' as const,
+    };
+  });
 }

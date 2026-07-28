@@ -1,0 +1,220 @@
+﻿[resume-extraction-validation] { warnings: 2, repairs: 12 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-transformer] mergedImport project keys { projects: 0, Projects: 0 }
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:summary',
+    'education:6',
+    'certifications:9',
+    'hobbies:2',
+    'skills:20'
+  ],
+  recovered: [],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+[builder-field-mapper] mapping report {
+  matched: [
+    'identity:fullName',
+    'identity:summary',
+    'education:6',
+    'certifications:9',
+    'achievements:19',
+    'hobbies:2',
+    'skills:20'
+  ],
+  recovered: [],
+  missing: [
+    'identity:email',
+    'identity:phone',
+    'identity:location',
+    'identity:linkedin',
+    'identity:github',
+    'identity:portfolio'
+  ],
+  overwritten: [],
+  duplicates: []
+}
+RAW PROJECTS []
+projects.length 0
+[import-transformer] final projects.length 0
+[import-pipeline-trace] {
+  raw: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 20,
+    education: 6,
+    certifications: 9,
+    languages: 0
+  },
+  merged: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 20,
+    education: 6,
+    certifications: 9,
+    languages: 0
+  },
+  builder: {
+    summaryChars: 299,
+    experience: 3,
+    experienceCompanies: 3,
+    projects: 0,
+    skills: 20,
+    education: 6,
+    certifications: 9,
+    languages: 0
+  }
+}
+[import-transformer] mapped ΓåÆ {
+  firstName: true,
+  lastName: true,
+  email: false,
+  phone: false,
+  location: false,
+  linkedin: false,
+  portfolio: false,
+  summary: true,
+  skills: 20,
+  experience: 3,
+  education: 6,
+  projects: 0,
+  certifications: 9,
+  languages: 0,
+  achievements: 1,
+  hobbies: 2
+}
+node.exe : [import-transformer] mapping validation {
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([import-transfo...ng validation {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  issues: [ 'projects:empty' ],
+  recoveries: [],
+  experienceCount: 3,
+  rawCompanyCount: 3,
+  builtCompanyCount: 3
+}
+{
+  "identity": {
+    "snapshotNamePlausible": false,
+    "snapshotKind": "SECTION_HEADER"
+  },
+  "directExtractCount": 5,
+  "directExtract": [
+    {
+      "company": "Resource Management Group Aug '22 ΓÇô Feb '26",
+      "title": "Senior Executive",
+      "start": "2022-08",
+      "end": "2026-02"
+    },
+    {
+      "company": "Rosenberger Electronics India PVT Ltd",
+      "title": "Asst. Manager Quality",
+      "start": "2017-09",
+      "end": "2019-10"
+    },
+    {
+      "company": "Motors, FCA, John Deere, JCB, VW, and Ford",
+      "title": "",
+      "start": null,
+      "end": null
+    },
+    {
+      "company": "M/s Yazaki India Pvt Ltd",
+      "title": "",
+      "start": null,
+      "end": null
+    },
+    {
+      "company": "M/s Motherson Sumi System Ltd",
+      "title": "",
+      "start": null,
+      "end": null
+    }
+  ],
+  "parser": {
+    "name": "Tracking and closing open requirements",
+    "exp": [
+      {
+        "company": "Rosenberger Electronics India PVT Ltd",
+        "title": "Asst. Manager Quality",
+        "start": "2017-09",
+        "end": "2019-10"
+      },
+      {
+        "company": "Motors, FCA, John Deere, JCB, VW, and Ford",
+        "start": ""
+      },
+      {
+        "company": "M/s Yazaki India Pvt Ltd",
+        "start": ""
+      }
+    ],
+    "skills": [
+      "Utilization)"
+    ],
+    "education": [
+      {
+        "institution": "15B",
+        "degree": "Master of Business AdministrationSMU",
+        "field": "",
+        "startDate": "",
+        "endDate": ""
+      },
+      {
+        "institution": "BPUT",
+        "degree": "B.Tech",
+        "field": "",
+        "startDate": "",
+        "endDate": ""
+      }
+    ]
+  },
+  "builder": {
+    "name": "Tracking And Closing Open Requirements",
+    "expCount": 3,
+    "exp": [
+      {
+        "company": "Rosenberger Electronics India PVT Ltd",
+        "title": "Asst. Manager Quality",
+        "start": "2017-09",
+        "end": "2019-10"
+      },
+      {
+        "company": "Motors, FCA, John Deere, JCB, VW, and Ford",
+        "title": "Asst. Manager",
+        "start": "",
+        "end": ""
+      },
+      {
+        "company": "M/s Yazaki India Pvt Ltd",
+        "title": "exp-m/s-yazaki-i-sr.-engineer-",
+        "start": "",
+        "end": ""
+      }
+    ],
+    "skillsCount": 20,
+    "educationCount": 6
+  }
+}

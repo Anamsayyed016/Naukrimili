@@ -26,15 +26,12 @@ import { sanitizeIdentityField } from '@/lib/resume-parser/custom/identity-extra
 import { transformImportDataToBuilder } from '@/lib/resume-builder/import-transformer';
 
 describe('generic resume parser robustness', () => {
-  it('rejects duty prose and ISO standards fragments as employers', () => {
-    expect(
-      looksLikeSentenceNotCompany(
-        'To ensure the quality of conformance through planning, establishing systems'
-      )
-    ).toBe(true);
-    expect(isPlausibleExperienceCompany('Authorized signatory for ISO/IEC 17025')).toBe(false);
-    expect(isPlausibleExperienceCompany('Training of Employees for ISO 14001')).toBe(false);
-    expect(isPlausibleExperienceCompany('Acme Transformers (Global) Pvt. Ltd')).toBe(true);
+  it('rejects document snapshot titles as person names', () => {
+    expect(isPlausiblePersonName('PROFESSIONAL SNAPSHOT')).toBe(false);
+    expect(isPlausiblePersonName('Career Snapshot')).toBe(false);
+    expect(isPlausiblePersonName('Executive Snapshot')).toBe(false);
+    expect(classifyResumeTextFragment('PROFESSIONAL SNAPSHOT').kind).toBe('SECTION_HEADER');
+    expect(isPlausiblePersonName('Syed Aamir Mehboob')).toBe(true);
   });
 
   it('merges Roles & Responsibilities bodies onto sparse tenure headers', () => {

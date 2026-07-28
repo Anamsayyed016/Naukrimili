@@ -1,0 +1,48 @@
+﻿node.exe : [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline 
+data, please update: `npm i baseline-browser-mapping@latest -D`
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows...ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+PASS unit tests/generic-parser-robustness.test.ts (23.497 s)
+  generic resume parser robustness
+    ΓêÜ rejects document snapshot titles as person names (40 ms)
+    Γùï skipped merges Roles & Responsibilities bodies onto sparse tenure headers
+    Γùï skipped prefers multi-token document names over vanity email-derived names
+    Γùï skipped keeps credentialed academic names over email-local vanity splits
+    Γùï skipped recovers credentialed ALL-CAPS headers and rejects award titles / email vanity
+    Γùï skipped detects High Secondary school rows and Speak/Read/Write language grids
+    Γùï skipped does not treat school-stage labels as project titles
+    Γùï skipped does not split experience on ISO standards colon versions
+    Γùï skipped recovers preferred location without declaration bleed
+    Γùï skipped does not treat duty prose mentioning systems as institutional employers
+    Γùï skipped parses stacked title/date/company roles when duty lines mention systems
+    Γùï skipped parses inline bullet-separated language proficiency lists
+    Γùï skipped strips Start Date / city-state meta from ATS employer header lines
+    Γùï skipped parses title-over-company blocks with Start Date: labels
+    Γùï skipped splits Degree ΓÇô Field Institution education rows and strips hollow o bullets
+    Γùï skipped keeps award lines that mention employers and stops achievements at skills headings
+    Γùï skipped rejects contact-label debris as skills and detects industrial skills headings
+    Γùï skipped reclassifies employment-shaped career highlights and protects project portfolios
+    Γùï skipped splits bare company-first headers and rejects street addresses as employers
+    Γùï skipped parses Project under / Title: / Duration: portfolio blocks
+    Γùï skipped rejects education table headers and parses Degree + campus acronym rows
+    Γùï skipped parses Co.Ltd company-first headers and glued month-year tenures
+    Γùï skipped keeps consultant-named legal employers through company sanitize
+    Γùï skipped does not recover education table headers as institutions
+    Γùï skipped rejects education table stubs and prose sentences as section headings
+    Γùï skipped parses Organization/Designation/Duration labeled jobs without colons
+    Γùï skipped does not treat bare Organization/Responsibility as section headings
+    Γùï skipped splits adjacent human language names and rejects academic-credentials cert mirrors
+    Γùï skipped expands glued multi-section headings and recovers labeled tech skills
+    Γùï skipped keeps abbreviated titles as roles and dashed city suffixes as locations
+    Γùï skipped detects international certifications, competency bullets, and language proficiency lines
+    Γùï skipped does not wipe duty bullets or attach mid-dot competencies into experience
+
+Test Suites: 1 passed, 1 total
+Tests:       31 skipped, 1 passed, 32 total
+Snapshots:   0 total
+Time:        25.693 s
+Ran all test suites matching /tests\\generic-parser-robustness.test.ts/i with tests matching "snapshot titles".

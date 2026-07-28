@@ -1,0 +1,16 @@
+﻿{
+  "samplesOk": [
+    true,
+    true,
+    true,
+    true,
+    false
+  ],
+  "lineCount": 89,
+  "dateLike": 5,
+  "blockCount": 6,
+  "built": 6,
+  "valid": 5,
+  "metaExps": 5,
+  "rejected": 1
+}

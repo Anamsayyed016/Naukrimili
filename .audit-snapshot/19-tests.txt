@@ -1,0 +1,44 @@
+﻿node.exe : [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline 
+data, please update: `npm i baseline-browser-mapping@latest -D`
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows...ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+FAIL unit tests/custom-experience-extraction.test.ts
+  custom experience extraction engine
+    ΓêÜ date formats ΓÇö never invents dates (11 ms)
+    ├ù partitions roles when tenure months are glued to the title (125 ms)
+    Γùï skipped ATS layout ΓÇö company, title, dates, bullets
+    Γùï skipped designation-first layout ΓÇö no fixed company position
+    Γùï skipped freelance / founder resume
+    Γùï skipped internship entry
+    Γùï skipped rejects tech-only orphan block
+    Γùï skipped rejects bullet sentence misclassified as company
+    Γùï skipped government / academic CV style
+    Γùï skipped multi-entry with blank line separation
+
+  ΓùÅ custom experience extraction engine ΓÇ║ partitions roles when tenure months are glued to the title
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      157 |     const dated = exps.filter((e) => e.startDate);
+      158 |     expect(dated.length).toBeGreaterThanOrEqual(2);
+    > 159 |     expect(exps.some((e) => /Example Analytics/i.test(e.company || '') && e.startDate)).toBe(true);
+          |                                                                                         ^
+      160 |     expect(exps.some((e) => /Sample Electronics/i.test(e.company || '') && e.startDate)).toBe(true);
+      161 |     expect(
+      162 |       dated.every((e) => !e.company || 
+!/\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/i.test(e.company))
+
+      at Object.toBe (tests/custom-experience-extraction.test.ts:159:89)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 8 skipped, 1 passed, 10 total
+Snapshots:   0 total
+Time:        1.579 s, estimated 3 s
+Ran all test suites matching /tests\\custom-experience-extraction.test.ts/i with tests matching "glued|date formats".

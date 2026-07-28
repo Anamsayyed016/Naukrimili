@@ -126,6 +126,42 @@ describe('custom experience extraction engine', () => {
     expect(parseDateRangeFromText('01/2024 - 06/2024')?.startDate).toBeTruthy();
     expect(parseDateRangeFromText('2020 - 2023')?.startDate).toBeTruthy();
     expect(parseDateRangeFromText('random text without dates')).toBeNull();
+    // Glued title+month (common PDF extract artifact) must still parse.
+    expect(parseDateRangeFromText("Manager GroupAug '22 – Feb '26")?.startDate).toMatch(/^2022/);
+    expect(parseDateRangeFromText("QualitySep '17 – Oct '19")?.startDate).toMatch(/^2017/);
+    const { stripTrailingEmploymentDates } = require('@/lib/resume-parser/custom/experience-extraction/designation');
+    expect(stripTrailingEmploymentDates("Senior Executive - Resource Group Aug '22 – Feb '26")).toMatch(
+      /Senior Executive - Resource Group/i
+    );
+    expect(stripTrailingEmploymentDates("Senior Executive - Resource Group Aug '22 – Feb '26")).not.toMatch(/Aug/i);
+  });
+
+  it('partitions roles when tenure months are glued to the title', () => {
+    const section = [
+      'Professional Experience',
+      "Senior Analyst - Platform OperationsAug '22 – Feb '26",
+      'Example Analytics Pvt Ltd',
+      'Tracked capacity and optimized allocation.',
+      'Coordinated with department leads for staffing.',
+      "Asst. Manager QualitySep '17 – Oct '19",
+      'Sample Electronics India Pvt Ltd',
+      'Managed plant quality and vendor scorecards.',
+      "Quality Assurance LeadNov '15 – Aug '17",
+      'Sample Wiring Systems Ltd',
+      'Maintained manufacturing line quality.',
+    ].join('\n');
+    const exps = extractExperiencesFromSection(section);
+    expect(exps.length).toBeGreaterThanOrEqual(2);
+    const dated = exps.filter((e) => e.startDate);
+    expect(dated.length).toBeGreaterThanOrEqual(2);
+    expect(dated.some((e) => String(e.startDate || '').startsWith('2022'))).toBe(true);
+    expect(dated.some((e) => String(e.startDate || '').startsWith('2017'))).toBe(true);
+    // Employer slots must not retain tenure month tokens after unglue+strip.
+    expect(
+      dated.every(
+        (e) => !e.company || !/\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/i.test(e.company)
+      )
+    ).toBe(true);
   });
 
   it('government / academic CV style', () => {

@@ -1483,6 +1483,24 @@ export function isPlausiblePersonName(value: unknown): boolean {
   if (/\btedx?\b/i.test(s) || /^(?:keynote|guest|invited)\s+speaker$/i.test(s)) {
     return false;
   }
+  // Document / section titles misread as identity ("PROFESSIONAL SNAPSHOT").
+  if (
+    /^(?:professional|career|executive|profile)\s+(?:snapshot|summary|overview|profile)$/i.test(
+      s
+    ) ||
+    /^(?:curriculum\s+vitae|resume|biodata|bio[\s-]?data)$/i.test(s)
+  ) {
+    return false;
+  }
+  // Duty / competency lines are never personal names.
+  if (
+    /^(?:tracking|managing|monitoring|conducting|coordinating|working|responsible|planning|forecasting|assessing|defining|implementing|maintaining|preparing)\b/i.test(
+      s
+    ) ||
+    /\b(?:requirements|utilization|allocation|competenc(?:y|ies)|responsibilit(?:y|ies))\b/i.test(s)
+  ) {
+    return false;
+  }
   // Award / programme titles misread as Title Case person names.
   if (
     /\b(?:award|awards|excellence|recognition|certificate|certification|honou?r|medal|prize|achievement|highlights?|programmes?|programs?|workshop|seminar|conference|summit)\b/i.test(

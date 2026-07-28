@@ -200,6 +200,14 @@ export function looksLikeSentenceNotCompany(text: string): boolean {
   }
   // Hard legal suffixes can exempt employer strings; soft suffixes only when trailing.
   if (HARD_COMPANY_SUFFIX_RE.test(trimmed) && trimmed.length <= 140) return false;
+  // Customer / brand enumeration lists ("A, B, C, and D") are never employers.
+  if (
+    (trimmed.match(/,/g) || []).length >= 2 &&
+    /\b(?:and|&)\b/i.test(trimmed) &&
+    !/\b(?:ltd|limited|pvt|llc|inc|corp|company|private)\b/i.test(trimmed)
+  ) {
+    return true;
+  }
   // Joint-venture / industrial employer phrases without Ltd/Limited.
   if (
     /\b(?:motors|vehicles|ventures?|laborator(?:y|ies)|industries|enterprises|holdings|railways?)\b/i.test(
