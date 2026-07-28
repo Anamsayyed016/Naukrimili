@@ -107,12 +107,41 @@ export function isValidExperience(exp: CustomExtractedExperience): boolean {
   if (
     exp.designation &&
     looksLikeSentenceNotCompany(exp.designation) &&
-    exp.designation.split(/\s+/).length > 8
+    exp.designation.split(/\s+/).length > 8 &&
+    // Title lines often carry tenure/CTC residue ("Liaison Officer (Jun 2019 to
+    // May 2023) CTC: 5.4 lakh") — keep when employer + dates already identify the role.
+    !(
+      exp.company &&
+      isPlausibleExperienceCompany(exp.company) &&
+      (exp.startDate || exp.endDate || exp.current)
+    )
   ) {
     return false;
   }
 
-  if (exp.company && looksLikeSentenceNotCompany(exp.company)) {
+  if (
+    exp.company &&
+    looksLikeSentenceNotCompany(exp.company) &&
+    !(exp.designation && (exp.startDate || exp.endDate || exp.current))
+  ) {
+    return false;
+  }
+
+  // Alpha bullet / duty openers are never employers: "(a) Controlling …"
+  if (exp.company && /^\(\s*[a-z]{1,3}\s*\)/i.test(exp.company.trim())) {
+    return false;
+  }
+
+  // Bare award / key-area labels are never employers.
+  if (
+    exp.company &&
+    /^(?:(?:cash\s+)?awards?|honou?rs?|key\s*areas?|areas?\s+of\s+exposure)\s*$/i.test(
+      exp.company.trim().replace(/\s+/g, ' ')
+    )
+  ) {
+    return false;
+  }
+  if (exp.company && /^cash\s*awards?\b/i.test(exp.company.trim()) && !exp.designation && !hasDates) {
     return false;
   }
 

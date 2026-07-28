@@ -40,6 +40,7 @@ import {
   sanitizePersonName,
   sanitizePersonNamePart,
   deriveDisplayNameFromEmail,
+  splitGluedAllCapsNameUsingEmail,
   sanitizeFieldText,
   isEmailDerivedName,
   parseIntelligentNameFromEmail,
@@ -993,9 +994,16 @@ export function coalesceBuilderImportPayload(
       out.experience = normalizeMergedExperienceList(out.experience, out);
     }
 
-    // Re-coalesce after overlay — skip heavy guards when custom parser already finalized dates.
+    // Re-coalesce after overlay — skip heavy guards when custom parser already finalized dates
+    // or produced a solid multi-employer list (undated institutional roles are OK).
     if (isAlreadyBuilderCoalescedImport(out) && hasImportableContent(out)) {
-      if (isCustomParserImport(out) && experienceHasReliableDates(out)) {
+      const plausibleCount = countExperienceWithPlausibleCompany(
+        Array.isArray(out.experience) ? out.experience : []
+      );
+      if (
+        isCustomParserImport(out) &&
+        (experienceHasReliableDates(out) || plausibleCount >= 3)
+      ) {
         return applySummaryHygieneToBuilderForm(out);
       }
       return applySummaryHygieneToBuilderForm(
@@ -1740,6 +1748,26 @@ export function transformImportDataToBuilder(
     return {};
   }
 
+  // Re-transforming an already-imported custom-parser payload must not re-run
+  // structured text recovery — that path often replaces solid multi-employer
+  // lists with education-table false positives (BBA / Board as employers).
+  if (
+    importedData._imported === true &&
+    isCustomParserImport(importedData as Record<string, unknown>)
+  ) {
+    const expRows = Array.isArray(importedData.experience)
+      ? (importedData.experience as unknown[])
+      : [];
+    const plausible = countExperienceWithPlausibleCompany(expRows);
+    if (plausible >= 3 || experienceHasReliableDates(importedData as Record<string, unknown>)) {
+      return applySummaryHygieneToBuilderForm(
+        backfillImportedExperienceForDisplay({
+          ...(importedData as Record<string, unknown>),
+        })
+      );
+    }
+  }
+
   if (importedData.builderFormData && typeof importedData.builderFormData === 'object') {
     const { builderFormData, ...parent } = importedData;
     const merged = mergeBuilderFormWithParent(
@@ -2468,15 +2496,36 @@ function resolveClassifiedName(
     personal.fullName,
     textHeaderName,
   ]) {
-    const cleaned = sanitizePersonName(candidate, 120);
+    const rawCandidate = String(candidate || '').trim();
+    const gluedHeal =
+      email && rawCandidate ? splitGluedAllCapsNameUsingEmail(rawCandidate, email) : '';
+    const cleaned = sanitizePersonName(gluedHeal || rawCandidate, 120);
     if (!cleaned) {
-      const classified = classifyResumeTextFragment(candidate);
+      const classified = classifyResumeTextFragment(rawCandidate);
       if (classified.value) {
         stashUnclassifiedFragment(additionalResumeData, classified.value, classified.kind);
       }
       continue;
     }
     rawFullName = pickRicherFullName(rawFullName, cleaned, email);
+  }
+
+  // Last resort: scan early raw-text lines for glued ALL-CAPS names healable via email.
+  const rawText = String(importedData.rawText || importedData.RawText || '').trim();
+  if ((!rawFullName || isEmailDerivedName(rawFullName, email)) && email && rawText) {
+    const earlyLines = rawText
+      .split(/\n/)
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 16);
+    for (const line of earlyLines) {
+      const healed = splitGluedAllCapsNameUsingEmail(line, email);
+      if (!healed) continue;
+      rawFullName = pickRicherFullName(rawFullName, healed, email);
+      if (rawFullName && !isEmailDerivedName(rawFullName, email) && nameWordCount(rawFullName) >= 2) {
+        break;
+      }
+    }
   }
 
   if (rawFullName && email) {
@@ -2651,10 +2700,17 @@ function ensureImportedExperiencePopulated(
   if (
     isCustomParserImport(builder) &&
     meaningful.length >= 2 &&
-    plausible >= 2 &&
-    experienceHasReliableDates(builder)
+    plausible >= 2
   ) {
-    return builder;
+    // Undated institutional careers (Army / DRDO / etc.) must not invalidate an
+    // otherwise solid custom-parser experience list — structured text recovery
+    // often re-reads education tables as fake employers (BBA / Board).
+    if (
+      experienceHasReliableDates(builder) ||
+      (plausible >= 3 && plausible >= Math.ceil(meaningful.length * 0.6))
+    ) {
+      return builder;
+    }
   }
 
   const bodyBullets = countExperienceBodyBullets(expRows);
@@ -2669,6 +2725,15 @@ function ensureImportedExperiencePopulated(
     const finalized = finalizeExperienceListForCustomParserImport(structured);
     const structuredMeaningful = filterMeaningfulExperiences(finalized);
     const structuredCompanies = countExperienceWithPlausibleCompany(finalized);
+    // Never replace a multi-employer custom-parser list with a shorter/weaker
+    // structured recovery that merely invents education-table employers.
+    if (
+      isCustomParserImport(builder) &&
+      plausible >= 3 &&
+      structuredCompanies <= plausible
+    ) {
+      return builder;
+    }
     const shouldPreferStructured =
       structuredMeaningful.length > meaningful.length ||
       (meaningful.length === 0 && structuredMeaningful.length > 0) ||
@@ -2795,12 +2860,13 @@ function applyBuilderImportGuards(
 
     if (sparseCompanies || eduWithDegree < 2 || noisySkills || experienceUnderRepresented) {
       const experienceNeedsOverlay = sparseCompanies || experienceUnderRepresented;
+      const plausibleNow = countExperienceWithPlausibleCompany(
+        Array.isArray(out.experience) ? (out.experience as unknown[]) : []
+      );
       const skipExperienceOverlay =
         isCustomParserImport(out) &&
-        experienceHasReliableDates(out) &&
-        countExperienceWithPlausibleCompany(
-          Array.isArray(out.experience) ? (out.experience as unknown[]) : []
-        ) >= 2;
+        plausibleNow >= 2 &&
+        (experienceHasReliableDates(out) || plausibleNow >= 3);
       const overlaid = overlaySparseSectionsFromTextRecovery({ ...out, rawText }) as Record<
         string,
         unknown

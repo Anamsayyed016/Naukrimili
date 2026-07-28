@@ -20,6 +20,11 @@ export function healOcrDateArtifacts(text: string): string {
   return String(text || '')
     .replace(/[\u2018\u2019\u201A\u201B']/g, "'")
     .replace(/\b(\d{1,2})\s*(?:\r?\n|\s)*(?:st|nd|rd|th)\b/gi, '$1')
+    // Day glued to month+year: "03Jun2019", "16Feb2013", "01JULY2015"
+    .replace(
+      new RegExp(`(\\d{1,2})((?:${MONTH_NAMES}))\\.?((?:19|20)\\d{2})`, 'gi'),
+      '$1 $2 $3'
+    )
     // "Oct'2017" / "Oct'2017" / "Sep2011" → "Oct 2017" / "Sep 2011"
     .replace(
       new RegExp(`\\b((?:${MONTH_NAMES}))\\.?['']?\\s*((?:19|20)\\d{2})\\b`, 'gi'),
@@ -43,6 +48,8 @@ export function healOcrDateArtifacts(text: string): string {
     .replace(/\bto\s*till\s*date\b/gi, 'to present')
     .replace(/\btill\s*date\b/gi, 'present')
     .replace(/\bstill\s*date\b/gi, 'present')
+    // Glued range "to": "2019to29", "2015TO30"
+    .replace(/((?:19|20)\d{2})\s*(to)\s*(?=\d)/gi, '$1 $2 ')
     .replace(/\s+/g, ' ')
     .trim();
 }

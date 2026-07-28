@@ -38,6 +38,7 @@ import {
   normalizeSkillsList,
   sanitizeExperienceDateValue,
   reconcileExperienceHeaderFields,
+  splitGluedAllCapsNameUsingEmail,
   isPlausibleCertificationEntry,
   isExperienceDateOrDurationToken,
   splitCompanyLocationPipe,
@@ -1728,6 +1729,14 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
       for (let offset = 1; offset <= 8; offset++) {
         const above = lines[emailIdx - offset];
         if (!above || isAnyHeadingLine(above)) break;
+        const gluedHeal = splitGluedAllCapsNameUsingEmail(above, email);
+        if (gluedHeal) {
+          candidates.push({
+            value: gluedHeal,
+            confidence: 96,
+            source: 'glued_allcaps_email',
+          });
+        }
         const cleaned =
           sanitizePersonName(above, 120) ||
           above
@@ -1777,6 +1786,16 @@ export function collectNameCandidatesFromText(text: string): NameCandidate[] {
   for (let i = 0; i < Math.min(lines.length, 12); i++) {
     const line = lines[i];
     if (!line || isAnyHeadingLine(line)) continue;
+    if (email) {
+      const gluedHeal = splitGluedAllCapsNameUsingEmail(line, email);
+      if (gluedHeal) {
+        candidates.push({
+          value: gluedHeal,
+          confidence: 95 - i,
+          source: 'glued_allcaps_email',
+        });
+      }
+    }
     // ALL-CAPS header names, including credential punctuation ("DR. …, PH.D.").
     const capsCore = line
       .replace(/^(?:DR|MR|MRS|MS|PROF)\.?\s+/i, '')

@@ -1,0 +1,83 @@
+{
+  "headingScores": {
+    "ProfessionalQualification:": {
+      "norm": "professional qualification",
+      "scores": {
+        "education": 40,
+        "certifications": 86
+      }
+    },
+    "Professional Qualification": {
+      "norm": "professional qualification",
+      "scores": {
+        "certifications": 86,
+        "education": 40
+      }
+    },
+    "TechnicalQualification:": {
+      "norm": "technical qualification",
+      "scores": {
+        "education": 40,
+        "certifications": 88
+      }
+    },
+    "Technical Qualification": {
+      "norm": "technical qualification",
+      "scores": {
+        "education": 40,
+        "certifications": 88
+      }
+    },
+    "AcademicQualification:": {
+      "norm": "academic qualification",
+      "scores": {
+        "education": 88
+      }
+    },
+    "EXPERIENCE:": {
+      "norm": "experience",
+      "scores": {
+        "experience": 88
+      }
+    },
+    "EXPERIENCE": {
+      "norm": "experience",
+      "scores": {
+        "experience": 88
+      }
+    },
+    "Core specialties:": {
+      "norm": "core specialties",
+      "scores": {
+        "skills": 88
+      }
+    },
+    "KEY AREA:": {
+      "norm": "key area",
+      "scores": {
+        "skills": 88
+      }
+    },
+    "AWARD:-": {
+      "norm": "award",
+      "scores": {
+        "achievements": 70
+      }
+    }
+  },
+  "experienceLen": 99,
+  "educationLen": 69,
+  "certificationsLen": 259,
+  "experienceHasNahar": true,
+  "experienceHasLupin": false,
+  "experienceHasRaj": false,
+  "experienceHasRemarks": false,
+  "experienceHasSecurityOfficer": false,
+  "educationHasBBA": true,
+  "educationHas12th": false,
+  "experienceSlice": "(1).NAHARPOLYFILMSLTD:Nahargroupsof companies\n\nLiaison officer (03Jun2019to29/05/2023)CTC: 5.4 lakh",
+  "fullHasExperienceHeading": true,
+  "idxExperience": 1661,
+  "idxProfessionalQual": 1103,
+  "idxTechnicalQual": 1326
+}

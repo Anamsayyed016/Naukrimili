@@ -74,6 +74,20 @@ export function softSplitContactLabels(text: string): string {
     .trim();
 }
 
+function isPageNumberOnlyHeader(text: string): boolean {
+  const t = String(text || '').trim();
+  if (!t) return true;
+  // Page numbers / running headers: "-1-", "1", "Page 2", "- 3 -"
+  const lines = t.split(/\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return true;
+  return lines.every(
+    (line) =>
+      /^(?:page\s*)?\d{1,3}$/i.test(line) ||
+      /^[-–—]\s*\d{1,3}\s*[-–—]?$/i.test(line) ||
+      /^\(\s*\d{1,3}\s*\)$/.test(line)
+  );
+}
+
 function uniqueNonEmpty(parts: string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
@@ -127,7 +141,10 @@ export async function extractDocxOoxmlParts(buffer: Buffer): Promise<{
   });
 
   return {
-    headerText: softSplitContactLabels(uniqueNonEmpty(headers).join('\n')),
+    headerText: (() => {
+      const h = softSplitContactLabels(uniqueNonEmpty(headers).join('\n'));
+      return isPageNumberOnlyHeader(h) ? '' : h;
+    })(),
     footerText: softSplitContactLabels(uniqueNonEmpty(footers).join('\n')),
     bodyText: softSplitContactLabels(uniqueNonEmpty(bodies).join('\n\n')),
   };

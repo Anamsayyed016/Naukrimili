@@ -1,0 +1,22 @@
+{
+  "afterStrip": "TRILOKINATHUPADHYAYA",
+  "compact": "TRILOKINATHUPADHYAYA",
+  "parts": [
+    "upadhyaya"
+  ],
+  "idx": 11,
+  "before": "TRILOKINATH",
+  "after": "UPADHYAYA",
+  "merged": "Trilokinath upadhyaya",
+  "plausible": false,
+  "words": 2,
+  "healed": "",
+  "org": {},
+  "remarks": {},
+  "course": {},
+  "normProf": "professional qualification",
+  "profScores": {
+    "education": 40,
+    "certifications": 86
+  }
+}

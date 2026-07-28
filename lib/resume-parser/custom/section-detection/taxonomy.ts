@@ -132,8 +132,11 @@ export const SECTION_TAXONOMY: Record<Exclude<NormalizedSectionType, 'custom'>, 
       'core specialities',
       'core specialties and key areas',
       'core specialities and key areas',
-      'key areas',
-      'key area',
+      // Bare "Key Area(s)" is usually an in-role duty subsection under a job —
+      // keep only compound skill headings here so mid-experience labels do not
+      // open a top-level Skills section and truncate employment history.
+      'key areas of expertise',
+      'key area of expertise',
       'areas of specialization',
       'areas of specialisation',
       'professional skills',
@@ -328,6 +331,11 @@ export function stripHeadingDateSuffix(normalized: string): string {
 export function normalizeHeadingText(raw: string): string {
   return raw
     .trim()
+    // Unglue PascalCase / camelCase headings from DOCX/OCR
+    // ("ProfessionalQualification" → "Professional Qualification").
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([A-Za-z])/g, '$1 $2')
     .toLowerCase()
     .replace(/[:\-–—|•·]+$/g, '')
     .replace(/[^\p{L}\p{N}\s&/+']/gu, ' ')
@@ -439,10 +447,13 @@ export function scoreHeadingKeywords(
 
   // Bare "Training & Development" thematic blocks are not certifications unless
   // the heading itself names certificates/courses/licenses.
+  // Use certif* prefixes (not \bcertif\b) so "certifications" matches.
   if (
     scores.certifications &&
     /\btraining\b/i.test(normalized) &&
-    !/\b(?:certif|licence|license|course|workshop|credential)\b/i.test(normalized)
+    !/\b(?:certifications?|certificates?|certif|licence|license|course|workshop|credential)/i.test(
+      normalized
+    )
   ) {
     delete scores.certifications;
   }
@@ -480,6 +491,48 @@ export function scoreHeadingKeywords(
     /\b(?:performed|undertaken|carried\s+out|assigned|handled|discharged|rendered)\b/i.test(normalized)
   ) {
     scores.hobbies = Math.min(scores.hobbies, 20);
+  }
+
+  // "Professional Qualification(s)" is a course/cert block on many CVs —
+  // do not let the education taxonomy phrase win over certifications.
+  if (
+    /\bprofessional\s+qualifications?\b/i.test(normalized) &&
+    !/\b(?:academic|educational)\b/i.test(normalized)
+  ) {
+    scores.certifications = Math.max(scores.certifications ?? 0, 86);
+    if ((scores.education ?? 0) > 0 && (scores.education ?? 0) <= 90) {
+      scores.education = Math.min(scores.education ?? 0, 40);
+    }
+  }
+
+  // "Technical Qualification(s)" is certifications/training, not degrees.
+  if (
+    /\btechnical\s+qualifications?\b/i.test(normalized) &&
+    !/\b(?:academic|educational)\b/i.test(normalized)
+  ) {
+    scores.certifications = Math.max(scores.certifications ?? 0, 88);
+    if ((scores.education ?? 0) > 0) {
+      scores.education = Math.min(scores.education ?? 0, 40);
+    }
+  }
+
+  // Bare "Award(s)" / "Cash Award" mid-document is usually an in-experience
+  // subsection (medal under a job), not a top-level achievements section.
+  // Promoting it steals subsequent employers into the wrong bucket.
+  if (
+    scores.achievements &&
+    /^(?:(?:cash\s+)?awards?|honou?rs?)\s*$/i.test(normalized)
+  ) {
+    scores.achievements = Math.min(scores.achievements, 28);
+  }
+
+  // Bare "Key Area(s)" must not score as skills via leftover token matches.
+  if (
+    scores.skills &&
+    /^(?:key\s+areas?|areas?\s+of\s+exposure)\s*$/i.test(normalized) &&
+    !/\b(?:expertise|speciali[sz]ation|competenc|skills?)\b/i.test(normalized)
+  ) {
+    scores.skills = Math.min(scores.skills, 24);
   }
 
   return scores;

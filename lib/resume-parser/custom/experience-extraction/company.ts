@@ -102,7 +102,7 @@ const FALSE_COMPANY_RE =
   /^(python|react|node\.?js|javascript|typescript|java|django|flask|aws|docker|redis|kafka|postgresql|mongodb|bhopal|mumbai|delhi|bangalore|hyderabad|pune|chennai|remote|hybrid|onsite|wfh)$/i;
 
 const ROLE_OR_PROJECT_LABEL_RE =
-  /^(?:role|designation|position|title|project|team\s*size|key\s+responsibilit)\s*[:\-–—]/i;
+  /^(?:role|designation|position|title|project|team\s*size|key\s*areas?|key\s+responsibilit|areas?\s+of\s+exposure|responsibilit(?:y|ies)|duties|tasks?)\s*[:\-–—]?$/i;
 
 const SENTENCE_VERB_RE =
   /\b(led|built|designed|developed|wrote|managed|created|implemented|integrated|responsible|delivered|achieved|maintained|optimized|collaborated)\b/i;
@@ -288,6 +288,7 @@ export function scoreCompanyCandidate(text: string): number {
     return 0;
   }
   if (ROLE_OR_PROJECT_LABEL_RE.test(trimmed)) return 0;
+  if (/^key\s*areas?\b/i.test(trimmed)) return 0;
   if (isEmployerAffiliationTagline(trimmed) || isIndustrySectorTagline(trimmed)) return 0;
   if (looksLikeStreetAddressLine(trimmed)) return 0;
   // Template placeholders and metric career-highlight bullets are never employers.
@@ -419,14 +420,45 @@ export function stripCompanyLineEmploymentMeta(text: string): string {
 }
 
 export function detectCompanyFromLine(text: string): CompanyDetection {
-  const trimmedRaw = text.trim();
+  const trimmedRaw = text
+    .trim()
+    // "(1).NAHAR…", "(4ss).18 YEARS…" — serial markers before employer lines.
+    .replace(/^\(\s*\d+[a-z]{0,4}\s*\)\s*[.\-–—:]?\s*/i, '')
+    .replace(/^\d{1,2}[.)]\s+/, '')
+    .trim();
   if (!trimmedRaw) return { company: '', confidence: 0 };
+  // Duty / list markers "(a) …" are never employers.
+  if (/^\(\s*[a-z]{1,3}\s*\)/i.test(text.trim())) {
+    return { company: '', confidence: 0 };
+  }
+  if (/^(?:(?:cash\s+)?awards?|honou?rs?)\s*[:\-–—]?\s*$/i.test(trimmedRaw)) {
+    return { company: '', confidence: 0 };
+  }
+  if (/^cash\s*awards?\b/i.test(trimmedRaw) && trimmedRaw.split(/\s+/).length <= 3) {
+    return { company: '', confidence: 0 };
+  }
   if (isEmployerAffiliationTagline(trimmedRaw) || isIndustrySectorTagline(trimmedRaw)) {
     return { company: '', confidence: 0 };
   }
   if (looksLikeStreetAddressLine(trimmedRaw)) {
     return { company: '', confidence: 0 };
   }
+
+  // Colon employers must be scored before full-line sentence rejection —
+  // long "AcmeForce: a security provider (ISO…)" lines exceed the prose length
+  // gate even when the left segment is a clear employer.
+  const colonEarly = detectColonEmployerSegment(trimmedRaw);
+  if (colonEarly.confidence >= 42) {
+    return colonEarly;
+  }
+
+  // Institutional / force / agency openers without a colon ("DRDO CHANDIPUR",
+  // "18 YEARS IN ARMY") — heal glued tokens then score.
+  const institutionalEarly = detectGluedInstitutionalEmployer(trimmedRaw);
+  if (institutionalEarly.confidence >= 50) {
+    return institutionalEarly;
+  }
+
   // Reject before punctuation strip — trailing "." is a strong prose signal that
   // stripCompanyLineEmploymentMeta would otherwise erase.
   if (looksLikeSentenceNotCompany(trimmedRaw)) {
@@ -456,32 +488,16 @@ export function detectCompanyFromLine(text: string): CompanyDetection {
     }
   }
 
-  // "Employer Name: descriptive tagline" — score the left segment alone so long
-  // taglines do not drown the employer via looksLikeSentenceNotCompany.
-  const colonIdx = trimmed.indexOf(':');
-  if (colonIdx > 2 && colonIdx < 72) {
-    const left = trimmed.slice(0, colonIdx).trim();
-    const right = trimmed.slice(colonIdx + 1).trim();
-    if (
-      left &&
-      right.length >= 3 &&
-      left.split(/\s+/).length <= 8 &&
-      !/^(?:role|designation|position|title|project|duration|period|tenure|location|ctc|salary)\b/i.test(
-        left
-      )
-    ) {
-      const conf = scoreCompanyCandidate(left);
-      if (conf >= 42) {
-        return { company: left, confidence: Math.min(100, conf + 8) };
-      }
-    }
+  const colonLate = detectColonEmployerSegment(trimmed);
+  if (colonLate.confidence >= 42) {
+    return colonLate;
   }
 
   const atMatch = trimmed.match(/\bat\s+([A-Z][A-Za-z0-9&.,'()\- ]{2,60})/);
   if (atMatch) {
-    const conf = scoreCompanyCandidate(atMatch[1]);
-    if (conf >= 45) {
-      return { company: atMatch[1].trim(), confidence: conf };
+    const atConf = scoreCompanyCandidate(atMatch[1]);
+    if (atConf >= 45) {
+      return { company: atMatch[1].trim(), confidence: atConf };
     }
   }
 
@@ -494,10 +510,85 @@ export function detectCompanyFromLine(text: string): CompanyDetection {
     }
   }
 
-  const conf = scoreCompanyCandidate(trimmed);
-  if (conf >= 38) {
-    return { company: trimmed, confidence: conf };
-  }
+  const score = scoreCompanyCandidate(locStripped || trimmed);
+  if (score < 38) return { company: '', confidence: 0 };
+  return { company: locStripped || trimmed, confidence: score };
+}
 
+/** Score "Employer: tagline" left segments, including glued ALLCAPS+suffix cores. */
+function detectColonEmployerSegment(trimmed: string): CompanyDetection {
+  const colonIdx = trimmed.indexOf(':');
+  if (colonIdx <= 2 || colonIdx >= 72) return { company: '', confidence: 0 };
+  let left = trimmed.slice(0, colonIdx).trim();
+  const right = trimmed.slice(colonIdx + 1).trim();
+  left = left.replace(/([A-Z])(LTD\.?|LIMITED|PVT|LLC|INC|CORP)$/i, '$1 $2');
+  if (
+    !left ||
+    right.length < 3 ||
+    left.split(/\s+/).length > 8 ||
+    /^(?:role|designation|position|title|project|duration|period|tenure|location|ctc|salary|key\s*areas?)\b/i.test(
+      left
+    )
+  ) {
+    return { company: '', confidence: 0 };
+  }
+  const conf = scoreCompanyCandidate(left);
+  if (conf >= 42) {
+    return { company: left, confidence: Math.min(100, conf + 8) };
+  }
+  // Glued ALLCAPS + legal/org suffix ("ACMEPOLYFILMSLTD", "RajSecurityForce",
+  // "LupinLtdmandideep").
+  const softSplit = left
+    .replace(/([A-Za-z0-9])(LTD\.?|LIMITED|PVT\.?|LLC|INC\.?|CORP\.?|GMBH|PLC)\b/i, '$1 $2')
+    .replace(
+      /([A-Za-z0-9])(FORCE|SERVICES|GROUP|COMPANY|ARMY|NAVY)\s*$/i,
+      '$1 $2'
+    )
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (softSplit !== left) {
+    const softConf = scoreCompanyCandidate(softSplit);
+    if (softConf >= 42) {
+      return { company: softSplit, confidence: Math.min(100, softConf + 6) };
+    }
+  }
+  return { company: '', confidence: 0 };
+}
+
+/**
+ * Heal glued institutional employers that lack Ltd suffixes.
+ * Generic patterns only — no resume-specific names.
+ */
+function detectGluedInstitutionalEmployer(text: string): CompanyDetection {
+  let t = text.trim();
+  if (!t || t.length > 80) return { company: '', confidence: 0 };
+  // "18YEARSINARMY" / "12YearsInNavy"
+  t = t.replace(
+    /(\d{1,2})\s*(YEARS?|YRS?)\s*(IN)\s*/i,
+    '$1 $2 $3 '
+  );
+  t = t.replace(/([a-z])(ARMY|NAVY|AIR\s*FORCE|DRDO|ISRO|CSIR|BARC)\b/i, '$1 $2');
+  // "DRDOCHANDIPUR(ORISA)" → "DRDO CHANDIPUR (ORISA)"
+  t = t.replace(
+    /\b(DRDO|ISRO|CSIR|BARC|HAL|ONGC|NTPC|BHEL|SAIL)([A-Z]{3,})/g,
+    '$1 $2'
+  );
+  t = t.replace(/\s+/g, ' ').trim();
+  if (/^\d{1,2}\s+years?\s+in\s+(?:the\s+)?(?:army|navy|air\s*force)\b/i.test(t)) {
+    const org = t.match(/\b(army|navy|air\s*force)\b/i)?.[1];
+    if (org) return { company: org.toUpperCase().replace(/\s+/g, ' '), confidence: 72 };
+  }
+  if (
+    /^\(?\s*(DRDO|ISRO|CSIR|BARC|HAL|ONGC|NTPC|BHEL|SAIL)\b/i.test(t) &&
+    t.split(/\s+/).length <= 6
+  ) {
+    const cleaned = t.replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+    return { company: cleaned, confidence: 68 };
+  }
+  const conf = scoreCompanyCandidate(t);
+  if (conf >= 55 && looksLikeInstitutionalEmployer(t)) {
+    return { company: t, confidence: conf };
+  }
   return { company: '', confidence: 0 };
 }

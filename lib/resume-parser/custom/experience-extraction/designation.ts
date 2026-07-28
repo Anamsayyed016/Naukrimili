@@ -32,11 +32,17 @@ export function stripTrailingEmploymentDates(text: string): string {
   const present = '(?:present|current|ongoing|till\\s*date|to\\s*date)';
   const stripped = trimmed
     // Parenthetical tenures: "(2023–Present)", "(Jan 2021 - Mar 2023)", "(Aug '22 – Feb '26)"
+    // Also day+month forms: "(03 Jun 2019 to 29/05/2023)"
     .replace(
       new RegExp(
-        `\\s*[\\(\\[]\\s*(?:${month}\\s*)?${year}\\s*[-–—to/]+\\s*(?:${month}\\s*)?(?:${year}|${present})\\s*[\\)\\]]\\s*$`,
+        `\\s*[\\(\\[]\\s*(?:\\d{1,2}\\s+)?(?:${month}\\s*)?${year}\\s*[-–—to/]+\\s*(?:\\d{1,2}[\\/.-]\\d{1,2}[\\/.-]${yearFull}|\\d{1,2}\\s+)?(?:${month}\\s*)?(?:${year}|${present})\\s*[\\)\\]]\\s*`,
         'i'
       ),
+      ' '
+    )
+    // Trailing CTC / salary blobs: "CTC: 5.4 lakh", "CTC= 2.67pa"
+    .replace(
+      /\s*(?:[|•]\s*)?(?:ctc|c\.t\.c|salary|remuneration)\s*[=:]?\s*[\d.,]+\s*(?:lakh|lac|lacs|p\.?a\.?|per\s+annum)?\s*$/i,
       ''
     )
     // "Since Sep2011 to OCT 2017" / "since Oct'2017 to April 2022"
@@ -53,6 +59,7 @@ export function stripTrailingEmploymentDates(text: string): string {
       ''
     )
     .replace(new RegExp(`\\s+(?:${month}\\s*${year})\\s*$`, 'i'), '')
+    .replace(/\s+/g, ' ')
     .trim();
   return stripped.length >= 3 ? stripped : trimmed;
 }
@@ -80,9 +87,16 @@ export function detectDesignationFromLine(text: string): DesignationDetection {
   const trimmed = text.trim();
   if (!trimmed) return { designation: '', confidence: 0 };
 
+  // Soft-split glued TitleCase compounds common in DOCX extracts:
+  // "BranchHead/ TrainingHead" → "Branch Head/ Training Head"
+  const unglued = trimmed
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   // Strip trailing employment date ranges so "Title Apr 2025 – Jan 2026" scores as a title.
-  const withoutDates = stripTrailingEmploymentDates(trimmed);
-  const working = withoutDates || trimmed;
+  const withoutDates = stripTrailingEmploymentDates(unglued);
+  const working = withoutDates || unglued;
 
   // "As {Role} in/at {Employer}" — score the role fragment only.
   const asInMatch = working.match(/^As\s+(.+?)\s+(?:in|at|with|for)\s+(.+)$/i);

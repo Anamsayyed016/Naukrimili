@@ -314,26 +314,46 @@ export function partitionExperienceBlocks(
     if (
       isCompanyLine &&
       !isTenureLine &&
-      state.hasDesignation &&
       state.hasCompany &&
-      state.hasDates &&
       lineIndex > blockStart
     ) {
       const text = line.text.trim();
-      const wordCount = text.split(/\s+/).filter(Boolean).length;
+      const companyConf = detectCompanyFromLine(text).confidence;
       const institutional = looksLikeInstitutionalEmployer(text);
-      const colonCompany = detectCompanyFromLine(text).confidence >= 50 && /:/.test(text);
-      const strongEmployerHeader =
-        institutional ||
-        colonCompany ||
-        looksLikeClientPracticeEmployer(text) ||
-        detectCompanyFromLine(text).confidence >= 70 ||
-        (looksLikeCompanyNameLine(text) &&
-          wordCount >= 2 &&
-          wordCount <= 14 &&
-          detectCompanyFromLine(text).confidence >= 50);
-      if (strongEmployerHeader && !looksLikeSentenceNotCompany(text.split(':')[0] || text)) {
-        return true;
+      const colonCompany = companyConf >= 50 && /:/.test(text);
+      const serialEmployer = /^\(\s*\d+[a-z]{0,4}\s*\)/i.test(text) && companyConf >= 60;
+      const priorHasBody = scored
+        .slice(blockStart, lineIndex)
+        .some(
+          (l) =>
+            l.isBullet ||
+            isExperienceSubsectionLabel(l.text) ||
+            (l.text.trim().length >= 24 && detectCompanyFromLine(l.text).confidence < 42)
+        );
+      // Dated roles: any strong employer header may open the next block.
+      // Undated institutional careers (Army → DRDO): only strong institutional /
+      // colon / numbered employer lines — never duty fragments.
+      const allowUndatedInstitutionalSplit =
+        !state.hasDates &&
+        priorHasBody &&
+        (institutional || serialEmployer || (colonCompany && companyConf >= 68));
+      if (!(state.hasDates || allowUndatedInstitutionalSplit)) {
+        // fall through
+      } else {
+        const wordCount = text.split(/\s+/).filter(Boolean).length;
+        const strongEmployerHeader =
+          institutional ||
+          colonCompany ||
+          serialEmployer ||
+          looksLikeClientPracticeEmployer(text) ||
+          companyConf >= 70 ||
+          (looksLikeCompanyNameLine(text) &&
+            wordCount >= 2 &&
+            wordCount <= 14 &&
+            companyConf >= 50);
+        if (strongEmployerHeader && !looksLikeSentenceNotCompany(text.split(':')[0] || text)) {
+          return true;
+        }
       }
     }
 

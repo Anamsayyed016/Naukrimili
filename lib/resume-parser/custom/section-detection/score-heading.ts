@@ -17,7 +17,10 @@ const BULLET_LINE_RE = /^[\s]*(?:[-–—•·▪‣●○◦✓✔]|\d+[\.\)])\
 const CONTACT_LINE_RE =
   /@|linkedin\.com|github\.com|https?:\/\/|\+?\d[\d\s().-]{7,}\d|www\./i;
 const MIN_KNOWN_TYPE_SCORE = 38;
-const MIN_CUSTOM_HEADING_SCORE = 22;
+/** Custom headings need more than formatting alone, but stay open for short
+ *  Title-Case unknowns ("Research", "Hackathons"). Experience-body false
+ *  positives are blocked by isExperienceEntryOrDutyLine instead. */
+const MIN_CUSTOM_HEADING_SCORE = 26;
 
 /** Section body lines that must never be promoted to headings. */
 const DEGREE_LINE_RE =
@@ -51,7 +54,7 @@ function isInRoleFieldLabel(text: string): boolean {
   }
   // In-role labels require a separator and trailing value ("Project: Fiber Rollout").
   if (
-    /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|client|employer|company|duration|period|tenure|location|reporting\s+to|tools?\s+used|technologies?\s+used)\s*[:\-–—]\s*.+/i.test(
+    /^(?:projects?|roles?|designations?|positions?|titles?|team\s*size|key\s+responsibilit(?:y|ies)|responsibilit(?:y|ies)|key\s+areas?|areas?\s+of\s+exposure|client|employer|company|duration|period|tenure|location|reporting\s+to|tools?\s+used|technologies?\s+used)\s*[:\-–—]\s*.+/i.test(
       t
     )
   ) {
@@ -78,7 +81,7 @@ function isTableColumnHeaderLine(text: string): boolean {
   }
   // Education / grade table stubs (often OCR-split across lines).
   if (
-    /^(?:degree|board|university|college|school|institute|institution|year|academic(?:\s+year)?|percentage|percent(?:\s*-\s*age)?|percent(?:age)?(?:\s*\/\s*cgpa)?|cgpa|gpa|marks|score|result|division|grade|name\s+of\s+(?:school|college|institute|institution|university)|board\s*\/\s*university|degree\s+board(?:\s*\/\s*university)?)\s*$/i.test(
+    /^(?:degree|board|university|college|school|institute|institution|year|academic(?:\s+year)?|percentage|percent(?:\s*-\s*age)?|percent(?:age)?(?:\s*\/\s*cgpa)?|cgpa|gpa|marks|score|result|division|grade|remarks?|course|organization|organisation|name\s+of\s+(?:school|college|institute|institution|university)|board\s*\/\s*university|degree\s+board(?:\s*\/\s*university)?)\s*$/i.test(
       t
     )
   ) {
@@ -279,9 +282,78 @@ export function expandGluedSectionHeadingText(text: string): string {
 function isInRoleBareFieldLabel(text: string): boolean {
   const t = text.trim().replace(/[:\-–—|]+$/g, '').trim();
   if (!t || t.length > 48) return false;
-  return /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities|(?:key|major|primary|core)\s+responsibilit(?:y|ies)|location|department|institution\s+name|company\s+name)\s*$/i.test(
+  return /^(?:organi[sz]ation|employer|company|client|firm|designation|position|role|title|post|duration|period|tenure|responsibility|responsibilities|(?:key|major|primary|core)\s+responsibilit(?:y|ies)|key\s+areas?|areas?\s+of\s+exposure|location|department|institution\s+name|company\s+name)\s*$/i.test(
     t
   );
+}
+
+/**
+ * Experience entry headers, duty bullets, and in-role award lines must never
+ * open top-level (especially custom) sections — doing so fragments employment
+ * history after the first job.
+ */
+function isExperienceEntryOrDutyLine(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length > 160) return false;
+
+  // Alpha / numeric duty markers: (a), (b), (g), (1), (4ss)
+  if (/^\(\s*[a-z0-9]{1,5}\s*\)/i.test(t)) return true;
+
+  // Numbered employer openers: "(1).ACME LTD: …" — entries, not section titles.
+  if (/^\(\s*\d+\s*\)\s*\.?\s*[A-Za-z]/.test(t) && /:/.test(t)) return true;
+
+  // Bare mid-role award labels (achievements taxonomy already dampened).
+  if (/^(?:(?:cash\s+)?awards?|honou?rs?)\s*[:\-–—]?\s*$/i.test(t)) return true;
+
+  // Education table row stubs promoted by formatting alone.
+  if (/^(?:10th|12th|xi{0,2}|ix|viii|high\s*school|intermediate|matriculation)\s*$/i.test(t)) {
+    return true;
+  }
+
+  // Role + tenure and/or CTC on one line (job entry header).
+  if (
+    /\b(?:ctc|c\.t\.c|lakh|lac|p\.?a\.?|per\s+annum)\b/i.test(t) &&
+    /\b(?:19|20)\d{2}\b/.test(t)
+  ) {
+    return true;
+  }
+  if (
+    looksLikeJobTitleLine(t.split(/[:(]/)[0] || t) &&
+    /\(\s*[^)]*\b(?:19|20)\d{2}/.test(t)
+  ) {
+    return true;
+  }
+
+  // Employer:tagline lines ("Acme Ltd: a logistics provider").
+  const colonIdx = t.indexOf(':');
+  if (colonIdx >= 3 && colonIdx <= 72) {
+    const left = t.slice(0, colonIdx).replace(/^\(\s*\d+\s*\)\s*\.?\s*/i, '').trim();
+    const right = t.slice(colonIdx + 1).trim();
+    if (
+      right.length >= 6 &&
+      !/^(?:key\s+areas?|responsibilit|role|designation|duration|location)\b/i.test(left) &&
+      (looksLikeCompanyNameLine(left) ||
+        /(?:ltd|limited|pvt|llc|inc|corp|force|army|ministry|university|college|group|films?|pharma|security)\b/i.test(
+          left
+        ) ||
+        /[a-z](?:ltd|limited|llc|inc)\b/i.test(left))
+    ) {
+      return true;
+    }
+  }
+
+  // Short duty / workstream phrases ending with a period (OCR often promotes them).
+  if (
+    /^[A-Z][A-Za-z0-9/&\s,'-]{3,70}\.\s*$/.test(t) &&
+    !/\b(?:experience|education|skills?|summary|objective|profile|certifications?|projects?)\b/i.test(
+      t
+    ) &&
+    t.split(/\s+/).length <= 8
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 function isSectionContentLineNotHeading(text: string): boolean {
@@ -295,6 +367,7 @@ function isSectionContentLineNotHeading(text: string): boolean {
   if (isHeadingDebris(t)) return true;
   if (isInRoleFieldLabel(t)) return true;
   if (isInRoleBareFieldLabel(t)) return true;
+  if (isExperienceEntryOrDutyLine(t)) return true;
   if (isGluedMultiSectionHeading(t)) return true;
   if (
     /^(?:male|female|other|married|unmarried|single|indian|nationality|passport|gender|dob|date of birth)\b/i.test(

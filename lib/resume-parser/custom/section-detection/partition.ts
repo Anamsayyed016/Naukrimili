@@ -206,8 +206,11 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
     /^\s*(?:role|designation|position|title)\s*[:\-–—]?\s*\S+/im.test(t) ||
     /\bdesignation\s+\S+/i.test(t);
   const hasOrgLabel =
-    /^\s*(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]?\s*\S+/im.test(t) ||
-    /\borgani[sz]ation\s+\S+/i.test(t);
+    /^\s*(?:organi[sz]ation|employer|company|client|firm)\s*[:\-–—]\s*\S+/im.test(t) ||
+    (/^\s*(?:organi[sz]ation|employer|company|client|firm)\s+\S+/im.test(t) &&
+      !/^\s*(?:organi[sz]ation|employer|company|client|firm)\s+(?:remarks?|course|designation|duration|division|education|year|s\.?\s*\/?\s*no\.?)\b/im.test(
+        t
+      ));
   const hasDurationLabel =
     /^\s*(?:duration|period|tenure)\s*[:\-–—]?\s*\S+/im.test(t) ||
     /\bduration\s+\d/i.test(t);
@@ -219,15 +222,21 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
       /\b\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}\b/.test(t)) &&
     /(?:present|current|till\s*date|to\s*date|still\s*date|[-–—]|to\s+)/i.test(t);
   const hasCompanySuffix =
-    /\b(?:ltd|limited|pvt|private\s+limited|llc|inc|corp|corporation|gmbh|plc)\b\.?/i.test(t);
+    /\b(?:ltd|limited|pvt|private\s+limited|llc|inc|corp|corporation|gmbh|plc)\b\.?/i.test(t) ||
+    // Glued OCR employers: "NAHARPOLYFILMSLTD", "LupinLtdmandideep"
+    /[a-z](?:ltd|limited|llc|inc|corp)\b/i.test(t);
   // Parenthetical / pipe tenures common on ops / security / manufacturing CVs:
   // "Liaison Officer (03 Jun 2019 to 29/05/2023) | CTC: 5.4 lakh"
   const hasInlineTenure =
-    /\((?:[^)\n]{0,40}\b(?:19|20)\d{2}[^)\n]{0,40}\b(?:to|[-–—]|till|until)\b[^)\n]{0,40})\)/i.test(
+    /\((?:[^)\n]{0,48}\b(?:19|20)\d{2}[^)\n]{0,48}\b(?:to|[-–—]|till|until)\b[^)\n]{0,48})\)/i.test(
       t
     ) ||
     /\b(?:19|20)\d{2}\s*[-–—to]+\s*(?:(?:19|20)\d{2}|present|current|till\s*date)\b/i.test(t) ||
     /\b\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}\s*(?:to|[-–—])\s*(?:\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}|still\s*date|present|current)\b/i.test(
+      t
+    ) ||
+    // Glued month-year tenures: "01JULY2015TO 30 May2019"
+    /\b\d{1,2}(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s*(?:19|20)\d{2}\s*(?:to|[-–—])/i.test(
       t
     );
   const hasCompSignal =
@@ -241,6 +250,12 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
     /\bsince\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(?:19|20)\d{2}\b/i.test(
       t
     );
+  // Numbered / colon employer entries: "(1).ACME LTD: …" / "RajSecurityForce: A …"
+  const employerColonLines = (
+    t.match(
+      /(?:^|\n)\s*(?:\(?\s*\d+\s*\)\s*\.?\s*)?(?!key\s*areas?\b|role\b|designation\b|duration\b|organization\b|organisation\b)[A-Za-z][A-Za-z0-9.&'/]{2,}[^:\n]{0,48}:\s*[A-Za-z]/gim
+    ) || []
+  ).length;
   // Labeled ATS blocks: Organization + Designation + Duration (colons optional).
   if (hasOrgLabel && hasRole && (hasDates || hasDurationLabel || hasResponsibility)) return true;
   if (hasOrgLabel && hasDurationLabel && (hasRole || hasResponsibility || hasCompanySuffix)) {
@@ -265,6 +280,22 @@ export function looksLikeEmploymentShapedText(text: string): boolean {
     return true;
   }
   if (hasInlineTenure && hasCompSignal && hasDates && t.length >= 120) return true;
+  // Multi-employer colon resumes (ops/security/manufacturing) without legal suffixes.
+  if (
+    employerColonLines >= 2 &&
+    (hasDates || hasInlineTenure || hasCompSignal) &&
+    t.length >= 100
+  ) {
+    return true;
+  }
+  if (
+    employerColonLines >= 1 &&
+    hasInlineTenure &&
+    hasCompSignal &&
+    t.length >= 80
+  ) {
+    return true;
+  }
   return false;
 }
 
@@ -297,12 +328,31 @@ export function reclassifyEmploymentShapedSections(
       section.type !== 'projects' &&
       section.type !== 'certifications' &&
       section.type !== 'achievements' &&
-      section.type !== 'languages'
+      section.type !== 'languages' &&
+      section.type !== 'skills'
     ) {
       return section;
     }
     // Key Projects / Project under X portfolios must stay projects.
     if (section.type === 'projects' && looksLikeProjectPortfolioText(section.content)) {
+      return section;
+    }
+    // Course / qualification tables (Course | Organization | Remarks) are not employment.
+    if (
+      section.type === 'certifications' &&
+      /^(?:course|organization|organisation|remarks?|s\.?\s*\/?\s*no\.?)\b/im.test(section.content) &&
+      (section.content.match(/^(?:course|organization|organisation|remarks?)\s*$/gim) || []).length >= 2
+    ) {
+      return section;
+    }
+    // Genuine skill lists (comma stacks / short bullets) must stay skills even when
+    // a single employer name appears nearby.
+    if (
+      section.type === 'skills' &&
+      !looksLikeEmploymentShapedText(section.content) &&
+      (section.content.match(/,/g) || []).length >= 2 &&
+      section.content.length < 400
+    ) {
       return section;
     }
     // Career/Professional Highlights that are really work history → experience.
@@ -315,8 +365,9 @@ export function reclassifyEmploymentShapedSections(
         confidence: Math.max(section.confidence, 58),
       };
     }
-    // Languages heading that captured an Organization/Designation block (column bleed).
-    if (section.type === 'languages') {
+    // Languages / skills headings that captured Organization/Designation blocks
+    // (column bleed) or mid-experience Key Area duty clusters with employers.
+    if (section.type === 'languages' || section.type === 'skills') {
       return {
         ...section,
         type: 'experience' as NormalizedSectionType,
@@ -365,7 +416,7 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const inline = line.match(
-        /^(?:skills?|technical\s+skills|core\s+skills|it\s+skills|strengths?\s*(?:&|and)?\s*it\s+skills|competencies|expertise|specialt(?:y|ies)|core\s+specialt(?:y|ies)|key\s+areas?)\s*:?\s*(.+)$/i
+        /^(?:skills?|technical\s+skills|core\s+skills|it\s+skills|strengths?\s*(?:&|and)?\s*it\s+skills|competencies|expertise|specialt(?:y|ies)|core\s+specialt(?:y|ies)|key\s+areas?\s+of\s+expertise)\s*:?\s*(.+)$/i
       );
       if (inline?.[1]?.includes(',')) {
         out.skills = inline[1].trim();
@@ -404,7 +455,7 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
         break;
       }
       if (
-        /^(?:strengths?\s*(?:&|and)?\s*(?:it\s+)?skills?|technical\s+skills|core\s+skills|key\s+skills|it\s+skills|core\s+specialt(?:y|ies)(?:\s*(?:&|and)\s*key\s+areas?)?|key\s+areas?)\s*:?\s*$/i.test(
+        /^(?:strengths?\s*(?:&|and)?\s*(?:it\s+)?skills?|technical\s+skills|core\s+skills|key\s+skills|it\s+skills|core\s+specialt(?:y|ies)(?:\s*(?:&|and)\s*key\s+areas?)?|key\s+areas?\s+of\s+expertise)\s*:?\s*$/i.test(
           line
         )
       ) {
@@ -514,12 +565,28 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
   const labeledOrgBlocks: string[] = [];
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const bareOrgHeader = /^(?:organi[sz]ation|employer|company)\s*$/i.test(line);
+    const nextLine = (lines[i + 1] || '').trim();
+    // Table column stubs: "Organization" / "Remarks" / "Course" — never employers.
+    if (
+      bareOrgHeader &&
+      (/^(?:remarks?|course|designation|duration|division|education|year|board|university|s\.?\s*\/?\s*no\.?)\s*$/i.test(
+        nextLine
+      ) ||
+        !nextLine)
+    ) {
+      continue;
+    }
     if (
       !/^(?:organi[sz]ation|employer|company)\s*[:\-–—]?\s*\S+/i.test(line) &&
-      !(
-        /^(?:organi[sz]ation|employer|company)\s*$/i.test(line) &&
-        lines[i + 1] &&
-        lines[i + 1].length >= 3
+      !(bareOrgHeader && nextLine.length >= 3)
+    ) {
+      continue;
+    }
+    // Same-line table header glue: "Organization Remarks"
+    if (
+      /^(?:organi[sz]ation|employer|company)\s+(?:remarks?|course|designation|duration)\b/i.test(
+        line
       )
     ) {
       continue;
@@ -544,7 +611,10 @@ export function inferSectionsFromContent(text: string, fields: SectionFieldMap):
     }
     if (
       block.some((l) => /(?:designation|duration|responsibilit)/i.test(l)) ||
-      block.length >= 3
+      (block.length >= 3 &&
+        !block.some((l) =>
+          /^(?:remarks?|course|s\.?\s*\/?\s*no\.?|division|education|year)\s*$/i.test(l)
+        ))
     ) {
       labeledOrgBlocks.push(block.join('\n'));
     }

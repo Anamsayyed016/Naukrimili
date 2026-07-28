@@ -1,0 +1,644 @@
+{
+  "file": "C:\\Users\\admin\\Downloads\\Resume 2025.docx",
+  "extract": {
+    "source": "mammoth",
+    "header": "",
+    "footer": "",
+    "ooxmlKeys": [
+      "word/document.xml",
+      "word/header1.xml"
+    ],
+    "ooxmlPreview": {
+      "word/document.xml": "RESUME\nTRILOKINATHUPADHYAYA(Ex- Havildar Radio OperatorfromArmy)\nMob:-+918109249825,9425689431\nE-mail :upadhyaya.tn@gmail.comCareer Objective:I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise.\nSummary:Regularly acqu",
+      "word/header1.xml": "-1-\n-1-"
+    },
+    "rawChars": 5684,
+    "preparedChars": 5617,
+    "rawHasEmail": true,
+    "rawHasPhone": true,
+    "rawHead": "RESUME\n\n\n\nTRILOKINATHUPADHYAYA(Ex- Havildar Radio OperatorfromArmy)\t\n\n\n\n\n\nMob:-+918109249825,9425689431\n\nE-mail :upadhyaya.tn@gmail.com\tCareer Objective:I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise.\n\nSummary:Regularly acquires in-depth knowledge of Operation, Facility Management, Tender filling, security legislation and securing environment from related hazards and threats.\n\nCore specialties:Administration, operation, Transport management Tender, procurement LiaisonFacilityManagement,Mobilization,FireFigh",
+    "rawTail": "L ( MP) 462021\n\n\n\nDECLEARATION:\n\n\n\nI consider myself to be dynamic result oriented Ex. Serviceman of Indian Army capable of taking independent decision, making with proven leadership and organizational, abilitiesI seek placement on equally, and challenging jobsat thisrelativelyyoungage.Iassureyouthatallstatement,madeabovearetrueandcorrecttothebestofmyknowledgeand shall be supported with original certificates where applicable.\n\n\n\nThankingyousir.\n\n\n\nDate:\t/\t/\t(TRILOKINATHUPADHYAYA)\n\n\n\nPlace:Bhopal"
+  },
+  "sectionLens": {
+    "detectionVersion": 5,
+    "normalizedText": 5618,
+    "preamble": 60,
+    "summary": 839,
+    "experience": 2887,
+    "education": 132,
+    "skills": 337,
+    "projects": 0,
+    "languages": 0,
+    "certifications": 259,
+    "achievements": 269,
+    "hobbies": 76,
+    "references": 0,
+    "volunteer": 0,
+    "publications": 0
+  },
+  "structuredExperience": 0,
+  "losses": [],
+  "stages": {
+    "parser": {
+      "counts": {
+        "experience": 5,
+        "education": 1,
+        "skills": 8,
+        "projects": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 6,
+        "hobbies": 1,
+        "hasName": true,
+        "hasEmail": true,
+        "hasPhone": true
+      },
+      "identity": {
+        "fullName": "Trilokinath Upadhyaya",
+        "firstName": null,
+        "lastName": null,
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825",
+        "location": null,
+        "linkedin": null,
+        "summary": "I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise."
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison officer (03 Jun 2019 to 29/05/2023)",
+          "company": "NAHARPOLYFILMS LTD",
+          "startDate": "2019-06",
+          "endDate": "2023-05",
+          "descLen": 179,
+          "bullets": 0
+        },
+        {
+          "i": 1,
+          "title": "Branch Head/ Training Head",
+          "company": "RajSecurityForce",
+          "startDate": "2015-07",
+          "endDate": "2019-05",
+          "descLen": 541,
+          "bullets": 0
+        },
+        {
+          "i": 2,
+          "title": "Executive Liaison (SHIFT IN-CHARGE)on Fixedterm",
+          "company": "LupinLtdmandideep",
+          "startDate": "2013-02",
+          "endDate": "2015-06",
+          "descLen": 865,
+          "bullets": 0
+        },
+        {
+          "i": 3,
+          "title": null,
+          "company": "ARMY",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 518,
+          "bullets": 0
+        },
+        {
+          "i": 4,
+          "title": null,
+          "company": "DRDO CHANDIPUR ORISA",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 199,
+          "bullets": 0
+        }
+      ],
+      "education": [
+        {
+          "i": 0,
+          "name": "BBA",
+          "company": "RKDF",
+          "extra": "2017"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Operation"
+        },
+        {
+          "i": 1,
+          "value": "Safety"
+        },
+        {
+          "i": 2,
+          "value": "Defining"
+        },
+        {
+          "i": 3,
+          "value": "Transport Management Tender"
+        },
+        {
+          "i": 4,
+          "value": "Administration"
+        },
+        {
+          "i": 5,
+          "value": "Mobilization"
+        },
+        {
+          "i": 6,
+          "value": "Firefighting"
+        },
+        {
+          "i": 7,
+          "value": "Trainingaspsara2005"
+        }
+      ],
+      "projects": [],
+      "certifications": [],
+      "languages": [],
+      "achievements": [
+        {
+          "i": 0,
+          "value": "-(a)MUSTAIDSECURITYCERTIFICATEANDMEDAL(foroutstandingperformanceinTransport"
+        },
+        {
+          "i": 1,
+          "value": "(4ss).18YEARSINARMY"
+        },
+        {
+          "i": 2,
+          "value": "Workassecinchargeof54techstaffofradiooperator."
+        },
+        {
+          "i": 3,
+          "value": "OperateEPABX"
+        },
+        {
+          "i": 4,
+          "value": "OperateVariousgeneratorset"
+        },
+        {
+          "i": 5,
+          "value": "TechnicalstoremanagesMaintainofledger(asproperregulationofgovt)asissue/receivevoucher."
+        }
+      ]
+    },
+    "upload": {
+      "counts": {
+        "experience": 5,
+        "education": 1,
+        "skills": 8,
+        "projects": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 6,
+        "hobbies": 1,
+        "hasName": true,
+        "hasEmail": true,
+        "hasPhone": true
+      },
+      "identity": {
+        "fullName": "Trilokinath Upadhyaya",
+        "firstName": "Trilokinath",
+        "lastName": "Upadhyaya",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825",
+        "location": null,
+        "linkedin": null,
+        "summary": "I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise."
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison officer (03 Jun 2019 to 29/05/2023)",
+          "company": "NAHARPOLYFILMS LTD",
+          "startDate": "2019-06",
+          "endDate": "2023-05",
+          "descLen": 179,
+          "bullets": 0
+        },
+        {
+          "i": 1,
+          "title": "Branch Head/ Training Head",
+          "company": "RajSecurityForce",
+          "startDate": "2015-07",
+          "endDate": "2019-05",
+          "descLen": 541,
+          "bullets": 0
+        },
+        {
+          "i": 2,
+          "title": "Executive Liaison (SHIFT IN-CHARGE)on Fixedterm",
+          "company": "LupinLtdmandideep",
+          "startDate": "2013-02",
+          "endDate": "2015-06",
+          "descLen": 865,
+          "bullets": 0
+        },
+        {
+          "i": 3,
+          "title": null,
+          "company": "ARMY",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 518,
+          "bullets": 0
+        },
+        {
+          "i": 4,
+          "title": null,
+          "company": "DRDO CHANDIPUR ORISA",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 199,
+          "bullets": 0
+        }
+      ]
+    },
+    "repaired": {
+      "counts": {
+        "experience": 5,
+        "education": 1,
+        "skills": 8,
+        "projects": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 1,
+        "hasName": true,
+        "hasEmail": true,
+        "hasPhone": true
+      },
+      "identity": {
+        "fullName": "Trilokinath Upadhyaya",
+        "firstName": "Trilokinath",
+        "lastName": "Upadhyaya",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825",
+        "location": null,
+        "linkedin": null,
+        "summary": "I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise."
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison officer (03 Jun 2019 to 29/05/2023)",
+          "company": "NAHARPOLYFILMS LTD",
+          "startDate": "2019-06",
+          "endDate": "2023-05",
+          "descLen": 179,
+          "bullets": 5
+        },
+        {
+          "i": 1,
+          "title": "Branch Head/ Training Head",
+          "company": "RajSecurityForce",
+          "startDate": "2015-07",
+          "endDate": "2019-05",
+          "descLen": 541,
+          "bullets": 0
+        },
+        {
+          "i": 2,
+          "title": "Executive Liaison (SHIFT IN-CHARGE)on Fixedterm",
+          "company": "LupinLtdmandideep",
+          "startDate": "2013-02",
+          "endDate": "2015-06",
+          "descLen": 865,
+          "bullets": 0
+        },
+        {
+          "i": 3,
+          "title": null,
+          "company": "ARMY",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 518,
+          "bullets": 1
+        },
+        {
+          "i": 4,
+          "title": null,
+          "company": "DRDO CHANDIPUR ORISA",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 199,
+          "bullets": 0
+        }
+      ]
+    },
+    "coalesced": {
+      "counts": {
+        "experience": 5,
+        "education": 1,
+        "skills": 8,
+        "projects": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 1,
+        "hasName": true,
+        "hasEmail": true,
+        "hasPhone": true
+      },
+      "identity": {
+        "fullName": "Trilokinath Upadhyaya",
+        "firstName": "Trilokinath",
+        "lastName": "Upadhyaya",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825",
+        "location": null,
+        "linkedin": null,
+        "summary": "I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise."
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison officer (03 Jun 2019 to 29/05/2023)",
+          "company": "NAHARPOLYFILMS LTD",
+          "startDate": "2019-06",
+          "endDate": "2023-05",
+          "descLen": 179,
+          "bullets": 5
+        },
+        {
+          "i": 1,
+          "title": "Branch Head/ Training Head",
+          "company": "RajSecurityForce",
+          "startDate": "2015-07",
+          "endDate": "2019-05",
+          "descLen": 541,
+          "bullets": 0
+        },
+        {
+          "i": 2,
+          "title": "Executive Liaison (SHIFT IN-CHARGE)on Fixedterm",
+          "company": "LupinLtdmandideep",
+          "startDate": "2013-02",
+          "endDate": "2015-06",
+          "descLen": 865,
+          "bullets": 0
+        },
+        {
+          "i": 3,
+          "title": null,
+          "company": "ARMY",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 518,
+          "bullets": 1
+        },
+        {
+          "i": 4,
+          "title": null,
+          "company": "DRDO CHANDIPUR ORISA",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 199,
+          "bullets": 0
+        }
+      ],
+      "education": [
+        {
+          "i": 0,
+          "name": "BBA",
+          "company": "RKDF",
+          "extra": "2017"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Defining"
+        },
+        {
+          "i": 1,
+          "value": "Operation"
+        },
+        {
+          "i": 2,
+          "value": "Safety"
+        },
+        {
+          "i": 3,
+          "value": "Trainingaspsara2005"
+        },
+        {
+          "i": 4,
+          "value": "Administration"
+        },
+        {
+          "i": 5,
+          "value": "Firefighting"
+        },
+        {
+          "i": 6,
+          "value": "Mobilization"
+        },
+        {
+          "i": 7,
+          "value": "Transport Management Tender"
+        }
+      ],
+      "projects": [],
+      "certifications": [],
+      "languages": [],
+      "achievements": []
+    },
+    "gallery": {
+      "counts": {
+        "experience": 5,
+        "education": 1,
+        "skills": 8,
+        "projects": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 1,
+        "hasName": true,
+        "hasEmail": true,
+        "hasPhone": true
+      },
+      "identity": {
+        "fullName": "Trilokinath Upadhyaya",
+        "firstName": "Trilokinath",
+        "lastName": "Upadhyaya",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825",
+        "location": null,
+        "linkedin": null,
+        "summary": "I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise."
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison officer (03 Jun 2019 to 29/05/2023)",
+          "company": "NAHARPOLYFILMS LTD",
+          "startDate": "2019-06",
+          "endDate": "2023-05",
+          "descLen": 179,
+          "bullets": 5
+        },
+        {
+          "i": 1,
+          "title": "Branch Head/ Training Head",
+          "company": "RajSecurityForce",
+          "startDate": "2015-07",
+          "endDate": "2019-05",
+          "descLen": 541,
+          "bullets": 0
+        },
+        {
+          "i": 2,
+          "title": "Executive Liaison (SHIFT IN-CHARGE)on Fixedterm",
+          "company": "LupinLtdmandideep",
+          "startDate": "2013-02",
+          "endDate": "2015-06",
+          "descLen": 865,
+          "bullets": 0
+        },
+        {
+          "i": 3,
+          "title": null,
+          "company": "ARMY",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 518,
+          "bullets": 1
+        },
+        {
+          "i": 4,
+          "title": null,
+          "company": "DRDO CHANDIPUR ORISA",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 199,
+          "bullets": 0
+        }
+      ]
+    },
+    "builder": {
+      "counts": {
+        "experience": 5,
+        "education": 1,
+        "skills": 8,
+        "projects": 0,
+        "certifications": 0,
+        "languages": 0,
+        "achievements": 0,
+        "hobbies": 1,
+        "hasName": true,
+        "hasEmail": true,
+        "hasPhone": true
+      },
+      "identity": {
+        "fullName": "Trilokinath Upadhyaya",
+        "firstName": "Trilokinath",
+        "lastName": "Upadhyaya",
+        "email": "upadhyaya.tn@gmail.com",
+        "phone": "+91 81092 49825",
+        "location": null,
+        "linkedin": null,
+        "summary": "I will like to workin agrowth oriented organization in which I will get an opportunity to give desired results in my area of expertise."
+      },
+      "experience": [
+        {
+          "i": 0,
+          "title": "Liaison officer (03 Jun 2019 to 29/05/2023)",
+          "company": "NAHARPOLYFILMS LTD",
+          "startDate": "2019-06",
+          "endDate": "2023-05",
+          "descLen": 179,
+          "bullets": 5
+        },
+        {
+          "i": 1,
+          "title": "Branch Head/ Training Head",
+          "company": "RajSecurityForce",
+          "startDate": "2015-07",
+          "endDate": "2019-05",
+          "descLen": 541,
+          "bullets": 0
+        },
+        {
+          "i": 2,
+          "title": "Executive Liaison (SHIFT IN-CHARGE)on Fixedterm",
+          "company": "LupinLtdmandideep",
+          "startDate": "2013-02",
+          "endDate": "2015-06",
+          "descLen": 865,
+          "bullets": 0
+        },
+        {
+          "i": 3,
+          "title": null,
+          "company": "ARMY",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 518,
+          "bullets": 1
+        },
+        {
+          "i": 4,
+          "title": null,
+          "company": "DRDO CHANDIPUR ORISA",
+          "startDate": null,
+          "endDate": null,
+          "descLen": 199,
+          "bullets": 0
+        }
+      ],
+      "education": [
+        {
+          "i": 0,
+          "name": "BBA",
+          "company": "RKDF",
+          "extra": "2017"
+        }
+      ],
+      "skills": [
+        {
+          "i": 0,
+          "value": "Defining"
+        },
+        {
+          "i": 1,
+          "value": "Operation"
+        },
+        {
+          "i": 2,
+          "value": "Safety"
+        },
+        {
+          "i": 3,
+          "value": "Trainingaspsara2005"
+        },
+        {
+          "i": 4,
+          "value": "Administration"
+        },
+        {
+          "i": 5,
+          "value": "Firefighting"
+        },
+        {
+          "i": 6,
+          "value": "Mobilization"
+        },
+        {
+          "i": 7,
+          "value": "Transport Management Tender"
+        }
+      ],
+      "projects": [],
+      "certifications": [],
+      "languages": [],
+      "achievements": [],
+      "hobbies": [
+        {
+          "i": 0,
+          "value": "Workhardtoachieveourtarget"
+        }
+      ]
+    }
+  }
+}

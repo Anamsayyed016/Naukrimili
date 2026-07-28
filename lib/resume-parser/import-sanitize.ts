@@ -87,6 +87,14 @@ export function formatDisplayName(value: unknown): string {
   const raw = sanitizeFieldText(value, 120);
   if (!raw) return '';
   if (raw.length > 1 && raw === raw.toUpperCase() && /[A-Z]/.test(raw)) {
+    // Multi-word ALL CAPS → Title Case each token ("TRILOKINATH UPADHYAYA").
+    if (/\s/.test(raw)) {
+      return raw
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0) + part.slice(1).toLowerCase())
+        .join(' ');
+    }
     return raw.charAt(0) + raw.slice(1).toLowerCase();
   }
   return raw
@@ -914,6 +922,60 @@ function nameConsonantSkeleton(token: string): string {
     .replace(/[aeiou]/g, '');
 }
 
+/**
+ * Split glued ALL-CAPS document names using email local tokens.
+ * Example: "TRILOKINATHUPADHYAYA" + upadhyaya.tn@… → "TRILOKINATH UPADHYAYA"
+ * Generic — works for any resume where the surname appears in the email.
+ */
+export function splitGluedAllCapsNameUsingEmail(rawName: string, email: string): string {
+  let s = String(rawName || '').replace(/\s+/g, ' ').trim();
+  if (!s || !email) return '';
+  // Kinship / address lines must never be healed into the candidate name.
+  if (
+    /\b(?:s\/o|d\/o|w\/o|c\/o|son\s+of|daughter\s+of|wife\s+of|father|mother|address|temporary|permanent|near|nagar|colony|sector|bhel|pincode|pin\s*code)\b/i.test(
+      s
+    )
+  ) {
+    return '';
+  }
+  // Strip employment / service parentheticals glued onto the name line.
+  s = s
+    .replace(/\(\s*(?:ex[-–—.\s]+|former|retired|ex\.?\s+)[^)]{0,80}\)\s*$/i, '')
+    .replace(/^\(+|\)+$/g, '')
+    .trim();
+  const compact = s.replace(/[^A-Za-z]/g, '');
+  // Only heal single-token / heavily glued alphabetic strings.
+  if (compact.length < 8 || compact.length > 40) return '';
+  if (s.split(/\s+/).filter(Boolean).length >= 2 && /[a-z]/.test(s)) return '';
+
+  const local = String(email.split('@')[0] || '')
+    .replace(/\d+/g, '')
+    .toLowerCase();
+  if (!local) return '';
+
+  const parts = local
+    .split(/[._-]+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length >= 3)
+    .sort((a, b) => b.length - a.length);
+
+  const compactLower = compact.toLowerCase();
+  for (const part of parts) {
+    const idx = compactLower.indexOf(part);
+    if (idx < 3) continue;
+    const before = compact.slice(0, idx);
+    const after = compact.slice(idx);
+    if (before.length < 3 || after.length < 3) continue;
+    // Avoid splitting inside a short token (prefer surname-length matches).
+    if (part.length < 4 && after.length - part.length > 2) continue;
+    const merged = formatDisplayName(`${before} ${after}`);
+    if (isPlausiblePersonName(merged) && nameWordCount(merged) >= 2) {
+      return merged;
+    }
+  }
+  return '';
+}
+
 /** Expand vowel-dropped header names using the email local part (Qmr Ali + qamar.ali@…). */
 export function expandVowelDroppedNameFromEmail(headerName: string, email: string): string {
   const header = sanitizePersonName(headerName);
@@ -1622,6 +1684,16 @@ export function isPlausiblePersonName(value: unknown): boolean {
   if (!s || isGarbageResumeText(s)) return false;
   // Boolean / nullish literals that leaked through String(false) → "false".
   if (/^(?:true|false|null|undefined|nan)$/i.test(s)) return false;
+  // Comma / pipe skill lists are never personal names ("Python, JavaScript").
+  if (/[,;|]/.test(s)) return false;
+  // Known tech / tool tokens (alone or paired) are never names.
+  if (
+    /^(?:python|javascript|typescript|java|kotlin|swift|golang|rust|ruby|php|html|css|sql|react|angular|vue|node\.?js|docker|kubernetes|aws|azure|gcp)$/i.test(
+      s
+    )
+  ) {
+    return false;
+  }
   if (
     /^(?:linkedin|youtube|instagram|facebook|face\s*book|twitter|github|portfolio)\b/i.test(s)
   ) {
@@ -1814,6 +1886,12 @@ export function sanitizePersonName(value: unknown, maxLen = 120): string {
   let s = sanitizeFieldText(value, maxLen);
   if (!s) return '';
   if (/^(?:true|false|null|undefined|nan)$/i.test(s)) return '';
+  // Strip employment / service parentheticals glued to the name
+  // ("NAME(Ex- Havildar…)", "NAME (Former Captain)").
+  s = s
+    .replace(/\(\s*(?:ex[-–—.\s]+|former|retired|ex\.?\s+)[^)]{0,80}\)\s*/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   // Social platform labels glued onto names ("LinkedIn Dr. Aamir Mehboob").
   s = s
     .replace(
@@ -4090,6 +4168,19 @@ export function looksLikeCompanyNameLine(text: string): boolean {
   }
   if (SPECIAL_EMPLOYER_RE.test(t)) return true;
   if (/^government\b/i.test(t) && !JOB_TITLE_HINT_RE.test(t)) return true;
+  // Lone Title-Case dictionary words without legal/org suffixes are section labels
+  // or nouns ("Research", "Hackathons"), not employers. Keep ALL-CAPS acronyms and
+  // well-known brands (handled via SPECIAL / WELL_KNOWN below and above).
+  if (
+    t.split(/\s+/).length === 1 &&
+    /^[A-Z][a-z][A-Za-z'-]{1,18}$/.test(t) &&
+    !COMPANY_NAME_HINT_RE.test(t) &&
+    !INSTITUTIONAL_EMPLOYER_HINT_RE.test(t) &&
+    !SPECIAL_EMPLOYER_RE.test(t) &&
+    !WELL_KNOWN_EMPLOYER_RE.test(t)
+  ) {
+    return false;
+  }
   // Legal / org suffixes win over embedded title tokens ("… Consultant … Ltd"),
   // but only when the line is primarily an employer name — not a compressed
   // "Employer Ltd Title" header that still carries a role after the suffix.
@@ -7692,6 +7783,35 @@ export function isPlausibleExperienceCompany(value: unknown): boolean {
     /^(?:institution\s+name|company\s+name|employer\s+name|organization\s+name|organisation\s+name|your\s+company|company\s+here|duration|period|tenure)$/i.test(
       company.trim()
     )
+  ) {
+    return false;
+  }
+  // In-role duty labels mistaken for employers.
+  if (/^(?:key\s*areas?|areas?\s+of\s+exposure|responsibilit(?:y|ies)|duties|tasks?|(?:cash\s+)?awards?|honou?rs?)\s*$/i.test(company.trim())) {
+    return false;
+  }
+  if (/^cash\s*awards?\b/i.test(company.trim()) && company.trim().split(/\s+/).length <= 3) {
+    return false;
+  }
+  // Education / course table column headers are never employers.
+  if (
+    /^(?:remarks?|course|organization|organisation|division|board|university|education|year|s\.?\s*\/?\s*no\.?|sr\.?\s*no\.?|serial(?:\s*no\.?)?|grade|percentage|cgpa|gpa)$/i.test(
+      company.trim()
+    )
+  ) {
+    return false;
+  }
+  // Degree / board tokens misread as employers.
+  if (
+    /^(?:b\.?\s*b\.?\s*a\.?|b\.?\s*tech|b\.?\s*e\.?|m\.?\s*b\.?\s*a\.?|b\.?\s*com|m\.?\s*com|b\.?\s*sc|m\.?\s*sc|ph\.?\s*d\.?|12th|10th|xi{0,2}|ix|viii|high\s*school|intermediate|matriculation)$/i.test(
+      company.trim()
+    )
+  ) {
+    return false;
+  }
+  if (
+    /\bboard\b/i.test(company) &&
+    !/\b(?:ltd|limited|pvt|llc|inc|corp|company|group|school\s+board)\b/i.test(company)
   ) {
     return false;
   }
